@@ -1,0 +1,11 @@
+# Grandezze usate nella gestione del materiale calcestruzzo
+nome,simbolo,unità,descrizione,moduli,formula_riferimento
+sigma_c28,σ_c28,Kg/cm²,"Resistenza caratteristica a 28 giorni del calcestruzzo","tools.concrete_strength;tools.materials_manager;gui.materials_gui","Valore di progetto, input principale"
+sigma_c,σ_c,Kg/cm²,"Tensione ammissibile media del calcestruzzo","tools.concrete_strength;tools.materials_manager;gui.materials_gui","σ_c = σ_c28 / 3 (con cap)"
+sigma_c_simple,σ_c (semplice),Kg/cm²,"Tensione ammissibile in compressione semplice","tools.concrete_strength;tools.materials_manager;gui.materials_gui","Calcolata da compute_sigma_c_all"
+sigma_c_inflessa,σ_c (inflessa),Kg/cm²,"Tensione ammissibile in sezione inflessa","tools.concrete_strength;tools.materials_manager;gui.materials_gui","Calcolata da compute_sigma_c_all"
+sigma_c_presso_inflessa,σ_c (presso-inflessa),Kg/cm²,"Tensione ammissibile in presso-inflessione","tools.concrete_strength;tools.materials_manager;gui.materials_gui","Calcolata da compute_sigma_c_all"
+tau_service,τ_service,Kg/cm²,"Tensione tangenziale di servizio (taglio)","tools.concrete_strength;tools.materials_manager;gui.materials_gui","compute_allowable_shear"
+tau_max,τ_max,Kg/cm²,"Tensione tangenziale massima","tools.concrete_strength;tools.materials_manager;gui.materials_gui","compute_allowable_shear"
+E,E,Kg/cm²,"Modulo elastico di compressione","tools.concrete_strength;tools.materials_manager;gui.materials_gui","compute_ec, compute_ec_conventional"
+G,G,Kg/cm²,"Modulo tangenziale","tools.concrete_strength;tools.materials_manager;gui.materials_gui","compute_gc"
