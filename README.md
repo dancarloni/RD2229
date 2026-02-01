@@ -82,11 +82,14 @@ calculations/
 │   ├── __init__.py
 │   ├── latero_cemento.py
 │   └── putrelle_e_voltine.py
-└── fondazioni/
-    ├── __init__.py
-    ├── plinti.py
-    ├── travi_rovesce.py
-    └── platee.py
+├── fondazioni/
+│   ├── __init__.py
+│   ├── plinti.py
+│   ├── travi_rovesce.py
+│   └── platee.py
+└── scale/
+  ├── __init__.py
+  └── (moduli per calcoli scale verranno aggiunti qui)
 ```
 
 **Moduli previsti** (da integrare progressivamente):
@@ -169,3 +172,71 @@ for s in (sec1, sec2, sec3, sec4):
 - Digitalizzare le tabelle in [data/tables.schema.json](data/tables.schema.json).
 - Implementare le procedure specifiche dei capitoli RD 2229/Santarella/Giangreco.
 - Aggiungere GUI (desktop o web) con visualizzazione passo‑passo.
+
+## Calcolo: resistenza del calcestruzzo
+
+È disponibile uno strumento di calcolo per ricavare la tensione ammissibile
+del calcestruzzo (`σ_c`) a partire dalla resistenza caratteristica a
+28 giorni (`σ_c28`). Lo strumento considera il tipo di cemento,
+le condizioni di sezione (semplicemente compresse, inflessa/presso-inflessa)
+e la qualità dei controlli (regola `σ_c = σ_c28/3` con cap se previsto).
+
+File:
+- [src/rd2229/tools/concrete_strength.py](src/rd2229/tools/concrete_strength.py)
+
+Principali funzioni:
+- `compute_allowable_compressive_stress(sigma_c28_kgcm2, cement, condition, controlled_quality)`:
+  calcola `σ_c` (Kg/cm²) usando le regole storiche descritte nelle fonti.
+- `compute_allowable_shear(cement)`:
+  restituisce il carico di sicurezza al taglio e la tensione tangenziale massima (Kg/cm²).
+
+Unità e convenzioni storiche:
+- Tutti gli input e gli output del modulo sono espressi in `Kg/cm²` (tensione/pressione),
+  coerentemente con le unità storiche usate nel RD 2229 e nei testi dell'epoca.
+- Sono comunque disponibili funzioni di conversione verso/da MPa nel modulo,
+  se serve interoperare con strumenti moderni.
+
+Note implementative:
+- Le regole sono state implementate come traduzione diretta delle tabelle storiche
+  (vedi risorse in `docs/` quando disponibili). Questo modulo è standalone
+  e non altera il comportamento degli altri moduli del progetto.
+
+### Gestione materiali
+
+I materiali creati dall'utente (es. tipi di calcestruzzo) possono essere
+persistiti e riutilizzati in futuri calcoli. Il file di persistenza predefinito
+è `data/materials.json` (configurabile in `.rd2229_config.yaml` con la chiave
+`materials_file`).
+
+Il package fornisce API CRUD per i materiali in `src/rd2229/tools/materials_manager.py`:
+
+- `add_material(material_dict)` — aggiunge un materiale (calcola `σ_c` se manca);
+- `get_material(name)` — ottiene un materiale per nome;
+- `update_material(name, updates)` — aggiorna i campi di un materiale;
+- `delete_material(name)` — rimuove un materiale;
+- `list_materials()` — elenca tutti i materiali.
+
+Esempio rapido (script demo incluso):
+
+```powershell
+$env:PYTHONPATH = 'c:\workspaces\RD2229\RD2229\src'; python scripts/run_materials_demo.py
+```
+
+Le unità storiche (Kg/cm²) vengono usate per le resistenze e le tensioni.
+
+### GUI per materiali
+
+È disponibile una semplice interfaccia grafica (Tkinter) per gestire i materiali
+in modo interattivo (aggiungi/modifica/elimina). La GUI è separata dalle routine
+di calcolo e usa `src/rd2229/tools/materials_manager.py` per le operazioni.
+
+Avvio (PowerShell):
+
+```powershell
+$env:PYTHONPATH = 'c:\workspaces\RD2229\RD2229\src'
+python scripts/run_materials_gui.py
+```
+
+La GUI è pensata per prototipazione: se preferisci posso integrarla in una
+futura GUI principale del progetto o adattarla a framework diversi (Qt, web).
+

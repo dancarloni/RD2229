@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: replace-sigma
+        name: Replace standalone 'sigma' with 'σ' in docs and docstrings
+        entry: python scripts/replace_sigma.py
+        language: system
+        files: '\\.(py|md|rst|txt)$'
+        stages: [commit]

@@ -1,0 +1,29 @@
+# Config per convenzioni di progetto RD2229
+# Questo file registra le regole strutturali e di sincronizzazione
+# che l'assistente deve ricordare per futuri sviluppi.
+
+calculations_path: src/rd2229/calculations
+verifications_path: src/rd2229/verifications
+
+# Regola: ogni sottopackage o modulo in 'calculations' deve avere un
+# corrispondente package/modulo in 'verifications' con lo stesso nome.
+sync_rule: "mirror"
+
+# Moduli principali previsti (lista canonica usata come riferimento)
+modules:
+  - travi
+  - pilastri
+  - solette
+  - solai
+  - fondazioni
+  - scale
+  - muri
+
+# Percorso file materiali (salva materiali creati dall'utente)
+materials_file: data/materials.json
+
+# Note per l'assistente:
+# - Quando viene aggiunto un nuovo modulo in 'calculations', creare
+#   automaticamente il relativo package in 'verifications' (placeholder).
+# - Documentare le formule e i riferimenti normativi nei rispettivi
+#   moduli di calcolo; le verifiche useranno gli stessi nomi e percorsi.
