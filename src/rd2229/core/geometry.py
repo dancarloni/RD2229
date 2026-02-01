@@ -188,3 +188,91 @@ class ISection(CompositeSection):
             _SignedRectangle(x=0.0, y=tf + hw, width=bf, height=tf, sign=1),
         ]
         object.__setattr__(self, "rectangles", rectangles)
+
+
+@dataclass(frozen=True)
+class InvertedTSection(CompositeSection):
+    flange_width: float
+    flange_thickness: float
+    web_thickness: float
+    web_height: float
+
+    def __post_init__(self):
+        bf = self.flange_width
+        tf = self.flange_thickness
+        tw = self.web_thickness
+        hw = self.web_height
+        xw = (bf - tw) / 2.0
+        rectangles = [
+            _SignedRectangle(x=0.0, y=0.0, width=bf, height=tf, sign=1),
+            _SignedRectangle(x=xw, y=tf, width=tw, height=hw, sign=1),
+        ]
+        object.__setattr__(self, "rectangles", rectangles)
+
+
+@dataclass(frozen=True)
+class PiSection(CompositeSection):
+    """Sezione a pigreco (simile al simbolo Π): flange superiore con due montanti verticali."""
+    width: float
+    top_thickness: float
+    leg_thickness: float
+    leg_height: float
+
+    def __post_init__(self):
+        bf = self.width
+        tf = self.top_thickness
+        tw = self.leg_thickness
+        hw = self.leg_height
+        rectangles = [
+            _SignedRectangle(x=0.0, y=hw, width=bf, height=tf, sign=1),
+            _SignedRectangle(x=0.0, y=0.0, width=tw, height=hw, sign=1),
+            _SignedRectangle(x=bf - tw, y=0.0, width=tw, height=hw, sign=1),
+        ]
+        object.__setattr__(self, "rectangles", rectangles)
+
+
+@dataclass(frozen=True)
+class RectangularHollowSection(SectionGeometry):
+    outer_width: float
+    outer_height: float
+    inner_width: float
+    inner_height: float
+    x0: float = 0.0
+    y0: float = 0.0
+
+    def area(self) -> float:
+        return self.outer_width * self.outer_height - self.inner_width * self.inner_height
+
+    def centroid(self) -> Tuple[float, float]:
+        return (self.x0 + self.outer_width / 2.0, self.y0 + self.outer_height / 2.0)
+
+    def inertia(self) -> Tuple[float, float]:
+        ix_outer = self.outer_width * self.outer_height**3 / 12.0
+        iy_outer = self.outer_height * self.outer_width**3 / 12.0
+        ix_inner = self.inner_width * self.inner_height**3 / 12.0
+        iy_inner = self.inner_height * self.inner_width**3 / 12.0
+        return ix_outer - ix_inner, iy_outer - iy_inner
+
+
+@dataclass(frozen=True)
+class CircularHollowSection(SectionGeometry):
+    outer_diameter: float
+    inner_diameter: float
+    x0: float = 0.0
+    y0: float = 0.0
+
+    def area(self) -> float:
+        r = self.outer_diameter / 2.0
+        ri = self.inner_diameter / 2.0
+        return pi * (r * r - ri * ri)
+
+    def centroid(self) -> Tuple[float, float]:
+        r = self.outer_diameter / 2.0
+        return (self.x0 + r, self.y0 + r)
+
+    def inertia(self) -> Tuple[float, float]:
+        r = self.outer_diameter / 2.0
+        ri = self.inner_diameter / 2.0
+        i_outer = pi * r**4 / 4.0
+        i_inner = pi * ri**4 / 4.0
+        return i_outer - i_inner, i_outer - i_inner
