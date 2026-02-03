@@ -1,0 +1,76 @@
+================================================================================
+ISTRUZIONI PER IMPORTARE IL MODULO VBA NEL FILE EXCEL
+================================================================================
+
+File da importare: RD2229_TA_TandC_Module_PATCH1 (1).bas
+File di destinazione: RD2229_BEAM_patch.xlsx
+
+--------------------------------------------------------------------------------
+METODO 1: IMPORTAZIONE MANUALE (CONSIGLIATO)
+--------------------------------------------------------------------------------
+
+1. Apri il file Excel: RD2229_BEAM_patch.xlsx
+
+2. Premi ALT + F11 per aprire l'editor VBA
+
+3. Nel menu, vai su File -> Rimuovi modulo... 
+   (se esiste già un modulo "RD2229_TA_TandC_Module", rimuovilo prima)
+
+4. Nel menu, vai su File -> Importa file...
+
+5. Seleziona il file: RD2229_TA_TandC_Module_PATCH1 (1).bas
+
+6. Il modulo verrà importato nel progetto VBA
+
+7. Premi ALT + Q per tornare a Excel
+
+8. Salva il file (Ctrl + S)
+
+--------------------------------------------------------------------------------
+METODO 2: SCRIPT POWERSHELL AUTOMATICO
+--------------------------------------------------------------------------------
+
+PREREQUISITO: Devi prima abilitare l'accesso programmatico a VBA:
+
+1. Apri Excel
+2. File -> Opzioni
+3. Centro protezione -> Impostazioni Centro protezione
+4. Impostazioni macro -> Attiva la casella:
+   ☑ "Consenti l'accesso al modello a oggetti del progetto VBA"
+5. Click OK e chiudi Excel
+
+Poi esegui questo comando in PowerShell:
+
+    .\import_vba.ps1
+
+--------------------------------------------------------------------------------
+VERIFICA DELL'IMPORTAZIONE
+--------------------------------------------------------------------------------
+
+Dopo l'importazione, verifica che il modulo sia presente:
+
+1. Apri Excel e premi ALT + F11
+2. Nel Project Explorer dovresti vedere "RD2229_TA_TandC_Module"
+3. Fai doppio click per verificare il codice
+
+Le nuove funzioni aggiunte sono:
+- RecalcRigaSelezionata_BEAM
+- RecalcRigaSelezionata_COLUMN  
+- ApplicaFormattazioneCondizionale_BEAM
+- InstallaScorciatoie
+
+--------------------------------------------------------------------------------
+ATTIVAZIONE SCORCIATOIE TASTIERA
+--------------------------------------------------------------------------------
+
+Per attivare le scorciatoie Ctrl+Shift+R e Ctrl+Shift+P:
+
+1. In Excel, premi ALT + F8
+2. Seleziona "InstallaScorciatoie"
+3. Click "Esegui"
+
+Fatto! Ora puoi usare:
+- Ctrl + Shift + R per ricalcolare la riga selezionata in BEAM_T_BATCH
+- Ctrl + Shift + P per ricalcolare la riga selezionata in COLUMN_R_BATCH
+
+================================================================================

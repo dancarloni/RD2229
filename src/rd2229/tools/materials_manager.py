@@ -44,6 +44,9 @@ from .concrete_strength import (
 
 _DEFAULT_MATERIALS_PATH = os.path.join("data", "materials.json")
 
+# Cache for loaded materials to avoid repeated file reads
+_materials_cache: Dict[str, tuple[List[Dict], float]] = {}
+
 
 def _resolve_materials_path(config: Optional[Dict] = None) -> str:
     if config is None:
@@ -127,6 +130,14 @@ def load_materials(path: Optional[str] = None) -> List[Dict]:
     path = os.path.abspath(path)
     if not os.path.exists(path):
         return []
+    
+    # Check cache
+    mtime = os.path.getmtime(path)
+    if path in _materials_cache:
+        cached_mats, cached_mtime = _materials_cache[path]
+        if mtime == cached_mtime:
+            return cached_mats.copy()  # Return copy to avoid mutations
+    
     with open(path, "r", encoding="utf-8") as fh:
         mats = json.load(fh)
     dirty_any = False
@@ -138,6 +149,8 @@ def load_materials(path: Optional[str] = None) -> List[Dict]:
             pass
     if dirty_any:
         save_materials(mats, path)
+    # Update cache
+    _materials_cache[path] = (mats.copy(), mtime)
     return mats
 
 
@@ -147,6 +160,9 @@ def save_materials(materials: List[Dict], path: Optional[str] = None) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(materials, fh, indent=2, ensure_ascii=False)
+    # Invalidate cache
+    if path in _materials_cache:
+        del _materials_cache[path]
 
 
 def list_materials(path: Optional[str] = None) -> List[Dict]:
@@ -223,15 +239,6 @@ def update_material(name: str, updates: Dict, path: Optional[str] = None) -> Non
             if materials[i].get("type") == "concrete":
                 sigma_c28 = materials[i].get("sigma_c28")
                 cement = _map_cement_type(materials[i].get("cement_type"))
-                condition = (
-                    SectionCondition.CONGLOMERATO_SPECIALE
-                    if materials[i].get("condition") == "conglomerato_speciale"
-                    else (
-                        SectionCondition.INFLESSA_PRESSOINFLESSA
-                        if materials[i].get("condition") == "inflesse_presso_inflesse"
-                        else SectionCondition.SEMPLICEMENTE_COMPRESA
-                    )
-                )
                 controlled = bool(materials[i].get("controlled_quality"))
                 # Recompute if sigma_c missing or sigma_c28 changed
                 if sigma_c28 is not None and updates.get("sigma_c") is None:
@@ -246,41 +253,22 @@ def update_material(name: str, updates: Dict, path: Optional[str] = None) -> Non
                     materials[i]["tau_max"] = max_tau
                     # Elastic modulus (E_c) and tangential modulus (G_c)
                     try:
-                        sigma_used = materials[i].get("sigma_c") or materials[i].get("sigma_c_simple")
-                        if sigma_used is not None:
-                            ec = compute_ec(float(sigma_used))
-                            g_min, g_mean, g_max = compute_gc(ec)
-                            # respect user-defined E if present
-                            if materials[i].get("E") is None:
-                                materials[i]["E"] = ec
-                                materials[i]["E_defined"] = False
-                            else:
-                                materials[i]["E_defined"] = bool(materials[i].get("E_defined", True))
-                            materials[i]["E_calculated"] = ec
-                            materials[i]["G"] = g_mean
-                            materials[i]["G_min"] = g_min
-                            materials[i]["G_max"] = g_max
-                            try:
-                                materials[i]["E_conventional"] = compute_ec_conventional(float(sigma_c28), cement)
-                            except Exception:
-                                materials[i]["E_conventional"] = None
-                    except Exception:
-                        pass
-                    # Elastic modulus (E_c) and tangential modulus (G_c)
-                    try:
-                        sigma_used = materials[i].get("sigma_c") or materials[i].get("sigma_c_simple")
-                        if sigma_used is not None:
-                            ec = compute_ec(float(sigma_used))
-                            g_min, g_mean, g_max = compute_gc(ec)
-                            # respect user-defined E if present
-                            if materials[i].get("E") is None:
-                                materials[i]["E"] = ec
-                                materials[i]["E_defined"] = False
-                            else:
-                                materials[i]["E_defined"] = bool(materials[i].get("E_defined", True))
-                            materials[i]["G"] = g_mean
-                            materials[i]["G_min"] = g_min
-                            materials[i]["G_max"] = g_max
+                        ec = compute_ec(float(sigma_c28))
+                        g_min, g_mean, g_max = compute_gc(ec)
+                        # respect user-defined E if present
+                        if materials[i].get("E") is None:
+                            materials[i]["E"] = ec
+                            materials[i]["E_defined"] = False
+                        else:
+                            materials[i]["E_defined"] = bool(materials[i].get("E_defined", True))
+                        materials[i]["E_calculated"] = ec
+                        materials[i]["G"] = g_mean
+                        materials[i]["G_min"] = g_min
+                        materials[i]["G_max"] = g_max
+                        try:
+                            materials[i]["E_conventional"] = compute_ec_conventional(float(sigma_c28), cement)
+                        except Exception:
+                            materials[i]["E_conventional"] = None
                     except Exception:
                         pass
             save_materials(materials, path)

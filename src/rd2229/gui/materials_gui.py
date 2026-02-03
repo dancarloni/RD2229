@@ -7,12 +7,26 @@ Nota: è una interfaccia di utilità leggera pensata per prototipazione.
 """
 from __future__ import annotations
 
+import logging
+import os
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 from typing import Optional
 
 from rd2229.tools import materials_manager
 from rd2229.tools.concrete_strength import compute_sigma_c_all, compute_allowable_shear
+
+# Configure logging
+log_dir = os.path.join(os.path.dirname(__file__), "..", "..", "logs")
+os.makedirs(log_dir, exist_ok=True)
+log_file = os.path.join(log_dir, "gui_operations.log")
+logging.basicConfig(
+    filename=log_file,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger(__name__)
 
 
 class MaterialEditor(simpledialog.Dialog):
@@ -274,15 +288,18 @@ class MaterialsApp(tk.Frame):
         self.tree.bind("<<TreeviewSelect>>", lambda e: self.show_selected())
 
     def apply_filters(self):
+        logger.info("Applicazione filtri alla lista materiali")
         self.refresh_list()
 
     def clear_filters(self):
+        logger.info("Pulizia filtri lista materiali")
         self.var_filter_name.set("")
         self.var_filter_cement.set("")
         self.var_filter_min_sigma.set("")
         self.refresh_list()
 
     def sort_by(self, column: str):
+        logger.info(f"Ordinamento lista per colonna: {column}")
         # toggle reverse if same column
         if self._sort_column == column:
             self._sort_reverse = not self._sort_reverse
@@ -292,10 +309,12 @@ class MaterialsApp(tk.Frame):
         self.refresh_list()
 
     def refresh_list(self):
+        logger.info("Aggiornamento lista materiali")
         # clear tree
         for i in self.tree.get_children():
             self.tree.delete(i)
         mats = materials_manager.list_materials()
+        logger.info(f"Elenco materiali aggiornato: {len(mats)} materiali trovati")
         for m in mats:
             name = m.get("name")
             s28 = m.get("sigma_c28")
@@ -353,6 +372,7 @@ class MaterialsApp(tk.Frame):
         self.detail.delete("1.0", tk.END)
         if not name:
             return
+        logger.info(f"Visualizzazione dettagli materiale: {name}")
         m = materials_manager.get_material(name)
         if m:
             import json
@@ -360,22 +380,28 @@ class MaterialsApp(tk.Frame):
             self.detail.insert(tk.END, json.dumps(m, indent=2, ensure_ascii=False))
 
     def on_add(self):
+        logger.info("Avvio aggiunta nuovo materiale")
         dlg = MaterialEditor(self.master, "Add material")
         mat = getattr(dlg, "result", None)
         if mat:
             try:
                 materials_manager.add_material(mat)
+                logger.info(f"Materiale aggiunto: {mat.get('name')}")
                 self.refresh_list()
             except Exception as exc:
+                logger.error(f"Errore nell'aggiunta del materiale {mat.get('name')}: {str(exc)}")
                 messagebox.showerror("Error", str(exc))
 
     def on_edit(self):
         name = self.get_selected_name()
         if not name:
+            logger.warning("Tentativo di modifica senza selezione")
             messagebox.showinfo("Info", "Select a material first")
             return
+        logger.info(f"Avvio modifica materiale: {name}")
         m = materials_manager.get_material(name)
         if not m:
+            logger.error(f"Materiale non trovato per modifica: {name}")
             messagebox.showerror("Error", "Material not found")
             return
         dlg = MaterialEditor(self.master, f"Edit {name}", material=m)
@@ -385,29 +411,36 @@ class MaterialsApp(tk.Frame):
                 # update by name; allow renaming by setting name in updates
                 updates = mat
                 materials_manager.update_material(name, updates)
+                logger.info(f"Materiale modificato: {name} -> {mat.get('name')}")
                 self.refresh_list()
             except Exception as exc:
+                logger.error(f"Errore nella modifica del materiale {name}: {str(exc)}")
                 messagebox.showerror("Error", str(exc))
 
     def on_delete(self):
         name = self.get_selected_name()
         if not name:
+            logger.warning("Tentativo di cancellazione senza selezione")
             messagebox.showinfo("Info", "Select a material first")
             return
         if messagebox.askyesno("Confirm", f"Delete material '{name}'?"):
             try:
                 materials_manager.delete_material(name)
+                logger.info(f"Materiale cancellato: {name}")
                 self.refresh_list()
             except Exception as exc:
+                logger.error(f"Errore nella cancellazione del materiale {name}: {str(exc)}")
                 messagebox.showerror("Error", str(exc))
 
 
 def run_app():
+    logger.info("Avvio applicazione GUI Materials Manager")
     root = tk.Tk()
     root.title("Materials Manager")
     app = MaterialsApp(master=root)
     root.geometry("640x480")
     root.mainloop()
+    logger.info("Chiusura applicazione GUI Materials Manager")
 
 
 if __name__ == "__main__":

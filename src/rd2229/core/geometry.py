@@ -93,12 +93,12 @@ class _SignedRectangle:
         return ix, iy
 
 
-@dataclass(frozen=True)
 class CompositeSection(SectionGeometry):
-    rectangles: Iterable[_SignedRectangle]
+    def __init__(self, rectangles: Optional[Iterable[_SignedRectangle]] = None):
+        self._rectangles = list(rectangles) if rectangles else []
 
     def _rects(self) -> List[_SignedRectangle]:
-        return list(self.rectangles)
+        return self._rectangles
 
     def area(self) -> float:
         return sum(r.area() for r in self._rects())
@@ -131,7 +131,7 @@ class CompositeSection(SectionGeometry):
         return ix, iy
 
 
-@dataclass(frozen=True)
+@dataclass
 class TSection(CompositeSection):
     flange_width: float
     flange_thickness: float
@@ -148,10 +148,10 @@ class TSection(CompositeSection):
             _SignedRectangle(x=0.0, y=hw, width=bf, height=tf, sign=1),
             _SignedRectangle(x=xw, y=0.0, width=tw, height=hw, sign=1),
         ]
-        object.__setattr__(self, "rectangles", rectangles)
+        super().__init__(rectangles)
 
 
-@dataclass(frozen=True)
+@dataclass
 class LSection(CompositeSection):
     leg_x: float
     leg_y: float
@@ -166,10 +166,10 @@ class LSection(CompositeSection):
             _SignedRectangle(x=0.0, y=0.0, width=t, height=h, sign=1),
             _SignedRectangle(x=0.0, y=0.0, width=t, height=t, sign=-1),
         ]
-        object.__setattr__(self, "rectangles", rectangles)
+        super().__init__(rectangles)
 
 
-@dataclass(frozen=True)
+@dataclass
 class ISection(CompositeSection):
     flange_width: float
     flange_thickness: float
@@ -187,10 +187,10 @@ class ISection(CompositeSection):
             _SignedRectangle(x=xw, y=tf, width=tw, height=hw, sign=1),
             _SignedRectangle(x=0.0, y=tf + hw, width=bf, height=tf, sign=1),
         ]
-        object.__setattr__(self, "rectangles", rectangles)
+        super().__init__(rectangles)
 
 
-@dataclass(frozen=True)
+@dataclass
 class InvertedTSection(CompositeSection):
     flange_width: float
     flange_thickness: float
@@ -207,10 +207,10 @@ class InvertedTSection(CompositeSection):
             _SignedRectangle(x=0.0, y=0.0, width=bf, height=tf, sign=1),
             _SignedRectangle(x=xw, y=tf, width=tw, height=hw, sign=1),
         ]
-        object.__setattr__(self, "rectangles", rectangles)
+        super().__init__(rectangles)
 
 
-@dataclass(frozen=True)
+@dataclass
 class PiSection(CompositeSection):
     """Sezione a pigreco (simile al simbolo Π): flange superiore con due montanti verticali."""
     width: float
@@ -228,7 +228,7 @@ class PiSection(CompositeSection):
             _SignedRectangle(x=0.0, y=0.0, width=tw, height=hw, sign=1),
             _SignedRectangle(x=bf - tw, y=0.0, width=tw, height=hw, sign=1),
         ]
-        object.__setattr__(self, "rectangles", rectangles)
+        super().__init__(rectangles)
 
 
 @dataclass(frozen=True)

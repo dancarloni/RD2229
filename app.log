@@ -1,0 +1,267 @@
+2026-02-03 22:22:39,796 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 22:23:02,980 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1600.0, centroid_x=20.0, centroid_y=20.0, ix=213333.33333333334, iy=213333.33333333334, ixy=0.0, qx=32000.0, qy=32000.0, rx=11.547005383792516, ry=11.547005383792516, core_x=6.666666666666667, core_y=6.666666666666667, ellipse_a=11.547005383792516, ellipse_b=11.547005383792516)
+2026-02-03 22:23:06,174 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiunta: d6dc7049-9f77-4e7f-9362-ef9698b14644
+2026-02-03 22:34:52,167 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 22:35:06,026 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1200.0, centroid_x=15.0, centroid_y=20.0, ix=160000.0, iy=90000.0, ixy=0.0, qx=24000.0, qy=18000.0, rx=11.547005383792516, ry=8.660254037844387, core_x=5.0, core_y=6.666666666666667, ellipse_a=11.547005383792516, ellipse_b=8.660254037844387)
+2026-02-03 22:36:28,743 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 22:36:39,492 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1625.0, centroid_x=12.5, centroid_y=32.5, ix=572135.4166666666, iy=84635.41666666667, ixy=0.0, qx=52812.5, qy=20312.5, rx=18.76388374866284, ry=7.216878364870322, core_x=4.166666666666667, core_y=10.833333333333332, ellipse_a=18.76388374866284, ellipse_b=7.216878364870322)
+2026-02-03 22:36:48,993 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiunta: b8f50010-3932-46c6-975d-6c976b6bdc76
+2026-02-03 22:36:54,049 - rd2229.sections_app.services.repository - DEBUG - Sezione duplicata ignorata: ('RECTANGULAR', (25.0, 65.0))
+2026-02-03 22:37:13,714 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1750.0, centroid_x=12.5, centroid_y=35.0, ix=714583.3333333334, iy=91145.83333333333, ixy=0.0, qx=61250.0, qy=21875.0, rx=20.207259421636902, ry=7.216878364870322, core_x=4.166666666666666, core_y=11.666666666666668, ellipse_a=20.207259421636902, ellipse_b=7.216878364870322)
+2026-02-03 22:37:18,828 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiunta: b913f047-1486-4dd2-a16c-31006aa86386
+2026-02-03 22:50:17,727 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Historical module
+2026-02-03 22:50:31,751 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 22:50:38,997 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1600.0, centroid_x=20.0, centroid_y=20.0, ix=213333.33333333334, iy=213333.33333333334, ixy=0.0, qx=32000.0, qy=32000.0, rx=11.547005383792516, ry=11.547005383792516, core_x=6.666666666666667, core_y=6.666666666666667, ellipse_a=11.547005383792516, ellipse_b=11.547005383792516)
+2026-02-03 22:50:39,770 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiunta: 42a1d460-5cb1-4f7f-aa2c-8c0b61a74093
+2026-02-03 22:50:59,630 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 22:50:59,825 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 22:51:00,282 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 22:51:04,376 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 22:54:38,873 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 22:55:06,315 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=750.0, centroid_x=12.5, centroid_y=15.0, ix=56250.0, iy=39062.5, ixy=0.0, qx=11250.0, qy=9375.0, rx=8.660254037844387, ry=7.216878364870322, core_x=4.166666666666667, core_y=5.0, ellipse_a=8.660254037844387, ellipse_b=7.216878364870322)
+2026-02-03 22:55:07,313 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=750.0, centroid_x=12.5, centroid_y=15.0, ix=56250.0, iy=39062.5, ixy=0.0, qx=11250.0, qy=9375.0, rx=8.660254037844387, ry=7.216878364870322, core_x=4.166666666666667, core_y=5.0, ellipse_a=8.660254037844387, ellipse_b=7.216878364870322)
+2026-02-03 22:55:07,313 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiunta: 5c3f4c5f-b6fa-4fc7-a5f7-537da08c5ba5
+2026-02-03 22:55:08,913 - rd2229.sections_app.ui.main_window - DEBUG - Sezione creata: 5c3f4c5f-b6fa-4fc7-a5f7-537da08c5ba5
+2026-02-03 22:55:37,335 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1250.0, centroid_x=12.5, centroid_y=25.0, ix=260416.66666666666, iy=65104.166666666664, ixy=0.0, qx=31250.0, qy=15625.0, rx=14.433756729740644, ry=7.216878364870322, core_x=4.166666666666666, core_y=8.333333333333332, ellipse_a=14.433756729740644, ellipse_b=7.216878364870322)
+2026-02-03 22:55:37,336 - rd2229.sections_app.services.repository - DEBUG - Updating section 5c3f4c5f-b6fa-4fc7-a5f7-537da08c5ba5 with RectangularSection(name='25x30', section_type='RECTANGULAR', note='', id='44c84657-3105-4c75-b57e-5c951246c8a0', properties=SectionProperties(area=1250.0, centroid_x=12.5, centroid_y=25.0, ix=260416.66666666666, iy=65104.166666666664, ixy=0.0, qx=31250.0, qy=15625.0, rx=14.433756729740644, ry=7.216878364870322, core_x=4.166666666666666, core_y=8.333333333333332, ellipse_a=14.433756729740644, ellipse_b=7.216878364870322), width=25.0, height=50.0)
+2026-02-03 22:55:37,336 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiornata: 5c3f4c5f-b6fa-4fc7-a5f7-537da08c5ba5
+2026-02-03 22:55:38,486 - rd2229.sections_app.ui.main_window - DEBUG - Sezione aggiornata: 5c3f4c5f-b6fa-4fc7-a5f7-537da08c5ba5
+2026-02-03 22:55:38,486 - rd2229.sections_app.ui.section_manager - DEBUG - Ricarico sezioni nel Treeview
+2026-02-03 22:55:38,487 - rd2229.sections_app.ui.main_window - ERROR - Errore nel ricaricare il Section Manager dopo salvataggio
+Traceback (most recent call last):
+  File "C:\workspaces\RD2229\RD2229\src\rd2229\sections_app\ui\main_window.py", line 341, in save_section
+    self.section_manager.reload_sections_in_treeview()
+  File "C:\workspaces\RD2229\RD2229\src\rd2229\sections_app\ui\section_manager.py", line 256, in reload_sections_in_treeview
+    self._refresh_table()
+  File "C:\workspaces\RD2229\RD2229\src\rd2229\sections_app\ui\section_manager.py", line 245, in _refresh_table
+    for item in self.tree.get_children():
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DanieleCarloni.AzureAD\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 1198, in get_children
+    self.tk.call(self._w, "children", item or '') or ())
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: invalid command name ".!sectionmanager.!frame.!treeview"
+2026-02-03 22:55:40,890 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1250.0, centroid_x=12.5, centroid_y=25.0, ix=260416.66666666666, iy=65104.166666666664, ixy=0.0, qx=31250.0, qy=15625.0, rx=14.433756729740644, ry=7.216878364870322, core_x=4.166666666666666, core_y=8.333333333333332, ellipse_a=14.433756729740644, ellipse_b=7.216878364870322)
+2026-02-03 22:55:41,948 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1250.0, centroid_x=12.5, centroid_y=25.0, ix=260416.66666666666, iy=65104.166666666664, ixy=0.0, qx=31250.0, qy=15625.0, rx=14.433756729740644, ry=7.216878364870322, core_x=4.166666666666666, core_y=8.333333333333332, ellipse_a=14.433756729740644, ellipse_b=7.216878364870322)
+2026-02-03 22:55:42,780 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1250.0, centroid_x=12.5, centroid_y=25.0, ix=260416.66666666666, iy=65104.166666666664, ixy=0.0, qx=31250.0, qy=15625.0, rx=14.433756729740644, ry=7.216878364870322, core_x=4.166666666666666, core_y=8.333333333333332, ellipse_a=14.433756729740644, ellipse_b=7.216878364870322)
+2026-02-03 22:55:42,781 - rd2229.sections_app.services.repository - DEBUG - Sezione duplicata ignorata: ('RECTANGULAR', (25.0, 50.0))
+2026-02-03 22:55:44,000 - rd2229.sections_app.ui.section_manager - DEBUG - Ricarico sezioni nel Treeview
+2026-02-03 22:55:44,002 - rd2229.sections_app.ui.main_window - ERROR - Errore nel ricaricare il Section Manager dopo salvataggio
+Traceback (most recent call last):
+  File "C:\workspaces\RD2229\RD2229\src\rd2229\sections_app\ui\main_window.py", line 341, in save_section
+    self.section_manager.reload_sections_in_treeview()
+  File "C:\workspaces\RD2229\RD2229\src\rd2229\sections_app\ui\section_manager.py", line 256, in reload_sections_in_treeview
+    self._refresh_table()
+  File "C:\workspaces\RD2229\RD2229\src\rd2229\sections_app\ui\section_manager.py", line 245, in _refresh_table
+    for item in self.tree.get_children():
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DanieleCarloni.AzureAD\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 1198, in get_children
+    self.tk.call(self._w, "children", item or '') or ())
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: invalid command name ".!sectionmanager.!frame.!treeview"
+2026-02-03 22:55:48,398 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1250.0, centroid_x=12.5, centroid_y=25.0, ix=260416.66666666666, iy=65104.166666666664, ixy=0.0, qx=31250.0, qy=15625.0, rx=14.433756729740644, ry=7.216878364870322, core_x=4.166666666666666, core_y=8.333333333333332, ellipse_a=14.433756729740644, ellipse_b=7.216878364870322)
+2026-02-03 22:56:18,458 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 22:57:00,766 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 22:57:18,550 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=480.0, centroid_x=10.0, centroid_y=12.0, ix=23040.0, iy=16000.0, ixy=0.0, qx=5760.0, qy=4800.0, rx=6.928203230275509, ry=5.773502691896258, core_x=3.3333333333333335, core_y=4.0, ellipse_a=6.928203230275509, ellipse_b=5.773502691896258)
+2026-02-03 23:11:27,092 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 23:21:31,222 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 23:21:31,374 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:21:31,375 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:21:38,363 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:21:38,365 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:21:38,365 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:24:56,358 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 23:24:56,533 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:24:56,534 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:24:57,447 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:24:57,449 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:24:57,449 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:24:58,256 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:24:58,258 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:24:58,259 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:24:58,764 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:24:58,766 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:24:58,767 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:24:59,410 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:24:59,412 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:24:59,412 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:24:59,575 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:24:59,577 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:24:59,578 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:01,600 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:01,603 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:01,603 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:03,226 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:03,228 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:03,229 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:03,988 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:03,990 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:03,991 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:04,629 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:04,632 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:04,633 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:05,200 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:05,203 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:05,205 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:05,403 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:05,405 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:05,406 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:05,966 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:05,969 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:05,970 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:06,535 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:06,538 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:06,539 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:07,083 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:07,086 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:07,086 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:07,593 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:07,594 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:07,595 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:08,351 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:08,352 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:08,353 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:08,514 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:08,517 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:08,518 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:09,487 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:09,488 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:09,489 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:10,166 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:10,168 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:10,168 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:10,638 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:10,641 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:10,641 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:15,092 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:15,093 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:15,094 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:16,274 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:16,281 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:16,283 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:17,200 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:17,204 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:17,204 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:17,635 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:17,637 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:17,637 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:22,591 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:22,603 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:22,605 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:31,451 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:31,459 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:31,462 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:38,224 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:38,241 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:38,247 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:52,124 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:52,126 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:52,126 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:53,222 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:53,224 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:53,225 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:54,376 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:54,380 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:54,383 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:54,954 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:54,966 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:54,967 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:58,648 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:58,650 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:58,651 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:59,284 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:59,288 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:59,288 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:25:59,736 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:25:59,739 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:25:59,739 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:26:00,266 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:26:00,269 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:26:00,270 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:26:00,549 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:26:00,550 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:26:00,552 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:26:01,767 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:26:01,770 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:26:01,771 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:26:02,155 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:26:02,157 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:26:02,158 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:26:02,725 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:26:02,727 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:26:02,728 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:26:03,639 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: Rettangolare
+2026-02-03 23:26:03,652 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:26:03,654 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:29:11,607 - rd2229.sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-03 23:29:11,762 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:29:11,763 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:29:13,373 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='' -> using 'Rettangolare'
+2026-02-03 23:29:13,374 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-03 23:29:14,249 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='Circolare' -> using 'Circolare'
+2026-02-03 23:29:14,249 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-03 23:29:14,249 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-03 23:29:14,250 - rd2229.sections_app.ui.main_window - DEBUG - Polling selezione ComboBox annullato
+2026-02-03 23:29:14,251 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Circolare
+2026-02-03 23:29:14,252 - rd2229.sections_app.ui.main_window - DEBUG - Creati 1 campi input
+2026-02-03 23:29:15,980 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-03 23:29:15,981 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-03 23:29:24,020 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per CIRCULAR: SectionProperties(area=314.1592653589793, centroid_x=10.0, centroid_y=10.0, ix=7853.981633974483, iy=7853.981633974483, ixy=0.0, qx=3141.5926535897934, qy=3141.5926535897934, rx=5.0, ry=5.0, core_x=2.5, core_y=2.5, ellipse_a=5.0, ellipse_b=5.0)
+2026-02-03 23:29:26,817 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per CIRCULAR: SectionProperties(area=314.1592653589793, centroid_x=10.0, centroid_y=10.0, ix=7853.981633974483, iy=7853.981633974483, ixy=0.0, qx=3141.5926535897934, qy=3141.5926535897934, rx=5.0, ry=5.0, core_x=2.5, core_y=2.5, ellipse_a=5.0, ellipse_b=5.0)
+2026-02-03 23:29:26,818 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiunta: 4ea6597d-5f2f-4a32-9cc2-e311ba678bdc
+2026-02-03 23:29:28,609 - rd2229.sections_app.ui.main_window - DEBUG - Sezione creata: 4ea6597d-5f2f-4a32-9cc2-e311ba678bdc
+2026-02-03 23:29:30,034 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-03 23:29:30,034 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-03 23:29:30,876 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='A T' -> using 'A T'
+2026-02-03 23:29:30,876 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-03 23:29:30,877 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
+2026-02-03 23:29:30,878 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: A T
+2026-02-03 23:29:30,879 - rd2229.sections_app.ui.main_window - DEBUG - Creati 4 campi input
+2026-02-03 23:29:31,970 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-03 23:29:31,970 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
+2026-02-03 23:29:44,960 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per T_SECTION: SectionProperties(area=2050.0, centroid_x=25.0, centroid_y=39.81707317073171, ix=687014.7357723578, iy=287083.3333333333, ixy=0.0, qx=81625.0, qy=51250.0, rx=18.306532697404776, ry=11.83387723472337, core_x=5.6016260162601625, core_y=8.416719580672071, ellipse_a=18.306532697404776, ellipse_b=11.83387723472337)
+2026-02-03 23:29:45,837 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per T_SECTION: SectionProperties(area=2050.0, centroid_x=25.0, centroid_y=39.81707317073171, ix=687014.7357723578, iy=287083.3333333333, ixy=0.0, qx=81625.0, qy=51250.0, rx=18.306532697404776, ry=11.83387723472337, core_x=5.6016260162601625, core_y=8.416719580672071, ellipse_a=18.306532697404776, ellipse_b=11.83387723472337)
+2026-02-03 23:29:45,838 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiunta: 409b6636-a01f-46b0-8aa7-fc3ac3aa4c12
+2026-02-03 23:29:47,206 - rd2229.sections_app.ui.main_window - DEBUG - Sezione creata: 409b6636-a01f-46b0-8aa7-fc3ac3aa4c12
+2026-02-03 23:29:48,831 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-03 23:29:48,832 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
+2026-02-03 23:29:49,514 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-03 23:29:49,514 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-03 23:29:49,514 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-03 23:29:49,518 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-03 23:29:49,518 - rd2229.sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-03 23:29:50,750 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-03 23:29:50,750 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-03 23:30:02,181 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-03 23:30:02,181 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-03 23:30:06,140 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=800.0, centroid_x=20.0, centroid_y=10.0, ix=26666.666666666668, iy=106666.66666666667, ixy=0.0, qx=8000.0, qy=16000.0, rx=5.773502691896258, ry=11.547005383792516, core_x=6.666666666666667, core_y=3.3333333333333335, ellipse_a=5.773502691896258, ellipse_b=11.547005383792516)
+2026-02-03 23:30:09,050 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=800.0, centroid_x=20.0, centroid_y=10.0, ix=26666.666666666668, iy=106666.66666666667, ixy=0.0, qx=8000.0, qy=16000.0, rx=5.773502691896258, ry=11.547005383792516, core_x=6.666666666666667, core_y=3.3333333333333335, ellipse_a=5.773502691896258, ellipse_b=11.547005383792516)
+2026-02-03 23:30:09,051 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiunta: 9b6af0c7-8a52-4217-b811-e4caa14971e1
+2026-02-03 23:30:10,251 - rd2229.sections_app.ui.main_window - DEBUG - Sezione creata: 9b6af0c7-8a52-4217-b811-e4caa14971e1
+2026-02-03 23:30:15,814 - rd2229.sections_app.ui.main_window - DEBUG - Section Manager aperto
+2026-02-03 23:30:25,813 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-03 23:30:25,813 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-03 23:30:25,816 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: A T
+2026-02-03 23:30:25,817 - rd2229.sections_app.ui.main_window - DEBUG - Creati 4 campi input
+2026-02-03 23:30:54,665 - rd2229.sections_app.models.sections - DEBUG - Proprietà calcolate per T_SECTION: SectionProperties(area=2050.0, centroid_x=25.0, centroid_y=39.81707317073171, ix=687014.7357723578, iy=287083.3333333333, ixy=0.0, qx=81625.0, qy=51250.0, rx=18.306532697404776, ry=11.83387723472337, core_x=5.6016260162601625, core_y=8.416719580672071, ellipse_a=18.306532697404776, ellipse_b=11.83387723472337)
+2026-02-03 23:30:54,665 - rd2229.sections_app.services.repository - DEBUG - Updating section 409b6636-a01f-46b0-8aa7-fc3ac3aa4c12 with TSection(name='T 50*25+20*40', section_type='T_SECTION', note='', id='0f007faf-0417-4dd2-9c6f-4c7fef02e69c', properties=SectionProperties(area=2050.0, centroid_x=25.0, centroid_y=39.81707317073171, ix=687014.7357723578, iy=287083.3333333333, ixy=0.0, qx=81625.0, qy=51250.0, rx=18.306532697404776, ry=11.83387723472337, core_x=5.6016260162601625, core_y=8.416719580672071, ellipse_a=18.306532697404776, ellipse_b=11.83387723472337), flange_width=50.0, flange_thickness=25.0, web_thickness=20.0, web_height=40.0)
+2026-02-03 23:30:54,666 - rd2229.sections_app.services.repository - DEBUG - Sezione aggiornata: 409b6636-a01f-46b0-8aa7-fc3ac3aa4c12
+2026-02-03 23:30:55,901 - rd2229.sections_app.ui.main_window - DEBUG - Sezione aggiornata: 409b6636-a01f-46b0-8aa7-fc3ac3aa4c12
+2026-02-03 23:30:57,733 - rd2229.sections_app.ui.main_window - DEBUG - Section Manager aperto
+2026-02-03 23:31:33,823 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 23:31:34,408 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 23:31:41,301 - rd2229.sections_app.ui.main_window - DEBUG - Form resettata
+2026-02-03 23:31:43,214 - rd2229.sections_app.ui.main_window - DEBUG - Form resettata
+2026-02-03 23:31:46,253 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-03 23:31:46,254 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-03 23:31:47,002 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-03 23:31:47,002 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-03 23:31:47,003 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
+2026-02-03 23:31:47,009 - rd2229.sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: A T
+2026-02-03 23:31:47,010 - rd2229.sections_app.ui.main_window - DEBUG - Creati 4 campi input
+2026-02-03 23:31:50,024 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 23:31:51,524 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 23:31:51,929 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 23:31:52,520 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 23:31:52,985 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-03 23:31:56,554 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-03 23:31:56,555 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
