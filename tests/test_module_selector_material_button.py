@@ -58,6 +58,25 @@ class TestModuleSelectorMaterialButton(unittest.TestCase):
                 if window.winfo_exists():
                     window.destroy()
 
+    def test_material_editor_window_closes_on_X(self):
+        """Ensure that clicking the X closes the historical material window and clears reference."""
+        with patch('tkinter.Tk.mainloop'):
+            window = ModuleSelectorWindow(self.repo, self.serializer, self.material_repo)
+            try:
+                # Open the material editor
+                window._open_material_editor()
+                self.assertIsNotNone(window._material_editor_window)
+                # Simulate user clicking the X by destroying the Toplevel
+                window._material_editor_window.destroy()
+                # Process events to allow bound handlers to run
+                window.update_idletasks()
+                window.update()
+                # Reference should have been cleared by on_material_editor_close
+                self.assertIsNone(window._material_editor_window)
+            finally:
+                if window.winfo_exists():
+                    window.destroy()
+
     def test_material_editor_window_reference_initialized(self):
         """Test that _material_editor_window reference is properly initialized."""
         with patch('tkinter.Tk.mainloop'):  # Prevent blocking

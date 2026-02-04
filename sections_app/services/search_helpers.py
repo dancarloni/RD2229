@@ -56,27 +56,57 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         return []
     try:
         results: List[str] = []
+        seen = set()
+
+        # 1) Search in provided MaterialRepository if available
         if repo is not None:
             mats = repo.get_all()
             for m in mats:
                 name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
-                code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")  # ✅ Nuovo: includi code
+                code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")
                 mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
-                
+
                 # Filtra per tipo se specificato
                 if type_filter and mtype is not None and mtype != type_filter:
                     continue
-                
-                # ✅ Ricerca sia in name che in code (case-insensitive)
+
                 name_match = q in (name or "").lower()
                 code_match = q in (code or "").lower()
-                
+
                 if name_match or code_match:
-                    results.append(name)
-            return results[:limit]
-        # fallback to static names list
-        names_list = names or []
-        return [n for n in names_list if q in n.lower()][:limit]
+                    if name not in seen:
+                        seen.add(name)
+                        results.append(name)
+
+        # 2) Fallback: if no repo or names provided, also try matching on the 'names' list
+        if not results and (names or []):
+            for n in (names or []):
+                if q in n.lower() and n not in seen:
+                    seen.add(n)
+                    results.append(n)
+
+        # 3) Additionally, include matches from HistoricalMaterialLibrary (if available)
+        try:
+            from historical_materials import HistoricalMaterialLibrary
+            lib = HistoricalMaterialLibrary()
+            for hist in lib.get_all():
+                hist_name = getattr(hist, "name", "")
+                hist_code = getattr(hist, "code", "")
+                hist_type = getattr(getattr(hist, "type", None), "value", None) or str(getattr(hist, "type", ""))
+
+                # Filtra per tipo storica se specificato
+                if type_filter and hist_type and hist_type != type_filter:
+                    continue
+
+                if q in (hist_name or "").lower() or q in (hist_code or "").lower():
+                    if hist_name not in seen:
+                        seen.add(hist_name)
+                        results.append(hist_name)
+        except Exception:
+            # Historical library not available, ignore
+            pass
+
+        return results[:limit]
     except Exception:
         logger.exception("Error searching materials")
         return [n for n in (names or []) if q in n.lower()][:limit]

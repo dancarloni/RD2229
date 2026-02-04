@@ -163,11 +163,20 @@ class ModuleSelectorWindow(tk.Tk):
             material_repository=self.material_repository
         )
         
-        # Collega il callback di chiusura per pulire il riferimento
+        # Collega il callback di chiusura per pulire il riferimento e chiudere la finestra
         def on_material_editor_close():
+            # Assicura che la finestra venga distrutta e il riferimento ripulito
+            if self._material_editor_window is not None and self._material_editor_window.winfo_exists():
+                try:
+                    self._material_editor_window.destroy()
+                except Exception:
+                    pass
             self._material_editor_window = None
-        
+
+        # Imposta handler per la X della finestra che distrugge il Toplevel
         self._material_editor_window.protocol("WM_DELETE_WINDOW", on_material_editor_close)
+        # Inoltre, se la finestra viene distrutta in altro modo, assicurati di pulire il riferimento
+        self._material_editor_window.bind("<Destroy>", lambda e: on_material_editor_close())
 
     def _export_backup(self) -> None:
         """Gestisce l'esportazione del backup."""

@@ -747,13 +747,19 @@ class VerificationTableApp(tk.Frame):
         return info
 
     def refresh_sources(self) -> None:
-        """Reload names from provided repositories and update suggestion maps."""
+        """Reload names from provided repositories and update suggestion maps.
+
+        We preserve callable suggestion sources for material columns so that
+        repository-backed and historical materials are searched dynamically
+        (supports type filtering)."""
         self.section_names = self._resolve_section_names(self.section_repository, None)
         self.material_names = self._resolve_material_names(None)
+        # Section suggestions can be a static list
         self.suggestions_map["section"] = self.section_names
-        self.suggestions_map["mat_concrete"] = self.material_names
-        self.suggestions_map["mat_steel"] = self.material_names
-        self.suggestions_map["stirrups_mat"] = self.material_names
+        # Material suggestions remain callable to allow repository-backed search
+        self.suggestions_map["mat_concrete"] = (lambda q: self._search_materials(q, type_filter="concrete"))
+        self.suggestions_map["mat_steel"] = (lambda q: self._search_materials(q, type_filter="steel"))
+        self.suggestions_map["stirrups_mat"] = (lambda q: self._search_materials(q, type_filter=None))
 
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:

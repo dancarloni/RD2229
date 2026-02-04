@@ -180,6 +180,15 @@ class HistoricalMaterialLibrary:
         # (populated with example values and TODO notes for the user to replace with
         # authoritative values from RD 2229/39 or external datasets like ReLUIS/STIL)
         self._ensure_default_materials()
+        # Load materials from file to populate internal list (if file exists)
+        # This ensures that if a historical_materials.json is present it will be
+        # read into self._materials for immediate use by search functions.
+        try:
+            self.load_from_file()
+        except Exception:
+            # If loading fails, _ensure_default_materials will have created defaults
+            # and save_to_file will have written them; ignore errors here.
+            pass
 
     def _ensure_default_materials(self) -> None:
         """

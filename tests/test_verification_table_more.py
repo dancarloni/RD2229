@@ -278,6 +278,32 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertNotIn("A500", items)
         win.destroy()
 
+    def test_historical_materials_are_suggested(self):
+        """Verify historical materials (built-in library) appear in suggestions for concrete."""
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        # No material_repository provided - search should include historical library
+        win = VerificationTableWindow(top, section_repository=None, material_repository=None)
+        app = win.app
+        top.update_idletasks()
+        top.update()
+        item = list(app.tree.get_children())[0]
+        app._start_edit(item, "mat_concrete")
+        app.edit_entry.delete(0, tk.END)
+        # Use a substring known to match historical CLS R160 entries
+        app.edit_entry.insert(0, "160")
+        app._update_suggestions()
+        top.update_idletasks()
+        top.update()
+        self.assertIsNotNone(app._suggest_list)
+        items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        # At least one historical R160 material should be suggested
+        self.assertTrue(any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}")
+        # Suggestions should be concrete materials only - none of the items should indicate a steel-only label
+        # (simple heuristic: ensure no 'Acciaio' in suggested names)
+        self.assertFalse(any("Acciaio" in it for it in items))
+        win.destroy()
+
     def test_section_suggestions_from_repository(self):
         """Verify suggestions are drawn from SectionRepository."""
         from sections_app.services.repository import SectionRepository
