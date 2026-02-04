@@ -76,7 +76,7 @@ def test_verification_table_receives_populated_repositories():
         print(f"  ✓ VerificationTable ha ricevuto {len(vt_window.materials)} materiale/i")
     
     print("\n✅ TEST PASSATO\n")
-    return True
+
 
 
 def test_repositories_available_at_startup():
@@ -127,32 +127,32 @@ def test_repositories_available_at_startup():
             print(f"    - {material.name}")
         
         print("\n✅ Tutti i dati sono disponibili al startup")
-    
-    return True
+
 
 
 if __name__ == "__main__":
     print("\n" + "=" * 70)
     print("TEST INTEGRAZIONE: REPOSITORY DISPONIBILI ALL'AVVIO")
     print("=" * 70)
-    
+
     try:
-        test1 = test_verification_table_receives_populated_repositories()
+        test_verification_table_receives_populated_repositories()
         print()
-        test2 = test_repositories_available_at_startup()
-        
-        if test1 and test2:
-            print("\n" + "=" * 70)
-            print("✅ TUTTI I TEST PASSATI - INTEGRAZIONE VERIFICATA!")
-            print("=" * 70)
-            print("\nConcluzione:")
-            print("✓ Repository caricati esplicitamente in app.py")
-            print("✓ Repository passati a ModuleSelectorWindow")
-            print("✓ VerificationTable riceve repository pre-popolati")
-            print("✓ Dati persistenti disponibili all'avvio")
-        else:
-            print("\n❌ ALCUNI TEST FALLITI")
-            exit(1)
+        test_repositories_available_at_startup()
+        print("\n" + "=" * 70)
+        print("✅ TUTTI I TEST PASSATI - INTEGRAZIONE VERIFICATA!")
+        print("=" * 70)
+        print("\nConcluzione:")
+        print("✓ Repository caricati esplicitamente in app.py")
+        print("✓ Repository passati a ModuleSelectorWindow")
+        print("✓ VerificationTable riceve repository pre-popolati")
+        print("✓ Dati persistenti disponibili all'avvio")
+    except AssertionError as e:
+        print("\n❌ ASSERTION FAILED:")
+        print(e)
+        import traceback
+        traceback.print_exc()
+        exit(1)
     except Exception as e:
         print(f"\n❌ ERRORE: {e}")
         import traceback

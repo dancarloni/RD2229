@@ -41,8 +41,7 @@ def test_section_manager_data():
             section.compute_properties()
             print(f"  ✓ {section.name}: {section.section_type} - OK")
         except Exception as e:
-            print(f"  ✗ {section.name}: ERRORE - {e}")
-            return False
+            assert False, f"Errore calcolo proprietà per {section.name}: {e}"
 
     # Aggiunge al repository
     print("\n[2] Inserimento nel repository...")
@@ -86,7 +85,6 @@ def test_section_manager_data():
     print("\n" + "=" * 70)
     print("✓ TEST COMPLETATO CON SUCCESSO")
     print("=" * 70)
-    return True
 
 
 def test_treeview_columns():
@@ -140,11 +138,8 @@ def test_treeview_columns():
 
     # Verifica che tutte le colonne siano configurate
     missing = set(CSV_HEADERS) - set(col_config.keys())
-    if missing:
-        print(f"\n  ✗ Colonne mancanti da configurare: {missing}")
-        return False
-    else:
-        print(f"  ✓ Tutte le colonne sono configurate")
+    assert not missing, f"Colonne mancanti da configurare: {missing}"
+    print(f"  ✓ Tutte le colonne sono configurate")
 
     # Verifica larghezze
     print(f"\nLarghezze colonne:")
@@ -157,13 +152,18 @@ def test_treeview_columns():
     print("\n" + "=" * 70)
     print("✓ TEST COLONNE COMPLETATO")
     print("=" * 70)
-    return True
 
 
 if __name__ == "__main__":
     try:
-        success = test_section_manager_data() and test_treeview_columns()
-        sys.exit(0 if success else 1)
+        test_section_manager_data()
+        test_treeview_columns()
+        sys.exit(0)
+    except AssertionError as e:
+        print(f"\n✗ ASSERTION FAILED: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
     except Exception as e:
         print(f"\n✗ ERRORE NEL TEST: {e}")
         import traceback

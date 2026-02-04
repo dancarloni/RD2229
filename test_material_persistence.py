@@ -72,7 +72,6 @@ def test_material_persistence_basic():
         print(f"  ✓ Verificate proprietà materiale A500")
     
     print("\n✅ TEST 1 PASSATO\n")
-    return True
 
 
 def test_material_persistence_update_delete():
@@ -128,7 +127,6 @@ def test_material_persistence_update_delete():
         print(f"  ✓ Verificate proprietà modificate")
     
     print("\n✅ TEST 2 PASSATO\n")
-    return True
 
 
 def test_empty_repository():
@@ -157,7 +155,6 @@ def test_empty_repository():
         print(f"  ✓ Repository svuotato e salvato")
     
     print("\n✅ TEST 3 PASSATO\n")
-    return True
 
 
 def test_find_by_id():
@@ -187,42 +184,22 @@ def test_find_by_id():
         print(f"  ✓ Trovato materiale per ID: {found.name}")
     
     print("\n✅ TEST 4 PASSATO\n")
-    return True
 
 
 if __name__ == "__main__":
-    print("\n" + "=" * 70)
-    print("TEST PERSISTENZA MaterialRepository")
-    print("=" * 70)
-    
-    tests = [
-        test_material_persistence_basic,
-        test_material_persistence_update_delete,
-        test_empty_repository,
-        test_find_by_id,
-    ]
-    
-    results = []
-    for test_func in tests:
-        try:
-            result = test_func()
-            results.append((test_func.__name__, result))
-        except Exception as e:
-            print(f"\n❌ ERRORE in {test_func.__name__}: {e}")
-            import traceback
-            traceback.print_exc()
-            results.append((test_func.__name__, False))
-    
-    print("\n" + "=" * 70)
-    print("RIEPILOGO TEST")
-    print("=" * 70)
-    for test_name, result in results:
-        status = "✅ PASSATO" if result else "❌ FALLITO"
-        print(f"{test_name}: {status}")
-    
-    all_passed = all(result for _, result in results)
-    if all_passed:
+    try:
+        test_material_persistence_basic()
+        test_material_persistence_update_delete()
+        test_empty_repository()
+        test_find_by_id()
         print("\n✅ TUTTI I TEST PASSATI!")
-    else:
-        print("\n❌ ALCUNI TEST FALLITI")
+    except AssertionError as e:
+        print(f"\n❌ ASSERTION FAILED: {e}")
+        import traceback
+        traceback.print_exc()
+        exit(1)
+    except Exception as e:
+        print(f"\n❌ ERRORE in test suite: {e}")
+        import traceback
+        traceback.print_exc()
         exit(1)

@@ -43,12 +43,7 @@ def test_persistence_create_and_load():
             if repo1.add_section(section):
                 print(f"  ✓ Aggiunta: {section.name} (ID: {section.id})")
             else:
-                print(f"  ✗ Errore aggiunta: {section.name}")
-                return False
-        
-        # Verifica che il file esista
-        assert os.path.isfile(json_file), f"File {json_file} non creato!"
-        print(f"  ✓ File JSON creato: {json_file}")
+                assert False, f"Errore aggiunta: {section.name}"
         
         # Verifica contenuto JSON
         with open(json_file, "r", encoding="utf-8") as f:
@@ -92,7 +87,6 @@ def test_persistence_create_and_load():
         print(f"  ✓ Verificate proprietà sezione circolare")
     
     print("\n✅ TEST 1 PASSATO\n")
-    return True
 
 
 def test_persistence_update_delete():
@@ -144,7 +138,6 @@ def test_persistence_update_delete():
         print(f"  ✓ Verificate proprietà modificate")
     
     print("\n✅ TEST 2 PASSATO\n")
-    return True
 
 
 def test_persistence_rotation():
@@ -180,7 +173,6 @@ def test_persistence_rotation():
         print(f"  ✓ Verificata rotazione: {loaded_section.rotation_angle_deg}°")
     
     print("\n✅ TEST 3 PASSATO\n")
-    return True
 
 
 def test_empty_repository():
@@ -209,42 +201,26 @@ def test_empty_repository():
         print(f"  ✓ Repository svuotato e salvato")
     
     print("\n✅ TEST 4 PASSATO\n")
-    return True
 
 
 if __name__ == "__main__":
     print("\n" + "=" * 70)
     print("TEST PERSISTENZA SectionRepository")
     print("=" * 70)
-    
-    tests = [
-        test_persistence_create_and_load,
-        test_persistence_update_delete,
-        test_persistence_rotation,
-        test_empty_repository,
-    ]
-    
-    results = []
-    for test_func in tests:
-        try:
-            result = test_func()
-            results.append((test_func.__name__, result))
-        except Exception as e:
-            print(f"\n❌ ERRORE in {test_func.__name__}: {e}")
-            import traceback
-            traceback.print_exc()
-            results.append((test_func.__name__, False))
-    
-    print("\n" + "=" * 70)
-    print("RIEPILOGO TEST")
-    print("=" * 70)
-    for test_name, result in results:
-        status = "✅ PASSATO" if result else "❌ FALLITO"
-        print(f"{test_name}: {status}")
-    
-    all_passed = all(result for _, result in results)
-    if all_passed:
+
+    try:
+        test_persistence_create_and_load()
+        test_persistence_update_delete()
+        test_persistence_rotation()
+        test_empty_repository()
         print("\n✅ TUTTI I TEST PASSATI!")
-    else:
-        print("\n❌ ALCUNI TEST FALLITI")
+    except AssertionError as e:
+        print(f"\n❌ ASSERTION FAILED: {e}")
+        import traceback
+        traceback.print_exc()
+        exit(1)
+    except Exception as e:
+        print(f"\n❌ ERRORE in test suite: {e}")
+        import traceback
+        traceback.print_exc()
         exit(1)

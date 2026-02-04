@@ -39,8 +39,12 @@ class TestVerificationTableAutoUpdate(unittest.TestCase):
         self.material_repo.add(mat1)
         
         # Create root window for testing
-        self.root = tk.Tk()
-        self.root.withdraw()  # Hide window during tests
+        try:
+            self.root = tk.Tk()
+            self.root.withdraw()  # Hide window during tests
+        except tk.TclError:
+            # Headless environment without Tcl/Tk: skip these GUI tests
+            self.skipTest("Tcl/Tk not available in this environment; skipping GUI tests")
 
     def tearDown(self):
         """Clean up test fixtures."""

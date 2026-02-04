@@ -90,25 +90,21 @@ def test_repositories_auto_load_at_startup():
         print(f"  ✓ Caricati {len(materials_3)} materiali automaticamente")
     
     print("\n✅ TEST PASSATO\n")
-    return True
 
 
 if __name__ == "__main__":
-    print("\n" + "=" * 70)
-    print("TEST CARICAMENTO AUTOMATICO REPOSITORY ALL'AVVIO")
-    print("=" * 70)
-    
     try:
-        result = test_repositories_auto_load_at_startup()
-        if result:
-            print("\n✅ CARICAMENTO AUTOMATICO VERIFICATO!")
-            print("\nConcluzione:")
-            print("- I repository caricano automaticamente nel __init__()")
-            print("- È anche possibile chiamare load_from_file() esplicitamente")
-            print("- App.py ora chiama entrambi per massima chiarezza")
-        else:
-            print("\n❌ TEST FALLITO")
-            exit(1)
+        test_repositories_auto_load_at_startup()
+        print("\n✅ CARICAMENTO AUTOMATICO VERIFICATO!")
+        print("\nConcluzione:")
+        print("- I repository caricano automaticamente nel __init__()")
+        print("- È anche possibile chiamare load_from_file() esplicitamente")
+        print("- App.py ora chiama entrambi per massima chiarezza")
+    except AssertionError as e:
+        print(f"\n❌ ASSERTION FAILED: {e}")
+        import traceback
+        traceback.print_exc()
+        exit(1)
     except Exception as e:
         print(f"\n❌ ERRORE: {e}")
         import traceback

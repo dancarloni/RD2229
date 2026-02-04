@@ -85,7 +85,6 @@ def test_integration_with_csv_serializer():
             print(f"  ✓ {s4.name}: equivalente")
     
     print("\n✅ TEST INTEGRAZIONE PASSATO\n")
-    return True
 
 
 def test_concurrent_repositories():
@@ -130,7 +129,6 @@ def test_concurrent_repositories():
         print(f"  ✓ Repo2 isolato: {s2.name}")
     
     print("\n✅ TEST REPOSITORY MULTIPLI PASSATO\n")
-    return True
 
 
 def test_large_dataset():
@@ -194,41 +192,21 @@ def test_large_dataset():
         print(f"  ✓ Verificate 10 sezioni modificate")
     
     print("\n✅ TEST DATASET GRANDE PASSATO\n")
-    return True
 
 
 if __name__ == "__main__":
-    print("\n" + "=" * 70)
-    print("TEST DI INTEGRAZIONE PERSISTENZA")
-    print("=" * 70)
-    
-    tests = [
-        test_integration_with_csv_serializer,
-        test_concurrent_repositories,
-        test_large_dataset,
-    ]
-    
-    results = []
-    for test_func in tests:
-        try:
-            result = test_func()
-            results.append((test_func.__name__, result))
-        except Exception as e:
-            print(f"\n❌ ERRORE in {test_func.__name__}: {e}")
-            import traceback
-            traceback.print_exc()
-            results.append((test_func.__name__, False))
-    
-    print("\n" + "=" * 70)
-    print("RIEPILOGO TEST DI INTEGRAZIONE")
-    print("=" * 70)
-    for test_name, result in results:
-        status = "✅ PASSATO" if result else "❌ FALLITO"
-        print(f"{test_name}: {status}")
-    
-    all_passed = all(result for _, result in results)
-    if all_passed:
+    try:
+        test_integration_with_csv_serializer()
+        test_concurrent_repositories()
+        test_large_dataset()
         print("\n✅ TUTTI I TEST DI INTEGRAZIONE PASSATI!")
-    else:
-        print("\n❌ ALCUNI TEST FALLITI")
+    except AssertionError as e:
+        print(f"\n❌ ASSERTION FAILED: {e}")
+        import traceback
+        traceback.print_exc()
+        exit(1)
+    except Exception as e:
+        print(f"\n❌ ERRORE in test suite: {e}")
+        import traceback
+        traceback.print_exc()
         exit(1)

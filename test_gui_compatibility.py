@@ -100,23 +100,19 @@ def test_gui_compatibility():
             os.chdir(original_cwd)
     
     print("\n✅ TEST COMPATIBILITÀ GUI PASSATO\n")
-    return True
 
 
 if __name__ == "__main__":
-    print("\n" + "=" * 70)
-    print("TEST COMPATIBILITÀ GUI")
-    print("=" * 70)
-    
     try:
-        result = test_gui_compatibility()
-        if result:
-            print("\n✅ COMPATIBILITÀ GUI VERIFICATA!")
-            print("\nIl codice GUI continua a funzionare esattamente come prima,")
-            print("ma ora con persistenza automatica su file JSON.")
-        else:
-            print("\n❌ TEST FALLITO")
-            sys.exit(1)
+        test_gui_compatibility()
+        print("\n✅ COMPATIBILITÀ GUI VERIFICATA!")
+        print("\nIl codice GUI continua a funzionare esattamente come prima,")
+        print("ma ora con persistenza automatica su file JSON.")
+    except AssertionError as e:
+        print(f"\n❌ ASSERTION FAILED: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
     except Exception as e:
         print(f"\n❌ ERRORE: {e}")
         import traceback

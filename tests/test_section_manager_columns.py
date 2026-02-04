@@ -5,9 +5,8 @@ from test_section_manager_ui import test_treeview_columns
 
 class TestSectionManagerColumns(unittest.TestCase):
     def test_treeview_columns_function(self):
-        """Invoke the existing test helper and assert it returns True."""
-        result = test_treeview_columns()
-        assert result is True
+        """Invoke the existing test helper; it should not raise exceptions."""
+        test_treeview_columns()
 
 
 if __name__ == "__main__":
