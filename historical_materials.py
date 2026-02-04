@@ -76,16 +76,106 @@ class HistoricalMaterialLibrary:
     def __init__(self, path: str | Path | None = None):
         self._file_path = Path(path or "historical_materials.json")
         self._materials: List[HistoricalMaterial] = []
+        # Ensure a sensible default set of historical materials exists on first use
+        # (populated with example values and TODO notes for the user to replace with
+        # authoritative values from RD 2229/39 or external datasets like ReLUIS/STIL)
+        self._ensure_default_materials()
 
+    def _ensure_default_materials(self) -> None:
+        """
+        Populate the library with a small set of example historical materials
+        if the JSON file does not exist or is empty. The numeric values are
+        illustrative; a developer or user should replace them with exact values
+        from RD 2229/39 or other historical datasets.
+        """
+        # If a file exists and contains data, do nothing
+        if self._file_path.exists():
+            try:
+                with self._file_path.open("r", encoding="utf-8") as f:
+                    raw = json.load(f)
+                if isinstance(raw, list) and raw:
+                    return
+            except Exception:
+                # If the file exists but is not readable/valid JSON, we'll overwrite it
+                logger.warning("Existing historical materials file %s unreadable: will recreate defaults", self._file_path)
+
+        # Prepare default illustrative materials
+        examples: List[HistoricalMaterial] = []
+
+        # Example concrete from RD 2229/39 (values are placeholders - TODO)
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_R160",
+                code="RD2229_R160",
+                name="CLS R 160 (RD 2229/39)",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.CONCRETE,
+                fck=16.0,  # TODO: insert exact fck from RD 2229/39 table
+                fcd=10.0,  # TODO: compute/insert fcd (design value)
+                fctm=1.0,  # TODO: traction mean example
+                Ec=300000.0,  # TODO: replace with authoritative value
+                gamma_c=1.4,  # typical safety factor example
+                notes="TODO: Inserire valori esatti da RD 2229/39 (pdf)"
+            )
+        )
+
+        # Example steel (historic)
+        examples.append(
+            HistoricalMaterial(
+                id="HIST_STEEL_FEB38",
+                code="HIST_STEEL_FEB38",
+                name="Acciaio FeB38 storico",
+                source="Norme storiche / ReLUIS",
+                type=HistoricalMaterialType.STEEL,
+                fyk=380.0,  # placeholder
+                fyd=300.0,  # placeholder design value
+                Es=2100000.0,  # example modulus (kg/cm²)
+                gamma_s=1.15,  # example safety factor
+                notes="TODO: calibrare su dataset storico (es. ReLUIS, STIL)"
+            )
+        )
+
+        # Example from an online archive (placeholder)
+        examples.append(
+            HistoricalMaterial(
+                id="RELUIS_EXAMPLE_1",
+                code="RELUIS_C_EX1",
+                name="CLS ReLUIS Example",
+                source="ReLUIS STIL",
+                type=HistoricalMaterialType.CONCRETE,
+                fck=20.0,
+                fcd=13.0,
+                Ec=320000.0,
+                gamma_c=1.4,
+                notes="Example entry from ReLUIS export - TODO: replace with actual dataset values"
+            )
+        )
+
+        # Install examples only if currently empty
+        if not self._materials:
+            self._materials.extend(examples)
+            try:
+                self.save_to_file()
+                logger.info("Populated historical materials with default examples: %s", self._file_path)
+            except Exception:
+                logger.exception("Failed to save default historical materials to %s", self._file_path)
     def load_from_file(self) -> None:
         self._materials.clear()
         if not self._file_path.exists():
+            # Ensure defaults and save
+            self._ensure_default_materials()
             return
         try:
             with self._file_path.open("r", encoding="utf-8") as f:
                 raw = json.load(f)
             if not isinstance(raw, list):
                 logger.warning("Historical materials file %s does not contain a list", self._file_path)
+                # Replace with defaults
+                self._ensure_default_materials()
+                return
+            if not raw:
+                # Empty list -> populate defaults
+                self._ensure_default_materials()
                 return
             for idx, item in enumerate(raw):
                 try:
@@ -94,6 +184,8 @@ class HistoricalMaterialLibrary:
                     logger.exception("Error parsing historical material %s", idx)
         except Exception:
             logger.exception("Error loading historical materials from %s", self._file_path)
+            # Attempt to recreate defaults if loading fails
+            self._ensure_default_materials()
 
     def save_to_file(self) -> None:
         try:
