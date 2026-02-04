@@ -90,7 +90,7 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_geometry(self) -> None:
         logger.debug("Opening Geometry module")
         self.withdraw()
-        win = MainWindow(self.repository, self.serializer)
+        win = MainWindow(self.repository, self.serializer, self.material_repository)
         win.protocol("WM_DELETE_WINDOW", self._on_child_close)
 
     def _open_historical(self) -> None:
