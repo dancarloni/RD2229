@@ -434,6 +434,15 @@ class MainWindow(tk.Tk):
             width=20,
         ).grid(row=3, column=0, columnspan=2, padx=4, pady=2)
 
+        # Pulsante per aprire l'Editor Materiali (coerente con il resto dei bottoni)
+        # Posizionato sotto gli altri bottoni e collegato a `open_material_manager`.
+        tk.Button(
+            self.buttons_frame,
+            text="Editor materiali",
+            command=self.open_material_manager,
+            width=42,
+        ).grid(row=4, column=0, columnspan=2, padx=4, pady=4)
+
         self.output_frame = tk.LabelFrame(self.left_frame, text="Proprietà calcolate")
         self.output_frame.pack(fill="both", expand=True)
         self.output_text = tk.Text(self.output_frame, width=36, height=16)
