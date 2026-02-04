@@ -65,8 +65,17 @@ def test_section_manager_data():
                 print(f"      {key}: {data[key]}")
         print(f"    Campi calcolati (sample):")
         print(f"      area: {data.get('area', 'N/A')}")
+        print(f"      A_y: {data.get('A_y', 'N/A')}")
+        print(f"      A_z: {data.get('A_z', 'N/A')}")
+        print(f"      kappa_y: {data.get('kappa_y', 'N/A')}")
+        print(f"      kappa_z: {data.get('kappa_z', 'N/A')}")
         print(f"      x_G: {data.get('x_G', 'N/A')}")
         print(f"      Ix: {data.get('Ix', 'N/A')}")
+        # Quick assertions to ensure expected keys are present
+        assert 'A_y' in data
+        assert 'A_z' in data
+        assert 'kappa_y' in data
+        assert 'kappa_z' in data
 
     # Verifica CSV headers
     print("\n[4] Verifica CSV headers disponibili...")
@@ -106,6 +115,10 @@ def test_treeview_columns():
         "thickness": (70, "center"),
         "rotation_angle_deg": (70, "center"),
         "area": (75, "center"),
+        "A_y": (75, "center"),
+        "A_z": (75, "center"),
+        "kappa_y": (60, "center"),
+        "kappa_z": (60, "center"),
         "x_G": (65, "center"),
         "y_G": (65, "center"),
         "Ix": (80, "center"),

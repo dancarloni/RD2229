@@ -201,6 +201,10 @@ class SectionManager(tk.Toplevel):
             "thickness": (70, "center"),             # thickness (cm)
             "rotation_angle_deg": (70, "center"),   # rotation angle (deg)
             "area": (75, "center"),                  # Area (cm²)
+            "A_y": (75, "center"),                    # A_y (cm²)
+            "A_z": (75, "center"),                    # A_z (cm²)
+            "kappa_y": (60, "center"),                # kappa_y (unitless)
+            "kappa_z": (60, "center"),                # kappa_z (unitless)
             "x_G": (65, "center"),                   # x_G (cm)
             "y_G": (65, "center"),                   # y_G (cm)
             "Ix": (80, "center"),                    # Ix (cm⁴)
@@ -235,6 +239,10 @@ class SectionManager(tk.Toplevel):
             "thickness": "thickness (cm)",
             "rotation_angle_deg": "rot (deg)",
             "area": "Area (cm²)",
+            "A_y": "A_y (cm²)",
+            "A_z": "A_z (cm²)",
+            "kappa_y": "κ_y",
+            "kappa_z": "κ_z",
             "x_G": "x_G (cm)",
             "y_G": "y_G (cm)",
             "Ix": "Ix (cm⁴)",

@@ -28,6 +28,10 @@ CSV_HEADERS = [
     "thickness",
     "rotation_angle_deg",
     "area",
+    "A_y",
+    "A_z",
+    "kappa_y",
+    "kappa_z",
     "x_G",
     "y_G",
     "Ix",
@@ -43,6 +47,23 @@ CSV_HEADERS = [
     "ellipse_b",
     "note",
 ]
+
+# Default shear correction factors (kappa) for common section types
+# Centralized values (literature-based / engineering practice approximations):
+# - RECTANGULAR: 5/6
+# - CIRCULAR (solid): 10/9
+# - HOLLOW circular/rectangular: 1.0 (approx)
+# - T/I: web-dominated shear -> kappa_y ~ 1.0 on web direction
+DEFAULT_SHEAR_KAPPAS = {
+    "RECTANGULAR": (5.0 / 6.0, 5.0 / 6.0),
+    "CIRCULAR": (10.0 / 9.0, 10.0 / 9.0),
+    "CIRCULAR_HOLLOW": (1.0, 1.0),
+    "RECTANGULAR_HOLLOW": (5.0 / 6.0, 5.0 / 6.0),
+    "T_SECTION": (1.0, 0.9),
+    "I_SECTION": (1.0, 0.9),
+    "INVERTED_T_SECTION": (1.0, 0.9),
+    "C_SECTION": (1.0, 0.9),
+}
 
 # Tutte le possibili chiavi dimensionali supportate (garantire presenza nella dict dimensions)
 DIMENSION_KEYS = [
@@ -84,6 +105,11 @@ class SectionProperties:
     ellipse_a: Optional[float] = None
     ellipse_b: Optional[float] = None
 
+    # Timoshenko effective shear areas (A_y, A_z) in cm²
+    # These are computed as A_y = kappa_y * A_ref_y and A_z = kappa_z * A_ref_z
+    shear_area_y: Optional[float] = None
+    shear_area_z: Optional[float] = None
+
 
 @dataclass
 class Section:
@@ -94,6 +120,13 @@ class Section:
     note: str = ""
     rotation_angle_deg: float = 0.0  # Angolo di rotazione della sezione nel suo piano (gradi)
     id: str = field(default_factory=lambda: str(uuid4()))
+
+    # Shear form factors (kappa) for Timoshenko shear areas.
+    # These are user-editable and persisted in the archive as 'kappa_y' and 'kappa_z'.
+    # Defaults are assigned based on section type when computing properties if not set.
+    shear_factor_y: Optional[float] = None
+    shear_factor_z: Optional[float] = None
+
     properties: Optional[SectionProperties] = None
 
     def compute_properties(self) -> SectionProperties:
@@ -105,10 +138,68 @@ class Section:
         In questa implementazione, dopo il calcolo popoliamo anche `self.dimensions`
         con tutte le chiavi possibili (preservando None quando non applicabile)
         per soddisfare il requisito che `self.dimensions` esista sempre.
+
+        Inoltre si calcolano le aree efficaci a taglio A_y e A_z usando i fattori
+        di forma a taglio kappa_y e kappa_z (Timoshenko shear correction).
         """
+        # Calcola le proprietà geometriche specifiche di ogni sottoclasse
         self.properties = self._compute()
+
         # Costruisci il dizionario delle dimensioni (tutte le chiavi presenti)
         self.dimensions = self._collect_dimensions()
+
+        # --- SHEAR: assegna default per kappa se mancanti e calcola A_y / A_z ---
+        # Default centralizzati per tipologie comuni
+        def default_kappas(section_type: str) -> tuple:
+            # Read from centralized mapping DEFAULT_SHEAR_KAPPAS with fallback 5/6
+            return DEFAULT_SHEAR_KAPPAS.get(section_type, (5.0 / 6.0, 5.0 / 6.0))
+
+        # Assicurati che props esista
+        props = self.properties
+        if props is None:
+            logger.debug("No properties to compute shear areas for %s", self.section_type)
+            return self.properties
+
+        # Se user non ha fornito i fattori, assegna i default
+        if self.shear_factor_y is None or self.shear_factor_y <= 0:
+            self.shear_factor_y = default_kappas(self.section_type)[0]
+        if self.shear_factor_z is None or self.shear_factor_z <= 0:
+            self.shear_factor_z = default_kappas(self.section_type)[1]
+
+        # Determina le aree di riferimento A_ref_y/A_ref_z
+        def reference_areas(section: Section, props: SectionProperties) -> tuple:
+            # Per T/I e sezioni con anima: A_ref_y è principalmente l'area dell'anima (web)
+            # Se i parametri dell'anima sono presenti, usali; altrimenti usa l'area totale
+            if section.section_type in ("T_SECTION", "I_SECTION", "INVERTED_T_SECTION", "C_SECTION", "PI_SECTION"):
+                web_area = 0.0
+                if hasattr(section, "web_thickness") and hasattr(section, "web_height"):
+                    web_area = float(getattr(section, "web_thickness") or 0.0) * float(getattr(section, "web_height") or 0.0)
+                if web_area > 0:
+                    A_ref_y = web_area
+                else:
+                    A_ref_y = props.area or 0.0
+                A_ref_z = props.area or 0.0
+                return A_ref_y, A_ref_z
+            # Predefinito: uso area totale per entrambe le direzioni
+            return (props.area or 0.0, props.area or 0.0)
+
+        A_ref_y, A_ref_z = reference_areas(self, props)
+
+        # Calcola le aree efficaci a taglio
+        props.shear_area_y = (self.shear_factor_y or 0.0) * A_ref_y
+        props.shear_area_z = (self.shear_factor_z or 0.0) * A_ref_z
+
+        logger.debug(
+            "Shear areas for %s: kappa_y=%s, kappa_z=%s, A_ref_y=%s, A_ref_z=%s => A_y=%s, A_z=%s",
+            self.section_type,
+            self.shear_factor_y,
+            self.shear_factor_z,
+            A_ref_y,
+            A_ref_z,
+            props.shear_area_y,
+            props.shear_area_z,
+        )
+
         logger.debug("Proprietà calcolate per %s: %s", self.section_type, self.properties)
         return self.properties
 
@@ -170,6 +261,10 @@ class Section:
         data.update(
             {
                 "area": getattr(props, "area", None) if props else None,
+                "A_y": getattr(props, "shear_area_y", None) if props else None,
+                "A_z": getattr(props, "shear_area_z", None) if props else None,
+                "kappa_y": getattr(self, "shear_factor_y", None),
+                "kappa_z": getattr(self, "shear_factor_z", None),
                 "x_G": getattr(props, "centroid_x", None) if props else None,
                 "y_G": getattr(props, "centroid_y", None) if props else None,
                 "Ix": getattr(props, "ix", None) if props else None,
@@ -1513,6 +1608,42 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
     
     else:
         raise ValueError(f"Tipo di sezione non riconosciuto: {section_type}")
+
+    # Optional persisted shear values: kappa_y/kappa_z and A_y/A_z.
+    # If kappa values are present, set them on the section so compute_properties
+    # will use the persisted values. If only A_y/A_z are present, derive kappa
+    # from A_y/area to preserve the exported value when re-importing.
+    def _safe_float(key: str):
+        v = data.get(key)
+        if v is None or v == "":
+            return None
+        try:
+            return float(v)
+        except Exception:
+            logger.debug("Invalid float for %s: %r", key, v)
+            return None
+
+    k_y = _safe_float("kappa_y")
+    k_z = _safe_float("kappa_z")
+    A_y_csv = _safe_float("A_y")
+    A_z_csv = _safe_float("A_z")
+
+    if k_y is not None:
+        section.shear_factor_y = k_y
+    if k_z is not None:
+        section.shear_factor_z = k_z
+
+    # If only A_y/A_z provided in CSV, and area is present, derive kappa to preserve
+    # the imported effective areas upon re-saving (compatibility with older CSVs).
+    try:
+        area_csv = float(data.get("area")) if (data.get("area") is not None and data.get("area") != "") else None
+    except Exception:
+        area_csv = None
+
+    if k_y is None and A_y_csv is not None and area_csv and area_csv > 0:
+        section.shear_factor_y = A_y_csv / area_csv
+    if k_z is None and A_z_csv is not None and area_csv and area_csv > 0:
+        section.shear_factor_z = A_z_csv / area_csv
 
     section.id = (data.get("id") or "").strip() or section.id
     return section

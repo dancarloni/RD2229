@@ -34,6 +34,22 @@ class TestLSectionParserCompatibility(unittest.TestCase):
         self.assertAlmostEqual(sec.t_horizontal, 4.0)
         self.assertAlmostEqual(sec.t_vertical, 1.5)
 
+    def test_csv_with_Ay_Az_and_no_kappa_preserves_values_by_deriving_kappa(self):
+        data = {
+            'section_type': 'RECTANGULAR',
+            'name': 'CSV R',
+            'width': '10',
+            'height': '20',
+            'area': '200',
+            'A_y': '150.0',
+            'A_z': '150.0',
+            # no kappa_y/kappa_z provided
+        }
+        sec = create_section_from_dict(data)
+        # After creation, the derived kappa should be A_y/area = 150/200 = 0.75
+        self.assertAlmostEqual(sec.shear_factor_y, 0.75)
+        self.assertAlmostEqual(sec.shear_factor_z, 0.75)
+
 
 if __name__ == '__main__':
     unittest.main()

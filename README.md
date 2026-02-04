@@ -12,6 +12,7 @@ Creare un motore di calcolo che:
 - [src/rd2229](src/rd2229) — logica di calcolo e modelli
 - [data](data) — tabelle e coefficienti digitalizzati
 - [docs](docs) — note, roadmap e fonti
+  - [Shear form factors and assumptions](docs/SHEAR_FORM_FACTORS.md) — defaults and reference assumptions for κ and A_ref (used for Timoshenko shear areas)
 - [tests](tests) — test dei calcoli
 
 ## Struttura logica dei moduli

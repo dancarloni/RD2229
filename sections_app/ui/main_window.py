@@ -396,6 +396,33 @@ class MainWindow(tk.Toplevel):
             "Influenza i momenti d'inerzia globali e la grafica."
         )
 
+        # Campi per i fattori di forma a taglio (kappa_y, kappa_z)
+        shear_frame = tk.Frame(self.left_frame)
+        shear_frame.pack(fill="x", pady=(0, 8))
+        tk.Label(shear_frame, text="Fattore di forma a taglio κ_y:").pack(side="left", padx=(0, 4))
+        self.kappa_y_entry = tk.Entry(shear_frame, width=8)
+        self.kappa_y_entry.pack(side="left")
+        tk.Label(shear_frame, text="κ_z:").pack(side="left", padx=(8, 4))
+        self.kappa_z_entry = tk.Entry(shear_frame, width=8)
+        self.kappa_z_entry.pack(side="left")
+        # Help button with detailed explanation (opens dialog)
+        help_btn = tk.Button(shear_frame, text="?", width=2, command=self._show_shear_help)
+        help_btn.pack(side="left", padx=(8, 0))
+        self._create_tooltip(
+            self.kappa_y_entry,
+            "Fattore di forma a taglio κ_y (Timoshenko). Valore predefinito in base al tipo di sezione."
+        )
+        self._create_tooltip(
+            self.kappa_z_entry,
+            "Fattore di forma a taglio κ_z (Timoshenko). Valore predefinito in base al tipo di sezione."
+        )
+        self._create_tooltip(help_btn, "Informazioni dettagliate sui valori predefiniti di κ e sulle assunzioni (clicca per aprire)")
+        # Inizializza le entry con i valori di default per la tipologia corrente
+        try:
+            self._set_default_kappa_entries()
+        except Exception:
+            pass
+
         self.buttons_frame = tk.Frame(self.left_frame)
         self.buttons_frame.pack(fill="x", pady=(0, 8))
 
@@ -595,7 +622,58 @@ class MainWindow(tk.Toplevel):
         # Configura il peso della colonna per espansione
         self.inputs_frame.columnconfigure(1, weight=1)
         
+        # Inizializza le entry dei fattori kappa con i valori di default per la tipologia
+        try:
+            self._set_default_kappa_entries()
+        except Exception:
+            pass
+        
         logger.debug(f"Creati {len(self.inputs)} campi input")
+
+    def _set_default_kappa_entries(self) -> None:
+        """Imposta i valori di default per κ_y e κ_z basati sulla tipologia selezionata.
+
+        I valori sono mantenuti in sincronia con le impostazioni centrali usate per il calcolo
+        (vedi DEFAULT_SHEAR_KAPPAS in models.sections)."""
+        tipo = self.section_var.get()
+        # Mappa dei default (tenere sincronizzati con DEFAULT_SHEAR_KAPPAS)
+        defaults = {
+            "Rettangolare": (5.0 / 6.0, 5.0 / 6.0),
+            "Circolare": (10.0 / 9.0, 10.0 / 9.0),
+            "Circolare cava": (1.0, 1.0),
+            "Rettangolare cava": (5.0 / 6.0, 5.0 / 6.0),
+            "A T": (1.0, 0.9),
+            "Ad I (doppio T)": (1.0, 0.9),
+            "A T rovescia": (1.0, 0.9),
+            "A C (canale)": (1.0, 0.9),
+        }
+        ky, kz = defaults.get(tipo, (5.0 / 6.0, 5.0 / 6.0))
+        try:
+            self.kappa_y_entry.delete(0, tk.END)
+            self.kappa_y_entry.insert(0, f"{ky:.6g}")
+            self.kappa_z_entry.delete(0, tk.END)
+            self.kappa_z_entry.insert(0, f"{kz:.6g}")
+        except Exception:
+            pass
+
+    def _show_shear_help(self) -> None:
+        """Mostra un dialog con spiegazione dei fattori di forma a taglio e i valori predefiniti.
+
+        I valori e le assunzioni sono documentate anche in docs/SHEAR_FORM_FACTORS.md.
+        """
+        text = (
+            "Fattori di forma a taglio (κ) - note rapide:\n\n"
+            "- Rettangolare (b×h): κ ≈ 5/6 (~0.8333)\n"
+            "- Circolare piena: κ ≈ 10/9 (~1.1111)\n"
+            "- Sezioni T/I (anima prevalente): κ_y ≈ 1.0 (direzione anima), κ_z ≈ 0.9 (direzione trasversale)\n\n"
+            "Definizione: A_y = κ_y * A_ref_y, A_z = κ_z * A_ref_z.\n"
+            "Per sezioni con anima (T/I/C), A_ref_y è tipicamente l'area dell'anima (web_area = bw * hw),\n"
+            "mentre per sezioni compatte si usa l'area totale.\n\n"
+            "Questi sono valori di pratica ingegneristica tratti da testi classici (p.es. Roark, Timoshenko)\n"
+            "e da tabelle usate comunemente in progettazione. Modifica i valori se desideri usare dati più precisi.\n\n"
+            "Vedi file docs/SHEAR_FORM_FACTORS.md per dettagli e riferimenti." 
+        )
+        messagebox.showinfo("Fattori di forma a taglio (κ)", text)
 
     def _build_section_from_inputs(self) -> Optional[Section]:
         definition = SECTION_DEFINITIONS[self.section_var.get()]
@@ -626,6 +704,25 @@ class MainWindow(tk.Toplevel):
 
         name = self.name_entry.get().strip() or self.section_var.get()
         section = section_class(name=name, rotation_angle_deg=rotation_angle_deg, **values)
+
+        # Leggi i fattori di forma a taglio (kappa) se forniti dall'utente
+        try:
+            k_y_raw = self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
+            k_z_raw = self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
+            k_y = float(k_y_raw) if k_y_raw else None
+            k_z = float(k_z_raw) if k_z_raw else None
+            if k_y is not None and k_y <= 0:
+                raise ValueError("kappa_y must be positive")
+            if k_z is not None and k_z <= 0:
+                raise ValueError("kappa_z must be positive")
+            if k_y is not None:
+                section.shear_factor_y = k_y
+            if k_z is not None:
+                section.shear_factor_z = k_z
+        except ValueError:
+            messagebox.showerror("Errore", "I fattori κ devono essere numeri positivi")
+            return None
+
         return section
 
     def calculate_properties(self) -> None:
@@ -647,6 +744,8 @@ class MainWindow(tk.Toplevel):
             f"Sezione: {section.name}\n"
             f"Tipo: {section.section_type}\n\n"
             f"Area: {props.area:.3f} cm²\n"
+            f"Area a taglio A_y: { (props.shear_area_y or 0.0):.3f } cm²\n"
+            f"Area a taglio A_z: { (props.shear_area_z or 0.0):.3f } cm²\n"
             f"Baricentro: ({props.centroid_x:.3f}, {props.centroid_y:.3f}) cm\n"
             f"Ix: {props.ix:.3f} cm⁴\n"
             f"Iy: {props.iy:.3f} cm⁴\n"
@@ -1136,6 +1235,22 @@ class MainWindow(tk.Toplevel):
         # Carica l'angolo di rotazione
         self.rotation_entry.delete(0, tk.END)
         self.rotation_entry.insert(0, str(section.rotation_angle_deg))
+
+        # Carica i fattori kappa se presenti, altrimenti mostra i default
+        try:
+            if getattr(section, "shear_factor_y", None) is not None:
+                self.kappa_y_entry.delete(0, tk.END)
+                self.kappa_y_entry.insert(0, str(section.shear_factor_y))
+            else:
+                self._set_default_kappa_entries()
+            if getattr(section, "shear_factor_z", None) is not None:
+                self.kappa_z_entry.delete(0, tk.END)
+                self.kappa_z_entry.insert(0, str(section.shear_factor_z))
+            else:
+                self._set_default_kappa_entries()
+        except Exception:
+            # Non blocchiamo il caricamento se il campo non esiste
+            pass
         
         self.current_section = section
         # Imposta l'id di modifica in modo che il salvataggio faccia update
