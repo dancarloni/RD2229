@@ -268,6 +268,62 @@ class SectionRepository:
         except Exception as e:
             logger.exception("Errore salvataggio file JSON %s: %s", self._json_file, e)
 
+    def export_backup(self, destination: Path | str) -> None:
+        """
+        Esporta l'archivio sezioni nel percorso indicato.
+        Non modifica il file principale né il backup interno.
+        Se destination ha estensione .json, salva JSON; se .csv, salva CSV.
+        
+        Args:
+            destination: Percorso del file di destinazione (Path o str).
+                        Se l'estensione è .json → salva in formato JSON
+                        Se l'estensione è .csv → salva in formato CSV
+                        Se mancante o diversa → aggiunge .json di default
+        
+        Raises:
+            ValueError: Se la destinazione non è valida
+            IOError: Se c'è un errore di scrittura del file
+        """
+        try:
+            # Converti a Path
+            dest_path = Path(destination) if not isinstance(destination, Path) else destination
+            
+            # Determina estensione e normalizza
+            suffix = dest_path.suffix.lower()
+            if suffix not in ['.json', '.csv']:
+                # Aggiungi .json di default
+                dest_path = dest_path.with_suffix('.json')
+                suffix = '.json'
+                logger.info("Estensione mancante o non valida, uso .json: %s", dest_path)
+            
+            # Crea directory di destinazione se necessaria
+            if dest_path.parent.exists() is False and str(dest_path.parent) != '.':
+                dest_path.parent.mkdir(parents=True, exist_ok=True)
+                logger.debug("Creata directory: %s", dest_path.parent)
+            
+            # Ottieni tutte le sezioni
+            sections = self.get_all_sections()
+            
+            if suffix == '.json':
+                # Esporta in JSON
+                data = [section.to_dict() for section in sections]
+                with dest_path.open("w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                logger.info("Esportate %d sezioni in JSON: %s", len(sections), dest_path)
+                
+            elif suffix == '.csv':
+                # Esporta in CSV usando CsvSectionSerializer
+                serializer = CsvSectionSerializer()
+                serializer.export_to_csv(str(dest_path), sections)
+                logger.info("Esportate %d sezioni in CSV: %s", len(sections), dest_path)
+            
+        except (OSError, IOError) as e:
+            logger.exception("Errore I/O durante esportazione backup in %s: %s", destination, e)
+            raise IOError(f"Impossibile esportare backup in {destination}: {e}") from e
+        except Exception as e:
+            logger.exception("Errore durante esportazione backup in %s: %s", destination, e)
+            raise ValueError(f"Errore esportazione backup: {e}") from e
+
 
 class CsvSectionSerializer:
     """Gestione import/export CSV con log dettagliato."""
