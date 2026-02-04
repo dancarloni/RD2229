@@ -20,8 +20,11 @@ class DummyMat:
 
 class TestVerificationTableMore(unittest.TestCase):
     def setUp(self) -> None:
-        self.root = tk.Tk()
-        self.root.withdraw()
+        try:
+            self.root = tk.Tk()
+            self.root.withdraw()
+        except tk.TclError:
+            self.skipTest("Tkinter not available in this environment")
 
     def tearDown(self) -> None:
         try:
@@ -238,9 +241,78 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIn("C123", items)
         # should not include unrelated
         self.assertNotIn("A500", items)
+
+    def test_material_suggestions_from_repository(self):
+        """Verify suggestions are drawn from MaterialRepository and filtered by type."""
+        try:
+            from core_models.materials import MaterialRepository, Material
+        except Exception:
+            self.skipTest("MaterialRepository not available")
+
+        tmprepo = MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, '__init__') else MaterialRepository()
+        # Add materials of different types
+        m1 = Material(name="C120", type="concrete")
+        m2 = Material(name="A500", type="steel")
+        m3 = Material(name="C123", type="concrete")
+        tmprepo.add(m1)
+        tmprepo.add(m2)
+        tmprepo.add(m3)
+
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
+        app = win.app
+        top.update_idletasks()
+        top.update()
+        item = list(app.tree.get_children())[0]
+        app._start_edit(item, "mat_concrete")
+        app.edit_entry.delete(0, tk.END)
+        app.edit_entry.insert(0, "C12")
+        app._update_suggestions()
+        top.update_idletasks()
+        top.update()
+        self.assertIsNotNone(app._suggest_list)
+        items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        self.assertIn("C120", items)
+        self.assertIn("C123", items)
+        self.assertNotIn("A500", items)
+        win.destroy()
+
+    def test_section_suggestions_from_repository(self):
+        """Verify suggestions are drawn from SectionRepository."""
+        from sections_app.services.repository import SectionRepository
+        from sections_app.models.sections import RectangularSection
+
+        sec_repo = SectionRepository()
+        sec_repo.clear()
+        sec = RectangularSection(name="Rect-20x30", width=20, height=30)
+        sec.compute_properties()
+        sec_repo.add_section(sec)
+
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        win = VerificationTableWindow(top, section_repository=sec_repo, material_repository=None)
+        app = win.app
+        top.update_idletasks()
+        top.update()
+        item = list(app.tree.get_children())[0]
+        app._start_edit(item, "section")
+        app.edit_entry.delete(0, tk.END)
+        app.edit_entry.insert(0, "rect")
+        app._update_suggestions()
+        top.update_idletasks()
+        top.update()
+        self.assertIsNotNone(app._suggest_list)
+        items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        self.assertIn("Rect-20x30", items)
+        # cleanup
         app._hide_suggestions()
         app._on_entry_cancel(None)
-        app.tree.delete(item)
+        try:
+            app.tree.delete(item)
+        except Exception:
+            pass
+        win.destroy()
 
     def test_material_steel_suggestions_popup_filters(self):
         top = tk.Toplevel(self.root)

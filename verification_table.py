@@ -124,11 +124,15 @@ class VerificationTableApp(tk.Frame):
         self.section_names = self._resolve_section_names(section_repository, section_names)
         self.material_names = self._resolve_material_names(material_names)
 
-        self.suggestions_map: Dict[str, List[str]] = {
-            "section": self.section_names,
-            "mat_concrete": self.material_names,
-            "mat_steel": self.material_names,
-            "stirrups_mat": self.material_names,
+        # Suggestions map may contain either a static list OR a callable that accepts
+        # a query string and returns a filtered list of suggestion strings. By
+        # default we prefer callables that query the provided repositories so the
+        # suggestions are always up-to-date and can be filtered by material type.
+        self.suggestions_map: Dict[str, object] = {
+            "section": (lambda q: self._search_sections(q)),
+            "mat_concrete": (lambda q: self._search_materials(q, type_filter="concrete")),
+            "mat_steel": (lambda q: self._search_materials(q, type_filter="steel")),
+            "stirrups_mat": (lambda q: self._search_materials(q, type_filter=None)),
         }
 
         self.edit_entry: Optional[ttk.Entry] = None
@@ -286,6 +290,59 @@ class VerificationTableApp(tk.Frame):
     def _insert_empty_rows(self, count: int) -> None:
         for _ in range(count):
             self._add_row()
+
+    # ------------------------------------------------------------------
+    # Repository-backed search helpers
+    # ------------------------------------------------------------------
+    def _search_sections(self, query: str) -> List[str]:
+        """Search sections by name (case-insensitive) using the SectionRepository.
+
+        Returns a list of matching names.
+        """
+        q = (query or "").strip().lower()
+        if not q:
+            return []
+        try:
+            if self.section_repository is None:
+                # fallback to precomputed names
+                return [s for s in self.section_names if q in s.lower()]
+            secs = self.section_repository.get_all_sections()
+            return [s.name for s in secs if q in (s.name or "").lower()][:200]
+        except Exception:
+            logger.exception("Error searching sections in repository")
+            return [s for s in self.section_names if q in s.lower()]
+
+    def _search_materials(self, query: str, type_filter: Optional[str] = None) -> List[str]:
+        """Search materials by name and optional type filter using MaterialRepository.
+
+        If `type_filter` is provided ("concrete" or "steel"), only materials with
+        that `type` are returned. Results are case-insensitive and limited for
+        performance.
+        """
+        q = (query or "").strip().lower()
+        if not q:
+            return []
+        try:
+            if self.material_repository is not None:
+                mats = self.material_repository.get_all()
+                results = []
+                for m in mats:
+                    name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
+                    mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
+                    if type_filter and mtype is not None and mtype != type_filter:
+                        continue
+                    if q in (name or "").lower():
+                        results.append(name)
+                return results[:200]
+            # fallback to precomputed names
+            names = self.material_names or []
+            if type_filter:
+                # best-effort filter by checking prefix of type in name (weak heuristic)
+                return [n for n in names if q in n.lower()][:200]
+            return [n for n in names if q in n.lower()][:200]
+        except Exception:
+            logger.exception("Error searching materials in repository")
+            return [n for n in (self.material_names or []) if q in n.lower()][:200]
 
     def _add_row(self, after_item: Optional[str] = None) -> str:
         values = ["" for _ in self.columns]
@@ -543,15 +600,26 @@ class VerificationTableApp(tk.Frame):
     def _update_suggestions(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
             return
-        suggestions = self.suggestions_map.get(self.edit_column)
-        if not suggestions:
+        source = self.suggestions_map.get(self.edit_column)
+        if not source:
             self._hide_suggestions()
             return
-        query = self.edit_entry.get().strip().lower()
+        query = self.edit_entry.get().strip()
         if not query:
             self._hide_suggestions()
             return
-        filtered = [s for s in suggestions if query in s.lower()]
+        query_lower = query.lower()
+
+        # Support either a callable(source) -> list[str] or a static list
+        try:
+            if callable(source):
+                filtered = source(query)
+            else:
+                filtered = [s for s in source if query_lower in s.lower()]
+        except Exception:
+            logger.exception("Error while querying suggestions source")
+            filtered = []
+
         if not filtered:
             self._hide_suggestions()
             return
