@@ -1,0 +1,101 @@
+[
+  {
+    "id": "RD2229",
+    "name": "RD 2229/1939",
+    "description": "Regio Decreto 16 novembre 1939 - Norme per l'esecuzione delle opere in conglomerato cementizio",
+    "year": 1939,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "is_user_defined": false,
+    "reference": "R.D. 16/11/1939 n. 2229",
+    "notes": "Prima norma italiana organica sul cemento armato. Metodo n (tensioni ammissibili)."
+  },
+  {
+    "id": "DM72",
+    "name": "DM 30/05/1972",
+    "description": "Decreto Ministeriale 30 maggio 1972 - Norme tecniche per le costruzioni in cemento armato",
+    "year": 1972,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "is_user_defined": false,
+    "reference": "D.M. 30/05/1972",
+    "notes": "Aggiornamento delle norme RD 2229/39. Ancora tensioni ammissibili."
+  },
+  {
+    "id": "DM92",
+    "name": "DM 14/02/1992",
+    "description": "Decreto Ministeriale 14 febbraio 1992 - Norme tecniche per le costruzioni in zona sismica",
+    "year": 1992,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "is_user_defined": false,
+    "reference": "D.M. 14/02/1992",
+    "notes": "Introduce requisiti antisismici. Metodo TA con coefficienti sismici."
+  },
+  {
+    "id": "DM96",
+    "name": "DM 09/01/1996",
+    "description": "Decreto Ministeriale 9 gennaio 1996 - Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato",
+    "year": 1996,
+    "calculation_method": "SP",
+    "is_historical": true,
+    "is_user_defined": false,
+    "reference": "D.M. 09/01/1996",
+    "notes": "Introduce il metodo semiprobabilistico agli stati limite come alternativa alle TA."
+  },
+  {
+    "id": "OPCM3274",
+    "name": "OPCM 3274/2003",
+    "description": "Ordinanza PCM 20 marzo 2003 n. 3274 - Primi elementi in materia di criteri generali per la classificazione sismica",
+    "year": 2003,
+    "calculation_method": "SL",
+    "is_historical": true,
+    "is_user_defined": false,
+    "reference": "O.P.C.M. 20/03/2003 n. 3274",
+    "notes": "Introduce nuova classificazione sismica e metodo agli stati limite."
+  },
+  {
+    "id": "NTC2008",
+    "name": "NTC 2008",
+    "description": "Norme Tecniche per le Costruzioni - DM 14 gennaio 2008",
+    "year": 2008,
+    "calculation_method": "SL",
+    "is_historical": true,
+    "is_user_defined": false,
+    "reference": "D.M. 14/01/2008",
+    "notes": "Prima versione delle NTC. Metodo SL obbligatorio, TA ammesse solo per strutture semplici."
+  },
+  {
+    "id": "NTC2018",
+    "name": "NTC 2018",
+    "description": "Norme Tecniche per le Costruzioni - DM 17 gennaio 2018",
+    "year": 2018,
+    "calculation_method": "SL",
+    "is_historical": false,
+    "is_user_defined": false,
+    "reference": "D.M. 17/01/2018",
+    "notes": "Norma vigente. Metodo agli stati limite. Circolare applicativa n. 7/2019."
+  },
+  {
+    "id": "LAB_TEST",
+    "name": "Prove di laboratorio",
+    "description": "Valori derivati da prove sperimentali di laboratorio",
+    "year": null,
+    "calculation_method": "SPER",
+    "is_historical": false,
+    "is_user_defined": false,
+    "reference": "Certificati di prova",
+    "notes": "Utilizzare per materiali con caratteristiche determinate sperimentalmente."
+  },
+  {
+    "id": "CUSTOM",
+    "name": "Fonte libera",
+    "description": "Fonte definita dall'utente",
+    "year": null,
+    "calculation_method": "TA",
+    "is_historical": false,
+    "is_user_defined": true,
+    "reference": "",
+    "notes": "Fonte personalizzabile. Inserire manualmente i valori dei parametri."
+  }
+]

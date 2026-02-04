@@ -371,6 +371,119 @@ class TestVerificationTableMore(unittest.TestCase):
         app._on_entry_cancel(None)
         app.tree.delete(item)
 
+    def test_empty_query_shows_no_suggestions(self):
+        """If the user types an empty query, no suggestions should appear."""
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        app = VerificationTableApp(top)
+        item = list(app.tree.get_children())[0]
+        top.update_idletasks()
+        top.update()
+        app._start_edit(item, "mat_concrete")
+        app.edit_entry.delete(0, tk.END)
+        app._update_suggestions()
+        top.update_idletasks()
+        top.update()
+        self.assertIsNone(app._suggest_list)
+        try:
+            app.tree.delete(item)
+        except Exception:
+            pass
+        top.destroy()
+
+    def test_duplicates_between_repository_and_historical_are_removed(self):
+        """If a material exists both in repository and historical library, it should be suggested only once."""
+        try:
+            from core_models.materials import MaterialRepository, Material
+        except Exception:
+            self.skipTest("MaterialRepository not available")
+
+        tmprepo = MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, '__init__') else MaterialRepository()
+        # Add material that matches historical name
+        m1 = Material(name="CLS R 160 (RD 2229/39)", type="concrete")
+        tmprepo.add(m1)
+
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
+        app = win.app
+        top.update_idletasks()
+        top.update()
+        item = list(app.tree.get_children())[0]
+        app._start_edit(item, "mat_concrete")
+        app.edit_entry.delete(0, tk.END)
+        app.edit_entry.insert(0, "160")
+        app._update_suggestions()
+        top.update_idletasks()
+        top.update()
+        self.assertIsNotNone(app._suggest_list)
+        items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        # Should contain the R160 entry only once
+        self.assertEqual(sum(1 for it in items if "R160" in it or "160" in it), 1)
+        win.destroy()
+
+    def test_code_match_when_name_does_not(self):
+        """If query matches code but not name, the material should still be suggested."""
+        try:
+            from core_models.materials import MaterialRepository, Material
+        except Exception:
+            self.skipTest("MaterialRepository not available")
+
+        tmprepo = MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, '__init__') else MaterialRepository()
+        m1 = Material(name="Concrete X", type="concrete", code="C160")
+        tmprepo.add(m1)
+
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
+        app = win.app
+        top.update_idletasks()
+        top.update()
+        item = list(app.tree.get_children())[0]
+        app._start_edit(item, "mat_concrete")
+        app.edit_entry.delete(0, tk.END)
+        app.edit_entry.insert(0, "160")
+        app._update_suggestions()
+        top.update_idletasks()
+        top.update()
+        self.assertIsNotNone(app._suggest_list)
+        items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        self.assertIn("Concrete X", items)
+        win.destroy()
+
+    def test_type_filter_excludes_wrong_type(self):
+        """Concrete search should not return steel matches even if substring matches."""
+        try:
+            from core_models.materials import MaterialRepository, Material
+        except Exception:
+            self.skipTest("MaterialRepository not available")
+
+        tmprepo = MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, '__init__') else MaterialRepository()
+        m1 = Material(name="SomeSteel38", type="steel", code="S38")
+        m2 = Material(name="SomeConcrete38", type="concrete", code="C38")
+        tmprepo.add(m1)
+        tmprepo.add(m2)
+
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
+        app = win.app
+        top.update_idletasks()
+        top.update()
+        item = list(app.tree.get_children())[0]
+        # Search in concrete column for '38' - should only show concrete
+        app._start_edit(item, "mat_concrete")
+        app.edit_entry.delete(0, tk.END)
+        app.edit_entry.insert(0, "38")
+        app._update_suggestions()
+        top.update_idletasks()
+        top.update()
+        self.assertIsNotNone(app._suggest_list)
+        items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        self.assertIn("SomeConcrete38", items)
+        self.assertNotIn("SomeSteel38", items)
+        win.destroy()
+
 
 if __name__ == "__main__":
     unittest.main()
