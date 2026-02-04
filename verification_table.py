@@ -157,6 +157,10 @@ class VerificationTableApp(tk.Frame):
         # Flag to avoid committing the entry when the rebar calculator is open
         self._in_rebar_calculator: bool = False
 
+        # Stato centralizzato della cella corrente (usato per navigazione/tab/inserimenti)
+        self.current_item_id: Optional[str] = None
+        self.current_column_index: Optional[int] = None
+
         self._build_ui()
         self._insert_empty_rows(initial_rows)
 
@@ -347,6 +351,138 @@ class VerificationTableApp(tk.Frame):
         index = self.tree.index(after_item) + 1
         return self.tree.insert("", index, values=values)
 
+    def add_row_from_previous(self, previous_item_id: str) -> str:
+        """
+        Crea una nuova riga nel Treeview copiando TUTTI i valori
+        dalla riga identificata da previous_item_id.
+        Restituisce il nuovo item_id.
+
+        Implementazione:
+        - legge i valori con self.tree.item(previous_item_id, "values")
+        - inserisce una nuova riga subito dopo quella precedente con gli stessi valori
+        - seleziona e porta in vista la nuova riga
+        """
+        children = list(self.tree.get_children())
+        if previous_item_id in children:
+            prev_values = list(self.tree.item(previous_item_id, "values"))
+            index = children.index(previous_item_id) + 1
+        else:
+            # se l'item precedente non esiste, inseriamo in coda una riga vuota
+            prev_values = ["" for _ in self.columns]
+            index = tk.END
+        new_item = self.tree.insert("", index, values=prev_values)
+        # seleziona e porta in vista la nuova riga
+        self.tree.selection_set(new_item)
+        self.tree.focus(new_item)
+        self.tree.see(new_item)
+        return new_item
+
+    def _create_editor_for_cell(self, item: str, col: str, value: str, bbox: Tuple[int,int,int,int], initial_text: Optional[str] = None):
+        """
+        Crea e ritorna un widget editor posizionato sopra la cella indicata.
+        Usa `ttk.Combobox` per colonne materiali se `self.material_names` è disponibile,
+        altrimenti `ttk.Entry`. Bind degli eventi di navigazione e suggerimenti vengono
+        applicati qui centralmente per evitare duplicazione.
+        """
+        x, y, width, height = bbox
+        combobox_columns = {"mat_concrete", "mat_steel", "stirrups_mat"}
+        if col in combobox_columns and self.material_names:
+            editor = ttk.Combobox(self.tree, values=self.material_names)
+            editor.place(x=x, y=y, width=width, height=height)
+            # Set display value
+            editor.set(value or "")
+            if initial_text:
+                editor.delete(0, tk.END)
+                editor.insert(0, initial_text)
+            try:
+                editor.selection_range(0, tk.END)
+            except Exception:
+                pass
+            editor.focus_set()
+        else:
+            editor = ttk.Entry(self.tree)
+            editor.place(x=x, y=y, width=width, height=height)
+            editor.insert(0, value)
+            if initial_text:
+                editor.delete(0, tk.END)
+                editor.insert(0, initial_text)
+            editor.select_range(0, tk.END)
+            editor.focus_set()
+
+        # Bind eventi comuni
+        editor.bind("<Return>", self._on_entry_commit_down)
+        editor.bind("<Shift-Return>", self._on_entry_commit_up)
+        editor.bind("<Tab>", self._on_entry_commit_next)
+        editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
+        editor.bind("<Escape>", self._on_entry_cancel)
+        editor.bind("<Up>", self._on_entry_move_up)
+        editor.bind("<Down>", self._on_entry_move_down)
+        editor.bind("<Left>", self._on_entry_move_left)
+        editor.bind("<Right>", self._on_entry_move_right)
+        editor.bind("<FocusOut>", self._on_entry_focus_out)
+        editor.bind("<KeyRelease>", self._on_entry_keyrelease)
+        editor.bind("<KeyPress>", self._on_entry_keypress)
+        return editor
+
+    def _compute_target_cell(self, current_item: str, current_col: str, delta_col: int, delta_row: int) -> Tuple[str, str, bool]:
+        """
+        Calcola l'item_id e la chiave di colonna target a partire dalla cella corrente
+        e dagli spostamenti `delta_col` e `delta_row`.
+        Restituisce (target_item_id, target_col_key, created_new_row_flag).
+        """
+        items = list(self.tree.get_children())
+        if not items:
+            return current_item, current_col, False
+        if current_item not in items:
+            return current_item, current_col, False
+        row_idx = items.index(current_item)
+        col_idx = self.columns.index(current_col)
+
+        new_col = col_idx + delta_col
+        new_row = row_idx + delta_row
+
+        # wrap colonne
+        if new_col >= len(self.columns):
+            new_col = 0
+            new_row += 1
+        elif new_col < 0:
+            new_col = len(self.columns) - 1
+            new_row -= 1
+
+        # se superiamo l'ultima riga creiamo una nuova riga copiando la corrente
+        created = False
+        if new_row >= len(items):
+            new_item = self.add_row_from_previous(current_item)
+            items = list(self.tree.get_children())
+            target_item = new_item
+            created = True
+        else:
+            new_row = max(0, new_row)
+            target_item = items[new_row]
+
+        target_col = self.columns[new_col]
+        return target_item, target_col, created
+
+    # --- API pubbliche -------------------------------------------------
+    def create_editor_for_cell(self, item: str, col: str, initial_text: Optional[str] = None):
+        """
+        API pubblica: crea un editor (Entry o Combobox) posizionato sopra la cella
+        `item`/`col` e lo restituisce. Solleva ValueError se la cella non è visibile
+        (bbox vuoto).
+        """
+        bbox = self.tree.bbox(item, col)
+        if not bbox:
+            raise ValueError(f"Impossibile creare editor: bbox vuoto per item={item}, col={col}")
+        value = self.tree.set(item, col)
+        return self._create_editor_for_cell(item, col, value, bbox, initial_text=initial_text)
+
+    def compute_target_cell(self, current_item: str, current_col: str, delta_col: int, delta_row: int) -> Tuple[str, str, bool]:
+        """
+        API pubblica: wrapper che richiama `_compute_target_cell` per calcolare la
+        cella target dato un delta di colonna e riga. Restituisce (item_id, column_key, created_flag).
+        """
+        return self._compute_target_cell(current_item, current_col, delta_col, delta_row)
+
     def _remove_selected_row(self) -> None:
         sel = self.tree.focus()
         if sel:
@@ -476,28 +612,17 @@ class VerificationTableApp(tk.Frame):
 
         self.edit_item = item
         self.edit_column = col
-        self.edit_entry = ttk.Entry(self.tree)
-        self.edit_entry.place(x=x, y=y, width=width, height=height)
-        self.edit_entry.insert(0, value)
-        if initial_text:
-            self.edit_entry.delete(0, tk.END)
-            self.edit_entry.insert(0, initial_text)
-        self.edit_entry.select_range(0, tk.END)
-        self.edit_entry.focus_set()
+        # Aggiorna lo stato centralizzato della posizione corrente (indice numerico della colonna)
+        self.current_item_id = item
+        try:
+            self.current_column_index = self.columns.index(col)
+        except ValueError:
+            self.current_column_index = None
 
-        self.edit_entry.bind("<Return>", self._on_entry_commit_down)
-        self.edit_entry.bind("<Shift-Return>", self._on_entry_commit_up)
-        self.edit_entry.bind("<Tab>", self._on_entry_commit_next)
-        self.edit_entry.bind("<Shift-Tab>", self._on_entry_commit_prev)
-        self.edit_entry.bind("<Escape>", self._on_entry_cancel)
-        self.edit_entry.bind("<Up>", self._on_entry_move_up)
-        self.edit_entry.bind("<Down>", self._on_entry_move_down)
-        self.edit_entry.bind("<Left>", self._on_entry_move_left)
-        self.edit_entry.bind("<Right>", self._on_entry_move_right)
-        self.edit_entry.bind("<FocusOut>", self._on_entry_focus_out)
-        self.edit_entry.bind("<KeyRelease>", self._on_entry_keyrelease)
-        self.edit_entry.bind("<KeyPress>", self._on_entry_keypress)
+        # Crea l'editor (Entry o Combobox) in modo centralizzato
+        self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
 
+        # Aggiorna suggerimenti se pertinenti
         self._update_suggestions()
 
     def _commit_edit(self) -> None:
@@ -522,6 +647,14 @@ class VerificationTableApp(tk.Frame):
         return self._commit_and_move(delta_col=-1, delta_row=0)
 
     def _on_entry_commit_down(self, _event: tk.Event) -> str:
+        """
+        Invio (Return): avanzare di una riga mantenendo la stessa colonna.
+
+        Scelta: ho deciso di far sì che Invio sposti il cursore alla stessa
+        colonna nella riga successiva (delta_row=1). Questo è comodo per
+        inserimenti per colonna (es. digitare valori numerici riga per riga).
+        Per avanzare di colonna usa TAB.
+        """
         return self._commit_and_move(delta_col=0, delta_row=1)
 
     def _on_entry_commit_up(self, _event: tk.Event) -> str:
@@ -562,14 +695,33 @@ class VerificationTableApp(tk.Frame):
         return "break"
 
     def _commit_and_move(self, delta_col: int, delta_row: int) -> str:
+        """
+        Commette l'edit corrente e sposta l'editor secondo delta_col/delta_row.
+
+        Comportamento migliorato:
+        - Se il movimento raggiunge una riga successiva che non esiste yet, viene
+          creata una nuova riga copiando i valori della riga corrente
+          (usando `add_row_from_previous`) e l'editor si apre sulla cella desiderata.
+        - Usato sia da TAB (delta_col=1, delta_row=0), Invio (delta_row=1, delta_col=0)
+          e frecce. Questo centralizza la logica di avanzamento.
+        """
         if self.edit_item is None or self.edit_column is None:
             return "break"
         if self._suggest_list is not None:
             self._apply_suggestion()
+
         current_item = self.edit_item
         current_col = self.edit_column
+
+        # Applica suggerimento se presente e committa l'edit corrente
+        if self._suggest_list is not None:
+            self._apply_suggestion()
         self._commit_edit()
-        target_item, target_col = self._next_cell(current_item, current_col, delta_col, delta_row)
+
+        # Calcola la cella target (eventualmente creando una nuova riga copiando la corrente)
+        target_item, target_col, _created = self._compute_target_cell(current_item, current_col, delta_col, delta_row)
+
+        # Apri l'editor sulla cella target
         self._start_edit(target_item, target_col)
         return "break"
 
@@ -924,7 +1076,9 @@ class VerificationTableApp(tk.Frame):
     def export_csv(self, path: str, *, include_header: bool = True) -> None:
         """Esporta la tabella in un file CSV con intestazioni corrispondenti alle colonne.
 
-        Usa il separatore ';' e la virgola come separatore decimale.
+        - Usa `;` come delimitatore di campo (compatibile con Excel italiano).
+        - Converte i separatori decimali da '.' a ',' per i valori numerici tramite
+          `_format_value_for_csv` (es. 1.23 -> '1,23').
         """
         import csv
         keys = [c[0] for c in COLUMNS]
@@ -956,9 +1110,15 @@ class VerificationTableApp(tk.Frame):
         programmatici.
         """
         import csv
-        with open(path, newline="", encoding="utf-8") as fh:
-            reader = csv.reader(fh, delimiter=";")
-            rows = list(reader)
+        try:
+            with open(path, newline="", encoding="utf-8") as fh:
+                reader = csv.reader(fh, delimiter=";")
+                rows = list(reader)
+        except Exception as e:
+            # Gestione più esplicita dei problemi di lettura/parsing CSV
+            logger.exception("Import CSV: impossibile leggere/parsare il file '%s': %s", path, e)
+            self._show_error("Importa CSV", [f"Impossibile leggere o parsare il file: {e}"])
+            return 0, 0, [str(e)]
         if not rows:
             logger.debug("Import CSV: file vuoto o privo di righe: %s", path)
             return 0, 0, []
