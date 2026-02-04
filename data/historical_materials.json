@@ -9,12 +9,19 @@
     "fcd": 35.0,
     "fctm": null,
     "Ec": 250000.0,
+    "tau_c0": 4.0,
+    "tau_c1": 14.0,
+    "n": 10.0,
     "fyk": null,
     "fyd": null,
     "Es": null,
     "gamma_c": 3.0,
     "gamma_s": null,
-    "notes": "Cemento Portland normale. τ_serv=4, τ_max=14 kg/cm². n=10"
+    "notes": "Cemento Portland normale (idraulico, alto forno, pozzolanico)",
+    "sigma_c28": 120.0,
+    "sigma_c": 35.0,
+    "sigma_sn": null,
+    "sigma_s": null
   },
   {
     "id": "RD2229_CLS_160_N",
@@ -26,12 +33,19 @@
     "fcd": 35.0,
     "fctm": null,
     "Ec": 250000.0,
+    "tau_c0": 4.0,
+    "tau_c1": 14.0,
+    "n": 10.0,
     "fyk": null,
     "fyd": null,
     "Es": null,
     "gamma_c": 3.0,
     "gamma_s": null,
-    "notes": "Cemento Portland normale R160. τ_serv=4, τ_max=14 kg/cm². n=10. Richiesto per acciaio dolce σ_s=1400 kg/cm²"
+    "notes": "Cemento Portland normale R160. Richiesto per acciaio dolce σ_s=1400 kg/cm²",
+    "sigma_c28": 160.0,
+    "sigma_c": 35.0,
+    "sigma_sn": null,
+    "sigma_s": null
   },
   {
     "id": "RD2229_CLS_160_AR",
@@ -43,12 +57,19 @@
     "fcd": 45.0,
     "fctm": null,
     "Ec": 300000.0,
+    "tau_c0": 6.0,
+    "tau_c1": 16.0,
+    "n": 8.0,
     "fyk": null,
     "fyd": null,
     "Es": null,
     "gamma_c": 3.0,
     "gamma_s": null,
-    "notes": "Cemento ad alta resistenza. τ_serv=6, τ_max=16 kg/cm². n=8. Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²"
+    "notes": "Cemento ad alta resistenza. Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²",
+    "sigma_c28": 160.0,
+    "sigma_c": 45.0,
+    "sigma_sn": null,
+    "sigma_s": null
   },
   {
     "id": "RD2229_CLS_225_AR",
@@ -60,12 +81,19 @@
     "fcd": 50.0,
     "fctm": null,
     "Ec": 300000.0,
+    "tau_c0": 6.0,
+    "tau_c1": 16.0,
+    "n": 8.0,
     "fyk": null,
     "fyd": null,
     "Es": null,
     "gamma_c": 3.0,
     "gamma_s": null,
-    "notes": "Cemento ad alta resistenza R225. τ_serv=6, τ_max=16 kg/cm². n=8. Richiesto per acciaio duro σ_s=2000 kg/cm²"
+    "notes": "Cemento ad alta resistenza R225. Richiesto per acciaio duro σ_s=2000 kg/cm²",
+    "sigma_c28": 225.0,
+    "sigma_c": 50.0,
+    "sigma_sn": null,
+    "sigma_s": null
   },
   {
     "id": "RD2229_CLS_160_AL",
@@ -77,12 +105,19 @@
     "fcd": 45.0,
     "fctm": null,
     "Ec": 330000.0,
+    "tau_c0": 6.0,
+    "tau_c1": 16.0,
+    "n": 6.0,
     "fyk": null,
     "fyd": null,
     "Es": null,
     "gamma_c": 3.0,
     "gamma_s": null,
-    "notes": "Cemento alluminoso. τ_serv=6, τ_max=16 kg/cm². n=6. Rapida presa e alta resistenza iniziale"
+    "notes": "Cemento alluminoso. Rapida presa e alta resistenza iniziale",
+    "sigma_c28": 160.0,
+    "sigma_c": 45.0,
+    "sigma_sn": null,
+    "sigma_s": null
   },
   {
     "id": "RD2229_CLS_120_LP",
@@ -94,12 +129,19 @@
     "fcd": 35.0,
     "fctm": null,
     "Ec": 200000.0,
+    "tau_c0": 6.0,
+    "tau_c1": 16.0,
+    "n": 10.0,
     "fyk": null,
     "fyd": null,
     "Es": null,
     "gamma_c": 3.0,
     "gamma_s": null,
-    "notes": "Cemento a lenta presa. Modulo ridotto E=200000 kg/cm²"
+    "notes": "Cemento a lenta presa. Modulo ridotto E_c=200000 kg/cm²",
+    "sigma_c28": 120.0,
+    "sigma_c": 35.0,
+    "sigma_sn": null,
+    "sigma_s": null
   },
   {
     "id": "RD2229_ACC_DOLCE",
@@ -111,12 +153,19 @@
     "fcd": null,
     "fctm": null,
     "Ec": null,
+    "tau_c0": null,
+    "tau_c1": null,
+    "n": null,
     "fyk": 2800.0,
     "fyd": 1400.0,
     "Es": 2100000.0,
     "gamma_c": null,
     "gamma_s": 2.0,
-    "notes": "Acciaio dolce liscio. Richiede CLS con R≥160 kg/cm². σ_amm = 1400 kg/cm² (non deve superare metà carico snervamento)"
+    "notes": "Acciaio dolce liscio. Richiede CLS con σ_c,28≥160 kg/cm². σ_s ≤ σ_sn/2 (non deve superare metà carico snervamento)",
+    "sigma_c28": null,
+    "sigma_c": null,
+    "sigma_sn": 2800.0,
+    "sigma_s": 1400.0
   },
   {
     "id": "RD2229_ACC_SEMIDURO",
@@ -128,12 +177,19 @@
     "fcd": null,
     "fctm": null,
     "Ec": null,
+    "tau_c0": null,
+    "tau_c1": null,
+    "n": null,
     "fyk": 3600.0,
     "fyd": 1800.0,
     "Es": 2100000.0,
     "gamma_c": null,
     "gamma_s": 2.0,
-    "notes": "Acciaio semiduro. Richiede CLS alta resistenza R≥160 kg/cm². σ_amm = 1600 kg/cm² (sez. T o speciali) o 1800 kg/cm² (sez. rett.)"
+    "notes": "Acciaio semiduro. Richiede CLS alta resistenza σ_c,28≥160 kg/cm². σ_s = 1600 kg/cm² (sez. T) o 1800 kg/cm² (sez. rett.)",
+    "sigma_c28": null,
+    "sigma_c": null,
+    "sigma_sn": 3600.0,
+    "sigma_s": 1800.0
   },
   {
     "id": "RD2229_ACC_DURO",
@@ -145,12 +201,19 @@
     "fcd": null,
     "fctm": null,
     "Ec": null,
+    "tau_c0": null,
+    "tau_c1": null,
+    "n": null,
     "fyk": 4000.0,
     "fyd": 2000.0,
     "Es": 2100000.0,
     "gamma_c": null,
     "gamma_s": 2.0,
-    "notes": "Acciaio duro. Richiede CLS alta resistenza R≥225 kg/cm². σ_amm = 1800 kg/cm² (sez. T o speciali) o 2000 kg/cm² (sez. rett.)"
+    "notes": "Acciaio duro. Richiede CLS alta resistenza σ_c,28≥225 kg/cm². σ_s = 1800 kg/cm² (sez. T) o 2000 kg/cm² (sez. rett.)",
+    "sigma_c28": null,
+    "sigma_c": null,
+    "sigma_sn": 4000.0,
+    "sigma_s": 2000.0
   },
   {
     "id": "RD2229_STAFFA_DOLCE",
@@ -162,11 +225,18 @@
     "fcd": null,
     "fctm": null,
     "Ec": null,
+    "tau_c0": null,
+    "tau_c1": null,
+    "n": null,
     "fyk": 2800.0,
     "fyd": 1400.0,
     "Es": 2100000.0,
     "gamma_c": null,
     "gamma_s": 2.0,
-    "notes": "Acciaio dolce per staffe e legature. Tondo liscio φ6-φ10 tipici"
+    "notes": "Acciaio dolce per staffe e legature. Tondo liscio φ6-φ10 tipici",
+    "sigma_c28": null,
+    "sigma_c": null,
+    "sigma_sn": 2800.0,
+    "sigma_s": 1400.0
   }
 ]
