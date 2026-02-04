@@ -42,15 +42,27 @@ class TestVerificationTableMore(unittest.TestCase):
         win.destroy()
 
     def test_suggestions_popup_filters(self):
-        app = VerificationTableApp(self.root)
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        app = VerificationTableApp(top)
         # ensure there is at least one row and start editing the section cell
         item = list(app.tree.get_children())[0]
+        # Ensure widgets have been rendered so bbox() works
+        top.update_idletasks()
+        top.update()
         app._start_edit(item, "section")
         # set some fake section names
         app.section_names = ["Rect-20x30", "Circ-25", "Other"]
+        # propagate to suggestions map
+        app.suggestions_map["section"] = app.section_names
+        # ensure entry exists
+        self.assertIsNotNone(app.edit_entry)
         app.edit_entry.delete(0, tk.END)
         app.edit_entry.insert(0, "rect")
         app._update_suggestions()
+        # allow UI to create popup
+        top.update_idletasks()
+        top.update()
         self.assertIsNotNone(app._suggest_list)
         items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
         # should include only the matching entry
@@ -60,15 +72,28 @@ class TestVerificationTableMore(unittest.TestCase):
         app.tree.delete(item)
 
     def test_rebar_calculator_applies_value(self):
-        app = VerificationTableApp(self.root)
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
+        # Ensure widgets rendered so bbox() works
+        top.update_idletasks()
+        top.update()
         # Start editing As (column 'As')
         app._start_edit(item, "As")
+        # ensure entry created
+        self.assertIsNotNone(app.edit_entry)
         # open calculator
         app._open_rebar_calculator()
+        # ensure rebar vars created
+        self.assertIn(16, app._rebar_vars)
+        self.assertIn(8, app._rebar_vars)
         # set 2 bars of Ø16 and 3 bars of Ø8
         app._rebar_vars[16].set("2")
         app._rebar_vars[8].set("3")
+        # update and read total
+        self.root.update_idletasks()
+        self.root.update()
         app._update_rebar_total()
         total = float(app._rebar_total_var.get())
         # Confirm
