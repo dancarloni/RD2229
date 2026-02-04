@@ -7,6 +7,7 @@ Verifica che il menu "Esporta backup..." sia presente e funzionante.
 import json
 import tempfile
 import unittest
+import tkinter as tk
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -21,6 +22,14 @@ class TestExportBackupGUI(unittest.TestCase):
 
     def setUp(self):
         """Setup con repository temporanei."""
+        # Skip test if Tcl/Tk is not available in the environment
+        try:
+            root = tk.Tk()
+            root.withdraw()
+            root.destroy()
+        except tk.TclError:
+            self.skipTest("Tkinter not available in this environment")
+
         self.temp_dir = tempfile.TemporaryDirectory()
         self.temp_path = Path(self.temp_dir.name)
         

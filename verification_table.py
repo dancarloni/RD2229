@@ -782,17 +782,30 @@ class VerificationTableApp(tk.Frame):
             self._hide_suggestions()
             return
         query = self.edit_entry.get().strip()
-        if not query:
-            self._hide_suggestions()
-            return
         query_lower = query.lower()
 
         # Support either a callable(source) -> list[str] or a static list
         try:
-            if callable(source):
-                filtered = source(query)
+            # Columns for which we want to show all suggestions immediately when the
+            # field is empty (section, concrete/steel/stirrups materials).
+            show_all_on_empty = {"section", "mat_concrete", "mat_steel", "stirrups_mat"}
+
+            if query == "":
+                if self.edit_column not in show_all_on_empty:
+                    # For other columns, preserve old behavior: hide suggestions
+                    self._hide_suggestions()
+                    return
+                # For the allowed columns, request the full list from the source
+                if callable(source):
+                    filtered = source("")
+                else:
+                    filtered = list(source)
             else:
-                filtered = [s for s in source if query_lower in s.lower()]
+                # Non-empty query: keep existing behavior
+                if callable(source):
+                    filtered = source(query)
+                else:
+                    filtered = [s for s in source if query_lower in s.lower()]
         except Exception:
             logger.exception("Error while querying suggestions source")
             filtered = []
