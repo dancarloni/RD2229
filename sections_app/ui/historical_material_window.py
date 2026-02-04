@@ -13,19 +13,32 @@ logger = logging.getLogger(__name__)
 
 
 class HistoricalMaterialWindow(tk.Toplevel):
-    """Window to manage HistoricalMaterialLibrary and import into MaterialRepository."""
+    """Window to manage HistoricalMaterialLibrary and import into MaterialRepository.
 
+    Visualizza i materiali con doppia notazione:
+    - Moderna (fck, fcd, fyk, fyd)
+    - Storica RD 2229/39 (σ_c,28, σ_c, σ_sn, σ_s)
+    """
+
+    # Colonne con doppia notazione (moderna / storica RD 2229/39)
     COLUMNS = [
         ("name", "Nome"),
         ("code", "Codice"),
         ("type", "Tipo"),
         ("source", "Fonte"),
-        ("fck", "fck [kg/cm²]"),
-        ("fcd", "fcd [kg/cm²]"),
-        ("fyk", "fyk [kg/cm²]"),
-        ("fyd", "fyd [kg/cm²]"),
-        ("Ec", "Ec [kg/cm²]"),
-        ("Es", "Es [kg/cm²]"),
+        # Calcestruzzo - doppia notazione
+        ("fck", "fck / σ_c,28"),       # resistenza cubica 28 gg
+        ("fcd", "fcd / σ_c"),          # tensione ammissibile
+        ("tau_c0", "τ_c0"),            # taglio servizio
+        ("tau_c1", "τ_c1"),            # taglio max
+        ("n", "n"),                     # coeff. omogeneizzazione
+        # Acciaio - doppia notazione
+        ("fyk", "fyk / σ_sn"),         # snervamento
+        ("fyd", "fyd / σ_s"),          # tensione ammissibile
+        # Moduli elastici
+        ("Ec", "E_c"),
+        ("Es", "E_s"),
+        # Coefficienti
         ("gamma_c", "γ_c"),
         ("gamma_s", "γ_s"),
         ("notes", "Note"),
@@ -33,8 +46,8 @@ class HistoricalMaterialWindow(tk.Toplevel):
 
     def __init__(self, master: tk.Misc, library: HistoricalMaterialLibrary, material_repository: Optional[MaterialRepository] = None) -> None:
         super().__init__(master)
-        self.title("Archivio Materiali Storici")
-        self.geometry("1000x480")
+        self.title("Archivio Materiali Storici - RD 2229/39")
+        self.geometry("1200x520")
         self.library = library
         self.material_repository = material_repository
 
@@ -45,12 +58,20 @@ class HistoricalMaterialWindow(tk.Toplevel):
         frame = tk.Frame(self)
         frame.pack(fill="both", expand=True, padx=8, pady=8)
 
-        # Treeview
+        # Treeview con larghezze colonne ottimizzate
         cols = [c[0] for c in self.COLUMNS]
-        self.tree = ttk.Treeview(frame, columns=cols, show="headings", height=16)
+        self.tree = ttk.Treeview(frame, columns=cols, show="headings", height=18)
+
+        # Larghezze personalizzate per colonna
+        col_widths = {
+            "name": 160, "code": 130, "type": 70, "source": 120,
+            "fck": 80, "fcd": 70, "tau_c0": 50, "tau_c1": 50, "n": 40,
+            "fyk": 80, "fyd": 70, "Ec": 80, "Es": 80,
+            "gamma_c": 40, "gamma_s": 40, "notes": 200
+        }
         for key, label in self.COLUMNS:
             self.tree.heading(key, text=label)
-            self.tree.column(key, width=100)
+            self.tree.column(key, width=col_widths.get(key, 80), anchor="center")
         self.tree.pack(side="left", fill="both", expand=True)
 
         scrollbar = ttk.Scrollbar(frame, orient="vertical", command=self.tree.yview)
@@ -85,12 +106,19 @@ class HistoricalMaterialWindow(tk.Toplevel):
                 hist.code,
                 getattr(hist, "type", "").value if hasattr(hist, "type") else str(getattr(hist, "type", "")),
                 hist.source or "",
-                str(hist.fck or ""),
-                str(hist.fcd or ""),
-                str(hist.fyk or ""),
-                str(hist.fyd or ""),
+                # Calcestruzzo
+                str(hist.fck or ""),      # fck / σ_c,28
+                str(hist.fcd or ""),      # fcd / σ_c
+                str(hist.tau_c0 or ""),   # τ_c0 taglio servizio
+                str(hist.tau_c1 or ""),   # τ_c1 taglio max
+                str(hist.n or ""),        # n coeff. omogeneizzazione
+                # Acciaio
+                str(hist.fyk or ""),      # fyk / σ_sn
+                str(hist.fyd or ""),      # fyd / σ_s
+                # Moduli elastici
                 str(hist.Ec or ""),
                 str(hist.Es or ""),
+                # Coefficienti
                 str(hist.gamma_c or ""),
                 str(hist.gamma_s or ""),
                 hist.notes or "",
@@ -178,34 +206,89 @@ class _HistoricalEditDialog(tk.Toplevel):
         # Basic fields
         tk.Label(frm, text="Nome").grid(row=0, column=0, sticky="w")
         self.name_entry = tk.Entry(frm, width=40)
-        self.name_entry.grid(row=0, column=1, sticky="w")
+        self.name_entry.grid(row=0, column=1, columnspan=2, sticky="w")
 
         tk.Label(frm, text="Codice").grid(row=1, column=0, sticky="w")
         self.code_entry = tk.Entry(frm, width=40)
-        self.code_entry.grid(row=1, column=1, sticky="w")
+        self.code_entry.grid(row=1, column=1, columnspan=2, sticky="w")
 
         tk.Label(frm, text="Fonte").grid(row=2, column=0, sticky="w")
         self.source_entry = tk.Entry(frm, width=40)
-        self.source_entry.grid(row=2, column=1, sticky="w")
+        self.source_entry.grid(row=2, column=1, columnspan=2, sticky="w")
 
         tk.Label(frm, text="Tipo").grid(row=3, column=0, sticky="w")
         self.type_var = tk.StringVar(value=HistoricalMaterialType.CONCRETE.value)
         self.type_combo = ttk.Combobox(frm, textvariable=self.type_var, values=[t.value for t in HistoricalMaterialType], state="readonly")
-        self.type_combo.grid(row=3, column=1, sticky="w")
+        self.type_combo.grid(row=3, column=1, columnspan=2, sticky="w")
 
-        # Numeric fields
+        # Separatore - Calcestruzzo
         row = 4
+        tk.Label(frm, text="─── CALCESTRUZZO ───", font=("TkDefaultFont", 9, "bold")).grid(row=row, column=0, columnspan=3, sticky="w", pady=(10, 2))
+        row += 1
+
+        # Campi calcestruzzo con doppia notazione
+        # Formato: (label_moderna, label_storica, key, tooltip)
+        concrete_fields = [
+            ("fck", "σ_c,28", "fck", "Resistenza cubica 28 gg [kg/cm²]"),
+            ("fcd", "σ_c", "fcd", "Tensione ammissibile [kg/cm²]"),
+            ("τ_c0", "τ servizio", "tau_c0", "Taglio di servizio [kg/cm²]"),
+            ("τ_c1", "τ max", "tau_c1", "Taglio massimo [kg/cm²]"),
+            ("n", "Es/Ec", "n", "Coefficiente di omogeneizzazione"),
+            ("E_c", "", "Ec", "Modulo elastico cls [kg/cm²]"),
+        ]
+
         self.num_fields = {}
-        for label, key in [("fck", "fck"), ("fcd", "fcd"), ("fyk", "fyk"), ("fyd", "fyd"), ("Ec", "Ec"), ("Es", "Es"), ("γ_c", "gamma_c"), ("γ_s", "gamma_s")]:
-            tk.Label(frm, text=label).grid(row=row, column=0, sticky="w")
-            ent = tk.Entry(frm, width=20)
+        for label_mod, label_hist, key, tooltip in concrete_fields:
+            full_label = f"{label_mod}" if not label_hist else f"{label_mod} / {label_hist}"
+            tk.Label(frm, text=full_label).grid(row=row, column=0, sticky="w")
+            ent = tk.Entry(frm, width=15)
             ent.grid(row=row, column=1, sticky="w")
+            tk.Label(frm, text=tooltip, fg="gray").grid(row=row, column=2, sticky="w", padx=(5, 0))
             self.num_fields[key] = ent
             row += 1
 
-        tk.Label(frm, text="Note").grid(row=row, column=0, sticky="nw")
-        self.notes_text = tk.Text(frm, width=40, height=4)
-        self.notes_text.grid(row=row, column=1, sticky="w")
+        # Separatore - Acciaio
+        tk.Label(frm, text="─── ACCIAIO ───", font=("TkDefaultFont", 9, "bold")).grid(row=row, column=0, columnspan=3, sticky="w", pady=(10, 2))
+        row += 1
+
+        # Campi acciaio con doppia notazione
+        steel_fields = [
+            ("fyk", "σ_sn", "fyk", "Tensione di snervamento [kg/cm²]"),
+            ("fyd", "σ_s", "fyd", "Tensione ammissibile [kg/cm²]"),
+            ("E_s", "", "Es", "Modulo elastico acciaio [kg/cm²]"),
+        ]
+
+        for label_mod, label_hist, key, tooltip in steel_fields:
+            full_label = f"{label_mod}" if not label_hist else f"{label_mod} / {label_hist}"
+            tk.Label(frm, text=full_label).grid(row=row, column=0, sticky="w")
+            ent = tk.Entry(frm, width=15)
+            ent.grid(row=row, column=1, sticky="w")
+            tk.Label(frm, text=tooltip, fg="gray").grid(row=row, column=2, sticky="w", padx=(5, 0))
+            self.num_fields[key] = ent
+            row += 1
+
+        # Separatore - Coefficienti
+        tk.Label(frm, text="─── COEFFICIENTI ───", font=("TkDefaultFont", 9, "bold")).grid(row=row, column=0, columnspan=3, sticky="w", pady=(10, 2))
+        row += 1
+
+        # Coefficienti di sicurezza
+        coeff_fields = [
+            ("γ_c", "gamma_c", "Rapporto fck/fcd (≈3 per cls)"),
+            ("γ_s", "gamma_s", "Rapporto fyk/fyd (=2 per acciaio)"),
+        ]
+
+        for label, key, tooltip in coeff_fields:
+            tk.Label(frm, text=label).grid(row=row, column=0, sticky="w")
+            ent = tk.Entry(frm, width=15)
+            ent.grid(row=row, column=1, sticky="w")
+            tk.Label(frm, text=tooltip, fg="gray").grid(row=row, column=2, sticky="w", padx=(5, 0))
+            self.num_fields[key] = ent
+            row += 1
+
+        # Note
+        tk.Label(frm, text="Note").grid(row=row, column=0, sticky="nw", pady=(10, 0))
+        self.notes_text = tk.Text(frm, width=50, height=4)
+        self.notes_text.grid(row=row, column=1, columnspan=2, sticky="w", pady=(10, 0))
 
     def _build_buttons(self) -> None:
         btn_frame = tk.Frame(self)
@@ -218,6 +301,7 @@ class _HistoricalEditDialog(tk.Toplevel):
         self.code_entry.insert(0, material.code)
         self.source_entry.insert(0, material.source or "")
         self.type_var.set(material.type.value if hasattr(material, "type") else str(material.type))
+        # Popola tutti i campi numerici (inclusi nuovi: tau_c0, tau_c1, n)
         for k, ent in self.num_fields.items():
             val = getattr(material, k, None)
             if val is not None:
@@ -237,11 +321,15 @@ class _HistoricalEditDialog(tk.Toplevel):
         if not code:
             messagebox.showerror("Errore", "Codice obbligatorio")
             return
-        # Build object
+        # Build object - parse numeric fields
         numeric = {}
         for k, ent in self.num_fields.items():
-            txt = ent.get().strip()
-            numeric[k] = float(txt) if txt else None
+            txt = ent.get().strip().replace(",", ".")  # supporta virgola decimale
+            try:
+                numeric[k] = float(txt) if txt else None
+            except ValueError:
+                messagebox.showerror("Errore", f"Valore non valido per {k}: {txt}")
+                return
 
         notes = self.notes_text.get("1.0", "end").strip()
         hist = HistoricalMaterial(
@@ -250,12 +338,18 @@ class _HistoricalEditDialog(tk.Toplevel):
             code=code,
             source=source,
             type=mtype,
-            fck=numeric.get("fck"),
-            fcd=numeric.get("fcd"),
-            fyk=numeric.get("fyk"),
-            fyd=numeric.get("fyd"),
+            # Calcestruzzo
+            fck=numeric.get("fck"),       # σ_c,28
+            fcd=numeric.get("fcd"),       # σ_c
+            tau_c0=numeric.get("tau_c0"), # τ servizio
+            tau_c1=numeric.get("tau_c1"), # τ max
+            n=numeric.get("n"),           # coeff. omogeneizzazione
             Ec=numeric.get("Ec"),
+            # Acciaio
+            fyk=numeric.get("fyk"),       # σ_sn
+            fyd=numeric.get("fyd"),       # σ_s
             Es=numeric.get("Es"),
+            # Coefficienti
             gamma_c=numeric.get("gamma_c"),
             gamma_s=numeric.get("gamma_s"),
             notes=notes,
