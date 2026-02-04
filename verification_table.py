@@ -1,0 +1,697 @@
+from __future__ import annotations
+
+import math
+import tkinter as tk
+from dataclasses import dataclass
+from tkinter import ttk
+from typing import Dict, Iterable, List, Optional, Tuple
+
+try:
+    from tools.materials_manager import list_materials
+except Exception:  # pragma: no cover - fallback if import fails
+    list_materials = None
+
+try:
+    from sections_app.services.repository import SectionRepository
+except Exception:  # pragma: no cover - fallback if import fails
+    SectionRepository = None  # type: ignore
+
+
+ColumnDef = Tuple[str, str, int, str]
+
+
+@dataclass
+class VerificationInput:
+    section_id: str
+    material_concrete: str
+    material_steel: str
+    n_homog: float
+    N: float
+    M: float
+    T: float
+    As_sup: float
+    As_inf: float
+    d_sup: float
+    d_inf: float
+    stirrup_step: float
+    stirrup_diameter: float
+    stirrup_material: str
+    notes: str
+
+
+@dataclass
+class VerificationOutput:
+    sigma_c_max: float
+    sigma_c_min: float
+    sigma_s_max: float
+    asse_neutro: float
+    deformazioni: str
+    coeff_sicurezza: float
+    esito: str
+    messaggi: List[str]
+
+
+def compute_verification_result(_input: VerificationInput) -> VerificationOutput:
+    """TODO: implementare motore di verifica.
+
+    In futuro dovrà richiamare:
+    - compute_section_properties()
+    - compute_normal_stresses_ta()
+    - check_allowable_stresses_ta()
+    - altre routine TA
+    """
+    return VerificationOutput(
+        sigma_c_max=0.0,
+        sigma_c_min=0.0,
+        sigma_s_max=0.0,
+        asse_neutro=0.0,
+        deformazioni="TODO",
+        coeff_sicurezza=1.0,
+        esito="TODO",
+        messaggi=["TODO: motore di verifica non implementato"],
+    )
+
+
+COLUMNS: List[ColumnDef] = [
+    ("section", "Sezione", 170, "w"),
+    ("mat_concrete", "Materiale cls", 140, "w"),
+    ("mat_steel", "Materiale acciaio", 140, "w"),
+    ("n", "Coeff. n", 75, "center"),
+    ("N", "N [kg]", 80, "center"),
+    ("M", "M [kg·m]", 90, "center"),
+    ("T", "T [kg]", 80, "center"),
+    ("As_p", "As' [cm²]", 90, "center"),
+    ("As", "As [cm²]", 90, "center"),
+    ("d_p", "d' [cm]", 80, "center"),
+    ("d", "d [cm]", 80, "center"),
+    ("stirrups_step", "Passo staffe [cm]", 120, "center"),
+    ("stirrups_diam", "Diametro staffe [mm]", 130, "center"),
+    ("stirrups_mat", "Materiale staffe", 140, "w"),
+    ("notes", "NOTE", 240, "w"),
+]
+
+
+class VerificationTableApp(tk.Frame):
+    """GUI tabellare per inserimento rapido delle verifiche (senza logica di calcolo)."""
+
+    def __init__(
+        self,
+        master: tk.Tk,
+        section_repository: Optional["SectionRepository"] = None,
+        section_names: Optional[Iterable[str]] = None,
+        material_names: Optional[Iterable[str]] = None,
+        initial_rows: int = 20,
+    ) -> None:
+        super().__init__(master)
+        self.master = master
+        self.pack(fill="both", expand=True)
+
+        self.columns = [c[0] for c in COLUMNS]
+        self._last_col = self.columns[0]
+
+        self.section_names = self._resolve_section_names(section_repository, section_names)
+        self.material_names = self._resolve_material_names(material_names)
+
+        self.suggestions_map: Dict[str, List[str]] = {
+            "section": self.section_names,
+            "mat_concrete": self.material_names,
+            "mat_steel": self.material_names,
+            "stirrups_mat": self.material_names,
+        }
+
+        self.edit_entry: Optional[ttk.Entry] = None
+        self.edit_item: Optional[str] = None
+        self.edit_column: Optional[str] = None
+        self._suggest_box: Optional[tk.Toplevel] = None
+        self._suggest_list: Optional[tk.Listbox] = None
+        self._rebar_window: Optional[tk.Toplevel] = None
+        self._rebar_vars: Dict[int, tk.StringVar] = {}
+        self._rebar_entries: List[tk.Entry] = []
+        self._rebar_total_var = tk.StringVar(value="0.00")
+        self._rebar_target_column: Optional[str] = None
+
+        self._build_ui()
+        self._insert_empty_rows(initial_rows)
+
+    def table_row_to_model(self, row_index: int) -> VerificationInput:
+        items = list(self.tree.get_children())
+        if row_index < 0 or row_index >= len(items):
+            raise IndexError("row_index out of range")
+        item = items[row_index]
+
+        def get(col: str) -> str:
+            return str(self.tree.set(item, col) or "").strip()
+
+        def num(col: str) -> float:
+            value = get(col)
+            if not value:
+                return 0.0
+            try:
+                return float(value.replace(",", "."))
+            except ValueError:
+                return 0.0
+
+        return VerificationInput(
+            section_id=get("section"),
+            material_concrete=get("mat_concrete"),
+            material_steel=get("mat_steel"),
+            n_homog=num("n"),
+            N=num("N"),
+            M=num("M"),
+            T=num("T"),
+            As_sup=num("As"),
+            As_inf=num("As_p"),
+            d_sup=num("d"),
+            d_inf=num("d_p"),
+            stirrup_step=num("stirrups_step"),
+            stirrup_diameter=num("stirrups_diam"),
+            stirrup_material=get("stirrups_mat"),
+            notes=get("notes"),
+        )
+
+    def update_row_from_model(self, row_index: int, model: VerificationInput) -> None:
+        items = list(self.tree.get_children())
+        if row_index < 0 or row_index >= len(items):
+            raise IndexError("row_index out of range")
+        item = items[row_index]
+        values_map = {
+            "section": model.section_id,
+            "mat_concrete": model.material_concrete,
+            "mat_steel": model.material_steel,
+            "n": model.n_homog,
+            "N": model.N,
+            "M": model.M,
+            "T": model.T,
+            "As": model.As_sup,
+            "As_p": model.As_inf,
+            "d": model.d_sup,
+            "d_p": model.d_inf,
+            "stirrups_step": model.stirrup_step,
+            "stirrups_diam": model.stirrup_diameter,
+            "stirrups_mat": model.stirrup_material,
+            "notes": model.notes,
+        }
+        for col, value in values_map.items():
+            self.tree.set(item, col, "" if value is None else value)
+
+    def _build_ui(self) -> None:
+        top = tk.Frame(self)
+        top.pack(fill="x", padx=8, pady=(8, 4))
+
+        tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
+        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
+
+        table_frame = tk.Frame(self)
+        table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
+
+        xscroll = tk.Scrollbar(table_frame, orient="horizontal")
+        yscroll = tk.Scrollbar(table_frame, orient="vertical")
+        xscroll.pack(side="bottom", fill="x")
+        yscroll.pack(side="right", fill="y")
+
+        self.tree = ttk.Treeview(
+            table_frame,
+            columns=self.columns,
+            show="headings",
+            xscrollcommand=xscroll.set,
+            yscrollcommand=yscroll.set,
+            selectmode="browse",
+        )
+        self.tree.pack(fill="both", expand=True)
+        xscroll.config(command=self.tree.xview)
+        yscroll.config(command=self.tree.yview)
+
+        for key, label, width, anchor in COLUMNS:
+            self.tree.heading(key, text=label)
+            self.tree.column(key, width=width, minwidth=width, anchor=anchor, stretch=False)
+
+        self.tree.bind("<ButtonRelease-1>", self._on_tree_click)
+        self.tree.bind("<Double-1>", self._on_tree_double_click)
+        self.tree.bind("<Return>", self._on_tree_return)
+        self.tree.bind("<Shift-Return>", self._on_tree_shift_return)
+        self.tree.bind("<F2>", self._on_tree_return)
+        self.tree.bind("<Key>", self._on_tree_keypress)
+        self.tree.bind("<Up>", self._on_tree_arrow)
+        self.tree.bind("<Down>", self._on_tree_arrow)
+        self.tree.bind("<Left>", self._on_tree_arrow)
+        self.tree.bind("<Right>", self._on_tree_arrow)
+        self.tree.bind("<Tab>", self._on_tree_tab)
+        self.tree.bind("<Shift-Tab>", self._on_tree_shift_tab)
+
+    def _resolve_section_names(
+        self,
+        repo: Optional["SectionRepository"],
+        provided: Optional[Iterable[str]],
+    ) -> List[str]:
+        if provided is not None:
+            return sorted({s for s in provided if s})
+        if repo is not None:
+            return sorted({s.name for s in repo.get_all_sections()})
+        return []
+
+    def _resolve_material_names(self, provided: Optional[Iterable[str]]) -> List[str]:
+        if provided is not None:
+            return sorted({m for m in provided if m})
+        if list_materials is None:
+            return []
+        try:
+            return sorted({m.get("name", "") for m in list_materials() if m.get("name")})
+        except Exception:
+            return []
+
+    def _insert_empty_rows(self, count: int) -> None:
+        for _ in range(count):
+            self._add_row()
+
+    def _add_row(self, after_item: Optional[str] = None) -> str:
+        values = ["" for _ in self.columns]
+        if after_item is None:
+            return self.tree.insert("", tk.END, values=values)
+        index = self.tree.index(after_item) + 1
+        return self.tree.insert("", index, values=values)
+
+    def _remove_selected_row(self) -> None:
+        sel = self.tree.focus()
+        if sel:
+            self.tree.delete(sel)
+
+    def _on_tree_click(self, event: tk.Event) -> None:
+        region = self.tree.identify("region", event.x, event.y)
+        if region != "cell":
+            return
+        item = self.tree.identify_row(event.y)
+        col_id = self.tree.identify_column(event.x)
+        col = self._column_id_to_key(col_id)
+        if item and col:
+            self._last_col = col
+            self.after_idle(lambda: self._start_edit(item, col))
+
+    def _on_tree_double_click(self, event: tk.Event) -> None:
+        item = self.tree.identify_row(event.y)
+        col_id = self.tree.identify_column(event.x)
+        col = self._column_id_to_key(col_id)
+        if not item:
+            new_item = self._add_row()
+            self._last_col = self.columns[0]
+            self._start_edit(new_item, self._last_col)
+            return
+        if self._row_is_empty(item):
+            new_item = self._add_row(after_item=item)
+            self._last_col = self.columns[0]
+            self._start_edit(new_item, self._last_col)
+            return
+        if item and col:
+            self._last_col = col
+            self._start_edit(item, col)
+
+    def _on_tree_return(self, _event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        self._start_edit(item, self._last_col)
+        return "break"
+
+    def _on_tree_shift_return(self, _event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        self._start_edit(item, self._last_col)
+        return "break"
+
+    def _on_tree_tab(self, _event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        self._start_edit(item, self._last_col)
+        return "break"
+
+    def _on_tree_shift_tab(self, _event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        self._start_edit(item, self._last_col)
+        return "break"
+
+    def _on_tree_keypress(self, event: tk.Event) -> None:
+        if self.edit_entry is not None:
+            return
+        if not event.char or not event.char.isprintable():
+            return
+        item = self.tree.focus()
+        if not item:
+            return
+        self._start_edit(item, self._last_col, initial_text=event.char)
+
+    def _on_tree_arrow(self, event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        if event.keysym in {"Left", "Right"}:
+            delta = -1 if event.keysym == "Left" else 1
+            target_item, target_col = self._next_cell(item, self._last_col, delta_col=delta, delta_row=0)
+        else:
+            delta = -1 if event.keysym == "Up" else 1
+            target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
+        self._last_col = target_col
+        self._start_edit(target_item, target_col)
+        return "break"
+
+    def _column_id_to_key(self, col_id: str) -> Optional[str]:
+        if not col_id or not col_id.startswith("#"):
+            return None
+        try:
+            idx = int(col_id.replace("#", "")) - 1
+        except ValueError:
+            return None
+        if 0 <= idx < len(self.columns):
+            return self.columns[idx]
+        return None
+
+    def _start_edit(self, item: str, col: str, initial_text: Optional[str] = None) -> None:
+        self._hide_suggestions()
+        if self.edit_entry is not None:
+            self._commit_edit()
+        bbox = self.tree.bbox(item, col)
+        if not bbox:
+            return
+        x, y, width, height = bbox
+        value = self.tree.set(item, col)
+
+        self.edit_item = item
+        self.edit_column = col
+        self.edit_entry = ttk.Entry(self.tree)
+        self.edit_entry.place(x=x, y=y, width=width, height=height)
+        self.edit_entry.insert(0, value)
+        if initial_text:
+            self.edit_entry.delete(0, tk.END)
+            self.edit_entry.insert(0, initial_text)
+        self.edit_entry.select_range(0, tk.END)
+        self.edit_entry.focus_set()
+
+        self.edit_entry.bind("<Return>", self._on_entry_commit_down)
+        self.edit_entry.bind("<Shift-Return>", self._on_entry_commit_up)
+        self.edit_entry.bind("<Tab>", self._on_entry_commit_next)
+        self.edit_entry.bind("<Shift-Tab>", self._on_entry_commit_prev)
+        self.edit_entry.bind("<Escape>", self._on_entry_cancel)
+        self.edit_entry.bind("<Up>", self._on_entry_move_up)
+        self.edit_entry.bind("<Down>", self._on_entry_move_down)
+        self.edit_entry.bind("<Left>", self._on_entry_move_left)
+        self.edit_entry.bind("<Right>", self._on_entry_move_right)
+        self.edit_entry.bind("<FocusOut>", self._on_entry_focus_out)
+        self.edit_entry.bind("<KeyRelease>", self._on_entry_keyrelease)
+        self.edit_entry.bind("<KeyPress>", self._on_entry_keypress)
+
+        self._update_suggestions()
+
+    def _commit_edit(self) -> None:
+        if self.edit_entry is None or self.edit_item is None or self.edit_column is None:
+            return
+        value = self.edit_entry.get()
+        self.tree.set(self.edit_item, self.edit_column, value)
+        self._last_col = self.edit_column
+        self.edit_entry.destroy()
+        self.edit_entry = None
+        self.edit_item = None
+        self.edit_column = None
+        self._hide_suggestions()
+
+    def _on_entry_focus_out(self, _event: tk.Event) -> None:
+        self.after(1, self._commit_if_focus_outside)
+
+    def _on_entry_commit_next(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=1, delta_row=0)
+
+    def _on_entry_commit_prev(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=-1, delta_row=0)
+
+    def _on_entry_commit_down(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=0, delta_row=1)
+
+    def _on_entry_commit_up(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=0, delta_row=-1)
+
+    def _on_entry_move_up(self, _event: tk.Event) -> str:
+        if self._suggest_list is not None:
+            idx = self._current_suggestion_index()
+            prev_idx = max(idx - 1, 0)
+            self._select_suggestion(prev_idx)
+            return "break"
+        return self._commit_and_move(delta_col=0, delta_row=-1)
+
+    def _on_entry_move_down(self, _event: tk.Event) -> str:
+        if self._suggest_list is not None:
+            idx = self._current_suggestion_index()
+            next_idx = min(idx + 1, self._suggest_list.size() - 1)
+            self._select_suggestion(next_idx)
+            return "break"
+        return self._commit_and_move(delta_col=0, delta_row=1)
+
+    def _on_entry_move_left(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=-1, delta_row=0)
+
+    def _on_entry_move_right(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=1, delta_row=0)
+
+    def _on_entry_cancel(self, _event: tk.Event) -> str:
+        if self._suggest_list is not None:
+            self._hide_suggestions()
+            return "break"
+        if self.edit_entry is not None:
+            self.edit_entry.destroy()
+            self.edit_entry = None
+            self.edit_item = None
+            self.edit_column = None
+            self._hide_suggestions()
+        return "break"
+
+    def _commit_and_move(self, delta_col: int, delta_row: int) -> str:
+        if self.edit_item is None or self.edit_column is None:
+            return "break"
+        if self._suggest_list is not None:
+            self._apply_suggestion()
+        current_item = self.edit_item
+        current_col = self.edit_column
+        self._commit_edit()
+        target_item, target_col = self._next_cell(current_item, current_col, delta_col, delta_row)
+        self._start_edit(target_item, target_col)
+        return "break"
+
+    def _next_cell(self, item: str, col: str, delta_col: int, delta_row: int) -> Tuple[str, str]:
+        items = list(self.tree.get_children())
+        if not items:
+            return item, col
+        row_idx = items.index(item)
+        col_idx = self.columns.index(col)
+
+        new_col = col_idx + delta_col
+        new_row = row_idx + delta_row
+
+        if new_col >= len(self.columns):
+            new_col = 0
+            new_row += 1
+        elif new_col < 0:
+            new_col = len(self.columns) - 1
+            new_row -= 1
+
+        new_row = max(0, min(new_row, len(items) - 1))
+        target_item = items[new_row]
+        target_col = self.columns[new_col]
+        self.tree.focus(target_item)
+        self.tree.selection_set(target_item)
+        return target_item, target_col
+
+    def _row_is_empty(self, item: str) -> bool:
+        values = self.tree.item(item, "values")
+        return all(not (str(v).strip()) for v in values)
+
+    def _on_entry_keyrelease(self, _event: tk.Event) -> None:
+        self._update_suggestions()
+
+    def _on_entry_keypress(self, event: tk.Event) -> Optional[str]:
+        if self.edit_column in {"As", "As_p"} and event.char.lower() == "c":
+            self._open_rebar_calculator()
+            return "break"
+        return None
+
+    def _update_suggestions(self) -> None:
+        if self.edit_entry is None or self.edit_column is None:
+            return
+        suggestions = self.suggestions_map.get(self.edit_column)
+        if not suggestions:
+            self._hide_suggestions()
+            return
+        query = self.edit_entry.get().strip().lower()
+        if not query:
+            self._hide_suggestions()
+            return
+        filtered = [s for s in suggestions if query in s.lower()]
+        if not filtered:
+            self._hide_suggestions()
+            return
+
+        if self._suggest_box is None:
+            self._suggest_box = tk.Toplevel(self)
+            self._suggest_box.wm_overrideredirect(True)
+            self._suggest_box.attributes("-topmost", True)
+            self._suggest_list = tk.Listbox(self._suggest_box, height=6)
+            self._suggest_list.pack(fill="both", expand=True)
+            self._suggest_list.bind("<ButtonRelease-1>", self._on_suggestion_click)
+            self._suggest_list.bind("<Return>", self._on_suggestion_enter)
+            self._suggest_list.bind("<Escape>", lambda _e: self._hide_suggestions())
+
+        if self._suggest_list is None:
+            return
+        self._suggest_list.delete(0, tk.END)
+        for s in filtered[:50]:
+            self._suggest_list.insert(tk.END, s)
+        self._suggest_list.selection_clear(0, tk.END)
+        self._suggest_list.selection_set(0)
+
+        x = self.edit_entry.winfo_rootx()
+        y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
+        self._suggest_box.geometry(f"{self.edit_entry.winfo_width()}x120+{x}+{y}")
+
+    def _commit_if_focus_outside(self) -> None:
+        if self.edit_entry is None:
+            return
+        if self._focus_is_suggestion():
+            return
+        self._commit_edit()
+
+    def _focus_is_suggestion(self) -> bool:
+        if self._suggest_box is None:
+            return False
+        widget = self.winfo_toplevel().focus_get()
+        while widget is not None:
+            if widget == self._suggest_list or widget == self._suggest_box:
+                return True
+            widget = getattr(widget, "master", None)
+        return False
+
+    def _current_suggestion_index(self) -> int:
+        if self._suggest_list is None:
+            return 0
+        selection = self._suggest_list.curselection()
+        return selection[0] if selection else 0
+
+    def _select_suggestion(self, index: int) -> None:
+        if self._suggest_list is None:
+            return
+        self._suggest_list.selection_clear(0, tk.END)
+        self._suggest_list.selection_set(index)
+        self._suggest_list.see(index)
+
+    def _on_suggestion_click(self, _event: tk.Event) -> None:
+        self._apply_suggestion()
+
+    def _on_suggestion_enter(self, _event: tk.Event) -> None:
+        self._apply_suggestion()
+
+    def _apply_suggestion(self) -> None:
+        if self.edit_entry is None or self._suggest_list is None:
+            return
+        idx = self._current_suggestion_index()
+        value = self._suggest_list.get(idx)
+        self.edit_entry.delete(0, tk.END)
+        self.edit_entry.insert(0, value)
+        self._hide_suggestions()
+        self.edit_entry.focus_set()
+
+    def _hide_suggestions(self) -> None:
+        if self._suggest_box is not None:
+            self._suggest_box.destroy()
+            self._suggest_box = None
+            self._suggest_list = None
+
+    def _open_rebar_calculator(self) -> None:
+        if self.edit_entry is None or self.edit_column is None:
+            return
+        self._rebar_target_column = self.edit_column
+        if self._rebar_window is not None and self._rebar_window.winfo_exists():
+            self._rebar_window.lift()
+            self._rebar_window.focus_set()
+            if self._rebar_entries:
+                self._rebar_entries[0].focus_set()
+            return
+
+        win = tk.Toplevel(self)
+        win.title("Calcolo area armatura")
+        win.resizable(False, False)
+        win.transient(self.winfo_toplevel())
+        win.grab_set()
+        self._rebar_window = win
+
+        frame = tk.Frame(win, padx=10, pady=10)
+        frame.pack(fill="both", expand=True)
+
+        diameters = [8, 10, 12, 14, 16, 20, 25]
+        self._rebar_vars = {}
+        self._rebar_entries = []
+
+        tk.Label(frame, text="Ø (mm)", width=8, anchor="w").grid(row=0, column=0, sticky="w")
+        tk.Label(frame, text="n barre", width=8, anchor="w").grid(row=0, column=1, sticky="w")
+
+        for i, d in enumerate(diameters, start=1):
+            tk.Label(frame, text=f"Ø{d}", width=8, anchor="w").grid(row=i, column=0, sticky="w", pady=2)
+            var = tk.StringVar(value="")
+            self._rebar_vars[d] = var
+            ent = tk.Entry(frame, textvariable=var, width=8)
+            self._rebar_entries.append(ent)
+            ent.grid(row=i, column=1, sticky="w", pady=2)
+            var.trace_add("write", lambda *_: self._update_rebar_total())
+            if i == 1:
+                ent.focus_set()
+
+        total_frame = tk.Frame(frame)
+        total_frame.grid(row=len(diameters) + 1, column=0, columnspan=2, sticky="w", pady=(8, 4))
+        tk.Label(total_frame, text="Area totale [cm²]:").pack(side="left")
+        tk.Label(total_frame, textvariable=self._rebar_total_var, width=10, anchor="w").pack(side="left")
+
+        btn_frame = tk.Frame(frame)
+        btn_frame.grid(row=len(diameters) + 2, column=0, columnspan=2, sticky="e")
+        tk.Button(btn_frame, text="Conferma", command=self._confirm_rebar_total).pack(side="right")
+
+        win.bind("<Escape>", lambda _e: self._close_rebar_window())
+        win.bind("<Return>", lambda _e: self._confirm_rebar_total())
+
+        self._update_rebar_total()
+
+    def _update_rebar_total(self) -> None:
+        total = 0.0
+        for d, var in self._rebar_vars.items():
+            try:
+                n = int(var.get() or 0)
+            except ValueError:
+                n = 0
+            d_cm = d / 10.0
+            area = math.pi * (d_cm ** 2) / 4.0
+            total += n * area
+        self._rebar_total_var.set(f"{total:.2f}")
+
+    def _confirm_rebar_total(self) -> None:
+        if self.edit_entry is None or self._rebar_target_column is None:
+            self._close_rebar_window()
+            return
+        value = self._rebar_total_var.get()
+        self.edit_entry.delete(0, tk.END)
+        self.edit_entry.insert(0, value)
+        self._commit_edit()
+        self._close_rebar_window()
+
+    def _close_rebar_window(self) -> None:
+        if self._rebar_window is not None:
+            self._rebar_window.destroy()
+        self._rebar_window = None
+        self._rebar_entries = []
+
+
+def run_demo() -> None:
+    root = tk.Tk()
+    root.title("Verification Table - RD2229")
+    root.geometry("1400x500")
+    app = VerificationTableApp(root)
+    app.mainloop()
+
+
+if __name__ == "__main__":
+    run_demo()

@@ -7,6 +7,7 @@ from typing import Callable
 
 from sections_app.ui.main_window import MainWindow
 from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
+from verification_table import VerificationTableApp
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ class ModuleSelectorWindow(tk.Tk):
     def __init__(self, repository: SectionRepository, serializer: CsvSectionSerializer):
         super().__init__()
         self.title("Module Selector - RD2229 Tools")
-        self.geometry("540x260")
+        self.geometry("820x260")
         self.repository = repository
         self.serializer = serializer
         self._build_ui()
@@ -51,6 +52,17 @@ class ModuleSelectorWindow(tk.Tk):
         ).pack(padx=8, pady=8)
         tk.Button(hist_frame, text="Open Historical", command=self._open_historical).pack(pady=(0, 8))
 
+        verify_frame = tk.LabelFrame(modules_frame, text="Verification Table")
+        verify_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
+        tk.Label(
+            verify_frame,
+            text="Rapid data entry for multiple verifications\n(tabular grid with autocomplete)",
+            justify="left",
+        ).pack(padx=8, pady=8)
+        tk.Button(verify_frame, text="Open Verification Table", command=self._open_verification_table).pack(
+            pady=(0, 8)
+        )
+
     def _open_geometry(self) -> None:
         logger.debug("Opening Geometry module")
         self.withdraw()
@@ -61,6 +73,15 @@ class ModuleSelectorWindow(tk.Tk):
         logger.debug("Opening Historical module")
         self.withdraw()
         win = HistoricalModuleMainWindow(self, self.repository)
+        win.protocol("WM_DELETE_WINDOW", self._on_child_close)
+
+    def _open_verification_table(self) -> None:
+        logger.debug("Opening Verification Table module")
+        self.withdraw()
+        win = tk.Toplevel(self)
+        win.title("Verification Table - RD2229")
+        win.geometry("1400x520")
+        VerificationTableApp(win, section_repository=self.repository)
         win.protocol("WM_DELETE_WINDOW", self._on_child_close)
 
     def _on_child_close(self) -> None:

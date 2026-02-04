@@ -58,8 +58,11 @@ print("-" * 80)
 for angle in [0, 30, 45, 90]:
     s = RectangularSection('Rect', 10, 20, rotation_angle_deg=angle)
     s.compute_properties()
-    print(f"Rotazione {angle:3.0f}°: Ix = {s.properties.ix:10.2f} cm⁴, "
-          f"Iy = {s.properties.iy:10.2f} cm⁴, "
-          f"Ixy = {s.properties.ixy:10.2f} cm⁴")
+    if s.properties is not None:
+        print(f"Rotazione {angle:3.0f}°: Ix = {s.properties.ix:10.2f} cm⁴, "
+              f"Iy = {s.properties.iy:10.2f} cm⁴, "
+              f"Ixy = {s.properties.ixy:10.2f} cm⁴")
+    else:
+        print(f"Rotazione {angle:3.0f}°: ❌ ERRORE nel calcolo delle proprietà")
 
 print("\n✅ TUTTI I TEST COMPLETATI CON SUCCESSO!")

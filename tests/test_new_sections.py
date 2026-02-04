@@ -28,16 +28,19 @@ class TestNewSectionTypes(unittest.TestCase):
         section.compute_properties()
         props = section.properties
 
+        # Verifica che props non sia None
+        self.assertIsNotNone(props, "section.properties è None dopo compute_properties()")
+
         # Area = ala orizzontale + ala verticale
         # Ala orizzontale: 10 * 2 = 20
         # Ala verticale: 2 * (10 - 2) = 2 * 8 = 16
         # Totale = 36
-        self.assertAlmostEqual(props.area, 36.0, places=4)
+        self.assertAlmostEqual(float(props.area), 36.0, places=4)
         
         # Verifiche di base
-        self.assertGreater(props.area, 0)
-        self.assertGreater(props.ix, 0)
-        self.assertGreater(props.iy, 0)
+        self.assertGreater(float(props.area), 0)
+        self.assertGreater(float(props.ix), 0)
+        self.assertGreater(float(props.iy), 0)
 
     def test_i_section_basic(self):
         """Test sezione ad I: area e simmetria."""
