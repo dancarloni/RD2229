@@ -18,7 +18,7 @@ import json
 import sys
 from typing import Dict
 
-from rd2229.tools.materials_manager import (
+from tools.materials_manager import (
     add_material,
     list_materials,
     get_material,
@@ -168,3 +168,4 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

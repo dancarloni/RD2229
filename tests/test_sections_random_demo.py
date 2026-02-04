@@ -14,7 +14,7 @@ import math
 import random
 import unittest
 
-from rd2229.sections_app.models.sections import (
+from sections_app.models.sections import (
     CircularSection,
     RectangularSection,
     TSection,
@@ -265,3 +265,4 @@ class TestSectionEdgeCases(unittest.TestCase):
 if __name__ == "__main__":
     # Esegui i test con verbosità
     unittest.main(verbosity=2)
+

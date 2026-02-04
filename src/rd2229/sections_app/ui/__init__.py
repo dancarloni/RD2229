@@ -1,1 +1,0 @@
-"""Componenti dell'interfaccia grafica."""

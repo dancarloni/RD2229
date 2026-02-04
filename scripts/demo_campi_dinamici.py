@@ -14,7 +14,7 @@ import os
 # Aggiungi il path dei sorgenti
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from rd2229.sections_app.models.sections import (
+from sections_app.models.sections import (
     RectangularSection,
     CircularSection,
     TSection,
@@ -192,3 +192,4 @@ if __name__ == "__main__":
     print("Per avviare l'applicazione GUI:")
     print("  $ python -m rd2229")
     print()
+

@@ -5,7 +5,7 @@ Esegue una serie di asserzioni e restituisce codice 0 in caso di successo,
 """
 import sys
 
-from rd2229.tools.concrete_strength import (
+from tools.concrete_strength import (
     CementType,
     SectionCondition,
     compute_allowable_compressive_stress,
@@ -47,3 +47,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

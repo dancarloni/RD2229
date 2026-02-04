@@ -1,5 +1,5 @@
-from rd2229.core.geometry import RectangularSection, CircularSection
-from rd2229.core.section_properties import compute_section_properties
+from core.geometry import RectangularSection, CircularSection
+from core.section_properties import compute_section_properties
 
 
 def test_rectangular_section():
@@ -12,3 +12,4 @@ def test_circular_section():
     s = CircularSection(diameter=100.0)
     p = compute_section_properties(s)
     assert round(p.area, 6) == round(3.141592653589793 * (50.0**2), 6)
+

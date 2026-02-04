@@ -1,4 +1,4 @@
-from rd2229.tools import materials_manager
+from tools import materials_manager
 
 
 def main():
@@ -15,3 +15,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

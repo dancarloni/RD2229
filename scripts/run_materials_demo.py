@@ -5,7 +5,7 @@ Esempio d'uso:
 
 Nota: esegui da workspace root e assicurati che `PYTHONPATH=src` per importare il package.
 """
-from rd2229.tools.materials_manager import (
+from tools.materials_manager import (
     add_material,
     list_materials,
     get_material,
@@ -42,3 +42,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

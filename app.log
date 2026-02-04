@@ -265,3 +265,36 @@ _tkinter.TclError: invalid command name ".!sectionmanager.!frame.!treeview"
 2026-02-03 23:31:52,985 - rd2229.sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
 2026-02-03 23:31:56,554 - rd2229.sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
 2026-02-03 23:31:56,555 - rd2229.sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
+2026-02-04 09:48:24,495 - sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-04 09:48:24,624 - sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-04 09:48:24,625 - sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-04 09:48:25,822 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='' -> using 'Rettangolare'
+2026-02-04 09:48:25,822 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-04 09:48:30,822 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='' -> using 'Rettangolare'
+2026-02-04 09:48:30,822 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-04 09:48:32,016 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='Circolare' -> using 'Circolare'
+2026-02-04 09:48:32,016 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-04 09:48:32,017 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-04 09:48:32,017 - sections_app.ui.main_window - DEBUG - Polling selezione ComboBox annullato
+2026-02-04 09:48:32,018 - sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Circolare
+2026-02-04 09:48:32,019 - sections_app.ui.main_window - DEBUG - Creati 1 campi input
+2026-02-04 09:48:32,526 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-04 09:48:32,526 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-04 09:48:33,795 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-04 09:48:33,795 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-04 09:48:34,604 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='A T' -> using 'A T'
+2026-02-04 09:48:34,604 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-04 09:48:34,605 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
+2026-02-04 09:48:34,606 - sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: A T
+2026-02-04 09:48:34,606 - sections_app.ui.main_window - DEBUG - Creati 4 campi input
+2026-02-04 09:48:36,426 - sections_app.ui.main_window - DEBUG - Section Manager aperto
+2026-02-04 09:48:38,082 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-04 09:48:38,082 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
+2026-02-04 09:48:46,824 - sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-04 09:48:47,702 - sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-04 09:48:48,064 - sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-04 09:48:48,432 - sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-04 09:48:51,872 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-04 09:48:51,872 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip
+2026-02-04 09:48:55,947 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='A T' combo='A T' -> using 'A T'
+2026-02-04 09:48:55,947 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (A T), skip

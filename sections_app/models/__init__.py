@@ -1,0 +1,2 @@
+"""Modelli delle sezioni."""
+

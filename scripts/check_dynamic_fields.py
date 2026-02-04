@@ -3,8 +3,8 @@ from __future__ import annotations
 import time
 
 import sys
-from rd2229.sections_app.services.repository import SectionRepository, CsvSectionSerializer
-from rd2229.sections_app.ui.main_window import MainWindow
+from sections_app.services.repository import SectionRepository, CsvSectionSerializer
+from sections_app.ui.main_window import MainWindow
 
 repo = SectionRepository()
 serializer = CsvSectionSerializer()

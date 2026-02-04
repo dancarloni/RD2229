@@ -1,4 +1,4 @@
-from rd2229.tools.concrete_strength import (
+from tools.concrete_strength import (
     CementType,
     SectionCondition,
     compute_allowable_compressive_stress,
@@ -31,3 +31,4 @@ def test_sigma_c_controlled_cap():
 def test_shear_values():
     service, maximum = compute_allowable_shear(CementType.NORMAL)
     assert service == 4.0 and maximum == 14.0
+
