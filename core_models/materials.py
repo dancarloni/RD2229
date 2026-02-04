@@ -46,6 +46,110 @@ class Material:
         )
 
 
+# Historical material model and simple library
+@dataclass
+class HistoricalMaterial:
+    code: str
+    name: str
+    fck: Optional[float] = None
+    fcd: Optional[float] = None
+    fyk: Optional[float] = None
+    fyd: Optional[float] = None
+    Ec: Optional[float] = None
+    Es: Optional[float] = None
+    gamma_c: Optional[float] = None
+    gamma_s: Optional[float] = None
+    source: Optional[str] = None
+    notes: Optional[str] = None
+
+    def to_dict(self) -> Dict:
+        return {
+            "code": self.code,
+            "name": self.name,
+            "fck": self.fck,
+            "fcd": self.fcd,
+            "fyk": self.fyk,
+            "fyd": self.fyd,
+            "Ec": self.Ec,
+            "Es": self.Es,
+            "gamma_c": self.gamma_c,
+            "gamma_s": self.gamma_s,
+            "source": self.source,
+            "notes": self.notes,
+        }
+
+    @staticmethod
+    def from_dict(d: Dict) -> "HistoricalMaterial":
+        return HistoricalMaterial(
+            code=d.get("code", ""),
+            name=d.get("name", ""),
+            fck=d.get("fck"),
+            fcd=d.get("fcd"),
+            fyk=d.get("fyk"),
+            fyd=d.get("fyd"),
+            Ec=d.get("Ec"),
+            Es=d.get("Es"),
+            gamma_c=d.get("gamma_c"),
+            gamma_s=d.get("gamma_s"),
+            source=d.get("source"),
+            notes=d.get("notes"),
+        )
+
+
+class HistoricalMaterialLibrary:
+    """Simple historical material archive stored as JSON."""
+
+    def __init__(self, path: str | Path | None = None):
+        self._file_path = Path(path or "historical_materials.json")
+        self._materials: List[HistoricalMaterial] = []
+
+    def load_from_file(self) -> None:
+        self._materials.clear()
+        if not self._file_path.exists():
+            return
+        try:
+            with self._file_path.open("r", encoding="utf-8") as f:
+                raw = json.load(f)
+            if not isinstance(raw, list):
+                logger.warning("Historical materials file %s does not contain a list", self._file_path)
+                return
+            for idx, item in enumerate(raw):
+                try:
+                    self._materials.append(HistoricalMaterial.from_dict(item))
+                except Exception:
+                    logger.exception("Error parsing historical material %s", idx)
+        except Exception:
+            logger.exception("Error loading historical materials from %s", self._file_path)
+
+    def save_to_file(self) -> None:
+        try:
+            if self._file_path.parent.exists() is False and str(self._file_path.parent) != '.':
+                self._file_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self._file_path.with_suffix(self._file_path.suffix + ".tmp")
+            with tmp.open("w", encoding="utf-8") as f:
+                json.dump([m.to_dict() for m in self._materials], f, indent=2, ensure_ascii=False)
+            tmp.replace(self._file_path)
+        except Exception:
+            logger.exception("Error saving historical materials to %s", self._file_path)
+
+    def get_all(self) -> List[HistoricalMaterial]:
+        return list(self._materials)
+
+    def add(self, material: HistoricalMaterial) -> None:
+        # replace existing with same code
+        existing = self.find_by_code(material.code)
+        if existing:
+            self._materials = [m for m in self._materials if m.code != material.code]
+        self._materials.append(material)
+        self.save_to_file()
+
+    def find_by_code(self, code: str) -> Optional[HistoricalMaterial]:
+        for m in self._materials:
+            if m.code == code:
+                return m
+        return None
+
+
 class MaterialRepository:
     """Archivio in memoria dei materiali con persistenza JSON."""
     
@@ -75,6 +179,22 @@ class MaterialRepository:
 
     def get_all(self) -> List[Material]:
         return list(self._materials.values())
+
+    def import_historical_material(self, hist: "HistoricalMaterial") -> Material:
+        """
+        Crea un oggetto Material a partire da un HistoricalMaterial senza aggiungerlo automaticamente
+        all'archivio.
+        """
+        props: Dict[str, float] = {}
+        for key in ("fck", "fcd", "fyk", "fyd", "Ec", "Es", "gamma_c", "gamma_s"):
+            val = getattr(hist, key, None)
+            if val is not None:
+                props[key] = val
+        mat_type = "concrete" if getattr(hist, "fck", None) is not None else (
+            "steel" if getattr(hist, "fyk", None) is not None else "historical"
+        )
+        mat = Material(name=hist.name, type=mat_type, properties=props)
+        return mat
 
     def find_by_name(self, name: str) -> Optional[Material]:
         for m in self._materials.values():
