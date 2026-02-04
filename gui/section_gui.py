@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple, Type
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle as MplRectangle, Circle as MplCircle
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 
@@ -81,9 +82,10 @@ class SectionInputDialog(simpledialog.Dialog):
 
 
 class SectionApp(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master: Optional[tk.Misc] = None):
         super().__init__(master)
-        self.master = master
+        # Annotiamo esplicitamente il tipo per evitare warning di Pylance su 'master'
+        self.master: Optional[tk.Misc] = master
         self.pack(fill="both", expand=True)
         self.current_section: Optional[SectionGeometry] = None
         self.create_widgets()
@@ -181,14 +183,14 @@ Momenti statici:
 
         # Disegna in base al tipo
         if isinstance(self.current_section, RectangularSection):
-            ax.add_patch(plt.Rectangle((0, 0), self.current_section.width, self.current_section.height, fill=False))
+            ax.add_patch(MplRectangle((0, 0), self.current_section.width, self.current_section.height, fill=False))
         elif isinstance(self.current_section, CircularSection):
-            circle = plt.Circle((self.current_section.centroid()[0], self.current_section.centroid()[1]), self.current_section.diameter / 2, fill=False)
+            circle = MplCircle((self.current_section.centroid()[0], self.current_section.centroid()[1]), self.current_section.diameter / 2, fill=False)
             ax.add_patch(circle)
         elif isinstance(self.current_section, TSection):
             # Disegna i rettangoli
             for rect in self.current_section._rects():
-                ax.add_patch(plt.Rectangle((rect.x, rect.y), rect.width, rect.height, fill=rect.sign > 0, color='blue' if rect.sign > 0 else 'white'))
+                ax.add_patch(MplRectangle((rect.x, rect.y), rect.width, rect.height, fill=rect.sign > 0, color='blue' if rect.sign > 0 else 'white'))
         # Aggiungi altri tipi se necessario, per ora usa un placeholder
         else:
             ax.text(0.5, 0.5, "Grafica non implementata per questa sezione", transform=ax.transAxes, ha='center')
