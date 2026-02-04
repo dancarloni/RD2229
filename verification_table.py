@@ -31,6 +31,7 @@ ColumnDef = Tuple[str, str, int, str]
 @dataclass
 class VerificationInput:
     section_id: str
+    verification_method: str
     material_concrete: str
     material_steel: str
     n_homog: float
@@ -59,10 +60,10 @@ class VerificationOutput:
     messaggi: List[str]
 
 
-def compute_verification_result(_input: VerificationInput) -> VerificationOutput:
-    """TODO: implementare motore di verifica.
+def compute_ta_verification(_input: VerificationInput) -> VerificationOutput:
+    """Verifica a tensioni ammissibili (TA) secondo RD 2229/1939.
 
-    In futuro dovrà richiamare:
+    TODO: implementare logica da PrincipCA_TA.txt
     - compute_section_properties()
     - compute_normal_stresses_ta()
     - check_allowable_stresses_ta()
@@ -73,15 +74,140 @@ def compute_verification_result(_input: VerificationInput) -> VerificationOutput
         sigma_c_min=0.0,
         sigma_s_max=0.0,
         asse_neutro=0.0,
-        deformazioni="TODO",
+        deformazioni="Stub TA: N={:.1f} kg, M={:.1f} kg·m, T={:.1f} kg".format(
+            _input.N, _input.M, _input.T
+        ),
         coeff_sicurezza=1.0,
-        esito="TODO",
-        messaggi=["TODO: motore di verifica non implementato"],
+        esito="NON IMPLEMENTATO",
+        messaggi=[
+            "Verifica TA (Tensioni Ammissibili) - RD 2229/1939",
+            "Sezione: {}".format(_input.section_id or "non specificata"),
+            "Materiale cls: {}".format(_input.material_concrete or "non specificato"),
+            "Materiale acciaio: {}".format(_input.material_steel or "non specificato"),
+            "TODO: Implementare logica da PrincipCA_TA.txt",
+        ],
+    )
+
+
+def compute_slu_verification(_input: VerificationInput) -> VerificationOutput:
+    """Verifica a stato limite ultimo (SLU) secondo NTC.
+
+    TODO: implementare logica da CA_SLU.txt
+    - calcolo sollecitazioni ultime
+    - verifica dominio M-N
+    - verifica taglio
+    """
+    return VerificationOutput(
+        sigma_c_max=0.0,
+        sigma_c_min=0.0,
+        sigma_s_max=0.0,
+        asse_neutro=0.0,
+        deformazioni="Stub SLU: N={:.1f} kg, M={:.1f} kg·m, T={:.1f} kg".format(
+            _input.N, _input.M, _input.T
+        ),
+        coeff_sicurezza=1.0,
+        esito="NON IMPLEMENTATO",
+        messaggi=[
+            "Verifica SLU (Stato Limite Ultimo) - NTC",
+            "Sezione: {}".format(_input.section_id or "non specificata"),
+            "Materiale cls: {}".format(_input.material_concrete or "non specificato"),
+            "Materiale acciaio: {}".format(_input.material_steel or "non specificato"),
+            "TODO: Implementare logica da CA_SLU.txt",
+        ],
+    )
+
+
+def compute_sle_verification(_input: VerificationInput) -> VerificationOutput:
+    """Verifica a stato limite di esercizio (SLE) secondo NTC.
+
+    TODO: implementare logica da CA_SLE.txt
+    - verifica fessurazione
+    - verifica tensioni di esercizio
+    - verifica deformazioni
+    """
+    return VerificationOutput(
+        sigma_c_max=0.0,
+        sigma_c_min=0.0,
+        sigma_s_max=0.0,
+        asse_neutro=0.0,
+        deformazioni="Stub SLE: N={:.1f} kg, M={:.1f} kg·m, T={:.1f} kg".format(
+            _input.N, _input.M, _input.T
+        ),
+        coeff_sicurezza=1.0,
+        esito="NON IMPLEMENTATO",
+        messaggi=[
+            "Verifica SLE (Stato Limite di Esercizio) - NTC",
+            "Sezione: {}".format(_input.section_id or "non specificata"),
+            "Materiale cls: {}".format(_input.material_concrete or "non specificato"),
+            "Materiale acciaio: {}".format(_input.material_steel or "non specificato"),
+            "TODO: Implementare logica da CA_SLE.txt",
+        ],
+    )
+
+
+def compute_santarella_placeholder(_input: VerificationInput) -> VerificationOutput:
+    """Placeholder per metodi futuri (es. Santarella).
+
+    Questo è un segnaposto per algoritmi di verifica storici o alternativi
+    che potrebbero essere implementati in futuro.
+    """
+    return VerificationOutput(
+        sigma_c_max=0.0,
+        sigma_c_min=0.0,
+        sigma_s_max=0.0,
+        asse_neutro=0.0,
+        deformazioni="Placeholder Santarella",
+        coeff_sicurezza=1.0,
+        esito="NON IMPLEMENTATO",
+        messaggi=[
+            "Metodo Santarella - Placeholder",
+            "Questa riga è un segnaposto per futuri algoritmi.",
+            "I metodi storici tipo Santarella saranno implementati in futuro.",
+            "Sezione: {}".format(_input.section_id or "non specificata"),
+        ],
+    )
+
+
+def compute_verification_result(_input: VerificationInput) -> VerificationOutput:
+    """Motore di verifica principale che instrада verso il metodo appropriato.
+
+    In base al campo verification_method del VerificationInput, chiama la
+    funzione di verifica corretta:
+    - TA: tensioni ammissibili (RD 2229/1939)
+    - SLU: stato limite ultimo (NTC)
+    - SLE: stato limite di esercizio (NTC)
+    - SANT: placeholder per metodi futuri (Santarella, ecc.)
+    """
+    method = (_input.verification_method or "").upper().strip()
+
+    if method == "TA":
+        return compute_ta_verification(_input)
+    elif method == "SLU":
+        return compute_slu_verification(_input)
+    elif method == "SLE":
+        return compute_sle_verification(_input)
+    elif method in ("SANT", "PLACEHOLDER"):
+        return compute_santarella_placeholder(_input)
+
+    # Metodo sconosciuto o vuoto
+    return VerificationOutput(
+        sigma_c_max=0.0,
+        sigma_c_min=0.0,
+        sigma_s_max=0.0,
+        asse_neutro=0.0,
+        deformazioni="",
+        coeff_sicurezza=0.0,
+        esito="ERRORE",
+        messaggi=[
+            "Metodo di verifica non specificato o sconosciuto: '{}'".format(method),
+            "Selezionare un metodo dalla colonna 'Metodo verifica': TA, SLU, SLE, SANT",
+        ],
     )
 
 
 COLUMNS: List[ColumnDef] = [
     ("section", "Sezione", 170, "w"),
+    ("verif_method", "Metodo verifica", 120, "center"),
     ("mat_concrete", "Materiale cls", 140, "w"),
     ("mat_steel", "Materiale acciaio", 140, "w"),
     ("n", "Coeff. n", 75, "center"),
@@ -184,6 +310,7 @@ class VerificationTableApp(tk.Frame):
 
         return VerificationInput(
             section_id=get("section"),
+            verification_method=get("verif_method"),
             material_concrete=get("mat_concrete"),
             material_steel=get("mat_steel"),
             n_homog=num("n"),
@@ -206,6 +333,7 @@ class VerificationTableApp(tk.Frame):
         item = items[row_index]
         values_map = {
             "section": model.section_id,
+            "verif_method": model.verification_method,
             "mat_concrete": model.material_concrete,
             "mat_steel": model.material_steel,
             "n": model.n_homog,
@@ -233,6 +361,8 @@ class VerificationTableApp(tk.Frame):
         # Pulsanti per import/export CSV
         tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
         tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
+        # Pulsante per calcolare tutte le righe
+        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(side="left", padx=(6, 0))
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -385,9 +515,39 @@ class VerificationTableApp(tk.Frame):
         applicati qui centralmente per evitare duplicazione.
         """
         x, y, width, height = bbox
-        combobox_columns = {"mat_concrete", "mat_steel", "stirrups_mat"}
-        if col in combobox_columns and self.material_names:
-            editor = ttk.Combobox(self.tree, values=self.material_names)
+        combobox_columns = {"mat_concrete", "mat_steel", "stirrups_mat", "verif_method"}
+        if col in combobox_columns:
+            if col == "verif_method":
+                # Combobox con valori fissi per metodo di verifica
+                editor = ttk.Combobox(self.tree, values=["TA", "SLU", "SLE", "SANT"])
+            elif self.material_names:
+                # Combobox con materiali
+                editor = ttk.Combobox(self.tree, values=self.material_names)
+            else:
+                # Fallback a Entry se non ci sono materiali
+                editor = ttk.Entry(self.tree)
+                editor.place(x=x, y=y, width=width, height=height)
+                editor.insert(0, value)
+                if initial_text:
+                    editor.delete(0, tk.END)
+                    editor.insert(0, initial_text)
+                editor.select_range(0, tk.END)
+                editor.focus_set()
+                # Bind eventi comuni
+                editor.bind("<Return>", self._on_entry_commit_down)
+                editor.bind("<Shift-Return>", self._on_entry_commit_up)
+                editor.bind("<Tab>", self._on_entry_commit_next)
+                editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
+                editor.bind("<Escape>", self._on_entry_cancel)
+                editor.bind("<Up>", self._on_entry_move_up)
+                editor.bind("<Down>", self._on_entry_move_down)
+                editor.bind("<Left>", self._on_entry_move_left)
+                editor.bind("<Right>", self._on_entry_move_right)
+                editor.bind("<FocusOut>", self._on_entry_focus_out)
+                editor.bind("<KeyRelease>", self._on_entry_keyrelease)
+                editor.bind("<KeyPress>", self._on_entry_keypress)
+                return editor
+
             editor.place(x=x, y=y, width=width, height=height)
             # Set display value
             editor.set(value or "")
@@ -1047,6 +1207,7 @@ class VerificationTableApp(tk.Frame):
         """Mappa la colonna (key) all'attributo del dataclass VerificationInput."""
         mapping = {
             "section": "section_id",
+            "verif_method": "verification_method",
             "mat_concrete": "material_concrete",
             "mat_steel": "material_steel",
             "n": "n_homog",
@@ -1236,6 +1397,50 @@ class VerificationTableApp(tk.Frame):
             logger.info("Import CSV: import completato senza errori. Importate %d righe", imported)
 
         return imported, skipped, errors
+
+    def _on_compute_all(self) -> None:
+        """Handler per il pulsante 'Calcola tutte le righe'.
+
+        Itera su tutte le righe della tabella, per ciascuna:
+        - converte la riga in VerificationInput usando table_row_to_model
+        - chiama compute_verification_result per ottenere VerificationOutput
+        - colleziona i risultati in una stringa descrittiva
+        - mostra un messagebox con l'elenco dei risultati
+
+        In futuro potrebbe anche aggiornare colonne della tabella con i risultati
+        (es. esito, coeff_sicurezza, ecc.).
+        """
+        items = list(self.tree.get_children())
+        if not items:
+            messagebox.showinfo("Verifica", "Nessuna riga da verificare.")
+            return
+
+        risultati = []
+        for row_idx, item in enumerate(items):
+            try:
+                model = self.table_row_to_model(row_idx)
+            except Exception as e:
+                logger.exception("Errore conversione riga %s: %s", row_idx + 1, e)
+                risultati.append(f"Riga {row_idx + 1}: ERRORE CONVERSIONE – {e}")
+                continue
+
+            try:
+                result = compute_verification_result(model)
+            except Exception as e:
+                logger.exception("Errore verifica riga %s: %s", row_idx + 1, e)
+                risultati.append(f"Riga {row_idx + 1}: ERRORE CALCOLO – {e}")
+                continue
+
+            # Formato: "Riga N [METODO]: esito=..., γ=..."
+            metodo = model.verification_method or "?"
+            risultati.append(
+                f"Riga {row_idx + 1} [{metodo}]: esito={result.esito}, "
+                f"γ={result.coeff_sicurezza:.2f}"
+            )
+
+        # Mostra risultati in un messagebox
+        msg = "\n".join(risultati)
+        messagebox.showinfo("Risultati verifiche", msg)
 
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
