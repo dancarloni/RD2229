@@ -8,9 +8,11 @@ from pathlib import Path
 
 from sections_app.ui.main_window import MainWindow
 from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
+from sections_app.ui.historical_material_window import HistoricalMaterialWindow
 from verification_table import VerificationTableWindow
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import MaterialRepository
+from historical_materials import HistoricalMaterialLibrary
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,7 @@ class ModuleSelectorWindow(tk.Tk):
         self.section_repository: SectionRepository = repository
         # Usa il material_repository passato, oppure creane uno nuovo
         self.material_repository: MaterialRepository = material_repository or MaterialRepository()
+        self._material_editor_window: Optional[HistoricalMaterialWindow] = None
         self._create_menu()
         self._build_ui()
 
@@ -87,6 +90,16 @@ class ModuleSelectorWindow(tk.Tk):
             pady=(0, 8)
         )
 
+        # Pulsante "Editor materiali" - accesso al modulo di gestione materiali (sezione storica)
+        material_frame = tk.LabelFrame(modules_frame, text="Materials Editor")
+        material_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
+        tk.Label(
+            material_frame,
+            text="Manage and import historical materials\n(concrete, steel, and other material libraries)",
+            justify="left",
+        ).pack(padx=8, pady=8)
+        tk.Button(material_frame, text="Open Materials", command=self._open_material_editor).pack(pady=(0, 8))
+
     def _open_geometry(self) -> None:
         logger.debug("Opening Geometry module")
         self.withdraw()
@@ -108,6 +121,31 @@ class ModuleSelectorWindow(tk.Tk):
             material_repository=self.material_repository,
         )
         win.protocol("WM_DELETE_WINDOW", self._on_child_close)
+
+    def _open_material_editor(self) -> None:
+        logger.debug("Opening Material Editor module")
+        # Se la finestra è già aperta, portala in primo piano
+        if self._material_editor_window is not None and self._material_editor_window.winfo_exists():
+            self._material_editor_window.lift()
+            self._material_editor_window.focus()
+            return
+        
+        # Crea la libreria dei materiali storici
+        library = HistoricalMaterialLibrary()
+        
+        # Crea e mostra la finestra dell'editor materiali
+        self._material_editor_window = HistoricalMaterialWindow(
+            master=self,
+            library=library,
+            material_repository=self.material_repository
+        )
+        
+        # Collega il callback di chiusura per pulire il riferimento
+        def on_material_editor_close():
+            self._material_editor_window = None
+        
+        self._material_editor_window.protocol("WM_DELETE_WINDOW", on_material_editor_close)
+        self._material_editor_window.bind("<Destroy>", lambda e: on_material_editor_close())
 
     def _on_child_close(self) -> None:
         """Callback when a child window is closed: safely restore the selector window.
