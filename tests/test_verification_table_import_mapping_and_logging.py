@@ -26,6 +26,7 @@ class TestImportMappingAndLogging(unittest.TestCase):
         return [
             VerificationInput(
                 section_id="S1",
+                verification_method="TA",
                 material_concrete="C100",
                 material_steel="S400",
                 n_homog=1.0,
@@ -43,6 +44,7 @@ class TestImportMappingAndLogging(unittest.TestCase):
             ),
             VerificationInput(
                 section_id="S2",
+                verification_method="TA",
                 material_concrete="C90",
                 material_steel="S500",
                 n_homog=0.8,
@@ -74,20 +76,21 @@ class TestImportMappingAndLogging(unittest.TestCase):
                     # costruiamo i valori in base all'header permutato (file con header riorganizzato)
                     mapping = {
                         header[0]: r.section_id,
-                        header[1]: r.material_concrete,
-                        header[2]: r.material_steel,
-                        header[3]: r.n_homog,
-                        header[4]: r.N,
-                        header[5]: r.M,
-                        header[6]: r.T,
-                        header[7]: r.As_inf,
-                        header[8]: r.As_sup,
-                        header[9]: r.d_inf,
-                        header[10]: r.d_sup,
-                        header[11]: r.stirrup_step,
-                        header[12]: r.stirrup_diameter,
-                        header[13]: r.stirrup_material,
-                        header[14]: r.notes,
+                        header[1]: r.verification_method,
+                        header[2]: r.material_concrete,
+                        header[3]: r.material_steel,
+                        header[4]: r.n_homog,
+                        header[5]: r.N,
+                        header[6]: r.M,
+                        header[7]: r.T,
+                        header[8]: r.As_inf,
+                        header[9]: r.As_sup,
+                        header[10]: r.d_inf,
+                        header[11]: r.d_sup,
+                        header[12]: r.stirrup_step,
+                        header[13]: r.stirrup_diameter,
+                        header[14]: r.stirrup_material,
+                        header[15]: r.notes,
                     }
                     row_values = [mapping[col] for col in perm]
                     w.writerow(row_values)

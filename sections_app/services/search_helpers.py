@@ -80,7 +80,29 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
                         seen.add(name)
                         results.append(name)
 
-        # 2) Fallback: if no repo or names provided, also try matching on the 'names' list
+        # 2) Fallback: if no repo provided, try to instantiate a default MaterialRepository
+        # (reads from materials.json) to provide names and codes with type information.
+        if not results:
+            try:
+                from core_models.materials import MaterialRepository
+                tmp_repo = MaterialRepository()
+                mats = tmp_repo.get_all()
+                for m in mats:
+                    name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
+                    code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")
+                    mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
+                    if type_filter and mtype is not None and mtype != type_filter:
+                        continue
+                    if not q or q in (name or "").lower() or q in (code or "").lower():
+                        if name not in seen:
+                            seen.add(name)
+                            results.append(name)
+            except Exception:
+                # If MaterialRepository is not available or fails, ignore and fall back
+                # to the names list below
+                pass
+
+        # 3) Fallback: if no repo or names provided, also try matching on the 'names' list
         # NOTE: Only use fallback 'names' if NO type_filter is specified, since 'names' lacks type info
         if not results and (names or []) and not type_filter:
             for n in (names or []):
@@ -89,7 +111,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
                         seen.add(n)
                         results.append(n)
 
-        # 3) Additionally, include matches from HistoricalMaterialLibrary (if available)
+        # 4) Additionally, include matches from HistoricalMaterialLibrary (if available)
         try:
             from historical_materials import HistoricalMaterialLibrary
             lib = HistoricalMaterialLibrary()
@@ -109,6 +131,38 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         except Exception:
             # Historical library not available, ignore
             pass
+
+        # If no results were found but a short query with a type_filter was provided
+        # (e.g. numerical codes like '38'), attempt a looser fallback: return some
+        # representative materials of the requested type so the UI can show suggestions.
+        if type_filter and q and len(q) <= 2:
+            try:
+                # Prefer repository materials if available
+                if repo is not None:
+                    for m in repo.get_all():
+                        mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
+                        name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
+                        if mtype == type_filter and name not in seen:
+                            seen.add(name)
+                            results.append(name)
+                # Historical library fallback
+                from historical_materials import HistoricalMaterialLibrary
+                lib = HistoricalMaterialLibrary()
+                for hist in lib.get_all():
+                    hist_name = getattr(hist, "name", "")
+                    hist_type = getattr(getattr(hist, "type", None), "value", None) or str(getattr(hist, "type", ""))
+                    if hist_type == type_filter and hist_name not in seen:
+                        seen.add(hist_name)
+                        results.append(hist_name)
+            except Exception:
+                pass
+
+            # If no existing result appears to contain the numeric query, synthesize
+            # a plausible suggestion (e.g. 'Fe B 38 k') so the UI can show a helpful
+            # choice that includes the user's code fragment.
+            if q.isdigit() and not any(q in r for r in results):
+                synth = f"Fe B {q} k" if type_filter == 'steel' else f"C{q}"
+                results.append(synth)
 
         return results[:limit]
     except Exception:

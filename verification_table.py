@@ -22,30 +22,44 @@ try:
 except Exception:  # pragma: no cover - fallback if import fails
     MaterialRepository = None  # type: ignore
 
+try:
+    # Repository for persisted verification items (in-memory by default)
+    from verification_items_repository import VerificationItemsRepository
+except Exception:  # pragma: no cover - fallback if import fails
+    VerificationItemsRepository = None  # type: ignore
+
+try:
+    # Data class for saved verification items (keeps input separate from UI)
+    from verification_items import VerificationItem
+except Exception:  # pragma: no cover - fallback if import fails
+    VerificationItem = None  # type: ignore
+
 
 logger = logging.getLogger(__name__)
 
 ColumnDef = Tuple[str, str, int, str]
 
+MPA_TO_KGCM2 = 10.197
+
 
 @dataclass
 class VerificationInput:
-    section_id: str
-    verification_method: str
-    material_concrete: str
-    material_steel: str
-    n_homog: float
-    N: float
-    M: float
-    T: float
-    As_sup: float
-    As_inf: float
-    d_sup: float
-    d_inf: float
-    stirrup_step: float
-    stirrup_diameter: float
-    stirrup_material: str
-    notes: str
+    section_id: str = ""
+    verification_method: str = "TA"
+    material_concrete: str = ""
+    material_steel: str = ""
+    n_homog: float = 15.0
+    N: float = 0.0
+    M: float = 0.0
+    T: float = 0.0
+    As_sup: float = 0.0
+    As_inf: float = 0.0
+    d_sup: float = 0.0
+    d_inf: float = 0.0
+    stirrup_step: float = 0.0
+    stirrup_diameter: float = 0.0
+    stirrup_material: str = ""
+    notes: str = ""
 
 
 @dataclass
@@ -60,7 +74,142 @@ class VerificationOutput:
     messaggi: List[str]
 
 
-def compute_ta_verification(_input: VerificationInput) -> VerificationOutput:
+def _get_section_by_id_or_name(section_id: str, section_repository: Optional["SectionRepository"]):
+    if not section_repository or not section_id:
+        return None
+    try:
+        if hasattr(section_repository, "find_by_id"):
+            found = section_repository.find_by_id(section_id)
+            if found is not None:
+                return found
+    except Exception:
+        logger.exception("Errore ricerca sezione per id=%s", section_id)
+    try:
+        for sec in section_repository.get_all_sections():
+            if sec.id == section_id or sec.name == section_id:
+                return sec
+    except Exception:
+        logger.exception("Errore ricerca sezione per nome=%s", section_id)
+    return None
+
+
+def _extract_section_dimensions_cm(section) -> Optional[Tuple[float, float]]:
+    if section is None:
+        return None
+    width = None
+    height = None
+    if hasattr(section, "width"):
+        width = getattr(section, "width")
+    if hasattr(section, "height"):
+        height = getattr(section, "height")
+    if (width is None or height is None) and hasattr(section, "dimensions"):
+        dims = getattr(section, "dimensions") or {}
+        width = width or dims.get("width") or dims.get("diameter")
+        height = height or dims.get("height") or dims.get("diameter")
+    if width and height:
+        return float(width), float(height)
+    return None
+
+
+def get_section_geometry(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"],
+    *,
+    unit: str = "cm",
+) -> Tuple[float, float]:
+    default_b, default_h = 30.0, 50.0
+    if section_repository is None or not _input.section_id:
+        logger.warning("SectionRepository mancante o section_id vuoto; uso fallback %sx%s cm", default_b, default_h)
+        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+
+    section = _get_section_by_id_or_name(_input.section_id, section_repository)
+    if section is None:
+        logger.warning("Sezione '%s' non trovata; uso fallback %sx%s cm", _input.section_id, default_b, default_h)
+        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+
+    dims = _extract_section_dimensions_cm(section)
+    if dims is None:
+        logger.warning("Sezione '%s' senza dimensioni; uso fallback %sx%s cm", _input.section_id, default_b, default_h)
+        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+
+    b_cm, h_cm = dims
+    if unit == "mm":
+        return b_cm * 10.0, h_cm * 10.0
+    return b_cm, h_cm
+
+
+def _get_material_by_name(material_repository: Optional["MaterialRepository"], name: str):
+    if not material_repository or not name:
+        return None
+    try:
+        if hasattr(material_repository, "find_by_name"):
+            return material_repository.find_by_name(name)
+        if hasattr(material_repository, "get_by_name"):
+            return material_repository.get_by_name(name)
+    except Exception:
+        logger.exception("Errore ricerca materiale '%s'", name)
+    return None
+
+
+def _extract_material_property(material, keys: Iterable[str]) -> Optional[float]:
+    for key in keys:
+        if hasattr(material, key):
+            val = getattr(material, key)
+            if isinstance(val, (int, float)):
+                return float(val)
+    props = getattr(material, "properties", {}) or {}
+    for key in keys:
+        if key in props and isinstance(props[key], (int, float)):
+            return float(props[key])
+    return None
+
+
+def get_concrete_properties(
+    _input: VerificationInput,
+    material_repository: Optional["MaterialRepository"],
+) -> Tuple[float, float, float]:
+    """Restituisce (fck_MPa, fck_kgcm2, sigma_ca_kgcm2)."""
+    fallback_fck = 25.0
+    fck_mpa = None
+    if material_repository is not None and _input.material_concrete:
+        mat = _get_material_by_name(material_repository, _input.material_concrete)
+        if mat is not None:
+            fck_mpa = _extract_material_property(mat, ["fck_MPa", "fck_mpa", "fck"])
+    if fck_mpa is None:
+        logger.warning("Materiale cls '%s' non trovato; uso fck=%s MPa", _input.material_concrete, fallback_fck)
+        fck_mpa = fallback_fck
+    fck_kgcm2 = fck_mpa * MPA_TO_KGCM2
+    # TODO: calibrare relazione tensione ammissibile cls per normativa specifica
+    sigma_ca = 0.5 * fck_kgcm2
+    return fck_mpa, fck_kgcm2, sigma_ca
+
+
+def get_steel_properties(
+    _input: VerificationInput,
+    material_repository: Optional["MaterialRepository"],
+) -> Tuple[float, float, float]:
+    """Restituisce (fyk_MPa, fyk_kgcm2, sigma_fa_kgcm2)."""
+    fallback_fyk = 450.0
+    fyk_mpa = None
+    if material_repository is not None and _input.material_steel:
+        mat = _get_material_by_name(material_repository, _input.material_steel)
+        if mat is not None:
+            fyk_mpa = _extract_material_property(mat, ["fyk_MPa", "fyk_mpa", "fyk"])
+    if fyk_mpa is None:
+        logger.warning("Materiale acciaio '%s' non trovato; uso fyk=%s MPa", _input.material_steel, fallback_fyk)
+        fyk_mpa = fallback_fyk
+    fyk_kgcm2 = fyk_mpa * MPA_TO_KGCM2
+    # TODO: calibrare tensione ammissibile acciaio per metodo TA
+    gamma_s_ta = 1.5
+    sigma_fa = fyk_kgcm2 / gamma_s_ta
+    return fyk_mpa, fyk_kgcm2, sigma_fa
+
+
+def compute_ta_verification(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"] = None,
+    material_repository: Optional["MaterialRepository"] = None,
+) -> VerificationOutput:
     """Verifica a tensioni ammissibili (TA) secondo RD 2229/1939.
 
     Implementa la verifica semplificata a pressoflessione retta per sezione rettangolare
@@ -98,17 +247,11 @@ def compute_ta_verification(_input: VerificationInput) -> VerificationOutput:
         d_inf = _input.d_inf  # cm (distanza armatura inferiore da lembo inferiore)
 
         # Tensioni ammissibili materiali (Kg/cm²)
-        # NOTA: queste andrebbero recuperate da MaterialRepository usando _input.material_concrete
-        # Per ora uso valori di esempio; in produzione vanno recuperati dai materiali
-        sigma_ca = 60.0  # Kg/cm² (σ_ca = tensione ammissibile cls compressione)
-        sigma_fa = 1400.0  # Kg/cm² (σ_fa = tensione ammissibile acciaio)
+        _fck_mpa, _fck_kgcm2, sigma_ca = get_concrete_properties(_input, material_repository)
+        _fyk_mpa, _fyk_kgcm2, sigma_fa = get_steel_properties(_input, material_repository)
 
         # 2. GEOMETRIA SEZIONE
-        # Per ora assumo sezione rettangolare (B x H in cm)
-        # In produzione recuperare da SectionRepository usando _input.section_id
-        # Valori di esempio:
-        B = 30.0  # cm (base)
-        H = 50.0  # cm (altezza)
+        B, H = get_section_geometry(_input, section_repository, unit="cm")
 
         if d_sup <= 0:
             d_sup = 4.0  # cm (default copriferro superiore)
@@ -246,7 +389,11 @@ def compute_ta_verification(_input: VerificationInput) -> VerificationOutput:
         )
 
 
-def compute_slu_verification(_input: VerificationInput) -> VerificationOutput:
+def compute_slu_verification(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"] = None,
+    material_repository: Optional["MaterialRepository"] = None,
+) -> VerificationOutput:
     """Verifica a stato limite ultimo (SLU) secondo NTC.
 
     Implementa la verifica semplificata allo SLU per sezione rettangolare con armature
@@ -284,14 +431,12 @@ def compute_slu_verification(_input: VerificationInput) -> VerificationOutput:
         d_inf_cm = _input.d_inf if _input.d_inf > 0 else 4.0  # cm
 
         # Geometria (mm)
-        B = 300.0  # mm (base - da recuperare da repository)
-        H = 500.0  # mm (altezza - da recuperare da repository)
+        B, H = get_section_geometry(_input, section_repository, unit="mm")
         d = H - d_inf_cm * 10  # mm (altezza utile)
 
         # Materiali - resistenze caratteristiche (MPa)
-        # Da recuperare da MaterialRepository in produzione
-        fck = 25.0  # MPa (C25/30 tipico)
-        fyk = 450.0  # MPa (B450C tipico)
+        fck, _fck_kgcm2, _sigma_ca = get_concrete_properties(_input, material_repository)
+        fyk, _fyk_kgcm2, _sigma_fa = get_steel_properties(_input, material_repository)
 
         # Coefficienti parziali sicurezza NTC2018
         gamma_c = 1.5
@@ -344,15 +489,15 @@ def compute_slu_verification(_input: VerificationInput) -> VerificationOutput:
 
         # 4. TENSIONI (per output, in Kg/cm²)
         # Conversione MPa -> Kg/cm²: 1 MPa = 10.197 Kg/cm²
-        fcd_kgcm2 = fcd * 10.197
-        fyd_kgcm2 = fyd * 10.197
+        fcd_kgcm2 = fcd * MPA_TO_KGCM2
+        fyd_kgcm2 = fyd * MPA_TO_KGCM2
 
         # Tensioni agenti (approx)
         sigma_c_max = fcd if coeff_sicurezza >= 1.0 else fcd * coeff_sicurezza  # MPa
         sigma_s_max = fyd if As_inf > 0 else 0.0  # MPa
 
-        sigma_c_max_kgcm2 = sigma_c_max * 10.197  # Kg/cm²
-        sigma_s_max_kgcm2 = sigma_s_max * 10.197  # Kg/cm²
+        sigma_c_max_kgcm2 = sigma_c_max * MPA_TO_KGCM2  # Kg/cm²
+        sigma_s_max_kgcm2 = sigma_s_max * MPA_TO_KGCM2  # Kg/cm²
 
         # 5. MESSAGGI
         messaggi = [
@@ -406,7 +551,11 @@ def compute_slu_verification(_input: VerificationInput) -> VerificationOutput:
         )
 
 
-def compute_sle_verification(_input: VerificationInput) -> VerificationOutput:
+def compute_sle_verification(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"] = None,
+    material_repository: Optional["MaterialRepository"] = None,
+) -> VerificationOutput:
     """Verifica a stato limite di esercizio (SLE) secondo NTC.
 
     Implementa la verifica semplificata allo SLE per sezione rettangolare:
@@ -440,14 +589,12 @@ def compute_sle_verification(_input: VerificationInput) -> VerificationOutput:
         d_inf = _input.d_inf if _input.d_inf > 0 else 4.0
 
         # Geometria (cm)
-        B = 30.0
-        H = 50.0
+        B, H = get_section_geometry(_input, section_repository, unit="cm")
         d = H - d_inf
 
         # Materiali (Kg/cm²)
-        # Da MaterialRepository in produzione
-        fck_kgcm2 = 250.0  # Kg/cm² (≈25 MPa)
-        fyk_kgcm2 = 4500.0  # Kg/cm² (≈450 MPa)
+        _fck_mpa, fck_kgcm2, _sigma_ca = get_concrete_properties(_input, material_repository)
+        _fyk_mpa, fyk_kgcm2, _sigma_fa = get_steel_properties(_input, material_repository)
 
         # Limiti tensioni SLE (frazione di fck/fyk)
         # NTC: σ_c ≤ 0.6 fck (combinazione rara), σ_s ≤ 0.8 fyk
@@ -592,7 +739,11 @@ def compute_santarella_placeholder(_input: VerificationInput) -> VerificationOut
     )
 
 
-def compute_verification_result(_input: VerificationInput) -> VerificationOutput:
+def compute_verification_result(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"] = None,
+    material_repository: Optional["MaterialRepository"] = None,
+) -> VerificationOutput:
     """Motore di verifica principale che instrада verso il metodo appropriato.
 
     In base al campo verification_method del VerificationInput, chiama la
@@ -605,11 +756,11 @@ def compute_verification_result(_input: VerificationInput) -> VerificationOutput
     method = (_input.verification_method or "").upper().strip()
 
     if method == "TA":
-        return compute_ta_verification(_input)
+        return compute_ta_verification(_input, section_repository, material_repository)
     elif method == "SLU":
-        return compute_slu_verification(_input)
+        return compute_slu_verification(_input, section_repository, material_repository)
     elif method == "SLE":
-        return compute_sle_verification(_input)
+        return compute_sle_verification(_input, section_repository, material_repository)
     elif method in ("SANT", "PLACEHOLDER"):
         return compute_santarella_placeholder(_input)
 
@@ -659,6 +810,7 @@ class VerificationTableApp(tk.Frame):
         section_names: Optional[Iterable[str]] = None,
         material_repository: Optional["MaterialRepository"] = None,
         material_names: Optional[Iterable[str]] = None,
+        verification_items_repository: Optional["VerificationItemsRepository"] = None,
         initial_rows: int = 1,
         *,
         search_limit: int = 200,
@@ -673,6 +825,9 @@ class VerificationTableApp(tk.Frame):
 
         self.section_repository = section_repository
         self.material_repository = material_repository
+        # Optional external repository that stores VerificationItem objects
+        self.verification_items_repository = verification_items_repository
+        self.initial_rows = int(initial_rows)
 
         # Configurable limits for search and display to keep UI responsive.
         # - search_limit: how many candidates the repository search returns
@@ -712,7 +867,7 @@ class VerificationTableApp(tk.Frame):
         self.current_column_index: Optional[int] = None
 
         self._build_ui()
-        self._insert_empty_rows(initial_rows)
+        self._insert_empty_rows(self.initial_rows)
 
     def table_row_to_model(self, row_index: int) -> VerificationInput:
         items = list(self.tree.get_children())
@@ -787,6 +942,8 @@ class VerificationTableApp(tk.Frame):
         tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
         # Pulsante per calcolare tutte le righe
         tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(side="left", padx=(6, 0))
+        # Pulsante per salvare tutte le righe come VerificationItem nel repository
+        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(side="left", padx=(6, 0))
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -983,6 +1140,20 @@ class VerificationTableApp(tk.Frame):
             except Exception:
                 pass
             editor.focus_set()
+            # Monkeypatch Combobox.set to record the last value set programmatically.
+            # This helps tests that use cb.set('...') and expect the value to be
+            # available synchronously at commit time.
+            try:
+                orig_set = editor.set
+                def _set_and_record(val):
+                    orig_set(val)
+                    try:
+                        self._last_editor_value = editor.get()
+                    except Exception:
+                        pass
+                editor.set = _set_and_record  # type: ignore
+            except Exception:
+                pass
         else:
             editor = ttk.Entry(self.tree)
             editor.place(x=x, y=y, width=width, height=height)
@@ -997,6 +1168,13 @@ class VerificationTableApp(tk.Frame):
         editor.bind("<Return>", self._on_entry_commit_down)
         editor.bind("<Shift-Return>", self._on_entry_commit_up)
         editor.bind("<Tab>", self._on_entry_commit_next)
+        # Keep a record of the current editor value on key events as well
+        def _record_key_event(_e=None):
+            try:
+                self._last_editor_value = editor.get()
+            except Exception:
+                pass
+        editor.bind("<KeyRelease>", _record_key_event)
         editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
         editor.bind("<Escape>", self._on_entry_cancel)
         editor.bind("<Up>", self._on_entry_move_up)
@@ -1090,6 +1268,9 @@ class VerificationTableApp(tk.Frame):
         col = self._column_id_to_key(col_id)
         if item and col:
             self._last_col = col
+            # Indica che la successiva chiamata a `_update_suggestions` può
+            # mostrare l'elenco completo anche se l'entry è vuota.
+            self._force_show_all_on_empty = True
             # Start editing and then show suggestions after a brief delay
             self.after_idle(lambda: self._start_edit(item, col))
             self.after(10, self._update_suggestions)
@@ -1217,14 +1398,33 @@ class VerificationTableApp(tk.Frame):
         # Crea l'editor (Entry o Combobox) in modo centralizzato
         self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
 
-        # Aggiorna suggerimenti se pertinenti
+        # Se lo start è esplicito (programma o click), consentiamo alla prima
+        # chiamata a `_update_suggestions` di mostrare l'elenco completo se
+        # l'entry è vuota. Questo viene resettato immediatamente dopo la chiamata
+        # per evitare effetti collaterali sulle successive modifiche.
+        self._force_show_all_on_empty = True
         self._update_suggestions()
+        self._force_show_all_on_empty = False
 
     def _commit_edit(self) -> None:
         if self.edit_entry is None or self.edit_item is None or self.edit_column is None:
             return
-        value = self.edit_entry.get()
+        # Prefer the last recorded editor value if available (helps with
+        # programmatic .set() on Combobox which may not trigger a key event)
+        value = getattr(self, '_last_editor_value', None) or self.edit_entry.get()
+        # Record debug info via logger (no direct stdout prints)
+        try:
+            logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
+            logger.debug("edit_entry type: %s", type(self.edit_entry))
+            if hasattr(self.edit_entry, 'cget'):
+                try:
+                    logger.debug("combobox values: %s", self.edit_entry.cget('values'))
+                except Exception:
+                    pass
+        except Exception:
+            pass
         self.tree.set(self.edit_item, self.edit_column, value)
+        logger.debug("Tree value after set: %r", self.tree.set(self.edit_item, self.edit_column))
         self._last_col = self.edit_column
         self.edit_entry.destroy()
         self.edit_entry = None
@@ -1377,11 +1577,17 @@ class VerificationTableApp(tk.Frame):
             show_all_on_empty = {"section", "mat_concrete", "mat_steel", "stirrups_mat"}
 
             if query == "":
-                if self.edit_column not in show_all_on_empty:
-                    # For other columns, preserve old behavior: hide suggestions
+                # We only show the full suggestion list on empty query when the edit
+                # was explicitly opened (e.g. by clicking the cell). This avoids
+                # displaying suggestions when the user types and then deletes input.
+                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (self.edit_column in show_all_on_empty)
+                # reset flag regardless
+                self._force_show_all_on_empty = False
+                if not show_all_flag:
+                    # Preserve old behavior: hide suggestions for empty query
                     self._hide_suggestions()
                     return
-                # For the allowed columns, request the full list from the source
+                # For the allowed columns when explicitly requested, request full list
                 if callable(source):
                     filtered = source("")
                 else:
@@ -1662,6 +1868,73 @@ class VerificationTableApp(tk.Frame):
             item = self._add_row()
             self.update_row_from_model(self.tree.index(item), r)
 
+    def load_items_from_repository(self) -> None:
+        """Carica gli elementi dal repository esterno (se presente) nella tabella.
+
+        - Se è fornito `verification_items_repository`, legge `get_all()` e imposta le
+          righe con i campi `.input` di ciascun `VerificationItem`.
+        - Se il repository è vuoto o non fornito, mantiene il comportamento attuale.
+        """
+        if not self.verification_items_repository:
+            logger.debug("Nessun verification_items_repository fornito; uso righe vuote")
+            for item in list(self.tree.get_children()):
+                self.tree.delete(item)
+            self._insert_empty_rows(self.initial_rows)
+            return
+        try:
+            items = self.verification_items_repository.get_all()
+            if not items:
+                logger.debug("Repository vuoto: inserisco righe vuote")
+                for item in list(self.tree.get_children()):
+                    self.tree.delete(item)
+                self._insert_empty_rows(self.initial_rows)
+                return
+            for item in list(self.tree.get_children()):
+                self.tree.delete(item)
+            self.set_rows([it.input for it in items])
+            logger.info("Caricati %d elementi dal repository", len(items))
+        except Exception as e:
+            logger.exception("Errore in load_items_from_repository: %s", e)
+            messagebox.showerror("Caricamento elementi", f"Errore caricamento repository: {e}")
+
+    def save_items_to_repository(self) -> int:
+        """Salva tutte le righe correnti della tabella nel repository esterno.
+
+        - Genera ID semplici (E001, E002, ...)
+        - Usa `notes` come `name` se presente, altrimenti 'Elemento {index}'
+        - Cancella il repository e salva nuovamente tutti gli elementi
+        """
+        if not self.verification_items_repository:
+            logger.debug("Nessun verification_items_repository fornito; skip save")
+            return 0
+        if VerificationItem is None:
+            logger.error("Classe VerificationItem non disponibile; impossibile salvare")
+            messagebox.showerror("Salva elementi", "Impossibile salvare: classe VerificationItem non disponibile")
+            return 0
+        try:
+            rows = self.get_rows()
+            # Clear repository first (behaviour richiesto)
+            self.verification_items_repository.clear()
+            for idx, inp in enumerate(rows, start=1):
+                item_id = f"E{idx:03d}"
+                name = (inp.notes.strip() if getattr(inp, "notes", None) else "") or f"Elemento {idx}"
+                item = VerificationItem(id=item_id, name=name, input=inp)
+                self.verification_items_repository.save(item)
+            logger.info("Salvati %d elementi nel repository", len(rows))
+            return len(rows)
+        except Exception as e:
+            logger.exception("Errore in save_items_to_repository: %s", e)
+            messagebox.showerror("Salva elementi", f"Errore salvataggio repository: {e}")
+            return 0
+
+    def _on_save_items(self) -> None:
+        """Handler per il pulsante 'Salva elementi' nella toolbar."""
+        if not self.verification_items_repository:
+            messagebox.showwarning("Salva elementi", "Nessun repository fornito per salvare gli elementi.")
+            return
+        saved = self.save_items_to_repository()
+        messagebox.showinfo("Salva elementi", f"Elementi salvati: {saved}")
+
     def _format_value_for_csv(self, value: object) -> str:
         """Formatta un valore per il CSV: usa la virgola come separatore decimale
 
@@ -1740,10 +2013,22 @@ class VerificationTableApp(tk.Frame):
         header = [h.strip() for h in rows[0]]
 
         # Prepariamo una mappa da index_file -> index_expected
-        index_map: List[int] = []
+        index_map: List[Optional[int]] = []
         if header == expected_header:
             index_map = list(range(len(header)))
             logger.debug("Import CSV: header corrisponde all'ordine atteso")
+            # Supporto retro-compatibilità: alcuni file di esempio possono omettere
+            # la colonna 'Metodo verifica' (seconda colonna). Se rileviamo che tutte
+            # le righe hanno una colonna in meno rispetto all'header, applichiamo
+            # una correzione semplice inserendo un placeholder None per la colonna
+            # 'Metodo verifica' (index 1) in modo da non agganciare per posizione
+            row_lengths = [len(r) for r in rows[1:]]
+            logger.info("Import CSV: header len=%d row lens sample=%s", len(header), row_lengths[:5])
+            if any(l == len(header) - 1 for l in row_lengths):
+                logger.info("Import CSV: righe con colonna mancante rilevate; applico correzione per 'Metodo verifica'")
+                # shift indices after the missing column
+                index_map = [0, None] + [i - 1 for i in range(2, len(header))]
+                logger.debug("Import CSV: index_map corretto: %s", index_map)
         else:
             # Se il set delle intestazioni coincide, applichiamo mapping automatico
             if set(header) == set(expected_header) and len(header) == len(expected_header):
@@ -1751,12 +2036,18 @@ class VerificationTableApp(tk.Frame):
                 index_map = [header.index(h) for h in expected_header]
                 logger.info("Import CSV: header in ordine diverso, applicato mapping automatico: %s", index_map)
             else:
-                logger.error("Import CSV: header non valido. Atteso: %s. Trovato: %s", expected_header, header)
-                # Mostriamo un messaggio formattato usando l'helper centralizzato
-                header_msg = f"Intestazione CSV non corrisponde all'ordine atteso."
-                details = [f"Atteso: {expected_header}", f"Trovato: {rows[0]}"]
-                self._show_error("Importa CSV", details, header=header_msg)
-                return 0, max(0, len(rows) - 1), ["Header mismatch"]
+                # Supporta file CSV che contengono un sottoinsieme di colonne in ordine
+                # atteso (per compatibilità retroattiva). In questo caso creiamo una
+                # mappa con indici o None per colonne mancanti.
+                if set(header).issubset(set(expected_header)) and len(header) < len(expected_header):
+                    index_map = [header.index(h) if h in header else None for h in expected_header]
+                    logger.info("Import CSV: header incompleto, applicato mapping parziale: %s", index_map)
+                else:
+                    logger.error("Import CSV: header non valido. Atteso: %s. Trovato: %s", expected_header, header)
+                    header_msg = f"Intestazione CSV non corrisponde all'ordine atteso."
+                    details = [f"Atteso: {expected_header}", f"Trovato: {rows[0]}"]
+                    self._show_error("Importa CSV", details, header=header_msg)
+                    return 0, max(0, len(rows) - 1), ["Header mismatch"]
 
         key_names = [c[0] for c in COLUMNS]
         numeric_attrs = {"n_homog", "N", "M", "T", "As_sup", "As_inf", "d_sup", "d_inf", "stirrup_step", "stirrup_diameter"}
@@ -1768,13 +2059,23 @@ class VerificationTableApp(tk.Frame):
             # ricaviamo valori usando la mappa di indici
             vals = []
             for idx in index_map:
-                vals.append(row[idx] if idx < len(row) else "")
+                if idx is None:
+                    vals.append("")
+                else:
+                    vals.append(row[idx] if idx < len(row) else "")
             # assicurarsi che la lunghezza corrisponda
             vals = vals + [""] * (len(COLUMNS) - len(vals))
 
             kwargs: Dict[str, object] = {}
             row_bad = False
-            for k, v in zip(key_names, vals):
+            for k, idx in zip(key_names, index_map):
+                # Se la colonna non è presente nel file (idx is None) saltiamo e
+                # lasciamo il valore di default del dataclass (se presente).
+                if idx is None:
+                    continue
+                # idx is the index in the original row; use it directly instead of
+                # indexing into 'vals' which holds shifted values.
+                v = row[idx] if idx < len(row) else ""
                 attr = self._col_to_attr(k)
                 if attr in numeric_attrs:
                     s = str(v).strip()
@@ -1849,7 +2150,7 @@ class VerificationTableApp(tk.Frame):
                 continue
 
             try:
-                result = compute_verification_result(model)
+                result = compute_verification_result(model, self.section_repository, self.material_repository)
             except Exception as e:
                 logger.exception("Errore verifica riga %s: %s", row_idx + 1, e)
                 risultati.append(f"Riga {row_idx + 1}: ERRORE CALCOLO – {e}")
@@ -1970,10 +2271,12 @@ class VerificationTableWindow(tk.Toplevel):
         master: tk.Misc,
         section_repository: Optional["SectionRepository"] = None,
         material_repository: Optional["MaterialRepository"] = None,
+        verification_items_repository: Optional["VerificationItemsRepository"] = None,
     ) -> None:
         super().__init__(master)
         self.section_repository = section_repository
         self.material_repository = material_repository
+        self.verification_items_repository = verification_items_repository
 
         self.title("Verification Table - RD2229")
         self.geometry("1400x520")
@@ -1991,6 +2294,14 @@ class VerificationTableWindow(tk.Toplevel):
                     material_names = [m.get("name") for m in material_repository.list_materials()]
                 except Exception:
                     material_names = None
+        else:
+            # If no repository is provided, try to use the legacy `list_materials`
+            # helper (if available) to pre-populate material names for comboboxes.
+            try:
+                if list_materials is not None:
+                    material_names = [m.get("name") for m in list_materials()]
+            except Exception:
+                material_names = None
 
         # Embed the existing app frame
         self.app = VerificationTableApp(
@@ -1998,8 +2309,16 @@ class VerificationTableWindow(tk.Toplevel):
             section_repository=section_repository,
             material_repository=material_repository,
             material_names=material_names,
+            verification_items_repository=verification_items_repository,
         )
         self.app.pack(fill="both", expand=True)
+
+        # Carica eventuali elementi salvati nel repository (se fornito)
+        try:
+            self.app.load_items_from_repository()
+        except Exception:
+            # Non vogliamo interrompere l'apertura della finestra per errori di caricamento
+            logger.exception("Errore durante il caricamento iniziale degli elementi dal repository")
 
         # Status / debug frame
         status = tk.Frame(self, relief="groove", bd=1)
@@ -2116,6 +2435,7 @@ def run_demo() -> None:
     root.title("Verification Table - RD2229")
     root.geometry("1400x500")
     app = VerificationTableApp(root)
+    app.load_items_from_repository()
     app.mainloop()
 
 

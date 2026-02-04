@@ -68,7 +68,7 @@ class TestVerificationTableEdgeCases(unittest.TestCase):
 
         items = list(app.tree.get_children())
         first = items[0]
-        # Start editing "mat_concrete" (column index 1)
+        # Start editing "mat_concrete" (column index 2)
         app._start_edit(first, 'mat_concrete')
         self.assertIsNotNone(app.edit_entry)
         # Provide suggestion source and type a query that filters
@@ -85,8 +85,8 @@ class TestVerificationTableEdgeCases(unittest.TestCase):
         app._on_entry_commit_prev(None)
         # The suggestion should have been applied to the cell
         self.assertIn(app.tree.set(first, 'mat_concrete'), ['C120', 'C200'])
-        # The editor should now be on the previous column (index 0)
-        self.assertEqual(app.edit_column, app.columns[0])
+        # The editor should now be on the previous column "verif_method" (index 1)
+        self.assertEqual(app.edit_column, 'verif_method')
         top.destroy()
 
 

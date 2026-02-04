@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from typing import Callable, Optional
@@ -26,6 +27,9 @@ class ModuleSelectorWindow(tk.Tk):
         serializer: CsvSectionSerializer,
         material_repository: Optional[MaterialRepository] = None,
     ):
+        # Forza locale msgcat su EN per evitare errori quando i file lingua non sono presenti
+        os.environ.setdefault("LANG", "en_US")
+        os.environ.setdefault("LC_ALL", "en_US")
         super().__init__()
         self.title("Module Selector - RD2229 Tools")
         self.geometry("1200x340")
