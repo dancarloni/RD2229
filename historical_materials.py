@@ -99,55 +99,194 @@ class HistoricalMaterialLibrary:
                 # If the file exists but is not readable/valid JSON, we'll overwrite it
                 logger.warning("Existing historical materials file %s unreadable: will recreate defaults", self._file_path)
 
-        # Prepare default illustrative materials
+        # Materiali base secondo RD 2229/39 (Regio Decreto 16 novembre 1939)
+        # Valori tratti direttamente dalla normativa storica
+        # Unità: tutte le tensioni in kg/cm²
         examples: List[HistoricalMaterial] = []
 
-        # Example concrete from RD 2229/39 (values are placeholders - TODO)
+        # ============================================================
+        # CALCESTRUZZI - RD 2229/39
+        # ============================================================
+
+        # CLS con cemento normale (Portland, alto forno, pozzolanico)
+        # Resistenza minima 120 kg/cm², σ_c ammissibile 35-40 kg/cm²
         examples.append(
             HistoricalMaterial(
-                id="RD2229_R160",
-                code="RD2229_R160",
-                name="CLS R 160 (RD 2229/39)",
+                id="RD2229_CLS_120_N",
+                code="RD2229_CLS_120_N",
+                name="CLS R120 Cemento Normale",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.CONCRETE,
-                fck=16.0,  # TODO: insert exact fck from RD 2229/39 table
-                fcd=10.0,  # TODO: compute/insert fcd (design value)
-                fctm=1.0,  # TODO: traction mean example
-                Ec=300000.0,  # TODO: replace with authoritative value
-                gamma_c=1.4,  # typical safety factor example
-                notes="TODO: Inserire valori esatti da RD 2229/39 (pdf)"
+                fck=120.0,      # resistenza cubica minima a 28 gg [kg/cm²]
+                fcd=35.0,       # σ_c ammissibile sez. sempl. compresse [kg/cm²]
+                fctm=None,      # non specificato nel RD
+                Ec=250000.0,    # modulo elastico convenzionale [kg/cm²]
+                gamma_c=3.0,    # coefficiente sicurezza (σ_c28/σ_c = 120/40 ≈ 3)
+                notes="Cemento Portland normale. τ_serv=4, τ_max=14 kg/cm². n=10"
             )
         )
 
-        # Example steel (historic)
+        # CLS con cemento normale R 160
         examples.append(
             HistoricalMaterial(
-                id="HIST_STEEL_FEB38",
-                code="HIST_STEEL_FEB38",
-                name="Acciaio FeB38 storico",
-                source="Norme storiche / ReLUIS",
-                type=HistoricalMaterialType.STEEL,
-                fyk=380.0,  # placeholder
-                fyd=300.0,  # placeholder design value
-                Es=2100000.0,  # example modulus (kg/cm²)
-                gamma_s=1.15,  # example safety factor
-                notes="TODO: calibrare su dataset storico (es. ReLUIS, STIL)"
-            )
-        )
-
-        # Example from an online archive (placeholder)
-        examples.append(
-            HistoricalMaterial(
-                id="RELUIS_EXAMPLE_1",
-                code="RELUIS_C_EX1",
-                name="CLS ReLUIS Example",
-                source="ReLUIS STIL",
+                id="RD2229_CLS_160_N",
+                code="RD2229_CLS_160_N",
+                name="CLS R160 Cemento Normale",
+                source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.CONCRETE,
-                fck=20.0,
-                fcd=13.0,
-                Ec=320000.0,
-                gamma_c=1.4,
-                notes="Example entry from ReLUIS export - TODO: replace with actual dataset values"
+                fck=160.0,      # resistenza cubica a 28 gg [kg/cm²]
+                fcd=35.0,       # σ_c ammissibile sez. sempl. compresse [kg/cm²]
+                fctm=None,
+                Ec=250000.0,    # modulo elastico convenzionale [kg/cm²]
+                gamma_c=3.0,
+                notes="Cemento Portland normale R160. τ_serv=4, τ_max=14 kg/cm². n=10. "
+                      "Richiesto per acciaio dolce σ_s=1400 kg/cm²"
+            )
+        )
+
+        # CLS con cemento ad alta resistenza R 160
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_CLS_160_AR",
+                code="RD2229_CLS_160_AR",
+                name="CLS R160 Cemento Alta Resistenza",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.CONCRETE,
+                fck=160.0,      # resistenza cubica minima a 28 gg [kg/cm²]
+                fcd=45.0,       # σ_c ammissibile sez. sempl. compresse [kg/cm²]
+                fctm=None,
+                Ec=300000.0,    # modulo elastico convenzionale [kg/cm²]
+                gamma_c=3.0,
+                notes="Cemento ad alta resistenza. τ_serv=6, τ_max=16 kg/cm². n=8. "
+                      "Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²"
+            )
+        )
+
+        # CLS con cemento ad alta resistenza R 225
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_CLS_225_AR",
+                code="RD2229_CLS_225_AR",
+                name="CLS R225 Cemento Alta Resistenza",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.CONCRETE,
+                fck=225.0,      # resistenza cubica a 28 gg [kg/cm²]
+                fcd=50.0,       # σ_c ammissibile sez. inflesse [kg/cm²]
+                fctm=None,
+                Ec=300000.0,    # modulo elastico convenzionale [kg/cm²]
+                gamma_c=3.0,
+                notes="Cemento ad alta resistenza R225. τ_serv=6, τ_max=16 kg/cm². n=8. "
+                      "Richiesto per acciaio duro σ_s=2000 kg/cm²"
+            )
+        )
+
+        # CLS con cemento alluminoso R 160
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_CLS_160_AL",
+                code="RD2229_CLS_160_AL",
+                name="CLS R160 Cemento Alluminoso",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.CONCRETE,
+                fck=160.0,      # resistenza cubica minima a 28 gg [kg/cm²]
+                fcd=45.0,       # σ_c ammissibile sez. sempl. compresse [kg/cm²]
+                fctm=None,
+                Ec=330000.0,    # modulo elastico convenzionale [kg/cm²]
+                gamma_c=3.0,
+                notes="Cemento alluminoso. τ_serv=6, τ_max=16 kg/cm². n=6. "
+                      "Rapida presa e alta resistenza iniziale"
+            )
+        )
+
+        # CLS con cemento a lenta presa R 120
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_CLS_120_LP",
+                code="RD2229_CLS_120_LP",
+                name="CLS R120 Cemento Lenta Presa",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.CONCRETE,
+                fck=120.0,      # resistenza cubica minima a 28 gg [kg/cm²]
+                fcd=35.0,       # σ_c ammissibile [kg/cm²]
+                fctm=None,
+                Ec=200000.0,    # modulo elastico convenzionale [kg/cm²]
+                gamma_c=3.0,
+                notes="Cemento a lenta presa. Modulo ridotto E=200000 kg/cm²"
+            )
+        )
+
+        # ============================================================
+        # ACCIAI DA ARMATURA - RD 2229/39
+        # ============================================================
+
+        # Acciaio dolce
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_ACC_DOLCE",
+                code="RD2229_ACC_DOLCE",
+                name="Acciaio Dolce",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.STEEL,
+                fyk=2800.0,     # carico di snervamento (σ_amm ≤ fyk/2) [kg/cm²]
+                fyd=1400.0,     # tensione ammissibile a trazione [kg/cm²]
+                Es=2100000.0,   # modulo elastico acciaio [kg/cm²]
+                gamma_s=2.0,    # coefficiente sicurezza (fyk/σ_amm = 2)
+                notes="Acciaio dolce liscio. Richiede CLS con R≥160 kg/cm². "
+                      "σ_amm = 1400 kg/cm² (non deve superare metà carico snervamento)"
+            )
+        )
+
+        # Acciaio semiduro
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_ACC_SEMIDURO",
+                code="RD2229_ACC_SEMIDURO",
+                name="Acciaio Semiduro",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.STEEL,
+                fyk=3600.0,     # carico di snervamento tipico [kg/cm²]
+                fyd=1800.0,     # tensione ammissibile (sez. rettangolari) [kg/cm²]
+                Es=2100000.0,   # modulo elastico acciaio [kg/cm²]
+                gamma_s=2.0,
+                notes="Acciaio semiduro. Richiede CLS alta resistenza R≥160 kg/cm². "
+                      "σ_amm = 1600 kg/cm² (sez. T o speciali) o 1800 kg/cm² (sez. rett.)"
+            )
+        )
+
+        # Acciaio duro
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_ACC_DURO",
+                code="RD2229_ACC_DURO",
+                name="Acciaio Duro",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.STEEL,
+                fyk=4000.0,     # carico di snervamento tipico [kg/cm²]
+                fyd=2000.0,     # tensione ammissibile massima [kg/cm²]
+                Es=2100000.0,   # modulo elastico acciaio [kg/cm²]
+                gamma_s=2.0,
+                notes="Acciaio duro. Richiede CLS alta resistenza R≥225 kg/cm². "
+                      "σ_amm = 1800 kg/cm² (sez. T o speciali) o 2000 kg/cm² (sez. rett.)"
+            )
+        )
+
+        # ============================================================
+        # ACCIAI PER STAFFE - RD 2229/39
+        # ============================================================
+
+        # Acciaio dolce per staffe (stesso dell'armatura longitudinale)
+        examples.append(
+            HistoricalMaterial(
+                id="RD2229_STAFFA_DOLCE",
+                code="RD2229_STAFFA_DOLCE",
+                name="Acciaio Dolce per Staffe",
+                source="RD 16/11/1939 n. 2229",
+                type=HistoricalMaterialType.STIRRUP_STEEL,
+                fyk=2800.0,
+                fyd=1400.0,     # tensione ammissibile [kg/cm²]
+                Es=2100000.0,
+                gamma_s=2.0,
+                notes="Acciaio dolce per staffe e legature. Tondo liscio φ6-φ10 tipici"
             )
         )
 

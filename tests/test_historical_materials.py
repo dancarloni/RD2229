@@ -45,10 +45,16 @@ class TestHistoricalMaterials(unittest.TestCase):
         # calling load should populate defaults and write file
         lib.load_from_file()
         items = lib.get_all()
-        self.assertTrue(len(items) >= 1)
-        # Check that example RD2229 material is present
+        # Should have multiple default materials (CLS + acciai)
+        self.assertTrue(len(items) >= 6)
+        # Check that RD2229 base materials are present
         codes = {m.code for m in items}
-        self.assertIn("RD2229_R160", codes)
+        # Calcestruzzi
+        self.assertIn("RD2229_CLS_120_N", codes)
+        self.assertIn("RD2229_CLS_160_AR", codes)
+        # Acciai
+        self.assertIn("RD2229_ACC_DOLCE", codes)
+        self.assertIn("RD2229_ACC_DURO", codes)
 
     def test_import_historical_material_to_material(self):
         hist = HistoricalMaterial(id="HM-002", code="C30/37", name="C30/37", source="RD 2229/39", type=HistoricalMaterialType.CONCRETE, fck=30.0, fcd=20.0, gamma_c=1.4)
