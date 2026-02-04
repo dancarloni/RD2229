@@ -128,27 +128,31 @@ class MaterialRepository:
             EventBus().emit(MATERIALS_CLEARED)
     
     def load_from_file(self) -> None:
-        """Carica tutti i materiali dal file JSON.
+        """Carica i materiali dal file principale, oppure dal backup se il principale è corrotto.
         
-        Se il file non esiste, il repository rimane vuoto.
-        Se il file esiste ma è invalido, registra un errore.
+        Strategia di recovery:
+        1. Tenta di caricare dal file principale
+        2. Se fallisce, tenta di caricare dal backup
+        3. Se anche il backup fallisce, parte con archivio vuoto
         """
-        if not os.path.isfile(self._json_file):
-            logger.debug("File JSON %s non trovato, archivio vuoto", self._json_file)
-            return
+        self._materials.clear()
         
+        def _load(path: Path) -> list:
+            """Helper per caricare dati da un file JSON."""
+            if not path.exists():
+                return []
+            with path.open("r", encoding="utf-8") as f:
+                return json.load(f)
+        
+        # 1) Prova a leggere il file principale
         try:
-            with open(self._json_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            raw_data = _load(self._file_path)
+            if not isinstance(raw_data, list):
+                logger.warning("File JSON %s non contiene una lista", self._file_path)
+                raise ValueError("File JSON non contiene una lista")
             
-            # Ripristina i materiali dal JSON
-            self._materials.clear()
-            
-            if not isinstance(data, list):
-                logger.warning("File JSON %s non contiene una lista", self._json_file)
-                return
-            
-            for idx, item in enumerate(data):
+            # Carica i materiali
+            for idx, item in enumerate(raw_data):
                 try:
                     material = Material.from_dict(item)
                     self._materials[material.id] = material
@@ -156,9 +160,41 @@ class MaterialRepository:
                 except Exception as e:
                     logger.exception("Errore caricamento materiale %d dal JSON: %s", idx, e)
             
-            logger.info("Caricati %d materiali da %s", len(self._materials), self._json_file)
+            logger.info("Caricati %d materiali da %s", len(self._materials), self._file_path)
+            return
         except Exception as e:
-            logger.exception("Errore lettura file JSON %s: %s", self._json_file, e)
+            logger.exception("Errore nel caricamento di %s, provo il backup", self._file_path)
+        
+        # 2) Se fallisce, prova il backup
+        try:
+            raw_data = _load(self._backup_path)
+            if not isinstance(raw_data, list):
+                logger.warning("File backup JSON %s non contiene una lista", self._backup_path)
+                raise ValueError("File backup JSON non contiene una lista")
+            
+            # Carica i materiali dal backup
+            for idx, item in enumerate(raw_data):
+                try:
+                    material = Material.from_dict(item)
+                    self._materials[material.id] = material
+                    logger.debug("Materiale caricato da backup: %s (%s)", material.id, material.name)
+                except Exception as e:
+                    logger.exception("Errore caricamento materiale %d dal backup: %s", idx, e)
+            
+            logger.warning(
+                "Caricati %d materiali dal backup %s (file principale danneggiato)",
+                len(self._materials), self._backup_path
+            )
+            return
+        except Exception as e:
+            logger.exception("Errore anche nel caricamento del backup %s", self._backup_path)
+        
+        # 3) Se tutto fallisce, archivio vuoto
+        logger.warning(
+            "Impossibile caricare archivio materiali da %s né da %s: inizializzo archivio vuoto",
+            self._file_path, self._backup_path
+        )
+        self._materials.clear()
 
     def save_to_file(self) -> None:
         """Salva tutti i materiali in un file JSON con backup automatico.
