@@ -211,6 +211,37 @@ class TestVerificationTableMore(unittest.TestCase):
         app._on_entry_cancel(None)
         app.tree.delete(item)
 
+    def test_material_steel_suggestions_popup_filters(self):
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        app = VerificationTableApp(top)
+        # ensure there is at least one row and start editing the material steel cell
+        item = list(app.tree.get_children())[0]
+        top.update_idletasks()
+        top.update()
+        app._start_edit(item, "mat_steel")
+        # set some fake material names
+        app.material_names = ["S235", "S275", "A500", "S240"]
+        app.suggestions_map["mat_steel"] = app.material_names
+        self.assertIsNotNone(app.edit_entry)
+        app.edit_entry.delete(0, tk.END)
+        app.edit_entry.insert(0, "S2")
+        app._update_suggestions()
+        # allow UI to create popup
+        top.update_idletasks()
+        top.update()
+        self.assertIsNotNone(app._suggest_list)
+        items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        # should include S235 and S275 and S240
+        self.assertIn("S235", items)
+        self.assertIn("S275", items)
+        self.assertIn("S240", items)
+        # should not include unrelated
+        self.assertNotIn("A500", items)
+        app._hide_suggestions()
+        app._on_entry_cancel(None)
+        app.tree.delete(item)
+
 
 if __name__ == "__main__":
     unittest.main()
