@@ -222,6 +222,92 @@ class TestVerificationTableNavigation(unittest.TestCase):
         self.assertEqual(app.tree.set(new_item, col), "DOWNX")
         top.destroy()
 
+    def test_tab_does_not_overwrite_non_empty_next_row(self):
+        """If the next row already has values, Tab should not overwrite them."""
+        top = tk.Toplevel(self.root)
+        app = VerificationTableApp(top, initial_rows=2)
+        top.update_idletasks()
+        top.update()
+
+        items = list(app.tree.get_children())
+        first, second = items[0], items[1]
+        # set preset values on second row to ensure it is non-empty
+        app.tree.set(second, app.columns[0], "PRESET_START")
+        app.tree.set(second, app.columns[3], "KEEP")
+        # set distinct values on the first row to check copying would happen
+        for idx, col in enumerate(app.columns):
+            app.tree.set(first, col, f"val{idx}")
+
+        # start editing the last column of the first row and press Tab
+        last_col = app.columns[-1]
+        app._start_edit(first, last_col)
+        app._on_entry_commit_next(None)
+
+        # ensure we did not create a new row
+        items2 = list(app.tree.get_children())
+        self.assertEqual(len(items2), 2)
+        # editor opened on first column of second row
+        self.assertEqual(app.edit_item, second)
+        self.assertEqual(app.edit_column, app.columns[0])
+        # target row kept its preset values (not overwritten)
+        self.assertEqual(app.tree.set(second, app.columns[0]), "PRESET_START")
+        self.assertEqual(app.tree.set(second, app.columns[3]), "KEEP")
+        top.destroy()
+
+    def test_enter_does_not_overwrite_non_empty_next_row(self):
+        """If the next row already has a value in the same column, Enter should not overwrite it."""
+        top = tk.Toplevel(self.root)
+        app = VerificationTableApp(top, initial_rows=2)
+        top.update_idletasks()
+        top.update()
+
+        items = list(app.tree.get_children())
+        first, second = items[0], items[1]
+        # choose a middle column
+        col = app.columns[4]
+        # preset value in second row same column
+        app.tree.set(second, col, "PRESETCOL")
+        app.tree.set(first, col, "100")
+
+        app._start_edit(first, col)
+        # Press Enter (commit down)
+        app._on_entry_commit_down(None)
+
+        # ensure no new row created and preset remains
+        items2 = list(app.tree.get_children())
+        self.assertEqual(len(items2), 2)
+        self.assertEqual(app.edit_item, second)
+        self.assertEqual(app.edit_column, col)
+        self.assertEqual(app.tree.set(second, col), "PRESETCOL")
+        top.destroy()
+
+    def test_down_arrow_does_not_overwrite_non_empty_next_row(self):
+        """If the next row already has a value in the same column, Down should not overwrite it."""
+        top = tk.Toplevel(self.root)
+        app = VerificationTableApp(top, initial_rows=2)
+        top.update_idletasks()
+        top.update()
+
+        items = list(app.tree.get_children())
+        first, second = items[0], items[1]
+        col = app.columns[2]
+        # preset value in second row same column
+        app.tree.set(second, col, "PRESETX")
+        app.tree.set(first, col, "DOWNVAL")
+
+        app._start_edit(first, col)
+        # Simulate pressing Down while editing
+        app._on_entry_move_down(None)
+
+        items = list(app.tree.get_children())
+        self.assertEqual(len(items), 2)
+        new_item = items[1]
+        self.assertEqual(app.edit_item, new_item)
+        self.assertEqual(app.edit_column, col)
+        # preset value must remain
+        self.assertEqual(app.tree.set(new_item, col), "PRESETX")
+        top.destroy()
+
 
 if __name__ == '__main__':
     unittest.main()
