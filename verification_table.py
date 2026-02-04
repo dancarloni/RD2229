@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import math
+import logging
 import tkinter as tk
 from dataclasses import dataclass
-from tkinter import ttk
+from tkinter import messagebox, ttk
 from typing import Dict, Iterable, List, Optional, Tuple
 
 try:
@@ -16,6 +17,13 @@ try:
 except Exception:  # pragma: no cover - fallback if import fails
     SectionRepository = None  # type: ignore
 
+try:
+    from core_models.materials import MaterialRepository
+except Exception:  # pragma: no cover - fallback if import fails
+    MaterialRepository = None  # type: ignore
+
+
+logger = logging.getLogger(__name__)
 
 ColumnDef = Tuple[str, str, int, str]
 
@@ -99,6 +107,7 @@ class VerificationTableApp(tk.Frame):
         master: tk.Tk,
         section_repository: Optional["SectionRepository"] = None,
         section_names: Optional[Iterable[str]] = None,
+        material_repository: Optional["MaterialRepository"] = None,
         material_names: Optional[Iterable[str]] = None,
         initial_rows: int = 20,
     ) -> None:
@@ -108,6 +117,9 @@ class VerificationTableApp(tk.Frame):
 
         self.columns = [c[0] for c in COLUMNS]
         self._last_col = self.columns[0]
+
+        self.section_repository = section_repository
+        self.material_repository = material_repository
 
         self.section_names = self._resolve_section_names(section_repository, section_names)
         self.material_names = self._resolve_material_names(material_names)
@@ -168,7 +180,6 @@ class VerificationTableApp(tk.Frame):
             stirrup_material=get("stirrups_mat"),
             notes=get("notes"),
         )
-
     def update_row_from_model(self, row_index: int, model: VerificationInput) -> None:
         items = list(self.tree.get_children())
         if row_index < 0 or row_index >= len(items):
@@ -250,8 +261,19 @@ class VerificationTableApp(tk.Frame):
         return []
 
     def _resolve_material_names(self, provided: Optional[Iterable[str]]) -> List[str]:
+        # Priority: explicit provided list -> material_repository -> global list_materials
         if provided is not None:
             return sorted({m for m in provided if m})
+        if self.material_repository is not None:
+            try:
+                mats = self.material_repository.get_all()
+                return sorted({m.name if hasattr(m, "name") else m.get("name") for m in mats if (hasattr(m, "name") and m.name) or (isinstance(m, dict) and m.get("name"))})
+            except Exception:
+                try:
+                    # fallback to older API
+                    return sorted({m.get("name") for m in self.material_repository.list_materials()})
+                except Exception:
+                    logger.debug("Material repository present but could not be read")
         if list_materials is None:
             return []
         try:
@@ -603,6 +625,62 @@ class VerificationTableApp(tk.Frame):
             self._suggest_box = None
             self._suggest_list = None
 
+    def debug_check_sources(self) -> Dict[str, object]:
+        """Returns diagnostic info about connected repositories and lists.
+
+        Useful for debug and for showing in UI.
+        """
+        info: Dict[str, object] = {}
+        # Sections
+        try:
+            if self.section_repository is None:
+                info["sections_count"] = 0
+                info["sections_sample"] = []
+                logger.warning("No SectionRepository provided to VerificationTableApp")
+            else:
+                secs = self.section_repository.get_all_sections()
+                info["sections_count"] = len(secs)
+                info["sections_sample"] = [s.name for s in secs[:10]]
+        except Exception as e:
+            logger.exception("Error reading sections repository: %s", e)
+            info["sections_count"] = 0
+            info["sections_sample"] = []
+
+        # Materials
+        try:
+            if self.material_repository is not None:
+                try:
+                    mats = self.material_repository.get_all()
+                    info["materials_count"] = len(mats)
+                    info["materials_sample"] = [m.name if hasattr(m, "name") else m.get("name") for m in mats[:10]]
+                except Exception:
+                    mats = self.material_repository.list_materials()
+                    info["materials_count"] = len(mats)
+                    info["materials_sample"] = [m.get("name") for m in mats[:10]]
+            else:
+                # fall back to the names list we have
+                info["materials_count"] = len(self.material_names or [])
+                info["materials_sample"] = (self.material_names or [])[:10]
+                if not self.material_names:
+                    logger.warning("No MaterialRepository provided and no material names available")
+        except Exception as e:
+            logger.exception("Error reading materials repository: %s", e)
+            info["materials_count"] = 0
+            info["materials_sample"] = []
+
+        logger.debug("Debug check sources: %s", info)
+        return info
+
+    def refresh_sources(self) -> None:
+        """Reload names from provided repositories and update suggestion maps."""
+        self.section_names = self._resolve_section_names(self.section_repository, None)
+        self.material_names = self._resolve_material_names(None)
+        self.suggestions_map["section"] = self.section_names
+        self.suggestions_map["mat_concrete"] = self.material_names
+        self.suggestions_map["mat_steel"] = self.material_names
+        self.suggestions_map["stirrups_mat"] = self.material_names
+*** End Patch
+
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
             return
@@ -719,8 +797,45 @@ class VerificationTableWindow(tk.Toplevel):
                     material_names = None
 
         # Embed the existing app frame
-        self.app = VerificationTableApp(self, section_repository=section_repository, material_names=material_names)
+        self.app = VerificationTableApp(
+            self,
+            section_repository=section_repository,
+            material_repository=material_repository,
+            material_names=material_names,
+        )
         self.app.pack(fill="both", expand=True)
+
+        # Status / debug frame
+        status = tk.Frame(self, relief="groove", bd=1)
+        status.pack(fill="x", side="bottom")
+        self._status_sections = tk.Label(status, text="Sections: ?")
+        self._status_sections.pack(side="left", padx=8)
+        self._status_materials = tk.Label(status, text="Materials: ?")
+        self._status_materials.pack(side="left", padx=8)
+        tk.Button(status, text="Check sources", command=self._check_sources).pack(side="right", padx=8)
+
+        # Initialize status text
+        self._update_status_labels()
+
+    def _update_status_labels(self) -> None:
+        try:
+            secs = self.app.section_names or []
+            mats = self.app.material_names or []
+            self._status_sections.config(text=f"Sections: {len(secs)}")
+            self._status_materials.config(text=f"Materials: {len(mats)}")
+        except Exception as e:
+            logger.exception("Failed to update status labels: %s", e)
+
+    def _check_sources(self) -> None:
+        info = self.app.debug_check_sources()
+        msg = (
+            f"Sections: {info.get('sections_count')}\nSamples: {', '.join(info.get('sections_sample', []))}\n\n"
+            f"Materials: {info.get('materials_count')}\nSamples: {', '.join(info.get('materials_sample', []))}"
+        )
+        messagebox.showinfo("Sources info", msg)
+        # Refresh label text after checking
+        self.app.refresh_sources()
+        self._update_status_labels()
 
 
 def run_demo() -> None:
