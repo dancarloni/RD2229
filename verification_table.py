@@ -110,6 +110,9 @@ class VerificationTableApp(tk.Frame):
         material_repository: Optional["MaterialRepository"] = None,
         material_names: Optional[Iterable[str]] = None,
         initial_rows: int = 20,
+        *,
+        search_limit: int = 200,
+        display_limit: int = 50,
     ) -> None:
         super().__init__(master)
         self.master = master
@@ -120,6 +123,12 @@ class VerificationTableApp(tk.Frame):
 
         self.section_repository = section_repository
         self.material_repository = material_repository
+
+        # Configurable limits for search and display to keep UI responsive.
+        # - search_limit: how many candidates the repository search returns
+        # - display_limit: how many items the suggestion list will display
+        self.search_limit = int(search_limit)
+        self.display_limit = int(display_limit)
 
         self.section_names = self._resolve_section_names(section_repository, section_names)
         self.material_names = self._resolve_material_names(material_names)
@@ -295,54 +304,35 @@ class VerificationTableApp(tk.Frame):
     # Repository-backed search helpers
     # ------------------------------------------------------------------
     def _search_sections(self, query: str) -> List[str]:
-        """Search sections by name (case-insensitive) using the SectionRepository.
+        """Search sections using centralized helper (repository-backed).
 
-        Returns a list of matching names.
+        Delegates to sections_app.services.search_helpers.search_sections so the
+        search logic is testable and reusable elsewhere.
         """
-        q = (query or "").strip().lower()
-        if not q:
-            return []
         try:
-            if self.section_repository is None:
-                # fallback to precomputed names
-                return [s for s in self.section_names if q in s.lower()]
-            secs = self.section_repository.get_all_sections()
-            return [s.name for s in secs if q in (s.name or "").lower()][:200]
+            from sections_app.services.search_helpers import search_sections
+            return search_sections(self.section_repository, self.section_names, query, limit=self.search_limit)
         except Exception:
-            logger.exception("Error searching sections in repository")
-            return [s for s in self.section_names if q in s.lower()]
+            logger.exception("Error searching sections via helper")
+            # fallback: local name matching
+            q = (query or "").strip().lower()
+            return [s for s in self.section_names if q in s.lower()][: self.search_limit]
 
     def _search_materials(self, query: str, type_filter: Optional[str] = None) -> List[str]:
-        """Search materials by name and optional type filter using MaterialRepository.
+        """Search materials using centralized helper (repository-backed).
 
-        If `type_filter` is provided ("concrete" or "steel"), only materials with
-        that `type` are returned. Results are case-insensitive and limited for
-        performance.
+        Delegates to sections_app.services.search_helpers.search_materials which
+        supports optional type filtering and is limited by `self.search_limit`.
         """
-        q = (query or "").strip().lower()
-        if not q:
-            return []
         try:
-            if self.material_repository is not None:
-                mats = self.material_repository.get_all()
-                results = []
-                for m in mats:
-                    name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
-                    mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
-                    if type_filter and mtype is not None and mtype != type_filter:
-                        continue
-                    if q in (name or "").lower():
-                        results.append(name)
-                return results[:200]
-            # fallback to precomputed names
-            names = self.material_names or []
-            if type_filter:
-                # best-effort filter by checking prefix of type in name (weak heuristic)
-                return [n for n in names if q in n.lower()][:200]
-            return [n for n in names if q in n.lower()][:200]
+            from sections_app.services.search_helpers import search_materials
+            return search_materials(self.material_repository, self.material_names, query, type_filter=type_filter, limit=self.search_limit)
         except Exception:
-            logger.exception("Error searching materials in repository")
-            return [n for n in (self.material_names or []) if q in n.lower()][:200]
+            logger.exception("Error searching materials via helper")
+            q = (query or "").strip().lower()
+            names = self.material_names or []
+            return [n for n in names if q in n.lower()][: self.search_limit]
+
 
     def _add_row(self, after_item: Optional[str] = None) -> str:
         values = ["" for _ in self.columns]
@@ -637,7 +627,7 @@ class VerificationTableApp(tk.Frame):
         if self._suggest_list is None:
             return
         self._suggest_list.delete(0, tk.END)
-        for s in filtered[:50]:
+        for s in filtered[: self.display_limit]:
             self._suggest_list.insert(tk.END, s)
         self._suggest_list.selection_clear(0, tk.END)
         self._suggest_list.selection_set(0)
@@ -683,7 +673,16 @@ class VerificationTableApp(tk.Frame):
         self._apply_suggestion()
 
     def _on_suggestion_enter(self, _event: tk.Event) -> None:
+        """Handler when user presses Enter in suggestion list.
+
+        We apply the selected suggestion and commit the edit so that a single
+        Enter will both pick the suggestion and populate the cell. This keeps
+        keyboard-driven entry fluid for fast data entry.
+        """
+        # Apply the suggestion to the entry
         self._apply_suggestion()
+        # Commit the edit (this will write the value to the tree and destroy the entry)
+        self._commit_edit()
 
     def _apply_suggestion(self) -> None:
         if self.edit_entry is None or self._suggest_list is None:
