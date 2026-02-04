@@ -10,8 +10,11 @@ from core_models.materials import MaterialRepository
 
 class TestHistoricalMaterialWindow(unittest.TestCase):
     def setUp(self):
-        self.root = tk.Tk()
-        self.root.withdraw()
+        try:
+            self.root = tk.Tk()
+            self.root.withdraw()
+        except tk.TclError:
+            self.skipTest("Tkinter not available in this environment")
         self.tmpdir = tempfile.TemporaryDirectory()
         self.base = Path(self.tmpdir.name)
         self.lib_path = self.base / "historical.json"

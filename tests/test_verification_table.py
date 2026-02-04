@@ -14,9 +14,12 @@ from verification_table import VerificationTableWindow
 
 class TestVerificationTableWindow(unittest.TestCase):
     def setUp(self) -> None:
-        # Create a root Tk and hide it
-        self.root = tk.Tk()
-        self.root.withdraw()
+        # Create a root Tk and hide it (skip test if Tk not available)
+        try:
+            self.root = tk.Tk()
+            self.root.withdraw()
+        except tk.TclError:
+            self.skipTest("Tkinter not available in this environment")
 
     def tearDown(self) -> None:
         try:
@@ -26,6 +29,8 @@ class TestVerificationTableWindow(unittest.TestCase):
 
     def test_window_receives_repositories_and_debug_info(self):
         section_repo = SectionRepository()
+        # Ensure repository is empty to avoid conflicts with preloaded demo data
+        section_repo.clear()
         # create a simple section and add to repository
         rect = RectangularSection(name="TestRect", width=20, height=30)
         rect.compute_properties()
