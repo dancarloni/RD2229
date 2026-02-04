@@ -685,6 +685,44 @@ class VerificationTableApp(tk.Frame):
         self._rebar_entries = []
 
 
+class VerificationTableWindow(tk.Toplevel):
+    """Thin Toplevel wrapper that accepts section and material repositories and
+    embeds the existing `VerificationTableApp` frame. This keeps the original
+    GUI/logic unchanged while exposing repository attributes to the window.
+    """
+
+    def __init__(
+        self,
+        master: tk.Misc,
+        section_repository: Optional["SectionRepository"] = None,
+        material_repository: Optional["MaterialRepository"] = None,
+    ) -> None:
+        super().__init__(master)
+        self.section_repository = section_repository
+        self.material_repository = material_repository
+
+        self.title("Verification Table - RD2229")
+        self.geometry("1400x520")
+
+        # Prepare material names list if repository provided
+        material_names = None
+        if material_repository is not None:
+            try:
+                # MaterialRepository may expose get_all() returning objects with .name
+                mats = material_repository.get_all()
+                material_names = [m.name if hasattr(m, "name") else m.get("name") for m in mats]
+            except Exception:
+                try:
+                    # Fallback to older interface (tools.materials_manager)
+                    material_names = [m.get("name") for m in material_repository.list_materials()]
+                except Exception:
+                    material_names = None
+
+        # Embed the existing app frame
+        self.app = VerificationTableApp(self, section_repository=section_repository, material_names=material_names)
+        self.app.pack(fill="both", expand=True)
+
+
 def run_demo() -> None:
     root = tk.Tk()
     root.title("Verification Table - RD2229")

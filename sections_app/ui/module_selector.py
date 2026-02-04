@@ -7,8 +7,9 @@ from typing import Callable
 
 from sections_app.ui.main_window import MainWindow
 from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
-from verification_table import VerificationTableApp
+from verification_table import VerificationTableWindow
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from core_models.materials import MaterialRepository
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,9 @@ class ModuleSelectorWindow(tk.Tk):
         self.geometry("820x260")
         self.repository = repository
         self.serializer = serializer
+        # For compatibility with modules expecting named attributes
+        self.section_repository: SectionRepository = repository
+        self.material_repository: MaterialRepository = MaterialRepository()
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -78,10 +82,11 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_verification_table(self) -> None:
         logger.debug("Opening Verification Table module")
         self.withdraw()
-        win = tk.Toplevel(self)
-        win.title("Verification Table - RD2229")
-        win.geometry("1400x520")
-        VerificationTableApp(win, section_repository=self.repository)
+        win = VerificationTableWindow(
+            master=self,
+            section_repository=self.section_repository,
+            material_repository=self.material_repository,
+        )
         win.protocol("WM_DELETE_WINDOW", self._on_child_close)
 
     def _on_child_close(self) -> None:
