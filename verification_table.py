@@ -141,7 +141,7 @@ class VerificationTableApp(tk.Frame):
             "section": (lambda q: self._search_sections(q)),
             "mat_concrete": (lambda q: self._search_materials(q, type_filter="concrete")),
             "mat_steel": (lambda q: self._search_materials(q, type_filter="steel")),
-            "stirrups_mat": (lambda q: self._search_materials(q, type_filter=None)),
+            "stirrups_mat": (lambda q: self._search_materials(q, type_filter="steel")),
         }
 
         self.edit_entry: Optional[ttk.Entry] = None
@@ -163,12 +163,6 @@ class VerificationTableApp(tk.Frame):
 
         self._build_ui()
         self._insert_empty_rows(initial_rows)
-        
-        # Open suggestions automatically for the first row's section column
-        if initial_rows > 0:
-            first_item = self.tree.get_children()[0] if self.tree.get_children() else None
-            if first_item:
-                self.after(50, lambda: (self._start_edit(first_item, "section"), self._update_suggestions()))
 
     def table_row_to_model(self, row_index: int) -> VerificationInput:
         items = list(self.tree.get_children())
@@ -512,7 +506,9 @@ class VerificationTableApp(tk.Frame):
         col = self._column_id_to_key(col_id)
         if item and col:
             self._last_col = col
-            self.after_idle(lambda: (self._start_edit(item, col), self._update_suggestions()))
+            # Start editing and then show suggestions after a brief delay
+            self.after_idle(lambda: self._start_edit(item, col))
+            self.after(10, self._update_suggestions)
 
     def _on_tree_double_click(self, event: tk.Event) -> None:
         item = self.tree.identify_row(event.y)
