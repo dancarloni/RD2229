@@ -133,6 +133,95 @@ class TestVerificationTableNavigation(unittest.TestCase):
         self.assertEqual(app.tree.set(new_item, col), "XMARK")
         top.destroy()
 
+    def test_tab_on_last_column_copies_to_existing_empty_next_row(self):
+        top = tk.Toplevel(self.root)
+        app = VerificationTableApp(top, initial_rows=2)
+        top.update_idletasks()
+        top.update()
+
+        items = list(app.tree.get_children())
+        self.assertEqual(len(items), 2)
+        first, second = items[0], items[1]
+        # ensure second row is empty
+        for c in app.columns:
+            app.tree.set(second, c, "")
+        # set distinct values on the first row to check copying
+        for idx, col in enumerate(app.columns):
+            app.tree.set(first, col, f"val{idx}")
+
+        # start editing the last column
+        last_col = app.columns[-1]
+        app._start_edit(first, last_col)
+        # simulate Tab press (commit next)
+        app._on_entry_commit_next(None)
+
+        # ensure we did not create a new row
+        items2 = list(app.tree.get_children())
+        self.assertEqual(len(items2), 2)
+        # editor opened on first column of second row
+        self.assertEqual(app.edit_item, second)
+        self.assertEqual(app.edit_column, app.columns[0])
+        # values copied
+        copied = self._values_for_item(app, second)
+        original = [f"val{i}" for i in range(len(app.columns))]
+        self.assertEqual(copied, original)
+        top.destroy()
+
+    def test_enter_down_copies_to_existing_empty_next_row(self):
+        top = tk.Toplevel(self.root)
+        app = VerificationTableApp(top, initial_rows=2)
+        top.update_idletasks()
+        top.update()
+
+        items = list(app.tree.get_children())
+        first, second = items[0], items[1]
+        # choose a middle column
+        col = app.columns[4]
+        # ensure second row is empty
+        for c in app.columns:
+            app.tree.set(second, c, "")
+        app.tree.set(first, col, "200")
+
+        app._start_edit(first, col)
+        # Press Enter (commit down) -> should move to same column on existing second row and copy
+        app._on_entry_commit_down(None)
+
+        # ensure we did not create a new row
+        items2 = list(app.tree.get_children())
+        self.assertEqual(len(items2), 2)
+        # editor opened on same column of second row
+        self.assertEqual(app.edit_item, second)
+        self.assertEqual(app.edit_column, col)
+        # copied value must be equal
+        self.assertEqual(app.tree.set(second, col), "200")
+        top.destroy()
+
+    def test_down_arrow_copies_to_existing_empty_next_row(self):
+        top = tk.Toplevel(self.root)
+        app = VerificationTableApp(top, initial_rows=2)
+        top.update_idletasks()
+        top.update()
+
+        items = list(app.tree.get_children())
+        first, second = items[0], items[1]
+        col = app.columns[2]
+        # ensure second row is empty
+        for c in app.columns:
+            app.tree.set(second, c, "")
+        app.tree.set(first, col, "DOWNX")
+
+        app._start_edit(first, col)
+        # Simulate pressing Down while editing
+        app._on_entry_move_down(None)
+
+        items = list(app.tree.get_children())
+        self.assertEqual(len(items), 2)
+        new_item = items[1]
+        self.assertEqual(app.edit_item, new_item)
+        self.assertEqual(app.edit_column, col)
+        self.assertEqual(app.tree.set(new_item, col), "DOWNX")
+        top.destroy()
+
 
 if __name__ == '__main__':
     unittest.main()
