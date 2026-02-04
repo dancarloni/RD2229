@@ -195,6 +195,11 @@ class SectionManager(tk.Toplevel):
             "flange_thickness": (70, "center"),      # hf (cm)
             "web_thickness": (70, "center"),         # bw (cm)
             "web_height": (70, "center"),            # hw (cm)
+            "t_horizontal": (70, "center"),          # t horizontal (cm)
+            "t_vertical": (70, "center"),            # t vertical (cm)
+            "outer_diameter": (70, "center"),        # outer diameter (cm)
+            "thickness": (70, "center"),             # thickness (cm)
+            "rotation_angle_deg": (70, "center"),   # rotation angle (deg)
             "area": (75, "center"),                  # Area (cm²)
             "x_G": (65, "center"),                   # x_G (cm)
             "y_G": (65, "center"),                   # y_G (cm)
@@ -224,6 +229,11 @@ class SectionManager(tk.Toplevel):
             "flange_thickness": "hf (cm)",
             "web_thickness": "bw (cm)",
             "web_height": "hw (cm)",
+            "t_horizontal": "t horizontal (cm)",
+            "t_vertical": "t vertical (cm)",
+            "outer_diameter": "outer d (cm)",
+            "thickness": "thickness (cm)",
+            "rotation_angle_deg": "rot (deg)",
             "area": "Area (cm²)",
             "x_G": "x_G (cm)",
             "y_G": "y_G (cm)",
