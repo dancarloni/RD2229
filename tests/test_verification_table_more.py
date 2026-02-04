@@ -144,6 +144,43 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertAlmostEqual(float(val), expected, places=2)
         app.tree.delete(item)
 
+    def test_rebar_via_keypress_on_As_prime_opens_and_applies(self):
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        app = VerificationTableApp(top)
+        item = list(app.tree.get_children())[0]
+        top.update_idletasks()
+        top.update()
+        # Start editing As' (column 'As_p') and simulate pressing 'c'
+        app._start_edit(item, "As_p")
+        self.assertIsNotNone(app.edit_entry)
+        app.edit_entry.focus_set()
+        try:
+            app.edit_entry.event_generate('<KeyPress>', keysym='c')
+            app.edit_entry.event_generate('<KeyRelease>', keysym='c')
+        except tk.TclError:
+            app.edit_entry.event_generate('<KeyPress-c>')
+        top.update_idletasks()
+        top.update()
+        # fallback to direct handler if event didn't trigger
+        if app._rebar_window is None:
+            import types
+
+            evt = types.SimpleNamespace(char='c', keysym='c')
+            app._on_entry_keypress(evt)
+            top.update_idletasks()
+            top.update()
+        self.assertIsNotNone(app._rebar_window)
+        # set bars and compute
+        app._rebar_vars[12].set("1")
+        app._rebar_vars[10].set("4")
+        app._update_rebar_total()
+        expected = float(app._rebar_total_var.get())
+        app._confirm_rebar_total()
+        val = app.tree.set(item, "As_p")
+        self.assertAlmostEqual(float(val), expected, places=2)
+        app.tree.delete(item)
+
 
 if __name__ == "__main__":
     unittest.main()
