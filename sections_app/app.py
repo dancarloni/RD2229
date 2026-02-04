@@ -5,6 +5,11 @@ import logging
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.main_window import MainWindow
 
+try:
+    from core_models.materials import MaterialRepository
+except ImportError:
+    MaterialRepository = None
+
 
 def configure_logging() -> None:
     """Configura il logging a livello DEBUG su console e su file 'app.log'."""
@@ -23,12 +28,22 @@ def configure_logging() -> None:
 
 def run_app() -> None:
     configure_logging()
-    repository = SectionRepository()
+    
+    # Crea e carica i repository
+    section_repository = SectionRepository()
+    section_repository.load_from_file()
+    
+    material_repository = None
+    if MaterialRepository is not None:
+        material_repository = MaterialRepository()
+        material_repository.load_from_file()
+    
     serializer = CsvSectionSerializer()
-    # Show the module selector as the first window
+    
+    # Mostra il selettore di modulo come prima finestra
     from sections_app.ui.module_selector import ModuleSelectorWindow
 
-    selector = ModuleSelectorWindow(repository, serializer)
+    selector = ModuleSelectorWindow(section_repository, serializer, material_repository)
     selector.mainloop()
 
 

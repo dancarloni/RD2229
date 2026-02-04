@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 from tkinter import ttk
-from typing import Callable
+from typing import Callable, Optional
 
 from sections_app.ui.main_window import MainWindow
 from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
@@ -17,7 +17,12 @@ logger = logging.getLogger(__name__)
 class ModuleSelectorWindow(tk.Tk):
     """Finestra iniziale per selezionare il modulo da avviare."""
 
-    def __init__(self, repository: SectionRepository, serializer: CsvSectionSerializer):
+    def __init__(
+        self,
+        repository: SectionRepository,
+        serializer: CsvSectionSerializer,
+        material_repository: Optional[MaterialRepository] = None,
+    ):
         super().__init__()
         self.title("Module Selector - RD2229 Tools")
         self.geometry("820x260")
@@ -25,7 +30,8 @@ class ModuleSelectorWindow(tk.Tk):
         self.serializer = serializer
         # For compatibility with modules expecting named attributes
         self.section_repository: SectionRepository = repository
-        self.material_repository: MaterialRepository = MaterialRepository()
+        # Usa il material_repository passato, oppure creane uno nuovo
+        self.material_repository: MaterialRepository = material_repository or MaterialRepository()
         self._build_ui()
 
     def _build_ui(self) -> None:
