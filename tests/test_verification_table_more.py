@@ -181,6 +181,36 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertAlmostEqual(float(val), expected, places=2)
         app.tree.delete(item)
 
+    def test_material_suggestions_popup_filters(self):
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        app = VerificationTableApp(top)
+        # ensure there is at least one row and start editing the material cell
+        item = list(app.tree.get_children())[0]
+        top.update_idletasks()
+        top.update()
+        app._start_edit(item, "mat_concrete")
+        # set some fake material names
+        app.material_names = ["C120", "C200", "A500", "C123"]
+        app.suggestions_map["mat_concrete"] = app.material_names
+        self.assertIsNotNone(app.edit_entry)
+        app.edit_entry.delete(0, tk.END)
+        app.edit_entry.insert(0, "C12")
+        app._update_suggestions()
+        # allow UI to create popup
+        top.update_idletasks()
+        top.update()
+        self.assertIsNotNone(app._suggest_list)
+        items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        # should include C120 and C123 (both contain 'C12')
+        self.assertIn("C120", items)
+        self.assertIn("C123", items)
+        # should not include unrelated
+        self.assertNotIn("A500", items)
+        app._hide_suggestions()
+        app._on_entry_cancel(None)
+        app.tree.delete(item)
+
 
 if __name__ == "__main__":
     unittest.main()
