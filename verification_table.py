@@ -109,7 +109,7 @@ class VerificationTableApp(tk.Frame):
         section_names: Optional[Iterable[str]] = None,
         material_repository: Optional["MaterialRepository"] = None,
         material_names: Optional[Iterable[str]] = None,
-        initial_rows: int = 20,
+        initial_rows: int = 1,
         *,
         search_limit: int = 200,
         display_limit: int = 50,
