@@ -460,6 +460,15 @@ class VerificationTableApp(tk.Frame):
             new_row = max(0, new_row)
             target_item = items[new_row]
 
+            # Se ci si sta spostando verso il basso e la riga target è vuota,
+            # copia i valori della riga corrente nella riga target. Questo
+            # mantiene la riga successiva pre-popolata quando l'utente tabba
+            # o scende con Invio/freccia giù, ma non sovrascrive righe non vuote
+            # e non interviene quando si scende verso l'alto (shift+tab o freccia su).
+            if new_row > row_idx and self._row_is_empty(target_item):
+                prev_values = list(self.tree.item(current_item, "values"))
+                self.tree.item(target_item, values=prev_values)
+
         target_col = self.columns[new_col]
         return target_item, target_col, created
 
