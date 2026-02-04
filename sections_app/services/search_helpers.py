@@ -39,15 +39,17 @@ def search_sections(repo, names: Optional[List[str]], query: str, limit: int = 2
 def search_materials(repo, names: Optional[List[str]], query: str, type_filter: Optional[str] = None, limit: int = 200) -> List[str]:
     """Search materials using MaterialRepository or a static list.
 
+    ✅ Ricerca sia nel campo 'name' che nel campo 'code' del materiale.
+    
     Args:
         repo: MaterialRepository or None
         names: fallback list of material names
-        query: user query (case-insensitive substring match)
+        query: user query (case-insensitive substring match on name OR code)
         type_filter: "concrete", "steel", or None to disable type filtering
         limit: maximum number of results to return
 
     Returns:
-        List of matching material names (max length = limit)
+        List of matching material names (max length = limit), or material name/code combined if available
     """
     q = (query or "").strip().lower()
     if not q:
@@ -58,10 +60,18 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
             mats = repo.get_all()
             for m in mats:
                 name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
+                code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")  # ✅ Nuovo: includi code
                 mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
+                
+                # Filtra per tipo se specificato
                 if type_filter and mtype is not None and mtype != type_filter:
                     continue
-                if q in (name or "").lower():
+                
+                # ✅ Ricerca sia in name che in code (case-insensitive)
+                name_match = q in (name or "").lower()
+                code_match = q in (code or "").lower()
+                
+                if name_match or code_match:
                     results.append(name)
             return results[:limit]
         # fallback to static names list

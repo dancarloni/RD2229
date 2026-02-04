@@ -23,6 +23,7 @@ except ImportError:
 class Material:
     name: str
     type: str  # e.g., 'concrete', 'steel'
+    code: str = ""  # ✅ NUOVO: codice del materiale (es. "C100", "A500") - permette ricerca per codice
     properties: Dict[str, float] = field(default_factory=dict)
     id: str = field(default_factory=lambda: str(uuid4()))
     
@@ -32,6 +33,7 @@ class Material:
             "id": self.id,
             "name": self.name,
             "type": self.type,
+            "code": self.code,  # ✅ Persisti codice nel JSON
             "properties": self.properties,
         }
     
@@ -42,6 +44,7 @@ class Material:
             id=data.get("id", str(uuid4())),
             name=data.get("name", ""),
             type=data.get("type", ""),
+            code=data.get("code", ""),  # ✅ Carica codice da JSON
             properties=data.get("properties", {}),
         )
 
@@ -183,6 +186,8 @@ class MaterialRepository:
         """
         Crea un oggetto Material a partire da un HistoricalMaterial senza aggiungerlo automaticamente
         all'archivio.
+        
+        ✅ Mantiene il `code` dalla fonte storica per permettere ricerca per codice.
         """
         props: Dict[str, float] = {}
         for key in ("fck", "fcd", "fyk", "fyd", "Ec", "Es", "gamma_c", "gamma_s"):
@@ -192,7 +197,13 @@ class MaterialRepository:
         mat_type = "concrete" if getattr(hist, "fck", None) is not None else (
             "steel" if getattr(hist, "fyk", None) is not None else "historical"
         )
-        mat = Material(name=hist.name, type=mat_type, properties=props)
+        # ✅ Preserva il code dalla fonte storica
+        mat = Material(
+            name=hist.name,
+            type=mat_type,
+            code=getattr(hist, "code", ""),  # ✅ Usa code da HistoricalMaterial
+            properties=props
+        )
         return mat
 
     def find_by_name(self, name: str) -> Optional[Material]:

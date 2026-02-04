@@ -15,7 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 class HistoricalModuleMainWindow(tk.Toplevel):
-    """Finestra principale (stub) per i calcoli storici RD 2229 / Santarella / Giangreco."""
+    """Finestra principale (stub) per i calcoli storici RD 2229 / Santarella / Giangreco.
+    
+    ✅ Estende tk.Toplevel per rimanere una finestra figlia della root principale.
+    ✅ Può essere chiusa indipendentemente senza chiudere l'intera applicazione.
+    """
 
     def __init__(self, master: tk.Tk, repository: SectionRepository):
         super().__init__(master)
@@ -24,6 +28,13 @@ class HistoricalModuleMainWindow(tk.Toplevel):
         self.repository = repository
         self.selected_section_id: Optional[str] = None
         self._build_ui()
+        
+        # ✅ Gestisci la chiusura della finestra in modo indipendente
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
+
+    def _on_close(self) -> None:
+        """Handler per la chiusura della finestra - chiude solo questa Toplevel, non l'intera app."""
+        self.destroy()
 
     def _build_ui(self) -> None:
         top = tk.Frame(self)

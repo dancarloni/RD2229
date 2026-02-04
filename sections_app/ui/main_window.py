@@ -258,6 +258,9 @@ class MainWindow(tk.Toplevel):
         self._polling_id = self.after(300, self._poll_section_selection)
         # Assicura di fermare il polling quando la finestra viene distrutta
         self.bind("<Destroy>", lambda e: self._cancel_polling())
+        
+        # ✅ Gestisci la chiusura della finestra in modo indipendente
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
 
     def _build_layout(self) -> None:
         main_frame = tk.Frame(self)
@@ -533,6 +536,14 @@ class MainWindow(tk.Toplevel):
                 logger.debug("Polling selezione ComboBox annullato")
         except Exception:
             pass
+
+    def _on_close(self) -> None:
+        """Handler per la chiusura della finestra - chiude solo questa Toplevel, non l'intera app.
+        
+        ✅ Assicura che il polling sia cancellato e la finestra sia distrutta correttamente.
+        """
+        self._cancel_polling()
+        self.destroy()
 
     def _create_inputs(self) -> None:
         """
