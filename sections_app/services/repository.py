@@ -7,6 +7,7 @@ import os
 from typing import Dict, Iterable, List, Optional
 
 from sections_app.models.sections import CSV_HEADERS, Section, create_section_from_dict
+from sections_app.services.event_bus import EventBus, SECTIONS_ADDED, SECTIONS_UPDATED, SECTIONS_DELETED, SECTIONS_CLEARED
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,9 @@ class SectionRepository:
         
         # Salva in file JSON
         self.save_to_file()
+        
+        # Emetti evento
+        EventBus().emit(SECTIONS_ADDED, section_id=section.id, section_name=section.name)
         return True
 
     def update_section(self, section_id: str, updated_section: Section) -> None:
@@ -94,6 +98,9 @@ class SectionRepository:
         
         # Salva in file JSON
         self.save_to_file()
+        
+        # Emetti evento
+        EventBus().emit(SECTIONS_UPDATED, section_id=section_id, section_name=updated_section.name)
 
     def delete_section(self, section_id: str) -> None:
         """Elimina una sezione dall'archivio."""
@@ -104,6 +111,9 @@ class SectionRepository:
             
             # Salva in file JSON
             self.save_to_file()
+            
+            # Emetti evento
+            EventBus().emit(SECTIONS_DELETED, section_id=section_id, section_name=section.name)
 
     def get_all_sections(self) -> List[Section]:
         return list(self._sections.values())
@@ -117,6 +127,9 @@ class SectionRepository:
         
         # Salva in file JSON
         self.save_to_file()
+        
+        # Emetti evento
+        EventBus().emit(SECTIONS_CLEARED)
 
     def load_from_file(self) -> None:
         """Carica tutte le sezioni dal file JSON.

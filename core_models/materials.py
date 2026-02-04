@@ -9,6 +9,13 @@ from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
+# Importa EventBus con try/except per evitare circular imports
+try:
+    from sections_app.services.event_bus import EventBus, MATERIALS_ADDED, MATERIALS_UPDATED, MATERIALS_DELETED, MATERIALS_CLEARED
+    HAS_EVENT_BUS = True
+except ImportError:
+    HAS_EVENT_BUS = False
+
 
 @dataclass
 class Material:
@@ -55,6 +62,10 @@ class MaterialRepository:
         
         # Salva in file JSON
         self.save_to_file()
+        
+        # Emetti evento se disponibile
+        if HAS_EVENT_BUS:
+            EventBus().emit(MATERIALS_ADDED, material_id=mat.id, material_name=mat.name)
 
     def get_all(self) -> List[Material]:
         return list(self._materials.values())
@@ -81,6 +92,10 @@ class MaterialRepository:
         
         # Salva in file JSON
         self.save_to_file()
+        
+        # Emetti evento se disponibile
+        if HAS_EVENT_BUS:
+            EventBus().emit(MATERIALS_UPDATED, material_id=material_id, material_name=updated_material.name)
     
     def delete(self, material_id: str) -> None:
         """Elimina un materiale dal repository."""
@@ -90,6 +105,10 @@ class MaterialRepository:
             
             # Salva in file JSON
             self.save_to_file()
+            
+            # Emetti evento se disponibile
+            if HAS_EVENT_BUS:
+                EventBus().emit(MATERIALS_DELETED, material_id=material_id, material_name=material.name)
     
     def clear(self) -> None:
         """Elimina tutti i materiali."""
@@ -97,6 +116,10 @@ class MaterialRepository:
         
         # Salva in file JSON
         self.save_to_file()
+        
+        # Emetti evento se disponibile
+        if HAS_EVENT_BUS:
+            EventBus().emit(MATERIALS_CLEARED)
     
     def load_from_file(self) -> None:
         """Carica tutti i materiali dal file JSON.

@@ -818,6 +818,78 @@ class VerificationTableWindow(tk.Toplevel):
 
         # Initialize status text
         self._update_status_labels()
+        
+        # Subscribe to repository change events
+        self._subscribe_to_events()
+        
+        # Ensure unsubscribe when window closes
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
+
+    def _subscribe_to_events(self) -> None:
+        """Subscribe to repository change events."""
+        try:
+            from sections_app.services.event_bus import (
+                EventBus, SECTIONS_ADDED, SECTIONS_UPDATED, SECTIONS_DELETED, SECTIONS_CLEARED,
+                MATERIALS_ADDED, MATERIALS_UPDATED, MATERIALS_DELETED, MATERIALS_CLEARED
+            )
+            bus = EventBus()
+            
+            # Subscribe to sections events
+            bus.subscribe(SECTIONS_ADDED, self._on_sections_changed)
+            bus.subscribe(SECTIONS_UPDATED, self._on_sections_changed)
+            bus.subscribe(SECTIONS_DELETED, self._on_sections_changed)
+            bus.subscribe(SECTIONS_CLEARED, self._on_sections_changed)
+            
+            # Subscribe to materials events
+            bus.subscribe(MATERIALS_ADDED, self._on_materials_changed)
+            bus.subscribe(MATERIALS_UPDATED, self._on_materials_changed)
+            bus.subscribe(MATERIALS_DELETED, self._on_materials_changed)
+            bus.subscribe(MATERIALS_CLEARED, self._on_materials_changed)
+            
+            logger.debug("VerificationTableWindow subscribed to repository events")
+        except ImportError:
+            logger.warning("EventBus not available, automatic refresh disabled")
+
+    def _unsubscribe_from_events(self) -> None:
+        """Unsubscribe from repository change events."""
+        try:
+            from sections_app.services.event_bus import (
+                EventBus, SECTIONS_ADDED, SECTIONS_UPDATED, SECTIONS_DELETED, SECTIONS_CLEARED,
+                MATERIALS_ADDED, MATERIALS_UPDATED, MATERIALS_DELETED, MATERIALS_CLEARED
+            )
+            bus = EventBus()
+            
+            # Unsubscribe from sections events
+            bus.unsubscribe(SECTIONS_ADDED, self._on_sections_changed)
+            bus.unsubscribe(SECTIONS_UPDATED, self._on_sections_changed)
+            bus.unsubscribe(SECTIONS_DELETED, self._on_sections_changed)
+            bus.unsubscribe(SECTIONS_CLEARED, self._on_sections_changed)
+            
+            # Unsubscribe from materials events
+            bus.unsubscribe(MATERIALS_ADDED, self._on_materials_changed)
+            bus.unsubscribe(MATERIALS_UPDATED, self._on_materials_changed)
+            bus.unsubscribe(MATERIALS_DELETED, self._on_materials_changed)
+            bus.unsubscribe(MATERIALS_CLEARED, self._on_materials_changed)
+            
+            logger.debug("VerificationTableWindow unsubscribed from repository events")
+        except ImportError:
+            pass
+
+    def _on_sections_changed(self, *args, **kwargs) -> None:
+        """Callback when sections repository changes."""
+        logger.debug("Sections changed, reloading references")
+        self.reload_references()
+    
+    def _on_materials_changed(self, *args, **kwargs) -> None:
+        """Callback when materials repository changes."""
+        logger.debug("Materials changed, reloading references")
+        self.reload_references()
+    
+    def reload_references(self) -> None:
+        """Reload section and material names from repositories and update autocomplete."""
+        logger.debug("Reloading references in VerificationTableWindow")
+        self.app.refresh_sources()
+        self._update_status_labels()
 
     def _update_status_labels(self) -> None:
         try:
@@ -838,6 +910,11 @@ class VerificationTableWindow(tk.Toplevel):
         # Refresh label text after checking
         self.app.refresh_sources()
         self._update_status_labels()
+    
+    def _on_close(self) -> None:
+        """Handle window close event."""
+        self._unsubscribe_from_events()
+        self.destroy()
 
 
 def run_demo() -> None:
