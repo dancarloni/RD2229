@@ -46,7 +46,7 @@ class TestHistoricalMaterials(unittest.TestCase):
         lib.load_from_file()
         items = lib.get_all()
         # Should have multiple default materials (CLS + acciai)
-        self.assertTrue(len(items) >= 6)
+        self.assertGreaterEqual(len(items), 6)
         # Check that RD2229 base materials are present
         codes = {m.code for m in items}
         # Calcestruzzi
