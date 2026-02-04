@@ -103,6 +103,37 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertAlmostEqual(float(val), total, places=2)
         app.tree.delete(item)
 
+    def test_commit_not_performed_while_rebar_calculator_open(self):
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        app = VerificationTableApp(top)
+        item = list(app.tree.get_children())[0]
+        top.update_idletasks()
+        top.update()
+        # Start editing As cell
+        app._start_edit(item, "As")
+        self.assertIsNotNone(app.edit_entry)
+        # Insert a provisional value
+        app.edit_entry.delete(0, tk.END)
+        app.edit_entry.insert(0, "1.23")
+        # Open calculator (this should set the flag and not commit immediately)
+        app._open_rebar_calculator()
+        self.assertTrue(getattr(app, "_in_rebar_calculator", False))
+        # Call commit_if_focus_outside directly - it should NOT commit while calculator is open
+        app._commit_if_focus_outside()
+        # Entry should still exist and tree value should be unchanged (empty string)
+        self.assertIsNotNone(app.edit_entry)
+        self.assertEqual(app.tree.set(item, "As"), "")
+        # Now confirm via calculator and ensure value applied and flag cleared
+        app._rebar_vars[8].set("2")
+        app._update_rebar_total()
+        expected = float(app._rebar_total_var.get())
+        app._confirm_rebar_total()
+        val = float(app.tree.set(item, "As"))
+        self.assertAlmostEqual(val, expected, places=2)
+        self.assertFalse(getattr(app, "_in_rebar_calculator", False))
+        app.tree.delete(item)
+
     def test_rebar_via_keypress_opens_and_applies(self):
         top = tk.Toplevel(self.root)
         top.geometry("900x300")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 import tkinter as tk
@@ -24,6 +25,8 @@ from sections_app.models.sections import (
 from sections_app.services.calculations import compute_transform
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.section_manager import SectionManager
+from sections_app.ui.historical_material_window import HistoricalMaterialWindow
+from core_models.materials import MaterialRepository
 
 logger = logging.getLogger(__name__)
 
@@ -219,18 +222,28 @@ SECTION_DEFINITIONS = {
 class MainWindow(tk.Tk):
     """Finestra principale dell'applicazione."""
 
-    def __init__(self, repository: SectionRepository, serializer: CsvSectionSerializer):
+    def __init__(
+        self,
+        repository: SectionRepository,
+        serializer: CsvSectionSerializer,
+        material_repository: Optional[MaterialRepository] = None,
+    ):
         super().__init__()
         self.title("Gestione Proprietà Sezioni")
         self.geometry("980x620")
         self.repository = repository
+        self.section_repository: SectionRepository = repository
         self.serializer = serializer
+        self.material_repository: Optional[MaterialRepository] = material_repository
         self.current_section: Optional[Section] = None
         # Quando si modifica una sezione dal Section Manager, qui viene salvato l'id
         self.editing_section_id: Optional[str] = None
         # Riferimento opzionale al manager per aggiornamenti UI
         self.section_manager: Optional[SectionManager] = None
+        # Riferimento opzionale alla finestra di gestione materiali storici
+        self._material_manager_window: Optional[HistoricalMaterialWindow] = None
 
+        self._create_menu()
         self._build_layout()
         # Memorizza l'ultima tipologia selezionata per evitare rielaborazioni ridondanti
         self._last_selected_type: Optional[str] = self.section_var.get()
@@ -252,6 +265,59 @@ class MainWindow(tk.Tk):
 
         self._build_left_panel()
         self._build_right_panel()
+
+    def _create_menu(self) -> None:
+        """Crea il menu della finestra principale."""
+        menubar = tk.Menu(self)
+        self.config(menu=menubar)
+
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Importa CSV...", command=self.import_csv)
+        file_menu.add_command(label="Esporta CSV...", command=self.export_csv)
+        file_menu.add_separator()
+        file_menu.add_command(label="Esporta backup completo...", command=self.export_full_backup)
+        file_menu.add_separator()
+        file_menu.add_command(label="Esci", command=self.quit)
+
+        # Menu Gestione: strumenti aggiuntivi (es. gestione materiali)
+        gestione_menu = tk.Menu(menubar, tearoff=0)
+        gestione_menu.add_command(label="Materiali…", command=self.open_material_manager)
+        menubar.add_cascade(label="Gestione", menu=gestione_menu)
+
+    def open_material_manager(self) -> None:
+        """Apre (o porta in primo piano) la finestra di gestione materiali storici.
+
+        La finestra riceve l'istanza di `HistoricalMaterialLibrary` e il
+        `MaterialRepository` attualmente in uso dall'applicazione.
+        """
+        # Se la finestra è già aperta, portala in primo piano
+        if hasattr(self, "_material_manager_window") and self._material_manager_window is not None:
+            try:
+                if self._material_manager_window.winfo_exists():
+                    self._material_manager_window.lift()
+                    self._material_manager_window.focus_force()
+                    logger.debug("Material Manager già aperto, portato in primo piano")
+                    return
+            except Exception:
+                pass
+
+        # Crea libreria storica e apri finestra
+        try:
+            from historical_materials import HistoricalMaterialLibrary
+            library = HistoricalMaterialLibrary()
+        except Exception:
+            logger.exception("Impossibile inizializzare HistoricalMaterialLibrary")
+            library = None
+
+        self._material_manager_window = HistoricalMaterialWindow(master=self, library=library, material_repository=self.material_repository)
+        # Pulizia del riferimento quando la finestra viene chiusa
+        try:
+            self._material_manager_window.protocol("WM_DELETE_WINDOW", lambda w=self._material_manager_window: (setattr(self, "_material_manager_window", None), w.destroy()))
+            self._material_manager_window.bind("<Destroy>", lambda e, w=self._material_manager_window: setattr(self, "_material_manager_window", None))
+        except Exception:
+            pass
+        logger.debug("Material Manager aperto")
 
     def _build_left_panel(self) -> None:
         # Tipologia sezione con tooltip
@@ -367,6 +433,15 @@ class MainWindow(tk.Tk):
             command=self.reset_form,
             width=20,
         ).grid(row=3, column=0, columnspan=2, padx=4, pady=2)
+
+        # Pulsante per aprire l'Editor Materiali (coerente con il resto dei bottoni)
+        # Posizionato sotto gli altri bottoni e collegato a `open_material_manager`.
+        tk.Button(
+            self.buttons_frame,
+            text="Editor materiali",
+            command=self.open_material_manager,
+            width=42,
+        ).grid(row=4, column=0, columnspan=2, padx=4, pady=4)
 
         self.output_frame = tk.LabelFrame(self.left_frame, text="Proprietà calcolate")
         self.output_frame.pack(fill="both", expand=True)
@@ -1082,6 +1157,37 @@ class MainWindow(tk.Tk):
             return
         self.serializer.export_to_csv(file_path, self.repository.get_all_sections())
         messagebox.showinfo("Esporta CSV", "Esportazione completata")
+
+    def export_full_backup(self) -> None:
+        """
+        Esporta backup completo di sezioni e materiali in una cartella scelta dall'utente.
+        """
+        if self.material_repository is None:
+            messagebox.showerror(
+                "Errore backup",
+                "Archivio materiali non disponibile.",
+            )
+            return
+
+        folder = filedialog.askdirectory(title="Seleziona cartella per backup")
+        if not folder:
+            return
+
+        try:
+            base = Path(folder)
+            sections_path = base / "sections_backup.json"
+            materials_path = base / "materials_backup.json"
+
+            self.section_repository.export_backup(sections_path)
+            self.material_repository.export_backup(materials_path)
+
+            messagebox.showinfo(
+                "Backup completato",
+                f"Backup sezioni: {sections_path}\nBackup materiali: {materials_path}",
+            )
+        except Exception as exc:
+            logger.exception("Errore esportazione backup completo")
+            messagebox.showerror("Errore backup", f"Errore durante il backup: {exc}")
 
     def reset_form(self) -> None:
         """Reset completo della form alla modalità nuova sezione."""

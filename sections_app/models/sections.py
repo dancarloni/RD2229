@@ -1342,8 +1342,24 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
     elif section_type == "L_SECTION":
         width = float(data.get("width") or 0)
         height = float(data.get("height") or 0)
-        t_horizontal = float(data.get("flange_thickness") or 0)
-        t_vertical = float(data.get("web_thickness") or 0)
+        # Use explicit L-section specific fields: t_horizontal and t_vertical.
+        # For backward compatibility only: if t_horizontal/t_vertical are missing,
+        # fall back to flange_thickness/web_thickness respectively, but log a
+        # warning because these are conceptually different quantities.
+        t_horizontal_val = data.get("t_horizontal")
+        t_vertical_val = data.get("t_vertical")
+        if (t_horizontal_val is None or t_horizontal_val == "") and (data.get("flange_thickness") is not None and data.get("flange_thickness") != ""):
+            logger.warning(
+                "Campo 'flange_thickness' trovato per L_SECTION: usato come 't_horizontal' per compatibilità. Considera l'aggiornamento dei dati."
+            )
+            t_horizontal_val = data.get("flange_thickness")
+        if (t_vertical_val is None or t_vertical_val == "") and (data.get("web_thickness") is not None and data.get("web_thickness") != ""):
+            logger.warning(
+                "Campo 'web_thickness' trovato per L_SECTION: usato come 't_vertical' per compatibilità. Considera l'aggiornamento dei dati."
+            )
+            t_vertical_val = data.get("web_thickness")
+        t_horizontal = float(t_horizontal_val or 0)
+        t_vertical = float(t_vertical_val or 0)
         _ensure_positive(width, "width")
         _ensure_positive(height, "height")
         _ensure_positive(t_horizontal, "t_horizontal")

@@ -141,6 +141,8 @@ class VerificationTableApp(tk.Frame):
         self._rebar_entries: List[tk.Entry] = []
         self._rebar_total_var = tk.StringVar(value="0.00")
         self._rebar_target_column: Optional[str] = None
+        # Flag to avoid committing the entry when the rebar calculator is open
+        self._in_rebar_calculator: bool = False
 
         self._build_ui()
         self._insert_empty_rows(initial_rows)
@@ -581,6 +583,9 @@ class VerificationTableApp(tk.Frame):
             return
         if self._focus_is_suggestion():
             return
+        # Don't commit while the rebar calculator is open (focus will move to the dialog)
+        if getattr(self, "_in_rebar_calculator", False):
+            return
         self._commit_edit()
 
     def _focus_is_suggestion(self) -> bool:
@@ -687,6 +692,8 @@ class VerificationTableApp(tk.Frame):
         if self.edit_entry is None or self.edit_column is None:
             return
         self._rebar_target_column = self.edit_column
+        # Set flag to avoid losing the edit when the calculator grabs focus
+        self._in_rebar_calculator = True
         if self._rebar_window is not None and self._rebar_window.winfo_exists():
             self._rebar_window.lift()
             self._rebar_window.focus_set()
@@ -750,6 +757,13 @@ class VerificationTableApp(tk.Frame):
 
     def _confirm_rebar_total(self) -> None:
         if self.edit_entry is None or self._rebar_target_column is None:
+            # Fallback: if the entry was closed for some reason, try to set the tree cell directly
+            try:
+                if self.edit_item and self._rebar_target_column:
+                    value = self._rebar_total_var.get()
+                    self.tree.set(self.edit_item, self._rebar_target_column, value)
+            except Exception:
+                logger.exception("Unable to apply rebar total in fallback path")
             self._close_rebar_window()
             return
         value = self._rebar_total_var.get()
@@ -763,6 +777,8 @@ class VerificationTableApp(tk.Frame):
             self._rebar_window.destroy()
         self._rebar_window = None
         self._rebar_entries = []
+        # Clear flag after the calculator is closed
+        self._in_rebar_calculator = False
 
 
 class VerificationTableWindow(tk.Toplevel):
