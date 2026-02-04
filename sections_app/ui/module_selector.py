@@ -28,7 +28,7 @@ class ModuleSelectorWindow(tk.Tk):
     ):
         super().__init__()
         self.title("Module Selector - RD2229 Tools")
-        self.geometry("820x260")
+        self.geometry("1200x340")
         self.repository = repository
         self.serializer = serializer
         # For compatibility with modules expecting named attributes
@@ -61,42 +61,49 @@ class ModuleSelectorWindow(tk.Tk):
         modules_frame = tk.Frame(frame)
         modules_frame.pack(fill="both", expand=True)
 
+        # Geometry Module
         geom_frame = tk.LabelFrame(modules_frame, text="Geometry module")
         geom_frame.pack(side="left", fill="both", expand=True, padx=(0, 6))
         tk.Label(
             geom_frame,
             text="Compute and manage section geometry\n(areas, centroids, inertia, drawings, CSV archive)",
             justify="left",
+            wraplength=220,
         ).pack(padx=8, pady=8)
         tk.Button(geom_frame, text="Open Geometry", command=self._open_geometry).pack(pady=(0, 8))
 
+        # Historical Module
         hist_frame = tk.LabelFrame(modules_frame, text="Historical RD 2229 / Santarella")
-        hist_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
+        hist_frame.pack(side="left", fill="both", expand=True, padx=(6, 6))
         tk.Label(
             hist_frame,
             text="Historical allowable-stress verifications\n(stubs and data connectors for now)",
             justify="left",
+            wraplength=220,
         ).pack(padx=8, pady=8)
         tk.Button(hist_frame, text="Open Historical", command=self._open_historical).pack(pady=(0, 8))
 
+        # Verification Table Module
         verify_frame = tk.LabelFrame(modules_frame, text="Verification Table")
-        verify_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
+        verify_frame.pack(side="left", fill="both", expand=True, padx=(6, 6))
         tk.Label(
             verify_frame,
             text="Rapid data entry for multiple verifications\n(tabular grid with autocomplete)",
             justify="left",
+            wraplength=220,
         ).pack(padx=8, pady=8)
         tk.Button(verify_frame, text="Open Verification Table", command=self._open_verification_table).pack(
             pady=(0, 8)
         )
 
-        # Pulsante "Editor materiali" - accesso al modulo di gestione materiali (sezione storica)
+        # Materials Editor Module
         material_frame = tk.LabelFrame(modules_frame, text="Materials Editor")
         material_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
         tk.Label(
             material_frame,
             text="Manage and import historical materials\n(concrete, steel, and other material libraries)",
             justify="left",
+            wraplength=220,
         ).pack(padx=8, pady=8)
         tk.Button(material_frame, text="Open Materials", command=self._open_material_editor).pack(pady=(0, 8))
 
