@@ -17,7 +17,18 @@ class SectionRepository:
         self._keys: Dict[tuple, str] = {}
 
     def add_section(self, section: Section) -> bool:
-        """Aggiunge una sezione se non duplicata. Ritorna True se aggiunta."""
+        """Aggiunge una sezione se non duplicata. Ritorna True se aggiunta.
+
+        Prima di aggiungere, si prova a calcolare tutte le proprietà geometriche.
+        Se il calcolo fallisce, la sezione non viene salvata.
+        """
+        # Calcola proprietà (se fallisce non si salva)
+        try:
+            section.compute_properties()
+        except Exception as e:
+            logger.exception("Calcolo proprietà fallito: %s", e)
+            return False
+
         key = section.logical_key()
         if key in self._keys:
             logger.debug("Sezione duplicata ignorata: %s", key)
@@ -32,11 +43,21 @@ class SectionRepository:
 
         Se la sezione non esiste, solleva KeyError. Se la nuova chiave logica entra in conflitto
         con un'altra sezione esistente (diversa da quella aggiornata), solleva ValueError per evitare duplicati.
+
+        Inoltre, prima dell'aggiornamento, esegue `compute_properties()` sulla sezione aggiornata
+        e blocca l'aggiornamento se il calcolo fallisce.
         """
         logger.debug("Updating section %s with %s", section_id, updated_section)
         if section_id not in self._sections:
             logger.warning("Attempted update on non-existing section: %s", section_id)
             raise KeyError(f"Sezione non trovata: {section_id}")
+
+        # Calcolo proprietà prima di procedere
+        try:
+            updated_section.compute_properties()
+        except Exception as e:
+            logger.exception("Calcolo proprietà fallito durante update per %s: %s", section_id, e)
+            raise
 
         # Controlla conflitti sulla chiave logica
         new_key = updated_section.logical_key()
@@ -82,12 +103,21 @@ class CsvSectionSerializer:
     """Gestione import/export CSV con log dettagliato."""
 
     def export_to_csv(self, file_path: str, sections: Iterable[Section], delimiter: str = ";") -> None:
+        """Esporta tutte le colonne presenti nelle dict ritornate da Section.to_dict()."""
         rows = 0
+        # Determina dinamicamente tutte le chiavi in ordine preservando id/name/section_type all'inizio
+        fieldnames = ["id", "name", "section_type"]
+        for section in sections:
+            for k in section.to_dict().keys():
+                if k not in fieldnames:
+                    fieldnames.append(k)
         with open(file_path, "w", encoding="utf-8", newline="") as file:
-            writer = csv.DictWriter(file, fieldnames=CSV_HEADERS, delimiter=delimiter)
+            writer = csv.DictWriter(file, fieldnames=fieldnames, delimiter=delimiter)
             writer.writeheader()
             for section in sections:
-                writer.writerow(section.to_dict())
+                # Convertiamo None in stringa vuota per il CSV
+                row = {k: ("" if v is None else v) for k, v in section.to_dict().items()}
+                writer.writerow(row)
                 rows += 1
         logger.debug("Esportate %s righe in %s", rows, file_path)
 

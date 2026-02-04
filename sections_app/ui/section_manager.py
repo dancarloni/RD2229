@@ -159,9 +159,15 @@ class SectionManager(tk.Toplevel):
         yscroll = tk.Scrollbar(tree_frame, orient="vertical")
         yscroll.pack(side="right", fill="y")
 
-        # Usa CSV_HEADERS come lista di colonne da visualizzare
-        # La colonna "id" sarà invisibile ma presente
-        self.columns = list(CSV_HEADERS)
+        # Determina le colonne dinamicamente da un esempio di sezione (to_dict)
+        sections_list = self.repository.get_all_sections()
+        if sections_list:
+            sample = sections_list[0].to_dict()
+            # Manteniamo ordine con 'id','name','section_type' iniziali quando presenti
+            self.columns = list(sample.keys())
+        else:
+            # Fallback alle HEADERS predefinite se archivio vuoto
+            self.columns = list(CSV_HEADERS)
         logger.debug("Colonne Treeview: %s", self.columns)
 
         # Creazione Treeview con tutte le colonne

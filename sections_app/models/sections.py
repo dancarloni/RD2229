@@ -22,6 +22,10 @@ CSV_HEADERS = [
     "flange_thickness",
     "web_thickness",
     "web_height",
+    "t_horizontal",
+    "t_vertical",
+    "outer_diameter",
+    "thickness",
     "rotation_angle_deg",
     "area",
     "x_G",
@@ -40,25 +44,45 @@ CSV_HEADERS = [
     "note",
 ]
 
+# Tutte le possibili chiavi dimensionali supportate (garantire presenza nella dict dimensions)
+DIMENSION_KEYS = [
+    "width",
+    "height",
+    "diameter",
+    "flange_width",
+    "flange_thickness",
+    "web_thickness",
+    "web_height",
+    "t_horizontal",
+    "t_vertical",
+    "outer_diameter",
+    "thickness",
+]
+
 
 @dataclass
 class SectionProperties:
-    """Proprietà geometriche calcolate della sezione."""
+    """Proprietà geometriche calcolate della sezione.
 
-    area: float
-    centroid_x: float
-    centroid_y: float
-    ix: float  # Momento d'inerzia rispetto all'asse x (globale se rotation_angle != 0)
-    iy: float  # Momento d'inerzia rispetto all'asse y (globale se rotation_angle != 0)
-    ixy: float  # Prodotto d'inerzia (globale se rotation_angle != 0)
-    qx: float
-    qy: float
-    rx: float
-    ry: float
-    core_x: float
-    core_y: float
-    ellipse_a: float
-    ellipse_b: float
+    Tutti i campi sono opzionali per permettere la serializzazione anche se
+    compute_properties() non è stata ancora chiamata. Se un valore non è
+    applicabile, resta None.
+    """
+
+    area: Optional[float] = None
+    centroid_x: Optional[float] = None
+    centroid_y: Optional[float] = None
+    ix: Optional[float] = None  # Momento d'inerzia rispetto all'asse x
+    iy: Optional[float] = None  # Momento d'inerzia rispetto all'asse y
+    ixy: Optional[float] = None  # Prodotto d'inerzia
+    qx: Optional[float] = None
+    qy: Optional[float] = None
+    rx: Optional[float] = None
+    ry: Optional[float] = None
+    core_x: Optional[float] = None
+    core_y: Optional[float] = None
+    ellipse_a: Optional[float] = None
+    ellipse_b: Optional[float] = None
 
 
 @dataclass
@@ -74,13 +98,30 @@ class Section:
 
     def compute_properties(self) -> SectionProperties:
         """Calcola e ritorna le proprietà geometriche.
-        
+
         Se rotation_angle_deg != 0, i momenti di inerzia saranno ruotati
         rispetto agli assi principali della sezione.
+
+        In questa implementazione, dopo il calcolo popoliamo anche `self.dimensions`
+        con tutte le chiavi possibili (preservando None quando non applicabile)
+        per soddisfare il requisito che `self.dimensions` esista sempre.
         """
         self.properties = self._compute()
+        # Costruisci il dizionario delle dimensioni (tutte le chiavi presenti)
+        self.dimensions = self._collect_dimensions()
         logger.debug("Proprietà calcolate per %s: %s", self.section_type, self.properties)
         return self.properties
+
+    def _collect_dimensions(self) -> Dict[str, Optional[float]]:
+        """Raccoglie tutte le dimensioni possibili in un dizionario con chiavi fisse.
+
+        Se l'attributo non esiste, il valore sarà None.
+        """
+        dims = {k: None for k in DIMENSION_KEYS}
+        for k in dims:
+            if hasattr(self, k):
+                dims[k] = getattr(self, k)
+        return dims
 
     def _compute(self) -> SectionProperties:
         raise NotImplementedError
@@ -102,38 +143,48 @@ class Section:
         theta_rad = radians(self.rotation_angle_deg)
         return rotate_inertia(ix_local, iy_local, ixy_local, theta_rad)
 
-    def to_dict(self) -> Dict[str, str]:
-        """Serializza la sezione in un dizionario per il CSV."""
-        data = {header: "" for header in CSV_HEADERS}
+    def to_dict(self) -> Dict[str, Optional[float]]:
+        """Serializza la sezione in un dizionario completo (dimensioni + proprietà).
+
+        Restituisce valori numerici (float) o None quando il valore non è applicabile.
+        Non converte in stringhe: la serializzazione (CSV) si occupa della conversione.
+        """
+        # Base del dizionario
+        data: Dict[str, Optional[float]] = {}
         data.update(
             {
                 "id": self.id,
                 "name": self.name,
                 "section_type": self.section_type,
-                "rotation_angle_deg": f"{self.rotation_angle_deg:.6g}",
-                "note": self.note,
+                "rotation_angle_deg": self.rotation_angle_deg,
+                "note": self.note or "",
             }
         )
-        self._fill_dimension_fields(data)
-        if self.properties:
-            data.update(
-                {
-                    "area": f"{self.properties.area:.6g}",
-                    "x_G": f"{self.properties.centroid_x:.6g}",
-                    "y_G": f"{self.properties.centroid_y:.6g}",
-                    "Ix": f"{self.properties.ix:.6g}",
-                    "Iy": f"{self.properties.iy:.6g}",
-                    "Ixy": f"{self.properties.ixy:.6g}",
-                    "Qx": f"{self.properties.qx:.6g}",
-                    "Qy": f"{self.properties.qy:.6g}",
-                    "rx": f"{self.properties.rx:.6g}",
-                    "ry": f"{self.properties.ry:.6g}",
-                    "core_x": f"{self.properties.core_x:.6g}",
-                    "core_y": f"{self.properties.core_y:.6g}",
-                    "ellipse_a": f"{self.properties.ellipse_a:.6g}",
-                    "ellipse_b": f"{self.properties.ellipse_b:.6g}",
-                }
-            )
+
+        # Dimensioni: garantiamo tutte le chiavi tramite self.dimensions o raccolta dinamica
+        dims = getattr(self, "dimensions", None) or self._collect_dimensions()
+        data.update(dims)
+
+        # Proprietà calcolate: mantenere None se non valorizzate
+        props = self.properties
+        data.update(
+            {
+                "area": getattr(props, "area", None) if props else None,
+                "x_G": getattr(props, "centroid_x", None) if props else None,
+                "y_G": getattr(props, "centroid_y", None) if props else None,
+                "Ix": getattr(props, "ix", None) if props else None,
+                "Iy": getattr(props, "iy", None) if props else None,
+                "Ixy": getattr(props, "ixy", None) if props else None,
+                "Qx": getattr(props, "qx", None) if props else None,
+                "Qy": getattr(props, "qy", None) if props else None,
+                "rx": getattr(props, "rx", None) if props else None,
+                "ry": getattr(props, "ry", None) if props else None,
+                "core_x": getattr(props, "core_x", None) if props else None,
+                "core_y": getattr(props, "core_y", None) if props else None,
+                "ellipse_a": getattr(props, "ellipse_a", None) if props else None,
+                "ellipse_b": getattr(props, "ellipse_b", None) if props else None,
+            }
+        )
         return data
 
     def _fill_dimension_fields(self, data: Dict[str, str]) -> None:

@@ -21,10 +21,6 @@ from sections_app.models.sections import (
     TSection,
     VSection,
 )
-    Section,
-    TSection,
-    VSection,
-)
 from sections_app.services.calculations import compute_transform
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.section_manager import SectionManager
