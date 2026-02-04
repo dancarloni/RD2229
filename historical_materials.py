@@ -1,0 +1,124 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, asdict
+from enum import Enum
+import json
+import logging
+from pathlib import Path
+from typing import List, Optional
+from uuid import uuid4
+
+logger = logging.getLogger(__name__)
+
+
+class HistoricalMaterialType(str, Enum):
+    CONCRETE = "concrete"
+    STEEL = "steel"
+    STIRRUP_STEEL = "stirrup_steel"
+    OTHER = "other"
+
+
+@dataclass
+class HistoricalMaterial:
+    id: str
+    name: str                # es. "CLS R 160 (RD 2229/39)"
+    code: str                # es. "RD2229_R160"
+    source: str              # es. "RD 2229/39", "ReLUIS STIL", ecc.
+    type: HistoricalMaterialType
+
+    # Proprietà meccaniche principali (unità coerenti: kg/cm², ecc.)
+    fck: Optional[float] = None      # resistenza caratteristica a compressione [kg/cm²]
+    fcd: Optional[float] = None      # resistenza di calcolo compressione [kg/cm²]
+    fctm: Optional[float] = None     # trazione media [kg/cm²]
+    Ec: Optional[float] = None       # modulo cls [kg/cm²]
+
+    fyk: Optional[float] = None      # snervamento acciaio [kg/cm²]
+    fyd: Optional[float] = None      # resistenza di calcolo acciaio [kg/cm²]
+    Es: Optional[float] = None       # modulo acciaio [kg/cm²]
+
+    gamma_c: Optional[float] = None
+    gamma_s: Optional[float] = None
+
+    notes: str = ""
+
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        d["type"] = self.type.value if isinstance(self.type, HistoricalMaterialType) else self.type
+        return d
+
+    @staticmethod
+    def from_dict(d: dict) -> "HistoricalMaterial":
+        return HistoricalMaterial(
+            id=d.get("id", str(uuid4())),
+            name=d.get("name", ""),
+            code=d.get("code", ""),
+            source=d.get("source", ""),
+            type=HistoricalMaterialType(d.get("type", HistoricalMaterialType.OTHER)),
+            fck=d.get("fck"),
+            fcd=d.get("fcd"),
+            fctm=d.get("fctm"),
+            Ec=d.get("Ec"),
+            fyk=d.get("fyk"),
+            fyd=d.get("fyd"),
+            Es=d.get("Es"),
+            gamma_c=d.get("gamma_c"),
+            gamma_s=d.get("gamma_s"),
+            notes=d.get("notes", ""),
+        )
+
+
+class HistoricalMaterialLibrary:
+    """Archivio storico di materiali salvato in JSON.
+
+    Implementazione semplice con load/save e gestione sicura dei file.
+    """
+
+    def __init__(self, path: str | Path | None = None):
+        self._file_path = Path(path or "historical_materials.json")
+        self._materials: List[HistoricalMaterial] = []
+
+    def load_from_file(self) -> None:
+        self._materials.clear()
+        if not self._file_path.exists():
+            return
+        try:
+            with self._file_path.open("r", encoding="utf-8") as f:
+                raw = json.load(f)
+            if not isinstance(raw, list):
+                logger.warning("Historical materials file %s does not contain a list", self._file_path)
+                return
+            for idx, item in enumerate(raw):
+                try:
+                    self._materials.append(HistoricalMaterial.from_dict(item))
+                except Exception:
+                    logger.exception("Error parsing historical material %s", idx)
+        except Exception:
+            logger.exception("Error loading historical materials from %s", self._file_path)
+
+    def save_to_file(self) -> None:
+        try:
+            if self._file_path.parent.exists() is False and str(self._file_path.parent) != '.':
+                self._file_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self._file_path.with_suffix(self._file_path.suffix + ".tmp")
+            with tmp.open("w", encoding="utf-8") as f:
+                json.dump([m.to_dict() for m in self._materials], f, indent=2, ensure_ascii=False)
+            tmp.replace(self._file_path)
+        except Exception:
+            logger.exception("Error saving historical materials to %s", self._file_path)
+
+    def get_all(self) -> List[HistoricalMaterial]:
+        return list(self._materials)
+
+    def add(self, material: HistoricalMaterial) -> None:
+        # replace existing with same code
+        existing = self.find_by_code(material.code)
+        if existing:
+            self._materials = [m for m in self._materials if m.code != material.code]
+        self._materials.append(material)
+        self.save_to_file()
+
+    def find_by_code(self, code: str) -> Optional[HistoricalMaterial]:
+        for m in self._materials:
+            if m.code == code:
+                return m
+        return None
