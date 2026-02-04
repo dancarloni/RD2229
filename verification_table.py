@@ -226,6 +226,9 @@ class VerificationTableApp(tk.Frame):
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
         tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
+        # Pulsanti per import/export CSV
+        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -263,6 +266,9 @@ class VerificationTableApp(tk.Frame):
         self.tree.bind("<Right>", self._on_tree_arrow)
         self.tree.bind("<Tab>", self._on_tree_tab)
         self.tree.bind("<Shift-Tab>", self._on_tree_shift_tab)
+        # Supporto rapido per spostarsi all'inizio/fine della riga con Home/End
+        self.tree.bind("<Home>", self._on_tree_home)
+        self.tree.bind("<End>", self._on_tree_end)
 
     def _resolve_section_names(
         self,
@@ -425,6 +431,26 @@ class VerificationTableApp(tk.Frame):
             target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
         self._last_col = target_col
         self._start_edit(target_item, target_col)
+        return "break"
+
+    def _on_tree_home(self, _event: tk.Event) -> str:
+        """Sposta la cella attiva alla prima colonna della riga corrente e apre l'editor."""
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        first_col = self.columns[0]
+        self._last_col = first_col
+        self._start_edit(item, first_col)
+        return "break"
+
+    def _on_tree_end(self, _event: tk.Event) -> str:
+        """Sposta la cella attiva all'ultima colonna della riga corrente e apre l'editor."""
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        last_col = self.columns[-1]
+        self._last_col = last_col
+        self._start_edit(item, last_col)
         return "break"
 
     def _column_id_to_key(self, col_id: str) -> Optional[str]:
@@ -615,14 +641,7 @@ class VerificationTableApp(tk.Frame):
             return
 
         if self._suggest_box is None:
-            self._suggest_box = tk.Toplevel(self)
-            self._suggest_box.wm_overrideredirect(True)
-            self._suggest_box.attributes("-topmost", True)
-            self._suggest_list = tk.Listbox(self._suggest_box, height=6)
-            self._suggest_list.pack(fill="both", expand=True)
-            self._suggest_list.bind("<ButtonRelease-1>", self._on_suggestion_click)
-            self._suggest_list.bind("<Return>", self._on_suggestion_enter)
-            self._suggest_list.bind("<Escape>", lambda _e: self._hide_suggestions())
+            self._ensure_suggestion_box()
 
         if self._suggest_list is None:
             return
@@ -760,6 +779,275 @@ class VerificationTableApp(tk.Frame):
         self.suggestions_map["mat_concrete"] = (lambda q: self._search_materials(q, type_filter="concrete"))
         self.suggestions_map["mat_steel"] = (lambda q: self._search_materials(q, type_filter="steel"))
         self.suggestions_map["stirrups_mat"] = (lambda q: self._search_materials(q, type_filter=None))
+
+    def export_to_csv(self) -> None:
+        """Apri il dialogo di salvataggio e esporta la tabella in CSV con ';' e ','
+
+        Metodo pubblico che implementa la funzionalità richiesta: apre il
+        `asksaveasfilename`, chiama `export_csv(path)` e notifica l'utente.
+        """
+        try:
+            from tkinter import filedialog
+        except Exception:
+            self._show_error("Export CSV", ["File dialog non disponibile"])
+            return
+        path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV", "*.csv")])
+        if not path:
+            return
+        try:
+            self.export_csv(path)
+            messagebox.showinfo("Esporta CSV", f"Esportato in {path}")
+        except Exception as e:
+            logger.exception("Errore esportazione CSV: %s", e)
+            self._show_error("Esporta CSV", [f"Errore durante l'esportazione: {e}"])
+
+    def _on_export_csv(self) -> None:
+        """Handler collegato al pulsante: delega a `export_to_csv`."""
+        self.export_to_csv()
+
+    def _format_errors_for_display(self, errors: List[str], header: Optional[str] = None) -> str:
+        """Costruisce una stringa di messaggi di errore coerente da mostrare all'utente.
+
+        - `errors` è una lista di messaggi (linee) che verranno unite con '\n'.
+        - `header` testo opzionale da anteporre al messaggio (es. titolo o descrizione breve).
+        """
+        parts: List[str] = []
+        if header:
+            parts.append(header)
+        parts.extend(errors)
+        return "\n".join(parts)
+
+    def _show_error(self, title: str, errors: List[str], header: Optional[str] = None) -> None:
+        """Mostra un messagebox.showerror usando il formato centralizzato."""
+        text = self._format_errors_for_display(errors, header=header)
+        messagebox.showerror(title, text)
+
+    def import_from_csv(self) -> None:
+        """Apri dialog 'Apri file' e importa un CSV compatibile con `export_csv`.
+
+        Questo metodo mostra messaggi chiari all'utente in caso di successo o di
+        errori (intestazione non valida, righe malformate, ecc.).
+        """
+        try:
+            from tkinter import filedialog
+        except Exception:
+            self._show_error("Importa CSV", ["File dialog non disponibile"])
+            return
+        path = filedialog.askopenfilename(filetypes=[("CSV", "*.csv")])
+        if not path:
+            return
+        try:
+            imported, skipped, errors = self.import_csv(path, clear=True)
+            messagebox.showinfo("Importa CSV", f"Importate {imported} righe. Saltate {skipped} righe.")
+        except Exception as e:
+            logger.exception("Errore import CSV: %s", e)
+            self._show_error("Importa CSV", [f"Errore durante l'importazione: {e}"])
+
+    def _on_import_csv(self) -> None:
+        """Handler collegato al pulsante: delega a `import_from_csv`."""
+        self.import_from_csv()
+
+    # ------------------------------------------------------------------
+    # Helpers: suggestion box, esportazione/importazione e gestione righe
+    # ------------------------------------------------------------------
+    def _ensure_suggestion_box(self) -> None:
+        """Crea la finestra e la listbox usate per i suggerimenti se non esistono."""
+        if self._suggest_box is not None:
+            return
+        self._suggest_box = tk.Toplevel(self)
+        self._suggest_box.wm_overrideredirect(True)
+        self._suggest_box.attributes("-topmost", True)
+        self._suggest_list = tk.Listbox(self._suggest_box, height=6)
+        self._suggest_list.pack(fill="both", expand=True)
+        self._suggest_list.bind("<ButtonRelease-1>", self._on_suggestion_click)
+        self._suggest_list.bind("<Return>", self._on_suggestion_enter)
+        self._suggest_list.bind("<Escape>", lambda _e: self._hide_suggestions())
+
+    def _col_to_attr(self, col: str) -> str:
+        """Mappa la colonna (key) all'attributo del dataclass VerificationInput."""
+        mapping = {
+            "section": "section_id",
+            "mat_concrete": "material_concrete",
+            "mat_steel": "material_steel",
+            "n": "n_homog",
+            "N": "N",
+            "M": "M",
+            "T": "T",
+            "As_p": "As_inf",
+            "As": "As_sup",
+            "d_p": "d_inf",
+            "d": "d_sup",
+            "stirrups_step": "stirrup_step",
+            "stirrups_diam": "stirrup_diameter",
+            "stirrups_mat": "stirrup_material",
+            "notes": "notes",
+        }
+        return mapping.get(col, col)
+
+    def get_rows(self) -> List[VerificationInput]:
+        """Restituisce tutte le righe della tabella come lista di VerificationInput."""
+        items = list(self.tree.get_children())
+        return [self.table_row_to_model(i) for i in range(len(items))]
+
+    def set_rows(self, rows: Iterable[VerificationInput]) -> None:
+        """Sostituisce il contenuto della tabella con le righe fornite."""
+        for item in list(self.tree.get_children()):
+            self.tree.delete(item)
+        for r in rows:
+            item = self._add_row()
+            self.update_row_from_model(self.tree.index(item), r)
+
+    def _format_value_for_csv(self, value: object) -> str:
+        """Formatta un valore per il CSV: usa la virgola come separatore decimale
+
+        - Se il valore è numerico (int/float) lo converte in stringa e sostituisce
+          il punto decimale con la virgola.
+        - Se è una stringa che rappresenta un numero, tenta la conversione e
+          applica la stessa regola; altrimenti restituisce la stringa così com'è.
+        """
+        # Numerico nativo
+        if isinstance(value, (int, float)):
+            return str(value).replace(".", ",")
+        # Proviamo a interpretare la stringa come numero (accetta "," come separatore)
+        if isinstance(value, str):
+            s = value.strip()
+            if not s:
+                return ""
+            try:
+                # sostituisco la virgola con il punto prima del parsing
+                f = float(s.replace(",", "."))
+                return str(f).replace(".", ",")
+            except Exception:
+                return s
+        return str(value)
+
+    def export_csv(self, path: str, *, include_header: bool = True) -> None:
+        """Esporta la tabella in un file CSV con intestazioni corrispondenti alle colonne.
+
+        Usa il separatore ';' e la virgola come separatore decimale.
+        """
+        import csv
+        keys = [c[0] for c in COLUMNS]
+        header = [c[1] for c in COLUMNS]
+        with open(path, "w", newline="", encoding="utf-8") as fh:
+            writer = csv.writer(fh, delimiter=";")
+            if include_header:
+                writer.writerow(header)
+            for r in self.get_rows():
+                row = []
+                for k in keys:
+                    raw = getattr(r, self._col_to_attr(k))
+                    row.append(self._format_value_for_csv(raw))
+                writer.writerow(row)
+
+    def import_csv(self, path: str, *, clear: bool = True):
+        """Importa righe da CSV; il file deve essere compatibile con `export_csv()`.
+
+        - Legge con `delimiter=';'` e si aspetta la prima riga come intestazione.
+        - Se l'intestazione è una permutazione valida delle intestazioni attese,
+          si applica automaticamente il mapping delle colonne (opzione utile
+          quando il file ha le colonne nello stesso insieme ma in ordine diverso).
+        - Per ogni riga successiva converte i campi numerici sostituendo la
+          virgola con il punto prima della conversione a float. Se una riga ha
+          valori malformati viene saltata; ogni problema viene loggato in modo
+          dettagliato e raccolto nella lista `errors`.
+
+        Restituisce una tupla `(imported_count, skipped_count, errors)` per usi
+        programmatici.
+        """
+        import csv
+        with open(path, newline="", encoding="utf-8") as fh:
+            reader = csv.reader(fh, delimiter=";")
+            rows = list(reader)
+        if not rows:
+            logger.debug("Import CSV: file vuoto o privo di righe: %s", path)
+            return 0, 0, []
+
+        expected_header = [c[1] for c in COLUMNS]
+        header = [h.strip() for h in rows[0]]
+
+        # Prepariamo una mappa da index_file -> index_expected
+        index_map: List[int] = []
+        if header == expected_header:
+            index_map = list(range(len(header)))
+            logger.debug("Import CSV: header corrisponde all'ordine atteso")
+        else:
+            # Se il set delle intestazioni coincide, applichiamo mapping automatico
+            if set(header) == set(expected_header) and len(header) == len(expected_header):
+                # per ogni expected header cerchiamo l'indice nel file
+                index_map = [header.index(h) for h in expected_header]
+                logger.info("Import CSV: header in ordine diverso, applicato mapping automatico: %s", index_map)
+            else:
+                logger.error("Import CSV: header non valido. Atteso: %s. Trovato: %s", expected_header, header)
+                # Mostriamo un messaggio formattato usando l'helper centralizzato
+                header_msg = f"Intestazione CSV non corrisponde all'ordine atteso."
+                details = [f"Atteso: {expected_header}", f"Trovato: {rows[0]}"]
+                self._show_error("Importa CSV", details, header=header_msg)
+                return 0, max(0, len(rows) - 1), ["Header mismatch"]
+
+        key_names = [c[0] for c in COLUMNS]
+        numeric_attrs = {"n_homog", "N", "M", "T", "As_sup", "As_inf", "d_sup", "d_inf", "stirrup_step", "stirrup_diameter"}
+
+        models: List[VerificationInput] = []
+        errors: List[str] = []
+
+        for i, row in enumerate(rows[1:], start=2):  # starting from line 2
+            # ricaviamo valori usando la mappa di indici
+            vals = []
+            for idx in index_map:
+                vals.append(row[idx] if idx < len(row) else "")
+            # assicurarsi che la lunghezza corrisponda
+            vals = vals + [""] * (len(COLUMNS) - len(vals))
+
+            kwargs: Dict[str, object] = {}
+            row_bad = False
+            for k, v in zip(key_names, vals):
+                attr = self._col_to_attr(k)
+                if attr in numeric_attrs:
+                    s = str(v).strip()
+                    if not s:
+                        kwargs[attr] = 0.0
+                        continue
+                    # sostituisco la virgola con il punto per la conversione
+                    normalized = s.replace(",", ".")
+                    try:
+                        kwargs[attr] = float(normalized)
+                    except Exception:
+                        msg = f"Riga {i}: valore numerico non valido per '{k}': '{v}'"
+                        errors.append(msg)
+                        logger.error("Import CSV: %s -- riga content: %s", msg, row)
+                        row_bad = True
+                        break
+                else:
+                    kwargs[attr] = v
+            if row_bad:
+                # salto la riga e continuiamo
+                continue
+            try:
+                models.append(VerificationInput(**kwargs))
+            except Exception as e:  # pragma: no cover - difensivo
+                msg = f"Riga {i}: errore creazione modello: {e}"
+                errors.append(msg)
+                logger.exception("Import CSV: %s -- riga content: %s", msg, row)
+
+        # Sostituisco le righe della tabella con i modelli importati
+        if clear:
+            for item in list(self.tree.get_children()):
+                self.tree.delete(item)
+        self.set_rows(models)
+
+        imported = len(models)
+        skipped = max(0, (len(rows) - 1) - imported)
+
+        # Registriamo un log dettagliato e mostriamo messaggi all'utente se ci sono errori
+        if errors:
+            logger.error("Import CSV: import completato con errori: %s", errors[:20])
+            header_msg = "Si sono verificati errori durante l'import:"
+            self._show_error("Importa CSV", errors[:20], header=header_msg)
+        else:
+            logger.info("Import CSV: import completato senza errori. Importate %d righe", imported)
+
+        return imported, skipped, errors
 
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
