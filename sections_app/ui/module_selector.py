@@ -108,28 +108,44 @@ class ModuleSelectorWindow(tk.Tk):
         tk.Button(material_frame, text="Open Materials", command=self._open_material_editor).pack(pady=(0, 8))
 
     def _open_geometry(self) -> None:
+        """Apre il modulo Geometry come finestra Toplevel.
+        
+        La finestra principale ModuleSelector rimane visibile in background.
+        """
         logger.debug("Opening Geometry module")
-        self.withdraw()
-        win = MainWindow(self.repository, self.serializer, self.material_repository)
-        win.protocol("WM_DELETE_WINDOW", self._on_child_close)
+        # ✅ MainWindow è ora un Toplevel (non più un Tk indipendente)
+        win = MainWindow(self, self.repository, self.serializer, self.material_repository)
+        win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
 
     def _open_historical(self) -> None:
+        """Apre il modulo Historical come finestra Toplevel.
+        
+        La finestra principale ModuleSelector rimane visibile in background.
+        """
         logger.debug("Opening Historical module")
-        self.withdraw()
+        # ✅ HistoricalModuleMainWindow è già un Toplevel
         win = HistoricalModuleMainWindow(self, self.repository)
-        win.protocol("WM_DELETE_WINDOW", self._on_child_close)
+        win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
 
     def _open_verification_table(self) -> None:
+        """Apre il modulo Verification Table come finestra Toplevel.
+        
+        La finestra principale ModuleSelector rimane visibile in background.
+        """
         logger.debug("Opening Verification Table module")
-        self.withdraw()
+        # ✅ VerificationTableWindow è già un Toplevel
         win = VerificationTableWindow(
             master=self,
             section_repository=self.section_repository,
             material_repository=self.material_repository,
         )
-        win.protocol("WM_DELETE_WINDOW", self._on_child_close)
+        win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
 
     def _open_material_editor(self) -> None:
+        """Apre il modulo Materials Editor come finestra Toplevel.
+        
+        Se la finestra è già aperta, la porta in primo piano.
+        """
         logger.debug("Opening Material Editor module")
         # Se la finestra è già aperta, portala in primo piano
         if self._material_editor_window is not None and self._material_editor_window.winfo_exists():
@@ -152,19 +168,6 @@ class ModuleSelectorWindow(tk.Tk):
             self._material_editor_window = None
         
         self._material_editor_window.protocol("WM_DELETE_WINDOW", on_material_editor_close)
-        self._material_editor_window.bind("<Destroy>", lambda e: on_material_editor_close())
-
-    def _on_child_close(self) -> None:
-        """Callback when a child window is closed: safely restore the selector window.
-
-        We guard against the case where the application has been destroyed and calling
-        `deiconify` would raise a TclError.
-        """
-        try:
-            if self.winfo_exists():
-                self.deiconify()
-        except tk.TclError:
-            logger.debug("Cannot deiconify Module Selector: application already destroyed")
 
     def _export_backup(self) -> None:
         """Gestisce l'esportazione del backup."""

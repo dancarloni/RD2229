@@ -8,9 +8,12 @@ from sections_app.services.repository import SectionRepository, CsvSectionSerial
 
 class TestMainWindowMaterialButton(unittest.TestCase):
     def setUp(self):
-        # Create a root that will be used as parent for windows; avoid mainloop
-        self.root = tk.Tk()
-        self.root.withdraw()
+        # Check Tkinter availability
+        try:
+            self.root = tk.Tk()
+            self.root.withdraw()
+        except tk.TclError:
+            self.skipTest("Tkinter not available (headless environment)")
 
     def tearDown(self):
         try:
@@ -21,7 +24,8 @@ class TestMainWindowMaterialButton(unittest.TestCase):
     def test_editor_material_button_triggers_open_material_manager(self):
         repo = SectionRepository()
         serializer = CsvSectionSerializer()
-        mw = MainWindow(repo, serializer, material_repository=None)
+        # ✅ MainWindow è ora Toplevel e richiede un master (root come parent)
+        mw = MainWindow(self.root, repo, serializer, material_repository=None)
 
         called = {"ok": False}
 

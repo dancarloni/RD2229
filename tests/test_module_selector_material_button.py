@@ -14,6 +14,13 @@ class TestModuleSelectorMaterialButton(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
+        try:
+            # Try to create a root - if Tkinter is not available, skip tests
+            test_root = tk.Tk()
+            test_root.destroy()
+        except tk.TclError:
+            self.skipTest("Tkinter not available (headless environment)")
+        
         self.repo = SectionRepository()
         self.serializer = CsvSectionSerializer()
         self.material_repo = MaterialRepository()

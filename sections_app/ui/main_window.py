@@ -219,16 +219,22 @@ SECTION_DEFINITIONS = {
 }
 
 
-class MainWindow(tk.Tk):
-    """Finestra principale dell'applicazione."""
+class MainWindow(tk.Toplevel):
+    """Finestra del modulo Geometry - aperta come Toplevel dalla finestra principale ModuleSelector.
+    
+    ✅ Estende tk.Toplevel (non tk.Tk) - rimane una finestra figlia della root principale.
+    ✅ Accetta la finestra parent nel costruttore.
+    ✅ Un solo mainloop() nell'applicazione (nel ModuleSelector).
+    """
 
     def __init__(
         self,
+        master: tk.Tk,  # ✅ NUOVO: richiede il parent (ModuleSelector)
         repository: SectionRepository,
         serializer: CsvSectionSerializer,
         material_repository: Optional[MaterialRepository] = None,
     ):
-        super().__init__()
+        super().__init__(master=master)  # ✅ Passa master a Toplevel
         self.title("Gestione Proprietà Sezioni")
         self.geometry("980x620")
         self.repository = repository
