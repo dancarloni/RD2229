@@ -147,6 +147,23 @@ data/
 2. Installare le dipendenze da [requirements.txt](requirements.txt).
 3. Usare i modelli in [src/rd2229](src/rd2229).
 
+## Demo: Verification Table (GUI)
+Per aprire la finestra "Verification Table" con alcuni casi di esempio (sezioni e materiali di test) usa lo script demo incluso:
+
+PowerShell:
+
+```powershell
+$env:PYTHONPATH='c:\workspaces\RD2229\RD2229\src'; python scripts/run_verification_demo.py
+```
+
+Linux/macOS / CMD:
+
+```bash
+python scripts/run_verification_demo.py
+```
+
+Lo script apre una finestra Tkinter con la tabella per inserimento rapido delle verifiche e precompila alcune righe demo per testare il flusso di inserimento, autocomplete e il calcolatore aree armatura (tasto 'c' su colonne `As` / `As'`).
+
 Esempio rapido (uso delle nuove sezioni):
 
 ```python

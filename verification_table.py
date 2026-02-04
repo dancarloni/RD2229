@@ -530,7 +530,10 @@ class VerificationTableApp(tk.Frame):
         self._update_suggestions()
 
     def _on_entry_keypress(self, event: tk.Event) -> Optional[str]:
-        if self.edit_column in {"As", "As_p"} and event.char.lower() == "c":
+        # Support both event.char and event.keysym to make programmatic key
+        # generation in tests more reliable across platforms.
+        key = (getattr(event, "char", "") or getattr(event, "keysym", "")).lower()
+        if self.edit_column in {"As", "As_p"} and key == "c":
             self._open_rebar_calculator()
             return "break"
         return None

@@ -383,3 +383,5 @@ _tkinter.TclError: invalid command name ".!sectionmanager.!frame.!treeview"
 2026-02-04 10:51:12,632 - sections_app.ui.section_manager - DEBUG - Ricarico sezioni nel Treeview
 2026-02-04 10:51:12,632 - sections_app.ui.section_manager - DEBUG - Treeview ricaricato con 2 sezioni
 2026-02-04 10:51:59,238 - sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
+2026-02-04 11:50:33,452 - sections_app.ui.module_selector - DEBUG - Opening Verification Table module
+2026-02-04 11:59:10,666 - sections_app.ui.module_selector - DEBUG - Opening Verification Table module
