@@ -4,6 +4,8 @@ import csv
 import json
 import logging
 import os
+import shutil
+from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 from sections_app.models.sections import CSV_HEADERS, Section, create_section_from_dict
@@ -21,6 +23,10 @@ class SectionRepository:
         self._sections: Dict[str, Section] = {}
         self._keys: Dict[tuple, str] = {}
         self._json_file = json_file
+        
+        # Percorsi per backup
+        self._file_path = Path(json_file)
+        self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
         
         # Carica le sezioni dal file JSON se esiste
         self.load_from_file()
@@ -174,9 +180,12 @@ class SectionRepository:
             logger.exception("Errore lettura file JSON %s: %s", self._json_file, e)
 
     def save_to_file(self) -> None:
-        """Salva tutte le sezioni in un file JSON.
+        """Salva tutte le sezioni in un file JSON con backup automatico.
         
-        Crea il file se non esiste, sovrascrive se esiste.
+        Strategia di sicurezza:
+        1. Se il file principale esiste, crea backup (sections_backup.json)
+        2. Scrive su file temporaneo (.json.tmp)
+        3. Rename atomico del file temporaneo sul file principale
         """
         try:
             data = []
@@ -185,14 +194,32 @@ class SectionRepository:
                 data.append(section_dict)
             
             # Crea la directory se non esiste
-            directory = os.path.dirname(self._json_file)
-            if directory and not os.path.isdir(directory):
-                os.makedirs(directory, exist_ok=True)
+            if self._file_path.parent.exists() is False and str(self._file_path.parent) != '.':
+                self._file_path.parent.mkdir(parents=True, exist_ok=True)
             
-            with open(self._json_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
+            # Crea backup del file esistente
+            if self._file_path.exists():
+                try:
+                    shutil.copy2(self._file_path, self._backup_path)
+                    logger.debug("Backup creato: %s", self._backup_path)
+                except Exception as exc:
+                    logger.warning("Impossibile creare backup di %s: %s", self._file_path, exc)
             
-            logger.debug("Salvate %d sezioni in %s", len(data), self._json_file)
+            # Scrivi su file temporaneo
+            tmp_path = self._file_path.with_suffix(".json.tmp")
+            try:
+                with tmp_path.open("w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                
+                # Rename atomico
+                tmp_path.replace(self._file_path)
+                logger.debug("Salvate %d sezioni in %s (backup: %s)", len(data), self._file_path, self._backup_path)
+            except Exception:
+                logger.exception("Errore nel salvataggio del file sezioni")
+                # Elimina file temporaneo se esiste
+                if tmp_path.exists():
+                    tmp_path.unlink(missing_ok=True)
+                raise
         except Exception as e:
             logger.exception("Errore salvataggio file JSON %s: %s", self._json_file, e)
 
