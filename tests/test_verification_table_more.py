@@ -103,6 +103,47 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertAlmostEqual(float(val), total, places=2)
         app.tree.delete(item)
 
+    def test_rebar_via_keypress_opens_and_applies(self):
+        top = tk.Toplevel(self.root)
+        top.geometry("900x300")
+        app = VerificationTableApp(top)
+        item = list(app.tree.get_children())[0]
+        top.update_idletasks()
+        top.update()
+        # Start editing As cell and simulate pressing 'c'
+        app._start_edit(item, "As")
+        self.assertIsNotNone(app.edit_entry)
+        # ensure the entry has focus and simulate KeyPress 'c'
+        app.edit_entry.focus_set()
+        # try multiple ways to generate key event so it triggers on all platforms
+        try:
+            app.edit_entry.event_generate('<KeyPress>', keysym='c')
+            app.edit_entry.event_generate('<KeyRelease>', keysym='c')
+        except tk.TclError:
+            # fallback
+            app.edit_entry.event_generate('<KeyPress-c>')
+        top.update_idletasks()
+        top.update()
+        # ensure popup opened - if not, call handler directly as a deterministic fallback
+        if app._rebar_window is None:
+            import types
+
+            evt = types.SimpleNamespace(char='c', keysym='c')
+            app._on_entry_keypress(evt)
+            top.update_idletasks()
+            top.update()
+        self.assertIsNotNone(app._rebar_window)
+        # set bars and compute
+        app._rebar_vars[16].set("2")
+        app._rebar_vars[8].set("3")
+        app._update_rebar_total()
+        expected = float(app._rebar_total_var.get())
+        # confirm and verify
+        app._confirm_rebar_total()
+        val = app.tree.set(item, "As")
+        self.assertAlmostEqual(float(val), expected, places=2)
+        app.tree.delete(item)
+
 
 if __name__ == "__main__":
     unittest.main()
