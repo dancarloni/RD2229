@@ -13,10 +13,38 @@ Bar = Tuple[float, float, float]  # (y, z, diameter)
 
 @dataclass
 class SectionGeometry:
+    """Section geometry data.
+
+    Units:
+      - coordinates y,z: [cm]
+      - polygons: list of rings, each vertex (y,z) in [cm]
+      - bars: list of tuples (y [cm], z [cm], diameter [cm])
+      - n_homog: float, Es/Ec (dimensionless)
+    """
     # polygons: list of polygon rings (outer followed by holes if any); each polygon is list of (y,z)
     polygons: List[List[Point]]
     bars: List[Bar]
     n_homog: float = 1.0  # n = Es/Ec (homogenization coefficient)
+
+@dataclass
+class SectionProperties:
+    area_concrete: float
+    area_equivalent: float
+    yG: float
+    zG: float
+    Iy: float
+    Iz: float
+    Iyz: float
+    # internal raw values for transparency
+    A_contrib: Optional[float] = None
+    Sy: Optional[float] = None
+    Sz: Optional[float] = None
+
+    """Units:
+      - area_concrete, area_equivalent: [cm^2]
+      - yG, zG: [cm]
+      - Iy, Iz, Iyz: [cm^4]
+    """
 
 @dataclass
 class SectionProperties:

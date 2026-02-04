@@ -82,12 +82,24 @@ def compute_normal_stresses_ta(
 ) -> StressResult:
     """Compute normal stresses using TA method (translation of CalcoloTensNormali 4.3).
 
+    Units (consistent system used throughout):
+      - geometry: lengths [cm], areas [cm^2], inertias [cm^4]
+      - loads: Nx [kg], My, Mz [kg·m]
+      - materials: Ec, Es [kg/cm^2], stresses [kg/cm^2]
+
+    Algorithm notes:
+    - Internally My and Mz are converted from [kg·m] to [kg·cm] (multiply by 100)
+      so that matrix equations are dimensionally consistent with inertias in [cm^4].
+    - The method builds the matrix MM (Aci, Sy, Sz, Iy, Iz, Iyz), in same spirit as VB,
+      in order to compute the generalized strains EpsVec, then divides by Ec to obtain
+      strain/curvature values.
+
     Strategy (keeps VB overall structure):
     - build MM and invert
-    - compute strain vector EpsVec = MM_inv * Soll
+    - compute strain vector EpsVec = MM_inv * Soll (Soll=[Nx, My_cm, -Mz_cm])
     - divide by Ec to get strains (vb divides Eps by Ec)
     - compute strains at polygon vertices and bars
-    - compute stresses via constitutive laws
+    - compute stresses via constitutive laws (sigma_c, sigma_s)
     - if concrete in tension and !allow_concrete_tension: approximate parzializzazione by excluding tensile vertex contributions
       and recompute iteratively until convergence
 
@@ -162,7 +174,10 @@ def compute_normal_stresses_ta(
         MM_inv = _invert_3x3(MM)
 
         # Soll vector (VB: Soll = [Nx, My, -Mz])
-        Soll = [loads.Nx, loads.My, -loads.Mz]
+        # Convert moments from [kg·m] to [kg·cm] (1 m = 100 cm) for dimensional consistency
+        My_cm = loads.My * 100.0
+        Mz_cm = loads.Mz * 100.0
+        Soll = [loads.Nx, My_cm, -Mz_cm]
         # multiply MM_inv * Soll
         EpsVec = [sum(MM_inv[i][j] * Soll[j] for j in range(3)) for i in range(3)]
         # VB divides by Ec

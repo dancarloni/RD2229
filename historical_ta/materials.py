@@ -8,14 +8,39 @@ from typing import Optional
 
 @dataclass
 class ConcreteLawTA:
-    fcd: float  # design compressive strength (positive number, but compression will be negative stress)
-    Ec: float
+    """Concrete constitutive parameters for TA method.
+
+    Units:
+      - fcd: [kg/cm^2] (design compressive strength)
+      - Ec: [kg/cm^2] (elastic modulus, consistent with stresses in kg/cm^2)
+      - strains eps_* are dimensionless (unitless)
+    """
+    fcd: float  # design compressive strength (kg/cm^2)
+    Ec: float  # elastic modulus (kg/cm^2)
     eps_c2: float
     eps_c3: float
     eps_c4: float
     eps_cu: float
     parab_rect: bool = True  # blnParabRettang
     allow_tension: bool = False  # if False, concrete in tension considered zero in TA (typical)
+
+
+@dataclass
+class SteelLawTA:
+    """Steel constitutive parameters for TA method.
+
+    Units:
+      - Es: [kg/cm^2]
+      - fyd: [kg/cm^2]
+      - eps_yd, eps_su: dimensionless
+    """
+    Es: float
+    fyd: float
+    eps_yd: float
+    eps_su: float
+    elastoplastic: bool = True  # blnElastPerfettPlastico
+    bilinear: bool = False
+    Kincr: float = 0.0  # strain hardening coefficient if used
 
 
 @dataclass
@@ -30,12 +55,18 @@ class SteelLawTA:
 
 
 def sigma_c(eps: float, law: ConcreteLawTA) -> float:
-    """Approximation of VB f_Sigc(Eps) (4.3.3).
+    """Concrete stress-strain relation (approximation of VB f_Sigc).
 
-    Compression (eps < 0): a simplified parabola/rect form is used.
-    Tension (eps > 0): linear elastic with Ec unless allow_tension is True/False.
+    Inputs:
+      - eps: strain (dimensionless)
+      - law: ConcreteLawTA with Ec [kg/cm^2] and fcd [kg/cm^2]
 
-    Returns signed stress: negative for compression, positive for tension.
+    Returns:
+      - stress in [kg/cm^2] (negative = compression, positive = tension)
+
+    Note: The VB code used Excel scaling factors (fmL, fmFL) and mixed units. This
+    implementation adopts a consistent unit system: lengths [cm], areas [cm^2],
+    forces [kg], moments [kg·m], stresses [kg/cm^2].
     """
     # Tension (positive eps) or zero strain: linear elastic for positive strains, zero if tension not allowed
     if eps >= 0:

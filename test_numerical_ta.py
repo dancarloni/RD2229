@@ -16,9 +16,9 @@ def print_case(title, geom, loads, conc, steel, limits=None, allow_tension=False
     print(f"Iy = {props.Iy:.3f} cm^4, Iz = {props.Iz:.3f} cm^4, Iyz = {props.Iyz:.3f} cm^4")
 
     res = compute_normal_stresses_ta(geom, props, loads, conc, steel, allow_concrete_tension=allow_tension)
-    print(f"sigma_c_max = {res.sigma_c_max:.3f} MPa, sigma_c_min = {res.sigma_c_min:.3f} MPa")
-    print(f"sigma_c_med = {res.sigma_c_med:.3f} MPa")
-    print(f"sigma_s_max = {res.sigma_s_max:.3f} MPa")
+    print(f"sigma_c_max = {res.sigma_c_max:.3f} kg/cm^2, sigma_c_min = {res.sigma_c_min:.3f} kg/cm^2")
+    print(f"sigma_c_med = {res.sigma_c_med:.3f} kg/cm^2")
+    print(f"sigma_s_max = {res.sigma_s_max:.3f} kg/cm^2")
     if limits:
         chk = check_allowable_stresses_ta(res, limits)
         print('Checks: ', chk.ok, chk.messages)
@@ -36,18 +36,18 @@ def main():
     loads1 = LoadState(Nx=0.0, My=0.0, Mz=0.0)
     print_case('Caso 1: Rettangolo 30x15, vuoto', geom1, loads1, conc, steel, limits)
 
-    # Caso 2: Rettangolo 30x15, puro assiale Nx = -1000 kN (compression)
-    loads2 = LoadState(Nx=-1000000.0, My=0.0, Mz=0.0)  # da N in N -> MPa conversion not applied (units are consistent)
-    print_case('Caso 2: Rettangolo, sola compressione Axial -1000 kN', geom1, loads2, conc, steel, limits)
+    # Caso 2: Rettangolo, puro assiale Nx = -3000 kg (compression moderate)
+    loads2 = LoadState(Nx=-3000.0, My=0.0, Mz=0.0)  # Nx in [kg]
+    print_case('Caso 2: Rettangolo, sola compressione Axial -3000 kg', geom1, loads2, conc, steel, limits)
 
-    # Caso 3: Rettangolo 30x15, momento My (bending about y) corrispondente a 100 kNm
-    loads3 = LoadState(Nx=0.0, My=100000.0, Mz=0.0)
-    print_case('Caso 3: Rettangolo, My = 100 kNm', geom1, loads3, conc, steel, limits)
+    # Caso 3: Rettangolo 30x15, momento My (bending about y) = 1000 kg·m
+    loads3 = LoadState(Nx=0.0, My=1000.0, Mz=0.0)
+    print_case('Caso 3: Rettangolo, My = 1000 kg·m (~9.81 kNm)', geom1, loads3, conc, steel, limits)
 
     # Caso 4: Rettangolo + armatura (due barre) con eccentricità -> combinazione
     bars = [(5.0, 2.5, 1.0), (25.0, 12.5, 1.0)]
     geom4 = SectionGeometry(polygons=poly1, bars=bars, n_homog=10.0)
-    loads4 = LoadState(Nx=-500000.0, My=50000.0, Mz=-20000.0)
+    loads4 = LoadState(Nx=-3000.0, My=500.0, Mz=-200.0)
     print_case('Caso 4: Rettangolo con 2 barre, combinato', geom4, loads4, conc, steel, limits)
 
 
