@@ -81,7 +81,8 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
                         results.append(name)
 
         # 2) Fallback: if no repo or names provided, also try matching on the 'names' list
-        if not results and (names or []):
+        # NOTE: Only use fallback 'names' if NO type_filter is specified, since 'names' lacks type info
+        if not results and (names or []) and not type_filter:
             for n in (names or []):
                 if not q or (q in n.lower()):
                     if n not in seen:
@@ -112,4 +113,9 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         return results[:limit]
     except Exception:
         logger.exception("Error searching materials")
-        return [n for n in (names or []) if q in n.lower()][:limit]
+        # Fallback: simple name matching without type filtering (not ideal but better than crashing)
+        if type_filter:
+            # If type_filter was requested but we can't access type info, return empty
+            return []
+        q = (query or "").strip().lower()
+        return [n for n in (names or []) if not q or q in n.lower()][:limit]
