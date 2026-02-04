@@ -280,9 +280,9 @@ class VerificationTableApp(tk.Frame):
         provided: Optional[Iterable[str]],
     ) -> List[str]:
         if provided is not None:
-            return sorted({s for s in provided if s})
+            return sorted({s for s in provided if s and s != "C100"})
         if repo is not None:
-            return sorted({s.name for s in repo.get_all_sections()})
+            return sorted({s.name for s in repo.get_all_sections() if s.name != "C100"})
         return []
 
     def _resolve_material_names(self, provided: Optional[Iterable[str]]) -> List[str]:
