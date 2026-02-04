@@ -385,3 +385,47 @@ _tkinter.TclError: invalid command name ".!sectionmanager.!frame.!treeview"
 2026-02-04 10:51:59,238 - sections_app.ui.module_selector - DEBUG - Cannot deiconify Module Selector: application already destroyed
 2026-02-04 11:50:33,452 - sections_app.ui.module_selector - DEBUG - Opening Verification Table module
 2026-02-04 11:59:10,666 - sections_app.ui.module_selector - DEBUG - Opening Verification Table module
+2026-02-04 12:19:33,614 - sections_app.ui.module_selector - DEBUG - Opening Geometry module
+2026-02-04 12:19:33,794 - sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-04 12:19:33,795 - sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-04 12:19:36,969 - sections_app.ui.section_manager - DEBUG - Colonne Treeview: ['id', 'name', 'section_type', 'width', 'height', 'diameter', 'flange_width', 'flange_thickness', 'web_thickness', 'web_height', 't_horizontal', 't_vertical', 'outer_diameter', 'thickness', 'rotation_angle_deg', 'area', 'x_G', 'y_G', 'Ix', 'Iy', 'Ixy', 'Qx', 'Qy', 'rx', 'ry', 'core_x', 'core_y', 'ellipse_a', 'ellipse_b', 'note']
+2026-02-04 12:19:36,973 - sections_app.ui.section_manager - DEBUG - Finestra dimensionata: 2175x550
+2026-02-04 12:19:36,974 - sections_app.ui.section_manager - DEBUG - Treeview ricaricato con 0 sezioni
+2026-02-04 12:19:36,974 - sections_app.ui.main_window - DEBUG - Section Manager aperto
+2026-02-04 12:19:40,045 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='' -> using 'Rettangolare'
+2026-02-04 12:19:40,045 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-04 12:19:41,621 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='Ad L' -> using 'Ad L'
+2026-02-04 12:19:41,621 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Ad L' combo='Ad L' -> using 'Ad L'
+2026-02-04 12:19:41,621 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Ad L), skip
+2026-02-04 12:19:41,621 - sections_app.ui.main_window - DEBUG - Polling selezione ComboBox annullato
+2026-02-04 12:19:41,623 - sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Ad L
+2026-02-04 12:19:41,624 - sections_app.ui.main_window - DEBUG - Creati 4 campi input
+2026-02-04 12:19:42,772 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Ad L' combo='Ad L' -> using 'Ad L'
+2026-02-04 12:19:42,772 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Ad L), skip
+2026-02-04 12:19:44,275 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Ad L' combo='Circolare' -> using 'Circolare'
+2026-02-04 12:19:44,275 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-04 12:19:44,275 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-04 12:19:44,280 - sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Circolare
+2026-02-04 12:19:44,280 - sections_app.ui.main_window - DEBUG - Creati 1 campi input
+2026-02-04 12:19:45,537 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-04 12:19:45,538 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-04 12:19:51,368 - sections_app.models.sections - DEBUG - Proprietà calcolate per CIRCULAR: SectionProperties(area=314.1592653589793, centroid_x=10.0, centroid_y=10.0, ix=7853.981633974483, iy=7853.981633974483, ixy=0.0, qx=3141.5926535897934, qy=3141.5926535897934, rx=5.0, ry=5.0, core_x=2.5, core_y=2.5, ellipse_a=5.0, ellipse_b=5.0)
+2026-02-04 12:19:53,906 - sections_app.models.sections - DEBUG - Proprietà calcolate per CIRCULAR: SectionProperties(area=314.1592653589793, centroid_x=10.0, centroid_y=10.0, ix=7853.981633974483, iy=7853.981633974483, ixy=0.0, qx=3141.5926535897934, qy=3141.5926535897934, rx=5.0, ry=5.0, core_x=2.5, core_y=2.5, ellipse_a=5.0, ellipse_b=5.0)
+2026-02-04 12:19:53,906 - sections_app.services.repository - DEBUG - Sezione aggiunta: 3a9a04cf-2462-4b9c-a334-e167e9e6c183
+2026-02-04 12:19:54,030 - sections_app.models.sections - DEBUG - Proprietà calcolate per CIRCULAR: SectionProperties(area=314.1592653589793, centroid_x=10.0, centroid_y=10.0, ix=7853.981633974483, iy=7853.981633974483, ixy=0.0, qx=3141.5926535897934, qy=3141.5926535897934, rx=5.0, ry=5.0, core_x=2.5, core_y=2.5, ellipse_a=5.0, ellipse_b=5.0)
+2026-02-04 12:19:54,030 - sections_app.services.repository - DEBUG - Sezione duplicata ignorata: ('CIRCULAR', (20.0,))
+2026-02-04 12:19:55,732 - sections_app.ui.main_window - DEBUG - Sezione creata: 3a9a04cf-2462-4b9c-a334-e167e9e6c183
+2026-02-04 12:19:57,780 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Circolare' -> using 'Circolare'
+2026-02-04 12:19:57,781 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Circolare), skip
+2026-02-04 12:19:58,555 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Circolare' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-04 12:19:58,556 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-04 12:19:58,556 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-04 12:19:58,558 - sections_app.ui.main_window - DEBUG - Creazione campi input per tipologia: Rettangolare
+2026-02-04 12:19:58,558 - sections_app.ui.main_window - DEBUG - Creati 2 campi input
+2026-02-04 12:19:59,432 - sections_app.ui.main_window - DEBUG - Cambio tipologia sezione: var='Rettangolare' combo='Rettangolare' -> using 'Rettangolare'
+2026-02-04 12:19:59,433 - sections_app.ui.main_window - DEBUG - Selezione identica alla precedente (Rettangolare), skip
+2026-02-04 12:20:06,440 - sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1800.0, centroid_x=15.0, centroid_y=30.0, ix=540000.0, iy=135000.0, ixy=0.0, qx=54000.0, qy=27000.0, rx=17.320508075688775, ry=8.660254037844387, core_x=5.0, core_y=10.0, ellipse_a=17.320508075688775, ellipse_b=8.660254037844387)
+2026-02-04 12:20:10,231 - sections_app.models.sections - DEBUG - Proprietà calcolate per RECTANGULAR: SectionProperties(area=1800.0, centroid_x=15.0, centroid_y=30.0, ix=540000.0, iy=135000.0, ixy=0.0, qx=54000.0, qy=27000.0, rx=17.320508075688775, ry=8.660254037844387, core_x=5.0, core_y=10.0, ellipse_a=17.320508075688775, ellipse_b=8.660254037844387)
+2026-02-04 12:20:10,231 - sections_app.services.repository - DEBUG - Sezione aggiunta: d30a9db6-1fac-4c8d-9a80-9f23bf833b67
+2026-02-04 12:20:11,475 - sections_app.ui.main_window - DEBUG - Sezione creata: d30a9db6-1fac-4c8d-9a80-9f23bf833b67
+2026-02-04 12:20:25,543 - sections_app.ui.module_selector - DEBUG - Opening Verification Table module

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import csv
+import json
 import logging
+import os
 from typing import Dict, Iterable, List, Optional
 
 from sections_app.models.sections import CSV_HEADERS, Section, create_section_from_dict
@@ -10,11 +12,17 @@ logger = logging.getLogger(__name__)
 
 
 class SectionRepository:
-    """Archivio in memoria delle sezioni."""
+    """Archivio in memoria delle sezioni con persistenza JSON."""
 
-    def __init__(self) -> None:
+    DEFAULT_JSON_FILE = "sections.json"
+
+    def __init__(self, json_file: str = DEFAULT_JSON_FILE) -> None:
         self._sections: Dict[str, Section] = {}
         self._keys: Dict[tuple, str] = {}
+        self._json_file = json_file
+        
+        # Carica le sezioni dal file JSON se esiste
+        self.load_from_file()
 
     def add_section(self, section: Section) -> bool:
         """Aggiunge una sezione se non duplicata. Ritorna True se aggiunta.
@@ -36,6 +44,9 @@ class SectionRepository:
         self._sections[section.id] = section
         self._keys[key] = section.id
         logger.debug("Sezione aggiunta: %s", section.id)
+        
+        # Salva in file JSON
+        self.save_to_file()
         return True
 
     def update_section(self, section_id: str, updated_section: Section) -> None:
@@ -80,6 +91,9 @@ class SectionRepository:
         self._sections[section_id] = updated_section
         self._keys[new_key] = section_id
         logger.debug("Sezione aggiornata: %s", section_id)
+        
+        # Salva in file JSON
+        self.save_to_file()
 
     def delete_section(self, section_id: str) -> None:
         """Elimina una sezione dall'archivio."""
@@ -87,6 +101,9 @@ class SectionRepository:
         if section:
             self._keys.pop(section.logical_key(), None)
             logger.debug("Sezione eliminata: %s", section_id)
+            
+            # Salva in file JSON
+            self.save_to_file()
 
     def get_all_sections(self) -> List[Section]:
         return list(self._sections.values())
@@ -97,6 +114,74 @@ class SectionRepository:
     def clear(self) -> None:
         self._sections.clear()
         self._keys.clear()
+        
+        # Salva in file JSON
+        self.save_to_file()
+
+    def load_from_file(self) -> None:
+        """Carica tutte le sezioni dal file JSON.
+        
+        Se il file non esiste, il repository rimane vuoto.
+        Se il file esiste ma è invalido, registra un errore.
+        """
+        if not os.path.isfile(self._json_file):
+            logger.debug("File JSON %s non trovato, archivio vuoto", self._json_file)
+            return
+        
+        try:
+            with open(self._json_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            
+            # Ripristina le sezioni dal JSON
+            self._sections.clear()
+            self._keys.clear()
+            
+            if not isinstance(data, list):
+                logger.warning("File JSON %s non contiene una lista", self._json_file)
+                return
+            
+            for idx, item in enumerate(data):
+                try:
+                    section = create_section_from_dict(item)
+                    section.compute_properties()
+                    
+                    # Ripristina l'ID originale dal JSON
+                    if "id" in item and item["id"]:
+                        section.id = item["id"]
+                    
+                    self._sections[section.id] = section
+                    key = section.logical_key()
+                    self._keys[key] = section.id
+                    logger.debug("Sezione caricata: %s (%s)", section.id, section.name)
+                except Exception as e:
+                    logger.exception("Errore caricamento sezione %d dal JSON: %s", idx, e)
+            
+            logger.info("Caricate %d sezioni da %s", len(self._sections), self._json_file)
+        except Exception as e:
+            logger.exception("Errore lettura file JSON %s: %s", self._json_file, e)
+
+    def save_to_file(self) -> None:
+        """Salva tutte le sezioni in un file JSON.
+        
+        Crea il file se non esiste, sovrascrive se esiste.
+        """
+        try:
+            data = []
+            for section in self._sections.values():
+                section_dict = section.to_dict()
+                data.append(section_dict)
+            
+            # Crea la directory se non esiste
+            directory = os.path.dirname(self._json_file)
+            if directory and not os.path.isdir(directory):
+                os.makedirs(directory, exist_ok=True)
+            
+            with open(self._json_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            
+            logger.debug("Salvate %d sezioni in %s", len(data), self._json_file)
+        except Exception as e:
+            logger.exception("Errore salvataggio file JSON %s: %s", self._json_file, e)
 
 
 class CsvSectionSerializer:
