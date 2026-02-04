@@ -214,3 +214,99 @@ class HistoricalMaterialLibrary:
             if m.code == code:
                 return m
         return None
+
+    def import_from_csv(self, file_path: str | Path, delimiter: str = ";") -> int:
+        """
+        Importa materiali storici da un CSV.
+        - Ogni riga -> un HistoricalMaterial.
+        - Se esiste già un materiale con stesso 'code', aggiornalo.
+        - Altrimenti aggiungilo.
+        Ritorna il numero di materiali importati/aggiornati.
+        """
+        import csv
+
+        fp = Path(file_path)
+        if not fp.exists():
+            logger.warning("CSV file for import not found: %s", fp)
+            return 0
+
+        added_or_updated = 0
+        try:
+            with fp.open("r", encoding="utf-8", newline="") as f:
+                reader = csv.DictReader(f, delimiter=delimiter)
+                # Expected headers (case-insensitive)
+                for idx, row in enumerate(reader, start=2):
+                    if not row or all((v or "").strip() == "" for v in row.values()):
+                        logger.debug("Skipping empty CSV row %s", idx)
+                        continue
+                    try:
+                        code = (row.get("code") or row.get("Code") or "").strip()
+                        if not code:
+                            logger.warning("Skipping CSV row %s: missing code", idx)
+                            continue
+                        name = (row.get("name") or row.get("Name") or "").strip()
+                        source = (row.get("source") or row.get("Source") or "").strip()
+
+                        # Basic validation: require both code and name
+                        if not name:
+                            logger.warning("Skipping CSV row %s: missing name", idx)
+                            continue
+
+                        type_raw = (row.get("type") or row.get("Type") or "").strip().lower()
+                        try:
+                            mtype = HistoricalMaterialType(type_raw) if type_raw else HistoricalMaterialType.OTHER
+                        except Exception:
+                            # tolerant mapping
+                            if "concr" in type_raw or "cls" in type_raw:
+                                mtype = HistoricalMaterialType.CONCRETE
+                            elif "steel" in type_raw or "acc" in type_raw:
+                                mtype = HistoricalMaterialType.STEEL
+                            else:
+                                mtype = HistoricalMaterialType.OTHER
+
+                        def _num(field: str):
+                            v = (row.get(field) or "").strip()
+                            if v == "":
+                                return None
+                            try:
+                                return float(v.replace(",", "."))
+                            except Exception:
+                                logger.warning("CSV row %s: invalid numeric for %s: %r", idx, field, v)
+                                return None
+
+                        hist = HistoricalMaterial(
+                            id=code,
+                            code=code,
+                            name=name,
+                            source=source,
+                            type=mtype,
+                            fck=_num("fck"),
+                            fcd=_num("fcd"),
+                            fctm=_num("fctm"),
+                            Ec=_num("Ec"),
+                            fyk=_num("fyk"),
+                            fyd=_num("fyd"),
+                            Es=_num("Es"),
+                            gamma_c=_num("gamma_c"),
+                            gamma_s=_num("gamma_s"),
+                            notes=(row.get("notes") or row.get("Notes") or "").strip(),
+                        )
+
+                        existing = self.find_by_code(code)
+                        if existing:
+                            # update fields
+                            self._materials = [m for m in self._materials if m.code != code]
+                            self._materials.append(hist)
+                        else:
+                            self._materials.append(hist)
+                        added_or_updated += 1
+                    except Exception:
+                        logger.exception("Error processing CSV row %s", idx)
+                        continue
+            # Save changes
+            self.save_to_file()
+            logger.debug("Imported %d historical materials from %s", added_or_updated, fp)
+            return added_or_updated
+        except Exception:
+            logger.exception("Failed to import historical materials from CSV %s", fp)
+            return added_or_updated
