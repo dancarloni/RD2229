@@ -1,0 +1,22 @@
+# Virtual environment
+.venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Logs
+app.log
+*.log
+
+# Runtime-generated JSON (local workspace / backups)
+sections.json
+sections_backup.json
+historical_materials.json
+
+# Temporary files
+*.tmp
+*.swp
+
+# Editor settings
+.vscode/
