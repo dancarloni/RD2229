@@ -679,7 +679,6 @@ class VerificationTableApp(tk.Frame):
         self.suggestions_map["mat_concrete"] = self.material_names
         self.suggestions_map["mat_steel"] = self.material_names
         self.suggestions_map["stirrups_mat"] = self.material_names
-*** End Patch
 
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
