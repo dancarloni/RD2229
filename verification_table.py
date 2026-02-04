@@ -163,6 +163,12 @@ class VerificationTableApp(tk.Frame):
 
         self._build_ui()
         self._insert_empty_rows(initial_rows)
+        
+        # Open suggestions automatically for the first row's section column
+        if initial_rows > 0:
+            first_item = self.tree.get_children()[0] if self.tree.get_children() else None
+            if first_item:
+                self.after(50, lambda: (self._start_edit(first_item, "section"), self._update_suggestions()))
 
     def table_row_to_model(self, row_index: int) -> VerificationInput:
         items = list(self.tree.get_children())
@@ -506,7 +512,7 @@ class VerificationTableApp(tk.Frame):
         col = self._column_id_to_key(col_id)
         if item and col:
             self._last_col = col
-            self.after_idle(lambda: self._start_edit(item, col))
+            self.after_idle(lambda: (self._start_edit(item, col), self._update_suggestions()))
 
     def _on_tree_double_click(self, event: tk.Event) -> None:
         item = self.tree.identify_row(event.y)
@@ -842,7 +848,11 @@ class VerificationTableApp(tk.Frame):
     def _focus_is_suggestion(self) -> bool:
         if self._suggest_box is None:
             return False
-        widget = self.winfo_toplevel().focus_get()
+        try:
+            widget = self.winfo_toplevel().focus_get()
+        except KeyError:
+            # Sometimes focus_get() raises KeyError for transient widgets
+            return False
         while widget is not None:
             if widget == self._suggest_list or widget == self._suggest_box:
                 return True
