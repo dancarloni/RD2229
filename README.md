@@ -1,5 +1,7 @@
 # RD2229
 
+[![CI](https://github.com/dancarloni/RD2229/actions/workflows/ci.yml/badge.svg)](https://github.com/dancarloni/RD2229/actions/workflows/ci.yml)
+
 Progetto per digitalizzare e rendere calcolabili i metodi storici (Regio Decreto 2229/1939, Santarella, Giangreco) con una GUI che riproduca i passaggi di progetto dell’epoca.
 
 ## Obiettivo
