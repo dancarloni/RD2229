@@ -24,8 +24,15 @@ if ($existing) {
 
 # Try to apply patch cleanly
 Write-Host "Checking if patch can be applied cleanly..."
-$applyCheck = git apply --check $patchPath 2>&1 | Out-String
-if ($LASTEXITCODE -eq 0) {
+try {
+    $applyCheck = git apply --check $patchPath 2>&1 | Out-String
+    $applyErr = $null
+} catch {
+    $applyCheck = $_.Exception.Message
+    $applyErr = $_
+}
+
+if ($applyErr -eq $null -and $LASTEXITCODE -eq 0) {
     Write-Host "Patch can be applied cleanly. Applying with git am..."
     git am $patchPath
     Write-Host "Patch applied and committed."
@@ -57,7 +64,7 @@ try {
     Write-Host "Smoke tests passed. Running full test suite (may be long)..."
     pytest -q
 } catch {
-    Write-Error "Tests failed: $_"
+    Write-Host "Tests failed: $($_.Exception.Message)"
     exit 3
 }
 
