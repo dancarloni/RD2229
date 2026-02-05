@@ -364,3 +364,130 @@ class CsvSectionSerializer:
         logger.debug("Importate %s righe da %s", len(sections), file_path)
         return sections
 
+
+# ========================================================================
+# 🔧 FUNZIONI HELPER PER GESTIONE JSON (API SEMPLIFICATA)
+# ========================================================================
+# Questi wrapper forniscono un'interfaccia semplice e chiara per
+# caricare/salvare sezioni da/verso file JSON, senza dover istanziare
+# direttamente il repository.
+#
+# Uso consigliato:
+# - Per operazioni semplici e standalone (script, test, utility)
+# - Quando non serve gestire eventi o mantenere stato in memoria
+#
+# Per l'applicazione principale, usa direttamente `SectionRepository`
+# che offre caching, eventi, backup automatico e validazione.
+# ========================================================================
+
+
+def load_sections_from_json(json_file: str = "sections.json") -> list[dict]:
+    """
+    Carica tutte le sezioni da un file JSON.
+    
+    Funzione di utilità che semplifica il caricamento delle sezioni
+    quando non serve un'istanza persistente del repository.
+    
+    Args:
+        json_file: Percorso del file JSON da leggere (default: "sections.json")
+    
+    Returns:
+        Lista di dizionari rappresentanti le sezioni.
+        Ogni dizionario contiene tutti i campi della sezione:
+        - Campi geometrici (id, name, section_type, width, height, ecc.)
+        - Proprietà calcolate (area, Ix, Iy, x_G, y_G, ecc.)
+        - Note e metadati
+    
+    Gestione errori:
+        - File non esistente → restituisce lista vuota
+        - JSON malformato → logga l'errore e restituisce lista vuota
+        - Sezioni con errori di validazione → vengono saltate
+    
+    Esempio d'uso:
+        sections = load_sections_from_json("sections.json")
+        for section_data in sections:
+            print(f"{section_data['name']}: {section_data['area']} cm²")
+    """
+    try:
+        repo = SectionRepository(json_file)
+        sections_list = repo.get_all_sections()
+        # Converte oggetti Section in dizionari
+        return [section.to_dict() for section in sections_list]
+    except Exception as e:
+        logger.exception("Errore nel caricamento sezioni da %s: %s", json_file, e)
+        return []
+
+
+def save_sections_to_json(sections: list[dict], json_file: str = "sections.json") -> None:
+    """
+    Salva una lista di sezioni in un file JSON.
+    
+    Funzione di utilità che semplifica il salvataggio quando non serve
+    un'istanza persistente del repository.
+    
+    NOTA IMPORTANTE:
+    Questa funzione SOVRASCRIVE completamente il file JSON esistente.
+    Per aggiungere/modificare singole sezioni, usa `SectionRepository`.
+    
+    Args:
+        sections: Lista di dizionari rappresentanti le sezioni.
+                  Ogni dizionario deve contenere almeno:
+                  - "name": nome della sezione
+                  - "section_type": tipo (es. "RECTANGULAR", "T_SECTION", ecc.)
+                  - campi geometrici specifici per il tipo
+        json_file: Percorso del file JSON dove salvare (default: "sections.json")
+    
+    Gestione errori:
+        - Sezioni non valide → vengono saltate con log warning
+        - Errori di I/O → solleva IOError
+        - Errori di validazione → solleva ValueError
+    
+    Strategia di salvataggio sicuro:
+        1. Crea backup del file esistente
+        2. Scrive su file temporaneo
+        3. Rename atomico del file temporaneo sul file principale
+    
+    Esempio d'uso:
+        sections = [
+            {
+                "name": "Sezione rettangolare 30x50",
+                "section_type": "RECTANGULAR",
+                "width": 30.0,
+                "height": 50.0,
+                "note": "Trave principale"
+            }
+        ]
+        save_sections_to_json(sections, "sections.json")
+    """
+    try:
+        # Crea repository e svuota l'archivio
+        repo = SectionRepository(json_file)
+        repo.clear()
+        
+        # Aggiunge tutte le sezioni dalla lista
+        added_count = 0
+        for section_data in sections:
+            try:
+                # Crea oggetto Section dal dizionario
+                section = create_section_from_dict(section_data)
+                # Calcola proprietà e valida
+                section.compute_properties()
+                # Preserva l'ID se presente nel dizionario originale
+                if "id" in section_data and section_data["id"]:
+                    section.id = section_data["id"]
+                # Aggiunge al repository (che salva automaticamente)
+                if repo.add_section(section):
+                    added_count += 1
+            except Exception as e:
+                logger.warning(
+                    "Sezione non valida saltata durante salvataggio: %s - Errore: %s",
+                    section_data.get("name", "sconosciuta"),
+                    e
+                )
+        
+        logger.info("Salvate %d sezioni su %d in %s", added_count, len(sections), json_file)
+        
+    except Exception as e:
+        logger.exception("Errore nel salvataggio sezioni in %s: %s", json_file, e)
+        raise
+

@@ -32,8 +32,8 @@ class TestSectionManagerNewButton(unittest.TestCase):
                 main.update_idletasks()
                 main.update()
                 main.reset_form.assert_called()
-                # Manager should be destroyed
-                self.assertFalse(getattr(manager, 'winfo_exists', lambda: False)())
+                # ✅ Manager should stay open (nuovo comportamento)
+                self.assertTrue(getattr(manager, 'winfo_exists', lambda: False)())
             finally:
                 try:
                     if getattr(main, 'section_manager', None) is not None and main.section_manager.winfo_exists():
@@ -62,7 +62,8 @@ class TestSectionManagerNewButton(unittest.TestCase):
                 selector.update_idletasks()
                 selector.update()
                 fake_gw.reset_form.assert_called()
-                self.assertFalse(getattr(manager, 'winfo_exists', lambda: False)())
+                # ✅ Manager should stay open (nuovo comportamento)
+                self.assertTrue(getattr(manager, 'winfo_exists', lambda: False)())
             finally:
                 try:
                     if getattr(selector, '_section_manager_window', None) is not None and selector._section_manager_window.winfo_exists():
