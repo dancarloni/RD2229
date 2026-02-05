@@ -791,4 +791,137 @@ Fetched https://www.ingenio-web.it/
 
 User: il sito web ingenio va bene, ma concentrati solo sugli articoli che parlano di ingegneria strutturale storica e materiali storici
 
-GitHub Copilot: 
+GitHub Copilot: Research historical materials calculation methods
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/PrincipCA_TA.bas#1-1), righe da 1 a 500
+
+Lettura [](file:///c%3A/Users/DanieleCarloni/RD2229/data/materials.json)
+
+Ricerca di file corrispondenti `**/materials*.py`, 7 corrispondenze
+
+Ricerca di file corrispondenti `**/materials*.json`, 3 corrispondenze
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/PrincipCA_TA.bas#500-500), righe da 500 a 1200
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/core_models/materials.py#1-1), righe da 1 a 200
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/tools/materials_manager.py#1-1), righe da 1 a 200
+
+Espressione regolare `RD.?2229|Santarella|DM.?92|DM.?96` ricercata, 20 risultati
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/PrincipCA_TA.bas#1200-1200), righe da 1200 a 2000
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/historical_materials.py#1-1), righe da 1 a 200
+
+Ricerca di file corrispondenti `**/docs/*RD*.md`, 1 corrispondenza
+
+Espressione regolare `TauC0|TauC1|Sigca|Sigfa|f_Sigcar` ricercata, 20 risultati
+
+Espressione regolare `Function f_Sigcar|Function f_|Sub CalcPropMater` (`**/visual_basic/*.bas`) ricercata, 10 risultati
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/tools/materials_manager.py#200-200), righe da 200 a 295
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/historical_materials.py#200-200), righe da 200 a 400
+
+Espressione regolare `cement.*type|CementType|alluminoso|presa.*lenta` ricercata, 20 risultati
+
+Lettura [](file:///c%3A/Users/DanieleCarloni/RD2229/tools/concrete_strength.py)
+
+Espressione regolare `Function f_Sigcar|Sigcar.*=` (`**/visual_basic/*.bas`) ricercata, 6 risultati
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/PrincipCA_TA.bas#4250-4250), righe da 4250 a 4300
+
+Ricerca di file corrispondenti `**/*santarella*`, nessuna corrispondenza
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/material_sources.py#1-1), righe da 1 a 200
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/historical_materials.py#400-400), righe da 400 a 500
+
+Espressione regolare `Fe B 38|Fe B 44|FeB32k|acciaio.*liscio|aderenza.*migliorata` (`**/visual_basic/*.frm`) ricercata, 9 risultati
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/README.md#1-1), righe da 1 a 100
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/frmMaterCA.frm#1-1), righe da 1 a 150
+
+Espressione regolare `Ec.*=/|Es.*=|n.*=.*Es.*Ec` (`**/visual_basic/*.bas`) ricercata, 20 risultati
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/data/materials.json#128-128), righe da 128 a 128
+
+Ottimo report dal codice! Ora cerco informazioni storiche specifiche su ingenio-web.it:     
+
+
+
+Fetched 3 resources
+
+
+
+Fetched 2 resources
+
+
+
+Fetched 2 resources
+
+
+
+Fetched 2 resources
+
+
+
+Fetched 2 resources
+
+
+
+Fetched https://www.ingenio-web.it/
+
+Basandomi sul codice esistente e sulle pratiche storiche che ho trovato, posso completare il piano. Le informazioni chiave sui materiali storici sono già presenti nel codice:
+
+## Plan: Sistema Calcolo con Materiali Storici + .jsoncode
+
+Integro il sistema di calcolo bas-first con i materiali storici documentati nel codice esistente (RD 2229/39, acciai FeB, cementi speciali). I parametri normativi e i database materiali storici saranno in file `.jsoncode` modulari, organizzati per epoca/normativa.
+
+**Steps**
+
+1. **Estendere la struttura `.jsoncode`** per materiali storici:
+   - Creare `config/historical_materials/RD2229.jsoncode` (1939-1972): classi di cls (R120, R160, R225), cementi (normale, alta resistenza, alluminoso, presa lenta), acciai (dolce, semiduro, duro, FeB32k/38k/44k)
+   - Creare `config/historical_materials/DM72.jsoncode` (1972-1992): aggiornamenti post-RD 2229
+   - Creare `config/historical_materials/DM92.jsoncode` (1992-1996): introduzione requisiti antisismici
+   - Ogni file contiene formule di calcolo rigrosamente estratte da concrete_strength.py, historical_materials.py e frmMaterCA.frm
+
+2. **Catalogare formule di calcolo proprietà materiali**:
+   - Calcestruzzo: σ_c = f(σ_c28, tipo_cemento, qualità), E_c = 550000×σ_c28/(σ_c28+200), τ_c0/τ_c1, n = Es/Ec
+   - Acciaio: σ_s = σ_sn/γ_s, E_s = 2.100.000 kg/cm², legami costitutivi (elastico-plastico, bilineare)
+   - Unità: kg/cm² (sistema tecnico) con fattori conversione a MPa
+
+3. **Creare loader materiali storici** (`config/historical_materials_loader.py`):
+   - `get_concrete_by_code(code, sigma_c28, cement_type)` → proprietà complete
+   - `get_steel_by_type(steel_type)` → fyk, fyd, Es
+   - `compute_derived_properties(material, method)` → calcola E_c, τ_c, n
+   - Integrazione con materials_repository.py e `Material Repository`
+
+4. **Aggiornare VerificationInput/Output** con nuovi campi (Mx, My, Mz, Tx, Ty, At) e riferimenti a codici storici/materiali storici.
+
+5. **Implementare core di calcolo bas-first**:
+   - Estrarre algoritmo matriciale da PrincipCA_TA.bas per sezioni generiche (parzializzazione iterativa)
+   - Estrarre legami costitutivi da PrincipCA_TA.bas
+   - Creare moduli per asse neutro, tensioni, deformazioni, per TA/SLU/SLE
+
+6. **Documentare metodo Santarella** come placeholder futuro:
+   - Riferimenti a metodi grafici/abachi storici (da implementare)
+   - Collegamento ai materiali RD 2229/39
+
+7. **UI modulari** per parametri normativi organizzate per codice e gruppo, con selezione sorgenti materiali storiche (RD2229, DM72, DM92, DM96, NTC).
+
+8. **Grafica risultati** (asse neutro, zone tese/compresse) e **export testuale** con esiti verifiche.
+
+**Verification**
+- Confronto numerico con output attesi dai `.bas` su casi RD 2229/39
+- Validazione formule materiali storici vs tabelle normative
+- Test con materiali speciali (alluminoso, presa lenta, alta resistenza)
+
+**Decisions**
+- Materiali storici in `.jsoncode` separati per epoca/normativa
+- Formule rigidamente estratte da codice validato (`.bas`, `concrete_strength.py`, historical_materials.py)
+- Sistema tecnico (kg/cm²) come unità primaria con conversioni a MPa
+- Santarella documentato ma implementazione futura
+
+Confermi? Nel prossimo step preparo gli schemi `.jsoncode` per materiali storici RD 2229/39 con le formule esatte estratte.
