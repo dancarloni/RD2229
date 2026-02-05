@@ -690,3 +690,87 @@ Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/PrincipCA_TA.ba
 Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/verification_table.py#50-50), righe da 50 a 150
 
 Lettura [](file:///c%3A/Users/DanieleCarloni/RD2229)
+
+Ottimo! Ho preparato tutti i contenuti. Ora creiamo uno script che li salvi automaticamente nel progetto: Creo uno script di inizializzazione che crei tutti i file `.jsoncode` e aggiorni verification_table.py: 
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/__init__.py#1-1), righe da 1 a 1
+
+Preparerò uno script che crei automaticamente tutti i file. Facciamo questo: 
+
+Create setup script for .jsoncode and verification update
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/sections_app/PLANCODE.md#1-1), righe da 1 a 500
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/verification_table.py#1-1), righe da 1 a 100
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/sections_app/PLANCODE.md#500-500), righe da 500 a 692
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/verification_table.py#54-54), righe da 54 a 150
+
+Ricerca di file corrispondenti `**/visual_basic/*.bas`, 4 corrispondenze
+
+Uso un agente per eseguire direttamente lo script di setup: 
+
+Execute setup verification system
+
+Passo al piano B: utilizzo gli strumenti di editor e terminale se disponibili. Se preferisci accelerare il processo, fammi abilitare gli strumenti di file editing e terminale, oppure esegui manualmente questi comandi PowerShell:
+
+```powershell
+# Dalla directory RD2229, esegui:
+cd c:\Users\DanieleCarloni\RD2229
+
+# Crea la struttura e i file (in Python):
+python -c "
+import json
+from pathlib import Path
+
+base = Path('.')
+(base / 'config' / 'calculation_codes').mkdir(parents=True, exist_ok=True)
+
+# TA.jsoncode
+ta = {
+    'code_name': 'TA',
+    'description': 'Tensioni Ammissibili DM 92/96',
+    'safety_coefficients': {'gamma_c': 4.0, 'gamma_s': 1.8},
+    'stress_limits': {'concrete': {'sigma_c_max_factor': 0.5}, 'shear': {'tau_c0': 0.06, 'tau_c1': 0.14}},
+    'homogenization': {'n_default': 15.0},
+    'material_sources': {'DM92': {}, 'DM96': {}},
+    'verification_types': {'bending_simple': 'Flessione', 'shear': 'Taglio'}
+}
+with open('config/calculation_codes/TA.jsoncode', 'w') as f:
+    json.dump(ta, f, indent=2, ensure_ascii=False)
+
+# SLU.jsoncode
+slu = {
+    'code_name': 'SLU',
+    'description': 'Stato Limite Ultimo NTC 2008/2018',
+    'safety_coefficients': {'gamma_c': 1.5, 'gamma_s': 1.15},
+    'strain_limits': {'concrete': {'eps_c2': 0.002, 'eps_cu': 0.0035}},
+    'material_sources': {'NTC2008': {}, 'NTC2018': {}},
+    'verification_types': {'bending_simple': 'Flessione', 'shear': 'Taglio'}
+}
+with open('config/calculation_codes/SLU.jsoncode', 'w') as f:
+    json.dump(slu, f, indent=2, ensure_ascii=False)
+
+# SLE.jsoncode
+sle = {
+    'code_name': 'SLE',
+    'description': 'Stato Limite Esercizio NTC 2008/2018',
+    'stress_limits': {'concrete': {'sigma_c_max_factor': 0.6}},
+    'crack_limits': {'w_max': {'ordinary': 0.3, 'aggressive': 0.2}},
+    'material_sources': {'NTC2008': {}, 'NTC2018': {}},
+    'verification_types': {'stress': 'Stress', 'crack': 'Fessurazione'}
+}
+with open('config/calculation_codes/SLE.jsoncode', 'w') as f:
+    json.dump(sle, f, indent=2, ensure_ascii=False)
+
+print('✓ File .jsoncode creati')
+"
+```
+
+Oppure, **se vuoi che proceda direttamente**, confermami che posso:
+1. Abilitare edizione file
+2. Creare i file `.jsoncode`, il loader e aggiornare verification_table.py
+3. Validare la creazione
+
+Cosa preferisci?
