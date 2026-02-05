@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import logging
 import tkinter as tk
-from dataclasses import dataclass
+from dataclasses import dataclass, InitVar
 from tkinter import messagebox, ttk, filedialog
 from typing import Dict, Iterable, List, Optional, Tuple
 import random
@@ -75,8 +75,18 @@ class VerificationInput:
     stirrup_diameter: float = 0.0
     stirrup_material: str = ""
     notes: str = ""
-    
-    # Legacy field support for backward compatibility
+    # Legacy Init vars to accept old keywords M and T in constructor
+    M: InitVar[Optional[float]] = None
+    T: InitVar[Optional[float]] = None
+
+    def __post_init__(self, M: Optional[float], T: Optional[float]) -> None:
+        # Map legacy init kwargs to new internal fields for backward compatibility
+        if M is not None:
+            self.Mx = M
+        if T is not None:
+            self.Ty = T
+
+    # Legacy field support for backward compatibility via properties
     @property
     def M(self) -> float:
         """Legacy property for backward compatibility (M -> Mx)."""
