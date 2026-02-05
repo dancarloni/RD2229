@@ -25,7 +25,7 @@ def test_gui_compatibility():
         
         try:
             # Questo è il codice esatto da sections_app/app.py
-            repository = SectionRepository()  # Usa default sections.json
+            repository = SectionRepository("sections.json")  # Usa file sections.json nella cartella corrente
             serializer = CsvSectionSerializer()
             
             print(f"  ✓ Repository inizializzato")
@@ -59,7 +59,7 @@ def test_gui_compatibility():
             
             # Crea nuovo repository (simula riavvio applicazione)
             print("\n[4] Riavvio applicazione (nuovo repository)...")
-            repository2 = SectionRepository()
+            repository2 = SectionRepository("sections.json")
             loaded_sections = repository2.get_all_sections()
             assert len(loaded_sections) == 2, f"Caricate {len(loaded_sections)} sezioni, attese 2"
             print(f"  ✓ Caricate {len(loaded_sections)} sezioni dal file JSON")
@@ -78,7 +78,7 @@ def test_gui_compatibility():
             print(f"  ✓ Sezione modificata")
             
             # Verifica persistenza della modifica
-            repository3 = SectionRepository()
+            repository3 = SectionRepository("sections.json")
             final_sections = repository3.get_all_sections()
             modified_section = next((s for s in final_sections if "Modified" in s.name), None)
             assert modified_section is not None, "Modifica non persistita"
@@ -91,7 +91,7 @@ def test_gui_compatibility():
             print(f"  ✓ Sezione eliminata")
             
             # Verifica persistenza dell'eliminazione
-            repository4 = SectionRepository()
+            repository4 = SectionRepository("sections.json")
             final_count = len(repository4.get_all_sections())
             assert final_count == 1, f"Rimaste {final_count} sezioni, attesa 1"
             print(f"  ✓ Eliminazione persistita nel file JSON")
