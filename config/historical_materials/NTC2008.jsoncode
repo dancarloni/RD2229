@@ -1,0 +1,72 @@
+{
+  "code_name": "NTC2008",
+  "description": "Norme Tecniche per le Costruzioni 2008",
+  "standard_reference": "DM 14 gennaio 2008 - Norme tecniche per le costruzioni",
+  "circulars": ["Circolare 617/2009"],
+  "period": "2008-2018",
+  "unit_system": "SI",
+  "base_units": {
+    "stress": "MPa (N/mm²)",
+    "length": "mm",
+    "force": "kN",
+    "moment": "kN·m"
+  },
+  "concrete_classes": {
+    "C20_25": {"fck": 20, "fcm": 28, "Ecm": 30000, "fctm": 2.2, "fctk_005": 1.5, "fctk_095": 2.9},
+    "C25_30": {"fck": 25, "fcm": 33, "Ecm": 31000, "fctm": 2.6, "fctk_005": 1.8, "fctk_095": 3.3},
+    "C28_35": {"fck": 28, "fcm": 36, "Ecm": 32000, "fctm": 2.8, "fctk_005": 2.0, "fctk_095": 3.5},
+    "C30_37": {"fck": 30, "fcm": 38, "Ecm": 33000, "fctm": 2.9, "fctk_005": 2.0, "fctk_095": 3.8},
+    "C35_45": {"fck": 35, "fcm": 43, "Ecm": 34000, "fctm": 3.2, "fctk_005": 2.2, "fctk_095": 4.2},
+    "C40_50": {"fck": 40, "fcm": 48, "Ecm": 35000, "fctm": 3.5, "fctk_005": 2.5, "fctk_095": 4.6},
+    "C45_55": {"fck": 45, "fcm": 53, "Ecm": 36000, "fctm": 3.8, "fctk_005": 2.7, "fctk_095": 4.9},
+    "C50_60": {"fck": 50, "fcm": 58, "Ecm": 37000, "fctm": 4.1, "fctk_005": 2.9, "fctk_095": 5.3},
+    "C55_67": {"fck": 55, "fcm": 63, "Ecm": 38000, "fctm": 4.2, "fctk_005": 3.0, "fctk_095": 5.5},
+    "C60_75": {"fck": 60, "fcm": 68, "Ecm": 39000, "fctm": 4.4, "fctk_005": 3.1, "fctk_095": 5.7},
+    "C70_85": {"fck": 70, "fcm": 78, "Ecm": 41000, "fctm": 4.6, "fctk_005": 3.2, "fctk_095": 6.0},
+    "C80_95": {"fck": 80, "fcm": 88, "Ecm": 42000, "fctm": 4.8, "fctk_005": 3.4, "fctk_095": 6.3},
+    "C90_105": {"fck": 90, "fcm": 98, "Ecm": 44000, "fctm": 5.0, "fctk_005": 3.5, "fctk_095": 6.6}
+  },
+  "steel_types": {
+    "B450C": {
+      "name": "Acciaio B450C (ad aderenza migliorata, duttile)",
+      "fyk": 450,
+      "ftk": 540,
+      "Es": 200000,
+      "epsilon_uk": 0.075,
+      "ductility_class": "C",
+      "description": "Acciaio per c.a. ordinario ad alta duttilità",
+      "unit": "MPa"
+    },
+    "B450A": {
+      "name": "Acciaio B450A (ad aderenza migliorata, normale)",
+      "fyk": 450,
+      "ftk": 540,
+      "Es": 200000,
+      "epsilon_uk": 0.025,
+      "ductility_class": "A",
+      "description": "Acciaio per c.a. ordinario a duttilità normale (deprecato per zone sismiche)",
+      "unit": "MPa"
+    }
+  },
+  "calculation_formulas": {
+    "elastic_modulus": {
+      "Ecm": "22000 * (fcm / 10)^0.3",
+      "unit": "MPa",
+      "description": "Modulo elastico secante"
+    },
+    "tensile_strength": {
+      "fctm": "0.3 * fck^(2/3) per fck <= 50 MPa",
+      "fctm_high": "2.12 * ln(1 + fcm/10) per fck > 50 MPa",
+      "fctk_005": "0.7 * fctm",
+      "fctk_095": "1.3 * fctm",
+      "unit": "MPa"
+    },
+    "design_strength": {
+      "fcd": "alpha_cc * fck / gamma_c",
+      "alpha_cc": 0.85,
+      "gamma_c": 1.5,
+      "fyd": "fyk / gamma_s",
+      "gamma_s": 1.15
+    }
+  }
+}

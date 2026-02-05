@@ -1,0 +1,171 @@
+{
+  "code_name": "SLE",
+  "description": "Stato Limite di Esercizio - NTC 2008/2018",
+  "standard_references": [
+    "NTC 2008 (DM 14/01/2008) § 4.1.2.2",
+    "NTC 2018 (DM 17/01/2018) § 4.1.2.2",
+    "Circolare 617/2009",
+    "Circolare 7/2019"
+  ],
+  "load_combinations": {
+    "rare": {
+      "description": "Combinazione rara",
+      "use": "Stati limite irreversibili"
+    },
+    "frequent": {
+      "description": "Combinazione frequente",
+      "use": "Stati limite reversibili, fessurazione"
+    },
+    "quasi_permanent": {
+      "description": "Combinazione quasi-permanente",
+      "use": "Effetti a lungo termine, tensioni"
+    }
+  },
+  "stress_limits": {
+    "concrete": {
+      "compression_characteristic": {
+        "value": 0.6,
+        "description": "σ_c ≤ 0.6 × fck (combinazione caratteristica)",
+        "unit": "fck_fraction",
+        "ref": "NTC 2018 § 4.1.2.2.5.1"
+      },
+      "compression_quasi_permanent": {
+        "value": 0.45,
+        "description": "σ_c ≤ 0.45 × fck (combinazione quasi-permanente)",
+        "unit": "fck_fraction",
+        "ref": "NTC 2018 § 4.1.2.2.5.1"
+      }
+    },
+    "steel": {
+      "tension_characteristic": {
+        "value": 0.8,
+        "description": "σ_s ≤ 0.8 × fyk (combinazione caratteristica)",
+        "unit": "fyk_fraction",
+        "ref": "NTC 2018 § 4.1.2.2.5.2"
+      }
+    }
+  },
+  "crack_limits": {
+    "ordinary_environment": {
+      "w_max_frequent": 0.3,
+      "w_max_quasi_permanent": 0.3,
+      "description": "Ambiente ordinario, poco aggressivo",
+      "unit": "mm"
+    },
+    "aggressive_environment": {
+      "w_max_frequent": 0.3,
+      "w_max_quasi_permanent": 0.2,
+      "description": "Ambiente aggressivo",
+      "unit": "mm"
+    },
+    "very_aggressive_environment": {
+      "w_max_frequent": 0.2,
+      "w_max_quasi_permanent": 0.2,
+      "description": "Ambiente molto aggressivo",
+      "unit": "mm"
+    },
+    "sensitive_reinforcement": {
+      "reduction_factor": 0.67,
+      "description": "Riduzione per armature sensibili (pretese, trefoli)"
+    }
+  },
+  "cracking_coefficients": {
+    "NTC2008": {
+      "k1": 0.8,
+      "kt_short_term": 0.6,
+      "kt_long_term": 0.4,
+      "beta1_improved_bond": 1.0,
+      "beta1_smooth": 0.5,
+      "beta2_short_term": 1.0,
+      "beta2_long_term": 0.5,
+      "description": "Coefficienti per metodo NTC 2008"
+    },
+    "DM96": {
+      "k2": 0.4,
+      "k3_formula": "3.6 / sqrt(rho_eff)",
+      "description": "Coefficienti per metodo DM 96 (deprecato ma ancora valido)"
+    }
+  },
+  "crack_width_formulas": {
+    "NTC2008_2018": {
+      "delta_s_max": {
+        "formula": "3.4 * c + 0.425 * k1 * k4 * phi / rho_eff",
+        "description": "Distanza massima tra le fessure",
+        "unit": "mm"
+      },
+      "k4": {
+        "formula": "(1 + phi_eq / phi) / 4",
+        "description": "Coefficiente dipendente dal diametro equivalente"
+      },
+      "epsilon_sm": {
+        "formula": "(sigma_s - kt * fct_eff / rho_eff * (1 + alpha_e * rho_eff)) / Es >= 0.6 * sigma_s / Es",
+        "description": "Deformazione media dell'armatura"
+      },
+      "crack_width": {
+        "formula": "epsilon_sm * delta_s_max",
+        "description": "Ampiezza di fessurazione",
+        "unit": "mm"
+      }
+    },
+    "DM96": {
+      "delta_s": {
+        "formula": "2 * (c + s/10) + k2 * k3 * phi / rho_eff",
+        "description": "Distanza massima tra le fessure",
+        "unit": "mm"
+      },
+      "crack_width": {
+        "formula": "epsilon_sm * delta_s",
+        "description": "Ampiezza di fessurazione",
+        "unit": "mm"
+      }
+    }
+  },
+  "effective_reinforcement_area": {
+    "h_eff": {
+      "formula": "min(2.5 * (c + phi/2), H/2, (H - x)/3)",
+      "description": "Altezza efficace della zona tesa",
+      "unit": "mm"
+    },
+    "A_ceff": {
+      "formula": "b * h_eff",
+      "description": "Area efficace di calcestruzzo in zona tesa",
+      "unit": "mm²"
+    },
+    "rho_eff": {
+      "formula": "As / A_ceff",
+      "description": "Percentuale geometrica di armatura efficace"
+    }
+  },
+  "deformation_limits": {
+    "beams": {
+      "l_over_250": {
+        "description": "Inflessione massima l/250 per travi soggette a carichi permanenti + variabili"
+      },
+      "l_over_500": {
+        "description": "Inflessione massima l/500 per solo carichi permanenti"
+      }
+    },
+    "cantilevers": {
+      "l_over_125": {
+        "description": "Inflessione massima l/125 per sbalzi"
+      }
+    }
+  },
+  "material_sources": {
+    "NTC2008": {
+      "description": "Norme Tecniche per le Costruzioni 2008",
+      "period": "2008-2018",
+      "unit_system": "SI"
+    },
+    "NTC2018": {
+      "description": "Norme Tecniche per le Costruzioni 2018",
+      "period": "2018-presente",
+      "unit_system": "SI"
+    }
+  },
+  "verification_types": {
+    "stress": "Verifica delle tensioni (caratteristica e quasi-permanente)",
+    "crack": "Verifica dell'ampiezza di fessurazione",
+    "deformation": "Verifica degli spostamenti e delle deformazioni"
+  }
+}
