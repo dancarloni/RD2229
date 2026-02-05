@@ -1,0 +1,27 @@
+parameter,value,units,notes,source
+concrete_sigma_amm_compression_ordinary,35,kg/cm2,"σ_c,amm compression ordinary (Portland)",https://www.studiotecnicopagliai.it/regio-decreto-16-novembre-1939-n-2229/
+concrete_sigma_amm_compression_high,45,kg/cm2,"σ_c,amm compression high-res / aluminous",https://www.studiotecnicopagliai.it/regio-decreto-16-novembre-1939-n-2229/
+concrete_sigma_amm_flexural_ordinary,40,kg/cm2,"σ_c,amm in flexure (Portland)",https://www.marcodepisapia.com/il-cemento-armato-ai-tempi-di-sua-maesta-il-regio-decreto-del-39/
+concrete_sigma_amm_flexural_high,50,kg/cm2,"σ_c,amm in flexure for high-res/alluminoso",https://www.marcodepisapia.com/il-cemento-armato-ai-tempi-di-sua-maesta-il-regio-decreto-del-39/
+concrete_r28_min_ordinary,120,kg/cm2,"min cubic strength at 28d (Portland)",https://www.studiotecnicopagliai.it/regio-decreto-16-novembre-1939-n-2229/
+concrete_r28_min_high,160,kg/cm2,"min cubic strength at 28d (high-res/alluminoso)",https://www.studiotecnicopagliai.it/regio-decreto-16-novembre-1939-n-2229/
+sigma_c_amm_formula,"sigma_r28/3",,"σ_c,amm = σ_r28 / 3 (with caps)",https://www.marcodepisapia.com/il-cemento-armato-ai-tempi-di-sua-maesta-il-regio-decreto-del-39/
+sigma_c_amm_max_compression,60,kg/cm2,"max admitted σ_c,amm in compression",https://www.marcodepisapia.com/
+sigma_c_amm_max_flexure,75,kg/cm2,"max admitted σ_c,amm in flexure",https://www.marcodepisapia.com/
+steel_sigma_amm_soft,1400,kg/cm2,"σ_s,amm for mild steel (acciaio dolce)",https://www.marcodepisapia.com/
+steel_sigma_amm_hard,2000,kg/cm2,"σ_s,amm for semihard/hard steel",https://www.marcodepisapia.com/
+n_modulus_ratio_common,10,,"n = E_s/E_c for common concretes",https://www.marcodepisapia.com/
+n_modulus_ratio_high,8,,"n for high-res concrete",https://www.marcodepisapia.com/
+n_modulus_ratio_aluminous,6,,"n for aluminous cement",https://www.marcodepisapia.com/
+tau_c0_ordinary,4,kg/cm2,"shear allowable without stirrups (Portland)",https://www.marcodepisapia.com/
+tau_c0_high,6,kg/cm2,"shear allowable without stirrups (high-res)",https://www.marcodepisapia.com/
+tau_c1_ordinary,14,kg/cm2,"shear allowable with stirrups (Portland)",https://www.marcodepisapia.com/
+tau_c1_high,16,kg/cm2,"shear allowable with stirrups (high-res)",https://www.marcodepisapia.com/
+overlap_length,40,diameters,"minimum lap splice length",https://www.studiotecnicopagliai.it/
+anchorage_hook_radius,5,diameters,"hook radius for bent ends (semicircle 5⌀)",https://www.studiotecnicopagliai.it/
+min_cover_slab,0.8,cm,"min cover for slabs",https://www.studiotecnicopagliai.it/
+min_cover_beam_pillar,2,cm,"min cover for beams and columns",https://www.studiotecnicopagliai.it/
+min_cover_corrosive,3.5,cm,"min cover in corrosive/marine environments",https://www.studiotecnicopagliai.it/
+min_steel_percentage_small_section,0.8,percent,"min longitudinal reinforcement <2000 cm2",https://www.marcodepisapia.com/
+min_steel_percentage_large_section,0.5,percent,"min longitudinal reinforcement >8000 cm2",https://www.marcodepisapia.com/
+concrete_density,2500,kg/m3,"assumed unit weight of reinforced concrete",https://www.marcodepisapia.com/
