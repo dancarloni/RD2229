@@ -26,7 +26,7 @@ class DemoControlPanel(tk.Tk):
         
         # Create temp repositories
         self.temp_dir = tempfile.mkdtemp()
-        self.sections_file = os.path.join(self.temp_dir, "demo_sections.json")
+        self.sections_file = os.path.join(self.temp_dir, "demo_sections.jsons")
         self.materials_file = os.path.join(self.temp_dir, "demo_materials.json")
         
         self.section_repo = SectionRepository(json_file=self.sections_file)

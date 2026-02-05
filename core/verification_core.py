@@ -164,11 +164,12 @@ class StressState:
     sigma_c_min: float = 0.0  # Min concrete stress (tensile edge) [kg/cm² or MPa]
     sigma_s_tensile: float = 0.0  # Steel stress in tensile zone [kg/cm² or MPa]
     sigma_s_compressed: float = 0.0  # Steel stress in compressed zone [kg/cm² or MPa]
+    sigma_frc: float = 0.0  # Equivalent FRC stress contribution referenced to tensile reinforcement [kg/cm² or MPa]
     
     def max_stress(self) -> float:
         """Maximum stress magnitude."""
         return max(abs(self.sigma_c_max), abs(self.sigma_c_min), 
-                   abs(self.sigma_s_tensile), abs(self.sigma_s_compressed))
+                   abs(self.sigma_s_tensile), abs(self.sigma_s_compressed), abs(self.sigma_frc))
 
 
 @dataclass
@@ -268,7 +269,9 @@ def calculate_stresses_simple_bending(
     material: MaterialProperties,
     moment: float,
     neutral_axis: NeutralAxis,
-    method: str = "TA"
+    method: str = "TA",
+    frc_material: "Optional[object]" = None,
+    frc_area: float = 0.0,
 ) -> StressState:
     """
     Calculate stresses for simple bending.
@@ -321,6 +324,30 @@ def calculate_stresses_simple_bending(
         
         # Concrete stress at tensile edge (usually small or zero in cracked section)
         sigma_c_min = 0.0
+
+        # ---- FRC contribution (MVP) ----
+        sigma_frc_equiv = 0.0
+        try:
+            if frc_material and getattr(frc_material, "frc_enabled", False) and frc_area and I_homog > 0:
+                # Estimate curvature kappa = M / (Ec * I_homog)
+                Ec = material.Ec if material.Ec and material.Ec > 0 else 1.0
+                curvature = moment / (Ec * I_homog)
+                # Strain at tensile reinforcement position (distance from neutral axis)
+                strain_at_frc = curvature * (d - x)
+                # Compute stress in FRC material using existing core.frc model
+                from core.frc import frc_stress
+                frc_sigma = frc_stress(frc_material, strain_at_frc)
+                # Total axial force from FRC
+                frc_force = frc_sigma * frc_area
+                # Convert to an equivalent stress referenced to tensile reinforcement area
+                if reinforcement_tensile.area > 0:
+                    sigma_frc_equiv = frc_force / reinforcement_tensile.area
+                # Add FRC equivalent stress to steel tensile stress
+                sigma_s_tensile += sigma_frc_equiv
+        except Exception:
+            # Defensive: if anything fails, keep sigma_frc as zero and continue
+            sigma_frc_equiv = 0.0
+
     
     elif method == "SLU":
         # Ultimate limit state - stress block

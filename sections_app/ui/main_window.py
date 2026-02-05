@@ -1125,22 +1125,9 @@ class MainWindow(tk.Toplevel):
 
         # OBIETTIVO 4: Calcola proprietà automaticamente se assenti o se parametri sono cambiati
         try:
-            needs_recalc = False
-            if self.current_section and self.current_section.properties:
-                # Se parametri geometrici sono cambiati, ricalcola proprietà
-                old_section = self.current_section
-                new_section = section
-                if (getattr(old_section, 'width', None) != getattr(new_section, 'width', None) or
-                    getattr(old_section, 'height', None) != getattr(new_section, 'height', None) or
-                    getattr(old_section, 'diameter', None) != getattr(new_section, 'diameter', None) or
-                    getattr(old_section, 'flange_width', None) != getattr(new_section, 'flange_width', None)):
-                    needs_recalc = True
-            else:
-                needs_recalc = True
-            
-            if needs_recalc:
-                section.compute_properties()
-                logger.debug("Proprietà calcolate per sezione: %s", section.name)
+            # Calcola sempre le proprietà per assicurare valori aggiornati (sempre chiamare compute_properties)
+            section.compute_properties()
+            logger.debug("Proprietà calcolate per sezione: %s", section.name)
         except Exception as e:
             logger.exception("Errore nel calcolo proprietà: %s", e)
             messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {e}")

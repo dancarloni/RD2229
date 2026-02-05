@@ -33,7 +33,10 @@ def main():
     # Crea repository temporaneo
     with tempfile.TemporaryDirectory() as tmpdir:
         temp_path = Path(tmpdir)
-        repo = SectionRepository(json_file=str(temp_path / "sections.json"))
+        # Use canonical .jsons path for sections
+        sec_dir = temp_path / "sec_repository"
+        sec_dir.mkdir(exist_ok=True)
+        repo = SectionRepository(json_file=str(sec_dir / "sec_repository.jsons"))
         
         # Scenario 1: Popola repository con sezioni
         print_section("Scenario 1: Creazione Repository con Sezioni di Test")
@@ -63,8 +66,8 @@ def main():
         print(f"  - {rect.name} (RECTANGULAR)")
         print(f"  - {circ.name} (CIRCULAR)")
         print(f"  - {tsec.name} (T_SECTION)")
-        print(f"\n✓ File principale: {temp_path / 'sections.json'}")
-        print(f"✓ File backup automatico: {temp_path / 'sections_backup.json'}")
+        print(f"\n✓ File principale: {sec_dir / 'sec_repository.jsons'}")
+        print(f"✓ File backup automatico: {sec_dir / 'sec_repository_backup.jsons'}")
         
         # Scenario 2: Export in JSON
         print_section("Scenario 2: Export in Formato JSON")
@@ -100,16 +103,16 @@ def main():
         print(f"  Colonne: {list(rows[0].keys())[:5]}... (prime 5)")
         
         # Scenario 4: Export senza estensione (default .json)
-        print_section("Scenario 4: Export Senza Estensione (Default .json)")
+        # Scenario 4: Export Senza Estensione (Default .jsons)
         
         no_ext_export = temp_path / "export_senza_estensione"
         repo.export_backup(no_ext_export)
         
-        # Il file verrà salvato con .json aggiunto automaticamente
-        actual_file = temp_path / "export_senza_estensione.json"
+        # Il file verrà salvato con .jsons aggiunto automaticamente
+        actual_file = temp_path / "export_senza_estensione.jsons"
         print(f"\n✓ File richiesto: {no_ext_export}")
         print(f"✓ File creato: {actual_file}")
-        print(f"  (Estensione .json aggiunta automaticamente)")
+        print(f"  (Estensione .jsons aggiunta automaticamente)")
         
         # Scenario 5: Export in directory nidificata
         print_section("Scenario 5: Export in Directory Nidificata")

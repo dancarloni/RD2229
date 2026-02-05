@@ -95,6 +95,8 @@ repo = SectionRepository()  # Usa default "sections.json"
 repo = SectionRepository(json_file="/path/to/custom.json")
 ```
 
+> Nota: il file legacy `sections.json` è deprecato. Il nuovo percorso canonico è `sec_repository/sec_repository.jsons`. Se viene trovato `sections.json` in posizioni legacy (es. cartella di lavoro) verrà migrato automaticamente nel file canonico con creazione di un backup `sections.json.bak`. Per disabilitare la migrazione automatica impostare `RD2229_NO_AUTO_MIGRATE=1`.
+
 ### Repository usati nel progetto:
 - ✅ `tests/test_verification_table.py` - Line 28
 - ✅ `test_section_manager_ui.py` - Line 24

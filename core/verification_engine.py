@@ -147,7 +147,9 @@ class VerificationEngine:
         reinforcement_tensile: ReinforcementLayer,
         reinforcement_compressed: ReinforcementLayer,
         material: MaterialProperties,
-        loads: LoadCase
+        loads: LoadCase,
+        frc_material: "Optional[object]" = None,
+        frc_area: float = 0.0,
     ) -> VerificationResult:
         """
         Perform complete structural verification.
@@ -186,7 +188,7 @@ class VerificationEngine:
                 method=self.calculation_code
             )
             
-            # Calculate stresses
+            # Calculate stresses (pass through optional FRC parameters)
             stress_state = calculate_stresses_simple_bending(
                 section=section,
                 reinforcement_tensile=reinforcement_tensile,
@@ -194,7 +196,9 @@ class VerificationEngine:
                 material=material,
                 moment=moment,
                 neutral_axis=neutral_axis,
-                method=self.calculation_code
+                method=self.calculation_code,
+                frc_material=frc_material,
+                frc_area=frc_area,
             )
         
         elif verif_type == VerificationType.BENDING_DEVIATED:

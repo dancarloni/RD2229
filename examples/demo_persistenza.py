@@ -22,7 +22,7 @@ def main():
     print("=" * 70)
     
     # Usa un file JSON personalizzato per la demo
-    json_file = "demo_sections.json"
+    json_file = "demo_sections.jsons"
     
     # FASE 1: Primo avvio - crea sezioni
     print("\n[FASE 1] Primo avvio - Creazione sezioni")
