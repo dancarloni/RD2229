@@ -35,8 +35,10 @@ def main():
     temp_dir = tempfile.mkdtemp()
     temp_path = Path(temp_dir)
     
-    # Repository sezioni con dati di esempio
-    section_repo = SectionRepository(json_file=str(temp_path / "sections.json"))
+    # Repository sezioni con dati di esempio (canonical .jsons in temp)
+    sec_dir = temp_path / "sec_repository"
+    sec_dir.mkdir(exist_ok=True)
+    section_repo = SectionRepository(json_file=str(sec_dir / "sec_repository.jsons"))
     
     rect = RectangularSection(name="Pilastro 30x50", width=300, height=500)
     circ = CircularSection(name="Palo Circolare D40", diameter=400)

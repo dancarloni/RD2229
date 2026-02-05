@@ -96,6 +96,14 @@ class ModuleSelectorWindow(tk.Tk):
         tk.Label(material_frame, text=material_desc, justify="left", wraplength=220).pack(padx=8, pady=8)
         tk.Button(material_frame, text="Open Materials", command=self._open_material_editor).pack(pady=(0, 8))
 
+        # FRC Manager Module
+        frc_desc = "Manage FRC materials (carbon/glass fibers) and properties"
+        self._add_module_frame(modules_frame, "FRC Manager", frc_desc, "Open FRC Manager", self._open_frc_manager)
+
+        # FRC Verification (quick) Module
+        frc_ver_desc = "Quick verification window to test FRC contributions on simple sections"
+        self._add_module_frame(modules_frame, "FRC Verification", frc_ver_desc, "Open FRC Verification", self._open_frc_verification)
+
     def _open_geometry(self) -> None:
         """Apre il modulo Geometry come finestra Toplevel.
         
@@ -234,7 +242,7 @@ class ModuleSelectorWindow(tk.Tk):
             library=library,
             material_repository=self.material_repository
         )
-        
+
         # Collega il callback di chiusura per pulire il riferimento e chiudere la finestra
         def on_material_editor_close():
             # Assicura che la finestra venga distrutta e il riferimento ripulito
@@ -246,9 +254,33 @@ class ModuleSelectorWindow(tk.Tk):
             self._material_editor_window = None
 
         # Imposta handler per la X della finestra che distrugge il Toplevel
-        self._material_editor_window.protocol("WM_DELETE_WINDOW", on_material_editor_close)
-        # Inoltre, se la finestra viene distrutta in altro modo, assicurati di pulire il riferimento
-        self._material_editor_window.bind("<Destroy>", lambda e: on_material_editor_close())
+        try:
+            self._material_editor_window.protocol("WM_DELETE_WINDOW", on_material_editor_close)
+            # Inoltre, se la finestra viene distrutta in altro modo, assicurati di pulire il riferimento
+            self._material_editor_window.bind("<Destroy>", lambda e: on_material_editor_close())
+        except Exception:
+            pass
+
+    def _open_frc_manager(self) -> None:
+        logger.debug("Opening FRC Manager module")
+        try:
+            from sections_app.ui.frc_manager import FrcManagerWindow
+        except Exception:
+            logger.exception("FRC Manager module not available")
+            return
+        win = FrcManagerWindow(self, material_repository=self.material_repository)
+        win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
+
+    def _open_frc_verification(self) -> None:
+        logger.debug("Opening FRC Verification module")
+        try:
+            from sections_app.ui.frc_verification_window import FrcVerificationWindow
+        except Exception:
+            logger.exception("FRC Verification module not available")
+            return
+        win = FrcVerificationWindow(self, material_repository=self.material_repository)
+        win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
+        
 
     def _add_module_frame(self, parent, title: str, description: str, button_text: str, command: Callable) -> tk.LabelFrame:
         """Helper per creare un LabelFrame di modulo con descrizione e bottone."""
@@ -323,6 +355,7 @@ class ModuleSelectorWindow(tk.Tk):
         if result["choice"] == "sezioni":
             default_name = "backup_sezioni"
             filetypes = [
+                ("JSONS files", "*.jsons"),
                 ("JSON files", "*.json"),
                 ("CSV files", "*.csv"),
                 ("All files", "*.*")
@@ -336,6 +369,7 @@ class ModuleSelectorWindow(tk.Tk):
         else:  # entrambi
             default_name = "backup"
             filetypes = [
+                ("JSONS files", "*.jsons"),
                 ("JSON files", "*.json"),
                 ("CSV files", "*.csv"),
                 ("All files", "*.*")
@@ -345,7 +379,7 @@ class ModuleSelectorWindow(tk.Tk):
         file_path = filedialog.asksaveasfilename(
             parent=self,
             title="Esporta backup",
-            defaultextension=".json",
+            defaultextension=".jsons",
             initialfile=default_name,
             filetypes=filetypes
         )

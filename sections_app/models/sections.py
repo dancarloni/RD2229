@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from math import pi, sqrt, radians
+from math import pi, sqrt, radians, degrees
 from typing import Dict, Optional, Tuple
 from uuid import uuid4
 
 import logging
 
-from sections_app.services.calculations import rotate_inertia
+from sections_app.services.calculations import rotate_inertia, compute_principal_inertia
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,11 @@ CSV_HEADERS = [
     "Ix",
     "Iy",
     "Ixy",
+    "I1",
+    "I2",
+    "principal_angle_deg",
+    "principal_rx",
+    "principal_ry",
     "Qx",
     "Qy",
     "rx",
@@ -105,6 +110,13 @@ class SectionProperties:
     ellipse_a: Optional[float] = None
     ellipse_b: Optional[float] = None
 
+    # Principal inertia results
+    principal_ix: Optional[float] = None
+    principal_iy: Optional[float] = None
+    principal_angle_deg: Optional[float] = None
+    principal_rx: Optional[float] = None
+    principal_ry: Optional[float] = None
+
     # Timoshenko effective shear areas (A_y, A_z) in cm²
     # These are computed as A_y = kappa_y * A_ref_y and A_z = kappa_z * A_ref_z
     shear_area_y: Optional[float] = None
@@ -144,6 +156,27 @@ class Section:
         """
         # Calcola le proprietà geometriche specifiche di ogni sottoclasse
         self.properties = self._compute()
+
+        # Calcola principali inerzie (I1, I2, angolo) se possibile
+        props = self.properties
+        if props is not None:
+            try:
+                if props.ix is not None and props.iy is not None and props.ixy is not None:
+                    I1, I2, angle_rad = compute_principal_inertia(props.ix, props.iy, props.ixy)
+                    props.principal_ix = I1
+                    props.principal_iy = I2
+                    props.principal_angle_deg = degrees(angle_rad)
+
+                    area = props.area or 0.0
+                    if area and area > 0:
+                        props.principal_rx = sqrt(I1 / area)
+                        props.principal_ry = sqrt(I2 / area)
+                    else:
+                        props.principal_rx = None
+                        props.principal_ry = None
+            except Exception:
+                # Non blocchiamo il calcolo principale se qualcosa va storto
+                logger.exception("Errore nel calcolo delle inerzie principali")
 
         # Costruisci il dizionario delle dimensioni (tutte le chiavi presenti)
         self.dimensions = self._collect_dimensions()
@@ -270,6 +303,11 @@ class Section:
                 "Ix": getattr(props, "ix", None) if props else None,
                 "Iy": getattr(props, "iy", None) if props else None,
                 "Ixy": getattr(props, "ixy", None) if props else None,
+                "I1": getattr(props, "principal_ix", None) if props else None,
+                "I2": getattr(props, "principal_iy", None) if props else None,
+                "principal_angle_deg": getattr(props, "principal_angle_deg", None) if props else None,
+                "principal_rx": getattr(props, "principal_rx", None) if props else None,
+                "principal_ry": getattr(props, "principal_ry", None) if props else None,
                 "Qx": getattr(props, "qx", None) if props else None,
                 "Qy": getattr(props, "qy", None) if props else None,
                 "rx": getattr(props, "rx", None) if props else None,

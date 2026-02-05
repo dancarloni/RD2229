@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import cos, sin
+from math import cos, sin, sqrt, atan2
 from typing import List, Tuple
 
 
@@ -61,6 +61,26 @@ def translate_inertia(I_local: float, area: float, distance: float) -> float:
         Momento di inerzia rispetto all'asse traslato (cm⁴)
     """
     return I_local + area * distance * distance
+
+
+def compute_principal_inertia(Ix: float, Iy: float, Ixy: float) -> tuple:
+    """Compute principal inertias and principal angle (in radians).
+
+    Uses standard formulas:
+      Imean = (Ix + Iy) / 2
+      R = sqrt(((Ix - Iy) / 2)**2 + Ixy**2)
+      I1 = Imean + R
+      I2 = Imean - R
+      angle = 0.5 * atan2(2 * Ixy, Ix - Iy)
+
+    Returns (I1, I2, angle_rad)
+    """
+    Imean = (Ix + Iy) / 2.0
+    R = sqrt(((Ix - Iy) / 2.0) ** 2 + (Ixy) ** 2)
+    I1 = Imean + R
+    I2 = Imean - R
+    angle = 0.5 * atan2(2.0 * Ixy, Ix - Iy)
+    return I1, I2, angle
 
 
 def combine_rectangular_elements(elements: List[RectangleElement]) -> Tuple[float, float, float, float, float, float]:

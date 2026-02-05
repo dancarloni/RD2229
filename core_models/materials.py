@@ -25,6 +25,12 @@ class Material:
     type: str  # e.g., 'concrete', 'steel'
     code: str = ""  # ✅ NUOVO: codice del materiale (es. "C100", "A500") - permette ricerca per codice
     properties: Dict[str, float] = field(default_factory=dict)
+    # FRC (Fiber Reinforced Composite) optional parameters
+    frc_enabled: bool = False
+    frc_fFts: Optional[float] = None  # tensile strength (design) of fibers
+    frc_fFtu: Optional[float] = None  # ultimate tensile strength of fibers
+    frc_eps_fu: Optional[float] = None  # ultimate strain of fibers
+    frc_note: Optional[str] = None  # free-text note or source
     id: str = field(default_factory=lambda: str(uuid4()))
     
     def to_dict(self) -> Dict:
@@ -35,6 +41,12 @@ class Material:
             "type": self.type,
             "code": self.code,  # ✅ Persisti codice nel JSON
             "properties": self.properties,
+            # FRC fields (optional)
+            "frc_enabled": self.frc_enabled,
+            "frc_fFts": self.frc_fFts,
+            "frc_fFtu": self.frc_fFtu,
+            "frc_eps_fu": self.frc_eps_fu,
+            "frc_note": self.frc_note,
         }
     
     @staticmethod
@@ -46,6 +58,11 @@ class Material:
             type=data.get("type", ""),
             code=data.get("code", ""),  # ✅ Carica codice da JSON
             properties=data.get("properties", {}),
+            frc_enabled=data.get("frc_enabled", False),
+            frc_fFts=data.get("frc_fFts"),
+            frc_fFtu=data.get("frc_fFtu"),
+            frc_eps_fu=data.get("frc_eps_fu"),
+            frc_note=data.get("frc_note"),
         )
 
 

@@ -40,13 +40,13 @@ def demo_section_backup():
     
     # Crea directory temporanea
     temp_dir = tempfile.mkdtemp()
-    sections_file = os.path.join(temp_dir, "demo_sections.json")
+    sections_file = os.path.join(temp_dir, "demo_sections.jsons")
     
     print(f"\n📁 Directory temporanea: {temp_dir}")
-    print(f"📄 File principale: demo_sections.json")
-    print(f"💾 File backup: demo_sections_backup.json")
+    print(f"📄 File principale: demo_sections.jsons")
+    print(f"💾 File backup: demo_sections_backup.jsons")
     
-    # Crea repository
+    # Crea repository (canonical .jsons)
     repo = SectionRepository(json_file=sections_file)
     
     # FASE 1: Prima aggiunta

@@ -4,20 +4,47 @@
     "name": "C100",
     "type": "concrete",
     "code": "",
-    "properties": {}
+    "properties": {},
+    "frc_enabled": false,
+    "frc_fFts": null,
+    "frc_fFtu": null,
+    "frc_eps_fu": null,
+    "frc_note": null
   },
   {
     "id": "db9bab8b-7fc1-48f6-9a27-cf3736f390fd",
     "name": "C100",
     "type": "concrete",
     "code": "",
-    "properties": {}
+    "properties": {},
+    "frc_enabled": false,
+    "frc_fFts": null,
+    "frc_fFtu": null,
+    "frc_eps_fu": null,
+    "frc_note": null
   },
   {
     "id": "35ea536d-cfe3-4d2d-8151-d45c3720b5b4",
     "name": "C100",
     "type": "concrete",
     "code": "",
-    "properties": {}
+    "properties": {},
+    "frc_enabled": false,
+    "frc_fFts": null,
+    "frc_fFtu": null,
+    "frc_eps_fu": null,
+    "frc_note": null
+  },
+  {
+    "id": "5bcc9164-d7c1-4045-927e-035213b69292",
+    "name": "C100",
+    "type": "concrete",
+    "code": "",
+    "properties": {},
+    "frc_enabled": false,
+    "frc_fFts": null,
+    "frc_fFtu": null,
+    "frc_eps_fu": null,
+    "frc_note": null
   }
 ]
