@@ -164,6 +164,31 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
                 synth = f"Fe B {q} k" if type_filter == 'steel' else f"C{q}"
                 results.append(synth)
 
+        # If the query is numeric-only (e.g. '160'), collapse multiple suggestions
+        # that correspond to the same numeric code into a single representative result.
+        # This avoids multiple similar historical variants (e.g. several 'CLS R160 ...')
+        # showing up multiple times for the user when they search a numeric code.
+        try:
+            import re
+            if q.isdigit():
+                seen_nums = set()
+                filtered_results = []
+                for r in results:
+                    m = re.search(r"(\d+)", r)
+                    if m:
+                        num = m.group(1)
+                        if num == q:
+                            if num not in seen_nums:
+                                seen_nums.add(num)
+                                filtered_results.append(r)
+                        else:
+                            filtered_results.append(r)
+                    else:
+                        filtered_results.append(r)
+                results = filtered_results
+        except Exception:
+            pass
+
         return results[:limit]
     except Exception:
         logger.exception("Error searching materials")

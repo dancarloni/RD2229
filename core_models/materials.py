@@ -160,21 +160,22 @@ class MaterialRepository:
     def __init__(self, json_file: str = DEFAULT_JSON_FILE) -> None:
         self._materials: Dict[str, Material] = {}
         self._json_file = json_file
+        # Flag per repository in-memory (es. json_file=":memory:") usato nei test
+        self._in_memory = (json_file == ":memory:")
         
         # Percorsi per backup
         self._file_path = Path(json_file)
         self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
         
-        # Carica i materiali dal file JSON se esiste
-        self.load_from_file()
+        # Carica i materiali dal file JSON se esiste (se non siamo in-memory)
+        if not self._in_memory:
+            self.load_from_file()
 
     def add(self, mat: Material) -> None:
         self._materials[mat.id] = mat
         logger.debug("Materiale aggiunto: %s (%s)", mat.id, mat.name)
-        
         # Salva in file JSON
         self.save_to_file()
-        
         # Emetti evento se disponibile
         if HAS_EVENT_BUS:
             EventBus().emit(MATERIALS_ADDED, material_id=mat.id, material_name=mat.name)
@@ -265,6 +266,10 @@ class MaterialRepository:
         2. Se fallisce, tenta di caricare dal backup
         3. Se anche il backup fallisce, parte con archivio vuoto
         """
+        # Se il repository è in-memory (test special case), non facciamo I/O
+        if getattr(self, "_in_memory", False):
+            self._materials.clear()
+            return
         self._materials.clear()
         
         def _load(path: Path) -> list:
@@ -334,6 +339,9 @@ class MaterialRepository:
         2. Scrive su file temporaneo (.json.tmp)
         3. Rename atomico del file temporaneo sul file principale
         """
+        # Se repository in-memory (es. json_file=":memory:"), non facciamo I/O
+        if getattr(self, "_in_memory", False):
+            return
         try:
             data = []
             for material in self._materials.values():
