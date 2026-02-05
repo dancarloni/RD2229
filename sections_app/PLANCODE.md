@@ -774,3 +774,21 @@ Oppure, **se vuoi che proceda direttamente**, confermami che posso:
 3. Validare la creazione
 
 Cosa preferisci?
+
+User: trova nei codici le modalità di calcolo delle caratteristiche meccaniche (resistenze) del calcestruzzo e dell'acciaio. Accedi ad internet e ai contenuti reluis, controlla le normative attuali e le normative storiche con particolare attenzione al RD2229/39, ai calcoli eseguiti con il santarella, al progetto simulati agli acciai AQ ai calcestruzzi a presa lenta, al cemento alluminoso, ad alta resistenza. Documentati sulla storia dell'ingegneria dei materiali e sulle normative del tempo. 
+
+GitHub Copilot: Espressione regolare `fck|fyk|Rck|resistenza|characteristic|strength` (`**/visual_basic/*.bas`) ricercata, 20 risultati
+
+Espressione regolare `materiali|material|concrete|acciaio|steel` (`**/*.py`) ricercata, 20 risultati
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/PrincipCA_TA.bas#280-280), righe da 280 a 380
+
+Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/data/materials.json#1-1), righe da 1 a 100
+
+
+
+Fetched https://www.ingenio-web.it/
+
+User: il sito web ingenio va bene, ma concentrati solo sugli articoli che parlano di ingegneria strutturale storica e materiali storici
+
+GitHub Copilot: 
