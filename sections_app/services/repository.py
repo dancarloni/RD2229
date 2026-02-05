@@ -13,11 +13,13 @@ from sections_app.services.event_bus import EventBus, SECTIONS_ADDED, SECTIONS_U
 
 logger = logging.getLogger(__name__)
 
+# Percorso JSON di default usato dalle API helper e dal repository
+DEFAULT_JSON_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'sec_repository', 'sec_repository.jsons'))
 
 class SectionRepository:
     """Archivio in memoria delle sezioni con persistenza JSON."""
 
-    DEFAULT_JSON_FILE = "sections.json"
+    DEFAULT_JSON_FILE = DEFAULT_JSON_FILE
 
     def __init__(self, json_file: str = DEFAULT_JSON_FILE) -> None:
         self._sections: Dict[str, Section] = {}
@@ -381,7 +383,7 @@ class CsvSectionSerializer:
 # ========================================================================
 
 
-def load_sections_from_json(json_file: str = "sections.json") -> list[dict]:
+def load_sections_from_json(json_file: str = DEFAULT_JSON_FILE) -> list[dict]:
     """
     Carica tutte le sezioni da un file JSON.
     
@@ -418,7 +420,7 @@ def load_sections_from_json(json_file: str = "sections.json") -> list[dict]:
         return []
 
 
-def save_sections_to_json(sections: list[dict], json_file: str = "sections.json") -> None:
+def save_sections_to_json(sections: list[dict], json_file: str = DEFAULT_JSON_FILE) -> None:
     """
     Salva una lista di sezioni in un file JSON.
     

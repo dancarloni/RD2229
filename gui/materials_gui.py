@@ -16,9 +16,20 @@ from typing import Optional
 from tools import materials_manager
 from tkinter import filedialog
 try:
-    from sections_app.services.event_bus import EventBus, MATERIALS_CLEARED, MATERIALS_ADDED
+    from sections_app.services.event_bus import (
+        EventBus,
+        MATERIALS_CLEARED,
+        MATERIALS_ADDED,
+        MATERIALS_UPDATED,
+        MATERIALS_DELETED,
+    )
 except Exception:
     EventBus = None
+    MATERIALS_CLEARED = MATERIALS_ADDED = MATERIALS_UPDATED = MATERIALS_DELETED = None
+try:
+    from materials_repository import MaterialsRepository
+except Exception:
+    MaterialsRepository = None
 from tools.concrete_strength import compute_sigma_c_all, compute_allowable_shear
 
 # Configure logging
@@ -32,6 +43,11 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 logger = logging.getLogger(__name__)
+
+# Percorso canonico per il repository materiali (workspace-relative)
+MATERIALS_REPO_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "mat_repository", "Mat_repository.jsonm")
+)
 
 
 class MaterialEditor(simpledialog.Dialog):
@@ -207,9 +223,32 @@ class MaterialsApp(tk.Frame):
         self.pack(fill="both", expand=True)
         # repository that holds current materials in-memory
         self.repo = MaterialsRepository() if MaterialsRepository is not None else None
-        # current loaded materials file path (None = default)
-        self.current_materials_path: Optional[str] = None
+        # current loaded materials file path (canonical repository)
+        self.current_materials_path: Optional[str] = MATERIALS_REPO_PATH
         self.create_widgets()
+        
+        # If repo exists, attempt to load canonical repository automatically
+        if self.repo is not None:
+            try:
+                if os.path.exists(MATERIALS_REPO_PATH):
+                    # Load from canonical file
+                    self.repo.load_from_jsonm(MATERIALS_REPO_PATH)
+                else:
+                    # Preload defaults into repo if empty
+                    if not self.repo.get_all():
+                        default = materials_manager.list_materials()
+                        if default:
+                            self.repo._materials = [m.copy() for m in default]
+                            # Create directory and save to canonical path
+                            try:
+                                os.makedirs(os.path.dirname(MATERIALS_REPO_PATH), exist_ok=True)
+                                self.repo.save_to_jsonm(MATERIALS_REPO_PATH)
+                            except Exception:
+                                logger.exception("Impossibile salvare il repository iniziale su %s", MATERIALS_REPO_PATH)
+            except Exception:
+                # ignore and proceed
+                logger.exception("Errore caricamento repository materiali all'avvio")
+        
         self.refresh_list()
 
     def create_widgets(self):
@@ -390,10 +429,13 @@ class MaterialsApp(tk.Frame):
         if not name:
             return
         logger.info(f"Visualizzazione dettagli materiale: {name}")
-        try:
-            m = materials_manager.get_material(name, self.current_materials_path)
-        except Exception:
-            m = materials_manager.get_material(name)
+        if self.repo is not None:
+            m = self.repo.get_by_name(name)
+        else:
+            try:
+                m = materials_manager.get_material(name, self.current_materials_path)
+            except Exception:
+                m = materials_manager.get_material(name)
         if m:
             import json
 
@@ -405,8 +447,23 @@ class MaterialsApp(tk.Frame):
         mat = getattr(dlg, "result", None)
         if mat:
             try:
-                materials_manager.add_material(mat, self.current_materials_path)
-                logger.info(f"Materiale aggiunto: {mat.get('name')}")
+                if self.repo is not None:
+                    self.repo.add(mat)
+                    # Autosave to canonical path
+                    try:
+                        os.makedirs(os.path.dirname(MATERIALS_REPO_PATH), exist_ok=True)
+                        self.repo.save_to_jsonm(MATERIALS_REPO_PATH)
+                    except Exception:
+                        logger.exception("Errore autosalvataggio repository dopo add")
+                    logger.info(f"Materiale aggiunto (repo): {mat.get('name')}")
+                else:
+                    materials_manager.add_material(mat, self.current_materials_path)
+                    logger.info(f"Materiale aggiunto: {mat.get('name')}")
+                    if EventBus is not None:
+                        try:
+                            EventBus().emit(MATERIALS_ADDED, material_id=mat.get('id') or mat.get('name'), material_name=mat.get('name'))
+                        except Exception:
+                            logger.exception("Errore emissione EventBus dopo add")
                 self.refresh_list()
             except Exception as exc:
                 logger.error(f"Errore nell'aggiunta del materiale {mat.get('name')}: {str(exc)}")
@@ -419,7 +476,10 @@ class MaterialsApp(tk.Frame):
             messagebox.showinfo("Info", "Select a material first")
             return
         logger.info(f"Avvio modifica materiale: {name}")
-        m = materials_manager.get_material(name)
+        if self.repo is not None:
+            m = self.repo.get_by_name(name)
+        else:
+            m = materials_manager.get_material(name, self.current_materials_path)
         if not m:
             logger.error(f"Materiale non trovato per modifica: {name}")
             messagebox.showerror("Error", "Material not found")
@@ -428,10 +488,23 @@ class MaterialsApp(tk.Frame):
         mat = getattr(dlg, "result", None)
         if mat:
             try:
-                # update by name; allow renaming by setting name in updates
                 updates = mat
-                materials_manager.update_material(name, updates, self.current_materials_path)
-                logger.info(f"Materiale modificato: {name} -> {mat.get('name')}")
+                if self.repo is not None:
+                    self.repo.update(name, updates)
+                    # Autosave to canonical path
+                    try:
+                        self.repo.save_to_jsonm(MATERIALS_REPO_PATH)
+                    except Exception:
+                        logger.exception("Errore autosalvataggio repository dopo update")
+                    logger.info(f"Materiale modificato (repo): {name} -> {mat.get('name')}")
+                else:
+                    materials_manager.update_material(name, updates, self.current_materials_path)
+                    logger.info(f"Materiale modificato: {name} -> {mat.get('name')}")
+                    if EventBus is not None:
+                        try:
+                            EventBus().emit(MATERIALS_UPDATED, material_id=updates.get('id') or updates.get('name') or name, material_name=updates.get('name') or name)
+                        except Exception:
+                            logger.exception("Errore emissione EventBus dopo update")
                 self.refresh_list()
             except Exception as exc:
                 logger.error(f"Errore nella modifica del materiale {name}: {str(exc)}")
@@ -445,64 +518,86 @@ class MaterialsApp(tk.Frame):
             return
         if messagebox.askyesno("Confirm", f"Delete material '{name}'?"):
             try:
-                materials_manager.delete_material(name, self.current_materials_path)
-                logger.info(f"Materiale cancellato: {name}")
+                if self.repo is not None:
+                    self.repo.delete(name)
+                    # Autosave to canonical path
+                    try:
+                        self.repo.save_to_jsonm(MATERIALS_REPO_PATH)
+                    except Exception:
+                        logger.exception("Errore autosalvataggio repository dopo delete")
+                    logger.info(f"Materiale cancellato (repo): {name}")
+                else:
+                    materials_manager.delete_material(name, self.current_materials_path)
+                    logger.info(f"Materiale cancellato: {name}")
+                    if EventBus is not None:
+                        try:
+                            EventBus().emit(MATERIALS_DELETED, material_id=name, material_name=name)
+                        except Exception:
+                            logger.exception("Errore emissione EventBus dopo delete")
                 self.refresh_list()
             except Exception as exc:
                 logger.error(f"Errore nella cancellazione del materiale {name}: {str(exc)}")
                 messagebox.showerror("Error", str(exc))
 
     def on_load_list(self):
-        """Carica una lista materiali da file .jsonm e aggiorna la vista.
+        """Carica la lista materiali dal percorso canonico MATERIALS_REPO_PATH.
 
-        - accetta solo file con estensione .jsonm
-        - se il file non è leggibile mostra un error messagebox e non sovrascrive l'elenco corrente
-        - emette eventi EventBus per notificare altre finestre (es. VerificationTable)
+        - Carica dal file canonico mat_repository/Mat_repository.jsonm
+        - Se il file non esiste, mostra info messagebox
+        - Emette eventi EventBus per notificare altre finestre (es. VerificationTable)
         """
-        path = filedialog.askopenfilename(filetypes=[("Material files", "*.jsonm")])
-        if not path:
-            return
-        if not path.lower().endswith('.jsonm'):
-            messagebox.showerror("Carica lista materiali", "Il file deve avere estensione .jsonm")
+        path = MATERIALS_REPO_PATH
+        if not os.path.exists(path):
+            messagebox.showinfo("Carica lista materiali", f"Nessun file materiali trovato in {path}")
             return
         try:
             if self.repo is not None:
                 mats = self.repo.load_from_jsonm(path)
             else:
                 mats = materials_manager.load_materials(path)
+            # Set current path
+            self.current_materials_path = path
+            # Refresh UI
+            self.refresh_list()
+            # Notify other windows via EventBus
+            if EventBus is not None:
+                try:
+                    bus = EventBus()
+                    bus.emit(MATERIALS_CLEARED)
+                    for m in mats:
+                        bus.emit(MATERIALS_ADDED, material_id=m.get('id') or m.get('name'), material_name=m.get('name'))
+                except Exception:
+                    logger.exception("Errore emissione eventi EventBus dopo caricamento materiali")
         except Exception as e:
             logger.exception("Errore caricamento materiali da %s: %s", path, e)
             messagebox.showerror("Carica lista materiali", f"Errore caricamento file: {e}")
-            return
-        # Set current path so subsequent CRUD operate on this file
-        self.current_materials_path = path
-        # Refresh UI
-        self.refresh_list()
-        # Notify other windows via EventBus
-        if EventBus is not None:
-            try:
-                bus = EventBus()
-                bus.emit(MATERIALS_CLEARED)
-                for m in mats:
-                    bus.emit(MATERIALS_ADDED, material_id=m.get('id') or m.get('name'), material_name=m.get('name'))
-            except Exception:
-                logger.exception("Errore emissione eventi EventBus dopo caricamento materiali")
 
     def on_save_list(self):
-        """Salva la lista corrente di materiali su file .jsonm (asksaveas)."""
-        path = filedialog.asksaveasfilename(defaultextension='.jsonm', filetypes=[("Material files", "*.jsonm")])
-        if not path:
-            return
-        if not path.lower().endswith('.jsonm'):
-            path = path + '.jsonm'
+        """Salva la lista corrente di materiali nel percorso canonico MATERIALS_REPO_PATH."""
+        path = MATERIALS_REPO_PATH
         try:
             if self.repo is not None:
+                os.makedirs(os.path.dirname(path), exist_ok=True)
                 self.repo.save_to_jsonm(path)
             else:
                 mats = materials_manager.list_materials(self.current_materials_path)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
                 materials_manager.save_materials(mats, path)
-            # Update current path to saved file
+            # Update current path
             self.current_materials_path = path
+            # Notify others (clear + add) so UI suggestions update
+            if EventBus is not None:
+                try:
+                    bus = EventBus()
+                    bus.emit(MATERIALS_CLEARED)
+                    if self.repo is not None:
+                        mats = self.repo.get_all()
+                    else:
+                        mats = materials_manager.list_materials(path)
+                    for m in mats:
+                        bus.emit(MATERIALS_ADDED, material_id=m.get('id') or m.get('name'), material_name=m.get('name'))
+                except Exception:
+                    logger.exception("Errore emissione eventi EventBus dopo salvataggio materiali")
             messagebox.showinfo("Salva lista materiali", f"Lista salvata in {path}")
         except Exception as e:
             logger.exception("Errore salvataggio materiali in %s: %s", path, e)
