@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from typing import Callable, Optional
@@ -9,10 +10,12 @@ from pathlib import Path
 from sections_app.ui.main_window import MainWindow
 from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
 from sections_app.ui.historical_material_window import HistoricalMaterialWindow
+from sections_app.ui.section_manager import SectionManager
 from verification_table import VerificationTableWindow
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import MaterialRepository
 from historical_materials import HistoricalMaterialLibrary
+from sections_app.models.sections import Section
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +29,9 @@ class ModuleSelectorWindow(tk.Tk):
         serializer: CsvSectionSerializer,
         material_repository: Optional[MaterialRepository] = None,
     ):
+        # Forza locale msgcat su EN per evitare errori quando i file lingua non sono presenti
+        os.environ.setdefault("LANG", "en_US")
+        os.environ.setdefault("LC_ALL", "en_US")
         super().__init__()
         self.title("Module Selector - RD2229 Tools")
         self.geometry("1200x340")
@@ -36,6 +42,9 @@ class ModuleSelectorWindow(tk.Tk):
         # Usa il material_repository passato, oppure creane uno nuovo
         self.material_repository: MaterialRepository = material_repository or MaterialRepository()
         self._material_editor_window: Optional[HistoricalMaterialWindow] = None
+        # Riferimenti a finestre aperte dal ModuleSelector
+        self._geometry_window: Optional[MainWindow] = None
+        self._section_manager_window: Optional[SectionManager] = None
         self._create_menu()
         self._build_ui()
 
@@ -61,50 +70,30 @@ class ModuleSelectorWindow(tk.Tk):
         modules_frame = tk.Frame(frame)
         modules_frame.pack(fill="both", expand=True)
 
-        # Geometry Module
+        # Geometry Module (first, different padding)
+        geom_desc = "Compute and manage section geometry\n(areas, centroids, inertia, drawings, CSV archive)"
         geom_frame = tk.LabelFrame(modules_frame, text="Geometry module")
         geom_frame.pack(side="left", fill="both", expand=True, padx=(0, 6))
-        tk.Label(
-            geom_frame,
-            text="Compute and manage section geometry\n(areas, centroids, inertia, drawings, CSV archive)",
-            justify="left",
-            wraplength=220,
-        ).pack(padx=8, pady=8)
+        tk.Label(geom_frame, text=geom_desc, justify="left", wraplength=220).pack(padx=8, pady=8)
         tk.Button(geom_frame, text="Open Geometry", command=self._open_geometry).pack(pady=(0, 8))
 
         # Historical Module
-        hist_frame = tk.LabelFrame(modules_frame, text="Historical RD 2229 / Santarella")
-        hist_frame.pack(side="left", fill="both", expand=True, padx=(6, 6))
-        tk.Label(
-            hist_frame,
-            text="Historical allowable-stress verifications\n(stubs and data connectors for now)",
-            justify="left",
-            wraplength=220,
-        ).pack(padx=8, pady=8)
-        tk.Button(hist_frame, text="Open Historical", command=self._open_historical).pack(pady=(0, 8))
+        hist_desc = "Historical allowable-stress verifications\n(stubs and data connectors for now)"
+        self._add_module_frame(modules_frame, "Historical RD 2229 / Santarella", hist_desc, "Open Historical", self._open_historical)
 
         # Verification Table Module
-        verify_frame = tk.LabelFrame(modules_frame, text="Verification Table")
-        verify_frame.pack(side="left", fill="both", expand=True, padx=(6, 6))
-        tk.Label(
-            verify_frame,
-            text="Rapid data entry for multiple verifications\n(tabular grid with autocomplete)",
-            justify="left",
-            wraplength=220,
-        ).pack(padx=8, pady=8)
-        tk.Button(verify_frame, text="Open Verification Table", command=self._open_verification_table).pack(
-            pady=(0, 8)
-        )
+        verify_desc = "Rapid data entry for multiple verifications\n(tabular grid with autocomplete)"
+        self._add_module_frame(modules_frame, "Verification Table", verify_desc, "Open Verification Table", self._open_verification_table)
 
-        # Materials Editor Module
+        # Sections Archive Module
+        sections_desc = "Browse and manage archived sections (import/export, edit via Geometry)"
+        self._add_module_frame(modules_frame, "Sections Archive", sections_desc, "Open Sections", self._open_section_manager)
+
+        # Materials Editor Module (last)
+        material_desc = "Manage and import historical materials\n(concrete, steel, and other material libraries)"
         material_frame = tk.LabelFrame(modules_frame, text="Materials Editor")
         material_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
-        tk.Label(
-            material_frame,
-            text="Manage and import historical materials\n(concrete, steel, and other material libraries)",
-            justify="left",
-            wraplength=220,
-        ).pack(padx=8, pady=8)
+        tk.Label(material_frame, text=material_desc, justify="left", wraplength=220).pack(padx=8, pady=8)
         tk.Button(material_frame, text="Open Materials", command=self._open_material_editor).pack(pady=(0, 8))
 
     def _open_geometry(self) -> None:
@@ -113,9 +102,25 @@ class ModuleSelectorWindow(tk.Tk):
         La finestra principale ModuleSelector rimane visibile in background.
         """
         logger.debug("Opening Geometry module")
-        # ✅ MainWindow è ora un Toplevel (non più un Tk indipendente)
+        # Se la finestra è già aperta, portala in primo piano
+        if self._geometry_window is not None and getattr(self._geometry_window, 'winfo_exists', None) and self._geometry_window.winfo_exists():
+            try:
+                self._geometry_window.lift()
+                self._geometry_window.focus_force()
+                logger.debug("Geometry window già aperta, portata in primo piano")
+                return
+            except Exception:
+                pass
+
+        # Crea la finestra Geometry e memorizza il riferimento
         win = MainWindow(self, self.repository, self.serializer, self.material_repository)
-        win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
+        self._geometry_window = win
+        # Pulizia del riferimento quando la finestra viene chiusa
+        try:
+            win.protocol("WM_DELETE_WINDOW", lambda w=win: (setattr(self, "_geometry_window", None), w.destroy()))
+            win.bind("<Destroy>", lambda e, w=win: setattr(self, "_geometry_window", None))
+        except Exception:
+            pass
 
     def _open_historical(self) -> None:
         """Apre il modulo Historical come finestra Toplevel.
@@ -140,6 +145,73 @@ class ModuleSelectorWindow(tk.Tk):
             material_repository=self.material_repository,
         )
         win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
+
+    def _open_section_manager(self) -> None:
+        """Apre il Section Manager come finestra Toplevel.
+
+        Se la finestra è già aperta, la porta in primo piano.
+        """
+        logger.debug("Opening Section Manager module")
+        # Se la finestra è già aperta, portala in primo piano
+        if self._section_manager_window is not None and getattr(self._section_manager_window, 'winfo_exists', None) and self._section_manager_window.winfo_exists():
+            try:
+                self._section_manager_window.lift()
+                self._section_manager_window.focus_force()
+                logger.debug("Section Manager già aperto, portato in primo piano")
+                return
+            except Exception:
+                pass
+
+        # Crea nuova istanza del manager con callback on_edit che rimanda a Geometry
+        manager = SectionManager(self, self.repository, self.serializer, self._on_section_edit)
+        self._section_manager_window = manager
+        # Assicura che quando il manager viene chiuso si rimuova il riferimento
+        manager.protocol("WM_DELETE_WINDOW", lambda m=manager: (setattr(self, "_section_manager_window", None), m.destroy()))
+        manager.bind("<Destroy>", lambda e, m=manager: setattr(self, "_section_manager_window", None))
+        logger.debug("Section Manager aperto")
+
+    def _on_section_edit(self, section: Section) -> None:
+        """Callback invocata dal SectionManager quando l'utente richiede la modifica di una sezione.
+
+        Apre il modulo Geometry (se necessario) e carica la sezione nel form. Tenta una creazione
+        sincrona di fallback se la finestra non è pronta.
+        """
+        logger.debug("Forwarding edit to Geometry for section %s", getattr(section, 'id', None))
+        # Prova ad aprire/portare in primo piano Geometry
+        try:
+            self._open_geometry()
+        except Exception:
+            logger.exception("Errore nell'aprire Geometry per edit sezione")
+
+        # Se la finestra non è stata inizializzata dal metodo precedente, prova a crearla direttamente
+        if getattr(self, "_geometry_window", None) is None:
+            try:
+                win = MainWindow(self, self.repository, self.serializer, self.material_repository)
+                self._geometry_window = win
+                try:
+                    win.protocol("WM_DELETE_WINDOW", lambda w=win: (setattr(self, "_geometry_window", None), w.destroy()))
+                    win.bind("<Destroy>", lambda e, w=win: setattr(self, "_geometry_window", None))
+                except Exception:
+                    pass
+            except Exception:
+                logger.exception("Fallback: impossibile creare Geometry window")
+
+        gw = getattr(self, "_geometry_window", None)
+        if gw is None or not getattr(gw, "load_section_into_form", None):
+            # Programmiamo un ultimo tentativo asincrono e poi abbandoniamo
+            try:
+                self.after(50, lambda: self._on_section_edit(section))
+            except Exception:
+                logger.exception("Cannot schedule retry for loading section into Geometry")
+            return
+
+        # Carica la sezione nella finestra Geometry
+        try:
+            gw.load_section_into_form(section)
+            gw.lift()
+            gw.focus_force()
+        except Exception:
+            logger.exception("Errore caricamento sezione in Geometry")
 
     def _open_material_editor(self) -> None:
         """Apre il modulo Materials Editor come finestra Toplevel.
@@ -177,6 +249,14 @@ class ModuleSelectorWindow(tk.Tk):
         self._material_editor_window.protocol("WM_DELETE_WINDOW", on_material_editor_close)
         # Inoltre, se la finestra viene distrutta in altro modo, assicurati di pulire il riferimento
         self._material_editor_window.bind("<Destroy>", lambda e: on_material_editor_close())
+
+    def _add_module_frame(self, parent, title: str, description: str, button_text: str, command: Callable) -> tk.LabelFrame:
+        """Helper per creare un LabelFrame di modulo con descrizione e bottone."""
+        frm = tk.LabelFrame(parent, text=title)
+        frm.pack(side="left", fill="both", expand=True, padx=(6, 6))
+        tk.Label(frm, text=description, justify="left", wraplength=220).pack(padx=8, pady=8)
+        tk.Button(frm, text=button_text, command=command).pack(pady=(0, 8))
+        return frm
 
     def _export_backup(self) -> None:
         """Gestisce l'esportazione del backup."""

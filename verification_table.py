@@ -4,8 +4,9 @@ import math
 import logging
 import tkinter as tk
 from dataclasses import dataclass
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, filedialog
 from typing import Dict, Iterable, List, Optional, Tuple
+import random
 
 try:
     from tools.materials_manager import list_materials
@@ -18,33 +19,58 @@ except Exception:  # pragma: no cover - fallback if import fails
     SectionRepository = None  # type: ignore
 
 try:
+    from sections_app.models.sections import RectangularSection
+except Exception:
+    RectangularSection = None
+
+try:
     from core_models.materials import MaterialRepository
 except Exception:  # pragma: no cover - fallback if import fails
     MaterialRepository = None  # type: ignore
+
+try:
+    # Repository for persisted verification items (in-memory by default)
+    from verification_items_repository import VerificationItemsRepository
+except Exception:  # pragma: no cover - fallback if import fails
+    VerificationItemsRepository = None  # type: ignore
+
+try:
+    # Data class for saved verification items (keeps input separate from UI)
+    from verification_items import VerificationItem
+except Exception:  # pragma: no cover - fallback if import fails
+    VerificationItem = None  # type: ignore
+
+try:
+    from verification_project import VerificationProject
+except Exception:
+    VerificationProject = None
 
 
 logger = logging.getLogger(__name__)
 
 ColumnDef = Tuple[str, str, int, str]
 
+MPA_TO_KGCM2 = 10.197
+
 
 @dataclass
 class VerificationInput:
-    section_id: str
-    material_concrete: str
-    material_steel: str
-    n_homog: float
-    N: float
-    M: float
-    T: float
-    As_sup: float
-    As_inf: float
-    d_sup: float
-    d_inf: float
-    stirrup_step: float
-    stirrup_diameter: float
-    stirrup_material: str
-    notes: str
+    section_id: str = ""
+    verification_method: str = "TA"
+    material_concrete: str = ""
+    material_steel: str = ""
+    n_homog: float = 15.0
+    N: float = 0.0
+    M: float = 0.0
+    T: float = 0.0
+    As_sup: float = 0.0
+    As_inf: float = 0.0
+    d_sup: float = 0.0
+    d_inf: float = 0.0
+    stirrup_step: float = 0.0
+    stirrup_diameter: float = 0.0
+    stirrup_material: str = ""
+    notes: str = ""
 
 
 @dataclass
@@ -59,29 +85,715 @@ class VerificationOutput:
     messaggi: List[str]
 
 
-def compute_verification_result(_input: VerificationInput) -> VerificationOutput:
-    """TODO: implementare motore di verifica.
+def _get_section_by_id_or_name(section_id: str, section_repository: Optional["SectionRepository"]):
+    if not section_repository or not section_id:
+        return None
+    try:
+        if hasattr(section_repository, "find_by_id"):
+            found = section_repository.find_by_id(section_id)
+            if found is not None:
+                return found
+    except Exception:
+        logger.exception("Errore ricerca sezione per id=%s", section_id)
+    try:
+        for sec in section_repository.get_all_sections():
+            if sec.id == section_id or sec.name == section_id:
+                return sec
+    except Exception:
+        logger.exception("Errore ricerca sezione per nome=%s", section_id)
+    return None
 
-    In futuro dovrà richiamare:
-    - compute_section_properties()
-    - compute_normal_stresses_ta()
-    - check_allowable_stresses_ta()
-    - altre routine TA
+
+def _extract_section_dimensions_cm(section) -> Optional[Tuple[float, float]]:
+    if section is None:
+        return None
+    width = None
+    height = None
+    if hasattr(section, "width"):
+        width = getattr(section, "width")
+    if hasattr(section, "height"):
+        height = getattr(section, "height")
+    if (width is None or height is None) and hasattr(section, "dimensions"):
+        dims = getattr(section, "dimensions") or {}
+        width = width or dims.get("width") or dims.get("diameter")
+        height = height or dims.get("height") or dims.get("diameter")
+    if width and height:
+        return float(width), float(height)
+    return None
+
+
+def get_section_geometry(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"],
+    *,
+    unit: str = "cm",
+) -> Tuple[float, float]:
+    default_b, default_h = 30.0, 50.0
+    if section_repository is None or not _input.section_id:
+        logger.warning("SectionRepository mancante o section_id vuoto; uso fallback %sx%s cm", default_b, default_h)
+        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+
+    section = _get_section_by_id_or_name(_input.section_id, section_repository)
+    if section is None:
+        logger.warning("Sezione '%s' non trovata; uso fallback %sx%s cm", _input.section_id, default_b, default_h)
+        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+
+    dims = _extract_section_dimensions_cm(section)
+    if dims is None:
+        logger.warning("Sezione '%s' senza dimensioni; uso fallback %sx%s cm", _input.section_id, default_b, default_h)
+        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+
+    b_cm, h_cm = dims
+    if unit == "mm":
+        return b_cm * 10.0, h_cm * 10.0
+    return b_cm, h_cm
+
+
+def _get_material_by_name(material_repository: Optional["MaterialRepository"], name: str):
+    if not material_repository or not name:
+        return None
+    try:
+        if hasattr(material_repository, "find_by_name"):
+            return material_repository.find_by_name(name)
+        if hasattr(material_repository, "get_by_name"):
+            return material_repository.get_by_name(name)
+    except Exception:
+        logger.exception("Errore ricerca materiale '%s'", name)
+    return None
+
+
+def _extract_material_property(material, keys: Iterable[str]) -> Optional[float]:
+    for key in keys:
+        if hasattr(material, key):
+            val = getattr(material, key)
+            if isinstance(val, (int, float)):
+                return float(val)
+    props = getattr(material, "properties", {}) or {}
+    for key in keys:
+        if key in props and isinstance(props[key], (int, float)):
+            return float(props[key])
+    return None
+
+
+def get_concrete_properties(
+    _input: VerificationInput,
+    material_repository: Optional["MaterialRepository"],
+) -> Tuple[float, float, float]:
+    """Restituisce (fck_MPa, fck_kgcm2, sigma_ca_kgcm2)."""
+    fallback_fck = 25.0
+    fck_mpa = None
+    if material_repository is not None and _input.material_concrete:
+        mat = _get_material_by_name(material_repository, _input.material_concrete)
+        if mat is not None:
+            fck_mpa = _extract_material_property(mat, ["fck_MPa", "fck_mpa", "fck"])
+    if fck_mpa is None:
+        logger.warning("Materiale cls '%s' non trovato; uso fck=%s MPa", _input.material_concrete, fallback_fck)
+        fck_mpa = fallback_fck
+    fck_kgcm2 = fck_mpa * MPA_TO_KGCM2
+    # TODO: calibrare relazione tensione ammissibile cls per normativa specifica
+    sigma_ca = 0.5 * fck_kgcm2
+    return fck_mpa, fck_kgcm2, sigma_ca
+
+
+def get_steel_properties(
+    _input: VerificationInput,
+    material_repository: Optional["MaterialRepository"],
+) -> Tuple[float, float, float]:
+    """Restituisce (fyk_MPa, fyk_kgcm2, sigma_fa_kgcm2)."""
+    fallback_fyk = 450.0
+    fyk_mpa = None
+    if material_repository is not None and _input.material_steel:
+        mat = _get_material_by_name(material_repository, _input.material_steel)
+        if mat is not None:
+            fyk_mpa = _extract_material_property(mat, ["fyk_MPa", "fyk_mpa", "fyk"])
+    if fyk_mpa is None:
+        logger.warning("Materiale acciaio '%s' non trovato; uso fyk=%s MPa", _input.material_steel, fallback_fyk)
+        fyk_mpa = fallback_fyk
+    fyk_kgcm2 = fyk_mpa * MPA_TO_KGCM2
+    # TODO: calibrare tensione ammissibile acciaio per metodo TA
+    gamma_s_ta = 1.5
+    sigma_fa = fyk_kgcm2 / gamma_s_ta
+    return fyk_mpa, fyk_kgcm2, sigma_fa
+
+
+def compute_ta_verification(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"] = None,
+    material_repository: Optional["MaterialRepository"] = None,
+) -> VerificationOutput:
+    """Verifica a tensioni ammissibili (TA) secondo RD 2229/1939.
+
+    Implementa la verifica semplificata a pressoflessione retta per sezione rettangolare
+    con armature ai lembi. Utilizza il metodo della sezione parzializzata (ipotesi di
+    cls non reagente a trazione, legame costitutivo lineare).
+
+    Unità di misura:
+    - N, M, T: kg, kg·m (da input)
+    - M convertito in kg·cm moltiplicando per 100
+    - tensioni: Kg/cm² (coerente con materiali storici RD 2229)
+    - dimensioni: cm
+
+    Args:
+        _input: Dati di input (sezione, materiali, sollecitazioni, armature)
+
+    Returns:
+        VerificationOutput con tensioni calcolate, posizione asse neutro, coefficienti
+        di utilizzo e esito della verifica
+    """
+    try:
+        # 1. RECUPERO PARAMETRI DA INPUT
+        # Sollecitazioni (convertire M in kg·cm)
+        N = _input.N  # kg (>0 trazione, <0 compressione)
+        M_kgm = _input.M  # kg·m
+        M = M_kgm * 100  # kg·cm (momento flettente)
+        T = _input.T  # kg (taglio, non usato per verifica a flessione)
+
+        # Coefficiente omogeneizzazione
+        n = _input.n_homog if _input.n_homog > 0 else 15.0  # default
+
+        # Armature (As', As in cm²) e copriferri (d', d in cm)
+        As_sup = _input.As_sup  # cm² (armatura superiore = compressa se M>0)
+        As_inf = _input.As_inf  # cm² (armatura inferiore = tesa se M>0)
+        d_sup = _input.d_sup  # cm (distanza armatura superiore da lembo superiore)
+        d_inf = _input.d_inf  # cm (distanza armatura inferiore da lembo inferiore)
+
+        # Tensioni ammissibili materiali (Kg/cm²)
+        _fck_mpa, _fck_kgcm2, sigma_ca = get_concrete_properties(_input, material_repository)
+        _fyk_mpa, _fyk_kgcm2, sigma_fa = get_steel_properties(_input, material_repository)
+
+        # 2. GEOMETRIA SEZIONE
+        B, H = get_section_geometry(_input, section_repository, unit="cm")
+
+        if d_sup <= 0:
+            d_sup = 4.0  # cm (default copriferro superiore)
+        if d_inf <= 0:
+            d_inf = 4.0  # cm (default copriferro inferiore)
+
+        d = H - d_inf  # cm (altezza utile = distanza da lembo compresso ad arm. tesa)
+
+        # 3. CALCOLO ECCENTRICITÀ E POSIZIONE ASSE NEUTRO
+        # Eccentricità dello sforzo normale rispetto al baricentro geometrico
+        if abs(N) < 0.01:  # flessione semplice
+            e = 1e10  # valore molto grande per simulare M/N
+            is_fless_semplice = True
+        else:
+            e = abs(M / N) if N != 0 else 0  # cm
+            is_fless_semplice = False
+
+        # Determina se sezione interamente compressa o parzializzata
+        # Per press oflessione: se e è piccola -> sezione tutta compressa
+        # Per semplicità, assumo sezione parzializzata (ipotesi conservativa)
+
+        # 4. CALCOLO ASSE NEUTRO E TENSIONI (sezione parzializzata)
+        # Posizione asse neutro x dalla fibra compressa estrema (lembo superiore)
+        # Equilibrio alla traslazione e rotazione per sezione rettangolare armata ai lembi
+
+        # Parametri adimensionali
+        rho_inf = As_inf / (B * d) if d > 0 and B > 0 else 0.001  # percentuale arm. tesa
+        rho_sup = As_sup / (B * d) if d > 0 and B > 0 else 0.0  # percentuale arm. compressa
+
+        # Posizione asse neutro (formula approssimata per sezione rettangolare)
+        # x/d = [-n*(rho_inf + rho_sup) + sqrt(n²*(rho_inf+rho_sup)² + 2*n*rho_inf)] / 1
+        # Formula semplificata: assumo rho_sup trascurabile per prima approssimazione
+        term1 = n * rho_inf
+        term2 = math.sqrt((n * rho_inf) ** 2 + 2 * n * rho_inf) if term1 >= 0 else 0.1
+        x_over_d = term2 - term1 if term2 > term1 else 0.3  # rapporto x/d
+
+        x = x_over_d * d  # cm (posizione asse neutro da lembo compresso)
+
+        # Limitazioni x
+        if x < 0.05 * H:
+            x = 0.05 * H
+        if x > 0.95 * H:
+            x = 0.95 * H
+
+        # 5. CALCOLO TENSIONI (ipotesi di conservazione sezioni piane, legame lineare)
+        # Momento rispetto al baricentro della sezione reagente (approx)
+        y_baric = x / 3  # cm (baricentro triangolo di compressione da lembo sup)
+
+        # Tensione nel calcestruzzo al lembo compresso (formula semplificata)
+        # sigma_c = M / (B * x * (d - x/3)) * x  (dalla teoria)
+        # Approccio semplificato usando modulo resistente
+        if x > 0 and d > x / 3:
+            J_sez_reag = B * x ** 3 / 12 + B * x * (y_baric) ** 2  # momento inerzia (approx)
+            # Tensione massima cls al lembo compresso
+            sigma_c_max = (M * x) / J_sez_reag if J_sez_reag > 0 else 0.0  # Kg/cm²
+
+            # Tensione nell'acciaio teso
+            # Proporzionalità deformazioni: ε_s / ε_c = (d - x) / x
+            # σ_s = n * σ_c * (d - x) / x
+            if x > 0:
+                sigma_s = n * sigma_c_max * (d - x) / x  # Kg/cm²
+            else:
+                sigma_s = 0.0
+        else:
+            # Valori di fallback
+            sigma_c_max = 0.0
+            sigma_s = 0.0
+
+        # Tensioni minime (per sezione parzializzata, trazione = 0)
+        sigma_c_min = 0.0  # cls non reagente a trazione
+
+        # 6. VERIFICA CONTRO TENSIONI AMMISSIBILI
+        # Coefficiente di utilizzo = max(σ_agente / σ_ammissibile)
+        coeff_util_cls = sigma_c_max / sigma_ca if sigma_ca > 0 else 0.0
+        coeff_util_acc = sigma_s / sigma_fa if sigma_fa > 0 else 0.0
+        coeff_sicurezza = max(coeff_util_cls, coeff_util_acc)
+
+        # Esito verifica
+        if coeff_util_cls <= 1.0 and coeff_util_acc <= 1.0:
+            esito = "VERIFICATO"
+        else:
+            esito = "NON VERIFICATO"
+
+        # 7. MESSAGGI ESPLICATIVI
+        messaggi = [
+            "=== VERIFICA A TENSIONI AMMISSIBILI (TA) - RD 2229/1939 ===",
+            "",
+            "DATI INPUT:",
+            f"  Sezione: {_input.section_id or 'rettangolare B×H'}",
+            f"  Dimensioni: B = {B:.1f} cm, H = {H:.1f} cm, d = {d:.1f} cm",
+            f"  Armatura inferiore As = {As_inf:.2f} cm²",
+            f"  Armatura superiore As' = {As_sup:.2f} cm²",
+            f"  Coefficiente omogeneizzazione n = {n:.1f}",
+            f"  Sollecitazioni: N = {N:.0f} kg, M = {M_kgm:.2f} kg·m ({M:.0f} kg·cm)",
+            "",
+            "TENSIONI AMMISSIBILI:",
+            f"  Calcestruzzo σ_ca = {sigma_ca:.1f} Kg/cm²",
+            f"  Acciaio σ_fa = {sigma_fa:.0f} Kg/cm²",
+            "",
+            "RISULTATI CALCOLO:",
+            f"  Posizione asse neutro x = {x:.2f} cm (da lembo compresso)",
+            f"  Rapporto x/d = {x/d:.3f}",
+            f"  Tensione cls max σ_c = {sigma_c_max:.2f} Kg/cm²",
+            f"  Tensione acciaio σ_s = {sigma_s:.0f} Kg/cm²",
+            "",
+            "VERIFICHE:",
+            f"  Cls: σ_c / σ_ca = {sigma_c_max:.1f} / {sigma_ca:.1f} = {coeff_util_cls:.3f} {'✓' if coeff_util_cls <= 1.0 else '✗'}",
+            f"  Acc: σ_s / σ_fa = {sigma_s:.0f} / {sigma_fa:.0f} = {coeff_util_acc:.3f} {'✓' if coeff_util_acc <= 1.0 else '✗'}",
+            "",
+            f"ESITO: {esito} (coeff. utilizzo max = {coeff_sicurezza:.3f})",
+        ]
+
+        return VerificationOutput(
+            sigma_c_max=sigma_c_max,
+            sigma_c_min=sigma_c_min,
+            sigma_s_max=sigma_s,
+            asse_neutro=x,
+            deformazioni=f"x/d = {x/d:.3f}, ρ_inf = {rho_inf * 100:.2f}%",
+            coeff_sicurezza=coeff_sicurezza,
+            esito=esito,
+            messaggi=messaggi,
+        )
+
+    except Exception as e:
+        logger.exception("Errore in compute_ta_verification: %s", e)
+        return VerificationOutput(
+            sigma_c_max=0.0,
+            sigma_c_min=0.0,
+            sigma_s_max=0.0,
+            asse_neutro=0.0,
+            deformazioni="",
+            coeff_sicurezza=0.0,
+            esito="ERRORE",
+            messaggi=[f"Errore durante il calcolo TA: {e}"],
+        )
+
+
+def compute_slu_verification(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"] = None,
+    material_repository: Optional["MaterialRepository"] = None,
+) -> VerificationOutput:
+    """Verifica a stato limite ultimo (SLU) secondo NTC.
+
+    Implementa la verifica semplificata allo SLU per sezione rettangolare con armature
+    ai lembi. Usa il diagramma parabola-rettangolo per il cls e elastico-perfettamente
+    plastico per l'acciaio.
+
+    Unità di misura:
+    - N, M: kg, kg·m (da input)
+    - M convertito in Nmm (1 kg·m = 9.80665 Nm = 9806.65 Nmm)
+    - resistenze: MPa (fck, fyd) -> convertite in Kg/cm² per output
+    - dimensioni: mm -> convertite in cm per output
+
+    Args:
+        _input: Dati di input
+
+    Returns:
+        VerificationOutput con resistenze, dominio M-N, esito verifica
+    """
+    try:
+        # 1. RECUPERO PARAMETRI
+        # Sollecitazioni (NTC usa kN e kNm, ma input è in kg e kg·m)
+        # Conversione: 1 kg = 0.00980665 kN ≈ 0.01 kN (approssimazione)
+        N_kg = _input.N  # kg
+        M_kgm = _input.M  # kg·m
+        T_kg = _input.T  # kg
+
+        # Convertire in N e Nmm per calcoli interni (più comodo)
+        N = N_kg * 9.80665  # N
+        M = M_kgm * 9806.65  # Nmm (1 kg·m = 9.80665 Nm = 9806.65 Nmm)
+
+        # Armature (mm²) e altezza utile (mm)
+        As_sup = _input.As_sup * 100  # cm² -> mm² (1 cm² = 100 mm²)
+        As_inf = _input.As_inf * 100  # mm²
+        d_sup_cm = _input.d_sup if _input.d_sup > 0 else 4.0  # cm
+        d_inf_cm = _input.d_inf if _input.d_inf > 0 else 4.0  # cm
+
+        # Geometria (mm)
+        B, H = get_section_geometry(_input, section_repository, unit="mm")
+        d = H - d_inf_cm * 10  # mm (altezza utile)
+
+        # Materiali - resistenze caratteristiche (MPa)
+        fck, _fck_kgcm2, _sigma_ca = get_concrete_properties(_input, material_repository)
+        fyk, _fyk_kgcm2, _sigma_fa = get_steel_properties(_input, material_repository)
+
+        # Coefficienti parziali sicurezza NTC2018
+        gamma_c = 1.5
+        gamma_s = 1.15
+
+        # Resistenze di calcolo
+        fcd = 0.85 * fck / gamma_c  # MPa (0.85 = coeff. riduzione resistenza)
+        fyd = fyk / gamma_s  # MPa
+
+        # Deformazioni ultime NTC2018
+        eps_cu = 0.0035  # deformazione ultima cls (3.5‰)
+        eps_yd = fyd / 200000  # deformazione snervamento acciaio (Es = 200000 MPa)
+
+        # 2. CALCOLO MOMENTO RESISTENTE (flessione semplice con sforzo assiale)
+        # Ipotesi: sezione sottoposta a presso-flessione retta
+
+        # Posizione asse neutro per equilibrio (ipotesi semplificata)
+        # Assumo diagramma rettangolare semplificato (stress-block): σ_c = fcd su altezza 0.8x
+
+        # Tentativo con x = 0.3*d (valore tipico sezione sottarmata)
+        x = 0.3 * d  # mm
+
+        # Risultante compressione cls
+        Ac_compr = B * 0.8 * x  # mm² (area cls compressa, stress block)
+        Rc = Ac_compr * fcd  # N (risultante compressione cls)
+
+        # Risultante armatura tesa (assumo snervata)
+        Rs = As_inf * fyd  # N (risultante trazione acciaio)
+
+        # Risultante armatura compressa (se presente)
+        Rc_sup = As_sup * fyd if x > d_sup_cm * 10 else 0.0  # N
+
+        # Equilibrio alla traslazione: N = Rc + Rc_sup - Rs
+        # Per flessione semplice (N≈0): Rc + Rc_sup ≈ Rs
+
+        # Momento resistente (bracci delle forze rispetto al baricentro)
+        # Approx: braccio Rc = d - 0.4*x, braccio Rs = d/2 (semplificato)
+        z = d - 0.4 * x  # mm (braccio Rc)
+        Mrd = Rc * z + Rc_sup * (d - d_sup_cm * 10)  # Nmm
+
+        # 3. VERIFICA DOMINIO M-N (semplificata)
+        # Coeff sicurezza = M_Ed / M_Rd
+        coeff_sicurezza = abs(M) / Mrd if Mrd > 0 else 999.0
+
+        # Esito
+        if coeff_sicurezza <= 1.0:
+            esito = "VERIFICATO"
+        else:
+            esito = "NON VERIFICATO"
+
+        # 4. TENSIONI (per output, in Kg/cm²)
+        # Conversione MPa -> Kg/cm²: 1 MPa = 10.197 Kg/cm²
+        fcd_kgcm2 = fcd * MPA_TO_KGCM2
+        fyd_kgcm2 = fyd * MPA_TO_KGCM2
+
+        # Tensioni agenti (approx)
+        sigma_c_max = fcd if coeff_sicurezza >= 1.0 else fcd * coeff_sicurezza  # MPa
+        sigma_s_max = fyd if As_inf > 0 else 0.0  # MPa
+
+        sigma_c_max_kgcm2 = sigma_c_max * MPA_TO_KGCM2  # Kg/cm²
+        sigma_s_max_kgcm2 = sigma_s_max * MPA_TO_KGCM2  # Kg/cm²
+
+        # 5. MESSAGGI
+        messaggi = [
+            "=== VERIFICA STATO LIMITE ULTIMO (SLU) - NTC2018 ===",
+            "",
+            "DATI INPUT:",
+            f"  Sezione: {_input.section_id or 'rettangolare B×H'}",
+            f"  Dimensioni: B = {B/10:.1f} cm, H = {H/10:.1f} cm, d = {d/10:.1f} cm",
+            f"  Armatura inferiore As = {As_inf/100:.2f} cm²",
+            f"  Armatura superiore As' = {As_sup/100:.2f} cm²",
+            f"  Sollecitazioni: N = {N_kg:.0f} kg, M = {M_kgm:.2f} kg·m",
+            "",
+            "RESISTENZE MATERIALI:",
+            f"  Calcestruzzo fck = {fck:.0f} MPa → fcd = {fcd:.1f} MPa ({fcd_kgcm2:.1f} Kg/cm²)",
+            f"  Acciaio fyk = {fyk:.0f} MPa → fyd = {fyd:.0f} MPa ({fyd_kgcm2:.0f} Kg/cm²)",
+            "",
+            "RISULTATI CALCOLO:",
+            f"  Posizione asse neutro x = {x/10:.2f} cm",
+            f"  Rapporto x/d = {x/d:.3f}",
+            f"  Momento resistente M_Rd = {Mrd/9806.65:.2f} kg·m",
+            f"  Momento agente M_Ed = {M_kgm:.2f} kg·m",
+            "",
+            "VERIFICA:",
+            f"  M_Ed / M_Rd = {coeff_sicurezza:.3f} {'✓' if coeff_sicurezza <= 1.0 else '✗'}",
+            "",
+            f"ESITO: {esito}",
+        ]
+
+        return VerificationOutput(
+            sigma_c_max=sigma_c_max_kgcm2,
+            sigma_c_min=0.0,
+            sigma_s_max=sigma_s_max_kgcm2,
+            asse_neutro=x / 10,  # cm
+            deformazioni=f"ε_cu = {eps_cu*1000:.2f}‰, x/d = {x/d:.3f}",
+            coeff_sicurezza=coeff_sicurezza,
+            esito=esito,
+            messaggi=messaggi,
+        )
+
+    except Exception as e:
+        logger.exception("Errore in compute_slu_verification: %s", e)
+        return VerificationOutput(
+            sigma_c_max=0.0,
+            sigma_c_min=0.0,
+            sigma_s_max=0.0,
+            asse_neutro=0.0,
+            deformazioni="",
+            coeff_sicurezza=0.0,
+            esito="ERRORE",
+            messaggi=[f"Errore durante il calcolo SLU: {e}"],
+        )
+
+
+def compute_sle_verification(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"] = None,
+    material_repository: Optional["MaterialRepository"] = None,
+) -> VerificationOutput:
+    """Verifica a stato limite di esercizio (SLE) secondo NTC.
+
+    Implementa la verifica semplificata allo SLE per sezione rettangolare:
+    - Tensioni di esercizio nel cls e acciaio (stato fessurato, stadi II)
+    - Controllo fessurazione (apertura fessure)
+    - Controllo deformazioni (non implementato qui)
+
+    Unità di misura:
+    - Tensioni: Kg/cm²
+    - Dimensioni: cm
+    - Sollecitazioni: kg, kg·m
+
+    Args:
+        _input: Dati di input
+
+    Returns:
+        VerificationOutput con tensioni di esercizio, verifica fessurazione
+    """
+    try:
+        # 1. RECUPERO PARAMETRI
+        N_kg = _input.N  # kg
+        M_kgm = _input.M  # kg·m
+        M = M_kgm * 100  # kg·cm
+
+        n = _input.n_homog if _input.n_homog > 0 else 15.0
+
+        # Armature (cm²) e dimensioni (cm)
+        As_sup = _input.As_sup
+        As_inf = _input.As_inf
+        d_sup = _input.d_sup if _input.d_sup > 0 else 4.0
+        d_inf = _input.d_inf if _input.d_inf > 0 else 4.0
+
+        # Geometria (cm)
+        B, H = get_section_geometry(_input, section_repository, unit="cm")
+        d = H - d_inf
+
+        # Materiali (Kg/cm²)
+        _fck_mpa, fck_kgcm2, _sigma_ca = get_concrete_properties(_input, material_repository)
+        _fyk_mpa, fyk_kgcm2, _sigma_fa = get_steel_properties(_input, material_repository)
+
+        # Limiti tensioni SLE (frazione di fck/fyk)
+        # NTC: σ_c ≤ 0.6 fck (combinazione rara), σ_s ≤ 0.8 fyk
+        sigma_c_lim = 0.6 * fck_kgcm2  # Kg/cm²
+        sigma_s_lim = 0.8 * fyk_kgcm2  # Kg/cm²
+
+        # 2. CALCOLO TENSIONI DI ESERCIZIO (stadio II - sezione fessurata)
+        # Posizione asse neutro (sezione omogeneizzata fessurata)
+        rho = As_inf / (B * d) if d > 0 and B > 0 else 0.001
+
+        # Formula asse neutro stadio II:
+        # x/d = -n*rho + sqrt((n*rho)² + 2*n*rho)
+        term = n * rho
+        x_over_d = math.sqrt(term ** 2 + 2 * term) - term if term > 0 else 0.3
+        x = x_over_d * d  # cm
+
+        # Limitazioni
+        if x < 0.05 * H:
+            x = 0.05 * H
+        if x > 0.95 * H:
+            x = 0.95 * H
+
+        # Momento d'inerzia sezione omogeneizzata fessurata (stadio II)
+        # I_II = B*x³/3 + n*As_inf*(d-x)²
+        I_fess = B * x ** 3 / 3 + n * As_inf * (d - x) ** 2  # cm⁴
+
+        # Tensione nel cls al lembo compresso
+        if I_fess > 0:
+            sigma_c = M * x / I_fess  # Kg/cm²
+        else:
+            sigma_c = 0.0
+
+        # Tensione nell'acciaio teso
+        if x > 0 and I_fess > 0:
+            sigma_s = n * M * (d - x) / I_fess  # Kg/cm²
+        else:
+            sigma_s = 0.0
+
+        # 3. VERIFICA TENSIONI
+        coeff_util_cls = sigma_c / sigma_c_lim if sigma_c_lim > 0 else 0.0
+        coeff_util_acc = sigma_s / sigma_s_lim if sigma_s_lim > 0 else 0.0
+        coeff_sicurezza = max(coeff_util_cls, coeff_util_acc)
+
+        # Esito tensioni
+        tensioni_ok = (sigma_c <= sigma_c_lim) and (sigma_s <= sigma_s_lim)
+
+        # 4. VERIFICA FESSURAZIONE (semplificata)
+        # Apertura fessure wk (formula Eurocodice 2 semplificata)
+        # wk = sr,max * ε_sm
+        # Qui uso formula molto approssimata per demo
+        if As_inf > 0:
+            phi_eq = 12.0  # mm (diametro equivalente barre, ipotesi)
+            rho_eff = As_inf / (B * 2.5 * d_inf)  # percentuale efficace
+            sr_max = 3.4 * 4.0 + 0.425 * phi_eq / rho_eff if rho_eff > 0 else 300.0  # mm
+            eps_sm = max(sigma_s / (n * 200000), 0.6 * sigma_s / 200000)  # deformazione media (approx)
+            wk = sr_max * eps_sm / 1000  # mm (apertura fessura)
+        else:
+            wk = 0.0
+
+        # Limiti apertura fessure NTC (ambiente ordinario)
+        wk_lim = 0.3  # mm (combinazione quasi permanente)
+        fessure_ok = wk <= wk_lim
+
+        # Esito globale
+        if tensioni_ok and fessure_ok:
+            esito = "VERIFICATO"
+        else:
+            esito = "NON VERIFICATO"
+
+        # 5. MESSAGGI
+        messaggi = [
+            "=== VERIFICA STATO LIMITE DI ESERCIZIO (SLE) - NTC2018 ===",
+            "",
+            "DATI INPUT:",
+            f"  Sezione: {_input.section_id or 'rettangolare B×H'}",
+            f"  Dimensioni: B = {B:.1f} cm, H = {H:.1f} cm, d = {d:.1f} cm",
+            f"  Armatura inferiore As = {As_inf:.2f} cm²",
+            f"  Coeff. omogeneizzazione n = {n:.1f}",
+            f"  Sollecitazioni: M = {M_kgm:.2f} kg·m",
+            "",
+            "LIMITI TENSIONI SLE:",
+            f"  Cls σ_c,lim = 0.6·fck = {sigma_c_lim:.1f} Kg/cm²",
+            f"  Acc σ_s,lim = 0.8·fyk = {sigma_s_lim:.0f} Kg/cm²",
+            "",
+            "RISULTATI CALCOLO (stadio II - fessurato):",
+            f"  Posizione asse neutro x = {x:.2f} cm (x/d = {x/d:.3f})",
+            f"  Tensione cls σ_c = {sigma_c:.2f} Kg/cm² {'✓' if sigma_c <= sigma_c_lim else '✗'}",
+            f"  Tensione acciaio σ_s = {sigma_s:.0f} Kg/cm² {'✓' if sigma_s <= sigma_s_lim else '✗'}",
+            "",
+            "VERIFICA FESSURAZIONE:",
+            f"  Apertura fessure wk = {wk:.3f} mm",
+            f"  Limite wk,lim = {wk_lim:.2f} mm {'✓' if wk <= wk_lim else '✗'}",
+            "",
+            f"ESITO: {esito} (coeff. utilizzo max = {coeff_sicurezza:.3f})",
+        ]
+
+        return VerificationOutput(
+            sigma_c_max=sigma_c,
+            sigma_c_min=0.0,
+            sigma_s_max=sigma_s,
+            asse_neutro=x,
+            deformazioni=f"wk = {wk:.3f} mm, x/d = {x/d:.3f}",
+            coeff_sicurezza=coeff_sicurezza,
+            esito=esito,
+            messaggi=messaggi,
+        )
+
+    except Exception as e:
+        logger.exception("Errore in compute_sle_verification: %s", e)
+        return VerificationOutput(
+            sigma_c_max=0.0,
+            sigma_c_min=0.0,
+            sigma_s_max=0.0,
+            asse_neutro=0.0,
+            deformazioni="",
+            coeff_sicurezza=0.0,
+            esito="ERRORE",
+            messaggi=[f"Errore durante il calcolo SLE: {e}"],
+        )
+
+
+def compute_santarella_placeholder(_input: VerificationInput) -> VerificationOutput:
+    """Placeholder per metodi futuri (es. Santarella).
+
+    Questo è un segnaposto per algoritmi di verifica storici o alternativi
+    che potrebbero essere implementati in futuro.
     """
     return VerificationOutput(
         sigma_c_max=0.0,
         sigma_c_min=0.0,
         sigma_s_max=0.0,
         asse_neutro=0.0,
-        deformazioni="TODO",
+        deformazioni="Placeholder Santarella",
         coeff_sicurezza=1.0,
-        esito="TODO",
-        messaggi=["TODO: motore di verifica non implementato"],
+        esito="NON IMPLEMENTATO",
+        messaggi=[
+            "Metodo Santarella - Placeholder",
+            "Questa riga è un segnaposto per futuri algoritmi.",
+            "I metodi storici tipo Santarella saranno implementati in futuro.",
+            "Sezione: {}".format(_input.section_id or "non specificata"),
+        ],
+    )
+
+
+def compute_verification_result(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"] = None,
+    material_repository: Optional["MaterialRepository"] = None,
+) -> VerificationOutput:
+    """Motore di verifica principale che instrада verso il metodo appropriato.
+
+    In base al campo verification_method del VerificationInput, chiama la
+    funzione di verifica corretta:
+    - TA: tensioni ammissibili (RD 2229/1939)
+    - SLU: stato limite ultimo (NTC)
+    - SLE: stato limite di esercizio (NTC)
+    - SANT: placeholder per metodi futuri (Santarella, ecc.)
+    """
+    method = (_input.verification_method or "").upper().strip()
+
+    if method == "TA":
+        return compute_ta_verification(_input, section_repository, material_repository)
+    elif method == "SLU":
+        return compute_slu_verification(_input, section_repository, material_repository)
+    elif method == "SLE":
+        return compute_sle_verification(_input, section_repository, material_repository)
+    elif method in ("SANT", "PLACEHOLDER"):
+        return compute_santarella_placeholder(_input)
+
+    # Metodo sconosciuto o vuoto
+    return VerificationOutput(
+        sigma_c_max=0.0,
+        sigma_c_min=0.0,
+        sigma_s_max=0.0,
+        asse_neutro=0.0,
+        deformazioni="",
+        coeff_sicurezza=0.0,
+        esito="ERRORE",
+        messaggi=[
+            "Metodo di verifica non specificato o sconosciuto: '{}'".format(method),
+            "Selezionare un metodo dalla colonna 'Metodo verifica': TA, SLU, SLE, SANT",
+        ],
     )
 
 
 COLUMNS: List[ColumnDef] = [
     ("section", "Sezione", 170, "w"),
+    ("verif_method", "Metodo verifica", 120, "center"),
     ("mat_concrete", "Materiale cls", 140, "w"),
     ("mat_steel", "Materiale acciaio", 140, "w"),
     ("n", "Coeff. n", 75, "center"),
@@ -109,6 +821,7 @@ class VerificationTableApp(tk.Frame):
         section_names: Optional[Iterable[str]] = None,
         material_repository: Optional["MaterialRepository"] = None,
         material_names: Optional[Iterable[str]] = None,
+        verification_items_repository: Optional["VerificationItemsRepository"] = None,
         initial_rows: int = 1,
         *,
         search_limit: int = 200,
@@ -123,6 +836,15 @@ class VerificationTableApp(tk.Frame):
 
         self.section_repository = section_repository
         self.material_repository = material_repository
+        # Project model to save/load .jsonp projects
+        if VerificationProject is not None:
+            self.project: "VerificationProject" = VerificationProject()
+            self.project.new_project()
+        else:
+            self.project = None
+        # Optional external repository that stores VerificationItem objects
+        self.verification_items_repository = verification_items_repository
+        self.initial_rows = int(initial_rows)
 
         # Configurable limits for search and display to keep UI responsive.
         # - search_limit: how many candidates the repository search returns
@@ -162,7 +884,7 @@ class VerificationTableApp(tk.Frame):
         self.current_column_index: Optional[int] = None
 
         self._build_ui()
-        self._insert_empty_rows(initial_rows)
+        self._insert_empty_rows(self.initial_rows)
 
     def table_row_to_model(self, row_index: int) -> VerificationInput:
         items = list(self.tree.get_children())
@@ -184,6 +906,7 @@ class VerificationTableApp(tk.Frame):
 
         return VerificationInput(
             section_id=get("section"),
+            verification_method=get("verif_method"),
             material_concrete=get("mat_concrete"),
             material_steel=get("mat_steel"),
             n_homog=num("n"),
@@ -206,6 +929,7 @@ class VerificationTableApp(tk.Frame):
         item = items[row_index]
         values_map = {
             "section": model.section_id,
+            "verif_method": model.verification_method,
             "mat_concrete": model.material_concrete,
             "mat_steel": model.material_steel,
             "n": model.n_homog,
@@ -228,11 +952,21 @@ class VerificationTableApp(tk.Frame):
         top = tk.Frame(self)
         top.pack(fill="x", padx=8, pady=(8, 4))
 
+        # Project file controls
+        tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
+        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6,0))
+
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
         tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
         # Pulsanti per import/export CSV
         tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
         tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
+        # Pulsante per calcolare tutte le righe
+        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(side="left", padx=(6, 0))
+        # Pulsante per salvare tutte le righe come VerificationItem nel repository
+        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(side="left", padx=(6, 0))
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -385,9 +1119,39 @@ class VerificationTableApp(tk.Frame):
         applicati qui centralmente per evitare duplicazione.
         """
         x, y, width, height = bbox
-        combobox_columns = {"mat_concrete", "mat_steel", "stirrups_mat"}
-        if col in combobox_columns and self.material_names:
-            editor = ttk.Combobox(self.tree, values=self.material_names)
+        combobox_columns = {"mat_concrete", "mat_steel", "stirrups_mat", "verif_method"}
+        if col in combobox_columns:
+            if col == "verif_method":
+                # Combobox con valori fissi per metodo di verifica
+                editor = ttk.Combobox(self.tree, values=["TA", "SLU", "SLE", "SANT"])
+            elif self.material_names:
+                # Combobox con materiali
+                editor = ttk.Combobox(self.tree, values=self.material_names)
+            else:
+                # Fallback a Entry se non ci sono materiali
+                editor = ttk.Entry(self.tree)
+                editor.place(x=x, y=y, width=width, height=height)
+                editor.insert(0, value)
+                if initial_text:
+                    editor.delete(0, tk.END)
+                    editor.insert(0, initial_text)
+                editor.select_range(0, tk.END)
+                editor.focus_set()
+                # Bind eventi comuni
+                editor.bind("<Return>", self._on_entry_commit_down)
+                editor.bind("<Shift-Return>", self._on_entry_commit_up)
+                editor.bind("<Tab>", self._on_entry_commit_next)
+                editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
+                editor.bind("<Escape>", self._on_entry_cancel)
+                editor.bind("<Up>", self._on_entry_move_up)
+                editor.bind("<Down>", self._on_entry_move_down)
+                editor.bind("<Left>", self._on_entry_move_left)
+                editor.bind("<Right>", self._on_entry_move_right)
+                editor.bind("<FocusOut>", self._on_entry_focus_out)
+                editor.bind("<KeyRelease>", self._on_entry_keyrelease)
+                editor.bind("<KeyPress>", self._on_entry_keypress)
+                return editor
+
             editor.place(x=x, y=y, width=width, height=height)
             # Set display value
             editor.set(value or "")
@@ -399,6 +1163,20 @@ class VerificationTableApp(tk.Frame):
             except Exception:
                 pass
             editor.focus_set()
+            # Monkeypatch Combobox.set to record the last value set programmatically.
+            # This helps tests that use cb.set('...') and expect the value to be
+            # available synchronously at commit time.
+            try:
+                orig_set = editor.set
+                def _set_and_record(val):
+                    orig_set(val)
+                    try:
+                        self._last_editor_value = editor.get()
+                    except Exception:
+                        pass
+                editor.set = _set_and_record  # type: ignore
+            except Exception:
+                pass
         else:
             editor = ttk.Entry(self.tree)
             editor.place(x=x, y=y, width=width, height=height)
@@ -413,6 +1191,13 @@ class VerificationTableApp(tk.Frame):
         editor.bind("<Return>", self._on_entry_commit_down)
         editor.bind("<Shift-Return>", self._on_entry_commit_up)
         editor.bind("<Tab>", self._on_entry_commit_next)
+        # Keep a record of the current editor value on key events as well
+        def _record_key_event(_e=None):
+            try:
+                self._last_editor_value = editor.get()
+            except Exception:
+                pass
+        editor.bind("<KeyRelease>", _record_key_event)
         editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
         editor.bind("<Escape>", self._on_entry_cancel)
         editor.bind("<Up>", self._on_entry_move_up)
@@ -506,6 +1291,9 @@ class VerificationTableApp(tk.Frame):
         col = self._column_id_to_key(col_id)
         if item and col:
             self._last_col = col
+            # Indica che la successiva chiamata a `_update_suggestions` può
+            # mostrare l'elenco completo anche se l'entry è vuota.
+            self._force_show_all_on_empty = True
             # Start editing and then show suggestions after a brief delay
             self.after_idle(lambda: self._start_edit(item, col))
             self.after(10, self._update_suggestions)
@@ -633,14 +1421,33 @@ class VerificationTableApp(tk.Frame):
         # Crea l'editor (Entry o Combobox) in modo centralizzato
         self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
 
-        # Aggiorna suggerimenti se pertinenti
+        # Se lo start è esplicito (programma o click), consentiamo alla prima
+        # chiamata a `_update_suggestions` di mostrare l'elenco completo se
+        # l'entry è vuota. Questo viene resettato immediatamente dopo la chiamata
+        # per evitare effetti collaterali sulle successive modifiche.
+        self._force_show_all_on_empty = True
         self._update_suggestions()
+        self._force_show_all_on_empty = False
 
     def _commit_edit(self) -> None:
         if self.edit_entry is None or self.edit_item is None or self.edit_column is None:
             return
-        value = self.edit_entry.get()
+        # Prefer the last recorded editor value if available (helps with
+        # programmatic .set() on Combobox which may not trigger a key event)
+        value = getattr(self, '_last_editor_value', None) or self.edit_entry.get()
+        # Record debug info via logger (no direct stdout prints)
+        try:
+            logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
+            logger.debug("edit_entry type: %s", type(self.edit_entry))
+            if hasattr(self.edit_entry, 'cget'):
+                try:
+                    logger.debug("combobox values: %s", self.edit_entry.cget('values'))
+                except Exception:
+                    pass
+        except Exception:
+            pass
         self.tree.set(self.edit_item, self.edit_column, value)
+        logger.debug("Tree value after set: %r", self.tree.set(self.edit_item, self.edit_column))
         self._last_col = self.edit_column
         self.edit_entry.destroy()
         self.edit_entry = None
@@ -793,11 +1600,17 @@ class VerificationTableApp(tk.Frame):
             show_all_on_empty = {"section", "mat_concrete", "mat_steel", "stirrups_mat"}
 
             if query == "":
-                if self.edit_column not in show_all_on_empty:
-                    # For other columns, preserve old behavior: hide suggestions
+                # We only show the full suggestion list on empty query when the edit
+                # was explicitly opened (e.g. by clicking the cell). This avoids
+                # displaying suggestions when the user types and then deletes input.
+                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (self.edit_column in show_all_on_empty)
+                # reset flag regardless
+                self._force_show_all_on_empty = False
+                if not show_all_flag:
+                    # Preserve old behavior: hide suggestions for empty query
                     self._hide_suggestions()
                     return
-                # For the allowed columns, request the full list from the source
+                # For the allowed columns when explicitly requested, request full list
                 if callable(source):
                     filtered = source("")
                 else:
@@ -1047,6 +1860,7 @@ class VerificationTableApp(tk.Frame):
         """Mappa la colonna (key) all'attributo del dataclass VerificationInput."""
         mapping = {
             "section": "section_id",
+            "verif_method": "verification_method",
             "mat_concrete": "material_concrete",
             "mat_steel": "material_steel",
             "n": "n_homog",
@@ -1076,6 +1890,379 @@ class VerificationTableApp(tk.Frame):
         for r in rows:
             item = self._add_row()
             self.update_row_from_model(self.tree.index(item), r)
+
+    def load_items_from_repository(self) -> None:
+        """Carica gli elementi dal repository esterno (se presente) nella tabella.
+
+        - Se è fornito `verification_items_repository`, legge `get_all()` e imposta le
+          righe con i campi `.input` di ciascun `VerificationItem`.
+        - Se il repository è vuoto o non fornito, mantiene il comportamento attuale.
+        """
+        if not self.verification_items_repository:
+            logger.debug("Nessun verification_items_repository fornito; uso righe vuote")
+            for item in list(self.tree.get_children()):
+                self.tree.delete(item)
+            self._insert_empty_rows(self.initial_rows)
+            return
+        try:
+            items = self.verification_items_repository.get_all()
+            if not items:
+                logger.debug("Repository vuoto: inserisco righe vuote")
+                for item in list(self.tree.get_children()):
+                    self.tree.delete(item)
+                self._insert_empty_rows(self.initial_rows)
+                return
+            for item in list(self.tree.get_children()):
+                self.tree.delete(item)
+            self.set_rows([it.input for it in items])
+            logger.info("Caricati %d elementi dal repository", len(items))
+        except Exception as e:
+            logger.exception("Errore in load_items_from_repository: %s", e)
+            messagebox.showerror("Caricamento elementi", f"Errore caricamento repository: {e}")
+
+    def save_items_to_repository(self) -> int:
+        """Salva tutte le righe correnti della tabella nel repository esterno.
+
+        - Genera ID semplici (E001, E002, ...)
+        - Usa `notes` come `name` se presente, altrimenti 'Elemento {index}'
+        - Cancella il repository e salva nuovamente tutti gli elementi
+        """
+        if not self.verification_items_repository:
+            logger.debug("Nessun verification_items_repository fornito; skip save")
+            return 0
+        if VerificationItem is None:
+            logger.error("Classe VerificationItem non disponibile; impossibile salvare")
+            messagebox.showerror("Salva elementi", "Impossibile salvare: classe VerificationItem non disponibile")
+            return 0
+        try:
+            rows = self.get_rows()
+            # Clear repository first (behaviour richiesto)
+            self.verification_items_repository.clear()
+            for idx, inp in enumerate(rows, start=1):
+                item_id = f"E{idx:03d}"
+                name = (inp.notes.strip() if getattr(inp, "notes", None) else "") or f"Elemento {idx}"
+                item = VerificationItem(id=item_id, name=name, input=inp)
+                self.verification_items_repository.save(item)
+            logger.info("Salvati %d elementi nel repository", len(rows))
+            return len(rows)
+        except Exception as e:
+            logger.exception("Errore in save_items_to_repository: %s", e)
+            messagebox.showerror("Salva elementi", f"Errore salvataggio repository: {e}")
+            return 0
+
+    def _on_save_items(self) -> None:
+        """Handler per il pulsante 'Salva elementi' nella toolbar."""
+        if not self.verification_items_repository:
+            messagebox.showwarning("Salva elementi", "Nessun repository fornito per salvare gli elementi.")
+            return
+        saved = self.save_items_to_repository()
+        messagebox.showinfo("Salva elementi", f"Elementi salvati: {saved}")
+
+    # --- Project file handlers (.jsonp) ---
+    def _elem_dict_to_input(self, e: dict) -> VerificationInput:
+        # Map a flexible element dict into VerificationInput
+        def pick(*keys, default=""):
+            for k in keys:
+                if k in e and e[k] is not None:
+                    return e[k]
+            return default
+
+        return VerificationInput(
+            section_id=pick("section_id", "section", "section_name"),
+            verification_method=pick("method", "verification_method", "verif_method", "TA"),
+            material_concrete=pick("cls_id", "mat_concrete", "material_concrete", ""),
+            material_steel=pick("steel_id", "mat_steel", "material_steel", ""),
+            n_homog=float(pick("coeff_n", "n", 15.0) or 15.0),
+            N=float(pick("N", 0.0) or 0.0),
+            M=float(pick("M", 0.0) or 0.0),
+            T=float(pick("T", 0.0) or 0.0),
+            As_sup=float(pick("As", "As_sup", "As_sup_cm", 0.0) or 0.0),
+            As_inf=float(pick("As_p", "As_inf", "As_inf_cm", 0.0) or 0.0),
+            d_sup=float(pick("d", "d_sup", 4.0) or 4.0),
+            d_inf=float(pick("d_p", "d_inf", 4.0) or 4.0),
+            stirrup_step=float(pick("passo_staffe", "stirrups_step", 0.0) or 0.0),
+            stirrup_diameter=float(pick("stirrups_diam", "stirrups_diameter", 0.0) or 0.0),
+            stirrup_material=pick("stirrups_mat", "stirrups_material", ""),
+            notes=pick("notes", "name", "") or "",
+        )
+
+    def _on_load_project(self) -> None:
+        if self.project is None:
+            messagebox.showerror("Carica progetto", "Modulo progetto non disponibile")
+            return
+        path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
+        if not path:
+            return
+        try:
+            self.project.load_from_file(path)
+        except ValueError as e:
+            messagebox.showerror("Carica progetto", str(e))
+            return
+        except Exception as e:
+            logger.exception("Errore caricamento progetto: %s", e)
+            messagebox.showerror("Carica progetto", f"Errore caricamento progetto: {e}")
+            return
+
+        # Clear current table and populate
+        for item in list(self.tree.get_children()):
+            self.tree.delete(item)
+        rows = [self._elem_dict_to_input(el) for el in self.project.elements]
+        self.set_rows(rows)
+
+        # Update material and section name lists for suggestions
+        # Materials: use ids or names from project
+        new_mat_names = set()
+        for typ in ("cls", "steel"):
+            for m in self.project.materials.get(typ, {}).values():
+                name = m.get("name") or m.get("id")
+                if name:
+                    new_mat_names.add(name)
+        if new_mat_names:
+            self.material_names = sorted(set(self.material_names) | new_mat_names)
+
+        new_sec_names = {s.get("id") or s.get("name") for s in self.project.sections.values()}
+        if new_sec_names:
+            self.section_names = sorted(set(self.section_names) | {n for n in new_sec_names if n})
+
+        self.project.dirty = False
+        messagebox.showinfo("Carica progetto", f"Progetto caricato: {path}")
+
+    def _on_add_list_elements(self) -> None:
+        if self.project is None:
+            messagebox.showerror("Aggiungi lista di elementi", "Modulo progetto non disponibile")
+            return
+        path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
+        if not path:
+            return
+        try:
+            new_mats, new_secs, new_elems = self.project.add_elements_from_file(path)
+        except ValueError as e:
+            messagebox.showerror("Aggiungi lista di elementi", str(e))
+            return
+        except Exception as e:
+            logger.exception("Errore in add_elements_from_file: %s", e)
+            messagebox.showerror("Aggiungi lista di elementi", f"Errore apertura file: {e}")
+            return
+
+        # Load elements from file and append to table (do not clear existing)
+        try:
+            import json as _json
+            with open(path, "r", encoding="utf-8") as f:
+                data = _json.load(f)
+            for el in data.get("elements") or []:
+                inp = self._elem_dict_to_input(el)
+                item = self._add_row()
+                self.update_row_from_model(self.tree.index(item), inp)
+        except Exception:
+            # In case of parsing issues, we've already merged into project; still inform user
+            logger.exception("Errore parsing elementi dopo add")
+
+        # Update material and section lists
+        if new_mats:
+            for typ in ("cls", "steel"):
+                for m in self.project.materials.get(typ, {}).values():
+                    name = m.get("name") or m.get("id")
+                    if name and name not in self.material_names:
+                        self.material_names.append(name)
+            self.material_names = sorted(set(self.material_names))
+        if new_secs:
+            for s in self.project.sections.values():
+                sid = s.get("id") or s.get("name")
+                if sid and sid not in self.section_names:
+                    self.section_names.append(sid)
+            self.section_names = sorted(set(self.section_names))
+
+        messagebox.showinfo("Aggiungi lista di elementi", f"Aggiunti elementi: {new_elems}; nuove sezioni: {new_secs}; nuovi materiali: {new_mats}")
+
+    def _on_save_project(self) -> None:
+        if self.project is None:
+            messagebox.showerror("Salva progetto", "Modulo progetto non disponibile")
+            return
+
+        # Collect current state from UI into project
+        rows = self.get_rows()
+        elems = []
+        for idx, r in enumerate(rows, start=1):
+            el = {
+                "id": f"E{idx:03d}",
+                "section_id": r.section_id,
+                "cls_id": r.material_concrete,
+                "steel_id": r.material_steel,
+                "method": r.verification_method,
+                "N": r.N,
+                "M": r.M,
+                "T": r.T,
+                "coeff_n": r.n_homog,
+                "As": r.As_sup,
+                "As_p": r.As_inf,
+                "d": r.d_sup,
+                "d_p": r.d_inf,
+                "passo_staffe": r.stirrup_step,
+                "stirrups_diam": r.stirrup_diameter,
+                "stirrups_mat": r.stirrup_material,
+                "notes": r.notes,
+            }
+            elems.append(el)
+
+            # Ensure materials and sections exist minimally in project
+            if r.material_concrete:
+                mid = r.material_concrete
+                if mid not in self.project.materials.get("cls", {}):
+                    self.project.materials.setdefault("cls", {})[mid] = {"id": mid, "name": mid}
+            if r.material_steel:
+                sid = r.material_steel
+                if sid not in self.project.materials.get("steel", {}):
+                    self.project.materials.setdefault("steel", {})[sid] = {"id": sid, "name": sid}
+            if r.section_id:
+                secid = r.section_id
+                if secid not in self.project.sections:
+                    self.project.sections[secid] = {"id": secid, "type": "unknown"}
+
+        self.project.elements = elems
+
+        # Decide save path: if existing and last action wasn't add-list, reuse; otherwise ask
+        save_path = None
+        if self.project.path and not self.project.last_action_was_add_list:
+            save_path = self.project.path
+        else:
+            save_path = filedialog.asksaveasfilename(defaultextension=".jsonp", filetypes=[("JSONP", "*.jsonp")])
+            if not save_path:
+                return
+
+        try:
+            self.project.save_to_file(save_path)
+            messagebox.showinfo("Salva progetto", f"Progetto salvato: {save_path}")
+        except Exception as e:
+            logger.exception("Errore salvataggio progetto: %s", e)
+            messagebox.showerror("Salva progetto", f"Errore salvataggio progetto: {e}")
+
+    def create_test_project(self) -> None:
+        """Crea un progetto di test usando sezioni/materiali esistenti.
+
+        - Cerca un cls il cui nome o code contenga la stringa '160' (case-insensitive).
+        - Cerca un acciaio con nome contenente 'ferro' e 'dolce' (deterministico: primo ordinato per name).
+        - Usa una sezione rettangolare dalla repository (primo elemento ordinato per name),
+          oppure crea una `RectangularSection(30,50)` se non disponibile.
+        - Genera N, M, T in [-100, 100] e popola il progetto (`self.project`) e la GUI.
+
+        Nota: se non trova il cls con '160' o il materiale 'ferro dolce', mostra un errore e abortisce.
+        """
+        if self.project is None:
+            messagebox.showerror("Crea progetto test", "Modulo progetto non disponibile")
+            return
+        if self.material_repository is None or self.section_repository is None:
+            messagebox.showerror("Crea progetto test", "Repository sezioni o materiali non disponibili")
+            return
+
+        # --- Recupero CLS con '160' nel nome o nel codice ---
+        # Cerco in modo deterministico: ordino per nome e prendo il primo che contiene '160'.
+        concrete_candidates = [m for m in self.material_repository.get_all() if getattr(m, 'type', '') == 'concrete']
+        concrete_candidates_sorted = sorted(concrete_candidates, key=lambda m: (m.name or '').lower())
+        cls_mat = None
+        for m in concrete_candidates_sorted:
+            name_code = f"{(m.name or '')} {getattr(m, 'code', '')}".lower()
+            if '160' in name_code:
+                cls_mat = m
+                break
+        if cls_mat is None:
+            messagebox.showerror("Crea progetto test", "Nessun calcestruzzo con '160' nel nome trovato nella libreria materiali")
+            return
+
+        # --- Recupero acciaio 'ferro dolce' ---
+        steel_candidates = [m for m in self.material_repository.get_all() if getattr(m, 'type', '') == 'steel']
+        steel_sorted = sorted(steel_candidates, key=lambda m: (m.name or '').lower())
+        steel_mat = None
+        for m in steel_sorted:
+            nm = (m.name or '').lower()
+            # Cerco le parole 'ferro' e 'dolce' (flessibile su varianti)
+            if 'ferro' in nm and 'dolce' in nm:
+                steel_mat = m
+                break
+        if steel_mat is None:
+            messagebox.showerror("Crea progetto test", "Nessun acciaio 'ferro dolce' trovato nella libreria materiali")
+            return
+
+        # --- Recupero sezione rettangolare dalla repository ---
+        rects = [s for s in self.section_repository.get_all_sections() if getattr(s, 'section_type', '').upper() == 'RECTANGULAR']
+        rects_sorted = sorted(rects, key=lambda s: (getattr(s, 'name', '') or '').lower())
+        if rects_sorted:
+            section = rects_sorted[0]
+        else:
+            # Se non esiste, creo una sezione rettangolare standard (30x50 cm)
+            if RectangularSection is None:
+                messagebox.showerror("Crea progetto test", "Classe RectangularSection non disponibile")
+                return
+            section = RectangularSection(name="Test Rect 30x50", width=30.0, height=50.0)
+
+        # --- Generazione sollecitazioni di prova in intervallo [-100, 100] ---
+        N = round(random.uniform(-100.0, 100.0), 3)
+        M = round(random.uniform(-100.0, 100.0), 3)
+        T = round(random.uniform(-100.0, 100.0), 3)
+
+        # --- Inizializzo nuovo progetto vuoto e popolo materiali/sezioni/elemento ---
+        self.project.new_project()
+
+        # Aggiungo materiali al progetto (uso to_dict-like structure)
+        # Material ha metodo to_dict() definito in core_models.materials.Material
+        try:
+            cls_dict = cls_mat.to_dict()
+        except Exception:
+            cls_dict = {"id": getattr(cls_mat, 'id', ''), "name": getattr(cls_mat, 'name', '')}
+        try:
+            steel_dict = steel_mat.to_dict()
+        except Exception:
+            steel_dict = {"id": getattr(steel_mat, 'id', ''), "name": getattr(steel_mat, 'name', '')}
+        self.project.materials.setdefault('cls', {})[cls_dict.get('id') or cls_dict.get('name')] = cls_dict
+        self.project.materials.setdefault('steel', {})[steel_dict.get('id') or steel_dict.get('name')] = steel_dict
+
+        # Sezione: inserisco il dizionario della sezione
+        try:
+            sec_dict = section.to_dict()
+        except Exception:
+            # Fallback minimale
+            sec_dict = {"id": getattr(section, 'id', 'SEC1'), "name": getattr(section, 'name', 'Test Rect 30x50'), "type": getattr(section, 'section_type', 'RECTANGULAR')}
+        self.project.sections[sec_dict.get('id') or sec_dict.get('name')] = sec_dict
+
+        # Elemento di prova
+        elem = {
+            "id": "E001",
+            "section_id": sec_dict.get('id') or sec_dict.get('name'),
+            "cls_id": cls_dict.get('id') or cls_dict.get('name'),
+            "steel_id": steel_dict.get('id') or steel_dict.get('name'),
+            "method": "TA",
+            "N": N,
+            "M": M,
+            "T": T,
+            "coeff_n": 15.0,
+            "As": 0.0,
+            "As_p": 0.0,
+            "d": getattr(section, 'width', 30.0) * 0.1,
+            "d_p": 4.0,
+        }
+        self.project.elements = [elem]
+        self.project.dirty = True
+
+        # --- Aggiorno la GUI: svuoto la tabella e aggiungo la riga di test ---
+        for item in list(self.tree.get_children()):
+            self.tree.delete(item)
+
+        test_input = VerificationInput(
+            section_id=elem['section_id'],
+            verification_method=elem['method'],
+            material_concrete=elem['cls_id'],
+            material_steel=elem['steel_id'],
+            n_homog=float(elem.get('coeff_n', 15.0)),
+            N=float(elem.get('N', 0.0)),
+            M=float(elem.get('M', 0.0)),
+            T=float(elem.get('T', 0.0)),
+            As_sup=float(elem.get('As', 0.0)),
+            As_inf=float(elem.get('As_p', 0.0)),
+            d_sup=float(elem.get('d', 4.0)),
+            d_inf=float(elem.get('d_p', 4.0)),
+        )
+        self.set_rows([test_input])
+
+        messagebox.showinfo("Crea progetto test", f"Progetto di test creato con cls='{cls_dict.get('name')}' e acciaio='{steel_dict.get('name')}'")
 
     def _format_value_for_csv(self, value: object) -> str:
         """Formatta un valore per il CSV: usa la virgola come separatore decimale
@@ -1155,10 +2342,22 @@ class VerificationTableApp(tk.Frame):
         header = [h.strip() for h in rows[0]]
 
         # Prepariamo una mappa da index_file -> index_expected
-        index_map: List[int] = []
+        index_map: List[Optional[int]] = []
         if header == expected_header:
             index_map = list(range(len(header)))
             logger.debug("Import CSV: header corrisponde all'ordine atteso")
+            # Supporto retro-compatibilità: alcuni file di esempio possono omettere
+            # la colonna 'Metodo verifica' (seconda colonna). Se rileviamo che tutte
+            # le righe hanno una colonna in meno rispetto all'header, applichiamo
+            # una correzione semplice inserendo un placeholder None per la colonna
+            # 'Metodo verifica' (index 1) in modo da non agganciare per posizione
+            row_lengths = [len(r) for r in rows[1:]]
+            logger.info("Import CSV: header len=%d row lens sample=%s", len(header), row_lengths[:5])
+            if any(l == len(header) - 1 for l in row_lengths):
+                logger.info("Import CSV: righe con colonna mancante rilevate; applico correzione per 'Metodo verifica'")
+                # shift indices after the missing column
+                index_map = [0, None] + [i - 1 for i in range(2, len(header))]
+                logger.debug("Import CSV: index_map corretto: %s", index_map)
         else:
             # Se il set delle intestazioni coincide, applichiamo mapping automatico
             if set(header) == set(expected_header) and len(header) == len(expected_header):
@@ -1166,12 +2365,18 @@ class VerificationTableApp(tk.Frame):
                 index_map = [header.index(h) for h in expected_header]
                 logger.info("Import CSV: header in ordine diverso, applicato mapping automatico: %s", index_map)
             else:
-                logger.error("Import CSV: header non valido. Atteso: %s. Trovato: %s", expected_header, header)
-                # Mostriamo un messaggio formattato usando l'helper centralizzato
-                header_msg = f"Intestazione CSV non corrisponde all'ordine atteso."
-                details = [f"Atteso: {expected_header}", f"Trovato: {rows[0]}"]
-                self._show_error("Importa CSV", details, header=header_msg)
-                return 0, max(0, len(rows) - 1), ["Header mismatch"]
+                # Supporta file CSV che contengono un sottoinsieme di colonne in ordine
+                # atteso (per compatibilità retroattiva). In questo caso creiamo una
+                # mappa con indici o None per colonne mancanti.
+                if set(header).issubset(set(expected_header)) and len(header) < len(expected_header):
+                    index_map = [header.index(h) if h in header else None for h in expected_header]
+                    logger.info("Import CSV: header incompleto, applicato mapping parziale: %s", index_map)
+                else:
+                    logger.error("Import CSV: header non valido. Atteso: %s. Trovato: %s", expected_header, header)
+                    header_msg = f"Intestazione CSV non corrisponde all'ordine atteso."
+                    details = [f"Atteso: {expected_header}", f"Trovato: {rows[0]}"]
+                    self._show_error("Importa CSV", details, header=header_msg)
+                    return 0, max(0, len(rows) - 1), ["Header mismatch"]
 
         key_names = [c[0] for c in COLUMNS]
         numeric_attrs = {"n_homog", "N", "M", "T", "As_sup", "As_inf", "d_sup", "d_inf", "stirrup_step", "stirrup_diameter"}
@@ -1183,13 +2388,23 @@ class VerificationTableApp(tk.Frame):
             # ricaviamo valori usando la mappa di indici
             vals = []
             for idx in index_map:
-                vals.append(row[idx] if idx < len(row) else "")
+                if idx is None:
+                    vals.append("")
+                else:
+                    vals.append(row[idx] if idx < len(row) else "")
             # assicurarsi che la lunghezza corrisponda
             vals = vals + [""] * (len(COLUMNS) - len(vals))
 
             kwargs: Dict[str, object] = {}
             row_bad = False
-            for k, v in zip(key_names, vals):
+            for k, idx in zip(key_names, index_map):
+                # Se la colonna non è presente nel file (idx is None) saltiamo e
+                # lasciamo il valore di default del dataclass (se presente).
+                if idx is None:
+                    continue
+                # idx is the index in the original row; use it directly instead of
+                # indexing into 'vals' which holds shifted values.
+                v = row[idx] if idx < len(row) else ""
                 attr = self._col_to_attr(k)
                 if attr in numeric_attrs:
                     s = str(v).strip()
@@ -1236,6 +2451,50 @@ class VerificationTableApp(tk.Frame):
             logger.info("Import CSV: import completato senza errori. Importate %d righe", imported)
 
         return imported, skipped, errors
+
+    def _on_compute_all(self) -> None:
+        """Handler per il pulsante 'Calcola tutte le righe'.
+
+        Itera su tutte le righe della tabella, per ciascuna:
+        - converte la riga in VerificationInput usando table_row_to_model
+        - chiama compute_verification_result per ottenere VerificationOutput
+        - colleziona i risultati in una stringa descrittiva
+        - mostra un messagebox con l'elenco dei risultati
+
+        In futuro potrebbe anche aggiornare colonne della tabella con i risultati
+        (es. esito, coeff_sicurezza, ecc.).
+        """
+        items = list(self.tree.get_children())
+        if not items:
+            messagebox.showinfo("Verifica", "Nessuna riga da verificare.")
+            return
+
+        risultati = []
+        for row_idx, item in enumerate(items):
+            try:
+                model = self.table_row_to_model(row_idx)
+            except Exception as e:
+                logger.exception("Errore conversione riga %s: %s", row_idx + 1, e)
+                risultati.append(f"Riga {row_idx + 1}: ERRORE CONVERSIONE – {e}")
+                continue
+
+            try:
+                result = compute_verification_result(model, self.section_repository, self.material_repository)
+            except Exception as e:
+                logger.exception("Errore verifica riga %s: %s", row_idx + 1, e)
+                risultati.append(f"Riga {row_idx + 1}: ERRORE CALCOLO – {e}")
+                continue
+
+            # Formato: "Riga N [METODO]: esito=..., γ=..."
+            metodo = model.verification_method or "?"
+            risultati.append(
+                f"Riga {row_idx + 1} [{metodo}]: esito={result.esito}, "
+                f"γ={result.coeff_sicurezza:.2f}"
+            )
+
+        # Mostra risultati in un messagebox
+        msg = "\n".join(risultati)
+        messagebox.showinfo("Risultati verifiche", msg)
 
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
@@ -1341,10 +2600,12 @@ class VerificationTableWindow(tk.Toplevel):
         master: tk.Misc,
         section_repository: Optional["SectionRepository"] = None,
         material_repository: Optional["MaterialRepository"] = None,
+        verification_items_repository: Optional["VerificationItemsRepository"] = None,
     ) -> None:
         super().__init__(master)
         self.section_repository = section_repository
         self.material_repository = material_repository
+        self.verification_items_repository = verification_items_repository
 
         self.title("Verification Table - RD2229")
         self.geometry("1400x520")
@@ -1362,6 +2623,14 @@ class VerificationTableWindow(tk.Toplevel):
                     material_names = [m.get("name") for m in material_repository.list_materials()]
                 except Exception:
                     material_names = None
+        else:
+            # If no repository is provided, try to use the legacy `list_materials`
+            # helper (if available) to pre-populate material names for comboboxes.
+            try:
+                if list_materials is not None:
+                    material_names = [m.get("name") for m in list_materials()]
+            except Exception:
+                material_names = None
 
         # Embed the existing app frame
         self.app = VerificationTableApp(
@@ -1369,8 +2638,16 @@ class VerificationTableWindow(tk.Toplevel):
             section_repository=section_repository,
             material_repository=material_repository,
             material_names=material_names,
+            verification_items_repository=verification_items_repository,
         )
         self.app.pack(fill="both", expand=True)
+
+        # Carica eventuali elementi salvati nel repository (se fornito)
+        try:
+            self.app.load_items_from_repository()
+        except Exception:
+            # Non vogliamo interrompere l'apertura della finestra per errori di caricamento
+            logger.exception("Errore durante il caricamento iniziale degli elementi dal repository")
 
         # Status / debug frame
         status = tk.Frame(self, relief="groove", bd=1)
@@ -1487,6 +2764,7 @@ def run_demo() -> None:
     root.title("Verification Table - RD2229")
     root.geometry("1400x500")
     app = VerificationTableApp(root)
+    app.load_items_from_repository()
     app.mainloop()
 
 

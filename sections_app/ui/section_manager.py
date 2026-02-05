@@ -8,6 +8,13 @@ from tkinter import filedialog, messagebox, ttk
 
 from sections_app.models.sections import CSV_HEADERS, Section
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.services.event_bus import (
+    EventBus,
+    SECTIONS_ADDED,
+    SECTIONS_UPDATED,
+    SECTIONS_DELETED,
+    SECTIONS_CLEARED,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -116,14 +123,34 @@ def sort_treeview(tree: ttk.Treeview, col: str, reverse: bool) -> None:
 
 class SectionManager(tk.Toplevel):
     """
-    Finestra di gestione dell'archivio sezioni con visualizzazione completa di tutti i dati.
+    📊 FINESTRA DI GESTIONE ARCHIVIO SEZIONI - Visualizzazione Completa e Auto-Refresh
     
-    Caratteristiche:
-    - Mostra tutte le proprietà geometriche e calcolate in colonne strette e ottimizzate
-    - ID nascosta ma presente per tracciamento interno
-    - Ordinamento cliccabile sulle intestazioni (crescente/decrescente)
-    - Tooltip al passaggio del mouse per valori lunghi
-    - Import/export CSV mantenendo la compatibilità
+    Responsabilità:
+    - VISUALIZZAZIONE: Mostra tutte le proprietà geometriche e calcolate in tabella ottimizzata
+    - AUTO-REFRESH: Si aggiorna automaticamente quando il repository cambia (via EventBus)
+    - ORDINAMENTO: Click su intestazioni per ordinare colonne (crescente/decrescente)
+    - TOOLTIP: Mostra valori completi al passaggio del mouse su celle lunghe
+    - IMPORT/EXPORT: Compatibilità CSV mantenuta per interoperabilità
+    - RESTA APERTA: Dopo "Nuova sezione", il manager rimane aperto per operazioni multiple
+    
+    🎯 RESPONSABILITÀ
+    --------------
+    Il Section Manager è un **semplice visualizzatore/gestore** dell'archivio sezioni:
+    - NON contiene dati hard coded delle sezioni
+    - Legge/scrive SEMPRE tramite `SectionRepository` (unico punto di accesso ai dati)
+    - Si aggiorna automaticamente quando le sezioni cambiano (grazie all'EventBus)
+    
+    🔄 AGGIORNAMENTO AUTOMATICO
+    --------------------------
+    Quando una sezione viene salvata dal Geometry Module, il repository emette un evento.
+    Questo manager si sottoscrive agli eventi e ricarica automaticamente la lista.
+    Eventi gestiti: SECTIONS_ADDED, SECTIONS_UPDATED, SECTIONS_DELETED, SECTIONS_CLEARED
+    
+    📂 PERSISTENZA DATI
+    ------------------
+    Tutti i dati delle sezioni sono salvati in `sections.json` tramite `SectionRepository`.
+    La struttura JSON è estendibile: ogni sezione è un dizionario con campi geometrici
+    e proprietà calcolate (area, baricentro, momenti di inerzia, ecc.).
     """
 
     def __init__(
@@ -136,6 +163,8 @@ class SectionManager(tk.Toplevel):
         super().__init__(master)
         self.title("Archivio Sezioni - Visualizzazione Completa")
         
+        # ✅ REPOSITORY: unico punto di accesso ai dati delle sezioni
+        # Gestisce caricamento/salvataggio da/verso sections.json, backup, validazione
         self.repository = repository
         self.serializer = serializer
         self.on_edit = on_edit
@@ -143,8 +172,58 @@ class SectionManager(tk.Toplevel):
         # Traccia se il sorting è stato mai toccato per la colonna corrente
         self._sort_state: Dict[str, bool] = {}
 
+        # ✅ AUTO-REFRESH: sottoscrizione agli eventi del repository
+        # Quando il Geometry Module salva/modifica/elimina una sezione, il repository
+        # emette un evento e questo manager ricarica automaticamente la lista
+        self._event_bus = EventBus()
+        self._event_bus.subscribe(SECTIONS_ADDED, self._on_sections_changed)
+        self._event_bus.subscribe(SECTIONS_UPDATED, self._on_sections_changed)
+        self._event_bus.subscribe(SECTIONS_DELETED, self._on_sections_changed)
+        self._event_bus.subscribe(SECTIONS_CLEARED, self._on_sections_changed)
+
+        # Assicura cleanup quando la finestra viene chiusa
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
+        self.bind("<Destroy>", self._on_destroy)
+
         self._build_ui()
         self._refresh_table()
+
+    def _on_sections_changed(self, *args, **kwargs) -> None:
+        """
+        Callback chiamato dall'EventBus quando le sezioni cambiano nel repository.
+        
+        Questo metodo ricarica automaticamente la lista delle sezioni nella Treeview,
+        così l'utente vede sempre i dati aggiornati senza dover riaprire la finestra.
+        """
+        logger.debug("Section Manager riceve notifica di cambio dati, ricarico la lista")
+        self.refresh_sections()
+
+    def _on_close(self) -> None:
+        """Handler per la chiusura della finestra via protocollo WM_DELETE_WINDOW."""
+        self._cleanup_event_subscriptions()
+        self.destroy()
+
+    def _on_destroy(self, event=None) -> None:
+        """Handler per l'evento <Destroy> della finestra."""
+        # Assicura cleanup anche se la finestra viene distrutta in altro modo
+        if event is None or event.widget == self:
+            self._cleanup_event_subscriptions()
+
+    def _cleanup_event_subscriptions(self) -> None:
+        """
+        Rimuove le sottoscrizioni agli eventi per evitare memory leak.
+        
+        Quando la finestra viene chiusa, è importante disiscriversi dall'EventBus
+        per evitare che il callback venga chiamato su una finestra distrutta.
+        """
+        try:
+            self._event_bus.unsubscribe(SECTIONS_ADDED, self._on_sections_changed)
+            self._event_bus.unsubscribe(SECTIONS_UPDATED, self._on_sections_changed)
+            self._event_bus.unsubscribe(SECTIONS_DELETED, self._on_sections_changed)
+            self._event_bus.unsubscribe(SECTIONS_CLEARED, self._on_sections_changed)
+            logger.debug("Section Manager: cleanup sottoscrizioni eventi completato")
+        except Exception as e:
+            logger.debug("Errore durante cleanup sottoscrizioni eventi: %s", e)
 
     def _build_ui(self) -> None:
         """Costruisce l'interfaccia della finestra con Treeview e bottoni."""
@@ -337,10 +416,28 @@ class SectionManager(tk.Toplevel):
         
         logger.debug("Treeview ricaricato con %d sezioni", len(self.tree.get_children()))
 
-    def reload_sections_in_treeview(self) -> None:
-        """Public API: ricarica tutte le sezioni nel treeview (chiamabile dopo add/update/delete)."""
-        logger.debug("Ricarico sezioni nel Treeview")
+    def refresh_sections(self) -> None:
+        """
+        ✅ REFRESH MANUALE: ricarica tutte le sezioni dal repository e aggiorna la GUI.
+        
+        Questo metodo è il punto centrale per aggiornare la visualizzazione:
+        - Legge tutte le sezioni dal repository (che le carica da sections.json)
+        - Svuota il widget Treeview
+        - Ripopola il widget con i dati aggiornati
+        
+        Viene chiamato:
+        - All'apertura della finestra (inizializzazione)
+        - Automaticamente quando il repository emette eventi di modifica dati
+        - Manualmente dopo operazioni locali (import CSV, delete)
+        
+        Uso da altre parti del codice:
+        - section_manager.refresh_sections()  # dopo aver modificato i dati
+        """
         self._refresh_table()
+
+    def reload_sections_in_treeview(self) -> None:
+        """Public API legacy: alias per refresh_sections()."""
+        self.refresh_sections()
 
     def _get_selected_section(self) -> Optional[Section]:
         selected = self.tree.focus()
@@ -350,7 +447,82 @@ class SectionManager(tk.Toplevel):
         return self.repository.find_by_id(selected)
 
     def _new_section(self) -> None:
-        messagebox.showinfo("Nuova", "Compila i campi nella finestra principale e salva.")
+        """
+        ✅ CREA NUOVA SEZIONE: apre il Geometry Module per creare una nuova sezione.
+        
+        COMPORTAMENTO CHIAVE:
+        - Il Section Manager rimane aperto e attivo
+        - Il Geometry Module si apre/va in primo piano
+        - Quando l'utente salva la nuova sezione dal Geometry Module:
+          → il repository emette un evento SECTIONS_ADDED
+          → questo manager riceve l'evento e ricarica automaticamente la lista
+          → l'utente vede la nuova sezione apparire senza dover riaprire il manager
+        
+        NOTA: NON chiude il Section Manager (a differenza del comportamento precedente).
+        """
+        # Caso 1: master è MainWindow (ha reset_form)
+        try:
+            if hasattr(self.master, "reset_form") and callable(getattr(self.master, "reset_form")):
+                try:
+                    self.master.reset_form()
+                    try:
+                        self.master.lift()
+                        self.master.focus_force()
+                    except Exception:
+                        pass
+                    # ✅ NON chiude il manager: rimosso self.destroy()
+                    logger.debug("Reset form Geometry per nuova sezione (manager resta aperto)")
+                    return
+                except Exception:
+                    logger.exception("Errore nel resettare la form del master per nuova sezione")
+        except Exception:
+            logger.exception("Errore nel controllare reset_form sul master")
+
+        # Caso 2: master è ModuleSelector (ha _open_geometry)
+        try:
+            if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
+                try:
+                    # Apri Geometry tramite il master; ci aspettiamo che il master imposti _geometry_window
+                    self.master._open_geometry()
+                    gw = getattr(self.master, "_geometry_window", None)
+                    if gw is not None and hasattr(gw, "reset_form") and callable(getattr(gw, "reset_form")):
+                        try:
+                            gw.reset_form()
+                            try:
+                                gw.lift()
+                                gw.focus_force()
+                            except Exception:
+                                pass
+                            # ✅ NON chiude il manager: rimosso self.destroy()
+                            logger.debug("Aperto Geometry per nuova sezione (manager resta aperto)")
+                            return
+                        except Exception:
+                            logger.exception("Errore nel resettare la form di Geometry dopo apertura da ModuleSelector")
+                except Exception:
+                    logger.exception("Errore aprendo Geometry dal master per nuova sezione")
+        except Exception:
+            logger.exception("Errore nel controllare _open_geometry sul master")
+
+        # Fallback: chiedi all'utente se aprire l'editor
+        try:
+            if messagebox.askyesno("Apri editor", "Vuoi aprire l'editor per creare una nuova sezione?"):
+                try:
+                    if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
+                        self.master._open_geometry()
+                        gw = getattr(self.master, "_geometry_window", None)
+                        if gw is not None and hasattr(gw, "reset_form"):
+                            try:
+                                gw.reset_form()
+                                gw.lift()
+                                gw.focus_force()
+                            except Exception:
+                                logger.exception("Errore nel resettare la form di Geometry (fallback)")
+                        # ✅ NON chiude il manager: rimosso self.destroy()
+                        logger.debug("Aperto Geometry per nuova sezione (fallback, manager resta aperto)")
+                except Exception:
+                    logger.exception("Errore nel fallback per aprire l'editor per nuova sezione")
+        except Exception:
+            logger.exception("Errore mostrando dialogo fallback per nuova sezione")
 
     def _edit_section(self) -> None:
         section = self._get_selected_section()
@@ -371,7 +543,7 @@ class SectionManager(tk.Toplevel):
         )
         if messagebox.askyesno("Conferma eliminazione", confirm_msg):
             self.repository.delete_section(section.id)
-            self.reload_sections_in_treeview()
+            self.refresh_sections()
             messagebox.showinfo("Eliminazione", f"Sezione '{section.name}' eliminata dall'archivio.")
             logger.debug("Sezione eliminata tramite UI: %s", section.id)
 
@@ -388,7 +560,7 @@ class SectionManager(tk.Toplevel):
             if self.repository.add_section(section):
                 added += 1
         messagebox.showinfo("Importa CSV", f"Importate {added} sezioni")
-        self.reload_sections_in_treeview()
+        self.refresh_sections()
         logger.debug("Import CSV completato: %s sezioni aggiunte", added)
 
     def _export_csv(self) -> None:
