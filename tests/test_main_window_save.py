@@ -8,6 +8,7 @@ from sections_app.models.sections import RectangularSection
 
 
 @pytest.mark.ui
+@pytest.mark.slow
 def test_main_window_save_creates_section_with_principals(tmp_path, monkeypatch):
     # Skip if no tkinter available
     try:
