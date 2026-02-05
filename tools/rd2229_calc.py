@@ -65,9 +65,103 @@ def check_cube_requirement(f_cub28, sigma_c_amm):
         return (False, f'f_cub28={f_cub28} NOT OK (required >= {req} and >= {min_abs})')
 
 
+def flexural_resistance_rectangular(b, d, A_s, sigma_s_amm=None, sigma_c_amm=None, units='kg_cm'):
+    """Calcolo della resistenza a flessione di una sezione rettangolare semplicemente armata (approccio tensioni ammissibili semplificato).
+
+    Parametri:
+    - b: larghezza della sezione (cm)
+    - d: braccio utile (cm) distanza dall'estremità compressa all'asse delle armature tese
+    - A_s: area totale delle armature tese (cm^2)
+    - sigma_s_amm: tensione ammissibile acciaio (kg/cm^2). Default: acciaio dolce 1400
+    - sigma_c_amm: tensione ammissibile calcestruzzo in flessione (kg/cm^2). Default: 40 (Portland)
+
+    Metodo (semplificato, coerente con R.D. 2229):
+    - si assume che l'acciaio lavori alla σ_s,amm e il calcestruzzo in compressione alla σ_c,amm;
+    - si equilibra la forza di trazione dell'acciaio con la forza di compressione equivalente nel calcestruzzo;
+    - si calcola il braccio interno z = d - a/2 con a = area_comp/b;
+    - momento resistente M = T * z (unità kg·cm se input in cm e kg/cm^2).
+    """
+    if sigma_s_amm is None:
+        sigma_s_amm = steel_sigma_amm('soft')
+    if sigma_c_amm is None:
+        sigma_c_amm = 40.0
+    # Forza in acciaio (kg)
+    T = float(A_s) * float(sigma_s_amm)
+    # area di calcestruzzo compressa richiesta (cm2)
+    A_comp = T / float(sigma_c_amm)
+    a = A_comp / float(b)
+    if a <= 0:
+        raise ValueError('Computed compression depth non-positive')
+    if a > d:
+        # compression block beyond neutral axis -> sezione sovraarmata o carico eccessivo
+        return {
+            'ok': False,
+            'message': f'Compression block depth a={a:.3f} cm exceeds d={d} cm (section may be overreinforced)',
+            'a': a,
+            'M_res_kgcm': None
+        }
+    z = d - a/2.0
+    M_res = T * z
+    return {
+        'ok': True,
+        'a': a,
+        'T_kg': T,
+        'z_cm': z,
+        'M_res_kgcm': M_res,
+        'M_res_kNm': M_res * 9.80665e-6  # convert kg*cm to kN·m (approx)
+    }
+
+
+def shear_verification(V_applied, b, d, concrete_type='ordinary', with_stirrups=False, A_v=0.0, s=0.0, sigma_s_amm=None):
+    """Verifica a taglio secondo valori e semplificazioni del R.D. 2229.
+
+    Parametri:
+    - V_applied: taglio agente (kg)
+    - b: larghezza sezione (cm)
+    - d: braccio utile (cm)
+    - concrete_type: 'ordinary' or 'high' (influisce su tau_c0/tau_c1)
+    - with_stirrups: se True, si considera contributo staffe
+    - A_v: area totale dei ferri attivi a taglio (cm^2) per ogni piede di staffa (somma gambe che lavorano)
+    - s: passo delle staffe (cm)
+    - sigma_s_amm: tensione ammissibile acciaio (kg/cm^2). Default: 1400
+
+    Metodo semplificato:
+    - Capacità del calcestruzzo Vc = tau_c * b * d (kg), dove tau_c dipende da presenza staffe e tipo calcestruzzo.
+    - Capacità staffe Vs = A_v * sigma_s_amm * d / s (kg) (semplificazione classica)
+    - V_total = Vc + Vs
+    - Confronto con V_applied
+    """
+    if sigma_s_amm is None:
+        sigma_s_amm = steel_sigma_amm('soft')
+    tau = shear_allowable(with_stirrups, concrete_type)
+    Vc = float(tau) * float(b) * float(d)
+    Vs = 0.0
+    if with_stirrups:
+        if s <= 0 or A_v <= 0:
+            raise ValueError('A_v and s must be > 0 when with_stirrups is True')
+        Vs = float(A_v) * float(sigma_s_amm) * float(d) / float(s)
+    Vtot = Vc + Vs
+    ok = float(V_applied) <= Vtot
+    return {
+        'ok': ok,
+        'V_applied_kg': float(V_applied),
+        'Vc_kg': Vc,
+        'Vs_kg': Vs,
+        'Vtot_kg': Vtot,
+        'tau_used_kg_cm2': tau,
+        'notes': 'Units: cm, kg, kg/cm2. Convert to SI if needed.'
+    }
+
+
 if __name__ == '__main__':
     # Esempi rapidi
     print('Esempio: sigma_c_amm da sigma_r28=180 (compression):', sigma_c_amm_from_r28(180,'compression'))
     print('Esempio: steel sigma amm (soft):', steel_sigma_amm('soft'))
     print('Esempio: shear without stirrups (ordinary):', shear_allowable(False,'ordinary'))
     print('Check cube 200 vs sigma amm 60:', check_cube_requirement(200,60))
+    # Esempio: resistenza sezionale
+    res = flexural_resistance_rectangular(b=30, d=40, A_s=10)  # b=30cm, d=40cm, As=10cm2
+    print('Flexural example:', res)
+    # Esempio: verifica taglio
+    shear = shear_verification(V_applied=12000, b=30, d=40, concrete_type='ordinary', with_stirrups=False)
+    print('Shear example:', shear)
