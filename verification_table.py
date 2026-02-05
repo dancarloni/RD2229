@@ -4,8 +4,9 @@ import math
 import logging
 import tkinter as tk
 from dataclasses import dataclass
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, filedialog
 from typing import Dict, Iterable, List, Optional, Tuple
+import random
 
 try:
     from tools.materials_manager import list_materials
@@ -16,6 +17,11 @@ try:
     from sections_app.services.repository import SectionRepository
 except Exception:  # pragma: no cover - fallback if import fails
     SectionRepository = None  # type: ignore
+
+try:
+    from sections_app.models.sections import RectangularSection
+except Exception:
+    RectangularSection = None
 
 try:
     from core_models.materials import MaterialRepository
@@ -33,6 +39,11 @@ try:
     from verification_items import VerificationItem
 except Exception:  # pragma: no cover - fallback if import fails
     VerificationItem = None  # type: ignore
+
+try:
+    from verification_project import VerificationProject
+except Exception:
+    VerificationProject = None
 
 
 logger = logging.getLogger(__name__)
@@ -825,6 +836,12 @@ class VerificationTableApp(tk.Frame):
 
         self.section_repository = section_repository
         self.material_repository = material_repository
+        # Project model to save/load .jsonp projects
+        if VerificationProject is not None:
+            self.project: "VerificationProject" = VerificationProject()
+            self.project.new_project()
+        else:
+            self.project = None
         # Optional external repository that stores VerificationItem objects
         self.verification_items_repository = verification_items_repository
         self.initial_rows = int(initial_rows)
@@ -934,6 +951,12 @@ class VerificationTableApp(tk.Frame):
     def _build_ui(self) -> None:
         top = tk.Frame(self)
         top.pack(fill="x", padx=8, pady=(8, 4))
+
+        # Project file controls
+        tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
+        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6,0))
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
         tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
@@ -1934,6 +1957,312 @@ class VerificationTableApp(tk.Frame):
             return
         saved = self.save_items_to_repository()
         messagebox.showinfo("Salva elementi", f"Elementi salvati: {saved}")
+
+    # --- Project file handlers (.jsonp) ---
+    def _elem_dict_to_input(self, e: dict) -> VerificationInput:
+        # Map a flexible element dict into VerificationInput
+        def pick(*keys, default=""):
+            for k in keys:
+                if k in e and e[k] is not None:
+                    return e[k]
+            return default
+
+        return VerificationInput(
+            section_id=pick("section_id", "section", "section_name"),
+            verification_method=pick("method", "verification_method", "verif_method", "TA"),
+            material_concrete=pick("cls_id", "mat_concrete", "material_concrete", ""),
+            material_steel=pick("steel_id", "mat_steel", "material_steel", ""),
+            n_homog=float(pick("coeff_n", "n", 15.0) or 15.0),
+            N=float(pick("N", 0.0) or 0.0),
+            M=float(pick("M", 0.0) or 0.0),
+            T=float(pick("T", 0.0) or 0.0),
+            As_sup=float(pick("As", "As_sup", "As_sup_cm", 0.0) or 0.0),
+            As_inf=float(pick("As_p", "As_inf", "As_inf_cm", 0.0) or 0.0),
+            d_sup=float(pick("d", "d_sup", 4.0) or 4.0),
+            d_inf=float(pick("d_p", "d_inf", 4.0) or 4.0),
+            stirrup_step=float(pick("passo_staffe", "stirrups_step", 0.0) or 0.0),
+            stirrup_diameter=float(pick("stirrups_diam", "stirrups_diameter", 0.0) or 0.0),
+            stirrup_material=pick("stirrups_mat", "stirrups_material", ""),
+            notes=pick("notes", "name", "") or "",
+        )
+
+    def _on_load_project(self) -> None:
+        if self.project is None:
+            messagebox.showerror("Carica progetto", "Modulo progetto non disponibile")
+            return
+        path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
+        if not path:
+            return
+        try:
+            self.project.load_from_file(path)
+        except ValueError as e:
+            messagebox.showerror("Carica progetto", str(e))
+            return
+        except Exception as e:
+            logger.exception("Errore caricamento progetto: %s", e)
+            messagebox.showerror("Carica progetto", f"Errore caricamento progetto: {e}")
+            return
+
+        # Clear current table and populate
+        for item in list(self.tree.get_children()):
+            self.tree.delete(item)
+        rows = [self._elem_dict_to_input(el) for el in self.project.elements]
+        self.set_rows(rows)
+
+        # Update material and section name lists for suggestions
+        # Materials: use ids or names from project
+        new_mat_names = set()
+        for typ in ("cls", "steel"):
+            for m in self.project.materials.get(typ, {}).values():
+                name = m.get("name") or m.get("id")
+                if name:
+                    new_mat_names.add(name)
+        if new_mat_names:
+            self.material_names = sorted(set(self.material_names) | new_mat_names)
+
+        new_sec_names = {s.get("id") or s.get("name") for s in self.project.sections.values()}
+        if new_sec_names:
+            self.section_names = sorted(set(self.section_names) | {n for n in new_sec_names if n})
+
+        self.project.dirty = False
+        messagebox.showinfo("Carica progetto", f"Progetto caricato: {path}")
+
+    def _on_add_list_elements(self) -> None:
+        if self.project is None:
+            messagebox.showerror("Aggiungi lista di elementi", "Modulo progetto non disponibile")
+            return
+        path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
+        if not path:
+            return
+        try:
+            new_mats, new_secs, new_elems = self.project.add_elements_from_file(path)
+        except ValueError as e:
+            messagebox.showerror("Aggiungi lista di elementi", str(e))
+            return
+        except Exception as e:
+            logger.exception("Errore in add_elements_from_file: %s", e)
+            messagebox.showerror("Aggiungi lista di elementi", f"Errore apertura file: {e}")
+            return
+
+        # Load elements from file and append to table (do not clear existing)
+        try:
+            import json as _json
+            with open(path, "r", encoding="utf-8") as f:
+                data = _json.load(f)
+            for el in data.get("elements") or []:
+                inp = self._elem_dict_to_input(el)
+                item = self._add_row()
+                self.update_row_from_model(self.tree.index(item), inp)
+        except Exception:
+            # In case of parsing issues, we've already merged into project; still inform user
+            logger.exception("Errore parsing elementi dopo add")
+
+        # Update material and section lists
+        if new_mats:
+            for typ in ("cls", "steel"):
+                for m in self.project.materials.get(typ, {}).values():
+                    name = m.get("name") or m.get("id")
+                    if name and name not in self.material_names:
+                        self.material_names.append(name)
+            self.material_names = sorted(set(self.material_names))
+        if new_secs:
+            for s in self.project.sections.values():
+                sid = s.get("id") or s.get("name")
+                if sid and sid not in self.section_names:
+                    self.section_names.append(sid)
+            self.section_names = sorted(set(self.section_names))
+
+        messagebox.showinfo("Aggiungi lista di elementi", f"Aggiunti elementi: {new_elems}; nuove sezioni: {new_secs}; nuovi materiali: {new_mats}")
+
+    def _on_save_project(self) -> None:
+        if self.project is None:
+            messagebox.showerror("Salva progetto", "Modulo progetto non disponibile")
+            return
+
+        # Collect current state from UI into project
+        rows = self.get_rows()
+        elems = []
+        for idx, r in enumerate(rows, start=1):
+            el = {
+                "id": f"E{idx:03d}",
+                "section_id": r.section_id,
+                "cls_id": r.material_concrete,
+                "steel_id": r.material_steel,
+                "method": r.verification_method,
+                "N": r.N,
+                "M": r.M,
+                "T": r.T,
+                "coeff_n": r.n_homog,
+                "As": r.As_sup,
+                "As_p": r.As_inf,
+                "d": r.d_sup,
+                "d_p": r.d_inf,
+                "passo_staffe": r.stirrup_step,
+                "stirrups_diam": r.stirrup_diameter,
+                "stirrups_mat": r.stirrup_material,
+                "notes": r.notes,
+            }
+            elems.append(el)
+
+            # Ensure materials and sections exist minimally in project
+            if r.material_concrete:
+                mid = r.material_concrete
+                if mid not in self.project.materials.get("cls", {}):
+                    self.project.materials.setdefault("cls", {})[mid] = {"id": mid, "name": mid}
+            if r.material_steel:
+                sid = r.material_steel
+                if sid not in self.project.materials.get("steel", {}):
+                    self.project.materials.setdefault("steel", {})[sid] = {"id": sid, "name": sid}
+            if r.section_id:
+                secid = r.section_id
+                if secid not in self.project.sections:
+                    self.project.sections[secid] = {"id": secid, "type": "unknown"}
+
+        self.project.elements = elems
+
+        # Decide save path: if existing and last action wasn't add-list, reuse; otherwise ask
+        save_path = None
+        if self.project.path and not self.project.last_action_was_add_list:
+            save_path = self.project.path
+        else:
+            save_path = filedialog.asksaveasfilename(defaultextension=".jsonp", filetypes=[("JSONP", "*.jsonp")])
+            if not save_path:
+                return
+
+        try:
+            self.project.save_to_file(save_path)
+            messagebox.showinfo("Salva progetto", f"Progetto salvato: {save_path}")
+        except Exception as e:
+            logger.exception("Errore salvataggio progetto: %s", e)
+            messagebox.showerror("Salva progetto", f"Errore salvataggio progetto: {e}")
+
+    def create_test_project(self) -> None:
+        """Crea un progetto di test usando sezioni/materiali esistenti.
+
+        - Cerca un cls il cui nome o code contenga la stringa '160' (case-insensitive).
+        - Cerca un acciaio con nome contenente 'ferro' e 'dolce' (deterministico: primo ordinato per name).
+        - Usa una sezione rettangolare dalla repository (primo elemento ordinato per name),
+          oppure crea una `RectangularSection(30,50)` se non disponibile.
+        - Genera N, M, T in [-100, 100] e popola il progetto (`self.project`) e la GUI.
+
+        Nota: se non trova il cls con '160' o il materiale 'ferro dolce', mostra un errore e abortisce.
+        """
+        if self.project is None:
+            messagebox.showerror("Crea progetto test", "Modulo progetto non disponibile")
+            return
+        if self.material_repository is None or self.section_repository is None:
+            messagebox.showerror("Crea progetto test", "Repository sezioni o materiali non disponibili")
+            return
+
+        # --- Recupero CLS con '160' nel nome o nel codice ---
+        # Cerco in modo deterministico: ordino per nome e prendo il primo che contiene '160'.
+        concrete_candidates = [m for m in self.material_repository.get_all() if getattr(m, 'type', '') == 'concrete']
+        concrete_candidates_sorted = sorted(concrete_candidates, key=lambda m: (m.name or '').lower())
+        cls_mat = None
+        for m in concrete_candidates_sorted:
+            name_code = f"{(m.name or '')} {getattr(m, 'code', '')}".lower()
+            if '160' in name_code:
+                cls_mat = m
+                break
+        if cls_mat is None:
+            messagebox.showerror("Crea progetto test", "Nessun calcestruzzo con '160' nel nome trovato nella libreria materiali")
+            return
+
+        # --- Recupero acciaio 'ferro dolce' ---
+        steel_candidates = [m for m in self.material_repository.get_all() if getattr(m, 'type', '') == 'steel']
+        steel_sorted = sorted(steel_candidates, key=lambda m: (m.name or '').lower())
+        steel_mat = None
+        for m in steel_sorted:
+            nm = (m.name or '').lower()
+            # Cerco le parole 'ferro' e 'dolce' (flessibile su varianti)
+            if 'ferro' in nm and 'dolce' in nm:
+                steel_mat = m
+                break
+        if steel_mat is None:
+            messagebox.showerror("Crea progetto test", "Nessun acciaio 'ferro dolce' trovato nella libreria materiali")
+            return
+
+        # --- Recupero sezione rettangolare dalla repository ---
+        rects = [s for s in self.section_repository.get_all_sections() if getattr(s, 'section_type', '').upper() == 'RECTANGULAR']
+        rects_sorted = sorted(rects, key=lambda s: (getattr(s, 'name', '') or '').lower())
+        if rects_sorted:
+            section = rects_sorted[0]
+        else:
+            # Se non esiste, creo una sezione rettangolare standard (30x50 cm)
+            if RectangularSection is None:
+                messagebox.showerror("Crea progetto test", "Classe RectangularSection non disponibile")
+                return
+            section = RectangularSection(name="Test Rect 30x50", width=30.0, height=50.0)
+
+        # --- Generazione sollecitazioni di prova in intervallo [-100, 100] ---
+        N = round(random.uniform(-100.0, 100.0), 3)
+        M = round(random.uniform(-100.0, 100.0), 3)
+        T = round(random.uniform(-100.0, 100.0), 3)
+
+        # --- Inizializzo nuovo progetto vuoto e popolo materiali/sezioni/elemento ---
+        self.project.new_project()
+
+        # Aggiungo materiali al progetto (uso to_dict-like structure)
+        # Material ha metodo to_dict() definito in core_models.materials.Material
+        try:
+            cls_dict = cls_mat.to_dict()
+        except Exception:
+            cls_dict = {"id": getattr(cls_mat, 'id', ''), "name": getattr(cls_mat, 'name', '')}
+        try:
+            steel_dict = steel_mat.to_dict()
+        except Exception:
+            steel_dict = {"id": getattr(steel_mat, 'id', ''), "name": getattr(steel_mat, 'name', '')}
+        self.project.materials.setdefault('cls', {})[cls_dict.get('id') or cls_dict.get('name')] = cls_dict
+        self.project.materials.setdefault('steel', {})[steel_dict.get('id') or steel_dict.get('name')] = steel_dict
+
+        # Sezione: inserisco il dizionario della sezione
+        try:
+            sec_dict = section.to_dict()
+        except Exception:
+            # Fallback minimale
+            sec_dict = {"id": getattr(section, 'id', 'SEC1'), "name": getattr(section, 'name', 'Test Rect 30x50'), "type": getattr(section, 'section_type', 'RECTANGULAR')}
+        self.project.sections[sec_dict.get('id') or sec_dict.get('name')] = sec_dict
+
+        # Elemento di prova
+        elem = {
+            "id": "E001",
+            "section_id": sec_dict.get('id') or sec_dict.get('name'),
+            "cls_id": cls_dict.get('id') or cls_dict.get('name'),
+            "steel_id": steel_dict.get('id') or steel_dict.get('name'),
+            "method": "TA",
+            "N": N,
+            "M": M,
+            "T": T,
+            "coeff_n": 15.0,
+            "As": 0.0,
+            "As_p": 0.0,
+            "d": getattr(section, 'width', 30.0) * 0.1,
+            "d_p": 4.0,
+        }
+        self.project.elements = [elem]
+        self.project.dirty = True
+
+        # --- Aggiorno la GUI: svuoto la tabella e aggiungo la riga di test ---
+        for item in list(self.tree.get_children()):
+            self.tree.delete(item)
+
+        test_input = VerificationInput(
+            section_id=elem['section_id'],
+            verification_method=elem['method'],
+            material_concrete=elem['cls_id'],
+            material_steel=elem['steel_id'],
+            n_homog=float(elem.get('coeff_n', 15.0)),
+            N=float(elem.get('N', 0.0)),
+            M=float(elem.get('M', 0.0)),
+            T=float(elem.get('T', 0.0)),
+            As_sup=float(elem.get('As', 0.0)),
+            As_inf=float(elem.get('As_p', 0.0)),
+            d_sup=float(elem.get('d', 4.0)),
+            d_inf=float(elem.get('d_p', 4.0)),
+        )
+        self.set_rows([test_input])
+
+        messagebox.showinfo("Crea progetto test", f"Progetto di test creato con cls='{cls_dict.get('name')}' e acciaio='{steel_dict.get('name')}'")
 
     def _format_value_for_csv(self, value: object) -> str:
         """Formatta un valore per il CSV: usa la virgola come separatore decimale

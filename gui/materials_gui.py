@@ -14,6 +14,11 @@ from tkinter import messagebox, simpledialog, ttk
 from typing import Optional
 
 from tools import materials_manager
+from tkinter import filedialog
+try:
+    from sections_app.services.event_bus import EventBus, MATERIALS_CLEARED, MATERIALS_ADDED
+except Exception:
+    EventBus = None
 from tools.concrete_strength import compute_sigma_c_all, compute_allowable_shear
 
 # Configure logging
@@ -200,6 +205,10 @@ class MaterialsApp(tk.Frame):
         super().__init__(master)
         self.master = master
         self.pack(fill="both", expand=True)
+        # repository that holds current materials in-memory
+        self.repo = MaterialsRepository() if MaterialsRepository is not None else None
+        # current loaded materials file path (None = default)
+        self.current_materials_path: Optional[str] = None
         self.create_widgets()
         self.refresh_list()
 
@@ -211,6 +220,8 @@ class MaterialsApp(tk.Frame):
         tk.Button(toolbar, text="Edit", command=self.on_edit).pack(side="left")
         tk.Button(toolbar, text="Delete", command=self.on_delete).pack(side="left")
         tk.Button(toolbar, text="Refresh", command=self.refresh_list).pack(side="left")
+        tk.Button(toolbar, text="Carica lista materiali", command=self.on_load_list).pack(side="left", padx=(8,0))
+        tk.Button(toolbar, text="Salva lista materiali", command=self.on_save_list).pack(side="left")
 
         # Filters frame
         filter_frame = tk.Frame(self)
@@ -313,7 +324,13 @@ class MaterialsApp(tk.Frame):
         # clear tree
         for i in self.tree.get_children():
             self.tree.delete(i)
-        mats = materials_manager.list_materials()
+        if self.repo is not None:
+            mats = self.repo.get_all()
+        else:
+            try:
+                mats = materials_manager.list_materials(self.current_materials_path)
+            except Exception:
+                mats = materials_manager.list_materials()
         logger.info(f"Elenco materiali aggiornato: {len(mats)} materiali trovati")
         for m in mats:
             name = m.get("name")
@@ -373,7 +390,10 @@ class MaterialsApp(tk.Frame):
         if not name:
             return
         logger.info(f"Visualizzazione dettagli materiale: {name}")
-        m = materials_manager.get_material(name)
+        try:
+            m = materials_manager.get_material(name, self.current_materials_path)
+        except Exception:
+            m = materials_manager.get_material(name)
         if m:
             import json
 
@@ -385,7 +405,7 @@ class MaterialsApp(tk.Frame):
         mat = getattr(dlg, "result", None)
         if mat:
             try:
-                materials_manager.add_material(mat)
+                materials_manager.add_material(mat, self.current_materials_path)
                 logger.info(f"Materiale aggiunto: {mat.get('name')}")
                 self.refresh_list()
             except Exception as exc:
@@ -410,7 +430,7 @@ class MaterialsApp(tk.Frame):
             try:
                 # update by name; allow renaming by setting name in updates
                 updates = mat
-                materials_manager.update_material(name, updates)
+                materials_manager.update_material(name, updates, self.current_materials_path)
                 logger.info(f"Materiale modificato: {name} -> {mat.get('name')}")
                 self.refresh_list()
             except Exception as exc:
@@ -425,12 +445,68 @@ class MaterialsApp(tk.Frame):
             return
         if messagebox.askyesno("Confirm", f"Delete material '{name}'?"):
             try:
-                materials_manager.delete_material(name)
+                materials_manager.delete_material(name, self.current_materials_path)
                 logger.info(f"Materiale cancellato: {name}")
                 self.refresh_list()
             except Exception as exc:
                 logger.error(f"Errore nella cancellazione del materiale {name}: {str(exc)}")
                 messagebox.showerror("Error", str(exc))
+
+    def on_load_list(self):
+        """Carica una lista materiali da file .jsonm e aggiorna la vista.
+
+        - accetta solo file con estensione .jsonm
+        - se il file non è leggibile mostra un error messagebox e non sovrascrive l'elenco corrente
+        - emette eventi EventBus per notificare altre finestre (es. VerificationTable)
+        """
+        path = filedialog.askopenfilename(filetypes=[("Material files", "*.jsonm")])
+        if not path:
+            return
+        if not path.lower().endswith('.jsonm'):
+            messagebox.showerror("Carica lista materiali", "Il file deve avere estensione .jsonm")
+            return
+        try:
+            if self.repo is not None:
+                mats = self.repo.load_from_jsonm(path)
+            else:
+                mats = materials_manager.load_materials(path)
+        except Exception as e:
+            logger.exception("Errore caricamento materiali da %s: %s", path, e)
+            messagebox.showerror("Carica lista materiali", f"Errore caricamento file: {e}")
+            return
+        # Set current path so subsequent CRUD operate on this file
+        self.current_materials_path = path
+        # Refresh UI
+        self.refresh_list()
+        # Notify other windows via EventBus
+        if EventBus is not None:
+            try:
+                bus = EventBus()
+                bus.emit(MATERIALS_CLEARED)
+                for m in mats:
+                    bus.emit(MATERIALS_ADDED, material_id=m.get('id') or m.get('name'), material_name=m.get('name'))
+            except Exception:
+                logger.exception("Errore emissione eventi EventBus dopo caricamento materiali")
+
+    def on_save_list(self):
+        """Salva la lista corrente di materiali su file .jsonm (asksaveas)."""
+        path = filedialog.asksaveasfilename(defaultextension='.jsonm', filetypes=[("Material files", "*.jsonm")])
+        if not path:
+            return
+        if not path.lower().endswith('.jsonm'):
+            path = path + '.jsonm'
+        try:
+            if self.repo is not None:
+                self.repo.save_to_jsonm(path)
+            else:
+                mats = materials_manager.list_materials(self.current_materials_path)
+                materials_manager.save_materials(mats, path)
+            # Update current path to saved file
+            self.current_materials_path = path
+            messagebox.showinfo("Salva lista materiali", f"Lista salvata in {path}")
+        except Exception as e:
+            logger.exception("Errore salvataggio materiali in %s: %s", path, e)
+            messagebox.showerror("Salva lista materiali", f"Errore salvataggio file: {e}")
 
 
 def run_app():
