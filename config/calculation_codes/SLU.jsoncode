@@ -1,0 +1,148 @@
+{
+  "code_name": "SLU",
+  "description": "Stato Limite Ultimo - NTC 2008/2018",
+  "standard_references": [
+    "NTC 2008 (DM 14/01/2008)",
+    "NTC 2018 (DM 17/01/2018)",
+    "Circolare 617/2009",
+    "Circolare 7/2019"
+  ],
+  "safety_coefficients": {
+    "gamma_c": {
+      "value": 1.5,
+      "description": "Coefficiente parziale di sicurezza per il calcestruzzo",
+      "notes": "Situazioni persistenti e transitorie"
+    },
+    "gamma_s": {
+      "value": 1.15,
+      "description": "Coefficiente parziale di sicurezza per l'acciaio da c.a.",
+      "notes": "Situazioni persistenti e transitorie"
+    },
+    "gamma_c_accidental": {
+      "value": 1.0,
+      "description": "Coefficiente per situazioni eccezionali"
+    },
+    "gamma_s_accidental": {
+      "value": 1.0,
+      "description": "Coefficiente per situazioni eccezionali"
+    }
+  },
+  "strain_limits": {
+    "concrete": {
+      "eps_c2": {
+        "value": 0.002,
+        "description": "Deformazione al raggiungimento della resistenza massima (parabola-rettangolo)",
+        "unit": "mm/mm"
+      },
+      "eps_cu": {
+        "value": 0.0035,
+        "description": "Deformazione ultima del calcestruzzo (parabola-rettangolo)",
+        "unit": "mm/mm"
+      },
+      "eps_c3": {
+        "value": 0.00175,
+        "description": "Deformazione al raggiungimento della resistenza massima (stress-block)",
+        "unit": "mm/mm"
+      },
+      "eps_cu3": {
+        "value": 0.0035,
+        "description": "Deformazione ultima del calcestruzzo (stress-block)",
+        "unit": "mm/mm"
+      }
+    },
+    "steel": {
+      "eps_yd": {
+        "formula": "fyd / Es",
+        "description": "Deformazione di snervamento dell'acciaio",
+        "typical": 0.00207
+      },
+      "eps_su": {
+        "value": 0.01,
+        "description": "Deformazione uniforme ultima dell'acciaio (minimo 9%)",
+        "unit": "mm/mm"
+      },
+      "eps_uk": {
+        "value": 0.075,
+        "description": "Allungamento a rottura (minimo 7.5%)",
+        "unit": "mm/mm"
+      }
+    }
+  },
+  "constitutive_models": {
+    "concrete": {
+      "parabolic_rectangular": {
+        "description": "Diagramma parabola-rettangolo (preferito per SLU)",
+        "exponent_n": 2.0,
+        "eta_factor": 1.0,
+        "lambda_factor": 0.8,
+        "ref": "NTC 2018 § 4.1.2.1.2"
+      },
+      "stress_block": {
+        "description": "Diagramma rettangolare semplificato",
+        "eta_factor": 1.0,
+        "lambda_factor": 0.8,
+        "ref": "NTC 2018 § 4.1.2.1.2"
+      },
+      "triangular_rectangular": {
+        "description": "Diagramma triangolo-rettangolo (alternativo)",
+        "notes": "Utilizzato per analisi semplificate"
+      }
+    },
+    "steel": {
+      "elastic_perfect_plastic": {
+        "description": "Legame elastico-perfettamente plastico (preferito)",
+        "Es": 200000,
+        "unit": "MPa"
+      },
+      "bilinear_hardening": {
+        "description": "Legame bilineare con incrudimento",
+        "hardening_slope_factor": 0.01,
+        "notes": "Opzionale per analisi avanzate"
+      }
+    }
+  },
+  "confinement": {
+    "stirrups": {
+      "alpha_n": {
+        "formula": "(1 - sum(bi^2 / (6*bo*ho))) * (1 - s / (2*bo)) * (1 - s / (2*ho))",
+        "description": "Coefficiente di efficienza del confinamento con staffe"
+      },
+      "alpha_s": {
+        "value": 0.5,
+        "description": "Coefficiente di efficienza delle staffe circolari o a spirale"
+      },
+      "f_lat_eff": {
+        "formula": "0.5 * alpha_n * alpha_s * rho_s * fyd",
+        "description": "Pressione laterale di confinamento efficace",
+        "unit": "MPa"
+      }
+    },
+    "mander_model": {
+      "fcc_formula": "fcd * (1 + 3.7 * (f_lat_eff / fcd)^0.86)",
+      "description": "Resistenza del calcestruzzo confinato (Mander et al.)",
+      "eps_cc_formula": "eps_c2 * (fcc / fcd)^2"
+    }
+  },
+  "material_sources": {
+    "NTC2008": {
+      "description": "Norme Tecniche per le Costruzioni 2008",
+      "period": "2008-2018",
+      "unit_system": "SI"
+    },
+    "NTC2018": {
+      "description": "Norme Tecniche per le Costruzioni 2018",
+      "period": "2018-presente",
+      "unit_system": "SI"
+    }
+  },
+  "verification_types": {
+    "bending_simple": "Flessione retta",
+    "bending_deviated": "Flessione deviata",
+    "axial_simple": "Compressione/Trazione centrata",
+    "axial_bending_simple": "Pressoflessione/Tensoflessione retta",
+    "axial_bending_deviated": "Pressoflessione/Tensoflessione deviata",
+    "torsion": "Torsione",
+    "shear": "Taglio",
+    "shear_torsion": "Taglio + Torsione"
+  }
+}

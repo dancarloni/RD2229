@@ -1,0 +1,139 @@
+{
+  "code_name": "TA",
+  "description": "Tensioni Ammissibili - Metodo tradizionale italiano (compatibile RD 2229/39, DM 92/96)",
+  "standard_references": [
+    "RD 2229/39",
+    "DM 92/96",
+    "Circolare LL.PP. 617/2009"
+  ],
+  "safety_coefficients": {
+    "gamma_c": {
+      "value": 1.0,
+      "description": "Coefficiente di sicurezza calcestruzzo (TA: già incluso in tensione ammissibile)",
+      "notes": "Nel metodo TA, la tensione ammissibile è già ridotta; gamma_c effettivo ≈ 3-4"
+    },
+    "gamma_s": {
+      "value": 1.0,
+      "description": "Coefficiente di sicurezza acciaio (TA: già incluso in tensione ammissibile)",
+      "notes": "Nel metodo TA, la tensione ammissibile è già ridotta; gamma_s effettivo ≈ 1.8-2.0"
+    },
+    "gamma_f": {
+      "value": 1.5,
+      "description": "Coefficiente di sicurezza per FRP (materiali compositi)"
+    }
+  },
+  "stress_limits": {
+    "concrete": {
+      "sigma_c_max_factor": 0.5,
+      "description": "σ_c,adm = 0.5 × σ_c,28 per carichi permanenti e accidentali",
+      "notes": "Può essere ridotto per sezioni snelle (funzione f_Sigcar)"
+    },
+    "shear": {
+      "tau_c0": {
+        "value": 0.06,
+        "unit": "fck_fraction",
+        "description": "τ_c0 = 0.06 × σ_c,28 (taglio di servizio, senza staffe)"
+      },
+      "tau_c1": {
+        "value": 0.14,
+        "unit": "fck_fraction",
+        "description": "τ_c1 = 0.14 × σ_c,28 (taglio massimo ammissibile)"
+      }
+    }
+  },
+  "homogenization": {
+    "n_default": 15.0,
+    "description": "Coefficiente di omogeneizzazione n = Es/Ec",
+    "notes": "Valore tipico per calcestruzzo normale; calcolare come Es/Ec per valore preciso"
+  },
+  "strain_limits": {
+    "concrete": {
+      "eps_c2": {
+        "value": 0.002,
+        "description": "Deformazione al raggiungimento della tensione massima"
+      },
+      "eps_cu": {
+        "value": 0.0035,
+        "description": "Deformazione ultima del calcestruzzo"
+      }
+    },
+    "steel": {
+      "eps_su": {
+        "value": 0.01,
+        "description": "Deformazione ultima acciaio (1% minimo, tipicamente 10%)"
+      }
+    }
+  },
+  "material_sources": {
+    "RD2229": {
+      "description": "Regio Decreto 2229/39 - Norme per l'esecuzione delle opere in conglomerato cementizio",
+      "period": "1939-1972",
+      "unit_system": "tecnico",
+      "notes": "Classi cls: R120, R160, R225, R300; Acciai: dolce, semiduro, duro, FeB32k/38k/44k"
+    },
+    "DM72": {
+      "description": "DM 30/05/1972 - Norme tecniche alle quali devono uniformarsi le costruzioni in conglomerato cementizio",
+      "period": "1972-1992",
+      "unit_system": "tecnico"
+    },
+    "DM92": {
+      "description": "DM 09/01/1996 (ma riferimenti a DM 92) - Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato",
+      "period": "1992-1996",
+      "unit_system": "SI"
+    },
+    "DM96": {
+      "description": "DM 09/01/1996 - Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato",
+      "period": "1996-2008",
+      "unit_system": "SI"
+    }
+  },
+  "verification_types": {
+    "bending_simple": {
+      "description": "Flessione retta (solo Mx o solo My)",
+      "formula_ref": "PrincipCA_TA.bas::CalcoloSezioneTA"
+    },
+    "bending_deviated": {
+      "description": "Flessione deviata (Mx e My entrambi ≠ 0)",
+      "formula_ref": "PrincipCA_TA.bas::CalcoloSezioneTADeviata"
+    },
+    "axial_simple": {
+      "description": "Compressione/Trazione semplice (N ≠ 0, Mx = My = 0)",
+      "formula_ref": "PrincipCA_TA.bas::CalcoloCompressioneSemplice"
+    },
+    "axial_bending_simple": {
+      "description": "Presso/Tensioflessione semplice (N + Mx oppure N + My)",
+      "formula_ref": "PrincipCA_TA.bas::CalcoloPressoflessioneSemplice"
+    },
+    "axial_bending_deviated": {
+      "description": "Presso/Tensioflessione deviata (N + Mx + My)",
+      "formula_ref": "PrincipCA_TA.bas::CalcoloPressoflessioneDeviata"
+    },
+    "torsion": {
+      "description": "Torsione (Mz ≠ 0)",
+      "formula_ref": "PrincipCA_TA.bas::CalcoloTorsione"
+    },
+    "shear": {
+      "description": "Taglio (Tx e/o Ty ≠ 0)",
+      "formula_ref": "PrincipCA_TA.bas::CalcoloTaglio"
+    },
+    "shear_torsion": {
+      "description": "Taglio + Torsione (Mz + Tx/Ty)",
+      "formula_ref": "PrincipCA_TA.bas::CalcoloTaglioTorsione"
+    }
+  },
+  "formulas": {
+    "neutral_axis": {
+      "description": "Calcolo asse neutro con omogeneizzazione",
+      "method": "iterative_equilibrium",
+      "ref": "PrincipCA_TA.bas lines 1200-2000"
+    },
+    "stress_concrete": {
+      "formula": "sigma_c = M * y / (I_omogeneizzata)",
+      "limit": "sigma_c <= sigma_c_adm"
+    },
+    "stress_steel": {
+      "formula": "sigma_s = n * M * (d - x) / I_omogeneizzata",
+      "limit": "sigma_s <= sigma_s_adm"
+    }
+  }
+}

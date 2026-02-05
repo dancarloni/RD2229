@@ -1,0 +1,170 @@
+{
+  "code_name": "DM92",
+  "description": "DM 09/01/1996 - Materiali per cemento armato (riferimenti a DM 1992)",
+  "standard_reference": "DM 09/01/1996 - Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato, normale e precompresso e per le strutture metalliche",
+  "period": "1992-2008",
+  "unit_system": "SI",
+  "base_units": {
+    "stress": "MPa (N/mm²)",
+    "length": "mm",
+    "force": "kN",
+    "moment": "kN·m"
+  },
+  "concrete_classes": {
+    "C12_15": {
+      "name": "Calcestruzzo C12/15",
+      "fck": 12,
+      "fcm": 20,
+      "Ecm": 27000,
+      "fctm": 1.6,
+      "description": "Classe minima per strutture in c.a.",
+      "unit": "MPa"
+    },
+    "C16_20": {
+      "name": "Calcestruzzo C16/20",
+      "fck": 16,
+      "fcm": 24,
+      "Ecm": 29000,
+      "fctm": 1.9,
+      "description": "Classe ordinaria per strutture non armate",
+      "unit": "MPa"
+    },
+    "C20_25": {
+      "name": "Calcestruzzo C20/25",
+      "fck": 20,
+      "fcm": 28,
+      "Ecm": 30000,
+      "fctm": 2.2,
+      "description": "Classe comune per strutture ordinarie",
+      "unit": "MPa"
+    },
+    "C25_30": {
+      "name": "Calcestruzzo C25/30",
+      "fck": 25,
+      "fcm": 33,
+      "Ecm": 31500,
+      "fctm": 2.6,
+      "description": "Classe medio-alta per strutture importanti",
+      "unit": "MPa"
+    },
+    "C28_35": {
+      "name": "Calcestruzzo C28/35",
+      "fck": 28,
+      "fcm": 36,
+      "Ecm": 32500,
+      "fctm": 2.8,
+      "description": "Classe alta per strutture speciali",
+      "unit": "MPa"
+    },
+    "C30_37": {
+      "name": "Calcestruzzo C30/37",
+      "fck": 30,
+      "fcm": 38,
+      "Ecm": 33000,
+      "fctm": 2.9,
+      "description": "Classe alta resistenza",
+      "unit": "MPa"
+    },
+    "C35_45": {
+      "name": "Calcestruzzo C35/45",
+      "fck": 35,
+      "fcm": 43,
+      "Ecm": 34000,
+      "fctm": 3.2,
+      "description": "Classe alta resistenza per strutture speciali",
+      "unit": "MPa"
+    },
+    "C40_50": {
+      "name": "Calcestruzzo C40/50",
+      "fck": 40,
+      "fcm": 48,
+      "Ecm": 35000,
+      "fctm": 3.5,
+      "description": "Classe molto alta resistenza",
+      "unit": "MPa"
+    }
+  },
+  "steel_types": {
+    "FeB38k": {
+      "name": "Acciaio FeB 38k (ad aderenza migliorata)",
+      "fyk": 375,
+      "ftk": 430,
+      "Es": 200000,
+      "epsilon_uk": 0.07,
+      "description": "Acciaio nervato ordinario",
+      "bond": "aderenza_migliorata",
+      "unit": "MPa"
+    },
+    "FeB44k": {
+      "name": "Acciaio FeB 44k (ad aderenza migliorata)",
+      "fyk": 430,
+      "ftk": 540,
+      "Es": 200000,
+      "epsilon_uk": 0.07,
+      "description": "Acciaio nervato alta resistenza",
+      "bond": "aderenza_migliorata",
+      "unit": "MPa"
+    },
+    "Feb38ks": {
+      "name": "Acciaio Feb 38ks (saldabile)",
+      "fyk": 375,
+      "ftk": 430,
+      "Es": 200000,
+      "epsilon_uk": 0.07,
+      "description": "Acciaio nervato saldabile",
+      "bond": "aderenza_migliorata",
+      "weldable": true,
+      "unit": "MPa"
+    },
+    "Feb44ks": {
+      "name": "Acciaio Feb 44ks (saldabile)",
+      "fyk": 430,
+      "ftk": 540,
+      "Es": 200000,
+      "epsilon_uk": 0.07,
+      "description": "Acciaio nervato alta resistenza saldabile",
+      "bond": "aderenza_migliorata",
+      "weldable": true,
+      "unit": "MPa"
+    }
+  },
+  "calculation_method": {
+    "method": "Tensioni ammissibili (TA) o Stati Limite",
+    "safety_coefficients_TA": {
+      "gamma_c": 1.0,
+      "gamma_s": 1.0,
+      "description": "Coefficienti già inclusi nelle tensioni ammissibili"
+    },
+    "safety_coefficients_SL": {
+      "gamma_c": 1.6,
+      "gamma_s": 1.15,
+      "description": "Coefficienti per metodo agli stati limite"
+    }
+  },
+  "formulas": {
+    "elastic_modulus": {
+      "Ecm_formula": "22000 * (fcm / 10)^0.3",
+      "description": "Modulo elastico secante del calcestruzzo",
+      "unit": "MPa"
+    },
+    "tensile_strength": {
+      "fctm_formula": "0.3 * fck^(2/3)",
+      "description": "Resistenza media a trazione",
+      "unit": "MPa"
+    }
+  },
+  "historical_notes": {
+    "transition_period": {
+      "description": "Periodo di transizione dal sistema tecnico (kg/cm²) al sistema SI (MPa)",
+      "notes": "Molti professionisti continuavano ad usare kg/cm² con conversione 1 MPa ≈ 10.197 kg/cm²"
+    },
+    "seismic_provisions": {
+      "description": "Introduzione di requisiti antisismici (DM 16/01/1996)",
+      "notes": "Prime normative organiche per la progettazione antisismica in Italia"
+    }
+  },
+  "conversion_factors": {
+    "MPa_to_kg_cm2": 10.197,
+    "kg_cm2_to_MPa": 0.0980665
+  }
+}

@@ -61,16 +61,41 @@ class VerificationInput:
     material_steel: str = ""
     n_homog: float = 15.0
     N: float = 0.0
-    M: float = 0.0
-    T: float = 0.0
+    Mx: float = 0.0  # Momento flettente attorno asse x (era M)
+    My: float = 0.0  # Momento flettente attorno asse y (nuovo)
+    Mz: float = 0.0  # Momento torcente (nuovo, sostituisce precedente "Mt")
+    Tx: float = 0.0  # Taglio lungo direzione x (nuovo)
+    Ty: float = 0.0  # Taglio lungo direzione y (era T)
     As_sup: float = 0.0
     As_inf: float = 0.0
+    At: float = 0.0  # Armatura a torsione (nuovo)
     d_sup: float = 0.0
     d_inf: float = 0.0
     stirrup_step: float = 0.0
     stirrup_diameter: float = 0.0
     stirrup_material: str = ""
     notes: str = ""
+    
+    # Legacy field support for backward compatibility
+    @property
+    def M(self) -> float:
+        """Legacy property for backward compatibility (M -> Mx)."""
+        return self.Mx
+    
+    @M.setter
+    def M(self, value: float):
+        """Legacy setter for backward compatibility (M -> Mx)."""
+        self.Mx = value
+    
+    @property
+    def T(self) -> float:
+        """Legacy property for backward compatibility (T -> Ty)."""
+        return self.Ty
+    
+    @T.setter
+    def T(self, value: float):
+        """Legacy setter for backward compatibility (T -> Ty)."""
+        self.Ty = value
 
 
 @dataclass
@@ -78,11 +103,23 @@ class VerificationOutput:
     sigma_c_max: float
     sigma_c_min: float
     sigma_s_max: float
-    asse_neutro: float
-    deformazioni: str
-    coeff_sicurezza: float
-    esito: str
-    messaggi: List[str]
+    asse_neutro: float  # Distanza asse neutro da lembo compresso (legacy)
+    asse_neutro_x: float = 0.0  # Coordinata x asse neutro (nuovo)
+    asse_neutro_y: float = 0.0  # Coordinata y asse neutro (nuovo)
+    inclinazione_asse_neutro: float = 0.0  # Inclinazione asse neutro in gradi (nuovo)
+    tipo_verifica: str = ""  # Tipo di verifica eseguita (nuovo)
+    sigma_c: float = 0.0  # Tensione calcestruzzo bordo compresso (nuovo)
+    sigma_s_tesi: float = 0.0  # Tensione armature in zona tesa (nuovo)
+    sigma_s_compressi: float = 0.0  # Tensione armature in zona compressa (nuovo)
+    deformazioni: str = ""
+    coeff_sicurezza: float = 1.0
+    esito: str = ""
+    messaggi: List[str] = None
+    
+    def __post_init__(self):
+        """Initialize default values after dataclass initialization."""
+        if self.messaggi is None:
+            self.messaggi = []
 
 
 def _get_section_by_id_or_name(section_id: str, section_repository: Optional["SectionRepository"]):

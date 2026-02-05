@@ -1,0 +1,221 @@
+{
+  "code_name": "RD2229",
+  "description": "Regio Decreto 2229/39 - Materiali storici per cemento armato",
+  "standard_reference": "RD 16 novembre 1939 n. 2229 - Norme per l'esecuzione delle opere in conglomerato cementizio",
+  "period": "1939-1972",
+  "unit_system": "tecnico",
+  "base_units": {
+    "stress": "kg/cm²",
+    "length": "cm",
+    "force": "kg",
+    "moment": "kg·cm"
+  },
+  "concrete_classes": {
+    "R120": {
+      "name": "Calcestruzzo R 120",
+      "sigma_c28": 120,
+      "sigma_c_adm": 60,
+      "tau_c0": 7.2,
+      "tau_c1": 16.8,
+      "Ec": 220000,
+      "n": 9.5,
+      "description": "Classe minima per strutture ordinarie",
+      "unit": "kg/cm²"
+    },
+    "R160": {
+      "name": "Calcestruzzo R 160",
+      "sigma_c28": 160,
+      "sigma_c_adm": 80,
+      "tau_c0": 9.6,
+      "tau_c1": 22.4,
+      "Ec": 250000,
+      "n": 8.4,
+      "description": "Classe media per strutture ordinarie",
+      "unit": "kg/cm²"
+    },
+    "R225": {
+      "name": "Calcestruzzo R 225",
+      "sigma_c28": 225,
+      "sigma_c_adm": 112.5,
+      "tau_c0": 13.5,
+      "tau_c1": 31.5,
+      "Ec": 290000,
+      "n": 7.2,
+      "description": "Classe superiore per strutture importanti",
+      "unit": "kg/cm²"
+    },
+    "R300": {
+      "name": "Calcestruzzo R 300",
+      "sigma_c28": 300,
+      "sigma_c_adm": 150,
+      "tau_c0": 18.0,
+      "tau_c1": 42.0,
+      "Ec": 330000,
+      "n": 6.4,
+      "description": "Classe alta resistenza",
+      "unit": "kg/cm²"
+    }
+  },
+  "cement_types": {
+    "normale": {
+      "name": "Cemento normale (Portland)",
+      "description": "Cemento Portland ordinario",
+      "strength_factor": 1.0,
+      "setting_time": "normale",
+      "notes": "Tipo più comune, indurimento normale"
+    },
+    "presa_lenta": {
+      "name": "Cemento a presa lenta",
+      "description": "Cemento pozzolanico o d'alto forno",
+      "strength_factor": 0.85,
+      "setting_time": "lenta",
+      "notes": "Resistenza iniziale ridotta, maggiore durabilità"
+    },
+    "alta_resistenza": {
+      "name": "Cemento ad alta resistenza iniziale",
+      "description": "Cemento alluminoso o ad indurimento rapido",
+      "strength_factor": 1.15,
+      "setting_time": "rapida",
+      "notes": "Alta resistenza a breve termine, attenzione degradazione a lungo termine"
+    },
+    "alluminoso": {
+      "name": "Cemento alluminoso (Ciment Fondu)",
+      "description": "Cemento a base di alluminati di calcio",
+      "strength_factor": 1.3,
+      "setting_time": "rapida",
+      "warnings": "ATTENZIONE: possibile conversione e perdita di resistenza nel tempo",
+      "notes": "Non più raccomandato per strutture permanenti dal 1960"
+    }
+  },
+  "steel_types": {
+    "dolce": {
+      "name": "Acciaio dolce",
+      "sigma_sn": 2400,
+      "sigma_s_adm": 1200,
+      "Es": 2100000,
+      "epsilon_su": 0.20,
+      "description": "Acciaio a basso tenore di carbonio",
+      "bond": "liscio",
+      "unit": "kg/cm²"
+    },
+    "semiduro": {
+      "name": "Acciaio semiduro",
+      "sigma_sn": 3200,
+      "sigma_s_adm": 1600,
+      "Es": 2100000,
+      "epsilon_su": 0.15,
+      "description": "Acciaio con medio tenore di carbonio",
+      "bond": "liscio",
+      "unit": "kg/cm²"
+    },
+    "duro": {
+      "name": "Acciaio duro",
+      "sigma_sn": 4200,
+      "sigma_s_adm": 2100,
+      "Es": 2100000,
+      "epsilon_su": 0.08,
+      "description": "Acciaio ad alto tenore di carbonio",
+      "bond": "liscio",
+      "unit": "kg/cm²"
+    },
+    "FeB32k": {
+      "name": "Acciaio FeB 32k (ad aderenza migliorata)",
+      "sigma_sn": 3200,
+      "sigma_s_adm": 1600,
+      "Es": 2100000,
+      "epsilon_su": 0.14,
+      "description": "Acciaio nervato tipo Tor (introdotto anni '50)",
+      "bond": "aderenza_migliorata",
+      "unit": "kg/cm²"
+    },
+    "FeB38k": {
+      "name": "Acciaio FeB 38k (ad aderenza migliorata)",
+      "sigma_sn": 3800,
+      "sigma_s_adm": 1900,
+      "Es": 2100000,
+      "epsilon_su": 0.14,
+      "description": "Acciaio nervato ad aderenza migliorata",
+      "bond": "aderenza_migliorata",
+      "unit": "kg/cm²"
+    },
+    "FeB44k": {
+      "name": "Acciaio FeB 44k (ad aderenza migliorata)",
+      "sigma_sn": 4400,
+      "sigma_s_adm": 2200,
+      "Es": 2100000,
+      "epsilon_su": 0.12,
+      "description": "Acciaio nervato alta resistenza",
+      "bond": "aderenza_migliorata",
+      "unit": "kg/cm²"
+    },
+    "AQ42": {
+      "name": "Acciaio AQ 42 (Tondo Tor)",
+      "sigma_sn": 4200,
+      "sigma_s_adm": 2100,
+      "Es": 2100000,
+      "epsilon_su": 0.14,
+      "description": "Acciaio ad aderenza migliorata tipo Tor",
+      "bond": "aderenza_migliorata",
+      "unit": "kg/cm²"
+    },
+    "AQ50": {
+      "name": "Acciaio AQ 50",
+      "sigma_sn": 5000,
+      "sigma_s_adm": 2500,
+      "Es": 2100000,
+      "epsilon_su": 0.12,
+      "description": "Acciaio alta resistenza",
+      "bond": "aderenza_migliorata",
+      "unit": "kg/cm²"
+    }
+  },
+  "calculation_formulas": {
+    "concrete_stress": {
+      "sigma_c_adm": "0.5 * sigma_c28",
+      "reduction_slender": "sigma_c_adm * (1 - 0.03 * (25 - A_min/cm))",
+      "description": "Tensione ammissibile ridotta per sezioni snelle",
+      "ref": "Art. 16 RD 2229/39"
+    },
+    "shear_stress": {
+      "tau_c0": "0.06 * sigma_c28",
+      "tau_c1": "0.14 * sigma_c28",
+      "description": "Tensioni tangenziali ammissibili",
+      "ref": "Art. 21 RD 2229/39"
+    },
+    "elastic_modulus": {
+      "Ec_formula": "550000 * sigma_c28 / (sigma_c28 + 200)",
+      "Es": 2100000,
+      "n_formula": "Es / Ec",
+      "description": "Modulo elastico e coefficiente di omogeneizzazione",
+      "unit": "kg/cm²"
+    },
+    "steel_stress": {
+      "sigma_s_adm": "sigma_sn / 2.0",
+      "sigma_s_compression": "sigma_sn / 2.0",
+      "description": "Tensione ammissibile acciaio",
+      "ref": "Art. 16 RD 2229/39"
+    }
+  },
+  "safety_factors": {
+    "gamma_c_effective": 3.0,
+    "gamma_s_effective": 2.0,
+    "description": "Coefficienti di sicurezza impliciti nel rapporto resistenza/tensione ammissibile"
+  },
+  "historical_notes": {
+    "Santarella_method": {
+      "description": "Metodo grafico di Luigi Santarella per il calcolo di sezioni in c.a.",
+      "reference": "Santarella L., 'Il cemento armato', Hoepli",
+      "period": "1930-1980",
+      "notes": "Basato su abachi e nomogrammi, molto diffuso prima dell'informatica"
+    },
+    "simulation_projects": {
+      "description": "Progetti simulati secondo RD 2229/39",
+      "notes": "Utilizzare parametri storici per verifiche su edifici esistenti o progetti didattici"
+    }
+  },
+  "conversion_factors": {
+    "kg_cm2_to_MPa": 0.0980665,
+    "MPa_to_kg_cm2": 10.197,
+    "description": "Fattori di conversione sistema tecnico / SI"
+  }
+}
