@@ -79,11 +79,11 @@ repo = SectionRepository(json_file="data/sections.json")
 ## 🧪 Esecuzione Demo
 
 ```bash
-# Demo pratico (crea demo_sections.json)
+# Demo pratico (crea demo_sections.jsons)
 python demo_persistenza.py
 
 # Analizza file JSON salvato
-python analyze_sections_json.py demo_sections.json
+python analyze_sections_json.py demo_sections.jsons
 
 # Esegui test
 python test_persistence.py

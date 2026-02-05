@@ -323,6 +323,7 @@ class ModuleSelectorWindow(tk.Tk):
         if result["choice"] == "sezioni":
             default_name = "backup_sezioni"
             filetypes = [
+                ("JSONS files", "*.jsons"),
                 ("JSON files", "*.json"),
                 ("CSV files", "*.csv"),
                 ("All files", "*.*")
@@ -336,6 +337,7 @@ class ModuleSelectorWindow(tk.Tk):
         else:  # entrambi
             default_name = "backup"
             filetypes = [
+                ("JSONS files", "*.jsons"),
                 ("JSON files", "*.json"),
                 ("CSV files", "*.csv"),
                 ("All files", "*.*")
@@ -345,7 +347,7 @@ class ModuleSelectorWindow(tk.Tk):
         file_path = filedialog.asksaveasfilename(
             parent=self,
             title="Esporta backup",
-            defaultextension=".json",
+            defaultextension=".jsons",
             initialfile=default_name,
             filetypes=filetypes
         )

@@ -21,15 +21,67 @@ class SectionRepository:
 
     DEFAULT_JSON_FILE = DEFAULT_JSON_FILE
 
-    def __init__(self, json_file: str = DEFAULT_JSON_FILE) -> None:
+    def __init__(self, json_file: Optional[str] = None, auto_migrate: Optional[bool] = None) -> None:
+        """
+        Se `json_file` è None → usiamo il file canonico `DEFAULT_JSON_FILE` e
+        abilitiamo la migrazione automatica da `sections.json` a `sec_repository/...jsons`
+        (a meno che l'env var `RD2229_NO_AUTO_MIGRATE` sia attiva).
+
+        Se `json_file` è esplicito (es. 'sections.json') → lo rispettiamo e non
+        eseguiamo migrazioni automatiche.
+        """
         self._sections: Dict[str, Section] = {}
         self._keys: Dict[tuple, str] = {}
-        self._json_file = json_file
-        
+
+        # Decidi se la migrazione automatica è abilitata (default: True)
+        if auto_migrate is None:
+            no_migrate = os.environ.get("RD2229_NO_AUTO_MIGRATE", "").lower()
+            auto_migrate = not (no_migrate in ("1", "true", "yes"))
+
+        # Se l'utente ha passato un path esplicito, lo usiamo così com'è
+        if json_file is not None:
+            self._json_file = json_file
+            self._file_path = Path(json_file)
+        else:
+            # Usare il canonical e provare a migrare il legacy se necessario
+            canonical = Path(self.DEFAULT_JSON_FILE)
+            self._json_file = str(canonical)
+            self._file_path = canonical
+            if auto_migrate and not canonical.exists():
+                # Cerca `sections.json` in posizioni legacy (cwd, root progetto)
+                project_root = Path(__file__).resolve().parents[2]
+                candidates = [Path("sections.json").resolve(), (project_root / "sections.json").resolve()]
+                for cand in candidates:
+                    if cand.exists():
+                        try:
+                            # Backup legacy e copia in canonical (non distruttivo)
+                            bak = cand.with_suffix(cand.suffix + ".bak")
+                            shutil.copy2(cand, bak)
+                            with cand.open("r", encoding="utf-8") as f:
+                                data = json.load(f)
+                            # Crea cartella canonical se necessario
+                            if not canonical.parent.exists():
+                                canonical.parent.mkdir(parents=True, exist_ok=True)
+                            with canonical.open("w", encoding="utf-8") as f:
+                                json.dump(data, f, indent=2, ensure_ascii=False)
+                            logger.info("Migrato legacy %s -> %s (backup: %s)", cand, canonical, bak)
+                            # Se possibile, mostra una messagebox informativa (non bloccante)
+                            try:
+                                from tkinter import messagebox
+                                messagebox.showinfo(
+                                    "Migrazione sezioni",
+                                    f"Il file legacy '{cand.name}' è stato migrato in '{canonical}'.\nBackup creato come '{bak.name}'."
+                                )
+                            except Exception:
+                                # Headless o ambiente non-GUI: silenziamo la messagebox
+                                pass
+                        except Exception:
+                            logger.exception("Errore durante la migrazione di %s", cand)
+                        break
+
         # Percorsi per backup
-        self._file_path = Path(json_file)
         self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
-        
+
         # Carica le sezioni dal file JSON se esiste
         self.load_from_file()
 
@@ -252,8 +304,8 @@ class SectionRepository:
                 except Exception as exc:
                     logger.warning("Impossibile creare backup di %s: %s", self._file_path, exc)
             
-            # Scrivi su file temporaneo
-            tmp_path = self._file_path.with_suffix(".json.tmp")
+            # Scrivi su file temporaneo preservando l'estensione originale
+            tmp_path = Path(str(self._file_path) + ".tmp")
             try:
                 with tmp_path.open("w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
@@ -292,11 +344,11 @@ class SectionRepository:
             
             # Determina estensione e normalizza
             suffix = dest_path.suffix.lower()
-            if suffix not in ['.json', '.csv']:
-                # Aggiungi .json di default
-                dest_path = dest_path.with_suffix('.json')
-                suffix = '.json'
-                logger.info("Estensione mancante o non valida, uso .json: %s", dest_path)
+            if suffix not in ['.json', '.jsons', '.csv']:
+                # Aggiungi .jsons di default (format canonical)
+                dest_path = dest_path.with_suffix('.jsons')
+                suffix = '.jsons'
+                logger.info("Estensione mancante o non valida, uso .jsons: %s", dest_path)
             
             # Crea directory di destinazione se necessaria
             if dest_path.parent.exists() is False and str(dest_path.parent) != '.':
@@ -306,7 +358,7 @@ class SectionRepository:
             # Ottieni tutte le sezioni
             sections = self.get_all_sections()
             
-            if suffix == '.json':
+            if suffix in ('.json', '.jsons'):
                 # Esporta in JSON
                 data = [section.to_dict() for section in sections]
                 with dest_path.open("w", encoding="utf-8") as f:
