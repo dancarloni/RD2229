@@ -289,6 +289,12 @@ class SectionManager(tk.Toplevel):
             "Ix": (80, "center"),                    # Ix (cm⁴)
             "Iy": (80, "center"),                    # Iy (cm⁴)
             "Ixy": (75, "center"),                   # Ixy (cm⁴)
+            # Principali inerzie e valori derivati
+            "I1": (80, "center"),                    # I1 (cm⁴)
+            "I2": (80, "center"),                    # I2 (cm⁴)
+            "principal_angle_deg": (70, "center"),   # angolo (deg)
+            "principal_rx": (65, "center"),          # rx principale (cm)
+            "principal_ry": (65, "center"),          # ry principale (cm)
             "Qx": (70, "center"),                    # Qx (cm³)
             "Qy": (70, "center"),                    # Qy (cm³)
             "rx": (65, "center"),                    # rx (cm)

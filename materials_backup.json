@@ -46,5 +46,17 @@
     "frc_fFtu": null,
     "frc_eps_fu": null,
     "frc_note": null
+  },
+  {
+    "id": "3aa39cf4-f606-4074-8ae8-0c784b9cd6ea",
+    "name": "C100",
+    "type": "concrete",
+    "code": "",
+    "properties": {},
+    "frc_enabled": false,
+    "frc_fFts": null,
+    "frc_fFtu": null,
+    "frc_eps_fu": null,
+    "frc_note": null
   }
 ]

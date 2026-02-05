@@ -54,23 +54,33 @@ class SectionRepository:
                 for cand in candidates:
                     if cand.exists():
                         try:
-                            # Backup legacy e copia in canonical (non distruttivo)
+                            # Backup legacy
                             bak = cand.with_suffix(cand.suffix + ".bak")
                             shutil.copy2(cand, bak)
                             with cand.open("r", encoding="utf-8") as f:
                                 data = json.load(f)
-                            # Crea cartella canonical se necessario
-                            if not canonical.parent.exists():
-                                canonical.parent.mkdir(parents=True, exist_ok=True)
-                            with canonical.open("w", encoding="utf-8") as f:
+
+                            # Preferisci creare un canonical locale nella stessa cartella del legacy
+                            local_canonical = cand.parent / "sec_repository" / "sec_repository.jsons"
+                            if not local_canonical.parent.exists():
+                                local_canonical.parent.mkdir(parents=True, exist_ok=True)
+
+                            # Scrivi il file canonical locale
+                            with local_canonical.open("w", encoding="utf-8") as f:
                                 json.dump(data, f, indent=2, ensure_ascii=False)
-                            logger.info("Migrato legacy %s -> %s (backup: %s)", cand, canonical, bak)
+
+                            # Aggiorna file path attivo per questo repository in modo che punti al locale
+                            self._json_file = str(local_canonical)
+                            self._file_path = local_canonical
+
+                            logger.info("Migrato legacy %s -> %s (backup: %s)", cand, local_canonical, bak)
+
                             # Se possibile, mostra una messagebox informativa (non bloccante)
                             try:
                                 from tkinter import messagebox
                                 messagebox.showinfo(
                                     "Migrazione sezioni",
-                                    f"Il file legacy '{cand.name}' è stato migrato in '{canonical}'.\nBackup creato come '{bak.name}'."
+                                    f"Il file legacy '{cand.name}' è stato migrato in '{local_canonical}'.\nBackup creato come '{bak.name}'."
                                 )
                             except Exception:
                                 # Headless o ambiente non-GUI: silenziamo la messagebox
