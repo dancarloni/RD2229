@@ -15,6 +15,7 @@ Unità e convenzioni storiche:
     e la normativa storica (RD 2229).
 - Sono comunque presenti funzioni di conversione verso/da MPa se necessario.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -128,12 +129,18 @@ def compute_sigma_c_all(
 
     # semplice
     semplice = compute_allowable_compressive_stress(
-        sigma_c28_kgcm2, cement_effective, SectionCondition.SEMPLICEMENTE_COMPRESA, controlled_quality
+        sigma_c28_kgcm2,
+        cement_effective,
+        SectionCondition.SEMPLICEMENTE_COMPRESA,
+        controlled_quality,
     )
 
     # inflessa / presso-inflessa
     inflessa = compute_allowable_compressive_stress(
-        sigma_c28_kgcm2, cement_effective, SectionCondition.INFLESSA_PRESSOINFLESSA, controlled_quality
+        sigma_c28_kgcm2,
+        cement_effective,
+        SectionCondition.INFLESSA_PRESSOINFLESSA,
+        controlled_quality,
     )
 
     return {
@@ -227,4 +234,3 @@ __all__ = [
     "compute_allowable_compressive_stress",
     "compute_allowable_shear",
 ]
-

@@ -4,9 +4,7 @@ import json
 import logging
 from dataclasses import asdict
 from pathlib import Path
-from typing import Dict, List, Optional
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from verification_items import VerificationItem
 
@@ -78,6 +76,7 @@ class VerificationItemsRepository:
             for idx, item in enumerate(raw):
                 try:
                     from verification_table import VerificationInput
+
                     input_data = item.get("input", {}) if isinstance(item, dict) else {}
                     ver_input = VerificationInput(**input_data)
                     ver_item = VerificationItem(

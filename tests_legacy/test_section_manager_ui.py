@@ -10,8 +10,8 @@ from pathlib import Path
 # Aggiungi il root al path per importare i moduli
 sys.path.insert(0, str(Path(__file__).parent))
 
-from sections_app.models.sections import RectangularSection, CircularSection, TSection
-from sections_app.services.repository import SectionRepository, CsvSectionSerializer
+from sections_app.models.sections import CircularSection, RectangularSection, TSection
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 
 
 def test_section_manager_data():
@@ -59,7 +59,7 @@ def test_section_manager_data():
         print(f"    ID: {data['id']}")
         print(f"    Tipo: {data['section_type']}")
         print(f"    Campi geometrici:")
-        for key in ['width', 'height', 'diameter', 'flange_width']:
+        for key in ["width", "height", "diameter", "flange_width"]:
             if data.get(key):
                 print(f"      {key}: {data[key]}")
         print(f"    Campi calcolati (sample):")
@@ -71,14 +71,15 @@ def test_section_manager_data():
         print(f"      x_G: {data.get('x_G', 'N/A')}")
         print(f"      Ix: {data.get('Ix', 'N/A')}")
         # Quick assertions to ensure expected keys are present
-        assert 'A_y' in data
-        assert 'A_z' in data
-        assert 'kappa_y' in data
-        assert 'kappa_z' in data
+        assert "A_y" in data
+        assert "A_z" in data
+        assert "kappa_y" in data
+        assert "kappa_z" in data
 
     # Verifica CSV headers
     print("\n[4] Verifica CSV headers disponibili...")
     from sections_app.models.sections import CSV_HEADERS
+
     print(f"  Totale colonne CSV: {len(CSV_HEADERS)}")
     print(f"  Colonne: {', '.join(CSV_HEADERS)}")
 
@@ -168,10 +169,12 @@ if __name__ == "__main__":
     except AssertionError as e:
         print(f"\n✗ ASSERTION FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
     except Exception as e:
         print(f"\n✗ ERRORE NEL TEST: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

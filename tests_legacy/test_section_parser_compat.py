@@ -1,18 +1,17 @@
 import unittest
 
-from sections_app.models.sections import create_section_from_dict
-from sections_app.models.sections import LSection
+from sections_app.models.sections import LSection, create_section_from_dict
 
 
 class TestLSectionParserCompatibility(unittest.TestCase):
     def test_l_section_uses_t_horizontal_and_t_vertical_when_present(self):
         data = {
-            'section_type': 'L_SECTION',
-            'name': 'L test',
-            'width': '10',
-            'height': '20',
-            't_horizontal': '3.3',
-            't_vertical': '2.2',
+            "section_type": "L_SECTION",
+            "name": "L test",
+            "width": "10",
+            "height": "20",
+            "t_horizontal": "3.3",
+            "t_vertical": "2.2",
         }
         sec = create_section_from_dict(data)
         self.assertIsInstance(sec, LSection)
@@ -21,12 +20,12 @@ class TestLSectionParserCompatibility(unittest.TestCase):
 
     def test_l_section_fallback_uses_flange_and_web_if_missing(self):
         data = {
-            'section_type': 'L_SECTION',
-            'name': 'L fallback',
-            'width': '12',
-            'height': '24',
-            'flange_thickness': '4.0',
-            'web_thickness': '1.5',
+            "section_type": "L_SECTION",
+            "name": "L fallback",
+            "width": "12",
+            "height": "24",
+            "flange_thickness": "4.0",
+            "web_thickness": "1.5",
         }
         sec = create_section_from_dict(data)
         self.assertIsInstance(sec, LSection)
@@ -36,13 +35,13 @@ class TestLSectionParserCompatibility(unittest.TestCase):
 
     def test_csv_with_Ay_Az_and_no_kappa_preserves_values_by_deriving_kappa(self):
         data = {
-            'section_type': 'RECTANGULAR',
-            'name': 'CSV R',
-            'width': '10',
-            'height': '20',
-            'area': '200',
-            'A_y': '150.0',
-            'A_z': '150.0',
+            "section_type": "RECTANGULAR",
+            "name": "CSV R",
+            "width": "10",
+            "height": "20",
+            "area": "200",
+            "A_y": "150.0",
+            "A_z": "150.0",
             # no kappa_y/kappa_z provided
         }
         sec = create_section_from_dict(data)
@@ -51,5 +50,5 @@ class TestLSectionParserCompatibility(unittest.TestCase):
         self.assertAlmostEqual(sec.shear_factor_z, 0.75)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

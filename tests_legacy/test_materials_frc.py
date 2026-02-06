@@ -23,7 +23,7 @@ def test_material_frc_persistence_roundtrip():
             frc_fFts=2500.0,
             frc_fFtu=3000.0,
             frc_eps_fu=0.02,
-            frc_note="Carbon fiber, manual entry"
+            frc_note="Carbon fiber, manual entry",
         )
         repo.add(mat)
 
@@ -69,7 +69,7 @@ def test_material_to_from_dict_roundtrip():
         frc_fFts=1200.0,
         frc_fFtu=1500.0,
         frc_eps_fu=0.015,
-        frc_note="Sample"
+        frc_note="Sample",
     )
     d = mat.to_dict()
     m2 = Material.from_dict(d)

@@ -2,10 +2,16 @@ from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
 import tkinter as tk
+from pathlib import Path
 from tkinter import ttk
-from sections_app.services.notification import notify_info, notify_error, notify_warning, ask_confirm
+
+from sections_app.services.notification import (
+    ask_confirm,
+    notify_error,
+    notify_info,
+    notify_warning,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -45,15 +51,29 @@ class CodeSettingsWindow(tk.Toplevel):
             self._text.insert(tk.END, raw)
         except Exception as exc:
             logger.exception("Errore caricamento %s", self.settings_path)
-            notify_error("Caricamento parametri", f"Errore nel caricamento: {exc}", source="code_settings_window")
+            notify_error(
+                "Caricamento parametri",
+                f"Errore nel caricamento: {exc}",
+                source="code_settings_window",
+            )
 
     def _save(self) -> None:
         try:
             data = json.loads(self._text.get("1.0", tk.END))
-            self.settings_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-            notify_info("Salvataggio parametri", "Salvataggio completato", source="code_settings_window")
+            self.settings_path.write_text(
+                json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+            notify_info(
+                "Salvataggio parametri", "Salvataggio completato", source="code_settings_window"
+            )
         except json.JSONDecodeError as exc:
-            notify_error("Salvataggio parametri", f"JSON non valido: {exc}", source="code_settings_window")
+            notify_error(
+                "Salvataggio parametri", f"JSON non valido: {exc}", source="code_settings_window"
+            )
         except Exception as exc:
             logger.exception("Errore salvataggio %s", self.settings_path)
-            notify_error("Salvataggio parametri", f"Errore nel salvataggio: {exc}", source="code_settings_window")
+            notify_error(
+                "Salvataggio parametri",
+                f"Errore nel salvataggio: {exc}",
+                source="code_settings_window",
+            )

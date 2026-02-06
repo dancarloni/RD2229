@@ -13,10 +13,10 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from core.verification_core import (
-    SectionGeometry,
-    ReinforcementLayer,
-    MaterialProperties,
     LoadCase,
+    MaterialProperties,
+    ReinforcementLayer,
+    SectionGeometry,
 )
 from core.verification_engine import create_verification_engine
 
@@ -42,15 +42,13 @@ print(f"Inertia Iy: {section.inertia_y():.0f} cm⁴")
 
 # Define reinforcement
 rebar_bottom = ReinforcementLayer(area=12.0, distance=45.0)  # 4φ20 @ d=45cm
-rebar_top = ReinforcementLayer(area=4.0, distance=5.0)     # 2φ16 @ d'=5cm
+rebar_top = ReinforcementLayer(area=4.0, distance=5.0)  # 2φ16 @ d'=5cm
 print(f"\nTensile reinforcement: As = {rebar_bottom.area} cm² @ d = {rebar_bottom.distance} cm")
 print(f"Compressed reinforcement: As' = {rebar_top.area} cm² @ d' = {rebar_top.distance} cm")
 
 # Get material properties from .jsoncode
 material = engine_ta.get_material_properties(
-    concrete_class="R160",
-    steel_type="FeB38k",
-    material_source="RD2229"
+    concrete_class="R160", steel_type="FeB38k", material_source="RD2229"
 )
 print(f"\nMaterials (RD2229):")
 print(f"  Concrete R160: σ_c,28 = {material.fck} kg/cm², E_c = {material.Ec:.0f} kg/cm²")
@@ -74,7 +72,7 @@ result = engine_ta.perform_verification(
     reinforcement_tensile=rebar_bottom,
     reinforcement_compressed=rebar_top,
     material=material,
-    loads=loads
+    loads=loads,
 )
 
 # Display results
@@ -111,9 +109,7 @@ engine_slu = create_verification_engine("SLU")
 
 # Get modern material properties
 material_ntc = engine_slu.get_material_properties(
-    concrete_class="C25_30",
-    steel_type="B450C",
-    material_source="NTC2018"
+    concrete_class="C25_30", steel_type="B450C", material_source="NTC2018"
 )
 print(f"\nMaterials (NTC2018):")
 print(f"  Concrete C25/30: fck = {material_ntc.fck} MPa, Ecm = {material_ntc.Ec:.0f} MPa")
@@ -136,7 +132,7 @@ result_slu = engine_slu.perform_verification(
     reinforcement_tensile=rebar_bottom,
     reinforcement_compressed=rebar_top,
     material=material_ntc,
-    loads=loads_si
+    loads=loads_si,
 )
 
 print(f"\nVerification type: {result_slu.verification_type.value}")
@@ -151,12 +147,12 @@ print("=" * 80)
 
 # Define multi-axis loads
 loads_multiaxis = LoadCase(
-    N=500000.0,      # 500 kN axial compression
-    Mx=8000000.0,    # 80 kN·m bending about x
-    My=4000000.0,    # 40 kN·m bending about y
-    Mz=1000000.0,    # 10 kN·m torsion
-    Tx=50000.0,      # 50 kN shear in x
-    Ty=30000.0       # 30 kN shear in y
+    N=500000.0,  # 500 kN axial compression
+    Mx=8000000.0,  # 80 kN·m bending about x
+    My=4000000.0,  # 40 kN·m bending about y
+    Mz=1000000.0,  # 10 kN·m torsion
+    Tx=50000.0,  # 50 kN shear in x
+    Ty=30000.0,  # 30 kN shear in y
 )
 
 verif_type = loads_multiaxis.get_verification_type()

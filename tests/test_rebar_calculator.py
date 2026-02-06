@@ -1,5 +1,6 @@
-from app.ui.rebar_calculator import calculate_rebar_total
 import math
+
+from app.ui.rebar_calculator import calculate_rebar_total
 
 
 def test_calculate_rebar_total_simple():

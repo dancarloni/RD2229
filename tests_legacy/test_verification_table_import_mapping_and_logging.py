@@ -1,11 +1,11 @@
-import unittest
-import tkinter as tk
-import tempfile
-import os
 import csv
+import os
+import tempfile
+import tkinter as tk
+import unittest
 from unittest.mock import patch
 
-from verification_table import VerificationTableApp, VerificationInput, logger
+from verification_table import VerificationInput, VerificationTableApp, logger
 
 
 class TestImportMappingAndLogging(unittest.TestCase):
@@ -63,14 +63,14 @@ class TestImportMappingAndLogging(unittest.TestCase):
         ]
 
     def test_permuted_header_imports_with_mapping(self):
-        tmp = tempfile.NamedTemporaryFile(suffix='.csv', delete=False)
+        tmp = tempfile.NamedTemporaryFile(suffix=".csv", delete=False)
         tmp.close()
         try:
-            header = [c[1] for c in __import__('verification_table').COLUMNS]
+            header = [c[1] for c in __import__("verification_table").COLUMNS]
             # permuto header (spostiamo la prima all'ultimo)
             perm = header[1:] + [header[0]]
-            with open(tmp.name, 'w', newline='', encoding='utf-8') as fh:
-                w = csv.writer(fh, delimiter=';')
+            with open(tmp.name, "w", newline="", encoding="utf-8") as fh:
+                w = csv.writer(fh, delimiter=";")
                 w.writerow(perm)
                 for r in self.make_sample_rows():
                     # costruiamo i valori in base all'header permutato (file con header riorganizzato)
@@ -97,86 +97,95 @@ class TestImportMappingAndLogging(unittest.TestCase):
 
             app = VerificationTableApp(self.root, initial_rows=0)
             # patch filedialog to return our file
-            with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
-                with patch('verification_table.notify_info') as mock_info:
-                    with patch.object(logger, 'info') as mock_log_info:
+            with patch("tkinter.filedialog.askopenfilename", return_value=tmp.name):
+                with patch("verification_table.notify_info") as mock_info:
+                    with patch.object(logger, "info") as mock_log_info:
                         app._on_import_csv()
                         mock_info.assert_called()
                         # il mapping automatico dovrebbe essere loggato come info
                         mock_log_info.assert_called()
             got = app.get_rows()
             self.assertEqual(len(got), 2)
-            self.assertEqual(got[0].section_id, 'S1')
-            self.assertEqual(got[1].section_id, 'S2')
+            self.assertEqual(got[0].section_id, "S1")
+            self.assertEqual(got[1].section_id, "S2")
         finally:
             os.unlink(tmp.name)
 
     def test_malformed_row_logs_detailed_error(self):
-        tmp = tempfile.NamedTemporaryFile(suffix='.csv', delete=False)
+        tmp = tempfile.NamedTemporaryFile(suffix=".csv", delete=False)
         tmp.close()
         try:
-            header = [c[1] for c in __import__('verification_table').COLUMNS]
-            with open(tmp.name, 'w', newline='', encoding='utf-8') as fh:
-                w = csv.writer(fh, delimiter=';')
+            header = [c[1] for c in __import__("verification_table").COLUMNS]
+            with open(tmp.name, "w", newline="", encoding="utf-8") as fh:
+                w = csv.writer(fh, delimiter=";")
                 w.writerow(header)
                 rows = self.make_sample_rows()
                 # prima riga valida
                 r = rows[0]
-                w.writerow([
-                    r.section_id,
-                    r.material_concrete,
-                    r.material_steel,
-                    r.n_homog,
-                    r.N,
-                    r.M,
-                    r.T,
-                    r.As_inf,
-                    r.As_sup,
-                    r.d_inf,
-                    r.d_sup,
-                    r.stirrup_step,
-                    r.stirrup_diameter,
-                    r.stirrup_material,
-                    r.notes,
-                ])
+                w.writerow(
+                    [
+                        r.section_id,
+                        r.material_concrete,
+                        r.material_steel,
+                        r.n_homog,
+                        r.N,
+                        r.M,
+                        r.T,
+                        r.As_inf,
+                        r.As_sup,
+                        r.d_inf,
+                        r.d_sup,
+                        r.stirrup_step,
+                        r.stirrup_diameter,
+                        r.stirrup_material,
+                        r.notes,
+                    ]
+                )
                 # seconda riga malformata: N è 'not_a_number'
                 r2 = rows[1]
-                w.writerow([
-                    r2.section_id,
-                    r2.material_concrete,
-                    r2.material_steel,
-                    r2.n_homog,
-                    'not_a_number',
-                    r2.M,
-                    r2.T,
-                    r2.As_inf,
-                    r2.As_sup,
-                    r2.d_inf,
-                    r2.d_sup,
-                    r2.stirrup_step,
-                    r2.stirrup_diameter,
-                    r2.stirrup_material,
-                    r2.notes,
-                ])
+                w.writerow(
+                    [
+                        r2.section_id,
+                        r2.material_concrete,
+                        r2.material_steel,
+                        r2.n_homog,
+                        "not_a_number",
+                        r2.M,
+                        r2.T,
+                        r2.As_inf,
+                        r2.As_sup,
+                        r2.d_inf,
+                        r2.d_sup,
+                        r2.stirrup_step,
+                        r2.stirrup_diameter,
+                        r2.stirrup_material,
+                        r2.notes,
+                    ]
+                )
 
             app = VerificationTableApp(self.root, initial_rows=0)
-            with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
-                with patch('verification_table.notify_error') as mock_err:
-                    with patch.object(logger, 'error') as mock_log_error:
+            with patch("tkinter.filedialog.askopenfilename", return_value=tmp.name):
+                with patch("verification_table.notify_error") as mock_err:
+                    with patch.object(logger, "error") as mock_log_error:
                         app._on_import_csv()
                         mock_err.assert_called()
                         # il messaggio mostrato all'utente deve contenere il dettaglio dell'errore
                         title, text = mock_err.call_args[0]
-                        self.assertEqual(title, 'Importa CSV')
-                        self.assertIn('not_a_number', text)
+                        self.assertEqual(title, "Importa CSV")
+                        self.assertIn("not_a_number", text)
                         # logger.error should be called with a message containing our bad value
-                        called = any('not_a_number' in str(args) for args, _ in mock_log_error.call_args_list)
-                        self.assertTrue(called, f"Expected logger.error to contain 'not_a_number', got {mock_log_error.call_args_list}")
+                        called = any(
+                            "not_a_number" in str(args) for args, _ in mock_log_error.call_args_list
+                        )
+                        self.assertTrue(
+                            called,
+                            f"Expected logger.error to contain 'not_a_number', got {mock_log_error.call_args_list}",
+                        )
             got = app.get_rows()
             self.assertEqual(len(got), 1)
         finally:
             os.unlink(tmp.name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

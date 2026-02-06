@@ -1,10 +1,11 @@
+import math
+
 from core.verification_core import (
-    SectionGeometry,
-    ReinforcementLayer,
     MaterialProperties,
+    ReinforcementLayer,
+    SectionGeometry,
     calculate_neutral_axis_deviated_bending,
 )
-import math
 
 
 def test_neutral_axis_deviated_bending_angle():

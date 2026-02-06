@@ -3,13 +3,15 @@
 Provides a pure function `calculate_rebar_total` (usable in tests) and a
 `RebarCalculatorWindow` class that encapsulates the Toplevel UI.
 """
+
 from __future__ import annotations
 
+import logging
 import math
 import tkinter as tk
-from typing import Callable, Dict, Iterable, Optional
+from typing import Callable, Dict, Optional
 
-DIAMETERS = [8, 10, 12, 14, 16, 20, 25]
+DIAMETERS = [6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
 
 
 def calculate_rebar_total(counts: Dict[int, int]) -> float:
@@ -24,7 +26,7 @@ def calculate_rebar_total(counts: Dict[int, int]) -> float:
         except Exception:
             n_int = 0
         d_cm = d / 10.0
-        area = math.pi * (d_cm ** 2) / 4.0
+        area = math.pi * (d_cm**2) / 4.0
         total += n_int * area
     return total
 
@@ -62,7 +64,9 @@ class RebarCalculatorWindow:
         tk.Label(frame, text="n barre", width=8, anchor="w").grid(row=0, column=1, sticky="w")
 
         for i, d in enumerate(DIAMETERS, start=1):
-            tk.Label(frame, text=f"Ø{d}", width=8, anchor="w").grid(row=i, column=0, sticky="w", pady=2)
+            tk.Label(frame, text=f"Ø{d}", width=8, anchor="w").grid(
+                row=i, column=0, sticky="w", pady=2
+            )
             var = tk.StringVar(value=str((initial_values or {}).get(d, "")))
             self._vars[d] = var
             ent = tk.Entry(frame, textvariable=var, width=8)

@@ -1,11 +1,11 @@
 from core.verification_core import (
-    SectionGeometry,
-    ReinforcementLayer,
+    LoadCase,
     MaterialProperties,
+    ReinforcementLayer,
+    SectionGeometry,
     estimate_required_torsion_reinforcement,
 )
 from core.verification_engine import create_verification_engine
-from core.verification_core import LoadCase
 
 
 def test_estimate_at_required_and_engine_messages():

@@ -5,6 +5,7 @@ NOTE:
   delle fibre. Il comportamento preciso sarà aggiornato per raggiungere la parità numerica
   con le formule VB in iterazioni successive.
 """
+
 from __future__ import annotations
 
 from typing import Tuple
@@ -40,7 +41,9 @@ def frc_stress(material: Material, strain: float) -> float:
     return sigma
 
 
-def apply_frc_to_section(section, material: Material, strain_distribution) -> Tuple[float, float, float]:
+def apply_frc_to_section(
+    section, material: Material, strain_distribution
+) -> Tuple[float, float, float]:
     """Placeholder: applica il contributo FRC alla sezione e ritorna (N, My, Mz).
 
     Implementazione completa verrà aggiunta nelle iterazioni successive.

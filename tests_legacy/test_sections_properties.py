@@ -1,15 +1,15 @@
 import math
 
-from sections_app.services.calculations import compute_principal_inertia
 from sections_app.models.sections import RectangularSection
+from sections_app.services.calculations import compute_principal_inertia
 
 
 def test_principal_inertia_rectangular():
     # Rectangle b=4, h=2
     b = 4.0
     h = 2.0
-    Ix = (b * h ** 3) / 12.0
-    Iy = (h * b ** 3) / 12.0
+    Ix = (b * h**3) / 12.0
+    Iy = (h * b**3) / 12.0
     Ixy = 0.0
 
     I1, I2, angle_rad = compute_principal_inertia(Ix, Iy, Ixy)
@@ -39,8 +39,8 @@ def test_principal_inertia_rotated_rectangular():
     props = rect.compute_properties()
 
     # Principals computed should match unrotated I1/I2
-    Ix_local = (b * h ** 3) / 12.0
-    Iy_local = (h * b ** 3) / 12.0
+    Ix_local = (b * h**3) / 12.0
+    Iy_local = (h * b**3) / 12.0
     I1_ref, I2_ref, _ = compute_principal_inertia(Ix_local, Iy_local, 0.0)
 
     assert math.isclose(props.principal_ix, I1_ref, rel_tol=1e-9)

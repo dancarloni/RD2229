@@ -1,10 +1,10 @@
-import unittest
-import tkinter as tk
-import sys
 import os
+import sys
+import tkinter as tk
+import unittest
 
 # Ensure project root is on sys.path so tests can import local modules under pytest
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from verification_table import VerificationTableApp
 
@@ -62,7 +62,7 @@ class TestVerificationTableSuggestionsOnEmpty(unittest.TestCase):
         app.material_names = ["C120", "C200"]
         # Use a static suggestion source for concrete materials to avoid
         # dependency on repository-backed helpers in test environment
-        app.suggestions_map['mat_concrete'] = app.material_names
+        app.suggestions_map["mat_concrete"] = app.material_names
         items = list(app.tree.get_children())
         first = items[0]
 
@@ -86,7 +86,7 @@ class TestVerificationTableSuggestionsOnEmpty(unittest.TestCase):
         # prepare material names containing steel only
         app.material_names = ["A500", "A600"]
         # Use static suggestion source for steel
-        app.suggestions_map['mat_steel'] = app.material_names
+        app.suggestions_map["mat_steel"] = app.material_names
         items = list(app.tree.get_children())
         first = items[0]
 
@@ -110,7 +110,7 @@ class TestVerificationTableSuggestionsOnEmpty(unittest.TestCase):
         # prepare material names containing steel only
         app.material_names = ["A500", "A600"]
         # Use static suggestion source for stirrups materials (steel)
-        app.suggestions_map['stirrups_mat'] = app.material_names
+        app.suggestions_map["stirrups_mat"] = app.material_names
         items = list(app.tree.get_children())
         first = items[0]
 
@@ -126,5 +126,5 @@ class TestVerificationTableSuggestionsOnEmpty(unittest.TestCase):
         top.destroy()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

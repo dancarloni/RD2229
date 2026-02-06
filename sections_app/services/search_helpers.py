@@ -3,10 +3,11 @@
 This module centralizes searchable helpers used by the UI (Verification Table)
 so they can be reused and tested independently.
 """
+
 from __future__ import annotations
 
-from typing import List, Optional
 import logging
+from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +43,17 @@ def search_sections(repo, names: Optional[List[str]], query: str, limit: int = 2
         return [s for s in (names or []) if q in s.lower()][:limit]
 
 
-def search_materials(repo, names: Optional[List[str]], query: str, type_filter: Optional[str] = None, limit: int = 200) -> List[str]:
+def search_materials(
+    repo,
+    names: Optional[List[str]],
+    query: str,
+    type_filter: Optional[str] = None,
+    limit: int = 200,
+) -> List[str]:
     """Search materials using MaterialRepository or a static list.
 
     ✅ Ricerca sia nel campo 'name' che nel campo 'code' del materiale.
-    
+
     Args:
         repo: MaterialRepository or None
         names: fallback list of material names
@@ -66,7 +73,9 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         if repo is not None:
             mats = repo.get_all()
             for m in mats:
-                name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
+                name = (
+                    m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
+                )
                 code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")
                 mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
 
@@ -85,12 +94,19 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         if not results:
             try:
                 from core_models.materials import MaterialRepository
+
                 tmp_repo = MaterialRepository()
                 mats = tmp_repo.get_all()
                 for m in mats:
-                    name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
+                    name = (
+                        m.name
+                        if hasattr(m, "name")
+                        else (m.get("name") if isinstance(m, dict) else "")
+                    )
                     code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")
-                    mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
+                    mtype = getattr(m, "type", None) or (
+                        m.get("type") if isinstance(m, dict) else None
+                    )
                     if type_filter and mtype is not None and mtype != type_filter:
                         continue
                     if not q or q in (name or "").lower() or q in (code or "").lower():
@@ -105,7 +121,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         # 3) Fallback: if no repo or names provided, also try matching on the 'names' list
         # NOTE: Only use fallback 'names' if NO type_filter is specified, since 'names' lacks type info
         if not results and (names or []) and not type_filter:
-            for n in (names or []):
+            for n in names or []:
                 if not q or (q in n.lower()):
                     if n not in seen:
                         seen.add(n)
@@ -114,11 +130,14 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         # 4) Additionally, include matches from HistoricalMaterialLibrary (if available)
         try:
             from historical_materials import HistoricalMaterialLibrary
+
             lib = HistoricalMaterialLibrary()
             for hist in lib.get_all():
                 hist_name = getattr(hist, "name", "")
                 hist_code = getattr(hist, "code", "")
-                hist_type = getattr(getattr(hist, "type", None), "value", None) or str(getattr(hist, "type", ""))
+                hist_type = getattr(getattr(hist, "type", None), "value", None) or str(
+                    getattr(hist, "type", "")
+                )
 
                 # Filtra per tipo storica se specificato
                 if type_filter and hist_type and hist_type != type_filter:
@@ -140,17 +159,26 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
                 # Prefer repository materials if available
                 if repo is not None:
                     for m in repo.get_all():
-                        mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
-                        name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
+                        mtype = getattr(m, "type", None) or (
+                            m.get("type") if isinstance(m, dict) else None
+                        )
+                        name = (
+                            m.name
+                            if hasattr(m, "name")
+                            else (m.get("name") if isinstance(m, dict) else "")
+                        )
                         if mtype == type_filter and name not in seen:
                             seen.add(name)
                             results.append(name)
                 # Historical library fallback
                 from historical_materials import HistoricalMaterialLibrary
+
                 lib = HistoricalMaterialLibrary()
                 for hist in lib.get_all():
                     hist_name = getattr(hist, "name", "")
-                    hist_type = getattr(getattr(hist, "type", None), "value", None) or str(getattr(hist, "type", ""))
+                    hist_type = getattr(getattr(hist, "type", None), "value", None) or str(
+                        getattr(hist, "type", "")
+                    )
                     if hist_type == type_filter and hist_name not in seen:
                         seen.add(hist_name)
                         results.append(hist_name)
@@ -161,7 +189,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
             # a plausible suggestion (e.g. 'Fe B 38 k') so the UI can show a helpful
             # choice that includes the user's code fragment.
             if q.isdigit() and not any(q in r for r in results):
-                synth = f"Fe B {q} k" if type_filter == 'steel' else f"C{q}"
+                synth = f"Fe B {q} k" if type_filter == "steel" else f"C{q}"
                 results.append(synth)
 
         # If the query is numeric-only (e.g. '160'), collapse multiple suggestions
@@ -170,6 +198,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         # showing up multiple times for the user when they search a numeric code.
         try:
             import re
+
             if q.isdigit():
                 seen_nums = set()
                 filtered_results = []

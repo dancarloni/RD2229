@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 
 from sections_app.services.debug_log_stream import get_in_memory_handler
-
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.main_window import MainWindow
 
@@ -31,18 +30,18 @@ def configure_logging() -> None:
 
 def run_app() -> None:
     configure_logging()
-    
+
     # Crea e carica i repository
     section_repository = SectionRepository()
     section_repository.load_from_file()
-    
+
     material_repository = None
     if MaterialRepository is not None:
         material_repository = MaterialRepository()
         material_repository.load_from_file()
-    
+
     serializer = CsvSectionSerializer()
-    
+
     # Mostra il selettore di modulo come prima finestra
     from sections_app.ui.module_selector import ModuleSelectorWindow
 
@@ -52,4 +51,3 @@ def run_app() -> None:
 
 if __name__ == "__main__":
     run_app()
-

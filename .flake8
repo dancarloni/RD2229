@@ -1,0 +1,14 @@
+[flake8]
+max-line-length = 100
+extend-ignore = E203,W503
+exclude = 
+    .venv,
+    tests_legacy,
+    examples,
+    sections_app,
+    tools,
+    scripts,
+    verifications,
+    historical_ta,
+    docs,
+    data

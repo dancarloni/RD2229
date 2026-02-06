@@ -1,8 +1,10 @@
-import os
 import json
-import pytest
+import os
 from pathlib import Path
-from sections_app.services.event_bus import EventBus, NOTIFICATION
+
+import pytest
+
+from sections_app.services.event_bus import NOTIFICATION, EventBus
 
 
 @pytest.fixture
@@ -24,11 +26,11 @@ def _check_repo_duplicates():
 
     Returns list of anomaly messages (empty if ok).
     """
-    repo_path = Path(__file__).resolve().parents[1] / 'data' / 'sections.json'
+    repo_path = Path(__file__).resolve().parents[1] / "data" / "sections.json"
     if not repo_path.exists():
         return [f"Repository file missing: {repo_path}"]
     try:
-        with repo_path.open('r', encoding='utf-8') as fh:
+        with repo_path.open("r", encoding="utf-8") as fh:
             data = json.load(fh)
     except Exception as e:
         return [f"Failed to read {repo_path}: {e}"]
@@ -36,8 +38,8 @@ def _check_repo_duplicates():
     names = []
     msgs = []
     for s in data:
-        sid = s.get('id')
-        name = s.get('name')
+        sid = s.get("id")
+        name = s.get("name")
         if sid in ids:
             msgs.append(f"Duplicate id: {sid}")
         else:
@@ -51,7 +53,7 @@ def _check_repo_duplicates():
 
 def pytest_configure(config):
     """If REPO_WATCHER_STRICT=1, run repo checks and exit on anomalies."""
-    if os.environ.get('REPO_WATCHER_STRICT') == '1':
+    if os.environ.get("REPO_WATCHER_STRICT") == "1":
         msgs = _check_repo_duplicates()
         if msgs:
             raise SystemExit("Repository anomalies detected:\n" + "\n".join(msgs))

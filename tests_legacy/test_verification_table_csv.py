@@ -1,9 +1,9 @@
-import unittest
-import tkinter as tk
-import tempfile
 import os
+import tempfile
+import tkinter as tk
+import unittest
 
-from verification_table import VerificationTableApp, VerificationInput
+from verification_table import VerificationInput, VerificationTableApp
 
 
 class TestVerificationTableCSV(unittest.TestCase):

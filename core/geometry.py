@@ -213,6 +213,7 @@ class InvertedTSection(CompositeSection):
 @dataclass
 class PiSection(CompositeSection):
     """Sezione a pigreco (simile al simbolo Π): flange superiore con due montanti verticali."""
+
     width: float
     top_thickness: float
     leg_thickness: float
@@ -276,4 +277,3 @@ class CircularHollowSection(SectionGeometry):
         i_outer = pi * r**4 / 4.0
         i_inner = pi * ri**4 / 4.0
         return i_outer - i_inner, i_outer - i_inner
-

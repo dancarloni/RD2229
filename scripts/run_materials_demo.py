@@ -5,12 +5,13 @@ Esempio d'uso:
 
 Nota: esegui da workspace root e assicurati che `PYTHONPATH=src` per importare il package.
 """
+
 from tools.materials_manager import (
     add_material,
-    list_materials,
-    get_material,
-    update_material,
     delete_material,
+    get_material,
+    list_materials,
+    update_material,
 )
 
 
@@ -42,4 +43,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

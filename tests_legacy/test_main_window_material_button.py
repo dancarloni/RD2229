@@ -1,9 +1,8 @@
+import tkinter as tk
 import unittest
 
-import tkinter as tk
-
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.main_window import MainWindow
-from sections_app.services.repository import SectionRepository, CsvSectionSerializer
 
 
 class TestMainWindowMaterialButton(unittest.TestCase):

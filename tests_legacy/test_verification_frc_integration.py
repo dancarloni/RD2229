@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Integration tests for FRC contribution in verification engine."""
+
+from core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
 from core.verification_engine import VerificationEngine
-from core.verification_core import SectionGeometry, ReinforcementLayer, MaterialProperties, LoadCase
 from core_models.materials import Material
 
 
@@ -24,10 +25,16 @@ def test_frc_increases_tensile_stress():
     sigma_s_no_frc = result_no_frc.stress_state.sigma_s_tensile
 
     # With FRC material (enabled) and some area
-    frc_mat = Material(name="CFRP_kit", type="frc", frc_enabled=True, frc_fFtu=3000.0, frc_eps_fu=0.02)
-    result_with_frc = engine.perform_verification(section, As, As_p, mat, loads, frc_material=frc_mat, frc_area=0.5)
+    frc_mat = Material(
+        name="CFRP_kit", type="frc", frc_enabled=True, frc_fFtu=3000.0, frc_eps_fu=0.02
+    )
+    result_with_frc = engine.perform_verification(
+        section, As, As_p, mat, loads, frc_material=frc_mat, frc_area=0.5
+    )
     sigma_s_with_frc = result_with_frc.stress_state.sigma_s_tensile
 
     assert sigma_s_with_frc >= sigma_s_no_frc
     # And the FRC equivalent field should be present (sigma_frc recorded)
-    assert result_with_frc.stress_state.sigma_frc == 0.0 or hasattr(result_with_frc.stress_state, 'sigma_frc')
+    assert result_with_frc.stress_state.sigma_frc == 0.0 or hasattr(
+        result_with_frc.stress_state, "sigma_frc"
+    )

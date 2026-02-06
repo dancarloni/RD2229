@@ -1,10 +1,11 @@
-import unittest
 import tkinter as tk
+import unittest
 
-from sections_app.services.repository import SectionRepository
 from sections_app.models.sections import RectangularSection
+from sections_app.services.repository import SectionRepository
+
 try:
-    from core_models.materials import MaterialRepository, Material
+    from core_models.materials import Material, MaterialRepository
 except Exception:
     MaterialRepository = None
     Material = None
@@ -43,7 +44,9 @@ class TestVerificationTableWindow(unittest.TestCase):
         else:
             mat_repo = None
 
-        win = VerificationTableWindow(self.root, section_repository=section_repo, material_repository=mat_repo)
+        win = VerificationTableWindow(
+            self.root, section_repository=section_repo, material_repository=mat_repo
+        )
 
         # repositories stored on window
         self.assertIs(win.section_repository, section_repo)

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import tkinter as tk
 from typing import Callable, List, Optional
 
@@ -91,5 +92,5 @@ class SuggestionBox:
         while w is not None:
             if w == self._list or w == self._box:
                 return True
-            w = getattr(w, 'master', None)
+            w = getattr(w, "master", None)
         return False

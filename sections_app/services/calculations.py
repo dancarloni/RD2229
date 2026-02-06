@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import cos, sin, sqrt, atan2
+from math import atan2, cos, sin, sqrt
 from typing import List, Tuple
 
 
@@ -15,7 +15,9 @@ class RectangleElement:
     y_center: float  # Coordinata y del baricentro rispetto a un'origine locale (cm)
 
 
-def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> Tuple[float, float, float]:
+def rotate_inertia(
+    Ix: float, Iy: float, Ixy: float, theta_rad: float
+) -> Tuple[float, float, float]:
     """
     Ruota il tensore di inerzia di un angolo theta_rad (radianti) attorno al baricentro.
 
@@ -83,7 +85,9 @@ def compute_principal_inertia(Ix: float, Iy: float, Ixy: float) -> tuple:
     return I1, I2, angle
 
 
-def combine_rectangular_elements(elements: List[RectangleElement]) -> Tuple[float, float, float, float, float, float]:
+def combine_rectangular_elements(
+    elements: List[RectangleElement],
+) -> Tuple[float, float, float, float, float, float]:
     """
     Combina elementi rettangolari per calcolare le proprietà globali di una sezione composta.
 
@@ -157,7 +161,9 @@ class CanvasTransform:
         return cx, cy
 
 
-def compute_transform(width: float, height: float, canvas_width: int, canvas_height: int, padding: int = 20) -> CanvasTransform:
+def compute_transform(
+    width: float, height: float, canvas_width: int, canvas_height: int, padding: int = 20
+) -> CanvasTransform:
     """Calcola il fattore di scala per adattare la sezione al canvas."""
     if width <= 0 or height <= 0:
         return CanvasTransform(scale=1.0, offset_x=padding, offset_y=padding)
@@ -165,4 +171,3 @@ def compute_transform(width: float, height: float, canvas_width: int, canvas_hei
     offset_x = (canvas_width - width * scale) / 2
     offset_y = (canvas_height - height * scale) / 2
     return CanvasTransform(scale=scale, offset_x=offset_x, offset_y=offset_y)
-

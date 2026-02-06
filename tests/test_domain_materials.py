@@ -1,4 +1,5 @@
 import pytest
+
 from verification_table import VerificationInput, get_concrete_properties, get_steel_properties
 
 

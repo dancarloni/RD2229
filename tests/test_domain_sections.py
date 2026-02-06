@@ -18,13 +18,13 @@ class DummyRepo:
 
 
 def test_get_section_geometry_with_section():
-    repo = DummyRepo([DummySection('S1', 'S1', width=30, height=50)])
-    inp = VerificationInput(section_id='S1')
-    b, h = get_section_geometry(inp, repo, unit='cm')
+    repo = DummyRepo([DummySection("S1", "S1", width=30, height=50)])
+    inp = VerificationInput(section_id="S1")
+    b, h = get_section_geometry(inp, repo, unit="cm")
     assert (b, h) == (30.0, 50.0)
 
 
 def test_get_section_geometry_fallback():
-    inp = VerificationInput(section_id='')
-    b, h = get_section_geometry(inp, None, unit='cm')
+    inp = VerificationInput(section_id="")
+    b, h = get_section_geometry(inp, None, unit="cm")
     assert (b, h) == (30.0, 50.0)

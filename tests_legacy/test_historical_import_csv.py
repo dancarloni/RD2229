@@ -33,8 +33,16 @@ class TestHistoricalImportCSV(unittest.TestCase):
     def test_import_updates_existing(self):
         # create existing
         from historical_materials import HistoricalMaterial, HistoricalMaterialType
+
         self.lib.add(
-            HistoricalMaterial(id="RDCSV1", code="RDCSV1", name="Old", source="X", type=HistoricalMaterialType.CONCRETE, fck=10.0)
+            HistoricalMaterial(
+                id="RDCSV1",
+                code="RDCSV1",
+                name="Old",
+                source="X",
+                type=HistoricalMaterialType.CONCRETE,
+                fck=10.0,
+            )
         )
         csv_path = self.base / "import2.csv"
         csv_path.write_text(

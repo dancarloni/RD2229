@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import List, Tuple
-import math
 
 from .geometry import SectionGeometry, SectionProperties, compute_section_properties
 from .materials import ConcreteLawTA, SteelLawTA, sigma_c, sigma_s
@@ -112,7 +112,7 @@ def compute_normal_stresses_ta(
     # Prepare vertex list for stress sampling: flatten polygons to vertices
     vertices: List[Tuple[float, float]] = []
     for poly in geom.polygons:
-        for (y, z) in poly:
+        for y, z in poly:
             vertices.append((y, z))
 
     # Precompute per-vertex area contribution (simple triangle fan about polygon centroid approximation)
@@ -129,13 +129,17 @@ def compute_normal_stresses_ta(
             y0, z0 = poly[i]
             y1, z1 = poly[(i + 1) % len(poly)]
             # triangle (centroid, v0, v1)
-            cross = 0.5 * (y0 * z1 - y1 * z0) + 0.5 * (y1 * z_cent - y_cent * z1) + 0.5 * (y_cent * z0 - y0 * z_cent)
+            cross = (
+                0.5 * (y0 * z1 - y1 * z0)
+                + 0.5 * (y1 * z_cent - y_cent * z1)
+                + 0.5 * (y_cent * z0 - y0 * z_cent)
+            )
             # for simplicity attribute the triangle area entirely to v0
             A_tri = abs(0.5 * (y0 * z1 - y1 * z0))
             Sy_tri = A_tri * z0
             Sz_tri = A_tri * y0
-            Iy_tri = A_tri * (z0 ** 2)
-            Iz_tri = A_tri * (y0 ** 2)
+            Iy_tri = A_tri * (z0**2)
+            Iz_tri = A_tri * (y0**2)
             Iyz_tri = A_tri * (y0 * z0)
             vertex_contribs.append((A_tri, Sy_tri, Sz_tri, Iy_tri, Iz_tri, Iyz_tri, y0, z0))
 
@@ -145,8 +149,8 @@ def compute_normal_stresses_ta(
         A_v = geom.n_homog * Abar
         Sy_v = geom.n_homog * Abar * zb
         Sz_v = geom.n_homog * Abar * yb
-        Iy_v = geom.n_homog * Abar * (zb ** 2)
-        Iz_v = geom.n_homog * Abar * (yb ** 2)
+        Iy_v = geom.n_homog * Abar * (zb**2)
+        Iz_v = geom.n_homog * Abar * (yb**2)
         Iyz_v = geom.n_homog * Abar * (yb * zb)
         vertex_contribs.append((A_v, Sy_v, Sz_v, Iy_v, Iz_v, Iyz_v, yb, zb))
 
@@ -165,8 +169,8 @@ def compute_normal_stresses_ta(
         Aci = section_props.area_equivalent
         Sy = section_props.Sy
         Sz = section_props.Sz
-        Iy = section_props.Iy + Aci * (section_props.yG ** 2)  # note: we adjust back to raw sums
-        Iz = section_props.Iz + Aci * (section_props.zG ** 2)
+        Iy = section_props.Iy + Aci * (section_props.yG**2)  # note: we adjust back to raw sums
+        Iz = section_props.Iz + Aci * (section_props.zG**2)
         Iyz = section_props.Iyz + Aci * section_props.yG * section_props.zG
 
         # build MM and invert
@@ -187,7 +191,7 @@ def compute_normal_stresses_ta(
 
         # compute stresses at vertices
         sigma_vertices = []
-        for (y, z) in [(vc[6], vc[7]) for vc in vertex_contribs]:
+        for y, z in [(vc[6], vc[7]) for vc in vertex_contribs]:
             # strain at point (y,z) relative to section centroid
             eps = e0 + k_y * (z - section_props.zG) + k_z * (y - section_props.yG)
             s = sigma_c(eps, concrete_law)
@@ -209,9 +213,12 @@ def compute_normal_stresses_ta(
             A_adj = section_props.A_contrib
             Sy_adj = section_props.Sy
             Sz_adj = section_props.Sz
-            Iy_adj = section_props.Iy + section_props.area_equivalent * (section_props.yG ** 2)
-            Iz_adj = section_props.Iz + section_props.area_equivalent * (section_props.zG ** 2)
-            Iyz_adj = section_props.Iyz + section_props.area_equivalent * section_props.yG * section_props.zG
+            Iy_adj = section_props.Iy + section_props.area_equivalent * (section_props.yG**2)
+            Iz_adj = section_props.Iz + section_props.area_equivalent * (section_props.zG**2)
+            Iyz_adj = (
+                section_props.Iyz
+                + section_props.area_equivalent * section_props.yG * section_props.zG
+            )
 
             for idx, s in enumerate(sigma_vertices):
                 if s > 0:
@@ -244,7 +251,7 @@ def compute_normal_stresses_ta(
 
             # recompute sigma vertices with adjusted fields
             sigma_vertices = []
-            for (y, z) in [(vc[6], vc[7]) for vc in vertex_contribs]:
+            for y, z in [(vc[6], vc[7]) for vc in vertex_contribs]:
                 eps = e0 + k_y * (z - section_props.zG) + k_z * (y - section_props.yG)
                 s = sigma_c(eps, concrete_law)
                 # clamp tensile to zero as we removed that contribution
@@ -264,7 +271,11 @@ def compute_normal_stresses_ta(
             # No parzializzazione required or allowed
             sigma_c_pos = max(0.0, sigma_c_max)
             sigma_c_neg = min(0.0, sigma_c_min)
-            sigma_c_med = loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+            sigma_c_med = (
+                loads.Nx / section_props.area_equivalent
+                if section_props.area_equivalent != 0
+                else 0.0
+            )
 
             sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
             return StressResult(
@@ -282,7 +293,9 @@ def compute_normal_stresses_ta(
     sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
     sigma_c_pos = max(0.0, sigma_c_max)
     sigma_c_neg = min(0.0, sigma_c_min)
-    sigma_c_med = loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+    sigma_c_med = (
+        loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+    )
     return StressResult(
         sigma_c_max=sigma_c_max,
         sigma_c_min=sigma_c_min,

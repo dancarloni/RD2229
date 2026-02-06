@@ -1,8 +1,8 @@
-import unittest
 import tkinter as tk
+import unittest
 from unittest.mock import patch
 
-from sections_app.services.repository import SectionRepository, CsvSectionSerializer
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.main_window import MainWindow
 
 
@@ -32,7 +32,7 @@ class TestShearHelpButton(unittest.TestCase):
             # shear_frame is a child; search its children
             try:
                 for sub in child.winfo_children():
-                    if getattr(sub, 'cget', None) and sub.cget('text') == '?':
+                    if getattr(sub, "cget", None) and sub.cget("text") == "?":
                         help_btn = sub
                         break
                 if help_btn:
@@ -43,15 +43,15 @@ class TestShearHelpButton(unittest.TestCase):
         self.assertIsNotNone(help_btn, "Help button '?' not found in MainWindow")
 
         # Patch messagebox.showinfo and invoke the button
-        with patch('sections_app.ui.main_window.notify_info') as mock_info:
+        with patch("sections_app.ui.main_window.notify_info") as mock_info:
             help_btn.invoke()
             mock_info.assert_called_once()
             # the first arg is the title used in notify_info
             title_arg = mock_info.call_args[0][0]
-            self.assertIn('Fattori di forma', title_arg)
+            self.assertIn("Fattori di forma", title_arg)
 
         mw.destroy()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

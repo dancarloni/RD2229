@@ -30,4 +30,3 @@ def compute_section_properties(section: SectionGeometry) -> SectionProperties:
         qx=qx,
         qy=qy,
     )
-

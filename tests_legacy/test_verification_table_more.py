@@ -1,16 +1,16 @@
-import unittest
 import tkinter as tk
+import unittest
 
-from sections_app.services.repository import SectionRepository
 from sections_app.models.sections import RectangularSection
+from sections_app.services.repository import SectionRepository
 
 try:
-    from core_models.materials import MaterialRepository, Material
+    from core_models.materials import Material, MaterialRepository
 except Exception:
     MaterialRepository = None
     Material = None
 
-from verification_table import VerificationTableWindow, VerificationTableApp
+from verification_table import VerificationTableApp, VerificationTableWindow
 
 
 class DummyMat:
@@ -151,18 +151,18 @@ class TestVerificationTableMore(unittest.TestCase):
         app.edit_entry.focus_set()
         # try multiple ways to generate key event so it triggers on all platforms
         try:
-            app.edit_entry.event_generate('<KeyPress>', keysym='c')
-            app.edit_entry.event_generate('<KeyRelease>', keysym='c')
+            app.edit_entry.event_generate("<KeyPress>", keysym="c")
+            app.edit_entry.event_generate("<KeyRelease>", keysym="c")
         except tk.TclError:
             # fallback
-            app.edit_entry.event_generate('<KeyPress-c>')
+            app.edit_entry.event_generate("<KeyPress-c>")
         top.update_idletasks()
         top.update()
         # ensure popup opened - if not, call handler directly as a deterministic fallback
         if app._rebar_window is None:
             import types
 
-            evt = types.SimpleNamespace(char='c', keysym='c')
+            evt = types.SimpleNamespace(char="c", keysym="c")
             app._on_entry_keypress(evt)
             top.update_idletasks()
             top.update()
@@ -190,17 +190,17 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIsNotNone(app.edit_entry)
         app.edit_entry.focus_set()
         try:
-            app.edit_entry.event_generate('<KeyPress>', keysym='c')
-            app.edit_entry.event_generate('<KeyRelease>', keysym='c')
+            app.edit_entry.event_generate("<KeyPress>", keysym="c")
+            app.edit_entry.event_generate("<KeyRelease>", keysym="c")
         except tk.TclError:
-            app.edit_entry.event_generate('<KeyPress-c>')
+            app.edit_entry.event_generate("<KeyPress-c>")
         top.update_idletasks()
         top.update()
         # fallback to direct handler if event didn't trigger
         if app._rebar_window is None:
             import types
 
-            evt = types.SimpleNamespace(char='c', keysym='c')
+            evt = types.SimpleNamespace(char="c", keysym="c")
             app._on_entry_keypress(evt)
             top.update_idletasks()
             top.update()
@@ -245,11 +245,15 @@ class TestVerificationTableMore(unittest.TestCase):
     def test_material_suggestions_from_repository(self):
         """Verify suggestions are drawn from MaterialRepository and filtered by type."""
         try:
-            from core_models.materials import MaterialRepository, Material
+            from core_models.materials import Material, MaterialRepository
         except Exception:
             self.skipTest("MaterialRepository not available")
 
-        tmprepo = MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, '__init__') else MaterialRepository()
+        tmprepo = (
+            MaterialRepository(json_file=":memory:")
+            if hasattr(MaterialRepository, "__init__")
+            else MaterialRepository()
+        )
         # Add materials of different types
         m1 = Material(name="C120", type="concrete")
         m2 = Material(name="A500", type="steel")
@@ -298,7 +302,9 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIsNotNone(app._suggest_list)
         items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
         # At least one historical R160 material should be suggested
-        self.assertTrue(any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}")
+        self.assertTrue(
+            any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}"
+        )
         # Suggestions should be concrete materials only - none of the items should indicate a steel-only label
         # (simple heuristic: ensure no 'Acciaio' in suggested names)
         self.assertFalse(any("Acciaio" in it for it in items))
@@ -306,8 +312,8 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_section_suggestions_from_repository(self):
         """Verify suggestions are drawn from SectionRepository."""
-        from sections_app.services.repository import SectionRepository
         from sections_app.models.sections import RectangularSection
+        from sections_app.services.repository import SectionRepository
 
         sec_repo = SectionRepository()
         sec_repo.clear()
@@ -394,11 +400,15 @@ class TestVerificationTableMore(unittest.TestCase):
     def test_duplicates_between_repository_and_historical_are_removed(self):
         """If a material exists both in repository and historical library, it should be suggested only once."""
         try:
-            from core_models.materials import MaterialRepository, Material
+            from core_models.materials import Material, MaterialRepository
         except Exception:
             self.skipTest("MaterialRepository not available")
 
-        tmprepo = MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, '__init__') else MaterialRepository()
+        tmprepo = (
+            MaterialRepository(json_file=":memory:")
+            if hasattr(MaterialRepository, "__init__")
+            else MaterialRepository()
+        )
         # Add material that matches historical name
         m1 = Material(name="CLS R 160 (RD 2229/39)", type="concrete")
         tmprepo.add(m1)
@@ -425,11 +435,15 @@ class TestVerificationTableMore(unittest.TestCase):
     def test_code_match_when_name_does_not(self):
         """If query matches code but not name, the material should still be suggested."""
         try:
-            from core_models.materials import MaterialRepository, Material
+            from core_models.materials import Material, MaterialRepository
         except Exception:
             self.skipTest("MaterialRepository not available")
 
-        tmprepo = MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, '__init__') else MaterialRepository()
+        tmprepo = (
+            MaterialRepository(json_file=":memory:")
+            if hasattr(MaterialRepository, "__init__")
+            else MaterialRepository()
+        )
         m1 = Material(name="Concrete X", type="concrete", code="C160")
         tmprepo.add(m1)
 
@@ -454,11 +468,15 @@ class TestVerificationTableMore(unittest.TestCase):
     def test_type_filter_excludes_wrong_type(self):
         """Concrete search should not return steel matches even if substring matches."""
         try:
-            from core_models.materials import MaterialRepository, Material
+            from core_models.materials import Material, MaterialRepository
         except Exception:
             self.skipTest("MaterialRepository not available")
 
-        tmprepo = MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, '__init__') else MaterialRepository()
+        tmprepo = (
+            MaterialRepository(json_file=":memory:")
+            if hasattr(MaterialRepository, "__init__")
+            else MaterialRepository()
+        )
         m1 = Material(name="SomeSteel38", type="steel", code="S38")
         m2 = Material(name="SomeConcrete38", type="concrete", code="C38")
         tmprepo.add(m1)

@@ -18,7 +18,7 @@ def test_dispatcher_uses_engine_result(monkeypatch):
 
 
 def test_dispatcher_falls_back_when_engine_none(monkeypatch):
-    inp = VerificationInput(verification_method='TA')
+    inp = VerificationInput(verification_method="TA")
 
     monkeypatch.setattr("verification_table._compute_with_engine", lambda *_: None)
 

@@ -1,8 +1,8 @@
-import unittest
 import tkinter as tk
+import unittest
 
 from sections_app.ui.module_selector import ModuleSelectorWindow
-from verification_table import VerificationTableWindow, VerificationTableApp
+from verification_table import VerificationTableApp, VerificationTableWindow
 
 
 class TestVerificationTableIntegration(unittest.TestCase):
@@ -22,12 +22,13 @@ class TestVerificationTableIntegration(unittest.TestCase):
     def test_select_suggestion_with_keyboard(self):
         # Create a small material repository via ModuleSelector wiring
         try:
-            from core_models.materials import MaterialRepository, Material
+            from core_models.materials import Material, MaterialRepository
         except Exception:
             self.skipTest("MaterialRepository not available")
 
         import tempfile
         from pathlib import Path
+
         tmpdir = tempfile.TemporaryDirectory()
         repo_path = Path(tmpdir.name) / "materials.json"
         repo = MaterialRepository(json_file=str(repo_path))
@@ -84,12 +85,13 @@ class TestVerificationTableIntegration(unittest.TestCase):
     def test_limits_parameterizable(self):
         # create many materials and set low limits
         try:
-            from core_models.materials import MaterialRepository, Material
+            from core_models.materials import Material, MaterialRepository
         except Exception:
             self.skipTest("MaterialRepository not available")
 
         import tempfile
         from pathlib import Path
+
         tmpdir = tempfile.TemporaryDirectory()
         repo_path = Path(tmpdir.name) / "materials.json"
         repo = MaterialRepository(json_file=str(repo_path))

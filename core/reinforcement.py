@@ -25,4 +25,3 @@ class SectionReinforcement:
     lower_layers: List[RebarLayer]
     stirrups: Optional[Stirrups] = None
     additional_layers: Optional[List[RebarLayer]] = None
-

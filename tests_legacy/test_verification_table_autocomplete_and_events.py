@@ -1,10 +1,10 @@
-import unittest
-import tkinter as tk
-import sys
 import os
+import sys
+import tkinter as tk
+import unittest
 
 # Ensure project root is on sys.path so tests can import local modules under pytest
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from verification_table import VerificationTableApp
 
@@ -32,9 +32,9 @@ class TestVerificationTableAutocompleteAndEvents(unittest.TestCase):
         items = list(app.tree.get_children())
         first = items[0]
         # Set material values to be copied
-        app.tree.set(first, 'mat_concrete', 'C120')
-        app.tree.set(first, 'mat_steel', 'A500')
-        app.tree.set(first, 'stirrups_mat', 'SS')
+        app.tree.set(first, "mat_concrete", "C120")
+        app.tree.set(first, "mat_steel", "A500")
+        app.tree.set(first, "stirrups_mat", "SS")
 
         # Create a new row by tabbing from the last column of the first row
         app._start_edit(first, app.columns[-1])
@@ -47,16 +47,16 @@ class TestVerificationTableAutocompleteAndEvents(unittest.TestCase):
         new_item = items[1]
 
         # Start editing 'mat_concrete' on the new row and verify copied value
-        app._start_edit(new_item, 'mat_concrete')
+        app._start_edit(new_item, "mat_concrete")
         self.assertIsNotNone(app.edit_entry)
-        self.assertEqual(app.edit_entry.get(), 'C120')
+        self.assertEqual(app.edit_entry.get(), "C120")
 
         # Now change via suggestions: supply material names and filter
-        app.material_names = ['C120', 'C200', 'A500']
-        app.suggestions_map['mat_concrete'] = app.material_names
+        app.material_names = ["C120", "C200", "A500"]
+        app.suggestions_map["mat_concrete"] = app.material_names
         # Simulate typing 'C2' and updating suggestions
         app.edit_entry.delete(0, tk.END)
-        app.edit_entry.insert(0, 'C2')
+        app.edit_entry.insert(0, "C2")
         app._update_suggestions()
         top.update_idletasks()
         top.update()
@@ -64,7 +64,7 @@ class TestVerificationTableAutocompleteAndEvents(unittest.TestCase):
         # Suggestion list should exist and include 'C200'
         self.assertIsNotNone(app._suggest_list)
         items_s = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
-        self.assertIn('C200', items_s)
+        self.assertIn("C200", items_s)
 
         # Simulate selecting suggestion by invoking handler (Enter on suggestion)
         app._on_suggestion_enter(None)
@@ -73,7 +73,7 @@ class TestVerificationTableAutocompleteAndEvents(unittest.TestCase):
 
         # After suggestion enter, the entry should be committed with the suggestion
         # and the tree cell should contain 'C200'
-        self.assertEqual(app.tree.set(new_item, 'mat_concrete'), 'C200')
+        self.assertEqual(app.tree.set(new_item, "mat_concrete"), "C200")
         top.destroy()
 
     def test_event_generation_start_and_navigation(self):
@@ -88,22 +88,22 @@ class TestVerificationTableAutocompleteAndEvents(unittest.TestCase):
         # Try to start editing by generating a printable key event on the tree
         app.tree.focus(first)
         try:
-            app.tree.event_generate('<Key>', char='x')
+            app.tree.event_generate("<Key>", char="x")
             top.update_idletasks()
             top.update()
         except tk.TclError:
             # fallback: start edit directly
-            app._start_edit(first, app.columns[0], initial_text='x')
+            app._start_edit(first, app.columns[0], initial_text="x")
 
         # Ensure entry started
         if app.edit_entry is None:
-            app._start_edit(first, app.columns[0], initial_text='x')
+            app._start_edit(first, app.columns[0], initial_text="x")
         self.assertIsNotNone(app.edit_entry)
         self.assertEqual(app.edit_column, app.columns[0])
 
         # Simulate Tab via event_generate on the entry to move to next column
         try:
-            app.edit_entry.event_generate('<Tab>')
+            app.edit_entry.event_generate("<Tab>")
             top.update_idletasks()
             top.update()
         except tk.TclError:
@@ -117,7 +117,7 @@ class TestVerificationTableAutocompleteAndEvents(unittest.TestCase):
 
         # Simulate Return (Enter) to move down (same column)
         try:
-            app.edit_entry.event_generate('<Return>')
+            app.edit_entry.event_generate("<Return>")
             top.update_idletasks()
             top.update()
         except tk.TclError:
@@ -131,5 +131,5 @@ class TestVerificationTableAutocompleteAndEvents(unittest.TestCase):
         top.destroy()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

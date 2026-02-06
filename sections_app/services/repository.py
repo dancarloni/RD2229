@@ -11,12 +11,12 @@ from typing import Dict, Iterable, List, Optional
 
 from sections_app.models.sections import (
     CSV_HEADERS,
-    CSection,
     CircularHollowSection,
     CircularSection,
-    ISection,
+    CSection,
     InvertedTSection,
     InvertedVSection,
+    ISection,
     LSection,
     PiSection,
     RectangularHollowSection,
@@ -26,20 +26,31 @@ from sections_app.models.sections import (
     VSection,
     create_section_from_dict,
 )
-from sections_app.services.event_bus import EventBus, SECTIONS_ADDED, SECTIONS_UPDATED, SECTIONS_DELETED, SECTIONS_CLEARED
+from sections_app.services.event_bus import (
+    SECTIONS_ADDED,
+    SECTIONS_CLEARED,
+    SECTIONS_DELETED,
+    SECTIONS_UPDATED,
+    EventBus,
+)
 
 logger = logging.getLogger(__name__)
 SEED_TAG = "[seed]"
 
 # Percorso JSON di default usato dalle API helper e dal repository
-DEFAULT_JSON_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'sec_repository', 'sec_repository.jsons'))
+DEFAULT_JSON_FILE = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "sec_repository", "sec_repository.jsons")
+)
+
 
 class SectionRepository:
     """Archivio in memoria delle sezioni con persistenza JSON."""
 
     DEFAULT_JSON_FILE = DEFAULT_JSON_FILE
 
-    def __init__(self, json_file: Optional[str] = None, auto_migrate: Optional[bool] = None) -> None:
+    def __init__(
+        self, json_file: Optional[str] = None, auto_migrate: Optional[bool] = None
+    ) -> None:
         """
         Se `json_file` è None → usiamo il file canonico `DEFAULT_JSON_FILE` e
         abilitiamo la migrazione automatica da `sections.json` a `sec_repository/...jsons`
@@ -69,7 +80,10 @@ class SectionRepository:
             if auto_migrate:
                 # Cerca `sections.json` in posizioni legacy (cwd, root progetto)
                 project_root = Path(__file__).resolve().parents[2]
-                candidates = [Path("sections.json").resolve(), (project_root / "sections.json").resolve()]
+                candidates = [
+                    Path("sections.json").resolve(),
+                    (project_root / "sections.json").resolve(),
+                ]
                 migrated = False
                 for cand in candidates:
                     if cand.exists():
@@ -81,7 +95,9 @@ class SectionRepository:
                                 data = json.load(f)
 
                             # Preferisci creare un canonical locale nella stessa cartella del legacy
-                            local_canonical = cand.parent / "sec_repository" / "sec_repository.jsons"
+                            local_canonical = (
+                                cand.parent / "sec_repository" / "sec_repository.jsons"
+                            )
                             if not local_canonical.parent.exists():
                                 local_canonical.parent.mkdir(parents=True, exist_ok=True)
 
@@ -94,7 +110,9 @@ class SectionRepository:
                             self._json_file = str(local_canonical)
                             self._file_path = local_canonical
 
-                            logger.info("Migrato legacy %s -> %s (backup: %s)", cand, local_canonical, bak)
+                            logger.info(
+                                "Migrato legacy %s -> %s (backup: %s)", cand, local_canonical, bak
+                            )
 
                             # Rimuovo la messagebox informativa
 
@@ -103,10 +121,15 @@ class SectionRepository:
                             logger.exception("Errore durante la migrazione di %s", cand)
                         break
                 if not migrated:
-                    logger.debug("Nessun file legacy trovato per la migrazione; user default canonical: %s", canonical)
+                    logger.debug(
+                        "Nessun file legacy trovato per la migrazione; user default canonical: %s",
+                        canonical,
+                    )
 
         # Percorsi per backup
-        self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
+        self._backup_path = self._file_path.with_name(
+            f"{self._file_path.stem}_backup{self._file_path.suffix}"
+        )
 
         # Carica le sezioni dal file JSON se esiste
         self.load_from_file()
@@ -123,7 +146,8 @@ class SectionRepository:
             ):
                 logger.warning(
                     "File locale %s non ha prodotto sezioni valide; provo a caricare il canonical globale %s",
-                    self._file_path, Path(self.DEFAULT_JSON_FILE)
+                    self._file_path,
+                    Path(self.DEFAULT_JSON_FILE),
                 )
                 self._file_path = Path(self.DEFAULT_JSON_FILE)
                 self._json_file = str(self._file_path)
@@ -151,10 +175,10 @@ class SectionRepository:
         self._sections[section.id] = section
         self._keys[key] = section.id
         logger.debug("Sezione aggiunta: %s", section.id)
-        
+
         # Salva in file JSON
         self.save_to_file()
-        
+
         # Emetti evento
         EventBus().emit(SECTIONS_ADDED, section_id=section.id, section_name=section.name)
         return True
@@ -201,10 +225,10 @@ class SectionRepository:
         self._sections[section_id] = updated_section
         self._keys[new_key] = section_id
         logger.debug("Sezione aggiornata: %s", section_id)
-        
+
         # Salva in file JSON
         self.save_to_file()
-        
+
         # Emetti evento
         EventBus().emit(SECTIONS_UPDATED, section_id=section_id, section_name=updated_section.name)
 
@@ -218,10 +242,10 @@ class SectionRepository:
         if section:
             self._keys.pop(section.logical_key(), None)
             logger.debug("Sezione eliminata: %s", section_id)
-            
+
             # Salva in file JSON
             self.save_to_file()
-            
+
             # Emetti evento
             EventBus().emit(SECTIONS_DELETED, section_id=section_id, section_name=section.name)
 
@@ -238,10 +262,10 @@ class SectionRepository:
         for sid, sec in seeded.items():
             self._sections[sid] = sec
             self._keys[sec.logical_key()] = sid
-        
+
         # Salva in file JSON
         self.save_to_file()
-        
+
         # Emetti evento
         EventBus().emit(SECTIONS_CLEARED)
 
@@ -280,7 +304,9 @@ class SectionRepository:
         def rect(i: int, rng: random.Random) -> Section:
             b = rng.uniform(20, 60)
             h = rng.uniform(30, 80)
-            return RectangularSection(name=f"SEED-RECT-{i}", width=b, height=h, note=note("RECTANGULAR"))
+            return RectangularSection(
+                name=f"SEED-RECT-{i}", width=b, height=h, note=note("RECTANGULAR")
+            )
 
         def circ(i: int, rng: random.Random) -> Section:
             d = rng.uniform(20, 80)
@@ -433,7 +459,7 @@ class SectionRepository:
 
     def load_from_file(self) -> None:
         """Carica le sezioni dal file principale, oppure dal backup se il principale è corrotto.
-        
+
         Strategia di recovery:
         1. Tenta di caricare dal file principale
         2. Se fallisce, tenta di caricare dal backup
@@ -441,81 +467,83 @@ class SectionRepository:
         """
         self._sections.clear()
         self._keys.clear()
-        
+
         def _load(path: Path) -> list:
             """Helper per caricare dati da un file JSON."""
             if not path.exists():
                 return []
             with path.open("r", encoding="utf-8") as f:
                 return json.load(f)
-        
+
         # 1) Prova a leggere il file principale
         try:
             raw_data = _load(self._file_path)
             if not isinstance(raw_data, list):
                 logger.warning("File JSON %s non contiene una lista", self._file_path)
                 raise ValueError("File JSON non contiene una lista")
-            
+
             # Carica le sezioni
             for idx, item in enumerate(raw_data):
                 try:
                     section = create_section_from_dict(item)
                     section.compute_properties()
-                    
+
                     # Ripristina l'ID originale dal JSON
                     if "id" in item and item["id"]:
                         section.id = item["id"]
-                    
+
                     self._sections[section.id] = section
                     key = section.logical_key()
                     self._keys[key] = section.id
                     logger.debug("Sezione caricata: %s (%s)", section.id, section.name)
                 except Exception as e:
                     logger.exception("Errore caricamento sezione %d dal JSON: %s", idx, e)
-            
+
             logger.info("Caricate %d sezioni da %s", len(self._sections), self._file_path)
             self._ensure_seed_sections()
             return
         except Exception as e:
             logger.exception("Errore nel caricamento di %s, provo il backup", self._file_path)
-        
+
         # 2) Se fallisce, prova il backup
         try:
             raw_data = _load(self._backup_path)
             if not isinstance(raw_data, list):
                 logger.warning("File backup JSON %s non contiene una lista", self._backup_path)
                 raise ValueError("File backup JSON non contiene una lista")
-            
+
             # Carica le sezioni dal backup
             for idx, item in enumerate(raw_data):
                 try:
                     section = create_section_from_dict(item)
                     section.compute_properties()
-                    
+
                     # Ripristina l'ID originale dal JSON
                     if "id" in item and item["id"]:
                         section.id = item["id"]
-                    
+
                     self._sections[section.id] = section
                     key = section.logical_key()
                     self._keys[key] = section.id
                     logger.debug("Sezione caricata da backup: %s (%s)", section.id, section.name)
                 except Exception as e:
                     logger.exception("Errore caricamento sezione %d dal backup: %s", idx, e)
-            
+
             logger.warning(
                 "Caricate %d sezioni dal backup %s (file principale danneggiato)",
-                len(self._sections), self._backup_path
+                len(self._sections),
+                self._backup_path,
             )
             self._ensure_seed_sections()
             return
         except Exception as e:
             logger.exception("Errore anche nel caricamento del backup %s", self._backup_path)
-        
+
         # 3) Se tutto fallisce, archivio vuoto
         logger.warning(
             "Impossibile caricare archivio sezioni da %s né da %s: inizializzo archivio vuoto",
-            self._file_path, self._backup_path
+            self._file_path,
+            self._backup_path,
         )
         self._sections.clear()
         self._keys.clear()
@@ -523,7 +551,7 @@ class SectionRepository:
 
     def save_to_file(self) -> None:
         """Salva tutte le sezioni in un file JSON con backup automatico.
-        
+
         Strategia di sicurezza:
         1. Se il file principale esiste, crea backup (sections_backup.json)
         2. Scrive su file temporaneo (.json.tmp)
@@ -534,11 +562,11 @@ class SectionRepository:
             for section in self._sections.values():
                 section_dict = section.to_dict()
                 data.append(section_dict)
-            
+
             # Crea la directory se non esiste
-            if self._file_path.parent.exists() is False and str(self._file_path.parent) != '.':
+            if self._file_path.parent.exists() is False and str(self._file_path.parent) != ".":
                 self._file_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             # Crea backup del file esistente
             if self._file_path.exists():
                 try:
@@ -546,16 +574,21 @@ class SectionRepository:
                     logger.debug("Backup creato: %s", self._backup_path)
                 except Exception as exc:
                     logger.warning("Impossibile creare backup di %s: %s", self._file_path, exc)
-            
+
             # Scrivi su file temporaneo preservando l'estensione originale
             tmp_path = Path(str(self._file_path) + ".tmp")
             try:
                 with tmp_path.open("w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
-                
+
                 # Rename atomico
                 tmp_path.replace(self._file_path)
-                logger.debug("Salvate %d sezioni in %s (backup: %s)", len(data), self._file_path, self._backup_path)
+                logger.debug(
+                    "Salvate %d sezioni in %s (backup: %s)",
+                    len(data),
+                    self._file_path,
+                    self._backup_path,
+                )
             except Exception:
                 logger.exception("Errore nel salvataggio del file sezioni")
                 # Elimina file temporaneo se esiste
@@ -570,13 +603,13 @@ class SectionRepository:
         Esporta l'archivio sezioni nel percorso indicato.
         Non modifica il file principale né il backup interno.
         Se destination ha estensione .json, salva JSON; se .csv, salva CSV.
-        
+
         Args:
             destination: Percorso del file di destinazione (Path o str).
                         Se l'estensione è .json → salva in formato JSON
                         Se l'estensione è .csv → salva in formato CSV
                         Se mancante o diversa → aggiunge .json di default
-        
+
         Raises:
             ValueError: Se la destinazione non è valida
             IOError: Se c'è un errore di scrittura del file
@@ -584,36 +617,36 @@ class SectionRepository:
         try:
             # Converti a Path
             dest_path = Path(destination) if not isinstance(destination, Path) else destination
-            
+
             # Determina estensione e normalizza
             suffix = dest_path.suffix.lower()
-            if suffix not in ['.json', '.jsons', '.csv']:
+            if suffix not in [".json", ".jsons", ".csv"]:
                 # Aggiungi .jsons di default (format canonical)
-                dest_path = dest_path.with_suffix('.jsons')
-                suffix = '.jsons'
+                dest_path = dest_path.with_suffix(".jsons")
+                suffix = ".jsons"
                 logger.info("Estensione mancante o non valida, uso .jsons: %s", dest_path)
-            
+
             # Crea directory di destinazione se necessaria
-            if dest_path.parent.exists() is False and str(dest_path.parent) != '.':
+            if dest_path.parent.exists() is False and str(dest_path.parent) != ".":
                 dest_path.parent.mkdir(parents=True, exist_ok=True)
                 logger.debug("Creata directory: %s", dest_path.parent)
-            
+
             # Ottieni tutte le sezioni
             sections = self.get_all_sections()
-            
-            if suffix in ('.json', '.jsons'):
+
+            if suffix in (".json", ".jsons"):
                 # Esporta in JSON
                 data = [section.to_dict() for section in sections]
                 with dest_path.open("w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
                 logger.info("Esportate %d sezioni in JSON: %s", len(sections), dest_path)
-                
-            elif suffix == '.csv':
+
+            elif suffix == ".csv":
                 # Esporta in CSV usando CsvSectionSerializer
                 serializer = CsvSectionSerializer()
                 serializer.export_to_csv(str(dest_path), sections)
                 logger.info("Esportate %d sezioni in CSV: %s", len(sections), dest_path)
-            
+
         except (OSError, IOError) as e:
             logger.exception("Errore I/O durante esportazione backup in %s: %s", destination, e)
             raise IOError(f"Impossibile esportare backup in {destination}: {e}") from e
@@ -625,7 +658,9 @@ class SectionRepository:
 class CsvSectionSerializer:
     """Gestione import/export CSV con log dettagliato."""
 
-    def export_to_csv(self, file_path: str, sections: Iterable[Section], delimiter: str = ";") -> None:
+    def export_to_csv(
+        self, file_path: str, sections: Iterable[Section], delimiter: str = ";"
+    ) -> None:
         """Esporta tutte le colonne presenti nelle dict ritornate da Section.to_dict()."""
         rows = 0
         # Determina dinamicamente tutte le chiavi in ordine preservando id/name/section_type all'inizio
@@ -681,25 +716,25 @@ class CsvSectionSerializer:
 def load_sections_from_json(json_file: str = DEFAULT_JSON_FILE) -> list[dict]:
     """
     Carica tutte le sezioni da un file JSON.
-    
+
     Funzione di utilità che semplifica il caricamento delle sezioni
     quando non serve un'istanza persistente del repository.
-    
+
     Args:
         json_file: Percorso del file JSON da leggere (default: "sections.json")
-    
+
     Returns:
         Lista di dizionari rappresentanti le sezioni.
         Ogni dizionario contiene tutti i campi della sezione:
         - Campi geometrici (id, name, section_type, width, height, ecc.)
         - Proprietà calcolate (area, Ix, Iy, x_G, y_G, ecc.)
         - Note e metadati
-    
+
     Gestione errori:
         - File non esistente → restituisce lista vuota
         - JSON malformato → logga l'errore e restituisce lista vuota
         - Sezioni con errori di validazione → vengono saltate
-    
+
     Esempio d'uso:
         sections = load_sections_from_json("sections.json")
         for section_data in sections:
@@ -718,14 +753,14 @@ def load_sections_from_json(json_file: str = DEFAULT_JSON_FILE) -> list[dict]:
 def save_sections_to_json(sections: list[dict], json_file: str = DEFAULT_JSON_FILE) -> None:
     """
     Salva una lista di sezioni in un file JSON.
-    
+
     Funzione di utilità che semplifica il salvataggio quando non serve
     un'istanza persistente del repository.
-    
+
     NOTA IMPORTANTE:
     Questa funzione SOVRASCRIVE completamente il file JSON esistente.
     Per aggiungere/modificare singole sezioni, usa `SectionRepository`.
-    
+
     Args:
         sections: Lista di dizionari rappresentanti le sezioni.
                   Ogni dizionario deve contenere almeno:
@@ -733,17 +768,17 @@ def save_sections_to_json(sections: list[dict], json_file: str = DEFAULT_JSON_FI
                   - "section_type": tipo (es. "RECTANGULAR", "T_SECTION", ecc.)
                   - campi geometrici specifici per il tipo
         json_file: Percorso del file JSON dove salvare (default: "sections.json")
-    
+
     Gestione errori:
         - Sezioni non valide → vengono saltate con log warning
         - Errori di I/O → solleva IOError
         - Errori di validazione → solleva ValueError
-    
+
     Strategia di salvataggio sicuro:
         1. Crea backup del file esistente
         2. Scrive su file temporaneo
         3. Rename atomico del file temporaneo sul file principale
-    
+
     Esempio d'uso:
         sections = [
             {
@@ -760,7 +795,7 @@ def save_sections_to_json(sections: list[dict], json_file: str = DEFAULT_JSON_FI
         # Crea repository e svuota l'archivio
         repo = SectionRepository(json_file)
         repo.clear()
-        
+
         # Aggiunge tutte le sezioni dalla lista
         added_count = 0
         for section_data in sections:
@@ -779,12 +814,11 @@ def save_sections_to_json(sections: list[dict], json_file: str = DEFAULT_JSON_FI
                 logger.warning(
                     "Sezione non valida saltata durante salvataggio: %s - Errore: %s",
                     section_data.get("name", "sconosciuta"),
-                    e
+                    e,
                 )
-        
+
         logger.info("Salvate %d sezioni su %d in %s", added_count, len(sections), json_file)
-        
+
     except Exception as e:
         logger.exception("Errore nel salvataggio sezioni in %s: %s", json_file, e)
         raise
-

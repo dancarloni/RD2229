@@ -1,7 +1,10 @@
 import json
 from pathlib import Path
 
-from sections_app.services.notification_settings import load_notification_settings, save_notification_settings
+from sections_app.services.notification_settings import (
+    load_notification_settings,
+    save_notification_settings,
+)
 
 
 def test_load_saves_defaults(tmp_path: Path):

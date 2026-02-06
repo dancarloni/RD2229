@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import pi
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 # This module corresponds to VB routines: DatiSezioneCA, CalcoloAreaMomStaticiMomInerziaSezReagente,
 # SezioneParzializzata (support functions) and CoordBaricentriTondini.
@@ -10,6 +10,7 @@ from typing import List, Tuple, Optional
 
 Point = Tuple[float, float]  # (y, z)
 Bar = Tuple[float, float, float]  # (y, z, diameter)
+
 
 @dataclass
 class SectionGeometry:
@@ -21,10 +22,12 @@ class SectionGeometry:
       - bars: list of tuples (y [cm], z [cm], diameter [cm])
       - n_homog: float, Es/Ec (dimensionless)
     """
+
     # polygons: list of polygon rings (outer followed by holes if any); each polygon is list of (y,z)
     polygons: List[List[Point]]
     bars: List[Bar]
     n_homog: float = 1.0  # n = Es/Ec (homogenization coefficient)
+
 
 @dataclass
 class SectionProperties:
@@ -45,6 +48,7 @@ class SectionProperties:
       - yG, zG: [cm]
       - Iy, Iz, Iyz: [cm^4]
     """
+
 
 @dataclass
 class SectionProperties:
@@ -134,12 +138,12 @@ def compute_section_properties(geom: SectionGeometry) -> SectionProperties:
     # bars contributions (converted area = n * A_bar)
     Aft = 0.0
     for yb, zb, d in geom.bars:
-        Abar = pi * (d ** 2) / 4.0
+        Abar = pi * (d**2) / 4.0
         Aft += Abar
         Sy_pr += geom.n_homog * Abar * yb
         Sz_pr += geom.n_homog * Abar * zb
-        Iy_pr += geom.n_homog * Abar * (zb ** 2)
-        Iz_pr += geom.n_homog * Abar * (yb ** 2)
+        Iy_pr += geom.n_homog * Abar * (zb**2)
+        Iz_pr += geom.n_homog * Abar * (yb**2)
         Iyz_pr += geom.n_homog * Abar * (yb * zb)
 
     # Equivalent area
@@ -153,8 +157,8 @@ def compute_section_properties(geom: SectionGeometry) -> SectionProperties:
         zG = Sz_pr / Aci
 
     # Steiner: convert second moments from reference origin to axes through centroid G
-    Iy = Iy_pr - Aci * (yG ** 2)
-    Iz = Iz_pr - Aci * (zG ** 2)
+    Iy = Iy_pr - Aci * (yG**2)
+    Iz = Iz_pr - Aci * (zG**2)
     Iyz = Iyz_pr - Aci * yG * zG
 
     return SectionProperties(

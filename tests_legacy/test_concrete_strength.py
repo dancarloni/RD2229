@@ -31,4 +31,3 @@ def test_sigma_c_controlled_cap():
 def test_shear_values():
     service, maximum = compute_allowable_shear(CementType.NORMAL)
     assert service == 4.0 and maximum == 14.0
-

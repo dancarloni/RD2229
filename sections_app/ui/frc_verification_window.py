@@ -1,18 +1,20 @@
 from __future__ import annotations
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 from typing import Optional
 
+from core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
 from core.verification_engine import VerificationEngine
-from core.verification_core import SectionGeometry, ReinforcementLayer, MaterialProperties, LoadCase
-from core_models.materials import MaterialRepository, Material
+from core_models.materials import Material, MaterialRepository
 
 
 class FrcVerificationWindow(tk.Toplevel):
     """Simple window to run a quick verification with an FRC material."""
 
-    def __init__(self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None) -> None:
+    def __init__(
+        self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None
+    ) -> None:
         super().__init__(master)
         self.title("FRC Quick Verification")
         self.geometry("600x420")
@@ -60,8 +62,12 @@ class FrcVerificationWindow(tk.Toplevel):
         self.ent_M.insert(0, "1000.0")
         self.ent_M.grid(row=6, column=1, sticky="w")
 
-        tk.Button(frm, text="Load materials", command=self._load_materials).grid(row=0, column=2, padx=8)
-        tk.Button(frm, text="Run verification", command=self._run).grid(row=7, column=1, pady=(10, 0))
+        tk.Button(frm, text="Load materials", command=self._load_materials).grid(
+            row=0, column=2, padx=8
+        )
+        tk.Button(frm, text="Run verification", command=self._run).grid(
+            row=7, column=1, pady=(10, 0)
+        )
 
         self.output = tk.Text(self, height=10, width=80)
         self.output.pack(fill="both", padx=8, pady=8, expand=True)
@@ -73,7 +79,7 @@ class FrcVerificationWindow(tk.Toplevel):
         if self.material_repository:
             for m in self.material_repository.get_all():
                 names.append(f"{m.name} [{m.id[:6]}]")
-        self.frc_combo['values'] = names
+        self.frc_combo["values"] = names
         if names:
             self.frc_combo.set(names[0])
 
@@ -110,7 +116,9 @@ class FrcVerificationWindow(tk.Toplevel):
         frc_mat = self._find_selected_material()
 
         engine = VerificationEngine(calculation_code="TA")
-        res = engine.perform_verification(section, As_layer, As_p, material, loads, frc_material=frc_mat, frc_area=frc_area)
+        res = engine.perform_verification(
+            section, As_layer, As_p, material, loads, frc_material=frc_mat, frc_area=frc_area
+        )
 
         self.output.delete("1.0", tk.END)
         self.output.insert(tk.END, f"Verification type: {res.verification_type}\n")

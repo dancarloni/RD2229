@@ -1,7 +1,9 @@
 from __future__ import annotations
-from typing import List, Tuple
+
 import csv
 import logging
+from typing import List, Tuple
+
 from app.domain.models import VerificationInput
 from app.ui.verification_table_app import COLUMNS
 

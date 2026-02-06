@@ -28,4 +28,3 @@ class LoadRepository:
             if l.name == name:
                 return l
         return None
-

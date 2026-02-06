@@ -1,12 +1,12 @@
 """Test per le nuove tipologie di sezione e rotazione."""
 
 import unittest
-from math import pi, sqrt, radians, cos, sin
+from math import cos, pi, radians, sin, sqrt
 
 from sections_app.models.sections import (
-    LSection,
-    ISection,
     CircularHollowSection,
+    ISection,
+    LSection,
     RectangularHollowSection,
     RectangularSection,
 )
@@ -36,7 +36,7 @@ class TestNewSectionTypes(unittest.TestCase):
         # Ala verticale: 2 * (10 - 2) = 2 * 8 = 16
         # Totale = 36
         self.assertAlmostEqual(float(props.area), 36.0, places=4)
-        
+
         # Verifiche di base
         self.assertGreater(float(props.area), 0)
         self.assertGreater(float(props.ix), 0)
@@ -59,7 +59,7 @@ class TestNewSectionTypes(unittest.TestCase):
         # Anima: 1 * 16 = 16
         # Totale = 96
         self.assertAlmostEqual(props.area, 96.0, places=4)
-        
+
         # Baricentro dovrebbe essere al centro per simmetria
         total_height = 2 * 2 + 16  # 20
         self.assertAlmostEqual(props.centroid_x, 10.0, places=4)
@@ -70,7 +70,7 @@ class TestNewSectionTypes(unittest.TestCase):
         outer_d = 10.0
         thickness = 1.0
         inner_d = outer_d - 2 * thickness  # 8.0
-        
+
         section = CircularHollowSection(
             name="Tube Test",
             outer_diameter=outer_d,
@@ -95,7 +95,7 @@ class TestNewSectionTypes(unittest.TestCase):
         width = 20.0
         height = 15.0
         thickness = 2.0
-        
+
         section = RectangularHollowSection(
             name="Rect Hollow Test",
             width=width,
@@ -156,7 +156,7 @@ class TestRotationInertia(unittest.TestCase):
         # (la sezione si "equalizza")
         self.assertNotAlmostEqual(props.ix, Ix_local, places=1)
         self.assertNotAlmostEqual(props.iy, Iy_local, places=1)
-        
+
         # Verifica che siano state applicate le formule di rotazione
         Ix_rot, Iy_rot, Ixy_rot = rotate_inertia(Ix_local, Iy_local, 0.0, radians(45))
         self.assertAlmostEqual(props.ix, Ix_rot, places=4)

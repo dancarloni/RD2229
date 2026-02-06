@@ -1,11 +1,13 @@
 import csv
 from pathlib import Path
+
 from verification_table import VerificationInput, VerificationTableApp
 
 
 class Dummy:
     def __init__(self, rows):
         self._rows = rows
+
         # dummy tree with minimal interface
         class Tree:
             def get_children(self):
@@ -52,14 +54,14 @@ class Dummy:
         if value is None or value == "":
             return ""
         if isinstance(value, (int, float)):
-            return str(value).replace('.', ',')
+            return str(value).replace(".", ",")
         if isinstance(value, str):
             s = value.strip()
             if not s:
                 return ""
             try:
-                f = float(s.replace(',', '.'))
-                return str(f).replace('.', ',')
+                f = float(s.replace(",", "."))
+                return str(f).replace(".", ",")
             except Exception:
                 return s
         return str(value)
@@ -85,10 +87,10 @@ def test_export_import_csv_roundtrip(tmp_path: Path):
     assert path.exists()
 
     # Check delimiter and decimal comma in file content
-    with open(path, 'r', encoding='utf-8') as fh:
+    with open(path, "r", encoding="utf-8") as fh:
         content = fh.read()
-    assert ';' in content
-    assert ',' in content
+    assert ";" in content
+    assert "," in content
 
     # Import into a fresh dummy and verify models are set
     dummy2 = Dummy([])

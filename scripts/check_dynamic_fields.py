@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import sys
 import time
 
-import sys
-from sections_app.services.repository import SectionRepository, CsvSectionSerializer
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.main_window import MainWindow
 
 repo = SectionRepository()
@@ -33,4 +33,4 @@ print("Dopo cambio -> Rettangolare, campi:", list(win.inputs.keys()))
 
 # Pulisce il window
 win.destroy()
-print('Done')
+print("Done")

@@ -4,7 +4,7 @@ import logging
 import tkinter as tk
 from typing import Any, Dict, List, Optional
 
-from sections_app.services.event_bus import EventBus, NOTIFICATION
+from sections_app.services.event_bus import NOTIFICATION, EventBus
 from sections_app.services.notification_settings import load_notification_settings
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,9 @@ class NotificationCenter:
             try:
                 self._create_window()
             except Exception:
-                logger.exception("Unable to create NotificationCenter window; switching to headless mode")
+                logger.exception(
+                    "Unable to create NotificationCenter window; switching to headless mode"
+                )
                 self.headless = True
 
     def _load_settings(self) -> None:
@@ -115,7 +117,8 @@ class NotificationCenter:
             lbl = tk.Label(dlg, text=message, wraplength=380)
             lbl.pack(padx=8, pady=8)
             btns = tk.Frame(dlg)
-            btns.pack(pady=(0,8))
+            btns.pack(pady=(0, 8))
+
             def do_yes():
                 try:
                     if callable(respond):
@@ -139,7 +142,11 @@ class NotificationCenter:
 
     def destroy(self) -> None:
         self._unsubscribe()
-        if self._win is not None and getattr(self._win, "winfo_exists", None) and self._win.winfo_exists():
+        if (
+            self._win is not None
+            and getattr(self._win, "winfo_exists", None)
+            and self._win.winfo_exists()
+        ):
             try:
                 self._win.destroy()
             except Exception:

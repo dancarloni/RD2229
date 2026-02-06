@@ -8,15 +8,15 @@ Questo script dimostra:
 4. Calcolo delle proprietà per ogni tipo di sezione
 """
 
-import sys
 import os
+import sys
 
 # Aggiungi il path dei sorgenti
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from sections_app.models.sections import (
-    RectangularSection,
     CircularSection,
+    RectangularSection,
     TSection,
 )
 
@@ -26,19 +26,19 @@ def test_rectangular_section():
     print("=" * 60)
     print("TEST SEZIONE RETTANGOLARE")
     print("=" * 60)
-    
+
     # Parametri di input (tutti in cm)
-    width = 30.0   # Larghezza b (cm)
+    width = 30.0  # Larghezza b (cm)
     height = 50.0  # Altezza h (cm)
-    
+
     print(f"Input:")
     print(f"  - Larghezza b: {width:.1f} cm")
     print(f"  - Altezza h: {height:.1f} cm")
-    
+
     # Crea sezione e calcola proprietà
     section = RectangularSection(name="Rett_Test", width=width, height=height)
     props = section.compute_properties()
-    
+
     print(f"\nProprietà calcolate:")
     print(f"  - Area: {props.area:.1f} cm²")
     print(f"  - Baricentro: ({props.centroid_x:.1f}, {props.centroid_y:.1f}) cm")
@@ -54,17 +54,17 @@ def test_circular_section():
     print("=" * 60)
     print("TEST SEZIONE CIRCOLARE")
     print("=" * 60)
-    
+
     # Parametri di input (tutti in cm)
     diameter = 40.0  # Diametro D (cm)
-    
+
     print(f"Input:")
     print(f"  - Diametro D: {diameter:.1f} cm")
-    
+
     # Crea sezione e calcola proprietà
     section = CircularSection(name="Circ_Test", diameter=diameter)
     props = section.compute_properties()
-    
+
     print(f"\nProprietà calcolate:")
     print(f"  - Area: {props.area:.1f} cm²")
     print(f"  - Baricentro: ({props.centroid_x:.1f}, {props.centroid_y:.1f}) cm")
@@ -80,29 +80,29 @@ def test_t_section():
     print("=" * 60)
     print("TEST SEZIONE A T")
     print("=" * 60)
-    
+
     # Parametri di input (tutti in cm)
-    flange_width = 60.0      # Larghezza ala bf (cm)
+    flange_width = 60.0  # Larghezza ala bf (cm)
     flange_thickness = 10.0  # Spessore ala hf (cm)
-    web_thickness = 8.0      # Spessore anima bw (cm)
-    web_height = 40.0        # Altezza anima hw (cm)
-    
+    web_thickness = 8.0  # Spessore anima bw (cm)
+    web_height = 40.0  # Altezza anima hw (cm)
+
     print(f"Input:")
     print(f"  - Larghezza ala bf: {flange_width:.1f} cm")
     print(f"  - Spessore ala hf: {flange_thickness:.1f} cm")
     print(f"  - Spessore anima bw: {web_thickness:.1f} cm")
     print(f"  - Altezza anima hw: {web_height:.1f} cm")
-    
+
     # Crea sezione e calcola proprietà
     section = TSection(
         name="T_Test",
         flange_width=flange_width,
         flange_thickness=flange_thickness,
         web_thickness=web_thickness,
-        web_height=web_height
+        web_height=web_height,
     )
     props = section.compute_properties()
-    
+
     print(f"\nProprietà calcolate:")
     print(f"  - Area: {props.area:.1f} cm²")
     print(f"  - Baricentro: ({props.centroid_x:.1f}, {props.centroid_y:.1f}) cm")
@@ -167,16 +167,16 @@ if __name__ == "__main__":
     print("║" + " " * 58 + "║")
     print("╚" + "═" * 58 + "╝")
     print("\n")
-    
+
     # Esegui test per ogni tipologia
     test_rectangular_section()
     test_circular_section()
     test_t_section()
-    
+
     # Dimostra validazione e tooltip
     demo_validation()
     demo_tooltip()
-    
+
     print("=" * 60)
     print("CONCLUSIONE")
     print("=" * 60)
@@ -192,4 +192,3 @@ if __name__ == "__main__":
     print("Per avviare l'applicazione GUI:")
     print("  $ python -m rd2229")
     print()
-
