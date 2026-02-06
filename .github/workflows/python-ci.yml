@@ -33,6 +33,8 @@ jobs:
           # Ensure test runner is available even if editable install fails
           pip install pytest
       - name: Run tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest -q
       - name: Lint (flake8)
