@@ -10,8 +10,6 @@ from __future__ import annotations
 from typing import List
 import logging
 
-logger = logging.getLogger(__name__)
-
 # Re-export a small set of stable names for backward compatibility
 from app.domain.models import VerificationInput, VerificationOutput
 from app.domain.sections import get_section_geometry
@@ -23,7 +21,8 @@ from app.verification.methods_slu import compute_slu_verification
 from app.verification.methods_sle import compute_sle_verification
 from app.ui.verification_table_app import COLUMNS, VerificationTableApp, VerificationTableWindow
 
-# Deprecation warning emitted at import time
+# Logger and deprecation warning emitted at import time
+logger = logging.getLogger(__name__)
 logger.warning(
     "verification_table is deprecated; import from 'app' package (e.g., 'app.domain'/'app.verification'/'app.ui') instead."
 )
