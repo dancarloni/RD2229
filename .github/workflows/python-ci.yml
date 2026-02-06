@@ -38,4 +38,5 @@ jobs:
           flake8 .
       - name: Type check (mypy)
         run: |
-          mypy .
+          # Run mypy on active packages explicitly to avoid module path mapping issues
+          mypy app core core_models
