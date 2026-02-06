@@ -20,9 +20,7 @@ def compute_slu_verification(
         N_kg = _input.N
         primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
         M_kgm = primary_m
-        T_kg = _input.Ty
 
-        N = N_kg * 9.80665
         M = M_kgm * 9806.65
 
         As_sup = _input.As_sup * 100
@@ -43,14 +41,10 @@ def compute_slu_verification(
         fyd = fyk / gamma_s
 
         eps_cu = 0.0035
-        eps_yd = fyd / 200000
-
         x = 0.3 * d
 
         Ac_compr = B * 0.8 * x
         Rc = Ac_compr * fcd
-
-        Rs = As_inf * fyd
 
         Rc_sup = As_sup * fyd if x > d_sup_cm * 10 else 0.0
 

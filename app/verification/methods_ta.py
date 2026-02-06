@@ -23,7 +23,6 @@ def compute_ta_verification(
         primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
         M_kgm = primary_m
         M = M_kgm * 100
-        T = _input.Ty
 
         n = _input.n_homog if _input.n_homog > 0 else 15.0
 
@@ -32,8 +31,8 @@ def compute_ta_verification(
         d_sup = _input.d_sup
         d_inf = _input.d_inf
 
-        *_ = get_concrete_properties(_input, material_repository)
-        *_ = get_steel_properties(_input, material_repository)
+        sigma_ca = get_concrete_properties(_input, material_repository)[2]
+        sigma_fa = get_steel_properties(_input, material_repository)[2]
 
         B, H = get_section_geometry(_input, section_repository, unit="cm")
 
@@ -45,14 +44,13 @@ def compute_ta_verification(
         d = H - d_inf
 
         if abs(N) < 0.01:
-            e = 1e10
-            is_fless_semplice = True
+            # N trascurabile -> pilastro paco flessione sollecitata
+            pass
         else:
-            e = abs(M / N) if N != 0 else 0
-            is_fless_semplice = False
+            # Per condizioni con N significativo, manteniamo il calcolo di x/d
+            pass
 
         rho_inf = As_inf / (B * d) if d > 0 and B > 0 else 0.001
-        rho_sup = As_sup / (B * d) if d > 0 and B > 0 else 0.0
 
         term1 = n * rho_inf
         term2 = math.sqrt((n * rho_inf) ** 2 + 2 * n * rho_inf) if term1 >= 0 else 0.1
