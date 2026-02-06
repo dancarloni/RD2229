@@ -195,6 +195,10 @@ class VerificationComparatorWindow(tk.Toplevel):
         # Get selected row
         item = self.verification_table_app.tree.focus()
         if not item:
+            selection = self.verification_table_app.tree.selection()
+            if selection:
+                item = selection[0]
+        if not item:
             notify_warning('Confronto', 'Seleziona una riga nella Verification Table')
             return
         row_idx = list(self.verification_table_app.tree.get_children()).index(item)

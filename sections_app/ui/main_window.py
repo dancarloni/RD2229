@@ -541,7 +541,7 @@ class MainWindow(tk.Toplevel):
         self._create_inputs()
 
         # Se era in modalità editing, resetta (la tipologia è cambiata)
-        if self.editing_section_id is not None:
+        if self.editing_section_id is not None and not getattr(self, "_suspend_section_change", False):
             logger.debug("Tipologia cambiata durante editing - reset modalità")
             self.editing_section_id = None
             self._update_editing_mode_label()
@@ -562,6 +562,10 @@ class MainWindow(tk.Toplevel):
             visible = self.section_combo.get()
         except Exception:
             visible = None
+
+        if getattr(self, "_suspend_section_change", False):
+            self._polling_id = self.after(300, self._poll_section_selection)
+            return
 
         if visible and visible != getattr(self, "_last_selected_type", None):
             logger.debug("Polling: rilevata selezione visibile diversa: %s", visible)
@@ -1249,44 +1253,53 @@ class MainWindow(tk.Toplevel):
 
     def load_section_into_form(self, section: Section) -> None:
         """Carica i dati di una sezione nella form in modalità modifica."""
-        label = self._label_from_section(section)
-        if label:
-            self.section_var.set(label)
-            self._create_inputs()
-        self.name_entry.delete(0, tk.END)
-        self.name_entry.insert(0, section.name)
-
-        for field, entry in self.inputs.items():
-            value = getattr(section, field, "")
-            entry.delete(0, tk.END)
-            entry.insert(0, value)
-        
-        # Carica l'angolo di rotazione
-        self.rotation_entry.delete(0, tk.END)
-        self.rotation_entry.insert(0, str(section.rotation_angle_deg))
-
-        # Carica i fattori kappa se presenti, altrimenti mostra i default
+        self._suspend_section_change = True
         try:
-            if getattr(section, "shear_factor_y", None) is not None:
-                self.kappa_y_entry.delete(0, tk.END)
-                self.kappa_y_entry.insert(0, str(section.shear_factor_y))
-            else:
-                self._set_default_kappa_entries()
-            if getattr(section, "shear_factor_z", None) is not None:
-                self.kappa_z_entry.delete(0, tk.END)
-                self.kappa_z_entry.insert(0, str(section.shear_factor_z))
-            else:
-                self._set_default_kappa_entries()
-        except Exception:
-            # Non blocchiamo il caricamento se il campo non esiste
-            pass
-        
-        self.current_section = section
-        # Imposta l'id di modifica in modo che il salvataggio faccia update
-        self.editing_section_id = section.id
-        self._update_editing_mode_label()
-        if section.properties:
-            self._show_properties(section.properties, section)
+            label = self._label_from_section(section)
+            if label:
+                self.section_var.set(label)
+                try:
+                    self.section_combo.set(label)
+                except Exception:
+                    pass
+                self._last_selected_type = label
+                self._create_inputs()
+            self.name_entry.delete(0, tk.END)
+            self.name_entry.insert(0, section.name)
+
+            for field, entry in self.inputs.items():
+                value = getattr(section, field, "")
+                entry.delete(0, tk.END)
+                entry.insert(0, value)
+
+            # Carica l'angolo di rotazione
+            self.rotation_entry.delete(0, tk.END)
+            self.rotation_entry.insert(0, str(section.rotation_angle_deg))
+
+            # Carica i fattori kappa se presenti, altrimenti mostra i default
+            try:
+                if getattr(section, "shear_factor_y", None) is not None:
+                    self.kappa_y_entry.delete(0, tk.END)
+                    self.kappa_y_entry.insert(0, str(section.shear_factor_y))
+                else:
+                    self._set_default_kappa_entries()
+                if getattr(section, "shear_factor_z", None) is not None:
+                    self.kappa_z_entry.delete(0, tk.END)
+                    self.kappa_z_entry.insert(0, str(section.shear_factor_z))
+                else:
+                    self._set_default_kappa_entries()
+            except Exception:
+                # Non blocchiamo il caricamento se il campo non esiste
+                pass
+
+            self.current_section = section
+            # Imposta l'id di modifica in modo che il salvataggio faccia update
+            self.editing_section_id = section.id
+            self._update_editing_mode_label()
+            if section.properties:
+                self._show_properties(section.properties, section)
+        finally:
+            self._suspend_section_change = False
 
     def _label_from_section(self, section: Section) -> Optional[str]:
         for label, definition in SECTION_DEFINITIONS.items():
