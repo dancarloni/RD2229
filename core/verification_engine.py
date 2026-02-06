@@ -28,11 +28,7 @@ from core.verification_core import (
 )
 
 try:
-    from config.calculation_codes_loader import (
-        get_safety_coefficients,
-        get_stress_limits,
-        load_code,
-    )
+    from config.calculation_codes_loader import load_code
     from config.historical_materials_loader import get_concrete_properties, get_steel_properties
 except ImportError:
     # Fallback if config modules not available
@@ -252,15 +248,18 @@ class VerificationEngine:
                 if loads.At and loads.At > 0 and At_req > 0:
                     if loads.At < At_req:
                         approx_notes.append(
-                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², fornita {loads.At:.3f} cm²"
+                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², "
+                            f"fornita {loads.At:.3f} cm²"
                         )
                     else:
                         approx_notes.append(
-                            f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², fornita {loads.At:.3f} cm²"
+                            f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², "
+                            f"fornita {loads.At:.3f} cm²"
                         )
                 elif At_req > 0:
                     approx_notes.append(
-                        f"Armatura torsione richiesta ≈ {At_req:.3f} cm² (nessun At fornita)"
+                        f"Armatura torsione richiesta ≈ {At_req:.3f} cm² "
+                        f"(nessun At fornita)"
                     )
             except Exception:
                 logger.exception("Errore stima armatura torsione")

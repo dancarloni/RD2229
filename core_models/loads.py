@@ -24,7 +24,7 @@ class LoadRepository:
         return list(self._loads.values())
 
     def find_by_name(self, name: str) -> LoadCase | None:
-        for l in self._loads.values():
-            if l.name == name:
-                return l
+        for load in self._loads.values():
+            if load.name == name:
+                return load
         return None

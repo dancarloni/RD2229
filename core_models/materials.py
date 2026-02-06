@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -75,7 +74,8 @@ class Material:
         )
 
 
-# Historical materials module is provided in `historical_materials.py` for a single authoritative source
+# Historical materials module is provided in `historical_materials.py` as a
+# single authoritative source
 try:
     from historical_materials import HistoricalMaterial, HistoricalMaterialLibrary
 except Exception:
@@ -218,13 +218,24 @@ class MaterialRepository:
 
     def import_historical_material(self, hist: "HistoricalMaterial") -> Material:
         """
-        Crea un oggetto Material a partire da un HistoricalMaterial senza aggiungerlo automaticamente
-        all'archivio.
+        Crea un oggetto Material a partire da un HistoricalMaterial senza
+        aggiungerlo automaticamente all'archivio.
 
-        ✅ Mantiene il `code` dalla fonte storica per permettere ricerca per codice.
+        ✅ Mantiene il `code` dalla fonte storica per permettere ricerca
+        per codice.
         """
         props: Dict[str, float] = {}
-        for key in ("fck", "fcd", "fyk", "fyd", "Ec", "Es", "gamma_c", "gamma_s"):
+        keys = [
+            "fck",
+            "fcd",
+            "fyk",
+            "fyd",
+            "Ec",
+            "Es",
+            "gamma_c",
+            "gamma_s",
+        ]
+        for key in keys:
             val = getattr(hist, key, None)
             if val is not None:
                 props[key] = val
@@ -336,7 +347,7 @@ class MaterialRepository:
 
             logger.info("Caricati %d materiali da %s", len(self._materials), self._file_path)
             return
-        except Exception as e:
+        except Exception:
             logger.exception("Errore nel caricamento di %s, provo il backup", self._file_path)
 
         # 2) Se fallisce, prova il backup
@@ -363,7 +374,7 @@ class MaterialRepository:
                 self._backup_path,
             )
             return
-        except Exception as e:
+        except Exception:
             logger.exception("Errore anche nel caricamento del backup %s", self._backup_path)
 
         # 3) Se tutto fallisce, archivio vuoto

@@ -10,7 +10,9 @@ from core.section_properties import compute_section_properties
 def print_props(s):
     p = compute_section_properties(s)
     print(
-        f"{s.__class__.__name__}: area={p.area:.2f}, cx={p.centroid_x:.2f}, cy={p.centroid_y:.2f}, Ix={p.ix:.2f}, Iy={p.iy:.2f}"
+        f"{s.__class__.__name__}: area={p.area:.2f}, "
+        f"cx={p.centroid_x:.2f}, cy={p.centroid_y:.2f}, "
+        f"Ix={p.ix:.2f}, Iy={p.iy:.2f}"
     )
 
 

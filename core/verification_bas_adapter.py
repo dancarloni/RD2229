@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 import math
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
 
@@ -41,7 +41,9 @@ def bas_torsion_verification(
     """
     Compute torsion verification values emulating PrincipCA_TA.bas routines.
 
-    Returns a dict with keys: 'Taux_max', 'A', 'p', 'Al_to', 'Pst_to', 'Mtu1', 'Mtu2', 'Mtu3', 'Mtu', 'messages', 'ok'
+    Returns a dict with keys describing the numeric outputs and messages. Typical
+    keys include: 'Taux_max', 'A', 'p', 'Al_to', 'Pst_to', 'Mtu1', 'Mtu2',
+    'Mtu3', 'Mtu', 'messages', 'ok'.
     """
     B = section.width
     H = section.height
@@ -88,8 +90,8 @@ def bas_torsion_verification(
     # Pst_to: spacing of transverse torsion armature
     # We translate both TA and SLU branches
     if method.upper() == "TA":
-        # tau limits (TauC0/TauC1) derive from material variables; approximate
-        TauC0 = getattr(material, "TauC0", 0.0)
+        # tau limits (TauC1) derive from material variables; TauC0 was present in the
+        # original VB code but it's not used in the translations here, so omit it.
         TauC1 = getattr(material, "TauC1", 0.0)
         TauC1_t = TauC1 * 1.1 if (abs(Ty) > 0 or abs(Tz) > 0) else TauC1
 
@@ -116,7 +118,14 @@ def bas_torsion_verification(
             Asw_to = getattr(material, "Asw_to", 1.0)
             alfa_to = math.radians(getattr(material, "alfa_to_deg", 30.0))
             if Asw_to * math.sin(math.pi - teta - alfa_to) != 0:
-                Pst_to = 2.0 * A * Asw_to * sigma_fa * math.sin(math.pi - teta - alfa_to) / abs(Mx)
+                Pst_to = (
+                    2.0
+                    * A
+                    * Asw_to
+                    * sigma_fa
+                    * math.sin(math.pi - teta - alfa_to)
+                    / abs(Mx)
+                )
             else:
                 Pst_to = 0.0
 
@@ -124,7 +133,8 @@ def bas_torsion_verification(
 
     elif method.upper() in ("SLU", "SL08", "SL18"):
         # compute Mtu1, Mtu2, Mtu3 as in PrincipCA_TA.bas
-        # Mtu3 = 2*A*t*(0.5*fcd)*sin(teta)*cos(teta)  where t ~ Asez/Psez (we don't have Asez/Psez; approximate)
+        # Mtu3 = 2*A*t*(0.5*fcd)*sin(teta)*cos(teta)
+        # where t ~ Asez/Psez (we don't have Asez/Psez in this adapter; approximate)
         # Use t ~ H/4 as approximation
         t = max(section.height / 4.0, 2 * Delta)
         fcd = getattr(material, "fcd", getattr(material, "fck", 25.0))

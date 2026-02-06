@@ -172,9 +172,9 @@ class StressState:
     sigma_c_min: float = 0.0  # Min concrete stress (tensile edge) [kg/cm² or MPa]
     sigma_s_tensile: float = 0.0  # Steel stress in tensile zone [kg/cm² or MPa]
     sigma_s_compressed: float = 0.0  # Steel stress in compressed zone [kg/cm² or MPa]
-    sigma_frc: float = (
-        0.0  # Equivalent FRC stress contribution referenced to tensile reinforcement [kg/cm² or MPa]
-    )
+    # Equivalent FRC stress contribution referenced to tensile reinforcement
+    # (kg/cm² or MPa)
+    sigma_frc: float = 0.0
 
     def max_stress(self) -> float:
         """Maximum stress magnitude."""
@@ -364,7 +364,7 @@ def calculate_neutral_axis_deviated_bending(
         a = x_min
         bnd = x_max
         fa = r1
-        fb = r2
+        _ = r2
         x_sol = (a + bnd) / 2.0
         for _ in range(max_iter):
             fm = internal_axial_result(x_sol)
@@ -372,7 +372,7 @@ def calculate_neutral_axis_deviated_bending(
                 break
             if fa * fm <= 0:
                 bnd = x_sol
-                fb = fm
+                _ = fm
             else:
                 a = x_sol
                 fa = fm
@@ -411,7 +411,6 @@ def calculate_stresses_simple_bending(
         Stress state
     """
     b = section.width
-    h = section.height
     d = reinforcement_tensile.distance
     d_prime = reinforcement_compressed.distance
     x = neutral_axis.x

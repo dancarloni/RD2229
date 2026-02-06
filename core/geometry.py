@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import pi
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, Optional
 
 
 @dataclass(frozen=True)
