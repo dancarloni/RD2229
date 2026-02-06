@@ -22,9 +22,12 @@ class TestSectionManagerAutoRefresh(unittest.TestCase):
 
     def setUp(self):
         """Setup per ogni test."""
-        # Crea finestra root Tk
-        self.root = tk.Tk()
-        self.root.withdraw()  # Nascondi finestra durante test
+        # Crea finestra root Tk; se Tk non è disponibile salta il test
+        try:
+            self.root = tk.Tk()
+            self.root.withdraw()  # Nascondi finestra durante test
+        except tk.TclError:
+            self.skipTest("Tkinter/Tcl non disponibile in questo ambiente")
         
         # Mock repository e serializer
         self.repository = MagicMock(spec=SectionRepository)
