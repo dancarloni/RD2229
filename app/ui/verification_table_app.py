@@ -123,8 +123,8 @@ class VerificationTableApp(tk.Frame):
         self.edit_entry: Optional[ttk.Entry] = None
         self.edit_item: Optional[str] = None
         self.edit_column: Optional[str] = None
-        self._suggest_box: Optional[tk.Toplevel] = None
-        self._suggest_list: Optional[tk.Listbox] = None
+        # Suggestion box helper
+        self._suggestion_box = None  # type: Optional["SuggestionBox"]
         self._rebar_window: Optional[tk.Toplevel] = None
         self._rebar_vars: Dict[int, tk.StringVar] = {}
         self._rebar_entries: List[tk.Entry] = []
@@ -138,6 +138,68 @@ class VerificationTableApp(tk.Frame):
 
         self._build_ui()
         self._insert_empty_rows(self.initial_rows)
+
+    # --- Suggestion helpers using SuggestionBox ---
+    def _ensure_suggestion_box(self) -> None:
+        if self._suggestion_box is not None:
+            return
+        from app.ui.suggestion_box import SuggestionBox
+
+        def on_select(value: str):
+            try:
+                if self.edit_entry is not None:
+                    self.edit_entry.delete(0, tk.END)
+                    self.edit_entry.insert(0, value)
+                    self._commit_edit()
+            except Exception:
+                logger.exception("Error applying suggestion")
+
+        self._suggestion_box = SuggestionBox(self, on_select=on_select)
+
+    def _show_suggestions(self, items: List[str], bbox: Tuple[int, int, int, int]) -> None:
+        """Show suggestions list positioned over the cell bbox."""
+        if not items:
+            self._hide_suggestions()
+            return
+        self._ensure_suggestion_box()
+        x, y, width, height = bbox
+        # Slightly adjust position to place below the cell
+        try:
+            self._suggestion_box.show(items, x, y + height, width, height * min(6, len(items)))
+        except Exception:
+            logger.exception("Error showing suggestions")
+
+    def _hide_suggestions(self) -> None:
+        if self._suggestion_box is not None:
+            try:
+                self._suggestion_box.hide()
+            except Exception:
+                logger.exception("Error hiding suggestions")
+
+    # --- Project I/O delegations (moved to app.ui.project_actions) ---
+    def _on_load_project(self) -> None:
+        from app.ui.project_actions import load_project
+
+        try:
+            load_project(self, None)
+        except Exception as e:
+            logger.exception("_on_load_project failed: %s", e)
+
+    def _on_save_project(self) -> None:
+        from app.ui.project_actions import save_project
+
+        try:
+            save_project(self, None)
+        except Exception as e:
+            logger.exception("_on_save_project failed: %s", e)
+
+    def _on_add_list_elements(self) -> None:
+        from app.ui.project_actions import add_list_elements
+
+        try:
+            add_list_elements(self, None)
+        except Exception as e:
+            logger.exception("_on_add_list_elements failed: %s", e)
 
     # --- Core data mapping and row helpers ---
     def table_row_to_model(self, row_index: int) -> VerificationInput:
