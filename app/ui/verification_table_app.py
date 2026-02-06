@@ -350,12 +350,598 @@ class VerificationTableApp(tk.Frame):
         self.set_rows(models)
         return len(models), skipped, errors
 
+    def _create_editor_for_cell(self, item: str, col: str, value: str, bbox: Tuple[int,int,int,int], initial_text: Optional[str] = None):
+        """
+        Crea e ritorna un widget editor posizionato sopra la cella indicata.
+        Usa `ttk.Combobox` per colonne materiali se `self.material_names` è disponibile,
+        altrimenti `ttk.Entry`. Bind degli eventi di navigazione e suggerimenti vengono
+        applicati qui centralmente per evitare duplicazione.
+        """
+        x, y, width, height = bbox
+        combobox_columns = {"mat_concrete", "mat_steel", "stirrups_mat", "verif_method"}
+        if col in combobox_columns:
+            if col == "verif_method":
+                # Combobox con valori fissi per metodo di verifica
+                editor = ttk.Combobox(self.tree, values=["TA", "SLU", "SLE", "SANT"])
+            elif self.material_names:
+                # Combobox con materiali
+                editor = ttk.Combobox(self.tree, values=self.material_names)
+            else:
+                # Fallback a Entry se non ci sono materiali
+                editor = ttk.Entry(self.tree)
+                editor.place(x=x, y=y, width=width, height=height)
+                editor.insert(0, value)
+                if initial_text:
+                    editor.delete(0, tk.END)
+                    editor.insert(0, initial_text)
+                editor.select_range(0, tk.END)
+                editor.focus_set()
+                # Bind eventi comuni
+                editor.bind("<Return>", self._on_entry_commit_down)
+                editor.bind("<Shift-Return>", self._on_entry_commit_up)
+                editor.bind("<Tab>", self._on_entry_commit_next)
+                editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
+                editor.bind("<Escape>", self._on_entry_cancel)
+                editor.bind("<Up>", self._on_entry_move_up)
+                editor.bind("<Down>", self._on_entry_move_down)
+                editor.bind("<Left>", self._on_entry_move_left)
+                editor.bind("<Right>", self._on_entry_move_right)
+                editor.bind("<FocusOut>", self._on_entry_focus_out)
+                editor.bind("<KeyRelease>", self._on_entry_keyrelease)
+                editor.bind("<KeyPress>", self._on_entry_keypress)
+                return editor
+
+            editor.place(x=x, y=y, width=width, height=height)
+            # Set display value
+            editor.set(value or "")
+            if initial_text:
+                editor.delete(0, tk.END)
+                editor.insert(0, initial_text)
+            try:
+                editor.selection_range(0, tk.END)
+            except Exception:
+                pass
+            editor.focus_set()
+            # Monkeypatch Combobox.set to record the last value set programmatically.
+            # This helps tests that use cb.set('...') and expect the value to be
+            # available synchronously at commit time.
+            try:
+                orig_set = editor.set
+                def _set_and_record(val):
+                    orig_set(val)
+                    try:
+                        self._last_editor_value = editor.get()
+                    except Exception:
+                        pass
+                editor.set = _set_and_record  # type: ignore
+            except Exception:
+                pass
+        else:
+            editor = ttk.Entry(self.tree)
+            editor.place(x=x, y=y, width=width, height=height)
+            editor.insert(0, value)
+            if initial_text:
+                editor.delete(0, tk.END)
+                editor.insert(0, initial_text)
+            editor.select_range(0, tk.END)
+            editor.focus_set()
+
+        # Bind eventi comuni
+        editor.bind("<Return>", self._on_entry_commit_down)
+        editor.bind("<Shift-Return>", self._on_entry_commit_up)
+        editor.bind("<Tab>", self._on_entry_commit_next)
+        # Keep a record of the current editor value on key events as well
+        def _record_key_event(_e=None):
+            try:
+                self._last_editor_value = editor.get()
+            except Exception:
+                pass
+        editor.bind("<KeyRelease>", _record_key_event)
+        editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
+        editor.bind("<Escape>", self._on_entry_cancel)
+        editor.bind("<Up>", self._on_entry_move_up)
+        editor.bind("<Down>", self._on_entry_move_down)
+        editor.bind("<Left>", self._on_entry_move_left)
+        editor.bind("<Right>", self._on_entry_move_right)
+        editor.bind("<FocusOut>", self._on_entry_focus_out)
+        editor.bind("<KeyRelease>", self._on_entry_keyrelease)
+        editor.bind("<KeyPress>", self._on_entry_keypress)
+        return editor
+
+    def _compute_target_cell(self, current_item: str, current_col: str, delta_col: int, delta_row: int) -> Tuple[str, str, bool]:
+        """
+        Calcola l'item_id e la chiave di colonna target a partire dalla cella corrente
+        e dagli spostamenti `delta_col` e `delta_row`.
+        Restituisce (target_item_id, target_col_key, created_new_row_flag).
+        """
+        items = list(self.tree.get_children())
+        if not items:
+            return current_item, current_col, False
+        if current_item not in items:
+            return current_item, current_col, False
+        row_idx = items.index(current_item)
+        col_idx = self.columns.index(current_col)
+
+        new_col = col_idx + delta_col
+        new_row = row_idx + delta_row
+
+        # wrap colonne
+        if new_col >= len(self.columns):
+            new_col = 0
+            new_row += 1
+        elif new_col < 0:
+            new_col = len(self.columns) - 1
+            new_row -= 1
+
+        # se superiamo l'ultima riga creiamo una nuova riga copiando la corrente
+        created = False
+        if new_row >= len(items):
+            new_item = self.add_row_from_previous(current_item)
+            items = list(self.tree.get_children())
+            target_item = new_item
+            created = True
+        else:
+            new_row = max(0, new_row)
+            target_item = items[new_row]
+
+            # Se ci si sta spostando verso il basso e la riga target è vuota,
+            # copia i valori della riga corrente nella riga target. Questo
+            # mantiene la riga successiva pre-popolata quando l'utente tabba
+            # o scende con Invio/freccia giù, ma non sovrascrive righe non vuote
+            # e non interviene quando si scende verso l'alto (shift+tab o freccia su).
+            if new_row > row_idx and self._row_is_empty(target_item):
+                prev_values = list(self.tree.item(current_item, "values"))
+                self.tree.item(target_item, values=prev_values)
+
+        target_col = self.columns[new_col]
+        return target_item, target_col, created
+
+    # --- API pubbliche -------------------------------------------------
+    def create_editor_for_cell(self, item: str, col: str, initial_text: Optional[str] = None):
+        """
+        API pubblica: crea un editor (Entry o Combobox) posizionato sopra la cella
+        `item`/`col` e lo restituisce. Solleva ValueError se la cella non è visibile
+        (bbox vuoto).
+        """
+        bbox = self.tree.bbox(item, col)
+        if not bbox:
+            raise ValueError(f"Impossibile creare editor: bbox vuoto per item={item}, col={col}")
+        value = self.tree.set(item, col)
+        return self._create_editor_for_cell(item, col, value, bbox, initial_text=initial_text)
+
+    def compute_target_cell(self, current_item: str, current_col: str, delta_col: int, delta_row: int) -> Tuple[str, str, bool]:
+        """
+        API pubblica: wrapper che richiama `_compute_target_cell` per calcolare la
+        cella target dato un delta di colonna e riga. Restituisce (item_id, column_key, created_flag).
+        """
+        return self._compute_target_cell(current_item, current_col, delta_col, delta_row)
+
+    def _remove_selected_row(self) -> None:
+        sel = self.tree.focus()
+        if sel:
+            self.tree.delete(sel)
+
+    def _on_tree_click(self, event: tk.Event) -> None:
+        region = self.tree.identify("region", event.x, event.y)
+        if region != "cell":
+            return
+        item = self.tree.identify_row(event.y)
+        col_id = self.tree.identify_column(event.x)
+        col = self._column_id_to_key(col_id)
+        if item and col:
+            self._last_col = col
+            # Indica che la successiva chiamata a `_update_suggestions` può
+            # mostrare l'elenco completo anche se l'entry è vuota.
+            self._force_show_all_on_empty = True
+            # Start editing and then show suggestions after a brief delay
+            self.after_idle(lambda: self._start_edit(item, col))
+            self.after(10, self._update_suggestions)
+
+    def _on_tree_double_click(self, event: tk.Event) -> None:
+        item = self.tree.identify_row(event.y)
+        col_id = self.tree.identify_column(event.x)
+        col = self._column_id_to_key(col_id)
+        if not item:
+            new_item = self._add_row()
+            self._last_col = self.columns[0]
+            self._start_edit(new_item, self._last_col)
+            return
+        if self._row_is_empty(item):
+            new_item = self._add_row(after_item=item)
+            self._last_col = self.columns[0]
+            self._start_edit(new_item, self._last_col)
+            return
+        if item and col:
+            self._last_col = col
+            self._start_edit(item, col)
+
+    def _on_tree_return(self, _event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        self._start_edit(item, self._last_col)
+        return "break"
+
+    def _on_tree_shift_return(self, _event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        self._start_edit(item, self._last_col)
+        return "break"
+
+    def _on_tree_tab(self, _event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        self._start_edit(item, self._last_col)
+        return "break"
+
+    def _on_tree_shift_tab(self, _event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        self._start_edit(item, self._last_col)
+        return "break"
+
+    def _on_tree_keypress(self, event: tk.Event) -> None:
+        if self.edit_entry is not None:
+            return
+        if not event.char or not event.char.isprintable():
+            return
+        item = self.tree.focus()
+        if not item:
+            return
+        self._start_edit(item, self._last_col, initial_text=event.char)
+
+    def _on_tree_arrow(self, event: tk.Event) -> str:
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        if event.keysym in {"Left", "Right"}:
+            delta = -1 if event.keysym == "Left" else 1
+            target_item, target_col = self._next_cell(item, self._last_col, delta_col=delta, delta_row=0)
+        else:
+            delta = -1 if event.keysym == "Up" else 1
+            target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
+        self._last_col = target_col
+        self._start_edit(target_item, target_col)
+        return "break"
+
+    def _on_tree_home(self, _event: tk.Event) -> str:
+        """Sposta la cella attiva alla prima colonna della riga corrente e apre l'editor."""
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        first_col = self.columns[0]
+        self._last_col = first_col
+        self._start_edit(item, first_col)
+        return "break"
+
+    def _on_tree_end(self, _event: tk.Event) -> str:
+        """Sposta la cella attiva all'ultima colonna della riga corrente e apre l'editor."""
+        item = self.tree.focus()
+        if not item:
+            return "break"
+        last_col = self.columns[-1]
+        self._last_col = last_col
+        self._start_edit(item, last_col)
+        return "break"
+
+    def _column_id_to_key(self, col_id: str) -> Optional[str]:
+        if not col_id or not col_id.startswith("#"):
+            return None
+        try:
+            idx = int(col_id.replace("#", "")) - 1
+        except ValueError:
+            return None
+        if 0 <= idx < len(self.columns):
+            return self.columns[idx]
+        return None
+
+    def _start_edit(self, item: str, col: str, initial_text: Optional[str] = None) -> None:
+        self._hide_suggestions()
+        if self.edit_entry is not None:
+            self._commit_edit()
+        bbox = self.tree.bbox(item, col)
+        if not bbox:
+            return
+        x, y, width, height = bbox
+        value = self.tree.set(item, col)
+
+        self.edit_item = item
+        self.edit_column = col
+        # Aggiorna lo stato centralizzato della posizione corrente (indice numerico della colonna)
+        self.current_item_id = item
+        try:
+            self.current_column_index = self.columns.index(col)
+        except ValueError:
+            self.current_column_index = None
+
+        # Crea l'editor (Entry o Combobox) in modo centralizzato
+        self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
+
+        # Se lo start è esplicito (programma o click), consentiamo alla prima
+        # chiamata a `_update_suggestions` di mostrare l'elenco completo se
+        # l'entry è vuota. Questo viene resettato immediatamente dopo la chiamata
+        # per evitare effetti collaterali sulle successive modifiche.
+        self._force_show_all_on_empty = True
+        self._update_suggestions()
+        self._force_show_all_on_empty = False
+
+    def _commit_edit(self) -> None:
+        if self.edit_entry is None or self.edit_item is None or self.edit_column is None:
+            return
+        # Prefer the last recorded editor value if available (helps with
+        # programmatic .set() on Combobox which may not trigger a key event)
+        value = getattr(self, '_last_editor_value', None) or self.edit_entry.get()
+        # Record debug info via logger (no direct stdout prints)
+        try:
+            logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
+            logger.debug("edit_entry type: %s", type(self.edit_entry))
+            if hasattr(self.edit_entry, 'cget'):
+                try:
+                    logger.debug("combobox values: %s", self.edit_entry.cget('values'))
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        self.tree.set(self.edit_item, self.edit_column, value)
+        logger.debug("Tree value after set: %r", self.tree.set(self.edit_item, self.edit_column))
+        self._last_col = self.edit_column
+        self.edit_entry.destroy()
+        self.edit_entry = None
+        self.edit_item = None
+        self.edit_column = None
+        self._hide_suggestions()
+
+    def _on_entry_focus_out(self, _event: tk.Event) -> None:
+        self.after(1, self._commit_if_focus_outside)
+
+    def _on_entry_commit_next(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=1, delta_row=0)
+
+    def _on_entry_commit_prev(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=-1, delta_row=0)
+
+    def _on_entry_commit_down(self, _event: tk.Event) -> str:
+        """
+        Invio (Return): avanzare di una riga mantenendo la stessa colonna.
+
+        Scelta: ho deciso di far sì che Invio sposti il cursore alla stessa
+        colonna nella riga successiva (delta_row=1). Questo è comodo per
+        inserimenti per colonna (es. digitare valori numerici riga per riga).
+        Per avanzare di colonna usa TAB.
+        """
+        return self._commit_and_move(delta_col=0, delta_row=1)
+
+    def _on_entry_commit_up(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=0, delta_row=-1)
+
+    def _on_entry_move_up(self, _event: tk.Event) -> str:
+        if self._suggestion_box is not None and self._suggestion_box.size() > 0:
+            idx = self._current_suggestion_index()
+            prev_idx = max(idx - 1, 0)
+            self._select_suggestion(prev_idx)
+            return "break"
+        return self._commit_and_move(delta_col=0, delta_row=-1)
+
+    def _on_entry_move_down(self, _event: tk.Event) -> str:
+        if self._suggestion_box is not None and self._suggestion_box.size() > 0:
+            idx = self._current_suggestion_index()
+            next_idx = min(idx + 1, self._suggestion_box.size() - 1)
+            self._select_suggestion(next_idx)
+            return "break"
+        return self._commit_and_move(delta_col=0, delta_row=1)
+
+    def _on_entry_move_left(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=-1, delta_row=0)
+
+    def _on_entry_move_right(self, _event: tk.Event) -> str:
+        return self._commit_and_move(delta_col=1, delta_row=0)
+
+    def _on_entry_cancel(self, _event: tk.Event) -> str:
+        if self._suggestion_box is not None and self._suggestion_box.size() > 0:
+            self._hide_suggestions()
+            return "break"
+        if self.edit_entry is not None:
+            self.edit_entry.destroy()
+            self.edit_entry = None
+            self.edit_item = None
+            self.edit_column = None
+            self._hide_suggestions()
+        return "break"
+
+    def _commit_and_move(self, delta_col: int, delta_row: int) -> str:
+        """
+        Commette l'edit corrente e sposta l'editor secondo delta_col/delta_row.
+
+        Comportamento migliorato:
+        - Se il movimento raggiunge una riga successiva che non esiste yet, viene
+          creata una nuova riga copiando i valori della riga corrente
+          (usando `add_row_from_previous`) e l'editor si apre sulla cella desiderata.
+        - Usato sia da TAB (delta_col=1, delta_row=0), Invio (delta_row=1, delta_col=0)
+          e frecce. Questo centralizza la logica di avanzamento.
+        """
+        if self.edit_item is None or self.edit_column is None:
+            return "break"
+        if self._suggestion_box is not None and self._suggestion_box.size() > 0:
+            self._apply_suggestion()
+
+        current_item = self.edit_item
+        current_col = self.edit_column
+
+        # Applica suggerimento se presente e committa l'edit corrente
+        if self._suggestion_box is not None and self._suggestion_box.size() > 0:
+            self._apply_suggestion()
+        self._commit_edit()
+
+        # Calcola la cella target (eventualmente creando una nuova riga copiando la corrente)
+        target_item, target_col, _created = self._compute_target_cell(current_item, current_col, delta_col, delta_row)
+
+        # Apri l'editor sulla cella target
+        self._start_edit(target_item, target_col)
+        return "break"
+
+    def _next_cell(self, item: str, col: str, delta_col: int, delta_row: int) -> Tuple[str, str]:
+        items = list(self.tree.get_children())
+        if not items:
+            return item, col
+        row_idx = items.index(item)
+        col_idx = self.columns.index(col)
+
+        new_col = col_idx + delta_col
+        new_row = row_idx + delta_row
+
+        if new_col >= len(self.columns):
+            new_col = 0
+            new_row += 1
+        elif new_col < 0:
+            new_col = len(self.columns) - 1
+            new_row -= 1
+
+        new_row = max(0, min(new_row, len(items) - 1))
+        target_item = items[new_row]
+        target_col = self.columns[new_col]
+        self.tree.focus(target_item)
+        self.tree.selection_set(target_item)
+        return target_item, target_col
+
+    def _row_is_empty(self, item: str) -> bool:
+        values = self.tree.item(item, "values")
+        return all(not (str(v).strip()) for v in values)
+
+    def _on_entry_keyrelease(self, _event: tk.Event) -> None:
+        self._update_suggestions()
+
+    def _on_entry_keypress(self, event: tk.Event) -> Optional[str]:
+        # Support both event.char and event.keysym to make programmatic key
+        # generation in tests more reliable across platforms.
+        key = (getattr(event, "char", "") or getattr(event, "keysym", "")).lower()
+        if self.edit_column in {"As", "As_p"} and key == "c":
+            self._open_rebar_calculator()
+            return "break"
+        return None
+
+    def _update_suggestions(self) -> None:
+        if self.edit_entry is None or self.edit_column is None:
+            return
+        source = self.suggestions_map.get(self.edit_column)
+        if not source:
+            self._hide_suggestions()
+            return
+        query = self.edit_entry.get().strip()
+        query_lower = query.lower()
+
+        # Support either a callable(source) -> list[str] or a static list
+        try:
+            # Columns for which we want to show all suggestions immediately when the
+            # field is empty (section, concrete/steel/stirrups materials).
+            show_all_on_empty = {"section", "mat_concrete", "mat_steel", "stirrups_mat"}
+
+            if query == "":
+                # We only show the full suggestion list on empty query when the edit
+                # was explicitly opened (e.g. by clicking the cell). This avoids
+                # displaying suggestions when the user types and then deletes input.
+                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (self.edit_column in show_all_on_empty)
+                # reset flag regardless
+                self._force_show_all_on_empty = False
+                if not show_all_flag:
+                    # Preserve old behavior: hide suggestions for empty query
+                    self._hide_suggestions()
+                    return
+                # For the allowed columns when explicitly requested, request full list
+                if callable(source):
+                    filtered = source("")
+                else:
+                    filtered = list(source)
+            else:
+                # Non-empty query: keep existing behavior
+                if callable(source):
+                    filtered = source(query)
+                else:
+                    filtered = [s for s in source if query_lower in s.lower()]
+        except Exception:
+            logger.exception("Error while querying suggestions source")
+            filtered = []
+
+        if not filtered:
+            self._hide_suggestions()
+            return
+
+        # Show suggestions via SuggestionBox helper
+        try:
+            self._ensure_suggestion_box()
+            x = self.edit_entry.winfo_rootx()
+            y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
+            width = self.edit_entry.winfo_width()
+            height = min(120, self.edit_entry.winfo_height() * min(6, len(filtered)))
+            self._show_suggestions(filtered[: self.display_limit], (x, y, width, height))
+            if self._suggestion_box is not None:
+                self._suggestion_box.selection_clear(0, 'end')
+                self._suggestion_box.selection_set(0)
+        except Exception:
+            logger.exception("Error showing suggestions")
+
+    def _commit_if_focus_outside(self) -> None:
+        if self.edit_entry is None:
+            return
+        if self._focus_is_suggestion():
+            return
+        # Don't commit while the rebar calculator is open (focus will move to the dialog)
+        if getattr(self, "_in_rebar_calculator", False):
+            return
+        self._commit_edit()
+
+    def _focus_is_suggestion(self) -> bool:
+        if self._suggestion_box is None:
+            return False
+        try:
+            widget = self.winfo_toplevel().focus_get()
+        except KeyError:
+            # Sometimes focus_get() raises KeyError for transient widgets
+            return False
+        return self._suggestion_box.contains_widget(widget)
+
+    def _current_suggestion_index(self) -> int:
+        if self._suggestion_box is None:
+            return 0
+        selection = self._suggestion_box.curselection()
+        return selection[0] if selection else 0
+
+    def _select_suggestion(self, index: int) -> None:
+        if self._suggestion_box is None:
+            return
+        self._suggestion_box.selection_clear(0, 'end')
+        self._suggestion_box.selection_set(index)
+        self._suggestion_box.see(index)
+
+    def _on_suggestion_click(self, _event: tk.Event) -> None:
+        self._apply_suggestion()
+
+    def _on_suggestion_enter(self, _event: tk.Event) -> None:
+        """Handler when user presses Enter in suggestion list.
+
+        We apply the selected suggestion and commit the edit so that a single
+        Enter will both pick the suggestion and populate the cell. This keeps
+        keyboard-driven entry fluid for fast data entry.
+        """
+        # Apply the suggestion to the entry
+        self._apply_suggestion()
+        # Commit the edit (this will write the value to the tree and destroy the entry)
+        self._commit_edit()
+
+    def _apply_suggestion(self) -> None:
+        if self.edit_entry is None or self._suggestion_box is None:
+            return
+        idx = self._current_suggestion_index()
+        value = self._suggestion_box.get(idx)
+        self.edit_entry.delete(0, tk.END)
+        self.edit_entry.insert(0, value)
+        self._hide_suggestions()
+        self.edit_entry.focus_set()
+
     # --- Rebar calculator helpers (moved from legacy verification_table) ---
     def _open_rebar_calculator(self) -> None:
-        """Open a small Toplevel that lets users enter number of bars per diameter
-        and calculates the total area in cm². The result is committed to the
-        currently edited cell when the user confirms.
-        """
         if self.edit_entry is None or self.edit_column is None:
             return
         self._rebar_target_column = self.edit_column
@@ -392,12 +978,7 @@ class VerificationTableApp(tk.Frame):
             ent = tk.Entry(frame, textvariable=var, width=8)
             self._rebar_entries.append(ent)
             ent.grid(row=i, column=1, sticky="w", pady=2)
-            # Update total whenever a value changes
-            try:
-                var.trace_add("write", lambda *_: self._update_rebar_total())
-            except Exception:
-                # Older Tk versions may not support trace_add
-                var.trace("w", lambda *_: self._update_rebar_total())
+            var.trace_add("write", lambda *_: self._update_rebar_total())
             if i == 1:
                 ent.focus_set()
 
@@ -428,8 +1009,8 @@ class VerificationTableApp(tk.Frame):
         self._rebar_total_var.set(f"{total:.2f}")
 
     def _confirm_rebar_total(self) -> None:
-        # If edit_entry is not present, try to apply directly to the tree cell
         if self.edit_entry is None or self._rebar_target_column is None:
+            # Fallback: if the entry was closed for some reason, try to set the tree cell directly
             try:
                 if self.edit_item and self._rebar_target_column:
                     value = self._rebar_total_var.get()

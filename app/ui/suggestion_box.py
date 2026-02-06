@@ -61,3 +61,35 @@ class SuggestionBox:
         if self.on_select:
             self.on_select(value)
         self.hide()
+
+    # Utility methods to mimic Listbox API used by callers
+    def size(self) -> int:
+        return self._list.size() if self._list is not None else 0
+
+    def curselection(self):
+        return self._list.curselection() if self._list is not None else ()
+
+    def get(self, idx: int) -> str:
+        return self._list.get(idx) if self._list is not None else ""
+
+    def selection_clear(self, a: int, b: int) -> None:
+        if self._list is not None:
+            self._list.selection_clear(a, b)
+
+    def selection_set(self, idx: int) -> None:
+        if self._list is not None:
+            self._list.selection_set(idx)
+
+    def see(self, idx: int) -> None:
+        if self._list is not None:
+            self._list.see(idx)
+
+    def contains_widget(self, widget) -> bool:
+        if self._box is None:
+            return False
+        w = widget
+        while w is not None:
+            if w == self._list or w == self._box:
+                return True
+            w = getattr(w, 'master', None)
+        return False
