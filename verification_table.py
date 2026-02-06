@@ -2805,8 +2805,14 @@ class VerificationTableWindow(tk.Toplevel):
         try:
             secs = self.app.section_names or []
             mats = self.app.material_names or []
-            self._status_sections.config(text=f"Sections: {len(secs)}")
-            self._status_materials.config(text=f"Materials: {len(mats)}")
+            # Evita di chiamare `config` su widget già distrutti (può succedere durante la chiusura)
+            if getattr(self, "_status_sections", None) and self._status_sections.winfo_exists():
+                self._status_sections.config(text=f"Sections: {len(secs)}")
+            if getattr(self, "_status_materials", None) and self._status_materials.winfo_exists():
+                self._status_materials.config(text=f"Materials: {len(mats)}")
+        except tk.TclError:
+            # Widget non esistente o stato Tk non disponibile - skip silenzioso
+            logger.debug("Status widgets no longer exist, skipping update")
         except Exception as e:
             logger.exception("Failed to update status labels: %s", e)
 
