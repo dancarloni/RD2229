@@ -122,8 +122,12 @@ class TestSectionManagerNewStaysOpen(unittest.TestCase):
         if hasattr(manager.master, '_open_geometry'):
             delattr(manager.master, '_open_geometry')
         
-        # Mock messagebox per simulare risposta "No"
-        with patch('tkinter.messagebox.askyesno', return_value=False):
+        # Mock ask_confirm per simulare risposta "No"
+        def _fake_ask_confirm(title, message, callback=None, **kwargs):
+            if callback:
+                callback(False)
+            return (lambda ans: None)
+        with patch('sections_app.services.notification.ask_confirm', side_effect=_fake_ask_confirm):
             # Chiama _new_section
             manager._new_section()
             

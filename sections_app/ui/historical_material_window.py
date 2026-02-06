@@ -14,7 +14,8 @@ from __future__ import annotations
 import logging
 from typing import List, Optional
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import ttk
+from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
 from pathlib import Path
 
 from historical_materials import HistoricalMaterial, HistoricalMaterialLibrary, HistoricalMaterialType
@@ -167,12 +168,12 @@ class HistoricalMaterialWindow(tk.Toplevel):
     def _on_edit(self) -> None:
         sel = self.tree.selection()
         if not sel:
-            messagebox.showwarning("Modifica", "Seleziona una riga da modificare")
+            notify_warning("Modifica", "Seleziona una riga da modificare", source="historical_material_window")
             return
         code = sel[0]
         hist = self.library.find_by_code(code)
         if hist is None:
-            messagebox.showerror("Errore", "Elemento non trovato")
+            notify_error("Errore", "Elemento non trovato", source="historical_material_window")
             return
         dlg = _HistoricalEditDialog(self, title="Modifica materiale storico", material=hist)
         self.wait_window(dlg)
@@ -184,25 +185,33 @@ class HistoricalMaterialWindow(tk.Toplevel):
     def _on_delete(self) -> None:
         sel = self.tree.selection()
         if not sel:
-            messagebox.showwarning("Elimina", "Seleziona una riga da eliminare")
+            notify_warning("Elimina", "Seleziona una riga da eliminare", source="historical_material_window")
             return
-        if not messagebox.askyesno("Conferma", "Sei sicuro di voler eliminare la riga selezionata?"):
-            return
-        code = sel[0]
-        mat = self.library.find_by_code(code)
-        if mat:
-            # remove
-            self.library._materials = [m for m in self.library._materials if m.code != code]
-            self.library.save_to_file()
-            self._refresh_table()
+        def _on_confirm_delete(ans: bool):
+            if not ans:
+                return
+            try:
+                code = sel[0]
+                mat = self.library.find_by_code(code)
+                if mat:
+                    # remove
+                    self.library._materials = [m for m in self.library._materials if m.code != code]
+                    self.library.save_to_file()
+                    self._refresh_table()
+            except Exception:
+                logger.exception("Errore eliminazione materiale dopo conferma")
+        try:
+            ask_confirm("Conferma", "Sei sicuro di voler eliminare la riga selezionata?", callback=_on_confirm_delete, source="historical_material_window")
+        except Exception:
+            logger.exception("Errore mostrando conferma eliminazione")
 
     def _on_import_selected(self) -> None:
         sel = self.tree.selection()
         if not sel:
-            messagebox.showwarning("Importa", "Seleziona uno o più materiali da importare")
+            notify_warning("Importa", "Seleziona uno o più materiali da importare", source="historical_material_window")
             return
         if self.material_repository is None:
-            messagebox.showerror("Importa", "Archivio materiali non disponibile")
+            notify_error("Importa", "Archivio materiali non disponibile", source="historical_material_window")
             return
         imported = 0
         for code in sel:
@@ -215,7 +224,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
                 imported += 1
             except Exception:
                 logger.exception("Errore import materiale storico %s", code)
-        messagebox.showinfo("Importa", f"Importati {imported} materiali")
+        notify_info("Importa", f"Importati {imported} materiali", source="historical_material_window")
 
     def _on_manage_sources(self) -> None:
         """Apre la finestra di gestione fonti normative."""

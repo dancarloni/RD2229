@@ -17,9 +17,9 @@ def test_main_window_save_creates_section_with_principals(tmp_path, monkeypatch)
     except tk.TclError:
         pytest.skip("Tkinter not available (headless)")
 
-    # Monkeypatch messagebox functions to avoid dialogs
-    monkeypatch.setattr("tkinter.messagebox.showinfo", lambda *a, **k: None)
-    monkeypatch.setattr("tkinter.messagebox.showerror", lambda *a, **k: None)
+    # Monkeypatch notification functions to avoid dialogs
+    monkeypatch.setattr("sections_app.ui.main_window.notify_info", lambda *a, **k: None)
+    monkeypatch.setattr("sections_app.ui.main_window.notify_error", lambda *a, **k: None)
 
     path = tmp_path / "repo.jsons"
     repo = SectionRepository(json_file=str(path))

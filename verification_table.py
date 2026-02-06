@@ -5,6 +5,7 @@ import logging
 import tkinter as tk
 from dataclasses import dataclass, InitVar
 from tkinter import messagebox, ttk, filedialog
+from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
 from typing import Dict, Iterable, List, Optional, Tuple
 import random
 
@@ -1128,6 +1129,7 @@ class VerificationTableApp(tk.Frame):
         tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6,0))
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
+        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(side="left", padx=(6,0))
         tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
         # Pulsanti per import/export CSV
         tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
@@ -1958,7 +1960,7 @@ class VerificationTableApp(tk.Frame):
             return
         try:
             self.export_csv(path)
-            messagebox.showinfo("Esporta CSV", f"Esportato in {path}")
+            notify_info("Esporta CSV", f"Esportato in {path}")
         except Exception as e:
             logger.exception("Errore esportazione CSV: %s", e)
             self._show_error("Esporta CSV", [f"Errore durante l'esportazione: {e}"])
@@ -1980,9 +1982,9 @@ class VerificationTableApp(tk.Frame):
         return "\n".join(parts)
 
     def _show_error(self, title: str, errors: List[str], header: Optional[str] = None) -> None:
-        """Mostra un messagebox.showerror usando il formato centralizzato."""
+        """Emit a centralized error notification (non-blocking) and log it."""
         text = self._format_errors_for_display(errors, header=header)
-        messagebox.showerror(title, text)
+        notify_error(title, text)
 
     def import_from_csv(self) -> None:
         """Apri dialog 'Apri file' e importa un CSV compatibile con `export_csv`.
@@ -2000,7 +2002,7 @@ class VerificationTableApp(tk.Frame):
             return
         try:
             imported, skipped, errors = self.import_csv(path, clear=True)
-            messagebox.showinfo("Importa CSV", f"Importate {imported} righe. Saltate {skipped} righe.")
+            notify_info("Importa CSV", f"Importate {imported} righe. Saltate {skipped} righe.")
         except Exception as e:
             logger.exception("Errore import CSV: %s", e)
             self._show_error("Importa CSV", [f"Errore durante l'importazione: {e}"])
@@ -2092,7 +2094,7 @@ class VerificationTableApp(tk.Frame):
             logger.info("Caricati %d elementi dal repository", len(items))
         except Exception as e:
             logger.exception("Errore in load_items_from_repository: %s", e)
-            messagebox.showerror("Caricamento elementi", f"Errore caricamento repository: {e}")
+            notify_error("Caricamento elementi", f"Errore caricamento repository: {e}", source="verification_table")
 
     def save_items_to_repository(self) -> int:
         """Salva tutte le righe correnti della tabella nel repository esterno.
@@ -2106,7 +2108,7 @@ class VerificationTableApp(tk.Frame):
             return 0
         if VerificationItem is None:
             logger.error("Classe VerificationItem non disponibile; impossibile salvare")
-            messagebox.showerror("Salva elementi", "Impossibile salvare: classe VerificationItem non disponibile")
+            notify_error("Salva elementi", "Impossibile salvare: classe VerificationItem non disponibile", source="verification_table")
             return 0
         try:
             rows = self.get_rows()
@@ -2123,16 +2125,25 @@ class VerificationTableApp(tk.Frame):
             return len(rows)
         except Exception as e:
             logger.exception("Errore in save_items_to_repository: %s", e)
-            messagebox.showerror("Salva elementi", f"Errore salvataggio repository: {e}")
+            notify_error("Salva elementi", f"Errore salvataggio repository: {e}", source="verification_table")
             return 0
 
     def _on_save_items(self) -> None:
         """Handler per il pulsante 'Salva elementi' nella toolbar."""
         if not self.verification_items_repository:
-            messagebox.showwarning("Salva elementi", "Nessun repository fornito per salvare gli elementi.")
+            notify_warning("Salva elementi", "Nessun repository fornito per salvare gli elementi.", source="verification_table")
             return
         saved = self.save_items_to_repository()
-        messagebox.showinfo("Salva elementi", f"Elementi salvati: {saved}")
+        notify_info("Salva elementi", f"Elementi salvati: {saved}")
+
+    def _open_comparator(self) -> None:
+        """Open the Verification Comparator GUI for the currently focused row."""
+        try:
+            from sections_app.ui.verification_comparator import open_comparator_for_table
+            open_comparator_for_table(self)
+        except Exception as e:
+            logger.exception("Impossibile aprire la finestra di confronto: %s", e)
+            notify_error("Confronto metodi", f"Errore apertura confronto: {e}")
 
     # --- Project file handlers (.jsonp) ---
     def _elem_dict_to_input(self, e: dict) -> VerificationInput:
@@ -2169,7 +2180,7 @@ class VerificationTableApp(tk.Frame):
 
     def _on_load_project(self) -> None:
         if self.project is None:
-            messagebox.showerror("Carica progetto", "Modulo progetto non disponibile")
+            notify_error("Carica progetto", "Modulo progetto non disponibile", source="verification_table")
             return
         path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
         if not path:
@@ -2177,11 +2188,11 @@ class VerificationTableApp(tk.Frame):
         try:
             self.project.load_from_file(path)
         except ValueError as e:
-            messagebox.showerror("Carica progetto", str(e))
+            notify_error("Carica progetto", str(e), source="verification_table")
             return
         except Exception as e:
             logger.exception("Errore caricamento progetto: %s", e)
-            messagebox.showerror("Carica progetto", f"Errore caricamento progetto: {e}")
+            notify_error("Carica progetto", f"Errore caricamento progetto: {e}", source="verification_table")
             return
 
         # Clear current table and populate
@@ -2206,11 +2217,11 @@ class VerificationTableApp(tk.Frame):
             self.section_names = sorted(set(self.section_names) | {n for n in new_sec_names if n})
 
         self.project.dirty = False
-        messagebox.showinfo("Carica progetto", f"Progetto caricato: {path}")
+        notify_info("Carica progetto", f"Progetto caricato: {path}", source="verification_table")
 
     def _on_add_list_elements(self) -> None:
         if self.project is None:
-            messagebox.showerror("Aggiungi lista di elementi", "Modulo progetto non disponibile")
+            notify_error("Aggiungi lista di elementi", "Modulo progetto non disponibile", source="verification_table")
             return
         path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
         if not path:
@@ -2218,11 +2229,11 @@ class VerificationTableApp(tk.Frame):
         try:
             new_mats, new_secs, new_elems = self.project.add_elements_from_file(path)
         except ValueError as e:
-            messagebox.showerror("Aggiungi lista di elementi", str(e))
+            notify_error("Aggiungi lista di elementi", str(e), source="verification_table")
             return
         except Exception as e:
             logger.exception("Errore in add_elements_from_file: %s", e)
-            messagebox.showerror("Aggiungi lista di elementi", f"Errore apertura file: {e}")
+            notify_error("Aggiungi lista di elementi", f"Errore apertura file: {e}", source="verification_table")
             return
 
         # Load elements from file and append to table (do not clear existing)
@@ -2253,11 +2264,11 @@ class VerificationTableApp(tk.Frame):
                     self.section_names.append(sid)
             self.section_names = sorted(set(self.section_names))
 
-        messagebox.showinfo("Aggiungi lista di elementi", f"Aggiunti elementi: {new_elems}; nuove sezioni: {new_secs}; nuovi materiali: {new_mats}")
+        notify_info("Aggiungi lista di elementi", f"Aggiunti elementi: {new_elems}; nuove sezioni: {new_secs}; nuovi materiali: {new_mats}", source="verification_table")
 
     def _on_save_project(self) -> None:
         if self.project is None:
-            messagebox.showerror("Salva progetto", "Modulo progetto non disponibile")
+            notify_error("Salva progetto", "Modulo progetto non disponibile", source="verification_table")
             return
 
         # Collect current state from UI into project
@@ -2317,10 +2328,10 @@ class VerificationTableApp(tk.Frame):
 
         try:
             self.project.save_to_file(save_path)
-            messagebox.showinfo("Salva progetto", f"Progetto salvato: {save_path}")
+            notify_info("Salva progetto", f"Progetto salvato: {save_path}", source="verification_table")
         except Exception as e:
             logger.exception("Errore salvataggio progetto: %s", e)
-            messagebox.showerror("Salva progetto", f"Errore salvataggio progetto: {e}")
+            notify_error("Salva progetto", f"Errore salvataggio progetto: {e}", source="verification_table")
 
     def create_test_project(self) -> None:
         """Crea un progetto di test usando sezioni/materiali esistenti.
@@ -2334,10 +2345,10 @@ class VerificationTableApp(tk.Frame):
         Nota: se non trova il cls con '160' o il materiale 'ferro dolce', mostra un errore e abortisce.
         """
         if self.project is None:
-            messagebox.showerror("Crea progetto test", "Modulo progetto non disponibile")
+            notify_error("Crea progetto test", "Modulo progetto non disponibile", source="verification_table")
             return
         if self.material_repository is None or self.section_repository is None:
-            messagebox.showerror("Crea progetto test", "Repository sezioni o materiali non disponibili")
+            notify_error("Crea progetto test", "Repository sezioni o materiali non disponibili", source="verification_table")
             return
 
         # --- Recupero CLS con '160' nel nome o nel codice ---
@@ -2351,7 +2362,7 @@ class VerificationTableApp(tk.Frame):
                 cls_mat = m
                 break
         if cls_mat is None:
-            messagebox.showerror("Crea progetto test", "Nessun calcestruzzo con '160' nel nome trovato nella libreria materiali")
+            notify_error("Crea progetto test", "Nessun calcestruzzo con '160' nel nome trovato nella libreria materiali", source="verification_table")
             return
 
         # --- Recupero acciaio 'ferro dolce' ---
@@ -2365,7 +2376,7 @@ class VerificationTableApp(tk.Frame):
                 steel_mat = m
                 break
         if steel_mat is None:
-            messagebox.showerror("Crea progetto test", "Nessun acciaio 'ferro dolce' trovato nella libreria materiali")
+            notify_error("Crea progetto test", "Nessun acciaio 'ferro dolce' trovato nella libreria materiali", source="verification_table")
             return
 
         # --- Recupero sezione rettangolare dalla repository ---
@@ -2376,7 +2387,7 @@ class VerificationTableApp(tk.Frame):
         else:
             # Se non esiste, creo una sezione rettangolare standard (30x50 cm)
             if RectangularSection is None:
-                messagebox.showerror("Crea progetto test", "Classe RectangularSection non disponibile")
+                notify_error("Crea progetto test", "Classe RectangularSection non disponibile", source="verification_table")
                 return
             section = RectangularSection(name="Test Rect 30x50", width=30.0, height=50.0)
 
@@ -2462,7 +2473,7 @@ class VerificationTableApp(tk.Frame):
         )
         self.set_rows([test_input])
 
-        messagebox.showinfo("Crea progetto test", f"Progetto di test creato con cls='{cls_dict.get('name')}' e acciaio='{steel_dict.get('name')}'")
+        notify_info("Crea progetto test", f"Progetto di test creato con cls='{cls_dict.get('name')}' e acciaio='{steel_dict.get('name')}'", source="verification_table")
 
     def _format_value_for_csv(self, value: object) -> str:
         """Formatta un valore per il CSV: usa la virgola come separatore decimale
@@ -2723,7 +2734,7 @@ class VerificationTableApp(tk.Frame):
         """
         items = list(self.tree.get_children())
         if not items:
-            messagebox.showinfo("Verifica", "Nessuna riga da verificare.")
+            notify_info("Verifica", "Nessuna riga da verificare.", source="verification_table")
             return
 
         risultati = []
@@ -2749,9 +2760,9 @@ class VerificationTableApp(tk.Frame):
                 f"γ={result.coeff_sicurezza:.2f}"
             )
 
-        # Mostra risultati in un messagebox
+        # Mostra risultati in un non-blocking notification
         msg = "\n".join(risultati)
-        messagebox.showinfo("Risultati verifiche", msg)
+        notify_info("Risultati verifiche", msg, source="verification_table")
 
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
@@ -3005,7 +3016,7 @@ class VerificationTableWindow(tk.Toplevel):
             f"Sections: {info.get('sections_count')}\nSamples: {', '.join(info.get('sections_sample', []))}\n\n"
             f"Materials: {info.get('materials_count')}\nSamples: {', '.join(info.get('materials_sample', []))}"
         )
-        messagebox.showinfo("Sources info", msg)
+        notify_info("Sources info", msg, source="verification_table")
         # Refresh label text after checking
         self.app.refresh_sources()
         self._update_status_labels()

@@ -4,7 +4,8 @@ import logging
 from typing import Callable, Dict, Optional, Tuple
 
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, ttk
+from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
 
 from sections_app.models.sections import CSV_HEADERS, Section
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
@@ -448,7 +449,7 @@ class SectionManager(tk.Toplevel):
     def _get_selected_section(self) -> Optional[Section]:
         selected = self.tree.focus()
         if not selected:
-            messagebox.showinfo("Info", "Seleziona una sezione")
+            notify_info("Info", "Seleziona una sezione", source="section_manager")
             return None
         return self.repository.find_by_id(selected)
 
@@ -511,7 +512,9 @@ class SectionManager(tk.Toplevel):
 
         # Fallback: chiedi all'utente se aprire l'editor
         try:
-            if messagebox.askyesno("Apri editor", "Vuoi aprire l'editor per creare una nuova sezione?"):
+            def _on_confirm_open_editor(ans: bool):
+                if not ans:
+                    return
                 try:
                     if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
                         self.master._open_geometry()
@@ -527,6 +530,8 @@ class SectionManager(tk.Toplevel):
                         logger.debug("Aperto Geometry per nuova sezione (fallback, manager resta aperto)")
                 except Exception:
                     logger.exception("Errore nel fallback per aprire l'editor per nuova sezione")
+
+            ask_confirm("Apri editor", "Vuoi aprire l'editor per creare una nuova sezione?", callback=_on_confirm_open_editor, source="section_manager")
         except Exception:
             logger.exception("Errore mostrando dialogo fallback per nuova sezione")
 
@@ -547,11 +552,20 @@ class SectionManager(tk.Toplevel):
             f"ID: {section.id}\n\n"
             f"Questa operazione non può essere annullata."
         )
-        if messagebox.askyesno("Conferma eliminazione", confirm_msg):
-            self.repository.delete_section(section.id)
-            self.refresh_sections()
-            messagebox.showinfo("Eliminazione", f"Sezione '{section.name}' eliminata dall'archivio.")
-            logger.debug("Sezione eliminata tramite UI: %s", section.id)
+        def _on_confirm_delete(ans: bool):
+            if not ans:
+                return
+            try:
+                self.repository.delete_section(section.id)
+                self.refresh_sections()
+                notify_info("Eliminazione", f"Sezione '{section.name}' eliminata dall'archivio.", source="section_manager")
+                logger.debug("Sezione eliminata tramite UI: %s", section.id)
+            except Exception:
+                logger.exception("Errore eliminazione sezione dopo conferma")
+        try:
+            ask_confirm("Conferma eliminazione", confirm_msg, callback=_on_confirm_delete, source="section_manager")
+        except Exception:
+            logger.exception("Errore mostrando conferma eliminazione")
 
     def _import_csv(self) -> None:
         file_path = filedialog.askopenfilename(
@@ -565,7 +579,7 @@ class SectionManager(tk.Toplevel):
         for section in sections:
             if self.repository.add_section(section):
                 added += 1
-        messagebox.showinfo("Importa CSV", f"Importate {added} sezioni")
+        notify_info("Importa CSV", f"Importate {added} sezioni", source="section_manager")
         self.refresh_sections()
         logger.debug("Import CSV completato: %s sezioni aggiunte", added)
 

@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, ttk
+from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
 
 from sections_app.models.sections import (
     CSection,
@@ -471,20 +472,20 @@ class MainWindow(tk.Toplevel):
             width=20,
         ).grid(row=3, column=0, columnspan=2, padx=4, pady=2)
 
-            self.display_frame = tk.Frame(self.left_frame)
-            self.display_frame.pack(fill="x", pady=(0, 8))
-            self.show_ellipse_var = tk.BooleanVar(value=True)
-            self.show_core_var = tk.BooleanVar(value=True)
-            tk.Checkbutton(
-                self.display_frame,
-                text="Mostra ellisse inerzia",
-                variable=self.show_ellipse_var,
-            ).pack(anchor="w")
-            tk.Checkbutton(
-                self.display_frame,
-                text="Mostra nocciolo",
-                variable=self.show_core_var,
-            ).pack(anchor="w")
+        self.display_frame = tk.Frame(self.left_frame)
+        self.display_frame.pack(fill="x", pady=(0, 8))
+        self.show_ellipse_var = tk.BooleanVar(value=True)
+        self.show_core_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(
+            self.display_frame,
+            text="Mostra ellisse inerzia",
+            variable=self.show_ellipse_var,
+        ).pack(anchor="w")
+        tk.Checkbutton(
+            self.display_frame,
+            text="Mostra nocciolo",
+            variable=self.show_core_var,
+        ).pack(anchor="w")
 
         # Pulsante per aprire l'Editor Materiali (coerente con il resto dei bottoni)
         # Posizionato sotto gli altri bottoni e collegato a `open_material_manager`.
@@ -689,7 +690,7 @@ class MainWindow(tk.Toplevel):
             "e da tabelle usate comunemente in progettazione. Modifica i valori se desideri usare dati più precisi.\n\n"
             "Vedi file docs/SHEAR_FORM_FACTORS.md per dettagli e riferimenti." 
         )
-        messagebox.showinfo("Fattori di forma a taglio (κ)", text)
+        notify_info("Fattori di forma a taglio (κ)", text, source="main_window")
 
     def _build_section_from_inputs(self) -> Optional[Section]:
         definition = SECTION_DEFINITIONS[self.section_var.get()]
@@ -699,14 +700,14 @@ class MainWindow(tk.Toplevel):
         for field, _label in definition["fields"]:
             raw = self.inputs[field].get().strip()
             if not raw:
-                messagebox.showerror("Errore", f"{field} è richiesto")
+                notify_error("Errore", f"{field} è richiesto", source="main_window")
                 return None
             try:
                 value = float(raw)
                 if value <= 0:
                     raise ValueError
             except ValueError:
-                messagebox.showerror("Errore", f"{field} deve essere un numero positivo")
+                notify_error("Errore", f"{field} deve essere un numero positivo", source="main_window")
                 return None
             values[field] = value
 
@@ -715,7 +716,7 @@ class MainWindow(tk.Toplevel):
         try:
             rotation_angle_deg = float(rotation_raw) if rotation_raw else 0.0
         except ValueError:
-            messagebox.showerror("Errore", "Angolo di rotazione deve essere un numero")
+            notify_error("Errore", "Angolo di rotazione deve essere un numero", source="main_window")
             return None
 
         name = self.name_entry.get().strip() or self.section_var.get()
@@ -736,7 +737,7 @@ class MainWindow(tk.Toplevel):
             if k_z is not None:
                 section.shear_factor_z = k_z
         except ValueError:
-            messagebox.showerror("Errore", "I fattori κ devono essere numeri positivi")
+            notify_error("Errore", "I fattori κ devono essere numeri positivi", source="main_window")
             return None
 
         return section
@@ -1198,7 +1199,7 @@ class MainWindow(tk.Toplevel):
                 self._update_editing_mode_label()
             except Exception as e:
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
-                messagebox.showerror("Errore", f"Impossibile aggiornare la sezione: {e}")
+                    notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
                 return
 
         # Se il manager è aperto, ricarica la tabella
@@ -1321,7 +1322,7 @@ class MainWindow(tk.Toplevel):
         Esporta backup completo di sezioni e materiali in una cartella scelta dall'utente.
         """
         if self.material_repository is None:
-            messagebox.showerror(
+            notify_error(
                 "Errore backup",
                 "Archivio materiali non disponibile.",
             )
@@ -1345,7 +1346,7 @@ class MainWindow(tk.Toplevel):
             )
         except Exception as exc:
             logger.exception("Errore esportazione backup completo")
-            messagebox.showerror("Errore backup", f"Errore durante il backup: {exc}")
+            notify_error("Errore backup", f"Errore durante il backup: {exc}", source="main_window")
 
     def reset_form(self) -> None:
         """Reset completo della form alla modalità nuova sezione."""

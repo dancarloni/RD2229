@@ -60,7 +60,7 @@ class TestExportBackupGUI(unittest.TestCase):
         window.destroy()
 
     @patch('sections_app.ui.module_selector.filedialog.asksaveasfilename')
-    @patch('sections_app.ui.module_selector.messagebox.showinfo')
+    @patch('sections_app.ui.module_selector.notify_info')
     def test_export_sections_json(self, mock_showinfo, mock_asksaveasfilename):
         """Test: Export sezioni in JSON dalla GUI."""
         export_path = self.temp_path / "export_test.json"

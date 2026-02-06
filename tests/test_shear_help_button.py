@@ -43,10 +43,10 @@ class TestShearHelpButton(unittest.TestCase):
         self.assertIsNotNone(help_btn, "Help button '?' not found in MainWindow")
 
         # Patch messagebox.showinfo and invoke the button
-        with patch('sections_app.ui.main_window.messagebox.showinfo') as mock_info:
+        with patch('sections_app.ui.main_window.notify_info') as mock_info:
             help_btn.invoke()
             mock_info.assert_called_once()
-            # the first arg is the title used in showinfo
+            # the first arg is the title used in notify_info
             title_arg = mock_info.call_args[0][0]
             self.assertIn('Fattori di forma', title_arg)
 

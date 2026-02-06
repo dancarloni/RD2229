@@ -98,7 +98,7 @@ class TestImportMappingAndLogging(unittest.TestCase):
             app = VerificationTableApp(self.root, initial_rows=0)
             # patch filedialog to return our file
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
-                with patch('verification_table.messagebox.showinfo') as mock_info:
+                with patch('verification_table.notify_info') as mock_info:
                     with patch.object(logger, 'info') as mock_log_info:
                         app._on_import_csv()
                         mock_info.assert_called()
@@ -161,7 +161,7 @@ class TestImportMappingAndLogging(unittest.TestCase):
 
             app = VerificationTableApp(self.root, initial_rows=0)
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
-                with patch('verification_table.messagebox.showerror') as mock_err:
+                with patch('verification_table.notify_error') as mock_err:
                     with patch.object(logger, 'error') as mock_log_error:
                         app._on_import_csv()
                         mock_err.assert_called()

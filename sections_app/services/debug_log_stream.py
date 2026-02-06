@@ -31,3 +31,10 @@ def get_in_memory_handler() -> InMemoryLogHandler:
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
     return handler
+
+
+# Helper to append an arbitrary message at a given severity to the buffer
+def emit_to_in_memory_buffer(level: int, msg: str) -> None:
+    handler = get_in_memory_handler()
+    record = logging.LogRecord("notification", level, __file__, 1, msg, (), None)
+    handler.emit(record)

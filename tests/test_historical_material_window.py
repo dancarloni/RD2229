@@ -61,14 +61,14 @@ class TestHistoricalMaterialWindow(unittest.TestCase):
         self.assertIn("HM_NEW", codes)
         # Delete
         win.tree.selection_set("HM_NEW")
-        # simulate user confirming delete by monkeypatching messagebox to return True
-        import tkinter.messagebox as mb
-        original = mb.askyesno
-        mb.askyesno = lambda *_: True
-        try:
+        # simulate user confirming delete by invoking ask_confirm callback immediately
+        def _fake_ask_confirm(title, message, callback=None, **kwargs):
+            if callback:
+                callback(True)
+            return (lambda ans: None)
+        from unittest.mock import patch
+        with patch('sections_app.services.notification.ask_confirm', side_effect=_fake_ask_confirm):
             win._on_delete()
-        finally:
-            mb.askyesno = original
         win._refresh_table()
         codes = [win.tree.set(i, "code") for i in win.tree.get_children()]
         self.assertNotIn("HM_NEW", codes)

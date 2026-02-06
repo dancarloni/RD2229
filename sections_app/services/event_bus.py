@@ -90,3 +90,6 @@ MATERIALS_ADDED = "materials_added"
 MATERIALS_UPDATED = "materials_updated"
 MATERIALS_DELETED = "materials_deleted"
 MATERIALS_CLEARED = "materials_cleared"
+
+# Generic notification event for user-facing non-blocking messages
+NOTIFICATION = "notification"

@@ -69,7 +69,7 @@ class TestVerificationTableDialogs(unittest.TestCase):
         tmp.close()
         try:
             with patch('tkinter.filedialog.asksaveasfilename', return_value=tmp.name):
-                with patch('verification_table.messagebox.showinfo') as mock_info:
+                with patch('verification_table.notify_info') as mock_info:
                     app._on_export_csv()
                     mock_info.assert_called()
             # verify file content (uso ';' come separatore)
@@ -114,7 +114,7 @@ class TestVerificationTableDialogs(unittest.TestCase):
 
             app = VerificationTableApp(self.root, initial_rows=0)
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
-                with patch('verification_table.messagebox.showinfo') as mock_info:
+                with patch('verification_table.notify_info') as mock_info:
                     app._on_import_csv()
                     mock_info.assert_called()
             got = app.get_rows()
@@ -154,7 +154,7 @@ class TestVerificationTableDialogs(unittest.TestCase):
 
             app = VerificationTableApp(self.root, initial_rows=0)
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
-                with patch('verification_table.messagebox.showerror') as mock_err:
+                with patch('verification_table.notify_error') as mock_err:
                     app._on_import_csv()
                     mock_err.assert_called()
                     # Verifica il formato del messaggio di errore centralizzato
@@ -217,8 +217,8 @@ class TestVerificationTableDialogs(unittest.TestCase):
 
             app = VerificationTableApp(self.root, initial_rows=0)
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
-                with patch('verification_table.messagebox.showerror') as mock_err:
-                    with patch('verification_table.messagebox.showinfo') as mock_info:
+                with patch('verification_table.notify_error') as mock_err:
+                    with patch('verification_table.notify_info') as mock_info:
                         app._on_import_csv()
                         mock_err.assert_called()
                         mock_info.assert_called()
@@ -235,7 +235,7 @@ class TestVerificationTableDialogs(unittest.TestCase):
     def test_import_cancel_does_nothing(self):
         app = VerificationTableApp(self.root, initial_rows=0)
         with patch('tkinter.filedialog.askopenfilename', return_value=''):
-            with patch('verification_table.messagebox.showinfo') as mock_info:
+            with patch('verification_table.notify_info') as mock_info:
                 app._on_import_csv()
                 mock_info.assert_not_called()
         self.assertEqual(len(app.get_rows()), 0)

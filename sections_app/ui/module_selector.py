@@ -3,11 +3,13 @@ from __future__ import annotations
 import logging
 import os
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog
+from sections_app.services.notification import notify_info, notify_error, notify_warning, ask_confirm
 from typing import Callable, Optional
 from pathlib import Path
 
 from sections_app.ui.main_window import MainWindow
+from sections_app.ui.notification_center import NotificationCenter
 from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
 from sections_app.ui.historical_material_window import HistoricalMaterialWindow
 from sections_app.ui.section_manager import SectionManager
@@ -37,6 +39,12 @@ class ModuleSelectorWindow(tk.Tk):
         super().__init__()
         self.title("Module Selector - RD2229 Tools")
         self.geometry("1200x340")
+        # Instantiate NotificationCenter for the application (non-blocking notifications)
+        try:
+            self.notification_center = NotificationCenter(self)
+        except Exception:
+            # Fallback: continue without UI notification center
+            self.notification_center = None
         self.repository = repository
         self.serializer = serializer
         # For compatibility with modules expecting named attributes
@@ -61,6 +69,7 @@ class ModuleSelectorWindow(tk.Tk):
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Esporta backup...", command=self._export_backup)
         file_menu.add_separator()
+        file_menu.add_command(label="Notification Settings...", command=self._open_notification_settings)
         file_menu.add_command(label="Esci", command=self.quit)
 
     def _build_ui(self) -> None:
@@ -181,6 +190,19 @@ class ModuleSelectorWindow(tk.Tk):
         settings_path = Path(__file__).resolve().parents[2] / "config" / "calculation_codes" / f"{code.upper()}.jsoncode"
         win = CodeSettingsWindow(self, code=code, settings_path=settings_path)
         win.protocol("WM_DELETE_WINDOW", lambda w=win: w.destroy())
+
+    def _open_notification_settings(self) -> None:
+        try:
+            win = __import__("sections_app.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(self)
+            win._win.protocol("WM_DELETE_WINDOW", lambda w=win: w._on_cancel())
+        except Exception:
+            # Try to open headless settings window if something fails
+            try:
+                win = __import__("sections_app.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(None)
+                win.set_settings(win.get_settings())
+                win.save()
+            except Exception:
+                logger.exception("Failed to open Notification Settings window")
 
     def _open_section_manager(self) -> None:
         """Apre il Section Manager come finestra Toplevel.
@@ -419,17 +441,17 @@ class ModuleSelectorWindow(tk.Tk):
         try:
             if result["choice"] == "sezioni":
                 self.section_repository.export_backup(file_path)
-                messagebox.showinfo(
+                notify_info(
                     "Export completato",
                     f"Backup sezioni esportato correttamente in:\n{file_path}",
-                    parent=self
+                    source="module_selector"
                 )
             elif result["choice"] == "materiali":
                 self.material_repository.export_backup(file_path)
-                messagebox.showinfo(
+                notify_info(
                     "Export completato",
                     f"Backup materiali esportato correttamente in:\n{file_path}",
-                    parent=self
+                    source="module_selector"
                 )
             else:  # entrambi
                 # Salva in due file separati
@@ -446,18 +468,18 @@ class ModuleSelectorWindow(tk.Tk):
                 materials_path = parent_dir / f"{base_name}_materiali.json"
                 self.material_repository.export_backup(materials_path)
                 
-                messagebox.showinfo(
+                notify_info(
                     "Export completato",
                     f"Backup esportati correttamente:\n"
                     f"• Sezioni: {sections_path}\n"
                     f"• Materiali: {materials_path}",
-                    parent=self
+                    source="module_selector"
                 )
         except Exception as e:
             logger.exception("Errore durante l'esportazione del backup")
-            messagebox.showerror(
+            notify_error(
                 "Errore",
                 f"Errore durante l'esportazione:\n{str(e)}",
-                parent=self
+                source="module_selector"
             )
 

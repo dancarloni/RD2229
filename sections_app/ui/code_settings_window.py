@@ -4,7 +4,8 @@ import json
 import logging
 from pathlib import Path
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from sections_app.services.notification import notify_info, notify_error, notify_warning, ask_confirm
 
 logger = logging.getLogger(__name__)
 
@@ -44,15 +45,15 @@ class CodeSettingsWindow(tk.Toplevel):
             self._text.insert(tk.END, raw)
         except Exception as exc:
             logger.exception("Errore caricamento %s", self.settings_path)
-            messagebox.showerror("Caricamento parametri", f"Errore nel caricamento: {exc}")
+            notify_error("Caricamento parametri", f"Errore nel caricamento: {exc}", source="code_settings_window")
 
     def _save(self) -> None:
         try:
             data = json.loads(self._text.get("1.0", tk.END))
             self.settings_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-            messagebox.showinfo("Salvataggio parametri", "Salvataggio completato")
+            notify_info("Salvataggio parametri", "Salvataggio completato", source="code_settings_window")
         except json.JSONDecodeError as exc:
-            messagebox.showerror("Salvataggio parametri", f"JSON non valido: {exc}")
+            notify_error("Salvataggio parametri", f"JSON non valido: {exc}", source="code_settings_window")
         except Exception as exc:
             logger.exception("Errore salvataggio %s", self.settings_path)
-            messagebox.showerror("Salvataggio parametri", f"Errore nel salvataggio: {exc}")
+            notify_error("Salvataggio parametri", f"Errore nel salvataggio: {exc}", source="code_settings_window")
