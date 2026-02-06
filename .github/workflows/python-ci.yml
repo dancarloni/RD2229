@@ -30,8 +30,8 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install -e . || true
-          # Ensure test runner is available even if editable install fails
-          pip install pytest
+          # Ensure test runner and linters are available even if editable install fails
+          pip install pytest flake8 mypy
       - name: Run tests
         env:
           PYTHONPATH: ${{ github.workspace }}

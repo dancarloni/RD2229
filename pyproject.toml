@@ -31,8 +31,5 @@ build-backend = "setuptools.build_meta"
 name = "RD2229"
 version = "0.0.0"
 
-[tool.setuptools]
-py_modules = ["verification_table"]
-
 [tool.setuptools.packages.find]
 include = ["app*", "core*", "core_models*"]
