@@ -44,6 +44,9 @@ __all__: List[str] = [
     "COLUMNS",
 ]
 
+# Backwards-compatibility alias (used by legacy tests and external monkeypatches)
+_compute_with_engine = compute_with_engine
+
 
 def run_demo() -> None:
     """Launch the legacy demo window (delegates to new entrypoint)."""
