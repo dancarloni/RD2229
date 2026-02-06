@@ -105,105 +105,10 @@ from app.verification.dispatcher import compute_verification_result
 
 
 
-COLUMNS: List[ColumnDef] = [
-    ("element", "Elemento", 160, "w"),
-    ("section", "Sezione", 170, "w"),
-    ("verif_method", "Metodo verifica", 120, "center"),
-    ("mat_concrete", "Materiale cls", 140, "w"),
-    ("mat_steel", "Materiale acciaio", 140, "w"),
-    ("n", "Coeff. n", 75, "center"),
-    ("N", "N [kg]", 80, "center"),
-    ("Mx", "Mx [kg·m]", 90, "center"),
-    ("My", "My [kg·m]", 90, "center"),
-    ("Mz", "Mz [kg·m]", 90, "center"),
-    ("Tx", "Tx [kg]", 80, "center"),
-    ("Ty", "Ty [kg]", 80, "center"),
-    ("At", "At [cm²]", 80, "center"),
-    ("As_p", "As' [cm²]", 90, "center"),
-    ("As", "As [cm²]", 90, "center"),
-    ("d_p", "d' [cm]", 80, "center"),
-    ("d", "d [cm]", 80, "center"),
-    ("stirrups_step", "Passo staffe [cm]", 120, "center"),
-    ("stirrups_diam", "Diametro staffe [mm]", 130, "center"),
-    ("stirrups_mat", "Materiale staffe", 140, "w"),
-    ("notes", "NOTE", 240, "w"),
-]
+from app.ui.verification_table_app import COLUMNS
 
 
-class VerificationTableApp(tk.Frame):
-    """GUI tabellare per inserimento rapido delle verifiche (senza logica di calcolo)."""
-
-    def __init__(
-        self,
-        master: tk.Tk,
-        section_repository: Optional["SectionRepository"] = None,
-        section_names: Optional[Iterable[str]] = None,
-        material_repository: Optional["MaterialRepository"] = None,
-        material_names: Optional[Iterable[str]] = None,
-        verification_items_repository: Optional["VerificationItemsRepository"] = None,
-        initial_rows: int = 1,
-        *,
-        search_limit: int = 200,
-        display_limit: int = 50,
-    ) -> None:
-        super().__init__(master)
-        self.master = master
-        self.pack(fill="both", expand=True)
-
-        self.columns = [c[0] for c in COLUMNS]
-        self._last_col = self.columns[0]
-
-        self.section_repository = section_repository
-        self.material_repository = material_repository
-        # Project model to save/load .jsonp projects
-        if VerificationProject is not None:
-            self.project: "VerificationProject" = VerificationProject()
-            self.project.new_project()
-        else:
-            self.project = None
-        # Optional external repository that stores VerificationItem objects
-        self.verification_items_repository = verification_items_repository
-        self.initial_rows = int(initial_rows)
-
-        # Configurable limits for search and display to keep UI responsive.
-        # - search_limit: how many candidates the repository search returns
-        # - display_limit: how many items the suggestion list will display
-        self.search_limit = int(search_limit)
-        self.display_limit = int(display_limit)
-
-        self.section_names = self._resolve_section_names(section_repository, section_names)
-        self.material_names = self._resolve_material_names(material_names)
-
-        # Suggestions map may contain either a static list OR a callable that accepts
-        # a query string and returns a filtered list of suggestion strings. By
-        # default we prefer callables that query the provided repositories so the
-        # suggestions are always up-to-date and can be filtered by material type.
-        self.suggestions_map: Dict[str, object] = {
-            "section": (lambda q: self._search_sections(q)),
-            "mat_concrete": (lambda q: self._search_materials(q, type_filter="concrete")),
-            "mat_steel": (lambda q: self._search_materials(q, type_filter="steel")),
-            "stirrups_mat": (lambda q: self._search_materials(q, type_filter="steel")),
-        }
-
-        self.edit_entry: Optional[ttk.Entry] = None
-        self.edit_item: Optional[str] = None
-        self.edit_column: Optional[str] = None
-        self._suggest_box: Optional[tk.Toplevel] = None
-        self._suggest_list: Optional[tk.Listbox] = None
-        self._rebar_window: Optional[tk.Toplevel] = None
-        self._rebar_vars: Dict[int, tk.StringVar] = {}
-        self._rebar_entries: List[tk.Entry] = []
-        self._rebar_total_var = tk.StringVar(value="0.00")
-        self._rebar_target_column: Optional[str] = None
-        # Flag to avoid committing the entry when the rebar calculator is open
-        self._in_rebar_calculator: bool = False
-
-        # Stato centralizzato della cella corrente (usato per navigazione/tab/inserimenti)
-        self.current_item_id: Optional[str] = None
-        self.current_column_index: Optional[int] = None
-
-        self._build_ui()
-        self._insert_empty_rows(self.initial_rows)
+from app.ui.verification_table_app import VerificationTableApp, VerificationTableWindow
 
     def table_row_to_model(self, row_index: int) -> VerificationInput:
         items = list(self.tree.get_children())
