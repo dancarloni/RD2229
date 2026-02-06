@@ -1,0 +1,21 @@
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = E203,W503
+
+[tool.mypy]
+plugins = []
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+python_files = "test_*.py"
+
+# mypy strictness per package can be configured in mypy.ini or here under [tool.mypy-<package>]
