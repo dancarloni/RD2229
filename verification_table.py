@@ -24,7 +24,8 @@ from app.ui.verification_table_app import COLUMNS, VerificationTableApp, Verific
 # Logger and deprecation warning emitted at import time
 logger = logging.getLogger(__name__)
 logger.warning(
-    "verification_table is deprecated; import from 'app' package (e.g., 'app.domain'/'app.verification'/'app.ui') instead."
+    "verification_table is deprecated; import from 'app' package "
+    "(e.g., 'app.domain'/'app.verification'/'app.ui') instead."
 )
 
 __all__: List[str] = [
@@ -55,4 +56,3 @@ if __name__ == "__main__":
     run_demo()
 
 # End of compatibility shim. Implementation moved to `app` package.
-
