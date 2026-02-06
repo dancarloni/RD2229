@@ -1,4 +1,4 @@
-$env:PYTHONPATH='c:\workspaces\RD2229\RD2229\src'; python scripts/run_materials_gui.py"""CLI per la gestione dei materiali (usa `materials_manager`).
+"""CLI per la gestione dei materiali (usa `materials_manager`).
 
 Questa CLI è separata dalle routine di calcolo e serve solo come
 interfaccia testuale/di utilità per aggiungere, modificare e rimuovere

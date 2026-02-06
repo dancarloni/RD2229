@@ -1203,7 +1203,7 @@ class MainWindow(tk.Toplevel):
                 self._update_editing_mode_label()
             except Exception as e:
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
-                    notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
+                notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
                 return
 
         # Se il manager è aperto, ricarica la tabella
