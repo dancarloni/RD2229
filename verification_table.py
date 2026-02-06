@@ -1311,19 +1311,24 @@ class VerificationTableApp(tk.Frame):
                 # Show suggestions when the entry receives focus (fix race on click)
                 if col in {"section", "mat_concrete", "mat_steel", "stirrups_mat"}:
                     def _focus_show_all(_e=None):
-                        try:
-                            self._force_show_all_on_empty = True
-                        except Exception:
-                            pass
-                        try:
-                            self._update_suggestions()
-                        except Exception:
-                            pass
-                        try:
-                            # schedule a short retry to handle geometry races
-                            self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
-                        except Exception:
-                            pass
+                            try:
+                                # Mark that a real FocusIn event occurred.
+                                self._focus_in_seen = True
+                            except Exception:
+                                pass
+                            try:
+                                self._force_show_all_on_empty = True
+                            except Exception:
+                                pass
+                            try:
+                                self._update_suggestions()
+                            except Exception:
+                                pass
+                            try:
+                                # schedule a short retry to handle geometry races
+                                self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
+                            except Exception:
+                                pass
                     editor.bind("<FocusIn>", _focus_show_all)
                 # Bind eventi comuni
                 editor.bind("<Return>", self._on_entry_commit_down)
@@ -1398,7 +1403,24 @@ class VerificationTableApp(tk.Frame):
             editor.select_range(0, tk.END)
             editor.focus_set()
             if col in {"section", "mat_concrete", "mat_steel", "stirrups_mat"}:
-                editor.bind("<FocusIn>", lambda e: self._update_suggestions())
+                def _focus_show_all_entry(_e=None):
+                    try:
+                        self._focus_in_seen = True
+                    except Exception:
+                        pass
+                    try:
+                        self._force_show_all_on_empty = True
+                    except Exception:
+                        pass
+                    try:
+                        self._update_suggestions()
+                    except Exception:
+                        pass
+                    try:
+                        self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
+                    except Exception:
+                        pass
+                editor.bind("<FocusIn>", _focus_show_all_entry)
 
         # Bind eventi comuni
         editor.bind("<Return>", self._on_entry_commit_down)
@@ -1641,7 +1663,31 @@ class VerificationTableApp(tk.Frame):
         # synchronous show-all semantics that can confuse tests and user
         # actions (e.g. immediate deletion after opening the editor).
         try:
-            self.after(1, lambda: (getattr(self, 'edit_entry', None) and self.edit_entry.event_generate("<FocusIn>")))
+            # Schedule a small check to set the show-all flag only if the
+            # editor actually has focus. This avoids setting the flag for
+            # programmatic edits where callers immediately mutate the entry
+            # (e.g. delete) and expect no suggestions to appear.
+            def _maybe_focus():
+                try:
+                    ed = getattr(self, 'edit_entry', None)
+                    if ed is None:
+                        return
+                    try:
+                        focused = (ed == ed.focus_get())
+                    except Exception:
+                        focused = False
+                    if focused:
+                        try:
+                            self._force_show_all_on_empty = True
+                        except Exception:
+                            pass
+                    try:
+                        ed.event_generate("<FocusIn>")
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+            self.after(1, _maybe_focus)
         except Exception:
             pass
 
@@ -1663,6 +1709,16 @@ class VerificationTableApp(tk.Frame):
             except Exception:
                 pass
         self.after(50, _late_trigger)
+        # As a pragmatic stability measure for tests and fast UI flows,
+        # schedule a short suggestion update so that suggestion sources are
+        # populated even if event ordering varies across platforms.
+        try:
+            # Trigger an immediate update to populate suggestion sources
+            # so tests and fast UI flows can observe the list without
+            # depending on asynchronous FocusIn ordering.
+            self._update_suggestions()
+        except Exception:
+            pass
 
     def _commit_edit(self) -> None:
         if self.edit_entry is None or self.edit_item is None or self.edit_column is None:
@@ -1819,16 +1875,17 @@ class VerificationTableApp(tk.Frame):
         return None
 
     def _update_suggestions(self) -> None:
-        print('DEBUG: _update_suggestions called, edit_entry=', self.edit_entry, 'edit_column=', self.edit_column)
         if self.edit_entry is None or self.edit_column is None:
             return
         source = self.suggestions_map.get(self.edit_column)
         # DEBUG: inspect source and current value
+        # Diagnostic logging is handled via the configured logger; avoid
+        # printing directly to stdout which can destabilize tests.
         try:
-            print("DEBUG: _update_suggestions source for", self.edit_column, "->", source)
-            print("DEBUG: current entry text ->", self.edit_entry.get())
+            logger.debug("_update_suggestions source for %s -> %s", self.edit_column, source)
+            logger.debug("current entry text -> %s", self.edit_entry.get())
         except Exception:
-            print("DEBUG: _update_suggestions: could not read source or entry")
+            logger.debug("_update_suggestions: could not read source or entry", exc_info=True)
         if not source:
             self._hide_suggestions()
             return
@@ -1845,10 +1902,24 @@ class VerificationTableApp(tk.Frame):
                 # We only show the full suggestion list on empty query when the edit
                 # was explicitly opened (e.g. by clicking the cell). This avoids
                 # displaying suggestions when the user types and then deletes input.
-                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (self.edit_column in show_all_on_empty)
-                print('DEBUG: show_all_flag=', show_all_flag)
-                # reset flag regardless
-                self._force_show_all_on_empty = False
+                show_all_flag = (
+                    getattr(self, "_force_show_all_on_empty", False)
+                    and getattr(self, "_focus_in_seen", False)
+                    and (self.edit_column in show_all_on_empty)
+                )
+                logger.debug('show_all_flag=%s (force=%s focus_seen=%s)',
+                             show_all_flag,
+                             getattr(self, "_force_show_all_on_empty", False),
+                             getattr(self, "_focus_in_seen", False))
+                # reset flags regardless
+                try:
+                    self._force_show_all_on_empty = False
+                except Exception:
+                    pass
+                try:
+                    self._focus_in_seen = False
+                except Exception:
+                    pass
                 if not show_all_flag:
                     # Preserve old behavior: hide suggestions for empty query.
                     # We only keep an existing populated list when we are handling
@@ -1904,6 +1975,27 @@ class VerificationTableApp(tk.Frame):
             self._hide_suggestions()
             return
 
+        # Create the suggestion window and populate the list early so that
+        # focus handlers and tests can inspect the items even if the editor
+        # geometry is not yet realized. Keep the window withdrawn until we can
+        # reliably position it. This ensures tests that inspect the list don't
+        # race against platform geometry reporting.
+        if self._suggest_box is None:
+            self._ensure_suggestion_box()
+
+        if self._suggest_list is None:
+            return
+        # Populate the list early (kept withdrawn until we can place it)
+        self._suggest_list.delete(0, tk.END)
+        for s in filtered[: self.display_limit]:
+            self._suggest_list.insert(tk.END, s)
+        self._suggest_list.selection_clear(0, tk.END)
+        self._suggest_list.selection_set(0)
+        try:
+            logger.debug('populated suggest_list with %d items', self._suggest_list.size())
+        except Exception:
+            logger.debug('populated suggest_list failed to report size', exc_info=True)
+
         # Ensure the editor geometry is realized; on some platforms (Windows)
         # the widget geometry can be zero immediately after creation which makes
         # the suggestion Toplevel invisible. Try to force a geometry update first
@@ -1935,25 +2027,6 @@ class VerificationTableApp(tk.Frame):
                             pass
                 self.after(10, _retry)
             return
-
-        # Create the suggestion window and populate the list early so that
-        # focus handlers and tests can inspect the items even if the editor
-        # geometry is not yet realized. Keep the window withdrawn until we can
-        # reliably position it.
-        if self._suggest_box is None:
-            self._ensure_suggestion_box()
-
-        if self._suggest_list is None:
-            return
-        self._suggest_list.delete(0, tk.END)
-        for s in filtered[: self.display_limit]:
-            self._suggest_list.insert(tk.END, s)
-        self._suggest_list.selection_clear(0, tk.END)
-        self._suggest_list.selection_set(0)
-        try:
-            print('DEBUG: populated suggest_list with', self._suggest_list.size(), 'items')
-        except Exception:
-            pass
 
         # Ensure the editor geometry is realized; on some platforms (Windows)
         # the widget geometry can be zero immediately after creation which makes
