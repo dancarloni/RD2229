@@ -175,7 +175,8 @@ class VerificationComparatorWindow(tk.Toplevel):
     @staticmethod
     def _compute_shaded_polygon(b: float, h: float, p: tuple[float,float], angle_deg: float, pick_side_point: tuple[float,float] = None) -> list[tuple[float,float]]:
         # Build rectangle polygon
-        rect = [(0.0,0.0),(b,0.0),(b,h),(0.0,h)]
+        eps = 1e-6
+        rect = [(-eps,-eps),(b + eps,-eps),(b + eps,h + eps),(-eps,h + eps)]
         import math
         theta = math.radians(angle_deg)
         v = (math.cos(theta), math.sin(theta))

@@ -8,6 +8,47 @@ from unittest.mock import patch
 from verification_table import VerificationTableApp, VerificationInput
 
 
+def _col_to_attr(col: str) -> str:
+    mapping = {
+        "element": "element_name",
+        "section": "section_id",
+        "verif_method": "verification_method",
+        "mat_concrete": "material_concrete",
+        "mat_steel": "material_steel",
+        "n": "n_homog",
+        "N": "N",
+        "Mx": "Mx",
+        "My": "My",
+        "Mz": "Mz",
+        "Tx": "Tx",
+        "Ty": "Ty",
+        "At": "At",
+        "As_p": "As_inf",
+        "As": "As_sup",
+        "d_p": "d_inf",
+        "d": "d_sup",
+        "stirrups_step": "stirrup_step",
+        "stirrups_diam": "stirrup_diameter",
+        "stirrups_mat": "stirrup_material",
+        "notes": "notes",
+    }
+    return mapping.get(col, col)
+
+
+def _row_values_for_input(header: list[str], inp: VerificationInput) -> list[object]:
+    col_defs = app_columns()
+    key_by_label = {label: key for key, label, _w, _a in col_defs}
+    out = []
+    for label in header:
+        key = key_by_label.get(label)
+        if key is None:
+            out.append("")
+            continue
+        attr = _col_to_attr(key)
+        out.append(getattr(inp, attr, ""))
+    return out
+
+
 class TestVerificationTableDialogs(unittest.TestCase):
     def setUp(self) -> None:
         try:
@@ -30,8 +71,8 @@ class TestVerificationTableDialogs(unittest.TestCase):
                 material_steel="S400",
                 n_homog=1.0,
                 N=10.0,
-                M=20.0,
-                T=0.0,
+                Mx=20.0,
+                Ty=0.0,
                 As_sup=1.2,
                 As_inf=0.6,
                 d_sup=5.0,
@@ -47,8 +88,8 @@ class TestVerificationTableDialogs(unittest.TestCase):
                 material_steel="S500",
                 n_homog=0.8,
                 N=5.0,
-                M=10.0,
-                T=1.0,
+                Mx=10.0,
+                Ty=1.0,
                 As_sup=2.0,
                 As_inf=1.0,
                 d_sup=6.0,
@@ -94,23 +135,7 @@ class TestVerificationTableDialogs(unittest.TestCase):
                 writer = csv.writer(fh, delimiter=';')
                 writer.writerow(header)
                 for r in self.make_sample_rows():
-                    writer.writerow([
-                        r.section_id,
-                        r.material_concrete,
-                        r.material_steel,
-                        r.n_homog,
-                        r.N,
-                        r.M,
-                        r.T,
-                        r.As_inf,
-                        r.As_sup,
-                        r.d_inf,
-                        r.d_sup,
-                        r.stirrup_step,
-                        r.stirrup_diameter,
-                        r.stirrup_material,
-                        r.notes,
-                    ])
+                    writer.writerow(_row_values_for_input(header, r))
 
             app = VerificationTableApp(self.root, initial_rows=0)
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
@@ -134,23 +159,7 @@ class TestVerificationTableDialogs(unittest.TestCase):
                 writer = csv.writer(fh, delimiter=';')
                 writer.writerow(bad_header)
                 for r in self.make_sample_rows():
-                    writer.writerow([
-                        r.section_id,
-                        r.material_concrete,
-                        r.material_steel,
-                        r.n_homog,
-                        r.N,
-                        r.M,
-                        r.T,
-                        r.As_inf,
-                        r.As_sup,
-                        r.d_inf,
-                        r.d_sup,
-                        r.stirrup_step,
-                        r.stirrup_diameter,
-                        r.stirrup_material,
-                        r.notes,
-                    ])
+                    writer.writerow(_row_values_for_input(header, r))
 
             app = VerificationTableApp(self.root, initial_rows=0)
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):
@@ -178,42 +187,15 @@ class TestVerificationTableDialogs(unittest.TestCase):
                 rows = self.make_sample_rows()
                 # prima riga valida
                 r = rows[0]
-                writer.writerow([
-                    r.section_id,
-                    r.material_concrete,
-                    r.material_steel,
-                    r.n_homog,
-                    r.N,
-                    r.M,
-                    r.T,
-                    r.As_inf,
-                    r.As_sup,
-                    r.d_inf,
-                    r.d_sup,
-                    r.stirrup_step,
-                    r.stirrup_diameter,
-                    r.stirrup_material,
-                    r.notes,
-                ])
+                writer.writerow(_row_values_for_input(header, r))
                 # seconda riga con valore numerico malformato (es. 'N')
                 r2 = rows[1]
-                writer.writerow([
-                    r2.section_id,
-                    r2.material_concrete,
-                    r2.material_steel,
-                    r2.n_homog,
-                    'not_a_number',  # N malformato
-                    r2.M,
-                    r2.T,
-                    r2.As_inf,
-                    r2.As_sup,
-                    r2.d_inf,
-                    r2.d_sup,
-                    r2.stirrup_step,
-                    r2.stirrup_diameter,
-                    r2.stirrup_material,
-                    r2.notes,
-                ])
+                malformed = _row_values_for_input(header, r2)
+                # overwrite N by header name
+                n_idx = header.index("N [kg]") if "N [kg]" in header else None
+                if n_idx is not None:
+                    malformed[n_idx] = 'not_a_number'
+                writer.writerow(malformed)
 
             app = VerificationTableApp(self.root, initial_rows=0)
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):

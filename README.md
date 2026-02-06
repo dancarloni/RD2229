@@ -150,6 +150,10 @@ data/
 2. Installare le dipendenze da [requirements.txt](requirements.txt).
 3. Usare i modelli in [src/rd2229](src/rd2229).
 
+## Note su dipendenze per test GUI
+- `pytest` e `matplotlib` sono richiesti per il test suite completo.
+- I test GUI richiedono Tk/Tcl installato e disponibile nel runtime Python.
+
 ## Demo: Verification Table (GUI)
 Per aprire la finestra "Verification Table" con alcuni casi di esempio (sezioni e materiali di test) usa lo script demo incluso:
 

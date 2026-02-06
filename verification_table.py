@@ -4,7 +4,7 @@ import math
 import logging
 import tkinter as tk
 from dataclasses import dataclass, InitVar
-from tkinter import messagebox, ttk, filedialog
+from tkinter import ttk, filedialog
 from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
 from typing import Dict, Iterable, List, Optional, Tuple
 import random
@@ -87,22 +87,22 @@ class VerificationInput:
     stirrup_material: str = ""
     notes: str = ""
     # Legacy Init vars to accept old keywords M and T in constructor
-    M: InitVar[Optional[float]] = None
-    T: InitVar[Optional[float]] = None
+    M_legacy: InitVar[Optional[float]] = None
+    T_legacy: InitVar[Optional[float]] = None
 
-    def __post_init__(self, M: Optional[float], T: Optional[float]) -> None:
+    def __post_init__(self, M_legacy: Optional[float], T_legacy: Optional[float]) -> None:
         # Map legacy init kwargs to new internal fields for backward compatibility
-        if M is not None:
+        if M_legacy is not None:
             try:
-                self.Mx = M
+                self.Mx = M_legacy
             except Exception:
                 # If Mx is a descriptor/property at class-level, force instance attribute
-                self.__dict__['Mx'] = M
-        if T is not None:
+                self.__dict__['Mx'] = M_legacy
+        if T_legacy is not None:
             try:
-                self.Ty = T
+                self.Ty = T_legacy
             except Exception:
-                self.__dict__['Ty'] = T
+                self.__dict__['Ty'] = T_legacy
 
         # Ensure numeric fields exist as instance attributes (avoid unexpected property objects)
         for field_name in ("Mx", "My", "Mz", "Tx", "Ty", "At", "As_sup", "As_inf"):

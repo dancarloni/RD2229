@@ -67,7 +67,7 @@ class TestHistoricalMaterialWindow(unittest.TestCase):
                 callback(True)
             return (lambda ans: None)
         from unittest.mock import patch
-        with patch('sections_app.services.notification.ask_confirm', side_effect=_fake_ask_confirm):
+        with patch('sections_app.ui.historical_material_window.ask_confirm', side_effect=_fake_ask_confirm):
             win._on_delete()
         win._refresh_table()
         codes = [win.tree.set(i, "code") for i in win.tree.get_children()]

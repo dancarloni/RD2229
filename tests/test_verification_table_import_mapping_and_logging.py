@@ -8,6 +8,47 @@ from unittest.mock import patch
 from verification_table import VerificationTableApp, VerificationInput, logger
 
 
+def _col_to_attr(col: str) -> str:
+    mapping = {
+        "element": "element_name",
+        "section": "section_id",
+        "verif_method": "verification_method",
+        "mat_concrete": "material_concrete",
+        "mat_steel": "material_steel",
+        "n": "n_homog",
+        "N": "N",
+        "Mx": "Mx",
+        "My": "My",
+        "Mz": "Mz",
+        "Tx": "Tx",
+        "Ty": "Ty",
+        "At": "At",
+        "As_p": "As_inf",
+        "As": "As_sup",
+        "d_p": "d_inf",
+        "d": "d_sup",
+        "stirrups_step": "stirrup_step",
+        "stirrups_diam": "stirrup_diameter",
+        "stirrups_mat": "stirrup_material",
+        "notes": "notes",
+    }
+    return mapping.get(col, col)
+
+
+def _row_values_for_input(header: list[str], inp: VerificationInput) -> list[object]:
+    from verification_table import COLUMNS
+    key_by_label = {label: key for key, label, _w, _a in COLUMNS}
+    out = []
+    for label in header:
+        key = key_by_label.get(label)
+        if key is None:
+            out.append("")
+            continue
+        attr = _col_to_attr(key)
+        out.append(getattr(inp, attr, ""))
+    return out
+
+
 class TestImportMappingAndLogging(unittest.TestCase):
     def setUp(self) -> None:
         try:
@@ -31,8 +72,8 @@ class TestImportMappingAndLogging(unittest.TestCase):
                 material_steel="S400",
                 n_homog=1.0,
                 N=10.0,
-                M=20.0,
-                T=0.0,
+                Mx=20.0,
+                Ty=0.0,
                 As_sup=1.2,
                 As_inf=0.6,
                 d_sup=5.0,
@@ -49,8 +90,8 @@ class TestImportMappingAndLogging(unittest.TestCase):
                 material_steel="S500",
                 n_homog=0.8,
                 N=5.0,
-                M=10.0,
-                T=1.0,
+                Mx=10.0,
+                Ty=1.0,
                 As_sup=2.0,
                 As_inf=1.0,
                 d_sup=6.0,
@@ -73,25 +114,7 @@ class TestImportMappingAndLogging(unittest.TestCase):
                 w = csv.writer(fh, delimiter=';')
                 w.writerow(perm)
                 for r in self.make_sample_rows():
-                    # costruiamo i valori in base all'header permutato (file con header riorganizzato)
-                    mapping = {
-                        header[0]: r.section_id,
-                        header[1]: r.verification_method,
-                        header[2]: r.material_concrete,
-                        header[3]: r.material_steel,
-                        header[4]: r.n_homog,
-                        header[5]: r.N,
-                        header[6]: r.M,
-                        header[7]: r.T,
-                        header[8]: r.As_inf,
-                        header[9]: r.As_sup,
-                        header[10]: r.d_inf,
-                        header[11]: r.d_sup,
-                        header[12]: r.stirrup_step,
-                        header[13]: r.stirrup_diameter,
-                        header[14]: r.stirrup_material,
-                        header[15]: r.notes,
-                    }
+                    mapping = {h: v for h, v in zip(header, _row_values_for_input(header, r))}
                     row_values = [mapping[col] for col in perm]
                     w.writerow(row_values)
 
@@ -122,42 +145,14 @@ class TestImportMappingAndLogging(unittest.TestCase):
                 rows = self.make_sample_rows()
                 # prima riga valida
                 r = rows[0]
-                w.writerow([
-                    r.section_id,
-                    r.material_concrete,
-                    r.material_steel,
-                    r.n_homog,
-                    r.N,
-                    r.M,
-                    r.T,
-                    r.As_inf,
-                    r.As_sup,
-                    r.d_inf,
-                    r.d_sup,
-                    r.stirrup_step,
-                    r.stirrup_diameter,
-                    r.stirrup_material,
-                    r.notes,
-                ])
+                w.writerow(_row_values_for_input(header, r))
                 # seconda riga malformata: N è 'not_a_number'
                 r2 = rows[1]
-                w.writerow([
-                    r2.section_id,
-                    r2.material_concrete,
-                    r2.material_steel,
-                    r2.n_homog,
-                    'not_a_number',
-                    r2.M,
-                    r2.T,
-                    r2.As_inf,
-                    r2.As_sup,
-                    r2.d_inf,
-                    r2.d_sup,
-                    r2.stirrup_step,
-                    r2.stirrup_diameter,
-                    r2.stirrup_material,
-                    r2.notes,
-                ])
+                malformed = _row_values_for_input(header, r2)
+                n_idx = header.index("N [kg]") if "N [kg]" in header else None
+                if n_idx is not None:
+                    malformed[n_idx] = 'not_a_number'
+                w.writerow(malformed)
 
             app = VerificationTableApp(self.root, initial_rows=0)
             with patch('tkinter.filedialog.askopenfilename', return_value=tmp.name):

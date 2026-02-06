@@ -20,6 +20,7 @@ def test_center_records_info_notifications():
 def test_confirm_responder_invokes_callback():
     center = NotificationCenter(master=None)
     EventBus().clear()
+    EventBus().subscribe(NOTIFICATION, center._on_notification)
     results = []
 
     def cb(ans):

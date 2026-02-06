@@ -1,3 +1,7 @@
+import pytest
+
+pytest.importorskip("matplotlib")
+
 from sections_app.ui.verification_comparator import VerificationComparatorWindow
 
 

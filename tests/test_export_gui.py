@@ -9,7 +9,6 @@ import tempfile
 import unittest
 import tkinter as tk
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 from sections_app.ui.module_selector import ModuleSelectorWindow
 from sections_app.services.repository import SectionRepository, CsvSectionSerializer
@@ -50,7 +49,10 @@ class TestExportBackupGUI(unittest.TestCase):
 
     def test_module_selector_has_menu(self):
         """Test: ModuleSelectorWindow ha il menu File."""
-        window = ModuleSelectorWindow(self.section_repo, self.serializer, self.material_repo)
+        try:
+            window = ModuleSelectorWindow(self.section_repo, self.serializer, self.material_repo)
+        except tk.TclError:
+            self.skipTest("Tkinter not available in this environment")
         
         # Verifica che esista il menu
         menubar = window.nametowidget(window.cget('menu'))
@@ -59,37 +61,10 @@ class TestExportBackupGUI(unittest.TestCase):
         # Chiudi la finestra
         window.destroy()
 
-    @patch('sections_app.ui.module_selector.filedialog.asksaveasfilename')
-    @patch('sections_app.ui.module_selector.notify_info')
-    def test_export_sections_json(self, mock_showinfo, mock_asksaveasfilename):
+    def test_export_sections_json(self):
         """Test: Export sezioni in JSON dalla GUI."""
         export_path = self.temp_path / "export_test.json"
-        mock_asksaveasfilename.return_value = str(export_path)
-        
-        window = ModuleSelectorWindow(self.section_repo, self.serializer, self.material_repo)
-        
-        # Simula la scelta "sezioni" nel dialog
-        with patch.object(window, 'wait_window'):
-            with patch('tkinter.Toplevel') as mock_toplevel:
-                # Simula immediatamente la scelta "sezioni"
-                def fake_wait_window(dialog):
-                    # Trova il callback per "sezioni" e chiamalo
-                    pass
-                
-                # Chiamiamo direttamente il metodo di export
-                # Dobbiamo simulare la scelta dell'utente
-                original_export = window._export_backup
-                
-                def mock_export():
-                    # Simula scelta "sezioni"
-                    file_path = str(export_path)
-                    try:
-                        window.section_repository.export_backup(file_path)
-                        # Non chiamiamo messagebox durante il test
-                    except Exception as e:
-                        pass
-                
-                mock_export()
+        self.section_repo.export_backup(str(export_path))
         
         # Verifica che il file sia stato creato
         self.assertTrue(export_path.exists())
@@ -99,7 +74,6 @@ class TestExportBackupGUI(unittest.TestCase):
             data = json.load(f)
         self.assertEqual(len(data), 1)
         
-        window.destroy()
 
     def test_material_repository_export_backup(self):
         """Test: MaterialRepository.export_backup() funziona."""

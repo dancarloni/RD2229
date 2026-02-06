@@ -2,7 +2,9 @@ import unittest
 import tkinter as tk
 from unittest.mock import patch, MagicMock
 import os
-os.environ['DISPLAY'] = ':0'
+import sys
+if os.name != "nt" and "DISPLAY" not in os.environ:
+    os.environ["DISPLAY"] = ":0"
 
 from sections_app.services.repository import SectionRepository, CsvSectionSerializer
 from sections_app.ui.module_selector import ModuleSelectorWindow
