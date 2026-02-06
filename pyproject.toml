@@ -19,3 +19,13 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 
 # mypy strictness per package can be configured in mypy.ini or here under [tool.mypy-<package>]
+
+# Prevent setuptools from accidentally discovering every top-level directory
+# and failing the editable install in CI. Limit package discovery to the
+# actively linted/typed packages used by CI.
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*", "core*", "core_models*"]
