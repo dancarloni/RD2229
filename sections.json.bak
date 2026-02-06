@@ -1,6 +1,6 @@
 [
   {
-    "id": "b9301b1e-364a-401d-8fc6-e3d2479b2e7c",
+    "id": "daa88992-289b-4c02-a299-5f3ff9a49929",
     "name": "Rect-20x30",
     "section_type": "RECTANGULAR",
     "rotation_angle_deg": 0.0,
@@ -26,11 +26,6 @@
     "Ix": 45000.0,
     "Iy": 20000.0,
     "Ixy": 0.0,
-    "I1": 45000.0,
-    "I2": 20000.0,
-    "principal_angle_deg": 0.0,
-    "principal_rx": 8.660254037844387,
-    "principal_ry": 5.773502691896258,
     "Qx": 9000.0,
     "Qy": 6000.0,
     "rx": 8.660254037844387,

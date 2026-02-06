@@ -82,9 +82,30 @@ class VerificationInput:
     def __post_init__(self, M: Optional[float], T: Optional[float]) -> None:
         # Map legacy init kwargs to new internal fields for backward compatibility
         if M is not None:
-            self.Mx = M
+            try:
+                self.Mx = M
+            except Exception:
+                # If Mx is a descriptor/property at class-level, force instance attribute
+                self.__dict__['Mx'] = M
         if T is not None:
-            self.Ty = T
+            try:
+                self.Ty = T
+            except Exception:
+                self.__dict__['Ty'] = T
+
+        # Ensure numeric fields exist as instance attributes (avoid unexpected property objects)
+        for field_name in ("Mx", "My", "Mz", "Tx", "Ty", "At", "As_sup", "As_inf"):
+            val = self.__dict__.get(field_name, None)
+            if not isinstance(val, (int, float)):
+                try:
+                    # Try reading attribute (could be descriptor)
+                    candidate = getattr(self, field_name)
+                    if isinstance(candidate, (int, float)):
+                        self.__dict__[field_name] = candidate
+                    else:
+                        self.__dict__[field_name] = 0.0
+                except Exception:
+                    self.__dict__[field_name] = 0.0
 
     # Legacy field support for backward compatibility via properties
     @property

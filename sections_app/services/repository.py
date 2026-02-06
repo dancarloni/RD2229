@@ -39,18 +39,20 @@ class SectionRepository:
             auto_migrate = not (no_migrate in ("1", "true", "yes"))
 
         # Se l'utente ha passato un path esplicito, lo usiamo così com'è
+        self._explicit_json_file = json_file is not None
         if json_file is not None:
             self._json_file = json_file
             self._file_path = Path(json_file)
         else:
-            # Usare il canonical e provare a migrare il legacy se necessario
+            # Usare il canonical come fallback, ma provare prima a migrare qualsiasi legacy
             canonical = Path(self.DEFAULT_JSON_FILE)
             self._json_file = str(canonical)
             self._file_path = canonical
-            if auto_migrate and not canonical.exists():
+            if auto_migrate:
                 # Cerca `sections.json` in posizioni legacy (cwd, root progetto)
                 project_root = Path(__file__).resolve().parents[2]
                 candidates = [Path("sections.json").resolve(), (project_root / "sections.json").resolve()]
+                migrated = False
                 for cand in candidates:
                     if cand.exists():
                         try:
@@ -65,9 +67,10 @@ class SectionRepository:
                             if not local_canonical.parent.exists():
                                 local_canonical.parent.mkdir(parents=True, exist_ok=True)
 
-                            # Scrivi il file canonical locale
-                            with local_canonical.open("w", encoding="utf-8") as f:
-                                json.dump(data, f, indent=2, ensure_ascii=False)
+                            # Scrivi il file canonical locale (se non esiste già)
+                            if not local_canonical.exists():
+                                with local_canonical.open("w", encoding="utf-8") as f:
+                                    json.dump(data, f, indent=2, ensure_ascii=False)
 
                             # Aggiorna file path attivo per questo repository in modo che punti al locale
                             self._json_file = str(local_canonical)
@@ -85,15 +88,39 @@ class SectionRepository:
                             except Exception:
                                 # Headless o ambiente non-GUI: silenziamo la messagebox
                                 pass
+
+                            migrated = True
                         except Exception:
                             logger.exception("Errore durante la migrazione di %s", cand)
                         break
+                if not migrated:
+                    logger.debug("Nessun file legacy trovato per la migrazione; user default canonical: %s", canonical)
 
         # Percorsi per backup
         self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
 
         # Carica le sezioni dal file JSON se esiste
         self.load_from_file()
+
+        # Se il file locale (es. migrazione) non ha prodotto sezioni valide,
+        # prova a caricare il file canonical globale come fallback, SOLO se
+        # l'utente non ha passato un percorso esplicito (compatibilità con test)
+        try:
+            if (
+                not self._sections
+                and not getattr(self, "_explicit_json_file", False)
+                and Path(self.DEFAULT_JSON_FILE).exists()
+                and self._file_path.resolve() != Path(self.DEFAULT_JSON_FILE).resolve()
+            ):
+                logger.warning(
+                    "File locale %s non ha prodotto sezioni valide; provo a caricare il canonical globale %s",
+                    self._file_path, Path(self.DEFAULT_JSON_FILE)
+                )
+                self._file_path = Path(self.DEFAULT_JSON_FILE)
+                self._json_file = str(self._file_path)
+                self.load_from_file()
+        except Exception:
+            logger.exception("Errore durante il tentativo di fallback al canonical globale")
 
     def add_section(self, section: Section) -> bool:
         """Aggiunge una sezione se non duplicata. Ritorna True se aggiunta.
