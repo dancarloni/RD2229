@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
@@ -470,6 +471,21 @@ class MainWindow(tk.Toplevel):
             width=20,
         ).grid(row=3, column=0, columnspan=2, padx=4, pady=2)
 
+            self.display_frame = tk.Frame(self.left_frame)
+            self.display_frame.pack(fill="x", pady=(0, 8))
+            self.show_ellipse_var = tk.BooleanVar(value=True)
+            self.show_core_var = tk.BooleanVar(value=True)
+            tk.Checkbutton(
+                self.display_frame,
+                text="Mostra ellisse inerzia",
+                variable=self.show_ellipse_var,
+            ).pack(anchor="w")
+            tk.Checkbutton(
+                self.display_frame,
+                text="Mostra nocciolo",
+                variable=self.show_core_var,
+            ).pack(anchor="w")
+
         # Pulsante per aprire l'Editor Materiali (coerente con il resto dei bottoni)
         # Posizionato sotto gli altri bottoni e collegato a `open_material_manager`.
         tk.Button(
@@ -734,10 +750,17 @@ class MainWindow(tk.Toplevel):
         self._show_properties(props, section)
 
     def show_graphic(self) -> None:
-        if not self.current_section or not self.current_section.properties:
-            messagebox.showinfo("Info", "Calcola prima le proprietà")
+        section = self._build_section_from_inputs()
+        if not section:
             return
-        self._draw_section(self.current_section)
+        try:
+            section.compute_properties()
+        except Exception as e:
+            logger.exception("Errore nel calcolo proprietà: %s", e)
+            messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {e}")
+            return
+        self.current_section = section
+        self._draw_section(section)
 
     def _show_properties(self, props, section: Section) -> None:
         output = (
@@ -792,8 +815,10 @@ class MainWindow(tk.Toplevel):
 
         if section.properties:
             self._draw_centroid(section, transform)
-            self._draw_ellipse(section, transform)
-            self._draw_core(section, transform)
+            if getattr(self, "show_ellipse_var", None) is None or self.show_ellipse_var.get():
+                self._draw_ellipse(section, transform)
+            if getattr(self, "show_core_var", None) is None or self.show_core_var.get():
+                self._draw_core(section, transform)
 
     def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> Tuple[float, float]:
         """Ruota un punto (x,y) attorno a (cx,cy) di angle_deg gradi."""
@@ -1096,26 +1121,40 @@ class MainWindow(tk.Toplevel):
         if not props:
             return
         height = self._section_dimensions(section)[1]
-        x0 = props.centroid_x - props.ellipse_b
-        x1 = props.centroid_x + props.ellipse_b
-        y0 = props.centroid_y - props.ellipse_a
-        y1 = props.centroid_y + props.ellipse_a
-        cx0, cy0 = transform.to_canvas(x0, y0, height)
-        cx1, cy1 = transform.to_canvas(x1, y1, height)
-        self.canvas.create_oval(cx0, cy0, cx1, cy1, outline="#ff7f0e", dash=(4, 2))
+        if props.ellipse_a is None or props.ellipse_b is None:
+            return
+        angle_deg = props.principal_angle_deg or 0.0
+        points = []
+        steps = 60
+        for i in range(steps + 1):
+            t = (2 * math.pi * i) / steps
+            x = props.centroid_x + props.ellipse_b * math.cos(t)
+            y = props.centroid_y + props.ellipse_a * math.sin(t)
+            x_rot, y_rot = self._rotate_point(x, y, props.centroid_x, props.centroid_y, angle_deg)
+            cx, cy = transform.to_canvas(x_rot, y_rot, height)
+            points.extend([cx, cy])
+        self.canvas.create_line(points, fill="#ff7f0e", dash=(4, 2), smooth=True)
 
     def _draw_core(self, section: Section, transform) -> None:
         props = section.properties
         if not props:
             return
         height = self._section_dimensions(section)[1]
-        x0 = props.centroid_x - props.core_x
-        x1 = props.centroid_x + props.core_x
-        y0 = props.centroid_y - props.core_y
-        y1 = props.centroid_y + props.core_y
-        cx0, cy0 = transform.to_canvas(x0, y0, height)
-        cx1, cy1 = transform.to_canvas(x1, y1, height)
-        self.canvas.create_rectangle(cx0, cy0, cx1, cy1, outline="#2ca02c", dash=(2, 2))
+        if props.core_x is None or props.core_y is None:
+            return
+        angle_deg = props.principal_angle_deg or 0.0
+        corners = [
+            (props.centroid_x - props.core_x, props.centroid_y - props.core_y),
+            (props.centroid_x + props.core_x, props.centroid_y - props.core_y),
+            (props.centroid_x + props.core_x, props.centroid_y + props.core_y),
+            (props.centroid_x - props.core_x, props.centroid_y + props.core_y),
+        ]
+        points = []
+        for x, y in corners:
+            x_rot, y_rot = self._rotate_point(x, y, props.centroid_x, props.centroid_y, angle_deg)
+            cx, cy = transform.to_canvas(x_rot, y_rot, height)
+            points.extend([cx, cy])
+        self.canvas.create_polygon(points, outline="#2ca02c", dash=(2, 2), fill="")
 
     def save_section(self) -> None:
         # OBIETTIVO 3+4: Costruisce sezione e gestisce correttamente nuova vs modifica

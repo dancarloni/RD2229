@@ -21,6 +21,9 @@ from core.verification_core import (
     VerificationResult,
     calculate_neutral_axis_simple_bending,
     calculate_stresses_simple_bending,
+    calculate_neutral_axis_deviated_bending,
+    calculate_stresses_deviated_bending,
+    calculate_shear_torsion_stresses,
     verify_allowable_stresses,
 )
 
@@ -173,6 +176,7 @@ class VerificationEngine:
         # Initialize result
         neutral_axis = NeutralAxis()
         stress_state = StressState()
+        approx_notes = []
         
         # Perform calculation based on verification type
         if verif_type in [VerificationType.BENDING_SIMPLE, VerificationType.AXIAL_BENDING_SIMPLE]:
@@ -201,17 +205,54 @@ class VerificationEngine:
                 frc_area=frc_area,
             )
         
-        elif verif_type == VerificationType.BENDING_DEVIATED:
-            # Deviated bending - future implementation
-            logger.warning("Deviated bending not yet fully implemented")
+        elif verif_type in [VerificationType.BENDING_DEVIATED, VerificationType.AXIAL_BENDING_DEVIATED]:
+            neutral_axis = calculate_neutral_axis_deviated_bending(
+                section=section,
+                reinforcement_tensile=reinforcement_tensile,
+                reinforcement_compressed=reinforcement_compressed,
+                material=material,
+                Mx=loads.Mx,
+                My=loads.My,
+                N=loads.N,
+                method=self.calculation_code,
+            )
+            stress_state = calculate_stresses_deviated_bending(
+                section=section,
+                reinforcement_tensile=reinforcement_tensile,
+                reinforcement_compressed=reinforcement_compressed,
+                material=material,
+                Mx=loads.Mx,
+                My=loads.My,
+                N=loads.N,
+                neutral_axis=neutral_axis,
+                method=self.calculation_code,
+            )
+            approx_notes.append("Deviated bending handled with iterative neutral axis (SLU)")
+            logger.info("Deviated bending handled with iterative neutral axis (SLU)")
         
-        elif verif_type == VerificationType.SHEAR:
-            # Shear verification - future implementation
-            logger.warning("Shear verification not yet fully implemented")
-        
-        elif verif_type == VerificationType.TORSION:
-            # Torsion verification - future implementation
-            logger.warning("Torsion verification not yet fully implemented")
+        elif verif_type in [VerificationType.SHEAR, VerificationType.TORSION, VerificationType.SHEAR_TORSION]:
+            stress_state = calculate_shear_torsion_stresses(
+                section=section,
+                loads=loads,
+                reinforcement_area=loads.At,
+                material=material,
+            )
+            # Estimate torsion reinforcement requirement
+            try:
+                from core.verification_core import estimate_required_torsion_reinforcement
+                At_req = estimate_required_torsion_reinforcement(section, reinforcement_tensile, loads, material)
+                if loads.At and loads.At > 0 and At_req > 0:
+                    if loads.At < At_req:
+                        approx_notes.append(f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², fornita {loads.At:.3f} cm²")
+                    else:
+                        approx_notes.append(f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², fornita {loads.At:.3f} cm²")
+                elif At_req > 0:
+                    approx_notes.append(f"Armatura torsione richiesta ≈ {At_req:.3f} cm² (nessun At fornita)")
+            except Exception:
+                logger.exception("Errore stima armatura torsione")
+
+            approx_notes.append("Shear/torsion handled with simplified stress approximation")
+            logger.info("Shear/torsion handled with simplified stress approximation")
         
         else:
             logger.warning(f"Verification type {verif_type} not yet implemented")
@@ -223,6 +264,8 @@ class VerificationEngine:
             sigma_c_adm=sigma_c_adm,
             sigma_s_adm=sigma_s_adm
         )
+        if approx_notes:
+            messages.extend(approx_notes)
         
         # Create result
         result = VerificationResult(

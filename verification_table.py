@@ -45,6 +45,15 @@ try:
 except Exception:
     VerificationProject = None
 
+try:
+    from core.verification_engine import create_verification_engine
+    from core.verification_core import SectionGeometry, ReinforcementLayer, LoadCase
+except Exception:  # pragma: no cover - optional engine
+    create_verification_engine = None  # type: ignore
+    SectionGeometry = None  # type: ignore
+    ReinforcementLayer = None  # type: ignore
+    LoadCase = None  # type: ignore
+
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +64,7 @@ MPA_TO_KGCM2 = 10.197
 
 @dataclass
 class VerificationInput:
+    element_name: str = ""
     section_id: str = ""
     verification_method: str = "TA"
     material_concrete: str = ""
@@ -284,6 +294,74 @@ def get_steel_properties(
     return fyk_mpa, fyk_kgcm2, sigma_fa
 
 
+def _compute_with_engine(
+    _input: VerificationInput,
+    section_repository: Optional["SectionRepository"],
+    material_repository: Optional["MaterialRepository"],
+) -> Optional[VerificationOutput]:
+    if create_verification_engine is None or SectionGeometry is None:
+        return None
+
+    try:
+        b_cm, h_cm = get_section_geometry(_input, section_repository, unit="cm")
+        fck_mpa, fck_kgcm2, _sigma_ca = get_concrete_properties(_input, material_repository)
+        fyk_mpa, fyk_kgcm2, _sigma_fa = get_steel_properties(_input, material_repository)
+
+        section = SectionGeometry(width=b_cm, height=h_cm)
+        d_top = _input.d_sup if _input.d_sup > 0 else 4.0
+        d_bottom = _input.d_inf if _input.d_inf > 0 else 4.0
+        reinforcement_compressed = ReinforcementLayer(area=_input.As_sup, distance=d_top)
+        reinforcement_tensile = ReinforcementLayer(area=_input.As_inf, distance=h_cm - d_bottom)
+
+        loads = LoadCase(
+            N=_input.N,
+            Mx=_input.Mx,
+            My=_input.My,
+            Mz=_input.Mz,
+            Tx=_input.Tx,
+            Ty=_input.Ty,
+            At=_input.At,
+        )
+
+        code = (_input.verification_method or "TA").upper()
+        engine = create_verification_engine(code)
+        material = engine.get_material_properties(
+            _input.material_concrete or "",
+            _input.material_steel or "",
+            material_source="RD2229" if code == "TA" else "NTC2018",
+        )
+        # Override with repository-derived strengths when available
+        if fck_kgcm2 > 0:
+            material.fck = fck_kgcm2
+        if fyk_kgcm2 > 0:
+            material.fyk = fyk_kgcm2
+
+        result = engine.perform_verification(
+            section=section,
+            reinforcement_tensile=reinforcement_tensile,
+            reinforcement_compressed=reinforcement_compressed,
+            material=material,
+            loads=loads,
+        )
+
+        return VerificationOutput(
+            sigma_c_max=result.stress_state.sigma_c_max,
+            sigma_c_min=result.stress_state.sigma_c_min,
+            sigma_s_max=result.stress_state.sigma_s_tensile,
+            asse_neutro=result.neutral_axis.x,
+            asse_neutro_x=result.neutral_axis.x,
+            asse_neutro_y=result.neutral_axis.y,
+            inclinazione_asse_neutro=result.neutral_axis.inclination,
+            deformazioni=f"x/h = {result.neutral_axis.depth_ratio(h_cm):.3f}",
+            coeff_sicurezza=max(result.utilization_concrete, result.utilization_steel),
+            esito="VERIFICATO" if result.is_verified else "NON VERIFICATO",
+            messaggi=result.messages,
+        )
+    except Exception:
+        logger.exception("Errore durante il calcolo via core engine")
+        return None
+
+
 def compute_ta_verification(
     _input: VerificationInput,
     section_repository: Optional["SectionRepository"] = None,
@@ -312,9 +390,10 @@ def compute_ta_verification(
         # 1. RECUPERO PARAMETRI DA INPUT
         # Sollecitazioni (convertire M in kg·cm)
         N = _input.N  # kg (>0 trazione, <0 compressione)
-        M_kgm = _input.M  # kg·m
+        primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
+        M_kgm = primary_m  # kg·m
         M = M_kgm * 100  # kg·cm (momento flettente)
-        T = _input.T  # kg (taglio, non usato per verifica a flessione)
+        T = _input.Ty  # kg (taglio, non usato per verifica a flessione)
 
         # Coefficiente omogeneizzazione
         n = _input.n_homog if _input.n_homog > 0 else 15.0  # default
@@ -424,7 +503,7 @@ def compute_ta_verification(
             f"  Armatura inferiore As = {As_inf:.2f} cm²",
             f"  Armatura superiore As' = {As_sup:.2f} cm²",
             f"  Coefficiente omogeneizzazione n = {n:.1f}",
-            f"  Sollecitazioni: N = {N:.0f} kg, M = {M_kgm:.2f} kg·m ({M:.0f} kg·cm)",
+            f"  Sollecitazioni: N = {N:.0f} kg, Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
             "",
             "TENSIONI AMMISSIBILI:",
             f"  Calcestruzzo σ_ca = {sigma_ca:.1f} Kg/cm²",
@@ -496,8 +575,9 @@ def compute_slu_verification(
         # Sollecitazioni (NTC usa kN e kNm, ma input è in kg e kg·m)
         # Conversione: 1 kg = 0.00980665 kN ≈ 0.01 kN (approssimazione)
         N_kg = _input.N  # kg
-        M_kgm = _input.M  # kg·m
-        T_kg = _input.T  # kg
+        primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
+        M_kgm = primary_m  # kg·m
+        T_kg = _input.Ty  # kg
 
         # Convertire in N e Nmm per calcoli interni (più comodo)
         N = N_kg * 9.80665  # N
@@ -587,7 +667,7 @@ def compute_slu_verification(
             f"  Dimensioni: B = {B/10:.1f} cm, H = {H/10:.1f} cm, d = {d/10:.1f} cm",
             f"  Armatura inferiore As = {As_inf/100:.2f} cm²",
             f"  Armatura superiore As' = {As_sup/100:.2f} cm²",
-            f"  Sollecitazioni: N = {N_kg:.0f} kg, M = {M_kgm:.2f} kg·m",
+            f"  Sollecitazioni: N = {N_kg:.0f} kg, Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
             "",
             "RESISTENZE MATERIALI:",
             f"  Calcestruzzo fck = {fck:.0f} MPa → fcd = {fcd:.1f} MPa ({fcd_kgcm2:.1f} Kg/cm²)",
@@ -656,7 +736,8 @@ def compute_sle_verification(
     try:
         # 1. RECUPERO PARAMETRI
         N_kg = _input.N  # kg
-        M_kgm = _input.M  # kg·m
+        primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
+        M_kgm = primary_m  # kg·m
         M = M_kgm * 100  # kg·cm
 
         n = _input.n_homog if _input.n_homog > 0 else 15.0
@@ -752,7 +833,7 @@ def compute_sle_verification(
             f"  Dimensioni: B = {B:.1f} cm, H = {H:.1f} cm, d = {d:.1f} cm",
             f"  Armatura inferiore As = {As_inf:.2f} cm²",
             f"  Coeff. omogeneizzazione n = {n:.1f}",
-            f"  Sollecitazioni: M = {M_kgm:.2f} kg·m",
+            f"  Sollecitazioni: Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
             "",
             "LIMITI TENSIONI SLE:",
             f"  Cls σ_c,lim = 0.6·fck = {sigma_c_lim:.1f} Kg/cm²",
@@ -834,6 +915,11 @@ def compute_verification_result(
     """
     method = (_input.verification_method or "").upper().strip()
 
+    if method in ("TA", "SLU", "SLE"):
+        engine_result = _compute_with_engine(_input, section_repository, material_repository)
+        if engine_result is not None:
+            return engine_result
+
     if method == "TA":
         return compute_ta_verification(_input, section_repository, material_repository)
     elif method == "SLU":
@@ -860,14 +946,19 @@ def compute_verification_result(
 
 
 COLUMNS: List[ColumnDef] = [
+    ("element", "Elemento", 160, "w"),
     ("section", "Sezione", 170, "w"),
     ("verif_method", "Metodo verifica", 120, "center"),
     ("mat_concrete", "Materiale cls", 140, "w"),
     ("mat_steel", "Materiale acciaio", 140, "w"),
     ("n", "Coeff. n", 75, "center"),
     ("N", "N [kg]", 80, "center"),
-    ("M", "M [kg·m]", 90, "center"),
-    ("T", "T [kg]", 80, "center"),
+    ("Mx", "Mx [kg·m]", 90, "center"),
+    ("My", "My [kg·m]", 90, "center"),
+    ("Mz", "Mz [kg·m]", 90, "center"),
+    ("Tx", "Tx [kg]", 80, "center"),
+    ("Ty", "Ty [kg]", 80, "center"),
+    ("At", "At [cm²]", 80, "center"),
     ("As_p", "As' [cm²]", 90, "center"),
     ("As", "As [cm²]", 90, "center"),
     ("d_p", "d' [cm]", 80, "center"),
@@ -973,14 +1064,19 @@ class VerificationTableApp(tk.Frame):
                 return 0.0
 
         return VerificationInput(
+            element_name=get("element"),
             section_id=get("section"),
             verification_method=get("verif_method"),
             material_concrete=get("mat_concrete"),
             material_steel=get("mat_steel"),
             n_homog=num("n"),
             N=num("N"),
-            M=num("M"),
-            T=num("T"),
+            Mx=num("Mx"),
+            My=num("My"),
+            Mz=num("Mz"),
+            Tx=num("Tx"),
+            Ty=num("Ty"),
+            At=num("At"),
             As_sup=num("As"),
             As_inf=num("As_p"),
             d_sup=num("d"),
@@ -996,14 +1092,19 @@ class VerificationTableApp(tk.Frame):
             raise IndexError("row_index out of range")
         item = items[row_index]
         values_map = {
+            "element": model.element_name,
             "section": model.section_id,
             "verif_method": model.verification_method,
             "mat_concrete": model.material_concrete,
             "mat_steel": model.material_steel,
             "n": model.n_homog,
             "N": model.N,
-            "M": model.M,
-            "T": model.T,
+            "Mx": model.Mx,
+            "My": model.My,
+            "Mz": model.Mz,
+            "Tx": model.Tx,
+            "Ty": model.Ty,
+            "At": model.At,
             "As": model.As_sup,
             "As_p": model.As_inf,
             "d": model.d_sup,
@@ -1927,14 +2028,19 @@ class VerificationTableApp(tk.Frame):
     def _col_to_attr(self, col: str) -> str:
         """Mappa la colonna (key) all'attributo del dataclass VerificationInput."""
         mapping = {
+            "element": "element_name",
             "section": "section_id",
             "verif_method": "verification_method",
             "mat_concrete": "material_concrete",
             "mat_steel": "material_steel",
             "n": "n_homog",
             "N": "N",
-            "M": "M",
-            "T": "T",
+            "Mx": "Mx",
+            "My": "My",
+            "Mz": "Mz",
+            "Tx": "Tx",
+            "Ty": "Ty",
+            "At": "At",
             "As_p": "As_inf",
             "As": "As_sup",
             "d_p": "d_inf",
@@ -2008,7 +2114,9 @@ class VerificationTableApp(tk.Frame):
             self.verification_items_repository.clear()
             for idx, inp in enumerate(rows, start=1):
                 item_id = f"E{idx:03d}"
-                name = (inp.notes.strip() if getattr(inp, "notes", None) else "") or f"Elemento {idx}"
+                name = (inp.element_name.strip() if getattr(inp, "element_name", None) else "")
+                if not name:
+                    name = (inp.notes.strip() if getattr(inp, "notes", None) else "") or f"Elemento {idx}"
                 item = VerificationItem(id=item_id, name=name, input=inp)
                 self.verification_items_repository.save(item)
             logger.info("Salvati %d elementi nel repository", len(rows))
@@ -2036,14 +2144,19 @@ class VerificationTableApp(tk.Frame):
             return default
 
         return VerificationInput(
+            element_name=pick("element_name", "name", "elemento", "element", "id"),
             section_id=pick("section_id", "section", "section_name"),
             verification_method=pick("method", "verification_method", "verif_method", "TA"),
             material_concrete=pick("cls_id", "mat_concrete", "material_concrete", ""),
             material_steel=pick("steel_id", "mat_steel", "material_steel", ""),
             n_homog=float(pick("coeff_n", "n", 15.0) or 15.0),
             N=float(pick("N", 0.0) or 0.0),
-            M=float(pick("M", 0.0) or 0.0),
-            T=float(pick("T", 0.0) or 0.0),
+            Mx=float(pick("Mx", "M", 0.0) or 0.0),
+            My=float(pick("My", 0.0) or 0.0),
+            Mz=float(pick("Mz", 0.0) or 0.0),
+            Tx=float(pick("Tx", 0.0) or 0.0),
+            Ty=float(pick("Ty", "T", 0.0) or 0.0),
+            At=float(pick("At", 0.0) or 0.0),
             As_sup=float(pick("As", "As_sup", "As_sup_cm", 0.0) or 0.0),
             As_inf=float(pick("As_p", "As_inf", "As_inf_cm", 0.0) or 0.0),
             d_sup=float(pick("d", "d_sup", 4.0) or 4.0),
@@ -2051,7 +2164,7 @@ class VerificationTableApp(tk.Frame):
             stirrup_step=float(pick("passo_staffe", "stirrups_step", 0.0) or 0.0),
             stirrup_diameter=float(pick("stirrups_diam", "stirrups_diameter", 0.0) or 0.0),
             stirrup_material=pick("stirrups_mat", "stirrups_material", ""),
-            notes=pick("notes", "name", "") or "",
+            notes=pick("notes", "") or "",
         )
 
     def _on_load_project(self) -> None:
@@ -2153,13 +2266,18 @@ class VerificationTableApp(tk.Frame):
         for idx, r in enumerate(rows, start=1):
             el = {
                 "id": f"E{idx:03d}",
+                "name": r.element_name,
                 "section_id": r.section_id,
                 "cls_id": r.material_concrete,
                 "steel_id": r.material_steel,
                 "method": r.verification_method,
                 "N": r.N,
-                "M": r.M,
-                "T": r.T,
+                "Mx": r.Mx,
+                "My": r.My,
+                "Mz": r.Mz,
+                "Tx": r.Tx,
+                "Ty": r.Ty,
+                "At": r.At,
                 "coeff_n": r.n_homog,
                 "As": r.As_sup,
                 "As_p": r.As_inf,
@@ -2264,8 +2382,12 @@ class VerificationTableApp(tk.Frame):
 
         # --- Generazione sollecitazioni di prova in intervallo [-100, 100] ---
         N = round(random.uniform(-100.0, 100.0), 3)
-        M = round(random.uniform(-100.0, 100.0), 3)
-        T = round(random.uniform(-100.0, 100.0), 3)
+        Mx = round(random.uniform(-100.0, 100.0), 3)
+        My = round(random.uniform(-100.0, 100.0), 3)
+        Mz = round(random.uniform(-50.0, 50.0), 3)
+        Tx = round(random.uniform(-100.0, 100.0), 3)
+        Ty = round(random.uniform(-100.0, 100.0), 3)
+        At = round(random.uniform(0.0, 5.0), 3)
 
         # --- Inizializzo nuovo progetto vuoto e popolo materiali/sezioni/elemento ---
         self.project.new_project()
@@ -2294,13 +2416,18 @@ class VerificationTableApp(tk.Frame):
         # Elemento di prova
         elem = {
             "id": "E001",
+            "name": "Elemento test",
             "section_id": sec_dict.get('id') or sec_dict.get('name'),
             "cls_id": cls_dict.get('id') or cls_dict.get('name'),
             "steel_id": steel_dict.get('id') or steel_dict.get('name'),
             "method": "TA",
             "N": N,
-            "M": M,
-            "T": T,
+            "Mx": Mx,
+            "My": My,
+            "Mz": Mz,
+            "Tx": Tx,
+            "Ty": Ty,
+            "At": At,
             "coeff_n": 15.0,
             "As": 0.0,
             "As_p": 0.0,
@@ -2315,14 +2442,19 @@ class VerificationTableApp(tk.Frame):
             self.tree.delete(item)
 
         test_input = VerificationInput(
+            element_name=elem.get("name", ""),
             section_id=elem['section_id'],
             verification_method=elem['method'],
             material_concrete=elem['cls_id'],
             material_steel=elem['steel_id'],
             n_homog=float(elem.get('coeff_n', 15.0)),
             N=float(elem.get('N', 0.0)),
-            M=float(elem.get('M', 0.0)),
-            T=float(elem.get('T', 0.0)),
+            Mx=float(elem.get('Mx', 0.0)),
+            My=float(elem.get('My', 0.0)),
+            Mz=float(elem.get('Mz', 0.0)),
+            Tx=float(elem.get('Tx', 0.0)),
+            Ty=float(elem.get('Ty', 0.0)),
+            At=float(elem.get('At', 0.0)),
             As_sup=float(elem.get('As', 0.0)),
             As_inf=float(elem.get('As_p', 0.0)),
             d_sup=float(elem.get('d', 4.0)),
@@ -2407,6 +2539,24 @@ class VerificationTableApp(tk.Frame):
             return 0, 0, []
 
         expected_header = [c[1] for c in COLUMNS]
+        legacy_header = [
+            "Sezione",
+            "Metodo verifica",
+            "Materiale cls",
+            "Materiale acciaio",
+            "Coeff. n",
+            "N [kg]",
+            "M [kg·m]",
+            "T [kg]",
+            "As' [cm²]",
+            "As [cm²]",
+            "d' [cm]",
+            "d [cm]",
+            "Passo staffe [cm]",
+            "Diametro staffe [mm]",
+            "Materiale staffe",
+            "NOTE",
+        ]
         header = [h.strip() for h in rows[0]]
 
         # Prepariamo una mappa da index_file -> index_expected
@@ -2423,9 +2573,33 @@ class VerificationTableApp(tk.Frame):
             logger.info("Import CSV: header len=%d row lens sample=%s", len(header), row_lengths[:5])
             if any(l == len(header) - 1 for l in row_lengths):
                 logger.info("Import CSV: righe con colonna mancante rilevate; applico correzione per 'Metodo verifica'")
-                # shift indices after the missing column
-                index_map = [0, None] + [i - 1 for i in range(2, len(header))]
+                # shift indices after the missing column (keep Elemento and Sezione aligned)
+                missing_idx = expected_header.index("Metodo verifica")
+                index_map = []
+                for i in range(len(header)):
+                    if i == missing_idx:
+                        index_map.append(None)
+                    elif i < missing_idx:
+                        index_map.append(i)
+                    else:
+                        index_map.append(i - 1)
                 logger.debug("Import CSV: index_map corretto: %s", index_map)
+        elif header == expected_header[1:]:
+            # Legacy files without the first "Elemento" column
+            index_map = [None] + list(range(len(header)))
+            logger.info("Import CSV: header senza 'Elemento' rilevato, applicato mapping: %s", index_map)
+        elif header == legacy_header:
+            index_map = []
+            for h in expected_header:
+                if h == "Mx [kg·m]":
+                    index_map.append(header.index("M [kg·m]"))
+                elif h == "Ty [kg]":
+                    index_map.append(header.index("T [kg]"))
+                elif h in ("My [kg·m]", "Mz [kg·m]", "Tx [kg]", "At [cm²]"):
+                    index_map.append(None)
+                else:
+                    index_map.append(header.index(h) if h in header else None)
+            logger.info("Import CSV: header legacy rilevato, applicato mapping: %s", index_map)
         else:
             # Se il set delle intestazioni coincide, applichiamo mapping automatico
             if set(header) == set(expected_header) and len(header) == len(expected_header):
@@ -2447,7 +2621,22 @@ class VerificationTableApp(tk.Frame):
                     return 0, max(0, len(rows) - 1), ["Header mismatch"]
 
         key_names = [c[0] for c in COLUMNS]
-        numeric_attrs = {"n_homog", "N", "M", "T", "As_sup", "As_inf", "d_sup", "d_inf", "stirrup_step", "stirrup_diameter"}
+        numeric_attrs = {
+            "n_homog",
+            "N",
+            "Mx",
+            "My",
+            "Mz",
+            "Tx",
+            "Ty",
+            "At",
+            "As_sup",
+            "As_inf",
+            "d_sup",
+            "d_inf",
+            "stirrup_step",
+            "stirrup_diameter",
+        }
 
         models: List[VerificationInput] = []
         errors: List[str] = []

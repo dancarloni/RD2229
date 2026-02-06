@@ -4,14 +4,32 @@ import csv
 import json
 import logging
 import os
+import random
 import shutil
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
-from sections_app.models.sections import CSV_HEADERS, Section, create_section_from_dict
+from sections_app.models.sections import (
+    CSV_HEADERS,
+    CSection,
+    CircularHollowSection,
+    CircularSection,
+    ISection,
+    InvertedTSection,
+    InvertedVSection,
+    LSection,
+    PiSection,
+    RectangularHollowSection,
+    RectangularSection,
+    Section,
+    TSection,
+    VSection,
+    create_section_from_dict,
+)
 from sections_app.services.event_bus import EventBus, SECTIONS_ADDED, SECTIONS_UPDATED, SECTIONS_DELETED, SECTIONS_CLEARED
 
 logger = logging.getLogger(__name__)
+SEED_TAG = "[seed]"
 
 # Percorso JSON di default usato dalle API helper e dal repository
 DEFAULT_JSON_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'sec_repository', 'sec_repository.jsons'))
@@ -78,16 +96,7 @@ class SectionRepository:
 
                             logger.info("Migrato legacy %s -> %s (backup: %s)", cand, local_canonical, bak)
 
-                            # Se possibile, mostra una messagebox informativa (non bloccante)
-                            try:
-                                from tkinter import messagebox
-                                messagebox.showinfo(
-                                    "Migrazione sezioni",
-                                    f"Il file legacy '{cand.name}' è stato migrato in '{local_canonical}'.\nBackup creato come '{bak.name}'."
-                                )
-                            except Exception:
-                                # Headless o ambiente non-GUI: silenziamo la messagebox
-                                pass
+                            # Rimuovo la messagebox informativa
 
                             migrated = True
                         except Exception:
@@ -202,6 +211,10 @@ class SectionRepository:
     def delete_section(self, section_id: str) -> None:
         """Elimina una sezione dall'archivio."""
         section = self._sections.pop(section_id, None)
+        if section and self._is_seeded(section):
+            self._sections[section_id] = section
+            logger.debug("Sezione seed protetta da eliminazione: %s", section_id)
+            return
         if section:
             self._keys.pop(section.logical_key(), None)
             logger.debug("Sezione eliminata: %s", section_id)
@@ -219,14 +232,204 @@ class SectionRepository:
         return self._sections.get(section_id)
 
     def clear(self) -> None:
+        seeded = {sid: sec for sid, sec in self._sections.items() if self._is_seeded(sec)}
         self._sections.clear()
         self._keys.clear()
+        for sid, sec in seeded.items():
+            self._sections[sid] = sec
+            self._keys[sec.logical_key()] = sid
         
         # Salva in file JSON
         self.save_to_file()
         
         # Emetti evento
         EventBus().emit(SECTIONS_CLEARED)
+
+    def _is_seeded(self, section: Section) -> bool:
+        return bool(section.note) and SEED_TAG in section.note
+
+    def _ensure_seed_sections(self) -> None:
+        """Ensure at least 3 seeded sections for each section type."""
+        rng = random.Random(2229)
+        sections_by_type: Dict[str, List[Section]] = {}
+        for sec in self._sections.values():
+            sections_by_type.setdefault(sec.section_type, []).append(sec)
+
+        for section_type, factory in self._seed_factories().items():
+            existing = [s for s in sections_by_type.get(section_type, []) if self._is_seeded(s)]
+            for idx in range(len(existing), 3):
+                try:
+                    new_sec = factory(idx + 1, rng)
+                    added = self.add_section(new_sec)
+                    if added:
+                        logger.debug("Sezione seed aggiunta: %s (%s)", new_sec.id, section_type)
+                except Exception:
+                    logger.exception("Errore creazione sezione seed per %s", section_type)
+
+        for sec in self._sections.values():
+            if self._is_seeded(sec):
+                try:
+                    sec.compute_properties()
+                except Exception:
+                    logger.exception("Errore ricalcolo proprietà sezione seed: %s", sec.id)
+
+    def _seed_factories(self):
+        def note(name: str) -> str:
+            return f"{SEED_TAG} {name}"
+
+        def rect(i: int, rng: random.Random) -> Section:
+            b = rng.uniform(20, 60)
+            h = rng.uniform(30, 80)
+            return RectangularSection(name=f"SEED-RECT-{i}", width=b, height=h, note=note("RECTANGULAR"))
+
+        def circ(i: int, rng: random.Random) -> Section:
+            d = rng.uniform(20, 80)
+            return CircularSection(name=f"SEED-CIRC-{i}", diameter=d, note=note("CIRCULAR"))
+
+        def tsec(i: int, rng: random.Random) -> Section:
+            bf = rng.uniform(30, 80)
+            hf = rng.uniform(4, 12)
+            bw = rng.uniform(8, 20)
+            hw = rng.uniform(20, 60)
+            return TSection(
+                name=f"SEED-T-{i}",
+                flange_width=bf,
+                flange_thickness=hf,
+                web_thickness=bw,
+                web_height=hw,
+                note=note("T_SECTION"),
+            )
+
+        def lsec(i: int, rng: random.Random) -> Section:
+            w = rng.uniform(30, 70)
+            h = rng.uniform(30, 70)
+            th = rng.uniform(4, 12)
+            tv = rng.uniform(4, 12)
+            return LSection(
+                name=f"SEED-L-{i}",
+                width=w,
+                height=h,
+                t_horizontal=th,
+                t_vertical=tv,
+                note=note("L_SECTION"),
+            )
+
+        def isec(i: int, rng: random.Random) -> Section:
+            bf = rng.uniform(30, 80)
+            hf = rng.uniform(4, 12)
+            hw = rng.uniform(30, 80)
+            bw = rng.uniform(6, 20)
+            return ISection(
+                name=f"SEED-I-{i}",
+                flange_width=bf,
+                flange_thickness=hf,
+                web_height=hw,
+                web_thickness=bw,
+                note=note("I_SECTION"),
+            )
+
+        def pisec(i: int, rng: random.Random) -> Section:
+            bf = rng.uniform(30, 80)
+            hf = rng.uniform(4, 12)
+            hw = rng.uniform(20, 60)
+            bw = rng.uniform(6, 20)
+            return PiSection(
+                name=f"SEED-PI-{i}",
+                flange_width=bf,
+                flange_thickness=hf,
+                web_height=hw,
+                web_thickness=bw,
+                note=note("PI_SECTION"),
+            )
+
+        def invt(i: int, rng: random.Random) -> Section:
+            bf = rng.uniform(30, 80)
+            hf = rng.uniform(4, 12)
+            bw = rng.uniform(8, 20)
+            hw = rng.uniform(20, 60)
+            return InvertedTSection(
+                name=f"SEED-INV-T-{i}",
+                flange_width=bf,
+                flange_thickness=hf,
+                web_thickness=bw,
+                web_height=hw,
+                note=note("INVERTED_T_SECTION"),
+            )
+
+        def csec(i: int, rng: random.Random) -> Section:
+            w = rng.uniform(30, 80)
+            h = rng.uniform(30, 80)
+            tf = rng.uniform(4, 12)
+            tw = rng.uniform(4, 12)
+            return CSection(
+                name=f"SEED-C-{i}",
+                width=w,
+                height=h,
+                flange_thickness=tf,
+                web_thickness=tw,
+                note=note("C_SECTION"),
+            )
+
+        def circ_hollow(i: int, rng: random.Random) -> Section:
+            d = rng.uniform(30, 90)
+            t = rng.uniform(2, 8)
+            return CircularHollowSection(
+                name=f"SEED-CIRC-H-{i}",
+                outer_diameter=d,
+                thickness=t,
+                note=note("CIRCULAR_HOLLOW"),
+            )
+
+        def rect_hollow(i: int, rng: random.Random) -> Section:
+            w = rng.uniform(30, 80)
+            h = rng.uniform(30, 80)
+            t = rng.uniform(2, 8)
+            return RectangularHollowSection(
+                name=f"SEED-RECT-H-{i}",
+                width=w,
+                height=h,
+                thickness=t,
+                note=note("RECTANGULAR_HOLLOW"),
+            )
+
+        def vsec(i: int, rng: random.Random) -> Section:
+            w = rng.uniform(30, 80)
+            h = rng.uniform(30, 80)
+            t = rng.uniform(2, 8)
+            return VSection(
+                name=f"SEED-V-{i}",
+                width=w,
+                height=h,
+                thickness=t,
+                note=note("V_SECTION"),
+            )
+
+        def invv(i: int, rng: random.Random) -> Section:
+            w = rng.uniform(30, 80)
+            h = rng.uniform(30, 80)
+            t = rng.uniform(2, 8)
+            return InvertedVSection(
+                name=f"SEED-INV-V-{i}",
+                width=w,
+                height=h,
+                thickness=t,
+                note=note("INVERTED_V_SECTION"),
+            )
+
+        return {
+            "RECTANGULAR": rect,
+            "CIRCULAR": circ,
+            "T_SECTION": tsec,
+            "L_SECTION": lsec,
+            "I_SECTION": isec,
+            "PI_SECTION": pisec,
+            "INVERTED_T_SECTION": invt,
+            "C_SECTION": csec,
+            "CIRCULAR_HOLLOW": circ_hollow,
+            "RECTANGULAR_HOLLOW": rect_hollow,
+            "V_SECTION": vsec,
+            "INVERTED_V_SECTION": invv,
+        }
 
     def load_from_file(self) -> None:
         """Carica le sezioni dal file principale, oppure dal backup se il principale è corrotto.
@@ -271,6 +474,7 @@ class SectionRepository:
                     logger.exception("Errore caricamento sezione %d dal JSON: %s", idx, e)
             
             logger.info("Caricate %d sezioni da %s", len(self._sections), self._file_path)
+            self._ensure_seed_sections()
             return
         except Exception as e:
             logger.exception("Errore nel caricamento di %s, provo il backup", self._file_path)
@@ -303,6 +507,7 @@ class SectionRepository:
                 "Caricate %d sezioni dal backup %s (file principale danneggiato)",
                 len(self._sections), self._backup_path
             )
+            self._ensure_seed_sections()
             return
         except Exception as e:
             logger.exception("Errore anche nel caricamento del backup %s", self._backup_path)
@@ -314,6 +519,7 @@ class SectionRepository:
         )
         self._sections.clear()
         self._keys.clear()
+        self._ensure_seed_sections()
 
     def save_to_file(self) -> None:
         """Salva tutte le sezioni in un file JSON con backup automatico.

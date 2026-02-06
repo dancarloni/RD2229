@@ -101,6 +101,7 @@ class LoadCase:
     Mz: float = 0.0  # Torsional moment [kg·cm or kN·m]
     Tx: float = 0.0  # Shear force in x direction [kg or kN]
     Ty: float = 0.0  # Shear force in y direction [kg or kN]
+    At: float = 0.0  # Torsion reinforcement area [cm²]
     
     def get_verification_type(self) -> VerificationType:
         """Determine the verification type based on load components."""
@@ -262,6 +263,110 @@ def calculate_neutral_axis_simple_bending(
     return NeutralAxis(x=x, y=0.0, inclination=0.0)
 
 
+def calculate_neutral_axis_deviated_bending(
+    section: SectionGeometry,
+    reinforcement_tensile: ReinforcementLayer,
+    reinforcement_compressed: ReinforcementLayer,
+    material: MaterialProperties,
+    Mx: float,
+    My: float,
+    N: float = 0.0,
+    method: str = "SLU",
+    *,
+    eps_cu: float = 0.0035,
+    max_iter: int = 60,
+    tol: float = 1e-3,
+) -> NeutralAxis:
+    """
+    Iterative neutral axis calculation for deviated bending (SLU-style).
+
+    Approach:
+    - Rotate axes so that the bending resultant is aligned with X (angle = atan2(My,Mx)).
+    - Solve for neutral axis depth x (measured from compressed edge) by bisection
+      on the equilibrium of axial force: C + Fs' + Fs - (-N) = 0, where N>0 is tension.
+    - Concrete compression resultant uses a rectangular stress block with depth 'x'
+      and design stress 'fcd' (MaterialProperties.fcd).
+    - Steel stresses computed from linear strain distribution capped by fyd (material.fyd).
+
+    Note: this is an SLU-oriented implementation (uses eps_cu and fcd/fyd). For TA/SLE
+    it will behave similarly but may be conservative; method selection can adjust
+    coefficients if needed.
+    """
+    b = section.width
+    h = section.height
+
+    # Angle of bending resultant (degrees)
+    if abs(Mx) < 1e-12 and abs(My) < 1e-12:
+        inclination = 0.0
+    else:
+        inclination = math.degrees(math.atan2(My, Mx))
+
+    # Material properties
+    fcd = material.fcd if material.fcd is not None else material.fck
+    fyd = material.fyd if material.fyd is not None else material.fyk
+    Es = material.Es if material.Es is not None else 2100000.0
+
+    # Reinforcement positions (distance from top compressed edge)
+    d_top = reinforcement_compressed.distance
+    d_bot = reinforcement_tensile.distance
+
+    # Limits for neutral axis search
+    x_min = 1e-6
+    x_max = h * 0.999
+
+    def internal_axial_result(x_val: float) -> float:
+        """Compute internal axial resultant (compression positive) for given x."""
+        # Concrete compression resultant using simplified rectangular block (0.8*x)
+        Ac = b * 0.8 * x_val
+        Cc = Ac * fcd
+        # centroid lever arm of stress block from top approximately 0.4*x
+        # Steel strains (linear): epsilon = eps_cu * (x - y)/x
+        # Positive epsilon => compression, negative => tension
+        # Top reinforcement
+        eps_top = eps_cu * (x_val - d_top) / x_val if x_val > 0 else 0.0
+        sigma_s_top = max(min(Es * eps_top, fyd), -fyd)
+        Fs_top = reinforcement_compressed.area * sigma_s_top
+        # Bottom reinforcement
+        eps_bot = eps_cu * (x_val - d_bot) / x_val if x_val > 0 else 0.0
+        sigma_s_bot = max(min(Es * eps_bot, fyd), -fyd)
+        Fs_bot = reinforcement_tensile.area * sigma_s_bot
+        # Total internal axial (compression positive). External N: positive = tension
+        # Equilibrium: Cc + Fs_top + Fs_bot + N = 0  => residual = Cc + Fs_top + Fs_bot + N
+        return Cc + Fs_top + Fs_bot + N
+
+    # Check sign at ends to ensure bisection applicability
+    r1 = internal_axial_result(x_min)
+    r2 = internal_axial_result(x_max)
+    if abs(r1) < tol:
+        x_sol = x_min
+    elif abs(r2) < tol:
+        x_sol = x_max
+    elif r1 * r2 > 0:
+        # No sign change: fallback to simple estimate (d/3)
+        x_sol = d_bot / 3.0
+    else:
+        # Bisection
+        a = x_min
+        bnd = x_max
+        fa = r1
+        fb = r2
+        x_sol = (a + bnd) / 2.0
+        for _ in range(max_iter):
+            fm = internal_axial_result(x_sol)
+            if abs(fm) < tol:
+                break
+            if fa * fm <= 0:
+                bnd = x_sol
+                fb = fm
+            else:
+                a = x_sol
+                fa = fm
+            x_sol = 0.5 * (a + bnd)
+
+    na = NeutralAxis(x=x_sol, y=0.0, inclination=inclination)
+    return na
+
+
 def calculate_stresses_simple_bending(
     section: SectionGeometry,
     reinforcement_tensile: ReinforcementLayer,
@@ -370,6 +475,129 @@ def calculate_stresses_simple_bending(
         sigma_s_tensile=sigma_s_tensile,
         sigma_s_compressed=sigma_s_compressed
     )
+
+
+def calculate_stresses_deviated_bending(
+    section: SectionGeometry,
+    reinforcement_tensile: ReinforcementLayer,
+    reinforcement_compressed: ReinforcementLayer,
+    material: MaterialProperties,
+    Mx: float,
+    My: float,
+    neutral_axis: NeutralAxis,
+    N: float = 0.0,
+    method: str = "SLU",
+) -> StressState:
+    """
+    Stresses for deviated bending computed using the neutral axis found iteratively.
+
+    Uses equivalent moment magnitude for stress intensity, but neutral axis depth
+    results from axial equilibrium (so stresses reflect N–M interaction).
+    """
+    equiv_moment = math.hypot(Mx, My)
+    # Reuse simple bending stress computation using the more accurate neutral axis
+    return calculate_stresses_simple_bending(
+        section=section,
+        reinforcement_tensile=reinforcement_tensile,
+        reinforcement_compressed=reinforcement_compressed,
+        material=material,
+        moment=equiv_moment,
+        neutral_axis=neutral_axis,
+        method=method,
+    )
+
+
+def _rectangular_torsion_constant(b: float, h: float) -> float:
+    """Approximate torsional constant J for a solid rectangle (Saint‑Venant).
+
+    Formula from engineering approximations (Roark / standard tables).
+    """
+    # Ensure b <= h for stability
+    bb = min(b, h)
+    hh = max(b, h)
+    ratio = bb / hh
+    # Empirical approximation
+    J = bb * hh**3 * (1.0 / 3.0 - 0.21 * ratio * (1.0 - (bb**4) / (12.0 * hh**4)))
+    return max(J, 1e-6)
+
+
+def estimate_required_torsion_reinforcement(
+    section: SectionGeometry,
+    reinforcement_tensile: ReinforcementLayer,
+    loads: LoadCase,
+    material: Optional[MaterialProperties] = None,
+) -> float:
+    """Estimate required torsion reinforcement area At [cm²] (simplified NTC-like).
+
+    Formula (approximate): At_req = T (kg·cm) / (2 * z (cm) * fyd (kg/cm²))
+
+    Note: This is a simplified engineering estimate to give an order of magnitude.
+    It assumes T input is in kg·m (converted to kg·cm) and material.fyd is in MPa
+    (converted to kg/cm²). Use with caution and prefer exact code formulas if needed.
+    """
+    T = abs(loads.Mz)
+    if T <= 0:
+        return 0.0
+    # Convert kg·m to kg·cm
+    T_kgcm = T * 100.0
+    # Lever arm z ~ 0.9 * d (d = distance from compressed edge to tensile reinforcement)
+    d = reinforcement_tensile.distance
+    z = 0.9 * d if d and d > 0 else 0.9 * (section.height / 2.0)
+    # material.fyd may be in MPa; convert to kg/cm² if small magnitude suggests MPa
+    fyd = material.fyd if (material and material.fyd is not None) else (material.fyk if material else 380.0)
+    # If fyd seems like MPa (e.g. < 2000), convert
+    if fyd and fyd < 2000:
+        fyd = fyd * 10.197
+    if fyd <= 0 or z <= 0:
+        return 0.0
+    At_req = T_kgcm / (2.0 * z * fyd)
+    return max(At_req, 0.0)
+
+
+def calculate_shear_torsion_stresses(
+    section: SectionGeometry,
+    loads: LoadCase,
+    reinforcement_area: float,
+    material: Optional[MaterialProperties] = None,
+) -> StressState:
+    """
+    Shear + Torsion simplified assessment.
+
+    - Shear stress: τ_shear = V / A
+    - Torsion stress: τ_torsion ≈ Mz * r / J (r ~ half smallest dimension)
+    - Equivalent demand combined with von Mises-like sqrt(sum squares) and
+      converted to an equivalent steel stress using reinforcement area.
+
+    Returns StressState with sigma_c_max carrying the shear/torsion scalar and
+    sigma_s_tensile approximating the required steel stress for the given At.
+    """
+    b = section.width
+    h = section.height
+    area = b * h
+    v = math.hypot(abs(loads.Tx), abs(loads.Ty))
+    torsion = abs(loads.Mz)
+
+    tau_shear = v / area if area > 0 else 0.0
+
+    J = _rectangular_torsion_constant(b, h)
+    r = min(b, h) / 2.0
+    tau_torsion = torsion * r / J if J > 0 else 0.0
+
+    tau_eq = math.hypot(tau_shear, tau_torsion)
+
+    # Convert to an equivalent steel stress assuming reinforcement_area resists shear/torsion
+    if reinforcement_area and reinforcement_area > 0:
+        sigma_s_tensile = tau_eq * area / reinforcement_area
+    else:
+        sigma_s_tensile = tau_eq
+
+    return StressState(
+        sigma_c_max=tau_eq,
+        sigma_c_min=0.0,
+        sigma_s_tensile=sigma_s_tensile,
+        sigma_s_compressed=0.0,
+    )
+
 
 
 def verify_allowable_stresses(

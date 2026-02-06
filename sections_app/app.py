@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 
+from sections_app.services.debug_log_stream import get_in_memory_handler
+
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.main_window import MainWindow
 
@@ -24,6 +26,7 @@ def configure_logging() -> None:
     fmt = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     fh.setFormatter(fmt)
     logging.getLogger().addHandler(fh)
+    logging.getLogger().addHandler(get_in_memory_handler())
 
 
 def run_app() -> None:

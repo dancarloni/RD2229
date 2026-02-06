@@ -11,6 +11,8 @@ from sections_app.ui.main_window import MainWindow
 from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
 from sections_app.ui.historical_material_window import HistoricalMaterialWindow
 from sections_app.ui.section_manager import SectionManager
+from sections_app.ui.debug_viewer import DebugViewerWindow
+from sections_app.ui.code_settings_window import CodeSettingsWindow
 from verification_table import VerificationTableWindow
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import MaterialRepository
@@ -45,6 +47,7 @@ class ModuleSelectorWindow(tk.Tk):
         # Riferimenti a finestre aperte dal ModuleSelector
         self._geometry_window: Optional[MainWindow] = None
         self._section_manager_window: Optional[SectionManager] = None
+        self._debug_viewer_window: Optional[DebugViewerWindow] = None
         self._create_menu()
         self._build_ui()
 
@@ -84,6 +87,16 @@ class ModuleSelectorWindow(tk.Tk):
         # Verification Table Module
         verify_desc = "Rapid data entry for multiple verifications\n(tabular grid with autocomplete)"
         self._add_module_frame(modules_frame, "Verification Table", verify_desc, "Open Verification Table", self._open_verification_table)
+
+        debug_desc = "Real-time debug log viewer\n(all modules, live updates)"
+        self._add_module_frame(modules_frame, "Debug Viewer", debug_desc, "Open Debug Viewer", self._open_debug_viewer)
+
+        params_frame = tk.LabelFrame(modules_frame, text="Parametri Normativa")
+        params_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
+        tk.Label(params_frame, text="Configura parametri TA/SLU/SLE\n(.jsoncode)", justify="left", wraplength=220).pack(padx=8, pady=8)
+        tk.Button(params_frame, text="Parametri TA", command=lambda: self._open_code_settings("TA")).pack(pady=(0, 4))
+        tk.Button(params_frame, text="Parametri SLU", command=lambda: self._open_code_settings("SLU")).pack(pady=(0, 4))
+        tk.Button(params_frame, text="Parametri SLE", command=lambda: self._open_code_settings("SLE")).pack(pady=(0, 8))
 
         # Sections Archive Module
         sections_desc = "Browse and manage archived sections (import/export, edit via Geometry)"
@@ -153,6 +166,21 @@ class ModuleSelectorWindow(tk.Tk):
             material_repository=self.material_repository,
         )
         win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
+
+    def _open_debug_viewer(self) -> None:
+        """Apre il visualizzatore di debug come finestra Toplevel."""
+        if self._debug_viewer_window is not None and self._debug_viewer_window.winfo_exists():
+            self._debug_viewer_window.lift()
+            self._debug_viewer_window.focus_force()
+            return
+        win = DebugViewerWindow(self)
+        self._debug_viewer_window = win
+        win.protocol("WM_DELETE_WINDOW", lambda w=win: (setattr(self, "_debug_viewer_window", None), w.destroy()))
+
+    def _open_code_settings(self, code: str) -> None:
+        settings_path = Path(__file__).resolve().parents[2] / "config" / "calculation_codes" / f"{code.upper()}.jsoncode"
+        win = CodeSettingsWindow(self, code=code, settings_path=settings_path)
+        win.protocol("WM_DELETE_WINDOW", lambda w=win: w.destroy())
 
     def _open_section_manager(self) -> None:
         """Apre il Section Manager come finestra Toplevel.
