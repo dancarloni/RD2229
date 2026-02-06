@@ -82,6 +82,7 @@ tests/test_module_selector_section_button.py
 tests/test_new_sections.py
 tests/test_numerical_ta.py
 tests/test_persistence.py
+tests/test_plot_section.py
 tests/test_recovery_system.py
 tests/test_repository_save.py
 tests/test_search_helpers_with_repo.py
