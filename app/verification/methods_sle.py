@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import Optional
-import math
-import logging
 
+import logging
+import math
+from typing import Optional
+
+from app.domain.materials import get_concrete_properties, get_steel_properties
 from app.domain.models import VerificationInput, VerificationOutput
 from app.domain.sections import get_section_geometry
-from app.domain.materials import get_concrete_properties, get_steel_properties
 
 logger = logging.getLogger(__name__)
 
@@ -16,23 +17,20 @@ def compute_sle_verification(
     material_repository: Optional[object] = None,
 ) -> VerificationOutput:
     try:
-        N_kg = _input.N
         primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
         M_kgm = primary_m
         M = M_kgm * 100
 
         n = _input.n_homog if _input.n_homog > 0 else 15.0
 
-        As_sup = _input.As_sup
         As_inf = _input.As_inf
-        d_sup = _input.d_sup if _input.d_sup > 0 else 4.0
         d_inf = _input.d_inf if _input.d_inf > 0 else 4.0
 
         B, H = get_section_geometry(_input, section_repository, unit="cm")
         d = H - d_inf
 
-        _fck_mpa, fck_kgcm2, _sigma_ca = get_concrete_properties(_input, material_repository)
-        _fyk_mpa, fyk_kgcm2, _sigma_fa = get_steel_properties(_input, material_repository)
+        fck_kgcm2 = get_concrete_properties(_input, material_repository)[1]
+        fyk_kgcm2 = get_steel_properties(_input, material_repository)[1]
 
         sigma_c_lim = 0.6 * fck_kgcm2
         sigma_s_lim = 0.8 * fyk_kgcm2
@@ -40,7 +38,7 @@ def compute_sle_verification(
         rho = As_inf / (B * d) if d > 0 and B > 0 else 0.001
 
         term = n * rho
-        x_over_d = math.sqrt(term ** 2 + 2 * term) - term if term > 0 else 0.3
+        x_over_d = math.sqrt(term**2 + 2 * term) - term if term > 0 else 0.3
         x = x_over_d * d
 
         if x < 0.05 * H:
@@ -48,7 +46,7 @@ def compute_sle_verification(
         if x > 0.95 * H:
             x = 0.95 * H
 
-        I_fess = B * x ** 3 / 3 + n * As_inf * (d - x) ** 2
+        I_fess = B * x**3 / 3 + n * As_inf * (d - x) ** 2
 
         if I_fess > 0:
             sigma_c = M * x / I_fess
@@ -91,7 +89,8 @@ def compute_sle_verification(
             f"  Dimensioni: B = {B:.1f} cm, H = {H:.1f} cm, d = {d:.1f} cm",
             f"  Armatura inferiore As = {As_inf:.2f} cm²",
             f"  Coeff. omogeneizzazione n = {n:.1f}",
-            f"  Sollecitazioni: Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
+            f"  Sollecitazioni: Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m,"
+            f" Mz = {_input.Mz:.2f} kg·m",
             "",
             "LIMITI TENSIONI SLE:",
             f"  Cls σ_c,lim = 0.6·fck = {sigma_c_lim:.1f} Kg/cm²",
@@ -99,8 +98,10 @@ def compute_sle_verification(
             "",
             "RISULTATI CALCOLO (stadio II - fessurato):",
             f"  Posizione asse neutro x = {x:.2f} cm (x/d = {x/d:.3f})",
-            f"  Tensione cls σ_c = {sigma_c:.2f} Kg/cm² {'✓' if sigma_c <= sigma_c_lim else '✗'}",
-            f"  Tensione acciaio σ_s = {sigma_s:.0f} Kg/cm² {'✓' if sigma_s <= sigma_s_lim else '✗'}",
+            f"  Tensione cls σ_c = {sigma_c:.2f} Kg/cm² "
+            f"{'✓' if sigma_c <= sigma_c_lim else '✗'}",
+            f"  Tensione acciaio σ_s = {sigma_s:.0f} Kg/cm² "
+            f"{'✓' if sigma_s <= sigma_s_lim else '✗'}",
             "",
             "VERIFICA FESSURAZIONE:",
             f"  Apertura fessure wk = {wk:.3f} mm",

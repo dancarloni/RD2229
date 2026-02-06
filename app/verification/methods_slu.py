@@ -1,10 +1,11 @@
 from __future__ import annotations
-from typing import Optional
-import logging
 
+import logging
+from typing import Optional
+
+from app.domain.materials import get_concrete_properties, get_steel_properties
 from app.domain.models import VerificationInput, VerificationOutput
 from app.domain.sections import get_section_geometry
-from app.domain.materials import get_concrete_properties, get_steel_properties
 
 logger = logging.getLogger(__name__)
 MPA_TO_KGCM2 = 10.197
@@ -32,8 +33,8 @@ def compute_slu_verification(
         B, H = get_section_geometry(_input, section_repository, unit="mm")
         d = H - d_inf_cm * 10
 
-        fck, _fck_kgcm2, _sigma_ca = get_concrete_properties(_input, material_repository)
-        fyk, _fyk_kgcm2, _sigma_fa = get_steel_properties(_input, material_repository)
+        fck, *_ = get_concrete_properties(_input, material_repository)
+        fyk, *_ = get_steel_properties(_input, material_repository)
 
         gamma_c = 1.5
         gamma_s = 1.15
@@ -80,7 +81,8 @@ def compute_slu_verification(
             f"  Dimensioni: B = {B/10:.1f} cm, H = {H/10:.1f} cm, d = {d/10:.1f} cm",
             f"  Armatura inferiore As = {As_inf/100:.2f} cm²",
             f"  Armatura superiore As' = {As_sup/100:.2f} cm²",
-            f"  Sollecitazioni: N = {N_kg:.0f} kg, Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
+            f"  Sollecitazioni: N = {N_kg:.0f} kg",
+            f"    Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
             "",
             "RESISTENZE MATERIALI:",
             f"  Calcestruzzo fck = {fck:.0f} MPa → fcd = {fcd:.1f} MPa ({fcd_kgcm2:.1f} Kg/cm²)",
@@ -93,7 +95,8 @@ def compute_slu_verification(
             f"  Momento agente M_Ed = {M_kgm:.2f} kg·m",
             "",
             "VERIFICA:",
-            f"  M_Ed / M_Rd = {coeff_sicurezza:.3f} {'✓' if coeff_sicurezza <= 1.0 else '✗'}",
+            f"  M_Ed / M_Rd = {coeff_sicurezza:.3f} "
+            f"{('✓' if coeff_sicurezza <= 1.0 else '✗')}",
             "",
             f"ESITO: {esito}",
         ]

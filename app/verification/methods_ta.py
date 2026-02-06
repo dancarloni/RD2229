@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import Optional
-import math
-import logging
 
+import logging
+import math
+from typing import Optional
+
+from app.domain.materials import get_concrete_properties, get_steel_properties
 from app.domain.models import VerificationInput, VerificationOutput
 from app.domain.sections import get_section_geometry
-from app.domain.materials import get_concrete_properties, get_steel_properties
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,8 @@ def compute_ta_verification(
         d_sup = _input.d_sup
         d_inf = _input.d_inf
 
-        _fck_mpa, _fck_kgcm2, sigma_ca = get_concrete_properties(_input, material_repository)
-        _fyk_mpa, _fyk_kgcm2, sigma_fa = get_steel_properties(_input, material_repository)
+        *_ = get_concrete_properties(_input, material_repository)
+        *_ = get_steel_properties(_input, material_repository)
 
         B, H = get_section_geometry(_input, section_repository, unit="cm")
 
@@ -67,7 +68,7 @@ def compute_ta_verification(
         y_baric = x / 3
 
         if x > 0 and d > x / 3:
-            J_sez_reag = B * x ** 3 / 12 + B * x * (y_baric) ** 2
+            J_sez_reag = B * x**3 / 12 + B * x * (y_baric) ** 2
             sigma_c_max = (M * x) / J_sez_reag if J_sez_reag > 0 else 0.0
             if x > 0:
                 sigma_s = n * sigma_c_max * (d - x) / x
@@ -97,7 +98,8 @@ def compute_ta_verification(
             f"  Armatura inferiore As = {As_inf:.2f} cm²",
             f"  Armatura superiore As' = {As_sup:.2f} cm²",
             f"  Coefficiente omogeneizzazione n = {n:.1f}",
-            f"  Sollecitazioni: N = {N:.0f} kg, Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
+            f"  Sollecitazioni: N = {N:.0f} kg",
+            f"    Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
             "",
             "TENSIONI AMMISSIBILI:",
             f"  Calcestruzzo σ_ca = {sigma_ca:.1f} Kg/cm²",
@@ -110,8 +112,10 @@ def compute_ta_verification(
             f"  Tensione acciaio σ_s = {sigma_s:.0f} Kg/cm²",
             "",
             "VERIFICHE:",
-            f"  Cls: σ_c / σ_ca = {sigma_c_max:.1f} / {sigma_ca:.1f} = {coeff_util_cls:.3f} {'✓' if coeff_util_cls <= 1.0 else '✗'}",
-            f"  Acc: σ_s / σ_fa = {sigma_s:.0f} / {sigma_fa:.0f} = {coeff_util_acc:.3f} {'✓' if coeff_util_acc <= 1.0 else '✗'}",
+            f"  Cls: σ_c / σ_ca = {sigma_c_max:.1f} / {sigma_ca:.1f} = {coeff_util_cls:.3f} "
+            f"{('✓' if coeff_util_cls <= 1.0 else '✗')}",
+            f"  Acc: σ_s / σ_fa = {sigma_s:.0f} / {sigma_fa:.0f} = {coeff_util_acc:.3f} "
+            f"{('✓' if coeff_util_acc <= 1.0 else '✗')}",
             "",
             f"ESITO: {esito} (coeff. utilizzo max = {coeff_sicurezza:.3f})",
         ]

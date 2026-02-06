@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, InitVar
-from typing import List, Optional
 import logging
+from dataclasses import InitVar, dataclass
+from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ class VerificationOutput:
     deformazioni: str = ""
     coeff_sicurezza: float = 1.0
     esito: str = ""
-    messaggi: List[str] = None
+    messaggi: Optional[List[str]] = None
 
     def __post_init__(self):
         if self.messaggi is None:

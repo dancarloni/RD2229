@@ -1,17 +1,12 @@
 from __future__ import annotations
 
-import math
 import logging
-import random
-from dataclasses import dataclass
-from tkinter import messagebox, ttk, filedialog
 import tkinter as tk
+from tkinter import ttk
 from typing import Dict, Iterable, List, Optional, Tuple
 
-from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
-
 from app.domain.models import VerificationInput
-from app.verification.dispatcher import compute_verification_result
+
 
 logger = logging.getLogger(__name__)
 
@@ -95,11 +90,10 @@ class VerificationTableApp(tk.Frame):
         self.section_repository = section_repository
         self.material_repository = material_repository
         # Project model to save/load .jsonp projects
+        self.project: Optional["VerificationProject"] = None
         if VerificationProject is not None:
-            self.project: "VerificationProject" = VerificationProject()
+            self.project = VerificationProject()
             self.project.new_project()
-        else:
-            self.project = None
         # Optional external repository that stores VerificationItem objects
         self.verification_items_repository = verification_items_repository
         self.initial_rows = int(initial_rows)
@@ -283,17 +277,35 @@ class VerificationTableApp(tk.Frame):
         top.pack(fill="x", padx=8, pady=(8, 4))
 
         tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
-        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6,0))
+        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(
+            side="left", padx=(6, 0)
+        )
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
-        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(side="left", padx=(6,0))
-        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(
+            side="left", padx=(6, 0)
+        )
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -334,7 +346,7 @@ class VerificationTableApp(tk.Frame):
         self.tree.bind("<Home>", self._on_tree_home)
         self.tree.bind("<End>", self._on_tree_end)
 
-    # ... Additional methods are preserved from original implementation (omitted here for brevity) ...
+    # Additional methods from the original implementation are preserved (omitted).
 
     def export_csv(self, path: str, *, include_header: bool = True) -> None:
         # Delegate to a pure csv_io helper (to be implemented)
@@ -352,7 +364,14 @@ class VerificationTableApp(tk.Frame):
         self.set_rows(models)
         return len(models), skipped, errors
 
-    def _create_editor_for_cell(self, item: str, col: str, value: str, bbox: Tuple[int,int,int,int], initial_text: Optional[str] = None):
+    def _create_editor_for_cell(
+        self,
+        item: str,
+        col: str,
+        value: str,
+        bbox: Tuple[int, int, int, int],
+        initial_text: Optional[str] = None,
+    ):
         """
         Crea e ritorna un widget editor posizionato sopra la cella indicata.
         Usa `ttk.Combobox` per colonne materiali se `self.material_names` è disponibile,
@@ -409,12 +428,14 @@ class VerificationTableApp(tk.Frame):
             # available synchronously at commit time.
             try:
                 orig_set = editor.set
+
                 def _set_and_record(val):
                     orig_set(val)
                     try:
                         self._last_editor_value = editor.get()
                     except Exception:
                         pass
+
                 editor.set = _set_and_record  # type: ignore
             except Exception:
                 pass
@@ -432,12 +453,14 @@ class VerificationTableApp(tk.Frame):
         editor.bind("<Return>", self._on_entry_commit_down)
         editor.bind("<Shift-Return>", self._on_entry_commit_up)
         editor.bind("<Tab>", self._on_entry_commit_next)
+
         # Keep a record of the current editor value on key events as well
         def _record_key_event(_e=None):
             try:
                 self._last_editor_value = editor.get()
             except Exception:
                 pass
+
         editor.bind("<KeyRelease>", _record_key_event)
         editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
         editor.bind("<Escape>", self._on_entry_cancel)
@@ -450,7 +473,9 @@ class VerificationTableApp(tk.Frame):
         editor.bind("<KeyPress>", self._on_entry_keypress)
         return editor
 
-    def _compute_target_cell(self, current_item: str, current_col: str, delta_col: int, delta_row: int) -> Tuple[str, str, bool]:
+    def _compute_target_cell(
+        self, current_item: str, current_col: str, delta_col: int, delta_row: int
+    ) -> Tuple[str, str, bool]:
         """
         Calcola l'item_id e la chiave di colonna target a partire dalla cella corrente
         e dagli spostamenti `delta_col` e `delta_row`.
@@ -511,10 +536,13 @@ class VerificationTableApp(tk.Frame):
         value = self.tree.set(item, col)
         return self._create_editor_for_cell(item, col, value, bbox, initial_text=initial_text)
 
-    def compute_target_cell(self, current_item: str, current_col: str, delta_col: int, delta_row: int) -> Tuple[str, str, bool]:
-        """
-        API pubblica: wrapper che richiama `_compute_target_cell` per calcolare la
-        cella target dato un delta di colonna e riga. Restituisce (item_id, column_key, created_flag).
+    def compute_target_cell(
+        self, current_item: str, current_col: str, delta_col: int, delta_row: int
+    ) -> Tuple[str, str, bool]:
+        """Public API: wrapper for `_compute_target_cell`.
+
+        Computes the target cell for the given row/column delta and returns
+        (item_id, column_key, created_flag).
         """
         return self._compute_target_cell(current_item, current_col, delta_col, delta_row)
 
@@ -601,10 +629,14 @@ class VerificationTableApp(tk.Frame):
             return "break"
         if event.keysym in {"Left", "Right"}:
             delta = -1 if event.keysym == "Left" else 1
-            target_item, target_col = self._next_cell(item, self._last_col, delta_col=delta, delta_row=0)
+            target_item, target_col = self._next_cell(
+                item, self._last_col, delta_col=delta, delta_row=0
+            )
         else:
             delta = -1 if event.keysym == "Up" else 1
-            target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
+            target_item, target_col = self._next_cell(
+                item, self._last_col, delta_col=0, delta_row=delta
+            )
         self._last_col = target_col
         self._start_edit(target_item, target_col)
         return "break"
@@ -660,7 +692,9 @@ class VerificationTableApp(tk.Frame):
             self.current_column_index = None
 
         # Crea l'editor (Entry o Combobox) in modo centralizzato
-        self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
+        self.edit_entry = self._create_editor_for_cell(
+            item, col, value, (x, y, width, height), initial_text=initial_text
+        )
 
         # Se lo start è esplicito (programma o click), consentiamo alla prima
         # chiamata a `_update_suggestions` di mostrare l'elenco completo se
@@ -675,14 +709,16 @@ class VerificationTableApp(tk.Frame):
             return
         # Prefer the last recorded editor value if available (helps with
         # programmatic .set() on Combobox which may not trigger a key event)
-        value = getattr(self, '_last_editor_value', None) or self.edit_entry.get()
+        value = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
         # Record debug info via logger (no direct stdout prints)
         try:
-            logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
+            logger.debug(
+                "Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value
+            )
             logger.debug("edit_entry type: %s", type(self.edit_entry))
-            if hasattr(self.edit_entry, 'cget'):
+            if hasattr(self.edit_entry, "cget"):
                 try:
-                    logger.debug("combobox values: %s", self.edit_entry.cget('values'))
+                    logger.debug("combobox values: %s", self.edit_entry.cget("values"))
                 except Exception:
                     pass
         except Exception:
@@ -778,7 +814,9 @@ class VerificationTableApp(tk.Frame):
         self._commit_edit()
 
         # Calcola la cella target (eventualmente creando una nuova riga copiando la corrente)
-        target_item, target_col, _created = self._compute_target_cell(current_item, current_col, delta_col, delta_row)
+        target_item, target_col, _created = self._compute_target_cell(
+            current_item, current_col, delta_col, delta_row
+        )
 
         # Apri l'editor sulla cella target
         self._start_edit(target_item, target_col)
@@ -844,7 +882,9 @@ class VerificationTableApp(tk.Frame):
                 # We only show the full suggestion list on empty query when the edit
                 # was explicitly opened (e.g. by clicking the cell). This avoids
                 # displaying suggestions when the user types and then deletes input.
-                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (self.edit_column in show_all_on_empty)
+                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (
+                    self.edit_column in show_all_on_empty
+                )
                 # reset flag regardless
                 self._force_show_all_on_empty = False
                 if not show_all_flag:
@@ -879,7 +919,7 @@ class VerificationTableApp(tk.Frame):
             height = min(120, self.edit_entry.winfo_height() * min(6, len(filtered)))
             self._show_suggestions(filtered[: self.display_limit], (x, y, width, height))
             if self._suggestion_box is not None:
-                self._suggestion_box.selection_clear(0, 'end')
+                self._suggestion_box.selection_clear(0, "end")
                 self._suggestion_box.selection_set(0)
         except Exception:
             logger.exception("Error showing suggestions")
@@ -913,7 +953,7 @@ class VerificationTableApp(tk.Frame):
     def _select_suggestion(self, index: int) -> None:
         if self._suggestion_box is None:
             return
-        self._suggestion_box.selection_clear(0, 'end')
+        self._suggestion_box.selection_clear(0, "end")
         self._suggestion_box.selection_set(index)
         self._suggestion_box.see(index)
 
@@ -976,7 +1016,6 @@ class VerificationTableApp(tk.Frame):
         RebarCalculatorWindow(self, on_confirm=_on_confirm)
 
 
-
 class VerificationTableWindow(tk.Toplevel):
     """Thin Toplevel wrapper that accepts section and material repositories and
     embeds the existing `VerificationTableApp` frame. This keeps the original
@@ -998,5 +1037,10 @@ class VerificationTableWindow(tk.Toplevel):
         self.title("Verification Table - RD2229")
         self.geometry("1400x520")
 
-        self.app = VerificationTableApp(self, section_repository=section_repository, material_repository=material_repository, verification_items_repository=verification_items_repository)
+        self.app = VerificationTableApp(
+            self,
+            section_repository=section_repository,
+            material_repository=material_repository,
+            verification_items_repository=verification_items_repository,
+        )
         self.app.pack(fill="both", expand=True)
