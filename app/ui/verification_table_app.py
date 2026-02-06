@@ -125,6 +125,8 @@ class VerificationTableApp(tk.Frame):
         self.edit_column: Optional[str] = None
         # Suggestion box helper
         self._suggestion_box = None  # type: Optional["SuggestionBox"]
+        # Deprecated rebar attributes retained for backward compatibility.
+        # Prefer `app.ui.rebar_calculator` for new code.
         self._rebar_window: Optional[tk.Toplevel] = None
         self._rebar_vars: Dict[int, tk.StringVar] = {}
         self._rebar_entries: List[tk.Entry] = []
@@ -940,101 +942,39 @@ class VerificationTableApp(tk.Frame):
         self._hide_suggestions()
         self.edit_entry.focus_set()
 
-    # --- Rebar calculator helpers (moved from legacy verification_table) ---
+    # --- Rebar calculator helpers (moved to `app.ui.rebar_calculator`) ---
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
             return
         self._rebar_target_column = self.edit_column
         # Set flag to avoid losing the edit when the calculator grabs focus
         self._in_rebar_calculator = True
-        if self._rebar_window is not None and self._rebar_window.winfo_exists():
-            self._rebar_window.lift()
-            self._rebar_window.focus_set()
-            if self._rebar_entries:
-                self._rebar_entries[0].focus_set()
+
+        # Delegate the UI to the RebarCalculatorWindow and handle the callback
+        try:
+            from app.ui.rebar_calculator import RebarCalculatorWindow
+        except Exception:
+            logger.exception("RebarCalculatorWindow not available")
+            self._in_rebar_calculator = False
             return
 
-        win = tk.Toplevel(self)
-        win.title("Calcolo area armatura")
-        win.resizable(False, False)
-        win.transient(self.winfo_toplevel())
-        win.grab_set()
-        self._rebar_window = win
-
-        frame = tk.Frame(win, padx=10, pady=10)
-        frame.pack(fill="both", expand=True)
-
-        diameters = [8, 10, 12, 14, 16, 20, 25]
-        self._rebar_vars = {}
-        self._rebar_entries = []
-
-        tk.Label(frame, text="Ø (mm)", width=8, anchor="w").grid(row=0, column=0, sticky="w")
-        tk.Label(frame, text="n barre", width=8, anchor="w").grid(row=0, column=1, sticky="w")
-
-        for i, d in enumerate(diameters, start=1):
-            tk.Label(frame, text=f"Ø{d}", width=8, anchor="w").grid(row=i, column=0, sticky="w", pady=2)
-            var = tk.StringVar(value="")
-            self._rebar_vars[d] = var
-            ent = tk.Entry(frame, textvariable=var, width=8)
-            self._rebar_entries.append(ent)
-            ent.grid(row=i, column=1, sticky="w", pady=2)
-            var.trace_add("write", lambda *_: self._update_rebar_total())
-            if i == 1:
-                ent.focus_set()
-
-        total_frame = tk.Frame(frame)
-        total_frame.grid(row=len(diameters) + 1, column=0, columnspan=2, sticky="w", pady=(8, 4))
-        tk.Label(total_frame, text="Area totale [cm²]:").pack(side="left")
-        tk.Label(total_frame, textvariable=self._rebar_total_var, width=10, anchor="w").pack(side="left")
-
-        btn_frame = tk.Frame(frame)
-        btn_frame.grid(row=len(diameters) + 2, column=0, columnspan=2, sticky="e")
-        tk.Button(btn_frame, text="Conferma", command=self._confirm_rebar_total).pack(side="right")
-
-        win.bind("<Escape>", lambda _e: self._close_rebar_window())
-        win.bind("<Return>", lambda _e: self._confirm_rebar_total())
-
-        self._update_rebar_total()
-
-    def _update_rebar_total(self) -> None:
-        total = 0.0
-        for d, var in self._rebar_vars.items():
+        def _on_confirm(total_str: str) -> None:
             try:
-                n = int(var.get() or 0)
+                if self.edit_entry is None or self._rebar_target_column is None:
+                    # fallback to tree set
+                    if self.edit_item and self._rebar_target_column:
+                        self.tree.set(self.edit_item, self._rebar_target_column, total_str)
+                else:
+                    self.edit_entry.delete(0, tk.END)
+                    self.edit_entry.insert(0, total_str)
+                    self._commit_edit()
             except Exception:
-                n = 0
-            d_cm = d / 10.0
-            area = math.pi * (d_cm ** 2) / 4.0
-            total += n * area
-        self._rebar_total_var.set(f"{total:.2f}")
+                logger.exception("Unable to apply rebar total in callback")
+            finally:
+                self._in_rebar_calculator = False
 
-    def _confirm_rebar_total(self) -> None:
-        if self.edit_entry is None or self._rebar_target_column is None:
-            # Fallback: if the entry was closed for some reason, try to set the tree cell directly
-            try:
-                if self.edit_item and self._rebar_target_column:
-                    value = self._rebar_total_var.get()
-                    self.tree.set(self.edit_item, self._rebar_target_column, value)
-            except Exception:
-                logger.exception("Unable to apply rebar total in fallback path")
-            self._close_rebar_window()
-            return
-        value = self._rebar_total_var.get()
-        self.edit_entry.delete(0, tk.END)
-        self.edit_entry.insert(0, value)
-        self._commit_edit()
-        self._close_rebar_window()
+        RebarCalculatorWindow(self, on_confirm=_on_confirm)
 
-    def _close_rebar_window(self) -> None:
-        if self._rebar_window is not None:
-            try:
-                self._rebar_window.destroy()
-            except Exception:
-                logger.exception("Error closing rebar window")
-        self._rebar_window = None
-        self._rebar_entries = []
-        # Clear flag after the calculator is closed
-        self._in_rebar_calculator = False
 
 
 class VerificationTableWindow(tk.Toplevel):
