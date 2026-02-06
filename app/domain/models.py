@@ -31,21 +31,21 @@ class VerificationInput:
     stirrup_material: str = ""
     notes: str = ""
     # Legacy Init vars to accept old keywords M and T in constructor
-    M: InitVar[Optional[float]] = None
-    T: InitVar[Optional[float]] = None
+    M_init: InitVar[Optional[float]] = None
+    T_init: InitVar[Optional[float]] = None
 
-    def __post_init__(self, M: Optional[float], T: Optional[float]) -> None:
+    def __post_init__(self, M_init: Optional[float], T_init: Optional[float]) -> None:
         # Map legacy init kwargs to new internal fields for backward compatibility
-        if M is not None:
+        if M_init is not None:
             try:
-                self.Mx = M
+                self.Mx = M_init
             except Exception:
-                self.__dict__["Mx"] = M
-        if T is not None:
+                self.__dict__["Mx"] = M_init
+        if T_init is not None:
             try:
-                self.Ty = T
+                self.Ty = T_init
             except Exception:
-                self.__dict__["Ty"] = T
+                self.__dict__["Ty"] = T_init
 
         # Ensure numeric fields exist as instance attributes (avoid unexpected property objects)
         for field_name in ("Mx", "My", "Mz", "Tx", "Ty", "At", "As_sup", "As_inf"):
