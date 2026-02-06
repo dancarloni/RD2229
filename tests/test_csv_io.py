@@ -1,4 +1,3 @@
-import csv
 from pathlib import Path
 
 from verification_table import VerificationInput, VerificationTableApp

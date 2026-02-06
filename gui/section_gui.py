@@ -3,7 +3,7 @@ from __future__ import annotations
 import tkinter as tk
 from enum import Enum
 from tkinter import messagebox, simpledialog, ttk
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional, Type
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle as MplCircle
@@ -257,7 +257,7 @@ Momenti statici:
 def run_section_app():
     root = tk.Tk()
     root.title("Calcolatore Proprietà Sezioni")
-    app = SectionApp(master=root)
+    _ = SectionApp(master=root)
     root.geometry("600x600")
     root.mainloop()
 

@@ -16,6 +16,20 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
+# Imports for demo (after adding project root to sys.path)
+from config.calculation_codes_loader import (  # noqa: E402
+    get_safety_coefficients,
+    get_stress_limits,
+    list_available_codes,
+    load_code,
+)
+from config.historical_materials_loader import (  # noqa: E402
+    HistoricalMaterialsLoader,
+    get_concrete_properties,
+    get_steel_properties,
+    list_available_sources,
+)
+
 print("=" * 80)
 print("DEMONSTRATION: .jsoncode Configuration System")
 print("=" * 80)
@@ -27,13 +41,6 @@ print("\n" + "=" * 80)
 print("1. CALCULATION CODES")
 print("=" * 80)
 
-from config.calculation_codes_loader import (
-    get_safety_coefficients,
-    get_stress_limits,
-    list_available_codes,
-    load_code,
-)
-
 print("\nAvailable calculation codes:", list_available_codes())
 
 # TA Configuration
@@ -44,12 +51,12 @@ print(f"Description: {ta_config['description']}")
 print(f"Period: {ta_config.get('standard_references', 'N/A')}")
 
 ta_coeffs = get_safety_coefficients("TA")
-print(f"\nSafety Coefficients:")
+print("\nSafety Coefficients:")
 print(f"  γ_c = {ta_coeffs['gamma_c']['value']} ({ta_coeffs['gamma_c']['description']})")
 print(f"  γ_s = {ta_coeffs['gamma_s']['value']} ({ta_coeffs['gamma_s']['description']})")
 
 ta_limits = get_stress_limits("TA")
-print(f"\nStress Limits:")
+print("\nStress Limits:")
 print(f"  σ_c,adm = {ta_limits['concrete']['sigma_c_max_factor']} × σ_c,28")
 print(f"  τ_c0 = {ta_limits['shear']['tau_c0']['value']} × σ_c,28")
 print(f"  τ_c1 = {ta_limits['shear']['tau_c1']['value']} × σ_c,28")
@@ -61,11 +68,11 @@ print(f"Code: {slu_config['code_name']}")
 print(f"Description: {slu_config['description']}")
 
 slu_coeffs = get_safety_coefficients("SLU")
-print(f"\nSafety Coefficients:")
+print("\nSafety Coefficients:")
 print(f"  γ_c = {slu_coeffs['gamma_c']['value']}")
 print(f"  γ_s = {slu_coeffs['gamma_s']['value']}")
 
-print(f"\nStrain Limits:")
+print("\nStrain Limits:")
 strain = slu_config["strain_limits"]["concrete"]
 print(f"  ε_c2 = {strain['eps_c2']['value']} (parabola-rectangle)")
 print(f"  ε_cu = {strain['eps_cu']['value']} (ultimate)")
@@ -76,12 +83,12 @@ sle_config = load_code("SLE")
 print(f"Code: {sle_config['code_name']}")
 print(f"Description: {sle_config['description']}")
 
-print(f"\nStress Limits:")
+print("\nStress Limits:")
 stress = sle_config["stress_limits"]["concrete"]
 print(f"  Characteristic: σ_c ≤ {stress['compression_characteristic']['value']} × fck")
 print(f"  Quasi-permanent: σ_c ≤ {stress['compression_quasi_permanent']['value']} × fck")
 
-print(f"\nCrack Limits:")
+print("\nCrack Limits:")
 crack = sle_config["crack_limits"]["ordinary_environment"]
 print(f"  Ordinary environment: w_max = {crack['w_max_frequent']} mm (frequent)")
 
@@ -91,13 +98,6 @@ print(f"  Ordinary environment: w_max = {crack['w_max_frequent']} mm (frequent)"
 print("\n" + "=" * 80)
 print("2. HISTORICAL MATERIALS")
 print("=" * 80)
-
-from config.historical_materials_loader import (
-    HistoricalMaterialsLoader,
-    get_concrete_properties,
-    get_steel_properties,
-    list_available_sources,
-)
 
 print("\nAvailable material sources:", list_available_sources())
 
@@ -199,16 +199,15 @@ print("\n" + "=" * 80)
 print("4. UNIT CONVERSION (Technical ↔ SI)")
 print("=" * 80)
 
-from config.historical_materials_loader import HistoricalMaterialsLoader
 
 loader = HistoricalMaterialsLoader()
 conversion = loader.get_conversion_factors("RD2229")
 
-print(f"\nConversion factors:")
+print("\nConversion factors:")
 print(f"  1 kg/cm² = {conversion['kg_cm2_to_MPa']} MPa")
 print(f"  1 MPa = {conversion['MPa_to_kg_cm2']} kg/cm²")
 
-print(f"\nExamples:")
+print("\nExamples:")
 print(f"  RD2229 R160: σ_c,28 = 160 kg/cm² ≈ {160 * conversion['kg_cm2_to_MPa']:.2f} MPa")
 print(f"  NTC2018 C25/30: fck = 25 MPa ≈ {25 * conversion['MPa_to_kg_cm2']:.1f} kg/cm²")
 

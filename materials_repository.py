@@ -10,9 +10,7 @@ in modo che le UI (es. `VerificationTableWindow`) possano aggiornare i suggerime
 
 from __future__ import annotations
 
-import json
 import logging
-from tkinter import messagebox
 from typing import Dict, List, Optional
 
 from tools import materials_manager

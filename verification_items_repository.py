@@ -4,12 +4,9 @@ import json
 import logging
 from dataclasses import asdict
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from verification_items import VerificationItem
-
-if TYPE_CHECKING:  # pragma: no cover - typing only
-    from verification_table import VerificationInput
 
 logger = logging.getLogger(__name__)
 

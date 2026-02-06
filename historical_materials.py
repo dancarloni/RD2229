@@ -278,7 +278,10 @@ class HistoricalMaterialLibrary:
                 tau_c1=16.0,  # τ_c1: taglio massimo [kg/cm²]
                 n=8.0,  # coefficiente di omogeneizzazione Es/Ec
                 gamma_c=3.0,
-                notes="Cemento ad alta resistenza. Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²",
+                notes=(
+                    "Cemento ad alta resistenza. "
+                    "Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²"
+                ),
             )
         )
 

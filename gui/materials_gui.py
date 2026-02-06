@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 import os
 import tkinter as tk
-from tkinter import filedialog, messagebox, simpledialog, ttk
+from tkinter import messagebox, simpledialog, ttk
 from typing import Optional
 
 from tools import materials_manager
@@ -196,8 +196,8 @@ class MaterialEditor(simpledialog.Dialog):
         txt_lines.append(f"σ_c (semplice) = {sigma_c_simple} Kg/cm²")
         txt_lines.append(f"σ_c (inflesse) = {sigma_c_inflessa} Kg/cm²")
         txt_lines.append(f"tau service = {service_tau} Kg/cm², tau max = {max_tau} Kg/cm²")
-        txt_lines.append(f"")
-        txt_lines.append(f"MODULI ELASTICI:")
+        txt_lines.append("")
+        txt_lines.append("MODULI ELASTICI:")
         if ec is not None:
             txt_lines.append(f"E_c (calcolato) = {ec} Kg/cm²")
         if ec_conv is not None:
@@ -209,13 +209,13 @@ class MaterialEditor(simpledialog.Dialog):
         if g_min and g_max:
             txt_lines.append(f"G_c = {g_mean} Kg/cm² (range: {g_min} ÷ {g_max})")
         if sigma_t_min and sigma_t_max:
-            txt_lines.append(f"")
-            txt_lines.append(f"LIMITI STORICI:")
+            txt_lines.append("")
+            txt_lines.append("LIMITI STORICI:")
             txt_lines.append(f"σ_t (trazione) = {sigma_t_min}÷{sigma_t_max} Kg/cm² (≈1/10÷1/9 σ_c)")
             txt_lines.append(
                 f"σ_tf (flessione) = {sigma_tf_min}÷{sigma_tf_max} Kg/cm² (≈1/5÷1/4 σ_c)"
             )
-            txt_lines.append(f"σ_taglio ≈ poco maggiore di σ_t")
+            txt_lines.append("σ_taglio ≈ poco maggiore di σ_t")
 
         # if user didn't provide E, propose the computed value in the E entry
         try:
@@ -674,7 +674,7 @@ def run_app():
     logger.info("Avvio applicazione GUI Materials Manager")
     root = tk.Tk()
     root.title("Materials Manager")
-    app = MaterialsApp(master=root)
+    _ = MaterialsApp(master=root)
     root.geometry("640x480")
     root.mainloop()
     logger.info("Chiusura applicazione GUI Materials Manager")

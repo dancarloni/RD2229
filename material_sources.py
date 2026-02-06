@@ -26,10 +26,10 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
@@ -114,17 +114,26 @@ def _get_default_sources() -> List[MaterialSource]:
         MaterialSource(
             id="RD2229",
             name="RD 2229/1939",
-            description="Regio Decreto 16 novembre 1939 - Norme per l'esecuzione delle opere in conglomerato cementizio",
+            description=(
+                "Regio Decreto 16 novembre 1939 - Norme per l'esecuzione "
+                "delle opere in conglomerato cementizio"
+            ),
             year=1939,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
             is_historical=True,
             reference="R.D. 16/11/1939 n. 2229",
-            notes="Prima norma italiana organica sul cemento armato. Metodo n (tensioni ammissibili).",
+            notes=(
+                "Prima norma italiana organica sul cemento armato. "
+                "Metodo n (tensioni ammissibili)."
+            ),
         ),
         MaterialSource(
             id="DM72",
             name="DM 30/05/1972",
-            description="Decreto Ministeriale 30 maggio 1972 - Norme tecniche per le costruzioni in cemento armato",
+            description=(
+                "Decreto Ministeriale 30 maggio 1972 - Norme tecniche "
+                "per le costruzioni in cemento armato"
+            ),
             year=1972,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
             is_historical=True,
@@ -134,7 +143,10 @@ def _get_default_sources() -> List[MaterialSource]:
         MaterialSource(
             id="DM92",
             name="DM 14/02/1992",
-            description="Decreto Ministeriale 14 febbraio 1992 - Norme tecniche per le costruzioni in zona sismica",
+            description=(
+                "Decreto Ministeriale 14 febbraio 1992 - Norme tecniche "
+                "per le costruzioni in zona sismica"
+            ),
             year=1992,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
             is_historical=True,
@@ -144,17 +156,27 @@ def _get_default_sources() -> List[MaterialSource]:
         MaterialSource(
             id="DM96",
             name="DM 09/01/1996",
-            description="Decreto Ministeriale 9 gennaio 1996 - Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato",
+            description=(
+                "Decreto Ministeriale 9 gennaio 1996 - Norme tecniche "
+                "per il calcolo, l'esecuzione ed il collaudo delle "
+                "strutture in cemento armato"
+            ),
             year=1996,
             calculation_method=CalculationMethod.SEMIPROBABILISTICO,
             is_historical=True,
             reference="D.M. 09/01/1996",
-            notes="Introduce il metodo semiprobabilistico agli stati limite come alternativa alle TA.",
+            notes=(
+                "Introduce il metodo semiprobabilistico agli stati limite "
+                "come alternativa alle TA."
+            ),
         ),
         MaterialSource(
             id="OPCM3274",
             name="OPCM 3274/2003",
-            description="Ordinanza PCM 20 marzo 2003 n. 3274 - Primi elementi in materia di criteri generali per la classificazione sismica",
+            description=(
+                "Ordinanza PCM 20 marzo 2003 n. 3274 - Primi elementi in "
+                "materia di criteri generali per la classificazione sismica"
+            ),
             year=2003,
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=True,
@@ -164,12 +186,17 @@ def _get_default_sources() -> List[MaterialSource]:
         MaterialSource(
             id="NTC2008",
             name="NTC 2008",
-            description="Norme Tecniche per le Costruzioni - DM 14 gennaio 2008",
+            description=(
+                "Norme Tecniche per le Costruzioni - DM 14 gennaio 2008"
+            ),
             year=2008,
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=True,
             reference="D.M. 14/01/2008",
-            notes="Prima versione delle NTC. Metodo SL obbligatorio, TA ammesse solo per strutture semplici.",
+            notes=(
+                "Prima versione delle NTC. Metodo SL obbligatorio, "
+                "TA ammesse solo per strutture semplici."
+            ),
         ),
         MaterialSource(
             id="NTC2018",
@@ -179,7 +206,10 @@ def _get_default_sources() -> List[MaterialSource]:
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=False,
             reference="D.M. 17/01/2018",
-            notes="Norma vigente. Metodo agli stati limite. Circolare applicativa n. 7/2019.",
+            notes=(
+                "Norma vigente. Metodo agli stati limite. "
+                "Circolare applicativa n. 7/2019."
+            ),
         ),
         MaterialSource(
             id="LAB_TEST",
