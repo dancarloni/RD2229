@@ -203,6 +203,48 @@ Momenti statici:
         plt.show()
 
 
+def plot_section(section, title: Optional[str] = None, show: bool = True):
+    """Plot a section using Matplotlib (standalone helper).
+
+    This allows other UI code to reuse the Matplotlib drawing used in the
+    SectionApp without creating a full SectionApp instance. If `show` is
+    False the function returns the `(fig, ax)` pair instead of calling
+    ``plt.show()`` (useful for tests).
+    """
+    if section is None:
+        raise ValueError("section is required")
+
+    fig, ax = plt.subplots()
+    ax.set_aspect('equal')
+    ax.set_title(title or f"Sezione {getattr(section, 'name', type(section).__name__)}")
+
+    # Draw shapes depending on type
+    if isinstance(section, RectangularSection):
+        ax.add_patch(MplRectangle((0, 0), section.width, section.height, fill=False))
+    elif isinstance(section, CircularSection):
+        cx, cy = section.centroid()
+        circle = MplCircle((cx, cy), section.diameter / 2, fill=False)
+        ax.add_patch(circle)
+    elif isinstance(section, TSection):
+        for rect in section._rects():
+            ax.add_patch(MplRectangle((rect.x, rect.y), rect.width, rect.height, fill=rect.sign > 0, color='blue' if rect.sign > 0 else 'white'))
+    else:
+        ax.text(0.5, 0.5, "Grafica non implementata per questa sezione", transform=ax.transAxes, ha='center')
+
+    # Centroid
+    try:
+        cx, cy = section.centroid()
+        ax.plot(cx, cy, 'ro', markersize=5)
+        ax.text(cx, cy, 'Baricentro', fontsize=8, ha='right')
+    except Exception:
+        pass
+
+    if show:
+        plt.show()
+    else:
+        return fig, ax
+
+
 def run_section_app():
     root = tk.Tk()
     root.title("Calcolatore Proprietà Sezioni")

@@ -440,6 +440,12 @@ class MainWindow(tk.Toplevel):
         ).grid(row=0, column=1, padx=4, pady=2)
         tk.Button(
             self.buttons_frame,
+            text="Mostra Matplotlib",
+            command=self.show_matplotlib,
+            width=20,
+        ).grid(row=0, column=2, padx=4, pady=2)
+        tk.Button(
+            self.buttons_frame,
             text="Salva nell'archivio",
             command=self.save_section,
             width=20,
@@ -738,6 +744,20 @@ class MainWindow(tk.Toplevel):
             messagebox.showinfo("Info", "Calcola prima le proprietà")
             return
         self._draw_section(self.current_section)
+
+    def show_matplotlib(self) -> None:
+        """Open a Matplotlib plot of the current section using `gui.section_gui.plot_section`."""
+        if not self.current_section or not self.current_section.properties:
+            messagebox.showinfo("Info", "Calcola prima le proprietà")
+            return
+        try:
+            # Import locally to avoid heavy import at module load time
+            from gui.section_gui import plot_section
+
+            plot_section(self.current_section, title=self.current_section.name)
+        except Exception as e:
+            logger.exception("Errore apertura Matplotlib: %s", e)
+            messagebox.showerror("Errore", f"Impossibile mostrare grafica: {e}")
 
     def _show_properties(self, props, section: Section) -> None:
         output = (
