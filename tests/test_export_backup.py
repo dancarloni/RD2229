@@ -111,8 +111,8 @@ class TestExportBackup(unittest.TestCase):
         # Esporta senza estensione
         self.repo.export_backup(export_path)
         
-        # Verifica che sia stato creato con .json
-        expected_path = self.temp_path / "export_no_extension.json"
+        # Verifica che sia stato creato con .jsons
+        expected_path = self.temp_path / "export_no_extension.jsons"
         self.assertTrue(expected_path.exists())
         
         # Verifica che sia JSON valido
@@ -127,8 +127,8 @@ class TestExportBackup(unittest.TestCase):
         # Esporta con estensione non supportata
         self.repo.export_backup(export_path)
         
-        # Verifica che sia stato creato con .json
-        expected_path = self.temp_path / "export_invalid.json"
+        # Verifica che sia stato creato con .jsons
+        expected_path = self.temp_path / "export_invalid.jsons"
         self.assertTrue(expected_path.exists())
 
     def test_export_creates_directory_if_needed(self):

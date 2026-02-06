@@ -122,6 +122,12 @@ def test_treeview_columns():
         "Ix": (80, "center"),
         "Iy": (80, "center"),
         "Ixy": (75, "center"),
+        # Principali inerzie
+        "I1": (80, "center"),
+        "I2": (80, "center"),
+        "principal_angle_deg": (70, "center"),
+        "principal_rx": (65, "center"),
+        "principal_ry": (65, "center"),
         "Qx": (70, "center"),
         "Qy": (70, "center"),
         "rx": (65, "center"),

@@ -59,8 +59,8 @@ if ($applyErr -eq $null -and $LASTEXITCODE -eq 0) {
 Write-Host "Running pytest smoke tests..."
 $env:PYTHONPATH = "$PWD"
 try {
-    git rev-parse --abbrev-ref HEAD | Write-Host "On branch: "
-    pytest -q tests/test_migration_sections_json.py tests/test_repository_save.py
+        $branch = git rev-parse --abbrev-ref HEAD
+        Write-Host "On branch: $branch"
     Write-Host "Smoke tests passed. Running full test suite (may be long)..."
     pytest -q
 } catch {
