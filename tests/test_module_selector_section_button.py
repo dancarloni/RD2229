@@ -2,7 +2,9 @@ import unittest
 import tkinter as tk
 from unittest.mock import patch
 import os
-os.environ['DISPLAY'] = ':0'  # Set display for headless environments
+import sys
+if os.name != "nt" and "DISPLAY" not in os.environ:
+    os.environ["DISPLAY"] = ":0"  # Set display for headless environments on non-Windows
 
 from sections_app.ui.module_selector import ModuleSelectorWindow
 from sections_app.services.repository import SectionRepository, CsvSectionSerializer

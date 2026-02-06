@@ -1,0 +1,6 @@
+{
+  "level": "errors_only",
+  "show_toasts": true,
+  "silent_sources": [],
+  "confirm_default": "ask"
+}

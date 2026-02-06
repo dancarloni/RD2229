@@ -1441,6 +1441,13 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
     note = (data.get("note") or "").strip()
     rotation_angle_deg = float(data.get("rotation_angle_deg") or 0)
 
+    def _pick_value(*keys: str) -> Optional[str]:
+        for key in keys:
+            value = data.get(key)
+            if value is not None and value != "":
+                return value
+        return None
+
     if section_type == "RECTANGULAR":
         width = float(data.get("width") or 0)
         height = float(data.get("height") or 0)
@@ -1584,8 +1591,8 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
         )
     
     elif section_type == "CIRCULAR_HOLLOW":
-        outer_diameter = float(data.get("diameter") or 0)
-        thickness = float(data.get("web_thickness") or 0)
+        outer_diameter = float(_pick_value("outer_diameter", "diameter") or 0)
+        thickness = float(_pick_value("thickness", "web_thickness") or 0)
         _ensure_positive(outer_diameter, "outer_diameter")
         _ensure_positive(thickness, "thickness")
         section = CircularHollowSection(
@@ -1599,7 +1606,7 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
     elif section_type == "RECTANGULAR_HOLLOW":
         width = float(data.get("width") or 0)
         height = float(data.get("height") or 0)
-        thickness = float(data.get("web_thickness") or 0)
+        thickness = float(_pick_value("thickness", "web_thickness") or 0)
         _ensure_positive(width, "width")
         _ensure_positive(height, "height")
         _ensure_positive(thickness, "thickness")
@@ -1615,7 +1622,7 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
     elif section_type == "V_SECTION":
         width = float(data.get("width") or 0)
         height = float(data.get("height") or 0)
-        thickness = float(data.get("web_thickness") or 0)
+        thickness = float(_pick_value("thickness", "web_thickness") or 0)
         _ensure_positive(width, "width")
         _ensure_positive(height, "height")
         _ensure_positive(thickness, "thickness")
@@ -1631,7 +1638,7 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
     elif section_type == "INVERTED_V_SECTION":
         width = float(data.get("width") or 0)
         height = float(data.get("height") or 0)
-        thickness = float(data.get("web_thickness") or 0)
+        thickness = float(_pick_value("thickness", "web_thickness") or 0)
         _ensure_positive(width, "width")
         _ensure_positive(height, "height")
         _ensure_positive(thickness, "thickness")

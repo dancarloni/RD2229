@@ -4,7 +4,7 @@ import math
 import logging
 import tkinter as tk
 from dataclasses import dataclass, InitVar
-from tkinter import messagebox, ttk, filedialog
+from tkinter import ttk, filedialog
 from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
 from typing import Dict, Iterable, List, Optional, Tuple
 import random
@@ -87,22 +87,22 @@ class VerificationInput:
     stirrup_material: str = ""
     notes: str = ""
     # Legacy Init vars to accept old keywords M and T in constructor
-    M: InitVar[Optional[float]] = None
-    T: InitVar[Optional[float]] = None
+    M_legacy: InitVar[Optional[float]] = None
+    T_legacy: InitVar[Optional[float]] = None
 
-    def __post_init__(self, M: Optional[float], T: Optional[float]) -> None:
+    def __post_init__(self, M_legacy: Optional[float], T_legacy: Optional[float]) -> None:
         # Map legacy init kwargs to new internal fields for backward compatibility
-        if M is not None:
+        if M_legacy is not None:
             try:
-                self.Mx = M
+                self.Mx = M_legacy
             except Exception:
                 # If Mx is a descriptor/property at class-level, force instance attribute
-                self.__dict__['Mx'] = M
-        if T is not None:
+                self.__dict__['Mx'] = M_legacy
+        if T_legacy is not None:
             try:
-                self.Ty = T
+                self.Ty = T_legacy
             except Exception:
-                self.__dict__['Ty'] = T
+                self.__dict__['Ty'] = T_legacy
 
         # Ensure numeric fields exist as instance attributes (avoid unexpected property objects)
         for field_name in ("Mx", "My", "Mz", "Tx", "Ty", "At", "As_sup", "As_inf"):
@@ -1308,6 +1308,28 @@ class VerificationTableApp(tk.Frame):
                     editor.insert(0, initial_text)
                 editor.select_range(0, tk.END)
                 editor.focus_set()
+                # Show suggestions when the entry receives focus (fix race on click)
+                if col in {"section", "mat_concrete", "mat_steel", "stirrups_mat"}:
+                    def _focus_show_all(_e=None):
+                            try:
+                                # Mark that a real FocusIn event occurred.
+                                self._focus_in_seen = True
+                            except Exception:
+                                pass
+                            try:
+                                self._force_show_all_on_empty = True
+                            except Exception:
+                                pass
+                            try:
+                                self._update_suggestions()
+                            except Exception:
+                                pass
+                            try:
+                                # schedule a short retry to handle geometry races
+                                self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
+                            except Exception:
+                                pass
+                    editor.bind("<FocusIn>", _focus_show_all)
                 # Bind eventi comuni
                 editor.bind("<Return>", self._on_entry_commit_down)
                 editor.bind("<Shift-Return>", self._on_entry_commit_up)
@@ -1334,6 +1356,29 @@ class VerificationTableApp(tk.Frame):
             except Exception:
                 pass
             editor.focus_set()
+            # Show suggestions when the entry receives focus (fix race on click)
+            if col in {"section", "mat_concrete", "mat_steel", "stirrups_mat"}:
+                def _focus_show_all(_e=None):
+                    try:
+                        self._force_show_all_on_empty = True
+                    except Exception:
+                        pass
+                    try:
+                        self._update_suggestions()
+                    except Exception:
+                        pass
+                    try:
+                        # schedule a short retry to handle geometry races
+                        self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
+                    except Exception:
+                        pass
+                editor.bind("<FocusIn>", _focus_show_all)
+                try:
+                    # Trigger synthetic focus event for Combobox which sometimes
+                    # needs an explicit event to open dropdowns on some platforms.
+                    editor.event_generate("<FocusIn>")
+                except Exception:
+                    pass
             # Monkeypatch Combobox.set to record the last value set programmatically.
             # This helps tests that use cb.set('...') and expect the value to be
             # available synchronously at commit time.
@@ -1357,6 +1402,25 @@ class VerificationTableApp(tk.Frame):
                 editor.insert(0, initial_text)
             editor.select_range(0, tk.END)
             editor.focus_set()
+            if col in {"section", "mat_concrete", "mat_steel", "stirrups_mat"}:
+                def _focus_show_all_entry(_e=None):
+                    try:
+                        self._focus_in_seen = True
+                    except Exception:
+                        pass
+                    try:
+                        self._force_show_all_on_empty = True
+                    except Exception:
+                        pass
+                    try:
+                        self._update_suggestions()
+                    except Exception:
+                        pass
+                    try:
+                        self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
+                    except Exception:
+                        pass
+                editor.bind("<FocusIn>", _focus_show_all_entry)
 
         # Bind eventi comuni
         editor.bind("<Return>", self._on_entry_commit_down)
@@ -1465,8 +1529,9 @@ class VerificationTableApp(tk.Frame):
             # Indica che la successiva chiamata a `_update_suggestions` può
             # mostrare l'elenco completo anche se l'entry è vuota.
             self._force_show_all_on_empty = True
-            # Start editing and then show suggestions after a brief delay
-            self.after_idle(lambda: self._start_edit(item, col))
+            # Start editing immediately (avoids idle timing races in tests/on Windows)
+            self._start_edit(item, col)
+            # Also schedule an additional short delayed update to handle geometry races
             self.after(10, self._update_suggestions)
 
     def _on_tree_double_click(self, event: tk.Event) -> None:
@@ -1592,13 +1657,68 @@ class VerificationTableApp(tk.Frame):
         # Crea l'editor (Entry o Combobox) in modo centralizzato
         self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
 
-        # Se lo start è esplicito (programma o click), consentiamo alla prima
-        # chiamata a `_update_suggestions` di mostrare l'elenco completo se
-        # l'entry è vuota. Questo viene resettato immediatamente dopo la chiamata
-        # per evitare effetti collaterali sulle successive modifiche.
-        self._force_show_all_on_empty = True
-        self._update_suggestions()
-        self._force_show_all_on_empty = False
+
+        # Schedule an immediate synthetic FocusIn which will set the force
+        # flag and trigger an update via the bound handler. This avoids
+        # synchronous show-all semantics that can confuse tests and user
+        # actions (e.g. immediate deletion after opening the editor).
+        try:
+            # Schedule a small check to set the show-all flag only if the
+            # editor actually has focus. This avoids setting the flag for
+            # programmatic edits where callers immediately mutate the entry
+            # (e.g. delete) and expect no suggestions to appear.
+            def _maybe_focus():
+                try:
+                    ed = getattr(self, 'edit_entry', None)
+                    if ed is None:
+                        return
+                    try:
+                        focused = (ed == ed.focus_get())
+                    except Exception:
+                        focused = False
+                    if focused:
+                        try:
+                            self._force_show_all_on_empty = True
+                        except Exception:
+                            pass
+                    try:
+                        ed.event_generate("<FocusIn>")
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+            self.after(1, _maybe_focus)
+        except Exception:
+            pass
+
+        # An additional slightly later attempt which triggers a synthetic
+        # FocusIn on the editor for widgets like ttk.Combobox that may need
+        # more time to settle on some platforms; also performs an extra
+        # suggestions update as a safety retry.
+        def _late_trigger():
+            try:
+                if getattr(self, 'edit_entry', None) is not None and self.edit_column in {"mat_concrete", "mat_steel", "stirrups_mat", "section"}:
+                    try:
+                        self.edit_entry.event_generate("<FocusIn>")
+                    except Exception:
+                        pass
+                    try:
+                        self._update_suggestions()
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+        self.after(50, _late_trigger)
+        # As a pragmatic stability measure for tests and fast UI flows,
+        # schedule a short suggestion update so that suggestion sources are
+        # populated even if event ordering varies across platforms.
+        try:
+            # Trigger an immediate update to populate suggestion sources
+            # so tests and fast UI flows can observe the list without
+            # depending on asynchronous FocusIn ordering.
+            self._update_suggestions()
+        except Exception:
+            pass
 
     def _commit_edit(self) -> None:
         if self.edit_entry is None or self.edit_item is None or self.edit_column is None:
@@ -1758,6 +1878,14 @@ class VerificationTableApp(tk.Frame):
         if self.edit_entry is None or self.edit_column is None:
             return
         source = self.suggestions_map.get(self.edit_column)
+        # DEBUG: inspect source and current value
+        # Diagnostic logging is handled via the configured logger; avoid
+        # printing directly to stdout which can destabilize tests.
+        try:
+            logger.debug("_update_suggestions source for %s -> %s", self.edit_column, source)
+            logger.debug("current entry text -> %s", self.edit_entry.get())
+        except Exception:
+            logger.debug("_update_suggestions: could not read source or entry", exc_info=True)
         if not source:
             self._hide_suggestions()
             return
@@ -1774,18 +1902,65 @@ class VerificationTableApp(tk.Frame):
                 # We only show the full suggestion list on empty query when the edit
                 # was explicitly opened (e.g. by clicking the cell). This avoids
                 # displaying suggestions when the user types and then deletes input.
-                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (self.edit_column in show_all_on_empty)
-                # reset flag regardless
-                self._force_show_all_on_empty = False
+                show_all_flag = (
+                    getattr(self, "_force_show_all_on_empty", False)
+                    and getattr(self, "_focus_in_seen", False)
+                    and (self.edit_column in show_all_on_empty)
+                )
+                logger.debug('show_all_flag=%s (force=%s focus_seen=%s)',
+                             show_all_flag,
+                             getattr(self, "_force_show_all_on_empty", False),
+                             getattr(self, "_focus_in_seen", False))
+                # reset flags regardless
+                try:
+                    self._force_show_all_on_empty = False
+                except Exception:
+                    pass
+                try:
+                    self._focus_in_seen = False
+                except Exception:
+                    pass
                 if not show_all_flag:
-                    # Preserve old behavior: hide suggestions for empty query
-                    self._hide_suggestions()
-                    return
+                    # Preserve old behavior: hide suggestions for empty query.
+                    # We only keep an existing populated list when we are handling
+                    # a geometry retry for a previous show-all request. Additionally
+                    # allow a short grace period immediately after a show-all
+                    # population to avoid races where a subsequent quick update
+                    # would hide the list prematurely.
+                    if getattr(self, "_suggest_retry_scheduled", False) and getattr(self, "_last_populated_show_all", False):
+                        if self._suggest_list is None or self._suggest_list.size() == 0:
+                            self._hide_suggestions()
+                            self._last_populated_show_all = False
+                            return
+                    else:
+                        # small grace window (50 ms)
+                        try:
+                            import time as _time
+                            last = getattr(self, "_last_populated_show_all_time", 0)
+                            if getattr(self, "_last_populated_show_all", False) and (_time.time() - last) < 0.05:
+                                # keep the populated list for this short window
+                                pass
+                            else:
+                                self._hide_suggestions()
+                                self._last_populated_show_all = False
+                                return
+                        except Exception:
+                            self._hide_suggestions()
+                            self._last_populated_show_all = False
+                            return
                 # For the allowed columns when explicitly requested, request full list
                 if callable(source):
                     filtered = source("")
                 else:
                     filtered = list(source)
+                # Mark that we populated the list as a result of a show-all
+                # request so we can keep it briefly through geometry races.
+                self._last_populated_show_all = True
+                try:
+                    import time as _time
+                    self._last_populated_show_all_time = _time.time()
+                except Exception:
+                    pass
             else:
                 # Non-empty query: keep existing behavior
                 if callable(source):
@@ -1800,20 +1975,138 @@ class VerificationTableApp(tk.Frame):
             self._hide_suggestions()
             return
 
+        # Create the suggestion window and populate the list early so that
+        # focus handlers and tests can inspect the items even if the editor
+        # geometry is not yet realized. Keep the window withdrawn until we can
+        # reliably position it. This ensures tests that inspect the list don't
+        # race against platform geometry reporting.
         if self._suggest_box is None:
             self._ensure_suggestion_box()
 
         if self._suggest_list is None:
             return
+        # Populate the list early (kept withdrawn until we can place it)
         self._suggest_list.delete(0, tk.END)
         for s in filtered[: self.display_limit]:
             self._suggest_list.insert(tk.END, s)
         self._suggest_list.selection_clear(0, tk.END)
         self._suggest_list.selection_set(0)
+        try:
+            logger.debug('populated suggest_list with %d items', self._suggest_list.size())
+        except Exception:
+            logger.debug('populated suggest_list failed to report size', exc_info=True)
 
-        x = self.edit_entry.winfo_rootx()
-        y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
-        self._suggest_box.geometry(f"{self.edit_entry.winfo_width()}x120+{x}+{y}")
+        # Ensure the editor geometry is realized; on some platforms (Windows)
+        # the widget geometry can be zero immediately after creation which makes
+        # the suggestion Toplevel invisible. Try to force a geometry update first
+        # and otherwise schedule a short retry.
+        try:
+            self.edit_entry.update_idletasks()
+        except Exception:
+            pass
+        try:
+            w = self.edit_entry.winfo_width()
+        except Exception:
+            w = 0
+        if w <= 1:
+            if not getattr(self, "_suggest_retry_scheduled", False):
+                self._suggest_retry_scheduled = True
+                # Ensure the retry will show the full list if appropriate
+                try:
+                    self._force_show_all_on_empty = True
+                except Exception:
+                    pass
+                def _retry():
+                    try:
+                        setattr(self, "_suggest_retry_scheduled", False)
+                        self._update_suggestions()
+                    finally:
+                        try:
+                            self._force_show_all_on_empty = False
+                        except Exception:
+                            pass
+                self.after(10, _retry)
+            return
+
+        # Ensure the editor geometry is realized; on some platforms (Windows)
+        # the widget geometry can be zero immediately after creation which makes
+        # the suggestion Toplevel invisible. Try to force a geometry update first
+        # and otherwise schedule a short retry. If the geometry is not ready we
+        # keep the Toplevel withdrawn to avoid it appearing in the origin.
+        try:
+            self.edit_entry.update_idletasks()
+        except Exception:
+            pass
+        try:
+            w = self.edit_entry.winfo_width()
+        except Exception:
+            w = 0
+        if w <= 1:
+            try:
+                if self._suggest_box is not None:
+                    self._suggest_box.withdraw()
+            except Exception:
+                pass
+            if not getattr(self, "_suggest_retry_scheduled", False):
+                self._suggest_retry_scheduled = True
+                # Ensure the retry will show the full list if appropriate
+                try:
+                    self._force_show_all_on_empty = True
+                except Exception:
+                    pass
+                def _retry():
+                    try:
+                        setattr(self, "_suggest_retry_scheduled", False)
+                        self._update_suggestions()
+                    finally:
+                        try:
+                            self._force_show_all_on_empty = False
+                        except Exception:
+                            pass
+                self.after(10, _retry)
+            return
+        # Re-check that suggestion box still exists (it may have been hidden by
+        # a focus/commit race on some platforms). If it's gone, bail out.
+        if self._suggest_box is None:
+            return
+        # Try to compute a stable position using the Treeview bbox when
+        # possible (more reliable in some window managers and in tests where
+        # the editor widget geometry hasn't fully settled yet).
+        try:
+            bbox = self.tree.bbox(self.edit_item or self.current_item_id, self.edit_column)
+            if bbox:
+                bx, by, bw, bh = bbox
+                x = self.tree.winfo_rootx() + bx
+                y = self.tree.winfo_rooty() + by + bh
+            else:
+                x = self.edit_entry.winfo_rootx()
+                y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
+        except Exception:
+            try:
+                x = self.edit_entry.winfo_rootx()
+                y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
+            except Exception:
+                x = 0
+                y = 0
+        try:
+            # Ensure the suggestion window is visible and placed correctly
+            self._suggest_box.deiconify()
+            self._suggest_box.geometry(f"{self.edit_entry.winfo_width()}x120+{x}+{y}")
+        except Exception:
+            # If geometry fails, hide suggestions to avoid leaving an inconsistent state
+            self._hide_suggestions()
+            return
+        # Keep focus on the entry so that the suggestion list doesn't cause
+        # the entry to lose focus and be committed immediately on some platforms.
+        try:
+            self.edit_entry.focus_set()
+        except Exception:
+            pass
+        try:
+            # Make sure suggestion window is above but doesn't take focus
+            self._suggest_box.lift(self)
+        except Exception:
+            pass
 
     def _commit_if_focus_outside(self) -> None:
         if self.edit_entry is None:
@@ -2019,6 +2312,12 @@ class VerificationTableApp(tk.Frame):
         if self._suggest_box is not None:
             return
         self._suggest_box = tk.Toplevel(self)
+        # Keep the window hidden initially to avoid stealing focus or showing
+        # at the origin if its geometry is not yet computed.
+        try:
+            self._suggest_box.withdraw()
+        except Exception:
+            pass
         self._suggest_box.wm_overrideredirect(True)
         self._suggest_box.attributes("-topmost", True)
         self._suggest_list = tk.Listbox(self._suggest_box, height=6)

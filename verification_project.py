@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -28,7 +28,7 @@ class VerificationProject:
         self.path = None
         self.dirty = False
         self.last_action_was_add_list = False
-        self.created_at = datetime.utcnow().isoformat()
+        self.created_at = datetime.now(timezone.utc).isoformat()
 
     def _validate_header(self, data: Dict[str, Any]) -> None:
         if data.get("file_type") != DEFAULT_FILE_TYPE or data.get("module") != DEFAULT_MODULE:
@@ -38,7 +38,7 @@ class VerificationProject:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
         self._validate_header(data)
-        self.created_at = data.get("created_at") or datetime.utcnow().isoformat()
+        self.created_at = data.get("created_at") or datetime.now(timezone.utc).isoformat()
 
         # Load materials
         mats = data.get("materials") or {}
@@ -71,7 +71,7 @@ class VerificationProject:
             "file_type": DEFAULT_FILE_TYPE,
             "module": DEFAULT_MODULE,
             "version": DEFAULT_VERSION,
-            "created_at": self.created_at or datetime.utcnow().isoformat(),
+            "created_at": self.created_at or datetime.now(timezone.utc).isoformat(),
         }
         mats = {
             "cls": list(self.materials.get("cls", {}).values()),

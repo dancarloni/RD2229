@@ -2,7 +2,9 @@ import unittest
 import tkinter as tk
 from unittest.mock import patch
 import os
-os.environ['DISPLAY'] = ':0'
+import sys
+if os.name != "nt" and "DISPLAY" not in os.environ:
+    os.environ["DISPLAY"] = ":0"
 
 from sections_app.ui.frc_verification_window import FrcVerificationWindow
 from core_models.materials import MaterialRepository

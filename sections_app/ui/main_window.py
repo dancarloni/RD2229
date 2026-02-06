@@ -541,7 +541,7 @@ class MainWindow(tk.Toplevel):
         self._create_inputs()
 
         # Se era in modalità editing, resetta (la tipologia è cambiata)
-        if self.editing_section_id is not None:
+        if self.editing_section_id is not None and not getattr(self, "_suspend_section_change", False):
             logger.debug("Tipologia cambiata durante editing - reset modalità")
             self.editing_section_id = None
             self._update_editing_mode_label()
@@ -562,6 +562,10 @@ class MainWindow(tk.Toplevel):
             visible = self.section_combo.get()
         except Exception:
             visible = None
+
+        if getattr(self, "_suspend_section_change", False):
+            self._polling_id = self.after(300, self._poll_section_selection)
+            return
 
         if visible and visible != getattr(self, "_last_selected_type", None):
             logger.debug("Polling: rilevata selezione visibile diversa: %s", visible)
@@ -758,7 +762,7 @@ class MainWindow(tk.Toplevel):
             section.compute_properties()
         except Exception as e:
             logger.exception("Errore nel calcolo proprietà: %s", e)
-            messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {e}")
+            notify_error("Errore", f"Errore nel calcolo proprietà: {e}", source="main_window")
             return
         self.current_section = section
         self._draw_section(section)
@@ -1170,7 +1174,7 @@ class MainWindow(tk.Toplevel):
             logger.debug("Proprietà calcolate per sezione: %s", section.name)
         except Exception as e:
             logger.exception("Errore nel calcolo proprietà: %s", e)
-            messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {e}")
+            notify_error("Errore", f"Errore nel calcolo proprietà: {e}", source="main_window")
             return
 
         # OBIETTIVO 3: Modifica non crea nuova sezione, fa update della sezione esistente
@@ -1178,28 +1182,30 @@ class MainWindow(tk.Toplevel):
             # Nuova sezione
             added = self.repository.add_section(section)
             if added:
-                messagebox.showinfo(
-                    "Salvataggio", 
-                    f"Sezione '{section.name}' salvata correttamente nell'archivio.\nID: {section.id}"
+                notify_info(
+                    "Salvataggio",
+                    f"Sezione '{section.name}' salvata correttamente nell'archivio.\nID: {section.id}",
+                    source="main_window",
                 )
                 logger.debug("Sezione creata: %s", section.id)
             else:
-                messagebox.showinfo("Salvataggio", "Sezione duplicata: non salvata")
+                notify_info("Salvataggio", "Sezione duplicata: non salvata", source="main_window")
         else:
             # Modifica sezione esistente: aggiorna mantenendo lo stesso ID
             try:
                 section.id = self.editing_section_id  # Preserva ID originale
                 self.repository.update_section(self.editing_section_id, section)
-                messagebox.showinfo(
-                    "Aggiornamento", 
-                    f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\nID: {self.editing_section_id}"
+                notify_info(
+                    "Aggiornamento",
+                    f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\nID: {self.editing_section_id}",
+                    source="main_window",
                 )
                 logger.debug("Sezione aggiornata: %s", self.editing_section_id)
                 self.editing_section_id = None
                 self._update_editing_mode_label()
             except Exception as e:
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
-                    notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
+                notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
                 return
 
         # Se il manager è aperto, ricarica la tabella
@@ -1247,44 +1253,53 @@ class MainWindow(tk.Toplevel):
 
     def load_section_into_form(self, section: Section) -> None:
         """Carica i dati di una sezione nella form in modalità modifica."""
-        label = self._label_from_section(section)
-        if label:
-            self.section_var.set(label)
-            self._create_inputs()
-        self.name_entry.delete(0, tk.END)
-        self.name_entry.insert(0, section.name)
-
-        for field, entry in self.inputs.items():
-            value = getattr(section, field, "")
-            entry.delete(0, tk.END)
-            entry.insert(0, value)
-        
-        # Carica l'angolo di rotazione
-        self.rotation_entry.delete(0, tk.END)
-        self.rotation_entry.insert(0, str(section.rotation_angle_deg))
-
-        # Carica i fattori kappa se presenti, altrimenti mostra i default
+        self._suspend_section_change = True
         try:
-            if getattr(section, "shear_factor_y", None) is not None:
-                self.kappa_y_entry.delete(0, tk.END)
-                self.kappa_y_entry.insert(0, str(section.shear_factor_y))
-            else:
-                self._set_default_kappa_entries()
-            if getattr(section, "shear_factor_z", None) is not None:
-                self.kappa_z_entry.delete(0, tk.END)
-                self.kappa_z_entry.insert(0, str(section.shear_factor_z))
-            else:
-                self._set_default_kappa_entries()
-        except Exception:
-            # Non blocchiamo il caricamento se il campo non esiste
-            pass
-        
-        self.current_section = section
-        # Imposta l'id di modifica in modo che il salvataggio faccia update
-        self.editing_section_id = section.id
-        self._update_editing_mode_label()
-        if section.properties:
-            self._show_properties(section.properties, section)
+            label = self._label_from_section(section)
+            if label:
+                self.section_var.set(label)
+                try:
+                    self.section_combo.set(label)
+                except Exception:
+                    pass
+                self._last_selected_type = label
+                self._create_inputs()
+            self.name_entry.delete(0, tk.END)
+            self.name_entry.insert(0, section.name)
+
+            for field, entry in self.inputs.items():
+                value = getattr(section, field, "")
+                entry.delete(0, tk.END)
+                entry.insert(0, value)
+
+            # Carica l'angolo di rotazione
+            self.rotation_entry.delete(0, tk.END)
+            self.rotation_entry.insert(0, str(section.rotation_angle_deg))
+
+            # Carica i fattori kappa se presenti, altrimenti mostra i default
+            try:
+                if getattr(section, "shear_factor_y", None) is not None:
+                    self.kappa_y_entry.delete(0, tk.END)
+                    self.kappa_y_entry.insert(0, str(section.shear_factor_y))
+                else:
+                    self._set_default_kappa_entries()
+                if getattr(section, "shear_factor_z", None) is not None:
+                    self.kappa_z_entry.delete(0, tk.END)
+                    self.kappa_z_entry.insert(0, str(section.shear_factor_z))
+                else:
+                    self._set_default_kappa_entries()
+            except Exception:
+                # Non blocchiamo il caricamento se il campo non esiste
+                pass
+
+            self.current_section = section
+            # Imposta l'id di modifica in modo che il salvataggio faccia update
+            self.editing_section_id = section.id
+            self._update_editing_mode_label()
+            if section.properties:
+                self._show_properties(section.properties, section)
+        finally:
+            self._suspend_section_change = False
 
     def _label_from_section(self, section: Section) -> Optional[str]:
         for label, definition in SECTION_DEFINITIONS.items():
@@ -1304,7 +1319,7 @@ class MainWindow(tk.Toplevel):
         for section in sections:
             if self.repository.add_section(section):
                 added += 1
-        messagebox.showinfo("Importa CSV", f"Importate {added} sezioni")
+        notify_info("Importa CSV", f"Importate {added} sezioni", source="main_window")
 
     def export_csv(self) -> None:
         file_path = filedialog.asksaveasfilename(
@@ -1315,7 +1330,7 @@ class MainWindow(tk.Toplevel):
         if not file_path:
             return
         self.serializer.export_to_csv(file_path, self.repository.get_all_sections())
-        messagebox.showinfo("Esporta CSV", "Esportazione completata")
+        notify_info("Esporta CSV", "Esportazione completata", source="main_window")
 
     def export_full_backup(self) -> None:
         """
@@ -1340,9 +1355,10 @@ class MainWindow(tk.Toplevel):
             self.section_repository.export_backup(sections_path)
             self.material_repository.export_backup(materials_path)
 
-            messagebox.showinfo(
+            notify_info(
                 "Backup completato",
                 f"Backup sezioni: {sections_path}\nBackup materiali: {materials_path}",
+                source="main_window",
             )
         except Exception as exc:
             logger.exception("Errore esportazione backup completo")

@@ -22,6 +22,8 @@ from historical_materials import HistoricalMaterialLibrary
 from sections_app.models.sections import Section
 
 logger = logging.getLogger(__name__)
+# Massimo tentativi per riprovare a caricare una sezione in Geometry quando la finestra non è pronta
+MAX_EDIT_LOAD_RETRIES = 6
 
 
 class ModuleSelectorWindow(tk.Tk):
@@ -256,7 +258,25 @@ class ModuleSelectorWindow(tk.Tk):
 
         gw = getattr(self, "_geometry_window", None)
         if gw is None or not getattr(gw, "load_section_into_form", None):
-            # Programmiamo un ultimo tentativo asincrono e poi abbandoniamo
+            # Limita i retry per evitare scheduling infinito se Geometry non è mai pronta.
+            if not hasattr(self, "_section_edit_retry_counts"):
+                self._section_edit_retry_counts = {}
+            sec_id = getattr(section, "id", str(section))
+            count = self._section_edit_retry_counts.get(sec_id, 0)
+            if count >= MAX_EDIT_LOAD_RETRIES:
+                logger.warning(
+                    "Stopped retrying to load section %s into Geometry after %d attempts",
+                    sec_id,
+                    count,
+                )
+                # Pulisci il contatore per evitare accumulo
+                try:
+                    self._section_edit_retry_counts.pop(sec_id, None)
+                except Exception:
+                    pass
+                return
+            # Incrementa il contatore e riprova in modo asincrono
+            self._section_edit_retry_counts[sec_id] = count + 1
             try:
                 self.after(50, lambda: self._on_section_edit(section))
             except Exception:
@@ -268,6 +288,12 @@ class ModuleSelectorWindow(tk.Tk):
             gw.load_section_into_form(section)
             gw.lift()
             gw.focus_force()
+            # Reset del contatore di retry al successo
+            try:
+                if hasattr(self, "_section_edit_retry_counts"):
+                    self._section_edit_retry_counts.pop(getattr(section, "id", str(section)), None)
+            except Exception:
+                pass
         except Exception:
             logger.exception("Errore caricamento sezione in Geometry")
 

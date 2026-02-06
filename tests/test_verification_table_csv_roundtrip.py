@@ -34,7 +34,7 @@ class TestVerificationTableCSVRoundtrip(unittest.TestCase):
         app.tree.set(first, 'section', 'Rect-20x30')
         app.tree.set(first, 'mat_concrete', 'C120')
         app.tree.set(first, 'N', '123,45')  # decimal with comma
-        app.tree.set(first, 'M', '1.23')    # dot will be exported as comma
+        app.tree.set(first, 'Mx', '1.23')    # dot will be exported as comma
         app.tree.set(first, 'notes', 'Test note')
 
         # export to temp file
@@ -62,7 +62,7 @@ class TestVerificationTableCSVRoundtrip(unittest.TestCase):
             self.assertEqual(get_val(row_vals, 'mat_concrete'), 'C120')
             # numeric fields should be normalized to use comma in CSV then parsed back to flotation and written as string with dot replaced to comma in export -> import produces numeric stored as float -> then to string we expect '123.45' -> but import stores floats; we check approximate numeric equivalence
             self.assertAlmostEqual(float(get_val(row_vals, 'N').replace(',', '.')), 123.45, places=2)
-            self.assertAlmostEqual(float(get_val(row_vals, 'M').replace(',', '.')), 1.23, places=2)
+            self.assertAlmostEqual(float(get_val(row_vals, 'Mx').replace(',', '.')), 1.23, places=2)
             self.assertEqual(get_val(row_vals, 'notes'), 'Test note')
         finally:
             try:
