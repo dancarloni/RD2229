@@ -25,4 +25,3 @@ def linear_interpolate_table(x: float, table: Iterable[Tuple[float, float]]) -> 
             return linear_interpolate(x, x0, x1, y0, y1)
 
     raise ValueError("Valore x fuori dalla tabella")
-

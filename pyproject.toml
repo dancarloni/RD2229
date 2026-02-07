@@ -1,0 +1,35 @@
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = "E203,W503"
+
+[tool.mypy]
+plugins = []
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+python_files = "test_*.py"
+
+# mypy strictness per package can be configured in mypy.ini or here under [tool.mypy-<package>]
+
+# Prevent setuptools from accidentally discovering every top-level directory
+# and failing the editable install in CI. Limit package discovery to the
+# actively linted/typed packages used by CI.
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RD2229"
+version = "0.0.0"
+
+[tool.setuptools.packages.find]
+include = ["app*", "core*", "core_models*"]

@@ -16,6 +16,20 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
+# Imports for demo (after adding project root to sys.path)
+from config.calculation_codes_loader import (  # noqa: E402
+    get_safety_coefficients,
+    get_stress_limits,
+    list_available_codes,
+    load_code,
+)
+from config.historical_materials_loader import (  # noqa: E402
+    HistoricalMaterialsLoader,
+    get_concrete_properties,
+    get_steel_properties,
+    list_available_sources,
+)
+
 print("=" * 80)
 print("DEMONSTRATION: .jsoncode Configuration System")
 print("=" * 80)
@@ -27,62 +41,55 @@ print("\n" + "=" * 80)
 print("1. CALCULATION CODES")
 print("=" * 80)
 
-from config.calculation_codes_loader import (
-    list_available_codes,
-    load_code,
-    get_safety_coefficients,
-    get_stress_limits
-)
-
 print("\nAvailable calculation codes:", list_available_codes())
 
 # TA Configuration
 print("\n--- TA (Tensioni Ammissibili) ---")
-ta_config = load_code('TA')
+ta_config = load_code("TA")
 print(f"Code: {ta_config['code_name']}")
 print(f"Description: {ta_config['description']}")
 print(f"Period: {ta_config.get('standard_references', 'N/A')}")
 
-ta_coeffs = get_safety_coefficients('TA')
-print(f"\nSafety Coefficients:")
+ta_coeffs = get_safety_coefficients("TA")
+print("\nSafety Coefficients:")
 print(f"  γ_c = {ta_coeffs['gamma_c']['value']} ({ta_coeffs['gamma_c']['description']})")
 print(f"  γ_s = {ta_coeffs['gamma_s']['value']} ({ta_coeffs['gamma_s']['description']})")
 
-ta_limits = get_stress_limits('TA')
-print(f"\nStress Limits:")
+ta_limits = get_stress_limits("TA")
+print("\nStress Limits:")
 print(f"  σ_c,adm = {ta_limits['concrete']['sigma_c_max_factor']} × σ_c,28")
 print(f"  τ_c0 = {ta_limits['shear']['tau_c0']['value']} × σ_c,28")
 print(f"  τ_c1 = {ta_limits['shear']['tau_c1']['value']} × σ_c,28")
 
 # SLU Configuration
 print("\n--- SLU (Stato Limite Ultimo) ---")
-slu_config = load_code('SLU')
+slu_config = load_code("SLU")
 print(f"Code: {slu_config['code_name']}")
 print(f"Description: {slu_config['description']}")
 
-slu_coeffs = get_safety_coefficients('SLU')
-print(f"\nSafety Coefficients:")
+slu_coeffs = get_safety_coefficients("SLU")
+print("\nSafety Coefficients:")
 print(f"  γ_c = {slu_coeffs['gamma_c']['value']}")
 print(f"  γ_s = {slu_coeffs['gamma_s']['value']}")
 
-print(f"\nStrain Limits:")
-strain = slu_config['strain_limits']['concrete']
+print("\nStrain Limits:")
+strain = slu_config["strain_limits"]["concrete"]
 print(f"  ε_c2 = {strain['eps_c2']['value']} (parabola-rectangle)")
 print(f"  ε_cu = {strain['eps_cu']['value']} (ultimate)")
 
 # SLE Configuration
 print("\n--- SLE (Stato Limite Esercizio) ---")
-sle_config = load_code('SLE')
+sle_config = load_code("SLE")
 print(f"Code: {sle_config['code_name']}")
 print(f"Description: {sle_config['description']}")
 
-print(f"\nStress Limits:")
-stress = sle_config['stress_limits']['concrete']
+print("\nStress Limits:")
+stress = sle_config["stress_limits"]["concrete"]
 print(f"  Characteristic: σ_c ≤ {stress['compression_characteristic']['value']} × fck")
 print(f"  Quasi-permanent: σ_c ≤ {stress['compression_quasi_permanent']['value']} × fck")
 
-print(f"\nCrack Limits:")
-crack = sle_config['crack_limits']['ordinary_environment']
+print("\nCrack Limits:")
+crack = sle_config["crack_limits"]["ordinary_environment"]
 print(f"  Ordinary environment: w_max = {crack['w_max_frequent']} mm (frequent)")
 
 # =============================================================================
@@ -92,13 +99,6 @@ print("\n" + "=" * 80)
 print("2. HISTORICAL MATERIALS")
 print("=" * 80)
 
-from config.historical_materials_loader import (
-    list_available_sources,
-    get_concrete_properties,
-    get_steel_properties,
-    HistoricalMaterialsLoader
-)
-
 print("\nAvailable material sources:", list_available_sources())
 
 # RD2229 Materials
@@ -106,7 +106,7 @@ print("\n--- RD2229 (Regio Decreto 2229/39, 1939-1972) ---")
 print("Unit system: Technical (kg/cm²)")
 
 print("\nConcrete R160:")
-r160 = get_concrete_properties('RD2229', 'R160')
+r160 = get_concrete_properties("RD2229", "R160")
 print(f"  σ_c,28 = {r160['sigma_c28']} kg/cm² (cube strength at 28 days)")
 print(f"  σ_c,adm = {r160['sigma_c_adm']} kg/cm² (allowable stress)")
 print(f"  τ_c0 = {r160['tau_c0']} kg/cm² (service shear)")
@@ -115,7 +115,7 @@ print(f"  E_c = {r160['Ec']} kg/cm² (elastic modulus)")
 print(f"  n = {r160['n']} (homogenization coeff.)")
 
 print("\nSteel FeB38k:")
-feb38k = get_steel_properties('RD2229', 'FeB38k')
+feb38k = get_steel_properties("RD2229", "FeB38k")
 print(f"  σ_sn = {feb38k['sigma_sn']} kg/cm² (yield stress)")
 print(f"  σ_s,adm = {feb38k['sigma_s_adm']} kg/cm² (allowable stress)")
 print(f"  E_s = {feb38k['Es']} kg/cm² (elastic modulus)")
@@ -123,7 +123,7 @@ print(f"  Bond: {feb38k['bond']}")
 
 print("\nCement Types:")
 loader_temp = HistoricalMaterialsLoader()
-cement_types = loader_temp.get_cement_types('RD2229')
+cement_types = loader_temp.get_cement_types("RD2229")
 for name, props in cement_types.items():
     print(f"  {name}: {props['name']} (factor: {props['strength_factor']})")
 
@@ -132,14 +132,14 @@ print("\n--- NTC2018 (Modern Standards, 2018-present) ---")
 print("Unit system: SI (MPa)")
 
 print("\nConcrete C25/30:")
-c25 = get_concrete_properties('NTC2018', 'C25_30')
+c25 = get_concrete_properties("NTC2018", "C25_30")
 print(f"  fck = {c25['fck']} MPa (characteristic strength)")
 print(f"  fcm = {c25['fcm']} MPa (mean strength)")
 print(f"  Ecm = {c25['Ecm']} MPa (elastic modulus)")
 print(f"  fctm = {c25['fctm']} MPa (tensile strength)")
 
 print("\nSteel B450C:")
-b450c = get_steel_properties('NTC2018', 'B450C')
+b450c = get_steel_properties("NTC2018", "B450C")
 print(f"  fyk = {b450c['fyk']} MPa (yield strength)")
 print(f"  ftk = {b450c['ftk']} MPa (tensile strength)")
 print(f"  Es = {b450c['Es']} MPa (elastic modulus)")
@@ -187,7 +187,7 @@ verification_types = [
     "5. Deviated axial+bending: N + Mx + My",
     "6. Torsion: Mz",
     "7. Shear: Tx and/or Ty",
-    "8. Shear + Torsion: Mz + (Tx OR Ty)"
+    "8. Shear + Torsion: Mz + (Tx OR Ty)",
 ]
 for vtype in verification_types:
     print(f"  {vtype}")
@@ -199,16 +199,15 @@ print("\n" + "=" * 80)
 print("4. UNIT CONVERSION (Technical ↔ SI)")
 print("=" * 80)
 
-from config.historical_materials_loader import HistoricalMaterialsLoader
 
 loader = HistoricalMaterialsLoader()
-conversion = loader.get_conversion_factors('RD2229')
+conversion = loader.get_conversion_factors("RD2229")
 
-print(f"\nConversion factors:")
+print("\nConversion factors:")
 print(f"  1 kg/cm² = {conversion['kg_cm2_to_MPa']} MPa")
 print(f"  1 MPa = {conversion['MPa_to_kg_cm2']} kg/cm²")
 
-print(f"\nExamples:")
+print("\nExamples:")
 print(f"  RD2229 R160: σ_c,28 = 160 kg/cm² ≈ {160 * conversion['kg_cm2_to_MPa']:.2f} MPa")
 print(f"  NTC2018 C25/30: fck = 25 MPa ≈ {25 * conversion['MPa_to_kg_cm2']:.1f} kg/cm²")
 

@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-
 DEFAULT_FILE_TYPE = "RD_VerificaSezioni_Project"
 DEFAULT_MODULE = "VerificationTable"
 DEFAULT_VERSION = 1
@@ -102,7 +101,7 @@ class VerificationProject:
         new_mats = 0
         mats = data.get("materials") or {}
         for typ in ("cls", "steel"):
-            for m in (mats.get(typ) or []):
+            for m in mats.get(typ) or []:
                 mid = m.get("id")
                 if mid and mid not in self.materials.get(typ, {}):
                     self.materials.setdefault(typ, {})[mid] = m

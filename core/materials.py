@@ -17,4 +17,3 @@ class Concrete(Material):
 @dataclass(frozen=True)
 class Steel(Material):
     fyk: float  # MPa
-

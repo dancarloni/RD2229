@@ -6,12 +6,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from typing import TYPE_CHECKING
-
 from verification_items import VerificationItem
-
-if TYPE_CHECKING:  # pragma: no cover - typing only
-    from verification_table import VerificationInput
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +73,7 @@ class VerificationItemsRepository:
             for idx, item in enumerate(raw):
                 try:
                     from verification_table import VerificationInput
+
                     input_data = item.get("input", {}) if isinstance(item, dict) else {}
                     ver_input = VerificationInput(**input_data)
                     ver_item = VerificationItem(

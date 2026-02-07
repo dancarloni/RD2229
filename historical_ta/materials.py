@@ -6,6 +6,7 @@ from typing import Optional
 # Mapping to VB: f_Sigc (4.3.3) and f_Sigf (4.3.4)
 # We implement parameterized constitutive laws capturing the same branches used in the VB code.
 
+
 @dataclass
 class ConcreteLawTA:
     """Concrete constitutive parameters for TA method.
@@ -15,6 +16,7 @@ class ConcreteLawTA:
       - Ec: [kg/cm^2] (elastic modulus, consistent with stresses in kg/cm^2)
       - strains eps_* are dimensionless (unitless)
     """
+
     fcd: float  # design compressive strength (kg/cm^2)
     Ec: float  # elastic modulus (kg/cm^2)
     eps_c2: float
@@ -34,6 +36,7 @@ class SteelLawTA:
       - fyd: [kg/cm^2]
       - eps_yd, eps_su: dimensionless
     """
+
     Es: float
     fyd: float
     eps_yd: float

@@ -17,6 +17,7 @@ Esempio:
 >>> compute_stress_concentrated(100e3, 0.02)
 5000000.0
 """
+
 from dataclasses import dataclass
 from typing import Union
 
@@ -49,4 +50,3 @@ def compute_stress_concentrated(P: Union[int, float], area: Union[int, float]) -
 
 
 __all__ = ["PointLoad", "compute_stress_concentrated"]
-

@@ -5,4 +5,3 @@ per ogni modulo di calcolo verrà creato qui un corrispondente modulo di verific
 """
 
 __all__ = []
-

@@ -26,10 +26,10 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Callable
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
@@ -39,12 +39,14 @@ logger = logging.getLogger(__name__)
 # MODELLO FONTE NORMATIVA
 # =============================================================================
 
+
 class CalculationMethod(str, Enum):
     """Metodo di calcolo/verifica associato alla fonte."""
-    TENSIONI_AMMISSIBILI = "TA"      # Metodo alle tensioni ammissibili
-    STATI_LIMITE = "SL"              # Metodo agli stati limite
-    SEMIPROBABILISTICO = "SP"        # Metodo semiprobabilistico
-    SPERIMENTALE = "SPER"            # Dati da prove di laboratorio
+
+    TENSIONI_AMMISSIBILI = "TA"  # Metodo alle tensioni ammissibili
+    STATI_LIMITE = "SL"  # Metodo agli stati limite
+    SEMIPROBABILISTICO = "SP"  # Metodo semiprobabilistico
+    SPERIMENTALE = "SPER"  # Dati da prove di laboratorio
 
 
 @dataclass
@@ -62,6 +64,7 @@ class MaterialSource:
         reference: Riferimento normativo completo (es. "Regio Decreto 16/11/1939 n. 2229")
         notes: Note aggiuntive
     """
+
     id: str
     name: str
     description: str = ""
@@ -104,68 +107,96 @@ class MaterialSource:
 # FONTI PREDEFINITE
 # =============================================================================
 
+
 def _get_default_sources() -> List[MaterialSource]:
     """Restituisce l'elenco delle fonti normative predefinite."""
     return [
         MaterialSource(
             id="RD2229",
             name="RD 2229/1939",
-            description="Regio Decreto 16 novembre 1939 - Norme per l'esecuzione delle opere in conglomerato cementizio",
+            description=(
+                "Regio Decreto 16 novembre 1939 - Norme per l'esecuzione "
+                "delle opere in conglomerato cementizio"
+            ),
             year=1939,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
             is_historical=True,
             reference="R.D. 16/11/1939 n. 2229",
-            notes="Prima norma italiana organica sul cemento armato. Metodo n (tensioni ammissibili)."
+            notes=(
+                "Prima norma italiana organica sul cemento armato. "
+                "Metodo n (tensioni ammissibili)."
+            ),
         ),
         MaterialSource(
             id="DM72",
             name="DM 30/05/1972",
-            description="Decreto Ministeriale 30 maggio 1972 - Norme tecniche per le costruzioni in cemento armato",
+            description=(
+                "Decreto Ministeriale 30 maggio 1972 - Norme tecniche "
+                "per le costruzioni in cemento armato"
+            ),
             year=1972,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
             is_historical=True,
             reference="D.M. 30/05/1972",
-            notes="Aggiornamento delle norme RD 2229/39. Ancora tensioni ammissibili."
+            notes="Aggiornamento delle norme RD 2229/39. Ancora tensioni ammissibili.",
         ),
         MaterialSource(
             id="DM92",
             name="DM 14/02/1992",
-            description="Decreto Ministeriale 14 febbraio 1992 - Norme tecniche per le costruzioni in zona sismica",
+            description=(
+                "Decreto Ministeriale 14 febbraio 1992 - Norme tecniche "
+                "per le costruzioni in zona sismica"
+            ),
             year=1992,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
             is_historical=True,
             reference="D.M. 14/02/1992",
-            notes="Introduce requisiti antisismici. Metodo TA con coefficienti sismici."
+            notes="Introduce requisiti antisismici. Metodo TA con coefficienti sismici.",
         ),
         MaterialSource(
             id="DM96",
             name="DM 09/01/1996",
-            description="Decreto Ministeriale 9 gennaio 1996 - Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato",
+            description=(
+                "Decreto Ministeriale 9 gennaio 1996 - Norme tecniche "
+                "per il calcolo, l'esecuzione ed il collaudo delle "
+                "strutture in cemento armato"
+            ),
             year=1996,
             calculation_method=CalculationMethod.SEMIPROBABILISTICO,
             is_historical=True,
             reference="D.M. 09/01/1996",
-            notes="Introduce il metodo semiprobabilistico agli stati limite come alternativa alle TA."
+            notes=(
+                "Introduce il metodo semiprobabilistico agli stati limite "
+                "come alternativa alle TA."
+            ),
         ),
         MaterialSource(
             id="OPCM3274",
             name="OPCM 3274/2003",
-            description="Ordinanza PCM 20 marzo 2003 n. 3274 - Primi elementi in materia di criteri generali per la classificazione sismica",
+            description=(
+                "Ordinanza PCM 20 marzo 2003 n. 3274 - Primi elementi in "
+                "materia di criteri generali per la classificazione sismica"
+            ),
             year=2003,
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=True,
             reference="O.P.C.M. 20/03/2003 n. 3274",
-            notes="Introduce nuova classificazione sismica e metodo agli stati limite."
+            notes="Introduce nuova classificazione sismica e metodo agli stati limite.",
         ),
         MaterialSource(
             id="NTC2008",
             name="NTC 2008",
-            description="Norme Tecniche per le Costruzioni - DM 14 gennaio 2008",
+            description=(
+                "Norme Tecniche per le Costruzioni - DM 14 gennaio 2008"
+            ),
             year=2008,
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=True,
             reference="D.M. 14/01/2008",
-            notes="Prima versione delle NTC. Metodo SL obbligatorio, TA ammesse solo per strutture semplici."
+            notes=(
+                "Prima versione delle NTC. Metodo SL obbligatorio, "
+                "TA ammesse solo per strutture semplici."
+            ),
         ),
         MaterialSource(
             id="NTC2018",
@@ -175,7 +206,10 @@ def _get_default_sources() -> List[MaterialSource]:
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=False,
             reference="D.M. 17/01/2018",
-            notes="Norma vigente. Metodo agli stati limite. Circolare applicativa n. 7/2019."
+            notes=(
+                "Norma vigente. Metodo agli stati limite. "
+                "Circolare applicativa n. 7/2019."
+            ),
         ),
         MaterialSource(
             id="LAB_TEST",
@@ -186,7 +220,7 @@ def _get_default_sources() -> List[MaterialSource]:
             is_historical=False,
             is_user_defined=False,
             reference="Certificati di prova",
-            notes="Utilizzare per materiali con caratteristiche determinate sperimentalmente."
+            notes="Utilizzare per materiali con caratteristiche determinate sperimentalmente.",
         ),
         MaterialSource(
             id="CUSTOM",
@@ -197,7 +231,7 @@ def _get_default_sources() -> List[MaterialSource]:
             is_historical=False,
             is_user_defined=True,
             reference="",
-            notes="Fonte personalizzabile. Inserire manualmente i valori dei parametri."
+            notes="Fonte personalizzabile. Inserire manualmente i valori dei parametri.",
         ),
     ]
 
@@ -205,6 +239,7 @@ def _get_default_sources() -> List[MaterialSource]:
 # =============================================================================
 # LIBRERIA FONTI
 # =============================================================================
+
 
 class MaterialSourceLibrary:
     """Gestisce l'elenco delle fonti normative.
@@ -312,6 +347,7 @@ class MaterialSourceLibrary:
 # TODO: Alcune formule sono semplificate o parziali. Verificare completezza.
 #
 
+
 def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[str, Any]:
     """
     Calcola i parametri del calcestruzzo secondo RD 2229/1939.
@@ -329,9 +365,9 @@ def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[st
     # Riferimento: Art. 10-11 del RD 2229/1939
     if cement_type in ("high", "aluminous"):
         sigma_c_simple = 45.0  # sez. semplicemente compresse
-        sigma_c_flex = 50.0    # sez. inflesse/presso-inflesse
-        tau_c0 = 6.0           # taglio di servizio
-        tau_c1 = 16.0          # taglio massimo
+        sigma_c_flex = 50.0  # sez. inflesse/presso-inflesse
+        tau_c0 = 6.0  # taglio di servizio
+        tau_c1 = 16.0  # taglio massimo
         n = 8.0 if cement_type == "high" else 6.0  # coeff. omogeneizzazione
         Ec_conv = 300000.0 if cement_type == "high" else 330000.0
     else:  # normal, slow
@@ -352,15 +388,15 @@ def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[st
     Ec_calc = 550000.0 * fck / (fck + 200.0)
 
     return {
-        "fcd": sigma_c_simple,       # σ_c ammissibile (semplice)
-        "fcd_flex": sigma_c_flex,    # σ_c ammissibile (inflessa)
+        "fcd": sigma_c_simple,  # σ_c ammissibile (semplice)
+        "fcd_flex": sigma_c_flex,  # σ_c ammissibile (inflessa)
         "tau_c0": tau_c0,
         "tau_c1": tau_c1,
         "n": n,
         "Ec": Ec_conv,
         "Ec_calc": Ec_calc,
         "gamma_c": round(fck / sigma_c_simple, 2) if sigma_c_simple > 0 else 3.0,
-        "calculation_notes": "Valori da RD 2229/1939. Verificare con il testo normativo originale."
+        "calculation_notes": "Valori da RD 2229/1939. Verificare con il testo normativo originale.",
     }
 
 
@@ -391,7 +427,7 @@ def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, An
         "fyd": sigma_s,
         "Es": Es,
         "gamma_s": 2.0,  # fyk/fyd = 2 (coefficiente di sicurezza storico)
-        "calculation_notes": "Valori da RD 2229/1939. σ_s ≤ fyk/2."
+        "calculation_notes": "Valori da RD 2229/1939. σ_s ≤ fyk/2.",
     }
 
 
@@ -428,7 +464,7 @@ def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
 
     # Resistenza a trazione: fctm = 0.30 * fck^(2/3) [MPa]
     # Conversione per kg/cm²:
-    fctm = 0.30 * (fck ** (2.0/3.0)) * 0.1  # fattore 0.1 per unità
+    fctm = 0.30 * (fck ** (2.0 / 3.0)) * 0.1  # fattore 0.1 per unità
 
     return {
         "fcd": round(fcd, 1),
@@ -437,7 +473,7 @@ def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
         "gamma_c": gamma_c,
         "n": 15.0,  # valore tipico NTC
         "calculation_notes": "TODO: Valori da NTC 2018 - VERIFICARE con testo normativo. "
-                            "Le unità potrebbero richiedere conversione MPa ↔ kg/cm²."
+        "Le unità potrebbero richiedere conversione MPa ↔ kg/cm².",
     }
 
 
@@ -462,7 +498,7 @@ def _compute_ntc2018_steel(fyk: float) -> Dict[str, Any]:
         "fyd": round(fyd, 1),
         "Es": Es,
         "gamma_s": gamma_s,
-        "calculation_notes": "Valori da NTC 2018. fyd = fyk/γ_s con γ_s = 1.15."
+        "calculation_notes": "Valori da NTC 2018. fyd = fyk/γ_s con γ_s = 1.15.",
     }
 
 
@@ -478,14 +514,14 @@ def _compute_dm96_concrete(fck: float) -> Dict[str, Any]:
     fcd = 0.85 * fck / gamma_c
 
     # Modulo elastico (formula simile a EC2 pre-NTC)
-    Ecm = 9500.0 * ((fck + 80.0) ** (1.0/3.0))
+    Ecm = 9500.0 * ((fck + 80.0) ** (1.0 / 3.0))
 
     return {
         "fcd": round(fcd, 1),
         "Ec": round(Ecm, 0),
         "gamma_c": gamma_c,
         "n": 15.0,
-        "calculation_notes": "TODO: Valori da DM 09/01/1996 - VERIFICARE con testo normativo."
+        "calculation_notes": "TODO: Valori da DM 09/01/1996 - VERIFICARE con testo normativo.",
     }
 
 
@@ -501,7 +537,7 @@ def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
         "fyd": round(fyd, 1),
         "Es": Es,
         "gamma_s": gamma_s,
-        "calculation_notes": "TODO: Valori da DM 09/01/1996 - VERIFICARE con testo normativo."
+        "calculation_notes": "TODO: Valori da DM 09/01/1996 - VERIFICARE con testo normativo.",
     }
 
 
@@ -509,10 +545,9 @@ def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
 # FUNZIONE PRINCIPALE DI CALCOLO
 # =============================================================================
 
+
 def get_default_values_for_source(
-    source_id: str,
-    material_type: str,
-    base_params: Dict[str, Any]
+    source_id: str, material_type: str, base_params: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
     Calcola i valori predefiniti per un materiale in base alla fonte normativa.
@@ -534,10 +569,7 @@ def get_default_values_for_source(
         - Acciaio: fyd, Es, gamma_s, ...
         - Sempre presente: "calculation_notes" con avvertenze
     """
-    result: Dict[str, Any] = {
-        "source_id": source_id,
-        "calculation_notes": ""
-    }
+    result: Dict[str, Any] = {"source_id": source_id, "calculation_notes": ""}
 
     # Estrai parametri di input
     fck = base_params.get("fck") or base_params.get("sigma_c28", 0)
@@ -575,7 +607,9 @@ def get_default_values_for_source(
         if material_type == "concrete":
             if fck > 0:
                 vals = _compute_ntc2018_concrete(fck)
-                vals["calculation_notes"] = "TODO: Valori da NTC 2008 - VERIFICARE. Simili a NTC 2018."
+                vals["calculation_notes"] = (
+                    "TODO: Valori da NTC 2008 - VERIFICARE. Simili a NTC 2018."
+                )
                 result.update(vals)
         elif material_type in ("steel", "stirrup_steel"):
             if fyk > 0:
@@ -611,14 +645,16 @@ def get_default_values_for_source(
 
     else:
         # Fonte sconosciuta
-        result["calculation_notes"] = f"Fonte '{source_id}' non riconosciuta. Nessun calcolo automatico disponibile."
+        result["calculation_notes"] = (
+            f"Fonte '{source_id}' non riconosciuta. Nessun calcolo automatico disponibile."
+        )
 
     # Aggiungi avvertenza standard
     if result.get("calculation_notes"):
         result["calculation_notes"] += "\n"
-    result["calculation_notes"] += (
-        "AVVERTENZA: Valori di esempio. Verificare con normativa originale prima dell'uso."
-    )
+    result[
+        "calculation_notes"
+    ] += "AVVERTENZA: Valori di esempio. Verificare con normativa originale prima dell'uso."
 
     return result
 

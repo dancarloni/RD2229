@@ -3,6 +3,7 @@
 Esegue una serie di asserzioni e restituisce codice 0 in caso di successo,
 1 in caso di fallimento.
 """
+
 import sys
 
 from tools.concrete_strength import (
@@ -20,17 +21,26 @@ def approx(a, b, tol=1e-6):
 def main() -> int:
     try:
         s1 = compute_allowable_compressive_stress(
-            120.0, CementType.NORMAL, SectionCondition.SEMPLICEMENTE_COMPRESA, controlled_quality=False
+            120.0,
+            CementType.NORMAL,
+            SectionCondition.SEMPLICEMENTE_COMPRESA,
+            controlled_quality=False,
         )
         assert approx(s1, 35.0)
 
         s2 = compute_allowable_compressive_stress(
-            160.0, CementType.HIGH, SectionCondition.INFLESSA_PRESSOINFLESSA, controlled_quality=False
+            160.0,
+            CementType.HIGH,
+            SectionCondition.INFLESSA_PRESSOINFLESSA,
+            controlled_quality=False,
         )
         assert approx(s2, 50.0)
 
         s3 = compute_allowable_compressive_stress(
-            200.0, CementType.NORMAL, SectionCondition.SEMPLICEMENTE_COMPRESA, controlled_quality=True
+            200.0,
+            CementType.NORMAL,
+            SectionCondition.SEMPLICEMENTE_COMPRESA,
+            controlled_quality=True,
         )
         assert approx(s3, 60.0)
 
@@ -47,4 +57,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

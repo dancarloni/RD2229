@@ -2,20 +2,19 @@ from __future__ import annotations
 
 import logging
 import math
+import tkinter as tk
 from pathlib import Path
+from tkinter import filedialog, ttk
 from typing import Dict, Optional, Tuple
 
-import tkinter as tk
-from tkinter import filedialog, ttk
-from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
-
+from core_models.materials import MaterialRepository
 from sections_app.models.sections import (
-    CSection,
     CircularHollowSection,
     CircularSection,
-    ISection,
+    CSection,
     InvertedTSection,
     InvertedVSection,
+    ISection,
     LSection,
     PiSection,
     RectangularHollowSection,
@@ -25,10 +24,15 @@ from sections_app.models.sections import (
     VSection,
 )
 from sections_app.services.calculations import compute_transform
+from sections_app.services.notification import (
+    ask_confirm,
+    notify_error,
+    notify_info,
+    notify_warning,
+)
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.section_manager import SectionManager
 from sections_app.ui.historical_material_window import HistoricalMaterialWindow
-from core_models.materials import MaterialRepository
+from sections_app.ui.section_manager import SectionManager
 
 logger = logging.getLogger(__name__)
 
@@ -823,7 +827,7 @@ class MainWindow(tk.Toplevel):
 
     def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> Tuple[float, float]:
         """Ruota un punto (x,y) attorno a (cx,cy) di angle_deg gradi."""
-        from math import cos, sin, radians
+        from math import cos, radians, sin
         if angle_deg == 0:
             return x, y
         theta = radians(angle_deg)
@@ -1199,7 +1203,7 @@ class MainWindow(tk.Toplevel):
                 self._update_editing_mode_label()
             except Exception as e:
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
-                    notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
+                notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
                 return
 
         # Se il manager è aperto, ricarica la tabella

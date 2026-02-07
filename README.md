@@ -146,6 +146,21 @@ data/
 - Tutte le tabelle/coefficienti devono essere centralizzate in `data/` con schema JSON validabile
 
 ## Avvio rapido (solo logica)
+
+## Development
+
+We use pre-commit hooks to ensure consistent formatting and basic checks before commits.
+
+Install and enable the hooks locally with:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Run the checks locally with `pre-commit run --all-files` (useful before PRs).
+
+
 1. Creare un ambiente Python.
 2. Installare le dipendenze da [requirements.txt](requirements.txt).
 3. Usare i modelli in [src/rd2229](src/rd2229).

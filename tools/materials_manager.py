@@ -25,6 +25,7 @@ Il modulo è scritto in modo da non interrompere gli altri componenti del
 progetto: usa `src/rd2229/.rd2229_config.yaml` per trovare il percorso
 del file materiali, se presente.
 """
+
 from __future__ import annotations
 
 import json
@@ -35,11 +36,11 @@ from .concrete_strength import (
     CementType,
     SectionCondition,
     compute_allowable_compressive_stress,
-    compute_sigma_c_all,
     compute_allowable_shear,
     compute_ec,
     compute_ec_conventional,
     compute_gc,
+    compute_sigma_c_all,
 )
 
 _DEFAULT_MATERIALS_PATH = os.path.join("data", "materials.json")
@@ -130,14 +131,14 @@ def load_materials(path: Optional[str] = None) -> List[Dict]:
     path = os.path.abspath(path)
     if not os.path.exists(path):
         return []
-    
+
     # Check cache
     mtime = os.path.getmtime(path)
     if path in _materials_cache:
         cached_mats, cached_mtime = _materials_cache[path]
         if mtime == cached_mtime:
             return cached_mats.copy()  # Return copy to avoid mutations
-    
+
     with open(path, "r", encoding="utf-8") as fh:
         mats = json.load(fh)
     dirty_any = False
@@ -266,7 +267,9 @@ def update_material(name: str, updates: Dict, path: Optional[str] = None) -> Non
                         materials[i]["G_min"] = g_min
                         materials[i]["G_max"] = g_max
                         try:
-                            materials[i]["E_conventional"] = compute_ec_conventional(float(sigma_c28), cement)
+                            materials[i]["E_conventional"] = compute_ec_conventional(
+                                float(sigma_c28), cement
+                            )
                         except Exception:
                             materials[i]["E_conventional"] = None
                     except Exception:
@@ -291,4 +294,3 @@ __all__ = [
     "update_material",
     "delete_material",
 ]
-
