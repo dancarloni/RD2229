@@ -2,7 +2,13 @@
 
 This module provides the main interface for performing structural verifications
 using the .jsoncode configuration system and verification core calculations.
+
+Some operations involve optional plugins/config loaders and can raise many
+types of exceptions; handlers therefore catch broadly and log for
+diagnostics. Suppress the corresponding Pylint warning to avoid noisy
+reports until a deeper refactor is performed.
 """
+# pylint: disable=broad-exception-caught, logging-fstring-interpolation
 
 from __future__ import annotations
 

@@ -1,4 +1,7 @@
 # Compatibility shim: re-export csv_io from src.ui.ui.csv_io
+# Explicit re-exports to satisfy static analyzers
+from src.ui.ui.csv_io import export_csv, import_csv  # type: ignore
+__all__ = ["export_csv", "import_csv"]
 from importlib import import_module as _im
 
 _mod = _im("src.ui.ui.csv_io")

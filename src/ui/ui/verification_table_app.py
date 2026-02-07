@@ -128,6 +128,10 @@ class VerificationTableApp(tk.Frame):
         # Flag to avoid committing the entry when the rebar calculator is open
         self._in_rebar_calculator: bool = False
 
+        # Editor state helpers
+        self._last_editor_value: Optional[str] = None
+        self._force_show_all_on_empty: bool = False
+
         self.current_item_id: Optional[str] = None
         self.current_column_index: Optional[int] = None
 
@@ -1131,6 +1135,187 @@ class VerificationTableApp(tk.Frame):
                 self._in_rebar_calculator = False
 
         RebarCalculatorWindow(self, on_confirm=_on_confirm)
+
+    # --- Missing helpers implemented to complete functionality ---
+    def _resolve_section_names(
+        self,
+        section_repository: Optional[object],
+        section_names: Optional[Iterable[str]],
+    ) -> List[str]:
+        if section_names:
+            return list(section_names)
+        if section_repository is None:
+            return []
+        try:
+            if hasattr(section_repository, "get_all_sections"):
+                return [
+                    getattr(s, "section_id", getattr(s, "id", str(s)))
+                    for s in section_repository.get_all_sections()
+                ]
+            if hasattr(section_repository, "get_all"):
+                return [
+                    getattr(s, "section_id", getattr(s, "id", str(s)))
+                    for s in section_repository.get_all()
+                ]
+            # Fallback: try to iterate over repository
+            try:
+                return [str(s) for s in section_repository]
+            except Exception:
+                return []
+        except Exception:
+            logger.exception("Errore risoluzione nomi sezioni")
+            return []
+
+    def _resolve_material_names(self, material_names: Optional[Iterable[str]]) -> Optional[List[str]]:
+        if material_names:
+            return list(material_names)
+        try:
+            if list_materials is not None:
+                return list_materials()
+            if self.material_repository is not None and hasattr(self.material_repository, "get_all"):
+                mats = self.material_repository.get_all()
+                return [getattr(m, "name", getattr(m, "id", str(m))) for m in mats]
+        except Exception:
+            logger.exception("Errore risoluzione nomi materiali")
+        return None
+
+    def _search_sections(self, query: str) -> List[str]:
+        q = (query or "").strip().lower()
+        names = self.section_names or []
+        if not q:
+            return names[: self.search_limit]
+        return [n for n in names if q in n.lower()][: self.search_limit]
+
+    def _search_materials(self, query: str, type_filter: Optional[str] = None) -> List[str]:
+        q = (query or "").strip().lower()
+        names = self.material_names or []
+        if not q:
+            results = names[: self.search_limit]
+        else:
+            results = [n for n in names if q in n.lower()][: self.search_limit]
+        # Optionally filter by a crude type filter if requested (e.g., "steel", "concrete")
+        if type_filter:
+            tf = type_filter.lower()
+            results = [n for n in results if tf in n.lower()]
+        return results
+
+    def _insert_empty_rows(self, n: int) -> None:
+        for _ in range(int(n)):
+            self.tree.insert("", "end", values=["" for _ in self.columns])
+
+    def _add_row(self, after_item: Optional[str] = None) -> str:
+        if after_item is None:
+            return self.tree.insert("", "end", values=["" for _ in self.columns])
+        try:
+            idx = list(self.tree.get_children()).index(after_item)
+        except ValueError:
+            return self._add_row(None)
+        # insert after idx
+        children = list(self.tree.get_children())
+        if idx + 1 >= len(children):
+            return self.tree.insert("", "end", values=["" for _ in self.columns])
+        # Create a new item and move it to desired position
+        new_item = self.tree.insert("", idx + 1, values=["" for _ in self.columns])
+        return new_item
+
+    def add_row_from_previous(self, previous_item_id: str) -> str:
+        vals = list(self.tree.item(previous_item_id, "values"))
+        new_item = self.tree.insert("", "end", values=vals)
+        return new_item
+
+    def get_rows(self) -> List[VerificationInput]:
+        _, rows = self._get_rows_from_tree()
+        return rows
+
+    def set_rows(self, models: Iterable[VerificationInput]) -> None:
+        for item in list(self.tree.get_children()):
+            self.tree.delete(item)
+        for m in models:
+            vals = [
+                m.element_name,
+                m.section_id,
+                m.verification_method,
+                m.material_concrete,
+                m.material_steel,
+                m.n_homog,
+                m.N,
+                m.Mx,
+                m.My,
+                m.Mz,
+                m.Tx,
+                m.Ty,
+                m.At,
+                m.As_sup,
+                m.As_inf,
+                m.d_sup,
+                m.d_inf,
+                m.stirrup_step,
+                m.stirrup_diameter,
+                m.stirrup_material,
+                m.notes,
+            ]
+            self.tree.insert("", "end", values=vals)
+
+    def create_test_project(self) -> None:
+        # Small helper to create a sample row for manual testing
+        item = self._add_row()
+        sample = VerificationInput(element_name="E01", section_id="B200x30", verification_method="TA")
+        self.update_row_from_model(self.tree.index(item), sample)
+
+    def _open_comparator(self) -> None:
+        # Placeholder: open comparator dialog if available
+        try:
+            from src.ui.ui.comparator import ComparatorWindow
+
+            ComparatorWindow(self)
+        except Exception:
+            logger.exception("Comparator window not available")
+
+    def _on_import_csv(self) -> None:
+        from tkinter import filedialog
+
+        try:
+            path = filedialog.askopenfilename(filetypes=[("CSV", "*.csv;*.txt")])
+            if not path:
+                return
+            count, skipped, errors = self.import_csv(path)
+            if errors:
+                logger.warning("Import CSV errors: %s", errors)
+            self._set_status(f"Importati {count} righe (skipped={skipped})")
+            self._clear_status(3000)
+        except Exception:
+            logger.exception("Import CSV failed")
+
+    def _on_export_csv(self) -> None:
+        from tkinter import filedialog
+
+        try:
+            path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV", "*.csv")])
+            if not path:
+                return
+            self.export_csv(path, include_header=True)
+            self._set_status(f"CSV esportato: {path}")
+            self._clear_status(3000)
+        except Exception:
+            logger.exception("Export CSV failed")
+
+    def _on_save_items(self) -> None:
+        # Save current rows to external repository if available
+        if self.verification_items_repository is None:
+            self._set_status("Repository elementi non disponibile")
+            self._clear_status(2000)
+            return
+        try:
+            rows = self.get_rows()
+            for r in rows:
+                try:
+                    self.verification_items_repository.save(r)
+                except Exception:
+                    logger.exception("Unable to save verification item")
+            self._set_status(f"Salvate {len(rows)} elementi")
+            self._clear_status(2000)
+        except Exception:
+            logger.exception("_on_save_items failed")
 
 
 class VerificationTableWindow(tk.Toplevel):

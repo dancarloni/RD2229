@@ -12,6 +12,9 @@ from sections_app.services.notification_settings import (
 
 logger = logging.getLogger(__name__)
 
+# Pylint: some UI initialization uses expression-only calls and broad exception
+# handling intentionally to support headless mode; silence the corresponding warnings.
+# pylint: disable=broad-exception-caught, expression-not-assigned
 
 class NotificationSettingsWindow:
     """Settings editor for notification preferences.

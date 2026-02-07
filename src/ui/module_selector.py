@@ -27,6 +27,11 @@ from verification_table import VerificationTableWindow
 
 logger = logging.getLogger(__name__)
 
+# The module performs multiple dynamic and UI operations and contains several
+# defensive exception handlers that are intentional to keep the application
+# robust. Suppress a few Pylint checks to avoid noisy diagnostics for these
+# legacy UI patterns.
+# pylint: disable=broad-exception-caught, unnecessary-lambda, protected-access
 
 class ModuleSelectorWindow(tk.Tk):
     """Finestra iniziale per selezionare il modulo da avviare."""

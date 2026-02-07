@@ -45,6 +45,10 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# Pylint: legacy UI code that interacts with repositories and UI elements may
+# intentionally use broad exception handlers, protected member access, and some
+# API-compatible parameter names; disable the most frequent warnings here.
+# pylint: disable=broad-exception-caught, protected-access, unused-argument, redefined-outer-name, unnecessary-pass
 
 class HistoricalMaterialWindow(tk.Toplevel):
     """Window to manage HistoricalMaterialLibrary and import into MaterialRepository.
@@ -463,7 +467,7 @@ class _HistoricalEditDialog(tk.Toplevel):
 
         # Solo per materiali nuovi, popola automaticamente
         if self._is_new:
-            self._apply_source_values(source_name, ask_confirm=False)
+            self._apply_source_values(source_name, require_confirm=False)
         # Per materiali esistenti, non sovrascrivere automaticamente
         # L'utente può usare il pulsante "Ricarica valori"
 
@@ -495,9 +499,9 @@ class _HistoricalEditDialog(tk.Toplevel):
         ):
             return
 
-        self._apply_source_values(source_name, ask_confirm=False)
+        self._apply_source_values(source_name, require_confirm=False)
 
-    def _apply_source_values(self, source_name: str, ask_confirm: bool = True) -> None:
+    def _apply_source_values(self, source_name: str, require_confirm: bool = True) -> None:
         """Applica i valori predefiniti della fonte ai campi calcolabili.
 
         AVVERTENZA: I valori calcolati sono da considerarsi DI ESEMPIO.
@@ -505,7 +509,7 @@ class _HistoricalEditDialog(tk.Toplevel):
 
         Args:
             source_name: Nome della fonte normativa
-            ask_confirm: Se True, chiede conferma prima di sovrascrivere
+            require_confirm: Se True, chiede conferma prima di sovrascrivere
 
         """
         if not SOURCES_AVAILABLE:

@@ -5,8 +5,10 @@ Note:
   delle fibre. Il comportamento preciso sarà aggiornato per raggiungere la parità numerica
   con le formule VB in iterazioni successive.
 
+Small helper functions may accept unused arguments to preserve API parity with
+higher-level callers; suppress the corresponding pylint warning.
 """
-
+# pylint: disable=unused-argument
 from __future__ import annotations
 
 from typing import Tuple

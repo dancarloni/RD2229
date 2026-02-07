@@ -9,7 +9,12 @@ Note: This is a pragmatic, readable translation focused on the formulas needed
 for comparison with the existing Python implementations: it returns a
 structured dict with numeric results and messages so it can be displayed in a
 comparator GUI and compared with TA/SLU implementations.
+
+The adapter contains some simplified argument lists that mirror the original
+VB code and uses conservative error handling; suppress warnings about unused
+arguments and broad exception captures.
 """
+# pylint: disable=unused-argument, broad-exception-caught
 
 from __future__ import annotations
 

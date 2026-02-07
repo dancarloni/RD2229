@@ -1,3 +1,10 @@
+"""Simple editor for .jsoncode settings used in the UI.
+
+Certain UI operations catch broad exceptions for robustness; suppress
+corresponding Pylint diagnostics at the module level.
+"""
+# pylint: disable=broad-exception-caught
+
 from __future__ import annotations
 
 import json

@@ -22,5 +22,5 @@ if __name__ == "__main__":
     sec3 = RectangularHollowSection(outer_width=200.0, outer_height=100.0, inner_width=160.0, inner_height=60.0)
     sec4 = CircularHollowSection(outer_diameter=100.0, inner_diameter=60.0)
 
-    for s in (sec1, sec2, sec3, sec4):
-        print_props(s)
+    for sec in (sec1, sec2, sec3, sec4):
+        print_props(sec)

@@ -21,6 +21,10 @@ from sections_app.services.repository import CsvSectionSerializer, SectionReposi
 
 logger = logging.getLogger(__name__)
 
+# Pylint: UI code here uses protected access for interop and broad exception
+# handling for robustness; suppress these noisy warnings when not actionable.
+# pylint: disable=broad-exception-caught, protected-access, unused-argument, logging-fstring-interpolation
+
 
 class TreeviewTooltip:
     """Gestisce tooltip su celle del Treeview al passaggio del mouse."""

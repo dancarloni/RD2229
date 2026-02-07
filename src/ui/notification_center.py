@@ -9,6 +9,10 @@ from sections_app.services.notification_settings import load_notification_settin
 
 logger = logging.getLogger(__name__)
 
+# Pylint: the notification center uses defensive catching and occasionally
+# accesses protected members for UI interop; suppress noisy warnings for
+# broad exception handlers and protected access in this module.
+# pylint: disable=broad-exception-caught, protected-access
 
 class NotificationCenter:
     """A small NotificationCenter that subscribes to EventBus.NOTIFICATION.

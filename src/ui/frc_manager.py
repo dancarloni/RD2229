@@ -1,3 +1,10 @@
+"""Simple manager UI for FRC-enabled materials.
+
+This UI uses defensive exception handling to keep operations local and
+prevent crashes; suppress broad-exception diagnostics accordingly.
+"""
+# pylint: disable=broad-exception-caught
+
 from __future__ import annotations
 
 import logging

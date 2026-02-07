@@ -35,6 +35,11 @@ from sections_app.services.repository import CsvSectionSerializer, SectionReposi
 
 logger = logging.getLogger(__name__)
 
+# Pylint: the main UI window uses many dynamic attribute assignments and
+# defensive exception handlers. Suppress noisy checks that are low value
+# for the current incremental cleanup.
+# pylint: disable=broad-exception-caught, attribute-defined-outside-init, protected-access, logging-fstring-interpolation, unused-argument
+
 # ========================================================================
 # CONFIGURAZIONE TIPOLOGIE DI SEZIONE
 # ========================================================================
@@ -931,12 +936,7 @@ class MainWindow(tk.Toplevel):
         web_x1 = web_x0 + section.web_thickness
 
         # Ala (rettangolo superiore)
-        [
-            (0, height - section.flange_thickness),
-            (section.flange_width, height - section.flange_thickness),
-            (section.flange_width, height),
-            (0, height),
-        ]
+        # (handled below as part of the full polygon)
 
         # Anima (rettangolo inferiore centrale)
 
