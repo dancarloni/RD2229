@@ -7,14 +7,6 @@ from pathlib import Path
 from tkinter import filedialog
 from typing import Callable, Optional
 
-from sections_app.ui.code_settings_window import CodeSettingsWindow
-from sections_app.ui.debug_viewer import DebugViewerWindow
-from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow
-from sections_app.ui.main_window import MainWindow
-from sections_app.ui.notification_center import NotificationCenter
-from sections_app.ui.section_manager import SectionManager
-
 from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import HistoricalMaterialLibrary
 from sections_app.models.sections import Section
@@ -23,6 +15,13 @@ from sections_app.services.notification import (
     notify_info,
 )
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.code_settings_window import CodeSettingsWindow
+from sections_app.ui.debug_viewer import DebugViewerWindow
+from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
+from sections_app.ui.historical_material_window import HistoricalMaterialWindow
+from sections_app.ui.main_window import MainWindow
+from sections_app.ui.notification_center import NotificationCenter
+from sections_app.ui.section_manager import SectionManager
 from verification_table import VerificationTableWindow
 
 logger = logging.getLogger(__name__)

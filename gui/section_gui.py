@@ -6,6 +6,9 @@ from tkinter import messagebox, simpledialog, ttk
 from typing import Dict, List, Optional, Type
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle as MplCircle
+from matplotlib.patches import Rectangle as MplRectangle
+
 from core.geometry import (
     CircularHollowSection,
     CircularSection,
@@ -19,8 +22,6 @@ from core.geometry import (
     TSection,
 )
 from core.section_properties import compute_section_properties
-from matplotlib.patches import Circle as MplCircle
-from matplotlib.patches import Rectangle as MplRectangle
 
 
 class SectionType(Enum):
