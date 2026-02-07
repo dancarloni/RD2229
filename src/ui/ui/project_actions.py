@@ -19,11 +19,7 @@ def _elem_dict_to_input(e: dict) -> VerificationInput:
             verification_method=e.get("method") or e.get("verification_method") or "TA",
             material_concrete=e.get("cls_id") or e.get("material_concrete") or "",
             material_steel=e.get("steel_id") or e.get("material_steel") or "",
-            n_homog=(
-                float(e.get("coeff_n", e.get("n_homog", 15.0)))
-                if e.get("coeff_n", None) is not None
-                else 15.0
-            ),
+            n_homog=(float(e.get("coeff_n", e.get("n_homog", 15.0))) if e.get("coeff_n", None) is not None else 15.0),
             N=float(e.get("N", 0.0)) if e.get("N", None) is not None else 0.0,
             Mx=(
                 float(e.get("Mx", e.get("M", 0.0)))
@@ -61,14 +57,12 @@ def _elem_dict_to_input(e: dict) -> VerificationInput:
             ),
             stirrup_step=(
                 float(e.get("passo_staffe", e.get("stirrup_step", 0.0)))
-                if e.get("passo_staffe", None) is not None
-                or e.get("stirrup_step", None) is not None
+                if e.get("passo_staffe", None) is not None or e.get("stirrup_step", None) is not None
                 else 0.0
             ),
             stirrup_diameter=(
                 float(e.get("stirrups_diam", e.get("stirrup_diameter", 0.0)))
-                if e.get("stirrups_diam", None) is not None
-                or e.get("stirrup_diameter", None) is not None
+                if e.get("stirrups_diam", None) is not None or e.get("stirrup_diameter", None) is not None
                 else 0.0
             ),
             stirrup_material=e.get("stirrups_mat", e.get("stirrup_material", "")) or "",
@@ -85,9 +79,7 @@ def load_project(app_obj, path: Optional[str]) -> Tuple[int, List[str]]:
     Returns (imported_count, errors)
     """
     if app_obj.project is None:
-        notify_error(
-            "Carica progetto", "Modulo progetto non disponibile", source="verification_table"
-        )
+        notify_error("Carica progetto", "Modulo progetto non disponibile", source="verification_table")
         return 0, ["No project module"]
     try:
         if path is None:
@@ -116,32 +108,24 @@ def load_project(app_obj, path: Optional[str]) -> Tuple[int, List[str]]:
                 source="verification_table",
             )
         else:
-            notify_info(
-                "Carica progetto", f"Progetto caricato: {path}", source="verification_table"
-            )
+            notify_info("Carica progetto", f"Progetto caricato: {path}", source="verification_table")
         return imported, errors
     except Exception as e:
         logger.exception("Errore load_project: %s", e)
-        notify_error(
-            "Carica progetto", f"Errore caricamento progetto: {e}", source="verification_table"
-        )
+        notify_error("Carica progetto", f"Errore caricamento progetto: {e}", source="verification_table")
         return 0, [str(e)]
 
 
 def save_project(app_obj, path: Optional[str]) -> Tuple[bool, str]:
     """Save current app rows into project file. Returns (ok, path_or_error)."""
     if app_obj.project is None:
-        notify_error(
-            "Salva progetto", "Modulo progetto non disponibile", source="verification_table"
-        )
+        notify_error("Salva progetto", "Modulo progetto non disponibile", source="verification_table")
         return False, "no_project"
     try:
         if path is None:
             from tkinter import filedialog
 
-            path = filedialog.asksaveasfilename(
-                defaultextension=".jsonp", filetypes=[("JSONP", "*.jsonp")]
-            )
+            path = filedialog.asksaveasfilename(defaultextension=".jsonp", filetypes=[("JSONP", "*.jsonp")])
             if not path:
                 return False, "aborted"
         rows = app_obj.get_rows()
@@ -178,9 +162,7 @@ def save_project(app_obj, path: Optional[str]) -> Tuple[bool, str]:
         return True, path
     except Exception as e:
         logger.exception("Errore save_project: %s", e)
-        notify_error(
-            "Salva progetto", f"Errore salvataggio progetto: {e}", source="verification_table"
-        )
+        notify_error("Salva progetto", f"Errore salvataggio progetto: {e}", source="verification_table")
         return False, str(e)
 
 
@@ -221,7 +203,5 @@ def add_list_elements(app_obj, path: Optional[str]) -> Tuple[int, List[str]]:
         return new_elems, errors
     except Exception as e:
         logger.exception("Errore add_list_elements: %s", e)
-        notify_error(
-            "Aggiungi lista di elementi", f"Errore apertura file: {e}", source="verification_table"
-        )
+        notify_error("Aggiungi lista di elementi", f"Errore apertura file: {e}", source="verification_table")
         return 0, [str(e)]

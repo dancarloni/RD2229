@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import filedialog, messagebox, ttk
 from typing import Callable, Dict, Optional, Tuple
 
 from sections_app.models.sections import CSV_HEADERS, Section
@@ -125,7 +125,7 @@ def sort_treeview(tree: ttk.Treeview, col: str, reverse: bool) -> None:
 
 
 class SectionManager(tk.Toplevel):
-    """📊 FINESTRA DI GESTIONE ARCHIVIO SEZIONI - Visualizzazione Completa e Auto-Refresh
+    """📊 FINESTRA DI GESTIONE ARCHIVIO SEZIONI - Visualizzazione Completa e Auto-Refresh.
 
     Responsabilità:
     - VISUALIZZAZIONE: Mostra tutte le proprietà geometriche e calcolate in tabella ottimizzata
@@ -377,21 +377,11 @@ class SectionManager(tk.Toplevel):
         buttons_frame = tk.Frame(self)
         buttons_frame.pack(fill="x", padx=8, pady=(0, 8))
 
-        tk.Button(buttons_frame, text="Nuova sezione", command=self._new_section).pack(
-            side="left", padx=4
-        )
-        tk.Button(buttons_frame, text="Modifica", command=self._edit_section).pack(
-            side="left", padx=4
-        )
-        tk.Button(buttons_frame, text="Elimina", command=self._delete_section).pack(
-            side="left", padx=4
-        )
-        tk.Button(buttons_frame, text="Importa CSV", command=self._import_csv).pack(
-            side="left", padx=4
-        )
-        tk.Button(buttons_frame, text="Esporta CSV", command=self._export_csv).pack(
-            side="left", padx=4
-        )
+        tk.Button(buttons_frame, text="Nuova sezione", command=self._new_section).pack(side="left", padx=4)
+        tk.Button(buttons_frame, text="Modifica", command=self._edit_section).pack(side="left", padx=4)
+        tk.Button(buttons_frame, text="Elimina", command=self._delete_section).pack(side="left", padx=4)
+        tk.Button(buttons_frame, text="Importa CSV", command=self._import_csv).pack(side="left", padx=4)
+        tk.Button(buttons_frame, text="Esporta CSV", command=self._export_csv).pack(side="left", padx=4)
 
     def _on_heading_click(self, col: str) -> None:
         """Handler per il click su un intestazione: alterna ordinamento crescente/decrescente.
@@ -489,18 +479,12 @@ class SectionManager(tk.Toplevel):
 
         # Caso 2: master è ModuleSelector (ha _open_geometry)
         try:
-            if hasattr(self.master, "_open_geometry") and callable(
-                getattr(self.master, "_open_geometry")
-            ):
+            if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
                 try:
                     # Apri Geometry tramite il master; ci aspettiamo che il master imposti _geometry_window
                     self.master._open_geometry()
                     gw = getattr(self.master, "_geometry_window", None)
-                    if (
-                        gw is not None
-                        and hasattr(gw, "reset_form")
-                        and callable(getattr(gw, "reset_form"))
-                    ):
+                    if gw is not None and hasattr(gw, "reset_form") and callable(getattr(gw, "reset_form")):
                         try:
                             gw.reset_form()
                             try:
@@ -512,9 +496,7 @@ class SectionManager(tk.Toplevel):
                             logger.debug("Aperto Geometry per nuova sezione (manager resta aperto)")
                             return
                         except Exception:
-                            logger.exception(
-                                "Errore nel resettare la form di Geometry dopo apertura da ModuleSelector"
-                            )
+                            logger.exception("Errore nel resettare la form di Geometry dopo apertura da ModuleSelector")
                 except Exception:
                     logger.exception("Errore aprendo Geometry dal master per nuova sezione")
         except Exception:
@@ -527,9 +509,7 @@ class SectionManager(tk.Toplevel):
                 if not ans:
                     return
                 try:
-                    if hasattr(self.master, "_open_geometry") and callable(
-                        getattr(self.master, "_open_geometry")
-                    ):
+                    if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
                         self.master._open_geometry()
                         gw = getattr(self.master, "_geometry_window", None)
                         if gw is not None and hasattr(gw, "reset_form"):
@@ -538,13 +518,9 @@ class SectionManager(tk.Toplevel):
                                 gw.lift()
                                 gw.focus_force()
                             except Exception:
-                                logger.exception(
-                                    "Errore nel resettare la form di Geometry (fallback)"
-                                )
+                                logger.exception("Errore nel resettare la form di Geometry (fallback)")
                         # ✅ NON chiude il manager: rimosso self.destroy()
-                        logger.debug(
-                            "Aperto Geometry per nuova sezione (fallback, manager resta aperto)"
-                        )
+                        logger.debug("Aperto Geometry per nuova sezione (fallback, manager resta aperto)")
                 except Exception:
                     logger.exception("Errore nel fallback per aprire l'editor per nuova sezione")
 

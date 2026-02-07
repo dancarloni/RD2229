@@ -50,21 +50,6 @@ class SectionProperties:
     """
 
 
-@dataclass
-class SectionProperties:
-    area_concrete: float
-    area_equivalent: float
-    yG: float
-    zG: float
-    Iy: float
-    Iz: float
-    Iyz: float
-    # internal raw values for transparency
-    A_contrib: Optional[float] = None
-    Sy: Optional[float] = None
-    Sz: Optional[float] = None
-
-
 def _polygon_area_centroid_inertia(polygon: List[Point]):
     """Compute area, centroid (y,z) and second moments for a single polygon ring about origin.
 
@@ -107,7 +92,7 @@ def _polygon_area_centroid_inertia(polygon: List[Point]):
 
 
 def compute_section_properties(geom: SectionGeometry) -> SectionProperties:
-    """Translate VB: DatiSezioneCA + CalcoloAreaMomStaticiMomInerziaSezReagente
+    """Translate VB: DatiSezioneCA + CalcoloAreaMomStaticiMomInerziaSezReagente.
 
     Given a `SectionGeometry` with polygon rings and bars, compute:
       - Asez (concrete area)

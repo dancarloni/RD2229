@@ -38,9 +38,7 @@ get_steel_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]" = 
 
 try:
     from config.calculation_codes_loader import load_code as _load_code
-    from config.historical_materials_loader import (
-        get_concrete_properties as _get_concrete_properties,
-    )
+    from config.historical_materials_loader import get_concrete_properties as _get_concrete_properties
     from config.historical_materials_loader import get_steel_properties as _get_steel_properties
 
     load_code = _load_code
@@ -256,9 +254,7 @@ class VerificationEngine:
             try:
                 from core.verification_core import estimate_required_torsion_reinforcement
 
-                At_req = estimate_required_torsion_reinforcement(
-                    section, reinforcement_tensile, loads, material
-                )
+                At_req = estimate_required_torsion_reinforcement(section, reinforcement_tensile, loads, material)
                 if loads.At and loads.At > 0 and At_req > 0:
                     if loads.At < At_req:
                         approx_notes.append(
@@ -271,9 +267,7 @@ class VerificationEngine:
                             f"fornita {loads.At:.3f} cm²"
                         )
                 elif At_req > 0:
-                    approx_notes.append(
-                        f"Armatura torsione richiesta ≈ {At_req:.3f} cm² " f"(nessun At fornita)"
-                    )
+                    approx_notes.append(f"Armatura torsione richiesta ≈ {At_req:.3f} cm² " f"(nessun At fornita)")
             except Exception:
                 logger.exception("Errore stima armatura torsione")
 
@@ -294,7 +288,7 @@ class VerificationEngine:
             messages.extend(approx_notes)
 
         # Create result
-        result = VerificationResult(
+        return VerificationResult(
             verification_type=verif_type,
             neutral_axis=neutral_axis,
             stress_state=stress_state,
@@ -303,8 +297,6 @@ class VerificationEngine:
             is_verified=is_verified,
             messages=messages,
         )
-
-        return result
 
 
 def create_verification_engine(calculation_code: str = "TA") -> VerificationEngine:

@@ -58,12 +58,14 @@ def search_materials(
     Args:
         repo: MaterialRepository or None
         names: fallback list of material names
-        query: user query (case-insensitive substring match on name OR code). Empty string returns all materials of the type.
+        query: user query (case-insensitive substring match on name OR code).
+               Empty string returns all materials of the type.
         type_filter: "concrete", "steel", or None to disable type filtering
         limit: maximum number of results to return
 
     Returns:
-        List of matching material names (max length = limit), or material name/code combined if available
+        List of matching material names (max length = limit).
+        If available, returns material name/code combined.
 
     """
     q = (query or "").strip().lower()
@@ -75,9 +77,7 @@ def search_materials(
         if repo is not None:
             mats = repo.get_all()
             for m in mats:
-                name = (
-                    m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
-                )
+                name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
                 code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")
                 mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
 
@@ -100,15 +100,9 @@ def search_materials(
                 tmp_repo = MaterialRepository()
                 mats = tmp_repo.get_all()
                 for m in mats:
-                    name = (
-                        m.name
-                        if hasattr(m, "name")
-                        else (m.get("name") if isinstance(m, dict) else "")
-                    )
+                    name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
                     code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")
-                    mtype = getattr(m, "type", None) or (
-                        m.get("type") if isinstance(m, dict) else None
-                    )
+                    mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
                     if type_filter and mtype is not None and mtype != type_filter:
                         continue
                     if not q or q in (name or "").lower() or q in (code or "").lower():
@@ -137,9 +131,7 @@ def search_materials(
             for hist in lib.get_all():
                 hist_name = getattr(hist, "name", "")
                 hist_code = getattr(hist, "code", "")
-                hist_type = getattr(getattr(hist, "type", None), "value", None) or str(
-                    getattr(hist, "type", "")
-                )
+                hist_type = getattr(getattr(hist, "type", None), "value", None) or str(getattr(hist, "type", ""))
 
                 # Filtra per tipo storica se specificato
                 if type_filter and hist_type and hist_type != type_filter:
@@ -161,14 +153,8 @@ def search_materials(
                 # Prefer repository materials if available
                 if repo is not None:
                     for m in repo.get_all():
-                        mtype = getattr(m, "type", None) or (
-                            m.get("type") if isinstance(m, dict) else None
-                        )
-                        name = (
-                            m.name
-                            if hasattr(m, "name")
-                            else (m.get("name") if isinstance(m, dict) else "")
-                        )
+                        mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
+                        name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
                         if mtype == type_filter and name not in seen:
                             seen.add(name)
                             results.append(name)
@@ -178,9 +164,7 @@ def search_materials(
                 lib = HistoricalMaterialLibrary()
                 for hist in lib.get_all():
                     hist_name = getattr(hist, "name", "")
-                    hist_type = getattr(getattr(hist, "type", None), "value", None) or str(
-                        getattr(hist, "type", "")
-                    )
+                    hist_type = getattr(getattr(hist, "type", None), "value", None) or str(getattr(hist, "type", ""))
                     if hist_type == type_filter and hist_name not in seen:
                         seen.add(hist_name)
                         results.append(hist_name)

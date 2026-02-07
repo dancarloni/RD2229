@@ -32,9 +32,7 @@ def test_ask_confirm_returns_responder_and_can_invoke_callback():
     def cb(answer: bool):
         results.append(answer)
 
-    responder = ask_confirm(
-        "Confirm me", "Are you sure?", callback=cb, default=False, source="test"
-    )
+    responder = ask_confirm("Confirm me", "Are you sure?", callback=cb, default=False, source="test")
     # Simulate user clicking 'Yes'
     responder(True)
     assert results == [True]

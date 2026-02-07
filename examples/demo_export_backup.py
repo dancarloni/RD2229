@@ -1,4 +1,4 @@
-"""Demo Export Backup - SectionRepository
+"""Demo Export Backup - SectionRepository.
 ======================================
 
 Dimostra l'utilizzo della funzione export_backup() per esportare

@@ -89,8 +89,7 @@ def compute_sle_verification(
             f"  Dimensioni: B = {B:.1f} cm, H = {H:.1f} cm, d = {d:.1f} cm",
             f"  Armatura inferiore As = {As_inf:.2f} cm²",
             f"  Coeff. omogeneizzazione n = {n:.1f}",
-            f"  Sollecitazioni: Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m,"
-            f" Mz = {_input.Mz:.2f} kg·m",
+            f"  Sollecitazioni: Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m," f" Mz = {_input.Mz:.2f} kg·m",
             "",
             "LIMITI TENSIONI SLE:",
             f"  Cls σ_c,lim = 0.6·fck = {sigma_c_lim:.1f} Kg/cm²",
@@ -98,10 +97,8 @@ def compute_sle_verification(
             "",
             "RISULTATI CALCOLO (stadio II - fessurato):",
             f"  Posizione asse neutro x = {x:.2f} cm (x/d = {x/d:.3f})",
-            f"  Tensione cls σ_c = {sigma_c:.2f} Kg/cm² "
-            f"{'✓' if sigma_c <= sigma_c_lim else '✗'}",
-            f"  Tensione acciaio σ_s = {sigma_s:.0f} Kg/cm² "
-            f"{'✓' if sigma_s <= sigma_s_lim else '✗'}",
+            f"  Tensione cls σ_c = {sigma_c:.2f} Kg/cm² " f"{'✓' if sigma_c <= sigma_c_lim else '✗'}",
+            f"  Tensione acciaio σ_s = {sigma_s:.0f} Kg/cm² " f"{'✓' if sigma_s <= sigma_s_lim else '✗'}",
             "",
             "VERIFICA FESSURAZIONE:",
             f"  Apertura fessure wk = {wk:.3f} mm",

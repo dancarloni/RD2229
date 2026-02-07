@@ -4,7 +4,7 @@ import logging
 import math
 import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, ttk
+from tkinter import filedialog, messagebox, ttk
 from typing import Dict, Optional, Tuple
 
 from sections_app.ui.historical_material_window import HistoricalMaterialWindow
@@ -339,9 +339,7 @@ class MainWindow(tk.Toplevel):
             )
             self._material_manager_window.bind(
                 "<Destroy>",
-                lambda e, w=self._material_manager_window: setattr(
-                    self, "_material_manager_window", None
-                ),
+                lambda e, w=self._material_manager_window: setattr(self, "_material_manager_window", None),
             )
         except Exception:
             pass
@@ -378,9 +376,7 @@ class MainWindow(tk.Toplevel):
             self.section_var.trace("w", lambda *a: self._on_section_change())
 
         # Pulsante per applicare esplicitamente la tipologia (fallback UX)
-        self.apply_type_btn = tk.Button(
-            self.left_frame, text="Applica tipo", command=self._on_section_change, width=12
-        )
+        self.apply_type_btn = tk.Button(self.left_frame, text="Applica tipo", command=self._on_section_change, width=12)
         self.apply_type_btn.pack(anchor="w", pady=(0, 4))
 
         # Tooltip sulla combobox
@@ -407,9 +403,7 @@ class MainWindow(tk.Toplevel):
         # Campo per angolo di rotazione (comune a tutte le sezioni)
         rotation_frame = tk.Frame(self.left_frame)
         rotation_frame.pack(fill="x", pady=(0, 8))
-        tk.Label(rotation_frame, text="Angolo di rotazione θ (gradi):").pack(
-            side="left", padx=(0, 4)
-        )
+        tk.Label(rotation_frame, text="Angolo di rotazione θ (gradi):").pack(side="left", padx=(0, 4))
         self.rotation_entry = tk.Entry(rotation_frame, width=10)
         self.rotation_entry.pack(side="left")
         self.rotation_entry.insert(0, "0.0")
@@ -726,9 +720,7 @@ class MainWindow(tk.Toplevel):
                 if value <= 0:
                     raise ValueError
             except ValueError:
-                notify_error(
-                    "Errore", f"{field} deve essere un numero positivo", source="main_window"
-                )
+                notify_error("Errore", f"{field} deve essere un numero positivo", source="main_window")
                 return None
             values[field] = value
 
@@ -737,9 +729,7 @@ class MainWindow(tk.Toplevel):
         try:
             rotation_angle_deg = float(rotation_raw) if rotation_raw else 0.0
         except ValueError:
-            notify_error(
-                "Errore", "Angolo di rotazione deve essere un numero", source="main_window"
-            )
+            notify_error("Errore", "Angolo di rotazione deve essere un numero", source="main_window")
             return None
 
         name = self.name_entry.get().strip() or self.section_var.get()
@@ -747,12 +737,8 @@ class MainWindow(tk.Toplevel):
 
         # Leggi i fattori di forma a taglio (kappa) se forniti dall'utente
         try:
-            k_y_raw = (
-                self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
-            )
-            k_z_raw = (
-                self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
-            )
+            k_y_raw = self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
+            k_z_raw = self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
             k_y = float(k_y_raw) if k_y_raw else None
             k_z = float(k_z_raw) if k_z_raw else None
             if k_y is not None and k_y <= 0:
@@ -764,9 +750,7 @@ class MainWindow(tk.Toplevel):
             if k_z is not None:
                 section.shear_factor_z = k_z
         except ValueError:
-            notify_error(
-                "Errore", "I fattori κ devono essere numeri positivi", source="main_window"
-            )
+            notify_error("Errore", "I fattori κ devono essere numeri positivi", source="main_window")
             return None
 
         return section
@@ -817,9 +801,7 @@ class MainWindow(tk.Toplevel):
         """Disegna la sezione sul canvas applicando la rotazione se presente."""
         self.canvas.delete("all")
         width, height = self._section_dimensions(section)
-        transform = compute_transform(
-            width, height, int(self.canvas["width"]), int(self.canvas["height"])
-        )
+        transform = compute_transform(width, height, int(self.canvas["width"]), int(self.canvas["height"]))
 
         # Disegna la sezione specifica con rotazione
         if isinstance(section, RectangularSection):
@@ -852,9 +834,7 @@ class MainWindow(tk.Toplevel):
             if getattr(self, "show_core_var", None) is None or self.show_core_var.get():
                 self._draw_core(section, transform)
 
-    def _rotate_point(
-        self, x: float, y: float, cx: float, cy: float, angle_deg: float
-    ) -> Tuple[float, float]:
+    def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> Tuple[float, float]:
         """Ruota un punto (x,y) attorno a (cx,cy) di angle_deg gradi."""
         from math import cos, radians, sin
 
@@ -942,9 +922,7 @@ class MainWindow(tk.Toplevel):
         cx, cy = transform.to_canvas(cx_sec, cy_sec, height)
         r_canvas = radius * transform.scale
 
-        self.canvas.create_oval(
-            cx - r_canvas, cy - r_canvas, cx + r_canvas, cy + r_canvas, outline="#1f77b4", width=2
-        )
+        self.canvas.create_oval(cx - r_canvas, cy - r_canvas, cx + r_canvas, cy + r_canvas, outline="#1f77b4", width=2)
 
     def _draw_t_section(self, section: TSection, transform) -> None:
         """Disegna sezione a T con rotazione."""
@@ -953,7 +931,7 @@ class MainWindow(tk.Toplevel):
         web_x1 = web_x0 + section.web_thickness
 
         # Ala (rettangolo superiore)
-        flange_points = [
+        [
             (0, height - section.flange_thickness),
             (section.flange_width, height - section.flange_thickness),
             (section.flange_width, height),
@@ -961,12 +939,6 @@ class MainWindow(tk.Toplevel):
         ]
 
         # Anima (rettangolo inferiore centrale)
-        web_points = [
-            (web_x0, 0),
-            (web_x1, 0),
-            (web_x1, section.web_height),
-            (web_x0, section.web_height),
-        ]
 
         # Disegna come poligono unico per rotazione corretta
         all_points = [
@@ -979,9 +951,7 @@ class MainWindow(tk.Toplevel):
             (web_x0, 0),
             (web_x0, height - section.flange_thickness),
         ]
-        self._draw_rotated_polygon(
-            all_points, section, transform, outline="#1f77b4", width=2, fill=""
-        )
+        self._draw_rotated_polygon(all_points, section, transform, outline="#1f77b4", width=2, fill="")
 
     def _draw_l_section(self, section: LSection, transform) -> None:
         """Disegna sezione ad L con rotazione."""
@@ -1239,9 +1209,7 @@ class MainWindow(tk.Toplevel):
                 self._update_editing_mode_label()
             except Exception as e:
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
-                notify_error(
-                    "Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window"
-                )
+                notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
                 return
 
         # Se il manager è aperto, ricarica la tabella
@@ -1267,9 +1235,7 @@ class MainWindow(tk.Toplevel):
                 return
 
         # Crea nuova istanza del manager
-        manager = SectionManager(
-            self, self.repository, self.serializer, self.load_section_into_form
-        )
+        manager = SectionManager(self, self.repository, self.serializer, self.load_section_into_form)
         self.section_manager = manager
         # Assicura che quando il manager viene chiuso si rimuova il riferimento
         manager.protocol("WM_DELETE_WINDOW", lambda m=manager: self._on_manager_close(m))

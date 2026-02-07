@@ -10,11 +10,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from sections_app.ui.module_selector import ModuleSelectorWindow
-
 from core_models.materials import Material, MaterialRepository
 from sections_app.models.sections import RectangularSection
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.module_selector import ModuleSelectorWindow
 
 
 class TestExportBackupGUI(unittest.TestCase):
@@ -39,9 +38,7 @@ class TestExportBackupGUI(unittest.TestCase):
         self.section_repo.add_section(rect)
 
         self.material_repo = MaterialRepository(json_file=str(self.temp_path / "materials.json"))
-        mat = Material(
-            id="MAT-001", name="Test Material", type="concrete", properties={"fck": 25.0}
-        )
+        mat = Material(id="MAT-001", name="Test Material", type="concrete", properties={"fck": 25.0})
         self.material_repo.add(mat)
 
         self.serializer = CsvSectionSerializer()
@@ -72,7 +69,7 @@ class TestExportBackupGUI(unittest.TestCase):
 
         # Simula la scelta "sezioni" nel dialog
         with patch.object(window, "wait_window"):
-            with patch("tkinter.Toplevel") as mock_toplevel:
+            with patch("tkinter.Toplevel"):
                 # Simula immediatamente la scelta "sezioni"
                 def fake_wait_window(dialog):
                     # Trova il callback per "sezioni" e chiamalo
@@ -80,7 +77,6 @@ class TestExportBackupGUI(unittest.TestCase):
 
                 # Chiamiamo direttamente il metodo di export
                 # Dobbiamo simulare la scelta dell'utente
-                original_export = window._export_backup
 
                 def mock_export():
                     # Simula scelta "sezioni"
@@ -130,7 +126,7 @@ class TestExportBackupGUI(unittest.TestCase):
 
     def test_export_both_creates_two_files(self):
         """Test: Export entrambi crea due file separati."""
-        base_path = self.temp_path / "backup_completo.json"
+        self.temp_path / "backup_completo.json"
 
         # Simula export di entrambi
         sections_path = self.temp_path / "backup_completo_sezioni.json"

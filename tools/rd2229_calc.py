@@ -8,7 +8,7 @@ def sigma_c_amm_from_r28(sigma_r28, mode="compression"):
     """Calcola la tensione ammissibile del calcestruzzo data la resistenza a 28gg (sigma_r28).
     mode: 'compression' o 'flexure'
     Regola: sigma_c_amm = sigma_r28 / 3
-    Massimi: compression -> 60 kg/cm2, flexure -> 75 kg/cm2
+    Massimi: compression -> 60 kg/cm2, flexure -> 75 kg/cm2.
     """
     if sigma_r28 is None:
         raise ValueError("sigma_r28 required")
@@ -22,7 +22,7 @@ def sigma_c_amm_from_r28(sigma_r28, mode="compression"):
 
 def steel_sigma_amm(category="soft"):
     """Restituisce la tensione ammissibile per l'acciaio in kg/cm2.
-    category: 'soft' -> 1400, 'hard' -> 2000
+    category: 'soft' -> 1400, 'hard' -> 2000.
     """
     if category == "soft":
         return 1400.0
@@ -33,7 +33,7 @@ def steel_sigma_amm(category="soft"):
 
 def n_modulus_ratio(concrete_type="common"):
     """Restituisce il coefficiente n = Es/Ec in funzione del tipo di conglomerato.
-    concrete_type: 'common'->10, 'high'->8, 'aluminous'->6
+    concrete_type: 'common'->10, 'high'->8, 'aluminous'->6.
     """
     mapping = {"common": 10.0, "high": 8.0, "aluminous": 6.0}
     return mapping.get(concrete_type, 10.0)
@@ -42,7 +42,7 @@ def n_modulus_ratio(concrete_type="common"):
 def shear_allowable(with_stirrups=False, concrete_type="ordinary"):
     """Ritorna la tensione tangenziale ammissibile del calcestruzzo (kg/cm2).
     without stirrups: tau_c0 = 4 (ordinary) or 6 (high)
-    with stirrups: tau_c1 = 14 (ordinary) or 16 (high)
+    with stirrups: tau_c1 = 14 (ordinary) or 16 (high).
     """
     if with_stirrups:
         return 16.0 if concrete_type == "high" else 14.0
@@ -51,7 +51,7 @@ def shear_allowable(with_stirrups=False, concrete_type="ordinary"):
 
 def check_cube_requirement(f_cub28, sigma_c_amm):
     """Verifica la prescrizione f_cub28 >= 3 * sigma_c_amm e i minimi assoluti (120/160).
-    Restituisce tuple (ok_bool, message)
+    Restituisce tuple (ok_bool, message).
     """
     if f_cub28 is None or sigma_c_amm is None:
         return (False, "Inputs required")
@@ -63,7 +63,9 @@ def check_cube_requirement(f_cub28, sigma_c_amm):
 
 
 def flexural_resistance_rectangular(b, d, A_s, sigma_s_amm=None, sigma_c_amm=None, units="kg_cm"):
-    """Calcolo della resistenza a flessione di una sezione rettangolare semplicemente armata (approccio tensioni ammissibili semplificato).
+    """Calcolo della resistenza a flessione di una sezione rettangolare semplicemente armata.
+
+    Approccio: tensioni ammissibili semplificato.
 
     Parametri:
     - b: larghezza della sezione (cm)
@@ -165,7 +167,5 @@ if __name__ == "__main__":
     res = flexural_resistance_rectangular(b=30, d=40, A_s=10)  # b=30cm, d=40cm, As=10cm2
     print("Flexural example:", res)
     # Esempio: verifica taglio
-    shear = shear_verification(
-        V_applied=12000, b=30, d=40, concrete_type="ordinary", with_stirrups=False
-    )
+    shear = shear_verification(V_applied=12000, b=30, d=40, concrete_type="ordinary", with_stirrups=False)
     print("Shear example:", shear)

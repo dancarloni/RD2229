@@ -1,1 +1,1 @@
-# Domain models for materials, sections, norms
+"""Domain model helpers and adapters."""

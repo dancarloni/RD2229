@@ -5,10 +5,9 @@ from unittest.mock import patch
 
 os.environ["DISPLAY"] = ":0"
 
-from sections_app.ui.module_selector import ModuleSelectorWindow
-
 from core_models.materials import MaterialRepository
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.module_selector import ModuleSelectorWindow
 
 
 class TestModuleSelectorFrcButtons(unittest.TestCase):
@@ -48,10 +47,7 @@ class TestModuleSelectorFrcButtons(unittest.TestCase):
             try:
 
                 def find_button(parent):
-                    if (
-                        isinstance(parent, tk.Button)
-                        and parent.cget("text") == "Open FRC Verification"
-                    ):
+                    if isinstance(parent, tk.Button) and parent.cget("text") == "Open FRC Verification":
                         return parent
                     for child in parent.winfo_children():
                         result = find_button(child)

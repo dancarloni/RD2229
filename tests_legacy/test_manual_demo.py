@@ -4,9 +4,8 @@ import unittest
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 
 try:
-    from sections_app.ui.module_selector import ModuleSelectorWindow
-
     from historical_materials import HistoricalMaterialLibrary
+    from sections_app.ui.module_selector import ModuleSelectorWindow
     from verification_table import VerificationTableWindow
 except Exception:
     ModuleSelectorWindow = None
@@ -45,12 +44,8 @@ class TestManualDemo(unittest.TestCase):
         hist_lib = HistoricalMaterialLibrary()
         hist_all = hist_lib.get_all()
         # Need at least one concrete and one steel historical material for this demo
-        has_conc = any(
-            (getattr(m.type, "value", str(getattr(m, "type", ""))) == "concrete") for m in hist_all
-        )
-        has_steel = any(
-            (getattr(m.type, "value", str(getattr(m, "type", ""))) == "steel") for m in hist_all
-        )
+        has_conc = any((getattr(m.type, "value", str(getattr(m, "type", ""))) == "concrete") for m in hist_all)
+        has_steel = any((getattr(m.type, "value", str(getattr(m, "type", ""))) == "steel") for m in hist_all)
         if not (has_conc and has_steel):
             self.skipTest("Historical library does not contain both concrete and steel samples")
 
@@ -107,9 +102,7 @@ class TestManualDemo(unittest.TestCase):
         vt.update()
         self.assertIsNotNone(app._suggest_list, "Steel suggestions popup did not appear")
         steel_items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
-        self.assertTrue(
-            any("38" in it for it in steel_items), f"Unexpected steel suggestions: {steel_items}"
-        )
+        self.assertTrue(any("38" in it for it in steel_items), f"Unexpected steel suggestions: {steel_items}")
 
         # Cleanup
         try:

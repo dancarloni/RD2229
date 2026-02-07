@@ -87,7 +87,7 @@ class TestVerificationTableDialogs(unittest.TestCase):
         tmp = tempfile.NamedTemporaryFile(suffix=".csv", delete=False)
         tmp.close()
         try:
-            keys = [c[0] for c in app_columns()]  # header friendly names
+            [c[0] for c in app_columns()]  # header friendly names
             header = [c[1] for c in app_columns()]
             # write header and two rows (usiamo ';' come separatore per rispecchiare export)
             with open(tmp.name, "w", newline="", encoding="utf-8") as fh:

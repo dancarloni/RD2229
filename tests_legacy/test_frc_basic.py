@@ -2,7 +2,6 @@
 """Tests base per il modulo core.frc (comportamento materiali FRC)."""
 
 from core.frc import frc_stress
-
 from core_models.materials import Material
 
 
@@ -22,7 +21,5 @@ def test_frc_stress_linear_capped():
 
 
 def test_frc_disabled_returns_zero():
-    mat = Material(
-        name="NoFRC", type="concrete", frc_enabled=False, frc_fFtu=3000.0, frc_eps_fu=0.02
-    )
+    mat = Material(name="NoFRC", type="concrete", frc_enabled=False, frc_fFtu=3000.0, frc_eps_fu=0.02)
     assert frc_stress(mat, 0.01) == 0.0

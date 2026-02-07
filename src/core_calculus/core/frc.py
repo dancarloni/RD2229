@@ -43,9 +43,7 @@ def frc_stress(material: Material, strain: float) -> float:
     return sigma
 
 
-def apply_frc_to_section(
-    section, material: Material, strain_distribution
-) -> Tuple[float, float, float]:
+def apply_frc_to_section(section, material: Material, strain_distribution) -> Tuple[float, float, float]:
     """Placeholder: applica il contributo FRC alla sezione e ritorna (N, My, Mz).
 
     Implementazione completa verrà aggiunta nelle iterazioni successive.

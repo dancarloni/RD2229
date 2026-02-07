@@ -79,7 +79,7 @@ def _ensure_derived_fields(material: Dict) -> bool:
         return False
     dirty = False
     sigma_c28 = material.get("sigma_c28")
-    sigma_used = material.get("sigma_c") or material.get("sigma_c_simple")
+    material.get("sigma_c") or material.get("sigma_c_simple")
     cement = _map_cement_type(material.get("cement_type"))
 
     # E_calculated and G range from sigma_c28
@@ -265,9 +265,7 @@ def update_material(name: str, updates: Dict, path: Optional[str] = None) -> Non
                         materials[i]["G_min"] = g_min
                         materials[i]["G_max"] = g_max
                         try:
-                            materials[i]["E_conventional"] = compute_ec_conventional(
-                                float(sigma_c28), cement
-                            )
+                            materials[i]["E_conventional"] = compute_ec_conventional(float(sigma_c28), cement)
                         except Exception:
                             materials[i]["E_conventional"] = None
                     except Exception:

@@ -1,1 +1,1 @@
-# Import/export utilities (JSON/CSV), schema versioning & migrations
+"""Input/output helpers for file operations and serialization."""

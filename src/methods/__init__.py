@@ -1,1 +1,1 @@
-# Strategy pattern implementations for TA/SLU/SLE/Santarella methods
+"""Verification methods implementations (SLU, SLE, TA)."""

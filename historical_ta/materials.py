@@ -45,17 +45,6 @@ class SteelLawTA:
     Kincr: float = 0.0  # strain hardening coefficient if used
 
 
-@dataclass
-class SteelLawTA:
-    Es: float
-    fyd: float
-    eps_yd: float
-    eps_su: float
-    elastoplastic: bool = True  # blnElastPerfettPlastico
-    bilinear: bool = False
-    Kincr: float = 0.0  # strain hardening coefficient if used
-
-
 def sigma_c(eps: float, law: ConcreteLawTA) -> float:
     """Concrete stress-strain relation (approximation of VB f_Sigc).
 
@@ -91,8 +80,7 @@ def sigma_c(eps: float, law: ConcreteLawTA) -> float:
     denom = (law.eps_cu - 0.0) if (law.eps_cu > 0) else 1.0
     x = min(eps_abs / denom, 1.0)
     # Parabolic: sigma = -fcd * (1 - (x)**2)
-    sigma = -law.fcd * (1.0 - x * x)
-    return sigma
+    return -law.fcd * (1.0 - x * x)
 
 
 def sigma_s(eps: float, law: SteelLawTA) -> float:

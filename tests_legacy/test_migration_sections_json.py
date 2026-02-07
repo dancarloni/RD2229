@@ -16,7 +16,7 @@ def test_migrate_legacy_to_canonical(tmp_path, monkeypatch):
         canonical.unlink()
     # Run repo with working directory tmp_path (so Path('sections.json') resolves there)
     monkeypatch.chdir(tmp_path)
-    repo = SectionRepository()  # Should auto-migrate
+    SectionRepository()  # Should auto-migrate
     assert canonical.exists(), "Canonical file not created"
     assert (tmp_path / "sections.json.bak").exists(), "Backup of legacy not created"
     with canonical.open("r", encoding="utf-8") as f:
@@ -46,7 +46,7 @@ def test_explicit_sections_json_path_respected(tmp_path):
     explicit = tmp_path / "sections.json"
     explicit.write_text("[]", encoding="utf-8")
     # instantiate with explicit path
-    repo = SectionRepository(json_file=str(explicit))
+    SectionRepository(json_file=str(explicit))
     assert explicit.exists()
     # Ensure canonical not accidentally created from explicit use
     canonical = Path(DEFAULT_JSON_FILE)
@@ -60,7 +60,7 @@ def test_disable_auto_migration_with_env_var(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("RD2229_NO_AUTO_MIGRATE", "1")
     # No migration should occur
-    repo = SectionRepository()
+    SectionRepository()
     assert not (tmp_path / "sec_repository" / "sec_repository.jsons").exists()
 
 
@@ -73,9 +73,7 @@ def test_temp_file_extension_preserved(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     repo = SectionRepository()
     # Trigger a save by adding a new section using create_section_from_dict
-    sec = create_section_from_dict(
-        {"name": "t", "width": 10, "height": 10, "section_type": "RECTANGULAR"}
-    )
+    sec = create_section_from_dict({"name": "t", "width": 10, "height": 10, "section_type": "RECTANGULAR"})
     repo.add_section(sec)
     # Check for temp file if it was created (should end with .jsons.tmp or not exist)
     tmp_files = list(canonical_dir.glob("*.tmp"))

@@ -15,9 +15,7 @@ class RectangleElement:
     y_center: float  # Coordinata y del baricentro rispetto a un'origine locale (cm)
 
 
-def rotate_inertia(
-    Ix: float, Iy: float, Ixy: float, theta_rad: float
-) -> Tuple[float, float, float]:
+def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> Tuple[float, float, float]:
     """Ruota il tensore di inerzia di un angolo theta_rad (radianti) attorno al baricentro.
 
     Formule di rototrasformazione del tensore di inerzia:

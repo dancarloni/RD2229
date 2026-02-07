@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\src\domain\domain\sections.py
+# hypothesis_version: 6.151.5
+
+[10.0, 30.0, 50.0, 'cm', 'diameter', 'dimensions', 'find_by_id', 'get_all_sections', 'height', 'mm', 'width']

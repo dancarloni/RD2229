@@ -1,1 +1,1 @@
-# Repositories for persistent stores with schema versioning
+"""Repository abstractions for persistence of materials/sections."""

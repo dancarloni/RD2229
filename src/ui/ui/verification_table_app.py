@@ -284,38 +284,22 @@ class VerificationTableApp(tk.Frame):
         top.pack(fill="x", padx=8, pady=(8, 4))
 
         tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
-        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(
-            side="left", padx=(6, 0)
-        )
+        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
         tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(
             side="left", padx=(6, 0)
         )
-        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(
-            side="left", padx=(6, 0)
-        )
+        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6, 0))
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
-        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(
-            side="left", padx=(6, 0)
-        )
+        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(side="left", padx=(6, 0))
         # Status label to show non-blocking progress messages
         self._status_var = tk.StringVar(value="")
         tk.Label(top, textvariable=self._status_var, anchor="w").pack(side="right")
-        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(
-            side="left", padx=(6, 0)
-        )
+        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(side="left", padx=(6, 0))
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -636,14 +620,10 @@ class VerificationTableApp(tk.Frame):
             return "break"
         if event.keysym in {"Left", "Right"}:
             delta = -1 if event.keysym == "Left" else 1
-            target_item, target_col = self._next_cell(
-                item, self._last_col, delta_col=delta, delta_row=0
-            )
+            target_item, target_col = self._next_cell(item, self._last_col, delta_col=delta, delta_row=0)
         else:
             delta = -1 if event.keysym == "Up" else 1
-            target_item, target_col = self._next_cell(
-                item, self._last_col, delta_col=0, delta_row=delta
-            )
+            target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
         self._last_col = target_col
         self._start_edit(target_item, target_col)
         return "break"
@@ -719,9 +699,7 @@ class VerificationTableApp(tk.Frame):
         value = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
         # Record debug info via logger (no direct stdout prints)
         try:
-            logger.debug(
-                "Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value
-            )
+            logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
             logger.debug("edit_entry type: %s", type(self.edit_entry))
             if hasattr(self.edit_entry, "cget"):
                 try:
@@ -819,9 +797,7 @@ class VerificationTableApp(tk.Frame):
         self._commit_edit()
 
         # Calcola la cella target (eventualmente creando una nuova riga copiando la corrente)
-        target_item, target_col, _created = self._compute_target_cell(
-            current_item, current_col, delta_col, delta_row
-        )
+        target_item, target_col, _created = self._compute_target_cell(current_item, current_col, delta_col, delta_row)
 
         # Apri l'editor sulla cella target
         self._start_edit(target_item, target_col)
@@ -1001,9 +977,7 @@ class VerificationTableApp(tk.Frame):
                     "stirrup_diameter",
                 }:
                     try:
-                        kwargs[attr] = (
-                            float(str(value).replace(",", ".")) if str(value).strip() else 0.0
-                        )
+                        kwargs[attr] = float(str(value).replace(",", ".")) if str(value).strip() else 0.0
                     except Exception:
                         kwargs[attr] = 0.0
                 else:
@@ -1046,9 +1020,7 @@ class VerificationTableApp(tk.Frame):
         def _compute_for_pair(idx_item_row):
             item_id, row = idx_item_row
             try:
-                res = compute_verification_result(
-                    row, self.section_repository, self.material_repository
-                )
+                res = compute_verification_result(row, self.section_repository, self.material_repository)
             except Exception:
                 res = None
             return item_id, res

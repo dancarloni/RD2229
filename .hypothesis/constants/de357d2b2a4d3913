@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\config\calculation_codes_loader.py
+# hypothesis_version: 6.151.5
+
+['*.jsoncode', 'calculation_codes', 'code_name', 'config', 'homogenization', 'material_sources', 'n_default', 'r', 'safety_coefficients', 'strain_limits', 'stress_limits', 'utf-8', 'verification_types']

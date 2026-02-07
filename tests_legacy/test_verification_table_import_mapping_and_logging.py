@@ -174,9 +174,7 @@ class TestImportMappingAndLogging(unittest.TestCase):
                         self.assertEqual(title, "Importa CSV")
                         self.assertIn("not_a_number", text)
                         # logger.error should be called with a message containing our bad value
-                        called = any(
-                            "not_a_number" in str(args) for args, _ in mock_log_error.call_args_list
-                        )
+                        called = any("not_a_number" in str(args) for args, _ in mock_log_error.call_args_list)
                         self.assertTrue(
                             called,
                             f"Expected logger.error to contain 'not_a_number', got {mock_log_error.call_args_list}",

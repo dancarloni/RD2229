@@ -95,9 +95,7 @@ def bas_torsion_verification(
 
         # compute Sigf_l and Sigf_st for verification when CalcVerif True
         # We approximate Sigfa as allowable steel stress from material (sigma_fa)
-        sigma_fa = getattr(
-            material, "fyk", 450.0
-        )  # MPa like, but consistent with code expectations
+        sigma_fa = getattr(material, "fyk", 450.0)  # MPa like, but consistent with code expectations
         # Convert to kg/cm2 if small
         if sigma_fa < 2000:
             sigma_fa = sigma_fa * 10.197
@@ -137,43 +135,27 @@ def bas_torsion_verification(
         fyd = getattr(material, "fyd", getattr(material, "fyk", 450.0))
         if fyd < 2000:
             fyd = fyd * 10.197
-        Al_to = results.get(
-            "Al_to", max(0.001, abs(Mx) * p / (2.0 * fyd * A * max(math.tan(teta), 1e-6)))
-        )
+        Al_to = results.get("Al_to", max(0.001, abs(Mx) * p / (2.0 * fyd * A * max(math.tan(teta), 1e-6))))
         Asw_to = getattr(material, "Asw_to", 1.0)
         alfa_to = math.radians(getattr(material, "alfa_to_deg", 30.0))
         Pst_to = results.get(
             "Pst_to",
             max(
                 1.0,
-                2
-                * Asw_to
-                * fyd
-                * A
-                * math.sin(math.pi - teta - alfa_to)
-                / (abs(Mx) * max(math.sin(teta), 1e-6)),
+                2 * Asw_to * fyd * A * math.sin(math.pi - teta - alfa_to) / (abs(Mx) * max(math.sin(teta), 1e-6)),
             ),
         )
 
         Mtu1 = 2.0 * Al_to * fyd * A / p * math.tan(teta)
         # protect division
         if Pst_to * math.sin(teta) != 0.0:
-            Mtu2 = (
-                2.0
-                * Asw_to
-                * fyd
-                * A
-                * math.sin(math.pi - teta - alfa_to)
-                / (Pst_to * math.sin(teta))
-            )
+            Mtu2 = 2.0 * Asw_to * fyd * A * math.sin(math.pi - teta - alfa_to) / (Pst_to * math.sin(teta))
         else:
             Mtu2 = 0.0
 
         # Mtu is min of three
         Mtu = min(Mtu1, Mtu2, Mtu3)
-        results.update(
-            {"Mtu1": Mtu1, "Mtu2": Mtu2, "Mtu3": Mtu3, "Mtu": Mtu, "Al_to": Al_to, "Pst_to": Pst_to}
-        )
+        results.update({"Mtu1": Mtu1, "Mtu2": Mtu2, "Mtu3": Mtu3, "Mtu": Mtu, "Al_to": Al_to, "Pst_to": Pst_to})
 
     # final messages and pass/fail
     ok = True

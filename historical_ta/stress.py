@@ -38,23 +38,18 @@ def _build_MM(props: SectionProperties):
     Iz = props.Iz
     Iyz = props.Iyz
 
-    MM = [
+    return [
         [Aci, Sy, Sz],
         [Sy, Iy, Iyz],
         [Sz, Iyz, Iz],
     ]
-    return MM
 
 
 def _invert_3x3(m):
     a11, a12, a13 = m[0]
     a21, a22, a23 = m[1]
     a31, a32, a33 = m[2]
-    det = (
-        a11 * (a22 * a33 - a23 * a32)
-        - a12 * (a21 * a33 - a23 * a31)
-        + a13 * (a21 * a32 - a22 * a31)
-    )
+    det = a11 * (a22 * a33 - a23 * a32) - a12 * (a21 * a33 - a23 * a31) + a13 * (a21 * a32 - a22 * a31)
     if abs(det) < 1e-12:
         raise ValueError("Singular MM matrix: check section properties")
     inv = [[0.0] * 3 for _ in range(3)]
@@ -100,8 +95,8 @@ def compute_normal_stresses_ta(
     - divide by Ec to get strains (vb divides Eps by Ec)
     - compute strains at polygon vertices and bars
     - compute stresses via constitutive laws (sigma_c, sigma_s)
-    - if concrete in tension and !allow_concrete_tension: approximate parzializzazione by excluding tensile vertex contributions
-      and recompute iteratively until convergence
+    - if concrete in tension and !allow_concrete_tension: approximate parzializzazione by excluding tensile
+      vertex contributions and recompute iteratively until convergence
 
     Returns StressResult containing global extrema and per-bar stresses.
     """
@@ -128,11 +123,7 @@ def compute_normal_stresses_ta(
             y0, z0 = poly[i]
             y1, z1 = poly[(i + 1) % len(poly)]
             # triangle (centroid, v0, v1)
-            cross = (
-                0.5 * (y0 * z1 - y1 * z0)
-                + 0.5 * (y1 * z_cent - y_cent * z1)
-                + 0.5 * (y_cent * z0 - y0 * z_cent)
-            )
+            (0.5 * (y0 * z1 - y1 * z0) + 0.5 * (y1 * z_cent - y_cent * z1) + 0.5 * (y_cent * z0 - y0 * z_cent))
             # for simplicity attribute the triangle area entirely to v0
             A_tri = abs(0.5 * (y0 * z1 - y1 * z0))
             Sy_tri = A_tri * z0
@@ -214,10 +205,7 @@ def compute_normal_stresses_ta(
             Sz_adj = section_props.Sz
             Iy_adj = section_props.Iy + section_props.area_equivalent * (section_props.yG**2)
             Iz_adj = section_props.Iz + section_props.area_equivalent * (section_props.zG**2)
-            Iyz_adj = (
-                section_props.Iyz
-                + section_props.area_equivalent * section_props.yG * section_props.zG
-            )
+            Iyz_adj = section_props.Iyz + section_props.area_equivalent * section_props.yG * section_props.zG
 
             for idx, s in enumerate(sigma_vertices):
                 if s > 0:
@@ -269,9 +257,7 @@ def compute_normal_stresses_ta(
         # No parzializzazione required or allowed
         sigma_c_pos = max(0.0, sigma_c_max)
         sigma_c_neg = min(0.0, sigma_c_min)
-        sigma_c_med = (
-            loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
-        )
+        sigma_c_med = loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
 
         sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
         return StressResult(
@@ -289,9 +275,7 @@ def compute_normal_stresses_ta(
     sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
     sigma_c_pos = max(0.0, sigma_c_max)
     sigma_c_neg = min(0.0, sigma_c_min)
-    sigma_c_med = (
-        loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
-    )
+    sigma_c_med = loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
     return StressResult(
         sigma_c_max=sigma_c_max,
         sigma_c_min=sigma_c_min,

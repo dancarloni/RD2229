@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox, ttk
 from typing import Optional
 
 from core_models.materials import MaterialRepository
@@ -32,10 +32,8 @@ from sections_app.services.notification import (
 try:
     from material_sources import (
         MaterialSource,
-        MaterialSourceLibrary,
         get_all_source_names,
         get_default_values_for_source,
-        get_source_by_id,
         get_source_by_name,
         get_source_library,
     )
@@ -141,13 +139,11 @@ class HistoricalMaterialWindow(tk.Toplevel):
 
         # Pulsante gestione fonti (se disponibile il modulo)
         if SOURCES_AVAILABLE:
-            tk.Button(btn_frame, text="Gestisci fonti...", command=self._on_manage_sources).pack(
-                side="left", padx=4
-            )
+            tk.Button(btn_frame, text="Gestisci fonti...", command=self._on_manage_sources).pack(side="left", padx=4)
 
-        tk.Button(
-            btn_frame, text="Importa in archivio materiali", command=self._on_import_selected
-        ).pack(side="right", padx=4)
+        tk.Button(btn_frame, text="Importa in archivio materiali", command=self._on_import_selected).pack(
+            side="right", padx=4
+        )
 
         # Bind double click to edit
         self.tree.bind("<Double-1>", lambda e: self._on_edit())
@@ -166,11 +162,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
             values = [
                 hist.name,
                 hist.code,
-                (
-                    getattr(hist, "type", "").value
-                    if hasattr(hist, "type")
-                    else str(getattr(hist, "type", ""))
-                ),
+                (getattr(hist, "type", "").value if hasattr(hist, "type") else str(getattr(hist, "type", ""))),
                 hist.source or "",
                 # Calcestruzzo
                 str(hist.fck or ""),  # fck / σ_c,28
@@ -201,9 +193,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
     def _on_edit(self) -> None:
         sel = self.tree.selection()
         if not sel:
-            notify_warning(
-                "Modifica", "Seleziona una riga da modificare", source="historical_material_window"
-            )
+            notify_warning("Modifica", "Seleziona una riga da modificare", source="historical_material_window")
             return
         code = sel[0]
         hist = self.library.find_by_code(code)
@@ -220,9 +210,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
     def _on_delete(self) -> None:
         sel = self.tree.selection()
         if not sel:
-            notify_warning(
-                "Elimina", "Seleziona una riga da eliminare", source="historical_material_window"
-            )
+            notify_warning("Elimina", "Seleziona una riga da eliminare", source="historical_material_window")
             return
 
         def _on_confirm_delete(ans: bool):
@@ -259,9 +247,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
             )
             return
         if self.material_repository is None:
-            notify_error(
-                "Importa", "Archivio materiali non disponibile", source="historical_material_window"
-            )
+            notify_error("Importa", "Archivio materiali non disponibile", source="historical_material_window")
             return
         imported = 0
         for code in sel:
@@ -274,9 +260,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
                 imported += 1
             except Exception:
                 logger.exception("Errore import materiale storico %s", code)
-        notify_info(
-            "Importa", f"Importati {imported} materiali", source="historical_material_window"
-        )
+        notify_info("Importa", f"Importati {imported} materiali", source="historical_material_window")
 
     def _on_manage_sources(self) -> None:
         """Apre la finestra di gestione fonti normative."""
@@ -296,9 +280,7 @@ class _HistoricalEditDialog(tk.Toplevel):
     - Modifica manuale di tutti i parametri
     """
 
-    def __init__(
-        self, master: tk.Misc, title: str = "", material: Optional[HistoricalMaterial] = None
-    ) -> None:
+    def __init__(self, master: tk.Misc, title: str = "", material: Optional[HistoricalMaterial] = None) -> None:
         super().__init__(master)
         self.title(title)
         self.transient(master)
@@ -338,17 +320,13 @@ class _HistoricalEditDialog(tk.Toplevel):
         if SOURCES_AVAILABLE:
             # ComboBox con fonti predefinite
             source_names = get_all_source_names()
-            self.source_combo = ttk.Combobox(
-                source_frame, textvariable=self.source_var, values=source_names, width=30
-            )
+            self.source_combo = ttk.Combobox(source_frame, textvariable=self.source_var, values=source_names, width=30)
             self.source_combo.pack(side="left")
             # Binding per popolamento automatico quando cambia la fonte
             self.source_combo.bind("<<ComboboxSelected>>", self._on_source_changed)
 
             # Pulsante per ricaricare valori dalla fonte
-            self.reload_btn = tk.Button(
-                source_frame, text="Ricarica valori", command=self._on_reload_from_source
-            )
+            self.reload_btn = tk.Button(source_frame, text="Ricarica valori", command=self._on_reload_from_source)
             self.reload_btn.pack(side="left", padx=(5, 0))
         else:
             # Fallback a Entry se il modulo fonti non è disponibile
@@ -597,9 +575,7 @@ class _HistoricalEditDialog(tk.Toplevel):
             else:
                 self.notes_text.insert("1.0", calc_notes)
 
-        logger.info(
-            "Applicati valori da fonte '%s' per materiale tipo '%s'", source_name, material_type
-        )
+        logger.info("Applicati valori da fonte '%s' per materiale tipo '%s'", source_name, material_type)
 
     def _on_save(self) -> None:
         """Salva il materiale."""
@@ -800,9 +776,7 @@ class SourceManagerWindow(tk.Toplevel):
         if src is None:
             return
         if not src.is_user_defined:
-            messagebox.showwarning(
-                "Elimina", f"La fonte '{src.name}' è predefinita e non può essere eliminata."
-            )
+            messagebox.showwarning("Elimina", f"La fonte '{src.name}' è predefinita e non può essere eliminata.")
             return
         if not messagebox.askyesno("Conferma", f"Eliminare la fonte '{src.name}'?"):
             return
@@ -813,9 +787,7 @@ class SourceManagerWindow(tk.Toplevel):
 class _SourceEditDialog(tk.Toplevel):
     """Dialog per aggiungere/modificare una fonte normativa."""
 
-    def __init__(
-        self, master: tk.Misc, title: str = "", source: Optional[MaterialSource] = None
-    ) -> None:
+    def __init__(self, master: tk.Misc, title: str = "", source: Optional[MaterialSource] = None) -> None:
         super().__init__(master)
         self.title(title)
         self.transient(master)
@@ -869,9 +841,9 @@ class _SourceEditDialog(tk.Toplevel):
         row += 1
 
         self.historical_var = tk.BooleanVar()
-        tk.Checkbutton(
-            frm, text="Norma storica (non più in vigore)", variable=self.historical_var
-        ).grid(row=row, column=1, sticky="w")
+        tk.Checkbutton(frm, text="Norma storica (non più in vigore)", variable=self.historical_var).grid(
+            row=row, column=1, sticky="w"
+        )
         row += 1
 
         tk.Label(frm, text="Descrizione").grid(row=row, column=0, sticky="nw")

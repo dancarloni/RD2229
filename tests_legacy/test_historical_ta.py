@@ -17,9 +17,7 @@ class TestHistoricalTA(unittest.TestCase):
         self.assertAlmostEqual(props.zG, 7.5)
 
     def test_material_laws(self):
-        conc = ConcreteLawTA(
-            fcd=30.0, Ec=30000.0, eps_c2=0.002, eps_c3=0.003, eps_c4=0.004, eps_cu=0.0035
-        )
+        conc = ConcreteLawTA(fcd=30.0, Ec=30000.0, eps_c2=0.002, eps_c3=0.003, eps_c4=0.004, eps_cu=0.0035)
         self.assertLess(sigma_c(-0.002, conc), 0)
         self.assertEqual(sigma_c(0.0001, conc), 0.0)  # tension not allowed
         steel = SteelLawTA(Es=210000.0, fyd=500.0, eps_yd=0.00238, eps_su=0.1)
@@ -31,15 +29,11 @@ class TestHistoricalTA(unittest.TestCase):
         # single bar at centroid
         geom = SectionGeometry(polygons=poly, bars=[(5.0, 5.0, 1.0)], n_homog=10.0)
         props = compute_section_properties(geom)
-        conc = ConcreteLawTA(
-            fcd=30.0, Ec=30000.0, eps_c2=0.002, eps_c3=0.003, eps_c4=0.004, eps_cu=0.0035
-        )
+        conc = ConcreteLawTA(fcd=30.0, Ec=30000.0, eps_c2=0.002, eps_c3=0.003, eps_c4=0.004, eps_cu=0.0035)
         steel = SteelLawTA(Es=210000.0, fyd=500.0, eps_yd=0.00238, eps_su=0.1)
 
         loads = LoadState(Nx=0.0, My=0.0, Mz=0.0)
-        res = compute_normal_stresses_ta(
-            geom, props, loads, conc, steel, allow_concrete_tension=False
-        )
+        res = compute_normal_stresses_ta(geom, props, loads, conc, steel, allow_concrete_tension=False)
         # with zero loads expect near zero stresses
         self.assertAlmostEqual(res.sigma_c_max, 0.0, delta=1e-6)
         self.assertAlmostEqual(res.sigma_s_max, 0.0, delta=1e-6)

@@ -1,4 +1,4 @@
-"""GUI window to compare verification methods (.bas translation vs TA vs SLU)"""
+"""GUI window to compare verification methods (.bas translation vs TA vs SLU)."""
 
 from __future__ import annotations
 
@@ -75,9 +75,7 @@ class VerificationComparatorWindow(tk.Toplevel):
         # Bottom frame for numeric summary and export
         bottom = tk.Frame(self)
         bottom.pack(fill="x", padx=8, pady=(0, 8))
-        self.summary_table = ttk.Treeview(
-            bottom, columns=("metric", "TA", "SLU", ".bas"), show="headings", height=4
-        )
+        self.summary_table = ttk.Treeview(bottom, columns=("metric", "TA", "SLU", ".bas"), show="headings", height=4)
         self.summary_table.heading("metric", text="Metric")
         self.summary_table.heading("TA", text="TA")
         self.summary_table.heading("SLU", text="SLU")
@@ -87,15 +85,9 @@ class VerificationComparatorWindow(tk.Toplevel):
 
         export_frame = tk.Frame(bottom)
         export_frame.pack(side="right")
-        tk.Button(export_frame, text="Export CSV", command=lambda: self._export("csv")).pack(
-            side="left", padx=4
-        )
-        tk.Button(export_frame, text="Export JSON", command=lambda: self._export("json")).pack(
-            side="left", padx=4
-        )
-        tk.Button(export_frame, text="Export TXT", command=lambda: self._export("txt")).pack(
-            side="left", padx=4
-        )
+        tk.Button(export_frame, text="Export CSV", command=lambda: self._export("csv")).pack(side="left", padx=4)
+        tk.Button(export_frame, text="Export JSON", command=lambda: self._export("json")).pack(side="left", padx=4)
+        tk.Button(export_frame, text="Export TXT", command=lambda: self._export("txt")).pack(side="left", padx=4)
 
     # --- Helper geometry utilities ---------------------------------
     @staticmethod
@@ -221,10 +213,7 @@ class VerificationComparatorWindow(tk.Toplevel):
 
         sign = cross(v[0], v[1], pick_side_point[0] - p[0], pick_side_point[1] - p[1])
         keep_positive = sign >= 0
-        poly = VerificationComparatorWindow._clip_polygon_by_halfplane(
-            rect, p, v, keep_positive=keep_positive
-        )
-        return poly
+        return VerificationComparatorWindow._clip_polygon_by_halfplane(rect, p, v, keep_positive=keep_positive)
 
     def on_compare(self):
         # Get selected row
@@ -262,9 +251,7 @@ class VerificationComparatorWindow(tk.Toplevel):
                 reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
                 reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),
                 material=mat_props,
-                loads=LoadCase(
-                    N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At
-                ),
+                loads=LoadCase(N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At),
                 method=(inp.verification_method or "TA"),
             )
         except Exception:
@@ -280,10 +267,13 @@ class VerificationComparatorWindow(tk.Toplevel):
                 return f"{label}: {res.get('messages', [])} OK={res.get('ok')}\n"
             # assume VerificationOutput-like
             msgs = getattr(res, "messaggi", []) or getattr(res, "messages", []) or []
-            return (
-                f"{label}: esito={getattr(res, 'esito', '')} sigma_c_max={getattr(res, 'sigma_c_max', '')} asse_neutro_x={getattr(res,'asse_neutro_x', getattr(res,'asse_neutro', ''))} inclinazione={getattr(res,'inclinazione_asse_neutro','')}\n"
-                + (msgs[0] + "\n" if msgs else "")
+            details = (
+                f"{label}: esito={getattr(res,'esito','')} "
+                f"sigma_c_max={getattr(res,'sigma_c_max','')} "
+                f"asse_neutro_x={getattr(res,'asse_neutro_x', getattr(res,'asse_neutro',''))} "
+                f"inclinazione={getattr(res,'inclinazione_asse_neutro','')}\n"
             )
+            return details + (msgs[0] + "\n" if msgs else "")
 
         self.txt_results.insert(tk.END, _summary(ta_res, "TA"))
         self.txt_results.insert(tk.END, _summary(slu_res, "SLU"))
@@ -351,15 +341,9 @@ class VerificationComparatorWindow(tk.Toplevel):
             e1, e2 = self._compute_na_endpoints(b, h, p, ang)
             # decide compression side using stresses (user preference)
             # choose top-center if sigma_c_max dominates, bottom-center otherwise
-            pick_point = (
-                (b / 2.0, 0.0)
-                if abs(metrics["sigma_c_max"]) >= abs(metrics["sigma_c_min"])
-                else (b / 2.0, h)
-            )
+            pick_point = (b / 2.0, 0.0) if abs(metrics["sigma_c_max"]) >= abs(metrics["sigma_c_min"]) else (b / 2.0, h)
             poly = self._compute_shaded_polygon(b, h, p, ang, pick_side_point=pick_point)
-            self.ax_section.plot(
-                [e1[0], e2[0]], [e1[1], e2[1]], color=color, linewidth=2, label=f"{label} NA"
-            )
+            self.ax_section.plot([e1[0], e2[0]], [e1[1], e2[1]], color=color, linewidth=2, label=f"{label} NA")
             if poly:
                 self.ax_section.add_patch(mpatches.Polygon(poly, color=color, alpha=0.12))
             # annotate with coordinate and angle
@@ -456,34 +440,26 @@ class VerificationComparatorWindow(tk.Toplevel):
                 reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
                 reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),
                 material=mat_props,
-                loads=LoadCase(
-                    N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At
-                ),
+                loads=LoadCase(N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At),
                 method=(inp.verification_method or "TA"),
             )
             comp = {
                 "TA": ta_res
                 and {
                     "sigma_c_max": getattr(ta_res, "sigma_c_max", None),
-                    "asse_neutro_x": getattr(
-                        ta_res, "asse_neutro_x", getattr(ta_res, "asse_neutro", None)
-                    ),
+                    "asse_neutro_x": getattr(ta_res, "asse_neutro_x", getattr(ta_res, "asse_neutro", None)),
                     "angle": getattr(ta_res, "inclinazione_asse_neutro", None),
                 },
                 "SLU": slu_res
                 and {
                     "sigma_c_max": getattr(slu_res, "sigma_c_max", None),
-                    "asse_neutro_x": getattr(
-                        slu_res, "asse_neutro_x", getattr(slu_res, "asse_neutro", None)
-                    ),
+                    "asse_neutro_x": getattr(slu_res, "asse_neutro_x", getattr(slu_res, "asse_neutro", None)),
                     "angle": getattr(slu_res, "inclinazione_asse_neutro", None),
                 },
                 ".bas": bas_tors,
             }
             if fmt == "csv":
-                path = filedialog.asksaveasfilename(
-                    defaultextension=".csv", filetypes=[("CSV files", "*.csv")]
-                )
+                path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
                 if not path:
                     return
                 with open(path, "w", newline="", encoding="utf-8") as fh:
@@ -501,18 +477,14 @@ class VerificationComparatorWindow(tk.Toplevel):
                             )
                 notify_info("Export", f"Exported CSV to {path}")
             elif fmt == "json":
-                path = filedialog.asksaveasfilename(
-                    defaultextension=".json", filetypes=[("JSON files", "*.json")]
-                )
+                path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
                 if not path:
                     return
                 with open(path, "w", encoding="utf-8") as fh:
                     json.dump(comp, fh, default=str, indent=2)
                 notify_info("Export", f"Exported JSON to {path}")
             else:
-                path = filedialog.asksaveasfilename(
-                    defaultextension=".txt", filetypes=[("Text files", "*.txt")]
-                )
+                path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
                 if not path:
                     return
                 with open(path, "w", encoding="utf-8") as fh:

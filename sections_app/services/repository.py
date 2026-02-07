@@ -47,9 +47,7 @@ class SectionRepository:
 
     DEFAULT_JSON_FILE = DEFAULT_JSON_FILE
 
-    def __init__(
-        self, json_file: Optional[str] = None, auto_migrate: Optional[bool] = None
-    ) -> None:
+    def __init__(self, json_file: Optional[str] = None, auto_migrate: Optional[bool] = None) -> None:
         """Se `json_file` è None → usiamo il file canonico `DEFAULT_JSON_FILE` e
         abilitiamo la migrazione automatica da `sections.json` a `sec_repository/...jsons`
         (a meno che l'env var `RD2229_NO_AUTO_MIGRATE` sia attiva).
@@ -93,9 +91,7 @@ class SectionRepository:
                                 data = json.load(f)
 
                             # Preferisci creare un canonical locale nella stessa cartella del legacy
-                            local_canonical = (
-                                cand.parent / "sec_repository" / "sec_repository.jsons"
-                            )
+                            local_canonical = cand.parent / "sec_repository" / "sec_repository.jsons"
                             if not local_canonical.parent.exists():
                                 local_canonical.parent.mkdir(parents=True, exist_ok=True)
 
@@ -108,9 +104,7 @@ class SectionRepository:
                             self._json_file = str(local_canonical)
                             self._file_path = local_canonical
 
-                            logger.info(
-                                "Migrato legacy %s -> %s (backup: %s)", cand, local_canonical, bak
-                            )
+                            logger.info("Migrato legacy %s -> %s (backup: %s)", cand, local_canonical, bak)
 
                             # Rimuovo la messagebox informativa
 
@@ -125,9 +119,7 @@ class SectionRepository:
                     )
 
         # Percorsi per backup
-        self._backup_path = self._file_path.with_name(
-            f"{self._file_path.stem}_backup{self._file_path.suffix}"
-        )
+        self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
 
         # Carica le sezioni dal file JSON se esiste
         self.load_from_file()
@@ -302,9 +294,7 @@ class SectionRepository:
         def rect(i: int, rng: random.Random) -> Section:
             b = rng.uniform(20, 60)
             h = rng.uniform(30, 80)
-            return RectangularSection(
-                name=f"SEED-RECT-{i}", width=b, height=h, note=note("RECTANGULAR")
-            )
+            return RectangularSection(name=f"SEED-RECT-{i}", width=b, height=h, note=note("RECTANGULAR"))
 
         def circ(i: int, rng: random.Random) -> Section:
             d = rng.uniform(20, 80)
@@ -656,9 +646,7 @@ class SectionRepository:
 class CsvSectionSerializer:
     """Gestione import/export CSV con log dettagliato."""
 
-    def export_to_csv(
-        self, file_path: str, sections: Iterable[Section], delimiter: str = ";"
-    ) -> None:
+    def export_to_csv(self, file_path: str, sections: Iterable[Section], delimiter: str = ";") -> None:
         """Esporta tutte le colonne presenti nelle dict ritornate da Section.to_dict()."""
         rows = 0
         # Determina dinamicamente tutte le chiavi in ordine preservando id/name/section_type all'inizio

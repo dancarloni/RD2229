@@ -114,24 +114,19 @@ def _get_default_sources() -> List[MaterialSource]:
             id="RD2229",
             name="RD 2229/1939",
             description=(
-                "Regio Decreto 16 novembre 1939 - Norme per l'esecuzione "
-                "delle opere in conglomerato cementizio"
+                "Regio Decreto 16 novembre 1939 - Norme per l'esecuzione " "delle opere in conglomerato cementizio"
             ),
             year=1939,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
             is_historical=True,
             reference="R.D. 16/11/1939 n. 2229",
-            notes=(
-                "Prima norma italiana organica sul cemento armato. "
-                "Metodo n (tensioni ammissibili)."
-            ),
+            notes=("Prima norma italiana organica sul cemento armato. " "Metodo n (tensioni ammissibili)."),
         ),
         MaterialSource(
             id="DM72",
             name="DM 30/05/1972",
             description=(
-                "Decreto Ministeriale 30 maggio 1972 - Norme tecniche "
-                "per le costruzioni in cemento armato"
+                "Decreto Ministeriale 30 maggio 1972 - Norme tecniche " "per le costruzioni in cemento armato"
             ),
             year=1972,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
@@ -143,8 +138,7 @@ def _get_default_sources() -> List[MaterialSource]:
             id="DM92",
             name="DM 14/02/1992",
             description=(
-                "Decreto Ministeriale 14 febbraio 1992 - Norme tecniche "
-                "per le costruzioni in zona sismica"
+                "Decreto Ministeriale 14 febbraio 1992 - Norme tecniche " "per le costruzioni in zona sismica"
             ),
             year=1992,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
@@ -164,10 +158,7 @@ def _get_default_sources() -> List[MaterialSource]:
             calculation_method=CalculationMethod.SEMIPROBABILISTICO,
             is_historical=True,
             reference="D.M. 09/01/1996",
-            notes=(
-                "Introduce il metodo semiprobabilistico agli stati limite "
-                "come alternativa alle TA."
-            ),
+            notes=("Introduce il metodo semiprobabilistico agli stati limite " "come alternativa alle TA."),
         ),
         MaterialSource(
             id="OPCM3274",
@@ -190,10 +181,7 @@ def _get_default_sources() -> List[MaterialSource]:
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=True,
             reference="D.M. 14/01/2008",
-            notes=(
-                "Prima versione delle NTC. Metodo SL obbligatorio, "
-                "TA ammesse solo per strutture semplici."
-            ),
+            notes=("Prima versione delle NTC. Metodo SL obbligatorio, " "TA ammesse solo per strutture semplici."),
         ),
         MaterialSource(
             id="NTC2018",
@@ -537,9 +525,7 @@ def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
 # =============================================================================
 
 
-def get_default_values_for_source(
-    source_id: str, material_type: str, base_params: Dict[str, Any]
-) -> Dict[str, Any]:
+def get_default_values_for_source(source_id: str, material_type: str, base_params: Dict[str, Any]) -> Dict[str, Any]:
     """Calcola i valori predefiniti per un materiale in base alla fonte normativa.
 
     AVVERTENZA: I valori restituiti sono da considerarsi DI ESEMPIO.
@@ -598,9 +584,7 @@ def get_default_values_for_source(
         if material_type == "concrete":
             if fck > 0:
                 vals = _compute_ntc2018_concrete(fck)
-                vals["calculation_notes"] = (
-                    "TODO: Valori da NTC 2008 - VERIFICARE. Simili a NTC 2018."
-                )
+                vals["calculation_notes"] = "TODO: Valori da NTC 2008 - VERIFICARE. Simili a NTC 2018."
                 result.update(vals)
         elif material_type in ("steel", "stirrup_steel"):
             if fyk > 0:
@@ -636,16 +620,12 @@ def get_default_values_for_source(
 
     else:
         # Fonte sconosciuta
-        result["calculation_notes"] = (
-            f"Fonte '{source_id}' non riconosciuta. Nessun calcolo automatico disponibile."
-        )
+        result["calculation_notes"] = f"Fonte '{source_id}' non riconosciuta. Nessun calcolo automatico disponibile."
 
     # Aggiungi avvertenza standard
     if result.get("calculation_notes"):
         result["calculation_notes"] += "\n"
-    result[
-        "calculation_notes"
-    ] += "AVVERTENZA: Valori di esempio. Verificare con normativa originale prima dell'uso."
+    result["calculation_notes"] += "AVVERTENZA: Valori di esempio. Verificare con normativa originale prima dell'uso."
 
     return result
 

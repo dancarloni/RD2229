@@ -61,7 +61,7 @@ class TestNewSectionTypes(unittest.TestCase):
         self.assertAlmostEqual(props.area, 96.0, places=4)
 
         # Baricentro dovrebbe essere al centro per simmetria
-        total_height = 2 * 2 + 16  # 20
+        2 * 2 + 16  # 20
         self.assertAlmostEqual(props.centroid_x, 10.0, places=4)
         self.assertAlmostEqual(props.centroid_y, 10.0, places=4)
 

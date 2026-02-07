@@ -16,12 +16,8 @@ def print_case(title, geom, loads, conc, steel, limits=None, allow_tension=False
     print(f"Centroid (y,z) = ({props.yG:.3f}, {props.zG:.3f}) cm")
     print(f"Iy = {props.Iy:.3f} cm^4, Iz = {props.Iz:.3f} cm^4, Iyz = {props.Iyz:.3f} cm^4")
 
-    res = compute_normal_stresses_ta(
-        geom, props, loads, conc, steel, allow_concrete_tension=allow_tension
-    )
-    print(
-        f"sigma_c_max = {res.sigma_c_max:.3f} kg/cm^2, sigma_c_min = {res.sigma_c_min:.3f} kg/cm^2"
-    )
+    res = compute_normal_stresses_ta(geom, props, loads, conc, steel, allow_concrete_tension=allow_tension)
+    print(f"sigma_c_max = {res.sigma_c_max:.3f} kg/cm^2, sigma_c_min = {res.sigma_c_min:.3f} kg/cm^2")
     print(f"sigma_c_med = {res.sigma_c_med:.3f} kg/cm^2")
     print(f"sigma_s_max = {res.sigma_s_max:.3f} kg/cm^2")
     if limits:
@@ -31,9 +27,7 @@ def print_case(title, geom, loads, conc, steel, limits=None, allow_tension=False
 
 def main():
     # Materiali tipici
-    conc = ConcreteLawTA(
-        fcd=30.0, Ec=30000.0, eps_c2=0.002, eps_c3=0.003, eps_c4=0.004, eps_cu=0.0035
-    )
+    conc = ConcreteLawTA(fcd=30.0, Ec=30000.0, eps_c2=0.002, eps_c3=0.003, eps_c4=0.004, eps_cu=0.0035)
     steel = SteelLawTA(Es=210000.0, fyd=500.0, eps_yd=0.00238, eps_su=0.1)
     limits = AllowableStresses(sigma_c_allow=30.0, sigma_s_allow=500.0, sigma_c_med_allow=10.0)
 
@@ -45,9 +39,7 @@ def main():
 
     # Caso 2: Rettangolo, puro assiale Nx = -3000 kg (compression moderate)
     loads2 = LoadState(Nx=-3000.0, My=0.0, Mz=0.0)  # Nx in [kg]
-    print_case(
-        "Caso 2: Rettangolo, sola compressione Axial -3000 kg", geom1, loads2, conc, steel, limits
-    )
+    print_case("Caso 2: Rettangolo, sola compressione Axial -3000 kg", geom1, loads2, conc, steel, limits)
 
     # Caso 3: Rettangolo 30x15, momento My (bending about y) = 1000 kg·m
     loads3 = LoadState(Nx=0.0, My=1000.0, Mz=0.0)

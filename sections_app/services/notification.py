@@ -36,9 +36,7 @@ def _emit(payload: Dict[str, Any]) -> None:
         logger.exception("Failed to emit notification log")
 
 
-def notify_info(
-    title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None
-) -> None:
+def notify_info(title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None) -> None:
     _emit(
         {
             "level": "info",
@@ -51,9 +49,7 @@ def notify_info(
     )
 
 
-def notify_warning(
-    title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None
-) -> None:
+def notify_warning(title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None) -> None:
     _emit(
         {
             "level": "warning",
@@ -66,9 +62,7 @@ def notify_warning(
     )
 
 
-def notify_error(
-    title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None
-) -> None:
+def notify_error(title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None) -> None:
     _emit(
         {
             "level": "error",
@@ -105,9 +99,7 @@ def ask_confirm(
             if callback:
                 callback(answer)
             # Also log a small note for traceability
-            emit_to_in_memory_buffer(
-                logging.INFO, f"Confirm '{title}': {'Yes' if answer else 'No'}"
-            )
+            emit_to_in_memory_buffer(logging.INFO, f"Confirm '{title}': {'Yes' if answer else 'No'}")
         except Exception:
             logger.exception("Error in confirm callback")
 

@@ -1,1 +1,1 @@
-# Utility helpers for logging, settings, threading, caching
+"""Utility helpers used across the project."""

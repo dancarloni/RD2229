@@ -23,9 +23,7 @@ class FrcManagerWindow(tk.Toplevel):
         ("frc_note", "Note"),
     ]
 
-    def __init__(
-        self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None
-    ) -> None:
+    def __init__(self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None) -> None:
         super().__init__(master)
         self.title("FRC Manager")
         self.geometry("900x420")
@@ -52,9 +50,7 @@ class FrcManagerWindow(tk.Toplevel):
         btn_frame.pack(fill="x", pady=(6, 12))
         tk.Button(btn_frame, text="Aggiungi FRC...", command=self._on_add).pack(side="left", padx=4)
         tk.Button(btn_frame, text="Modifica...", command=self._on_edit).pack(side="left", padx=4)
-        tk.Button(btn_frame, text="Toggle FRC", command=self._on_toggle_frc).pack(
-            side="left", padx=4
-        )
+        tk.Button(btn_frame, text="Toggle FRC", command=self._on_toggle_frc).pack(side="left", padx=4)
         tk.Button(btn_frame, text="Chiudi", command=self.destroy).pack(side="right", padx=4)
 
         self.tree.bind("<Double-1>", lambda e: self._on_edit())
@@ -139,14 +135,10 @@ class _FrcEditDialog(simpledialog.Dialog):
 
         tk.Label(master, text="Type:").grid(row=1, column=0, sticky="w")
         self.var_type = tk.StringVar(value=(self.material.type if self.material else "frc"))
-        tk.OptionMenu(master, self.var_type, "frc", "concrete", "steel").grid(
-            row=1, column=1, sticky="we"
-        )
+        tk.OptionMenu(master, self.var_type, "frc", "concrete", "steel").grid(row=1, column=1, sticky="we")
 
         self.var_enabled = tk.BooleanVar(value=bool(getattr(self.material, "frc_enabled", False)))
-        tk.Checkbutton(master, text="FRC enabled", variable=self.var_enabled).grid(
-            row=2, columnspan=2, sticky="w"
-        )
+        tk.Checkbutton(master, text="FRC enabled", variable=self.var_enabled).grid(row=2, columnspan=2, sticky="w")
 
         tk.Label(master, text="fFts (design):").grid(row=3, column=0, sticky="w")
         self.ent_ffts = tk.Entry(master)
