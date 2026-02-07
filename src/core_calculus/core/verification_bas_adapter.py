@@ -17,7 +17,12 @@ import logging
 import math
 from typing import Any, Dict
 
-from core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry  # type: ignore[import]
+from core.verification_core import (  # type: ignore[import]
+    LoadCase,
+    MaterialProperties,
+    ReinforcementLayer,
+    SectionGeometry,
+)
 
 logger = logging.getLogger(__name__)
 

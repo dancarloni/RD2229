@@ -38,7 +38,9 @@ get_steel_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]" = 
 
 try:
     from config.calculation_codes_loader import load_code as _load_code  # type: ignore[import]
-    from config.historical_materials_loader import get_concrete_properties as _get_concrete_properties  # type: ignore[import]
+    from config.historical_materials_loader import (
+        get_concrete_properties as _get_concrete_properties,  # type: ignore[import]
+    )
     from config.historical_materials_loader import get_steel_properties as _get_steel_properties  # type: ignore[import]
 
     load_code = _load_code
