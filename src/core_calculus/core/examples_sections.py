@@ -1,10 +1,10 @@
-from core.geometry import (
+from .geometry import (
     CircularHollowSection,
     InvertedTSection,
     PiSection,
     RectangularHollowSection,
 )
-from core.section_properties import compute_section_properties
+from .section_properties import compute_section_properties
 
 
 def print_props(s):

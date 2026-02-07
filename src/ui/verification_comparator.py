@@ -17,9 +17,9 @@ matplotlib.use("Agg")  # Use Agg for headless tests; GUI will embed FigureCanvas
 import matplotlib.patches as mpatches
 from matplotlib.figure import Figure
 
-from core.verification_bas_adapter import bas_torsion_verification
-from core.verification_core import LoadCase, ReinforcementLayer, SectionGeometry
-from core.verification_engine import create_verification_engine
+from src.core_calculus.core.verification_bas_adapter import bas_torsion_verification
+from src.core_calculus.core.verification_core import LoadCase, ReinforcementLayer, SectionGeometry
+from src.core_calculus.core.verification_engine import create_verification_engine
 from verification_table import (
     VerificationTableApp,
     compute_slu_verification,

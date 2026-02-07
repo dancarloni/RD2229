@@ -4,8 +4,8 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from typing import Optional
 
-from core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
-from core.verification_engine import VerificationEngine
+from src.core_calculus.core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
+from src.core_calculus.core.verification_engine import VerificationEngine
 from core_models.materials import Material, MaterialRepository
 
 
