@@ -133,6 +133,14 @@ class VerificationTableApp(tk.Frame):
         self.current_column_index: Optional[int] = None
 
         self._build_ui()
+        # Create a background executor for long-running computations
+        try:
+            from src.utils.background import BackgroundExecutor
+
+            self._bg = BackgroundExecutor(max_workers=4)
+        except Exception:
+            self._bg = None
+
         self._insert_empty_rows(self.initial_rows)
 
     # --- Suggestion helpers using SuggestionBox ---
@@ -303,6 +311,9 @@ class VerificationTableApp(tk.Frame):
         tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(
             side="left", padx=(6, 0)
         )
+        # Status label to show non-blocking progress messages
+        self._status_var = tk.StringVar(value="")
+        tk.Label(top, textvariable=self._status_var, anchor="w").pack(side="right")
         tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(
             side="left", padx=(6, 0)
         )
@@ -933,6 +944,142 @@ class VerificationTableApp(tk.Frame):
         if getattr(self, "_in_rebar_calculator", False):
             return
         self._commit_edit()
+
+    # -------------------- Background compute helpers --------------------
+    def _set_status(self, text: str) -> None:
+        try:
+            self._status_var.set(text)
+        except Exception:
+            pass
+
+    def _clear_status(self, delay_ms: int = 1000) -> None:
+        try:
+            self.after(delay_ms, lambda: self._status_var.set(""))
+        except Exception:
+            pass
+
+    def _get_rows_from_tree(self):
+        """Recreate VerificationInput models from tree content."""
+        rows = []
+        items = list(self.tree.get_children())
+        for item in items:
+            vals = list(self.tree.item(item, "values"))
+            kwargs = {}
+            for col_key, value in zip(self.columns, vals):
+                attr = {
+                    "element": "element_name",
+                    "section": "section_id",
+                    "verif_method": "verification_method",
+                    "mat_concrete": "material_concrete",
+                    "mat_steel": "material_steel",
+                    "n": "n_homog",
+                    "N": "N",
+                    "Mx": "Mx",
+                    "My": "My",
+                    "Mz": "Mz",
+                    "Tx": "Tx",
+                    "Ty": "Ty",
+                    "At": "At",
+                    "As_p": "As_inf",
+                    "As": "As_sup",
+                    "d_p": "d_inf",
+                    "d": "d_sup",
+                    "stirrups_step": "stirrup_step",
+                    "stirrups_diam": "stirrup_diameter",
+                    "stirrups_mat": "stirrup_material",
+                    "notes": "notes",
+                }.get(col_key, col_key)
+                # Convert numeric values where appropriate
+                if attr in {
+                    "n_homog",
+                    "N",
+                    "Mx",
+                    "My",
+                    "Mz",
+                    "Tx",
+                    "Ty",
+                    "At",
+                    "As_sup",
+                    "As_inf",
+                    "d_sup",
+                    "d_inf",
+                    "stirrup_step",
+                    "stirrup_diameter",
+                }:
+                    try:
+                        kwargs[attr] = float(str(value).replace(",", ".")) if str(value).strip() else 0.0
+                    except Exception:
+                        kwargs[attr] = 0.0
+                else:
+                    kwargs[attr] = str(value).strip() if value is not None else ""
+            rows.append(VerificationInput(**kwargs))
+        return items, rows
+
+    def _apply_result_to_item(self, item_id: str, result) -> None:
+        try:
+            if result is None:
+                self.tree.set(item_id, "notes", "ERRORE: engine non disponibile")
+                return
+            # Prefer using result.esito if available (compatibility with VerificationOutput)
+            es = getattr(result, "esito", None) or getattr(result, "esito", "")
+            sigma_c_max = getattr(result, "sigma_c_max", None)
+            sigma_c_min = getattr(result, "sigma_c_min", None)
+            note = f"{es}"
+            if sigma_c_max is not None and sigma_c_min is not None:
+                note = f"{es} σc_max={sigma_c_max:.3f} σc_min={sigma_c_min:.3f}"
+            self.tree.set(item_id, "notes", note)
+        except Exception:
+            self.tree.set(item_id, "notes", "ERRORE durante aggiornamento risultati")
+
+    def _on_compute_all(self) -> None:
+        """Compute all rows in background and update UI incrementally."""
+        try:
+            items, rows = self._get_rows_from_tree()
+        except Exception:
+            items, rows = [], []
+        if not rows:
+            self._set_status("Nessuna riga da calcolare")
+            self._clear_status(1000)
+            return
+        # Schedule all computations
+        self._set_status(f"Calcolo in corso ({len(rows)} righe) …")
+
+        # Fallback compute function (compatibility)
+        from verification_table import compute_verification_result
+
+        def _compute_for_pair(idx_item_row):
+            item_id, row = idx_item_row
+            try:
+                res = compute_verification_result(row, self.section_repository, self.material_repository)
+            except Exception as e:
+                res = None
+            return item_id, res
+
+        def _on_done(res_tuple):
+            if isinstance(res_tuple, Exception):
+                # error occurred
+                self._set_status("Calcolo terminato con errori")
+                self._clear_status(3000)
+                return
+            item_id, out = res_tuple
+            try:
+                self._apply_result_to_item(item_id, out)
+            except Exception:
+                pass
+
+        # Submit tasks
+        if self._bg is not None:
+            for it, row in zip(items, rows):
+                self._bg.submit(_compute_for_pair, (it, row), callback=_on_done, tk_root=self)
+            # clear status after a short period; individual callbacks can set messages
+            self._clear_status(2000)
+        else:
+            # Synchronous fallback
+            for it, row in zip(items, rows):
+                item_id, out = _compute_for_pair((it, row))
+                self._apply_result_to_item(item_id, out)
+            self._set_status("Calcolo completato")
+            self._clear_status(2000)
 
     def _focus_is_suggestion(self) -> bool:
         if self._suggestion_box is None:

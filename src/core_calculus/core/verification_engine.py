@@ -82,38 +82,40 @@ class VerificationEngine:
         """
         Get material properties from configuration.
 
-        Args:
-            concrete_class: Concrete class (e.g., "R160", "C25_30")
-            steel_type: Steel type (e.g., "FeB38k", "B450C")
-            material_source: Material source ("RD2229", "NTC2018", etc.)
-
-        Returns:
-            Material properties
+        This method delegates to a cached helper to avoid repeated lookups
+        against the historical materials repository which may be IO-heavy.
         """
-        if get_concrete_properties and get_steel_properties:
-            try:
-                concrete = get_concrete_properties(material_source, concrete_class) or {}
-                steel = get_steel_properties(material_source, steel_type) or {}
 
-                # Extract properties based on source
-                if material_source == "RD2229":
-                    fck = concrete.get("sigma_c28", 160.0)
-                    Ec = concrete.get("Ec", 250000.0)
-                    fyk = steel.get("sigma_sn", 3800.0)
-                    Es = steel.get("Es", 2100000.0)
-                else:  # NTC2008/2018
-                    fck = concrete.get("fck", 25.0)
-                    Ec = concrete.get("Ecm", 31000.0)
-                    fyk = steel.get("fyk", 450.0)
-                    Es = steel.get("Es", 200000.0)
+        from functools import lru_cache
 
-                return MaterialProperties(fck=fck, Ec=Ec, fyk=fyk, Es=Es)
+        @lru_cache(maxsize=512)
+        def _cached_props(concrete_class: str, steel_type: str, material_source: str) -> tuple:
+            if get_concrete_properties and get_steel_properties:
+                try:
+                    concrete = get_concrete_properties(material_source, concrete_class) or {}
+                    steel = get_steel_properties(material_source, steel_type) or {}
 
-            except Exception as e:
-                logger.warning(f"Could not load material properties: {e}")
+                    # Extract properties based on source
+                    if material_source == "RD2229":
+                        fck = concrete.get("sigma_c28", 160.0)
+                        Ec = concrete.get("Ec", 250000.0)
+                        fyk = steel.get("sigma_sn", 3800.0)
+                        Es = steel.get("Es", 2100000.0)
+                    else:  # NTC2008/2018
+                        fck = concrete.get("fck", 25.0)
+                        Ec = concrete.get("Ecm", 31000.0)
+                        fyk = steel.get("fyk", 450.0)
+                        Es = steel.get("Es", 200000.0)
 
-        # Default fallback
-        return MaterialProperties(fck=160.0, Ec=250000.0, fyk=3800.0, Es=2100000.0)
+                    return (fck, Ec, fyk, Es)
+
+                except Exception as e:
+                    logger.warning(f"Could not load material properties: {e}")
+            # Default fallback
+            return (160.0, 250000.0, 3800.0, 2100000.0)
+
+        fck, Ec, fyk, Es = _cached_props(concrete_class, steel_type, material_source)
+        return MaterialProperties(fck=fck, Ec=Ec, fyk=fyk, Es=Es)
 
     def get_allowable_stresses(self, material: MaterialProperties) -> tuple[float, float]:
         """
