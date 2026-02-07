@@ -1,5 +1,7 @@
 """GUI window to compare verification methods (.bas translation vs TA vs SLU)."""
 
+# pylint: disable=import-error
+
 from __future__ import annotations
 
 import logging
@@ -28,7 +30,8 @@ logger = logging.getLogger(__name__)
 
 try:
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-except Exception:
+except Exception as exc:  # pylint: disable=broad-exception-caught
+    logger.exception("Matplotlib tkagg backend import failed: %s", exc)
     FigureCanvasTkAgg = None
 MATPLOTLIB_TK = FigureCanvasTkAgg is not None
 
@@ -233,11 +236,11 @@ class VerificationComparatorWindow(tk.Toplevel):
         slu_res = None
         try:
             ta_res = compute_ta_verification(inp, sec_repo, mat_repo)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.exception("Errore calcolo TA: %s", e)
         try:
             slu_res = compute_slu_verification(inp, sec_repo, mat_repo)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.exception("Errore calcolo SLU: %s", e)
 
         # Run .bas (torsion/bending adapted)
@@ -254,7 +257,8 @@ class VerificationComparatorWindow(tk.Toplevel):
                 loads=LoadCase(N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At),
                 method=(inp.verification_method or "TA"),
             )
-        except Exception:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logger.exception("Errore .bas adapter: %s", exc)
             bas_tors = {"messages": [".bas adapter error"], "ok": False}
 
         # Present text summary
@@ -354,35 +358,17 @@ class VerificationComparatorWindow(tk.Toplevel):
                     f"{label}\n{p[0]:.1f},{ang:.1f}" if isinstance(ang, (int, float)) else label,
                     color=color,
                 )
-            except Exception:
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.exception("Failed to annotate NA text: %s", exc)
                 self.ax_section.text(p[0], p[1], label, color=color)
 
         self.ax_section.legend()
         self.ax_section.set_xlim(-0.1 * b, 1.1 * b)
         self.ax_section.set_ylim(h + 0.1 * h, -0.1 * h)
 
-        # Prepare bar chart and numeric table
-        def _get_metrics(res):
-            if res is None:
-                return {"sigma_c_max": 0.0, "sigma_s_max": 0.0, "asse_x": None, "angle": None}
-            if isinstance(res, dict):
-                return {
-                    "sigma_c_max": res.get("Taux_max", 0.0),
-                    "sigma_s_max": 0.0,
-                    "asse_x": None,
-                    "angle": None,
-                }
-            return {
-                "sigma_c_max": getattr(res, "sigma_c_max", 0.0),
-                "sigma_s_max": getattr(res, "sigma_s_max", 0.0),
-                "asse_x": getattr(res, "asse_neutro_x", getattr(res, "asse_neutro", None)),
-                "angle": getattr(res, "inclinazione_asse_neutro", None),
-            }
-
-        ta_metrics = _get_metrics(ta_res)
-        slu_metrics = _get_metrics(slu_res)
-        bas_metrics = _get_metrics(bas_tors)
-
+        # Prepare bar chart and numeric table — reuse metrics computed above
+        # (metrics contain sigma_c_max, sigma_c_min, sigma_s_max, asse_x, angle)
+        # ta_metrics, slu_metrics and bas_metrics are already available.
         # Fill summary table
         rows = [
             (
@@ -492,9 +478,9 @@ class VerificationComparatorWindow(tk.Toplevel):
                         fh.write(f"== {k} ==\n")
                         fh.write(str(v) + "\n")
                 notify_info("Export", f"Exported TXT to {path}")
-        except Exception as e:
-            logger.exception("Export error: %s", e)
-            notify_error("Export", f"Errore export: {e}")
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logger.exception("Export error: %s", exc)
+            notify_error("Export", f"Errore export: {exc}")
 
 
 def open_comparator_for_table(app: VerificationTableApp):
@@ -502,5 +488,5 @@ def open_comparator_for_table(app: VerificationTableApp):
         w = VerificationComparatorWindow(app.winfo_toplevel(), app)
         w.transient(app.winfo_toplevel())
         w.grab_set()
-    except Exception:
-        logger.exception("Unable to open comparator window")
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        logger.exception("Unable to open comparator window: %s", exc)

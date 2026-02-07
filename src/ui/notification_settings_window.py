@@ -5,8 +5,10 @@ import tkinter as tk
 from typing import Any, Dict, Optional
 
 from sections_app.services.notification import notify_info  # type: ignore[import]
-from sections_app.services.notification_settings import load_notification_settings  # type: ignore[import]
-from sections_app.services.notification_settings import save_notification_settings  # type: ignore[import]
+from sections_app.services.notification_settings import (
+    load_notification_settings,  # type: ignore[import]
+    save_notification_settings,  # type: ignore[import]
+)
 
 logger = logging.getLogger(__name__)
 

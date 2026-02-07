@@ -26,8 +26,9 @@ def main():
         return
 
     # Local imports that rely on project root being added to sys.path
-    from sections_app.services.repository import CsvSectionSerializer, SectionRepository
     from sections_app.ui.module_selector import ModuleSelectorWindow
+
+    from sections_app.services.repository import CsvSectionSerializer, SectionRepository
     from verification_table import VerificationTableWindow
 
     repo = SectionRepository()
