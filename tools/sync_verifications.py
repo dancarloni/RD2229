@@ -14,25 +14,34 @@ Lo script è idempotente e stampa un riassunto delle operazioni.
 
 from __future__ import annotations
 
-import os
-from typing import Dict, List
+import logging
+from pathlib import Path
+from typing import Any, Dict, List
+
+logger = logging.getLogger(__name__)
 
 
-def read_config(path: str = ".rd2229_config.yaml") -> Dict:
+def read_config(path: str = ".rd2229_config.yaml") -> Dict[str, Any]:
     try:
         import yaml  # type: ignore
+    except ImportError:
+        logger.debug("yaml not installed, using defaults")
+        return {}
 
+    try:
         with open(path, "r", encoding="utf-8") as fh:
             return yaml.safe_load(fh) or {}
-    except Exception:
+    except (FileNotFoundError, getattr(__import__("yaml"), "YAMLError", Exception)) as exc:  # type: ignore
+        logger.debug("No config found at %s, using defaults: %s", path, exc)
         return {}
 
 
-def ensure_init(path: str, doc: str = None) -> None:
-    os.makedirs(path, exist_ok=True)
-    init_file = os.path.join(path, "__init__.py")
-    if not os.path.exists(init_file):
-        with open(init_file, "w", encoding="utf-8") as fh:
+def ensure_init(path: str | Path, doc: str | None = None) -> None:
+    p = Path(path)
+    p.mkdir(parents=True, exist_ok=True)
+    init_file = p / "__init__.py"
+    if not init_file.exists():
+        with init_file.open("w", encoding="utf-8") as fh:
             if doc:
                 fh.write(f'"""{doc}\n"""\n')
             else:
@@ -41,50 +50,53 @@ def ensure_init(path: str, doc: str = None) -> None:
 
 def mirror_modules(calculations_root: str, verifications_root: str) -> List[str]:
     ops: List[str] = []
-    if not os.path.isdir(calculations_root):
+    calc_root = Path(calculations_root)
+    ver_root = Path(verifications_root)
+
+    if not calc_root.is_dir():
         raise FileNotFoundError(f"Calculations path non trovato: {calculations_root}")
 
-    ensure_init(verifications_root, doc="Verifiche sincronizzate automaticamente con calculations")
+    ensure_init(ver_root, doc="Verifiche sincronizzate automaticamente con calculations")
 
-    for entry in sorted(os.listdir(calculations_root)):
-        src_path = os.path.join(calculations_root, entry)
-        dest_path = os.path.join(verifications_root, entry)
+    for entry in sorted(calc_root.iterdir(), key=lambda p: p.name):
+        src_path = entry
+        dest_path = ver_root / entry.name
 
-        if os.path.isdir(src_path):
-            ensure_init(dest_path, doc=f"Verifiche per {entry} (placeholder)")
+        if src_path.is_dir():
+            ensure_init(dest_path, doc=f"Verifiche per {entry.name} (placeholder)")
             ops.append(f"created package: {dest_path}")
-        elif entry.endswith(".py"):
+        elif entry.name.endswith(".py"):
             # creare modulo corrispondente in verifications root
-            os.makedirs(verifications_root, exist_ok=True)
-            dest_file = os.path.join(verifications_root, entry)
-            if not os.path.exists(dest_file):
-                with open(dest_file, "w", encoding="utf-8") as fh:
-                    fh.write(f"""# Verifica placeholder per modulo {entry}\n""")
+            ver_root.mkdir(parents=True, exist_ok=True)
+            dest_file = ver_root / entry.name
+            if not dest_file.exists():
+                with dest_file.open("w", encoding="utf-8") as fh:
+                    fh.write(f"# Verifica placeholder per modulo {entry.name}\n")
                 ops.append(f"created module: {dest_file}")
 
     return ops
 
 
-def main(argv: List[str] | None = None) -> int:
+def main(_argv: List[str] | None = None) -> int:
     cfg = read_config()
     calculations = cfg.get("calculations_path", "src/rd2229/calculations")
     verifications = cfg.get("verifications_path", "src/rd2229/verifications")
 
-    calculations = os.path.abspath(calculations)
-    verifications = os.path.abspath(verifications)
+    calculations = str(Path(calculations).resolve())
+    verifications = str(Path(verifications).resolve())
 
     try:
         ops = mirror_modules(calculations, verifications)
     except FileNotFoundError as exc:
-        print(f"Errore: {exc}")
+        logger.error("Errore: %s", exc)
         return 2
 
     if ops:
-        print("Sincronizzazione completata. Operazioni eseguite:")
+        logger.info("Sincronizzazione completata. Operazioni eseguite:")
         for o in ops:
-            print(" -", o)
+            logger.info(" - %s", o)
     else:
-        print("Nessuna modifica necessaria. verifications è già allineato.")
+        logger.info("Nessuna modifica necessaria. verifications è già allineato.")
 
     return 0
 

@@ -1,10 +1,11 @@
 # Compatibility shim: re-export verification_table_app from src.ui.ui.verification_table_app
 # Explicit re-exports to satisfy static analyzers
-from src.ui.ui.verification_table_app import (
+from src.ui.ui.verification_table_app import (  # type: ignore
     COLUMNS,
     VerificationTableApp,
     VerificationTableWindow,
-)  # type: ignore
+)
+
 __all__ = ["COLUMNS", "VerificationTableApp", "VerificationTableWindow"]
 from importlib import import_module as _im
 

@@ -310,6 +310,28 @@ class MaterialRepository:
         if HAS_EVENT_BUS:
             EventBus().emit(MATERIALS_CLEARED)
 
+    def _load_json(self, path: Path) -> list:
+        """Legge un file JSON e ritorna il payload; su errore restituisce lista vuota."""
+        if not path.exists():
+            return []
+        try:
+            with path.open("r", encoding="utf-8") as f:
+                return json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            logger.warning("Impossibile leggere/parsare JSON da %s: %s", path, exc)
+            return []
+
+    def _populate_from_raw(self, raw_data: list, path: Path, *, backup: bool = False) -> None:
+        for idx, item in enumerate(raw_data):
+            try:
+                material = Material.from_dict(item)
+                self._materials[material.id] = material
+                logger.debug(
+                    "Materiale caricato%s: %s (%s)", " da backup" if backup else "", material.id, material.name
+                )
+            except Exception as exc:
+                logger.exception("Errore caricamento materiale %d da %s: %s", idx, path, exc)
+
     def load_from_file(self) -> None:
         """Carica i materiali dal file principale, oppure dal backup se il principale è corrotto.
 
@@ -324,66 +346,37 @@ class MaterialRepository:
             return
         self._materials.clear()
 
-        def _load(path: Path) -> list:
-            """Helper per caricare dati da un file JSON."""
-            if not path.exists():
-                return []
-            with path.open("r", encoding="utf-8") as f:
-                return json.load(f)
 
-        # 1) Prova a leggere il file principale
-        try:
-            raw_data = _load(self._file_path)
-            if not isinstance(raw_data, list):
-                logger.warning("File JSON %s non contiene una lista", self._file_path)
-                raise ValueError("File JSON non contiene una lista")
-
-            # Carica i materiali
-            for idx, item in enumerate(raw_data):
-                try:
-                    material = Material.from_dict(item)
-                    self._materials[material.id] = material
-                    logger.debug("Materiale caricato: %s (%s)", material.id, material.name)
-                except Exception as e:
-                    logger.exception("Errore caricamento materiale %d dal JSON: %s", idx, e)
-
-            logger.info("Caricati %d materiali da %s", len(self._materials), self._file_path)
+        if self._try_load_sources():
             return
-        except Exception:
-            logger.exception("Errore nel caricamento di %s, provo il backup", self._file_path)
 
-        # 2) Se fallisce, prova il backup
-        try:
-            raw_data = _load(self._backup_path)
-            if not isinstance(raw_data, list):
-                logger.warning("File backup JSON %s non contiene una lista", self._backup_path)
-                raise ValueError("File backup JSON non contiene una lista")
-
-            # Carica i materiali dal backup
-            for idx, item in enumerate(raw_data):
-                try:
-                    material = Material.from_dict(item)
-                    self._materials[material.id] = material
-                    logger.debug("Materiale caricato da backup: %s (%s)", material.id, material.name)
-                except Exception as e:
-                    logger.exception("Errore caricamento materiale %d dal backup: %s", idx, e)
-
-            logger.warning(
-                "Caricati %d materiali dal backup %s (file principale danneggiato)",
-                len(self._materials),
-                self._backup_path,
-            )
-            return
-        except Exception:
-            logger.exception("Errore anche nel caricamento del backup %s", self._backup_path)
-
-        # 3) Se tutto fallisce, archivio vuoto
+        # If we arrive here both attempts failed: clear materials
         logger.warning(
             "Impossibile caricare archivio materiali da %s né da %s: inizializzo archivio vuoto",
             self._file_path,
             self._backup_path,
         )
         self._materials.clear()
+
+    def _try_load_sources(self) -> bool:
+        """Tentativo sequenziale di lettura: file principale poi backup.
+        Restituisce True se i materiali sono stati caricati con successo."""
+        for path, is_backup in ((self._file_path, False), (self._backup_path, True)):
+            raw_data = self._load_json(path)
+            if not isinstance(raw_data, list):
+                logger.warning("File %s non contiene una lista o non è leggibile", path)
+                continue
+            self._populate_from_raw(raw_data, path, backup=is_backup)
+            if is_backup:
+                logger.warning(
+                    "Caricati %d materiali dal backup %s (file principale danneggiato)",
+                    len(self._materials),
+                    self._backup_path,
+                )
+            else:
+                logger.info("Caricati %d materiali da %s", len(self._materials), path)
+            return True
+        return False
 
     def save_to_file(self) -> None:
         """Salva tutti i materiali in un file JSON con backup automatico.

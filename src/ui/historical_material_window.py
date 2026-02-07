@@ -50,6 +50,7 @@ logger = logging.getLogger(__name__)
 # API-compatible parameter names; disable the most frequent warnings here.
 # pylint: disable=broad-exception-caught, protected-access, unused-argument, redefined-outer-name, unnecessary-pass
 
+
 class HistoricalMaterialWindow(tk.Toplevel):
     """Window to manage HistoricalMaterialLibrary and import into MaterialRepository.
 
@@ -528,23 +529,15 @@ class _HistoricalEditDialog(tk.Toplevel):
 
         # Per calcestruzzo: fck (o sigma_c28)
         fck_val = self.num_fields.get("fck")
-        if fck_val:
-            txt = fck_val.get().strip().replace(",", ".")
-            if txt:
-                try:
-                    base_params["fck"] = float(txt)
-                except ValueError:
-                    pass
+        fck = self._parse_float_entry(fck_val)
+        if fck is not None:
+            base_params["fck"] = fck
 
         # Per acciaio: fyk (o sigma_sn)
         fyk_val = self.num_fields.get("fyk")
-        if fyk_val:
-            txt = fyk_val.get().strip().replace(",", ".")
-            if txt:
-                try:
-                    base_params["fyk"] = float(txt)
-                except ValueError:
-                    pass
+        fyk = self._parse_float_entry(fyk_val)
+        if fyk is not None:
+            base_params["fyk"] = fyk
 
         # Calcola valori predefiniti
         defaults = get_default_values_for_source(source.id, material_type, base_params)
@@ -562,15 +555,35 @@ class _HistoricalEditDialog(tk.Toplevel):
             "gamma_s": defaults.get("gamma_s"),
         }
 
-        for key, value in fields_to_update.items():
+        self._apply_calculated_fields(fields_to_update)
+
+        # Aggiungi note di calcolo
+        calc_notes = defaults.get("calculation_notes", "")
+        if calc_notes:
+            self._append_calc_notes(calc_notes)
+
+        logger.info("Applicati valori da fonte '%s' per materiale tipo '%s'", source_name, material_type)
+
+    def _parse_float_entry(self, ent: tk.Entry | None) -> float | None:
+        if ent is None:
+            return None
+        txt: str = ent.get().strip().replace(",", ".")
+        if not txt:
+            return None
+        try:
+            return float(txt)
+        except ValueError:
+            return None
+
+    def _apply_calculated_fields(self, fields: dict[str, object]) -> None:
+        for key, value in fields.items():
             if value is not None and key in self.num_fields:
                 ent = self.num_fields[key]
                 ent.delete(0, tk.END)
                 ent.insert(0, str(value))
 
-        # Aggiungi note di calcolo
-        calc_notes = defaults.get("calculation_notes", "")
-        if calc_notes:
+    def _append_calc_notes(self, calc_notes: str) -> None:
+        try:
             current_notes = self.notes_text.get("1.0", tk.END).strip()
             if current_notes:
                 # Aggiungi in coda se ci sono già note
@@ -578,9 +591,8 @@ class _HistoricalEditDialog(tk.Toplevel):
                     self.notes_text.insert(tk.END, f"\n\n{calc_notes}")
             else:
                 self.notes_text.insert("1.0", calc_notes)
-
-        logger.info("Applicati valori da fonte '%s' per materiale tipo '%s'", source_name, material_type)
-
+        except Exception:
+            logger.exception("Unable to append calculation notes")
     def _on_save(self) -> None:
         """Salva il materiale."""
         name = self.name_entry.get().strip()
@@ -712,8 +724,7 @@ class SourceManagerWindow(tk.Toplevel):
         # Avviso
         warning_label = tk.Label(
             self,
-            text="NOTA: Le fonti predefinite non possono essere eliminate. "
-            "È possibile aggiungere fonti personalizzate.",
+            text="NOTA: Le fonti predefinite non possono essere eliminate. " "È possibile aggiungere fonti personalizzate.",
             fg="gray",
             font=("TkDefaultFont", 8),
         )

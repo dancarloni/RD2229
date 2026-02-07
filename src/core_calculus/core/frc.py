@@ -7,7 +7,9 @@ Note:
 
 Small helper functions may accept unused arguments to preserve API parity with
 higher-level callers; suppress the corresponding pylint warning.
+
 """
+
 # pylint: disable=unused-argument
 from __future__ import annotations
 

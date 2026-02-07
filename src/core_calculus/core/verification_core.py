@@ -8,6 +8,7 @@ The calculations are organized by verification type and follow the formulas from
 - CA_SLU.bas for SLU calculations
 - CA_SLE.bas for SLE calculations
 """
+
 # pylint: disable=broad-exception-caught, unused-argument, logging-fstring-interpolation
 
 from __future__ import annotations

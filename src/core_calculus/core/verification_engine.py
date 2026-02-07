@@ -8,6 +8,7 @@ types of exceptions; handlers therefore catch broadly and log for
 diagnostics. Suppress the corresponding Pylint warning to avoid noisy
 reports until a deeper refactor is performed.
 """
+
 # pylint: disable=broad-exception-caught, logging-fstring-interpolation
 
 from __future__ import annotations
@@ -266,8 +267,7 @@ class VerificationEngine:
                 if loads.At and loads.At > 0 and At_req > 0:
                     if loads.At < At_req:
                         approx_notes.append(
-                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², "
-                            f"fornita {loads.At:.3f} cm²"
+                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², " f"fornita {loads.At:.3f} cm²"
                         )
                     else:
                         approx_notes.append(

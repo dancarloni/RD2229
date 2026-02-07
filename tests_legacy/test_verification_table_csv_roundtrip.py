@@ -62,7 +62,9 @@ class TestVerificationTableCSVRoundtrip(unittest.TestCase):
 
             self.assertEqual(get_val(row_vals, "section"), "Rect-20x30")
             self.assertEqual(get_val(row_vals, "mat_concrete"), "C120")
-            # numeric fields should be normalized to use comma in CSV then parsed back to flotation and written as string with dot replaced to comma in export -> import produces numeric stored as float -> then to string we expect '123.45' -> but import stores floats; we check approximate numeric equivalence
+            # numeric fields should be normalized to use comma in CSV then parsed back to float
+            # and written as string with dot replaced to comma in export;
+            # import produces floats stored as numeric; we check approximate numeric equivalence
             self.assertAlmostEqual(float(get_val(row_vals, "N").replace(",", ".")), 123.45, places=2)
             self.assertAlmostEqual(float(get_val(row_vals, "M").replace(",", ".")), 1.23, places=2)
             self.assertEqual(get_val(row_vals, "notes"), "Test note")

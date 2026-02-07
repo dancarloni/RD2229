@@ -1,6 +1,7 @@
 # Compatibility shim: re-export models from src.domain.domain.models
 # Explicit re-exports to satisfy static analyzers
 from src.domain.domain.models import VerificationInput, VerificationOutput  # type: ignore
+
 __all__ = ["VerificationInput", "VerificationOutput"]
 from importlib import import_module as _im
 

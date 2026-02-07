@@ -3,6 +3,7 @@
 This module interacts with logging backends and uses defensive exception
 handling to keep the viewer robust; suppress corresponding Pylint warnings.
 """
+
 # pylint: disable=broad-exception-caught
 
 from __future__ import annotations

@@ -7,9 +7,9 @@ from typing import List, Tuple
 from app.domain.models import VerificationInput  # type: ignore[import]
 from app.ui.verification_table_app import COLUMNS  # type: ignore[import]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
-NUMERIC_ATTRS = {
+NUMERIC_ATTRS: set[str] = {
     "n_homog",
     "N",
     "Mx",
@@ -31,7 +31,7 @@ def _format_value_for_csv(value: object) -> str:
     if isinstance(value, (int, float)):
         return str(value).replace(".", ",")
     if isinstance(value, str):
-        s = value.strip()
+        s: str = value.strip()
         if not s:
             return ""
         try:
@@ -43,8 +43,8 @@ def _format_value_for_csv(value: object) -> str:
 
 
 def export_csv(path: str, rows: List[VerificationInput], include_header: bool = True) -> None:
-    keys = [c[0] for c in COLUMNS]
-    header = [c[1] for c in COLUMNS]
+    keys: List[str] = [c[0] for c in COLUMNS]
+    header: List[str] = [c[1] for c in COLUMNS]
     with open(path, "w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh, delimiter=";")
         if include_header:
@@ -58,7 +58,7 @@ def export_csv(path: str, rows: List[VerificationInput], include_header: bool = 
 
 
 def _col_to_attr(col: str) -> str:
-    mapping = {
+    mapping: dict[str, str] = {
         "element": "element_name",
         "section": "section_id",
         "verif_method": "verification_method",
@@ -84,19 +84,40 @@ def _col_to_attr(col: str) -> str:
     return mapping[col]
 
 
+def _row_to_kwargs(row: list[str], index_map: list[int | None], i: int) -> tuple[dict[str, object], str | None]:
+    kwargs: dict[str, object] = {}
+    for key, idx in zip([c[0] for c in COLUMNS], index_map):
+        if idx is None:
+            continue
+        v: str = row[idx] if idx < len(row) else ""
+        attr: str = _col_to_attr(key)
+        if attr in NUMERIC_ATTRS:
+            s: str = str(v).strip()
+            if not s:
+                kwargs[attr] = 0.0
+                continue
+            try:
+                kwargs[attr] = float(s.replace(",", "."))
+            except Exception:
+                return {}, f"Riga {i}: valore numerico non valido per '{key}': '{v}'"
+        else:
+            kwargs[attr] = v.strip() if isinstance(v, str) else v
+    return kwargs, None
+
+
 def import_csv(path: str) -> Tuple[List[VerificationInput], int, List[str]]:
     try:
         with open(path, newline="", encoding="utf-8") as fh:
             reader = csv.reader(fh, delimiter=";")
-            rows = list(reader)
-    except Exception as e:
-        logger.exception("Import CSV: impossibile leggere/parsare il file '%s': %s", path, e)
-        return [], 0, [str(e)]
+            rows: List[List[str]] = list(reader)
+    except Exception as exc:
+        logger.exception("Import CSV: impossibile leggere/parsare il file '%s': %s", path, exc)
+        return [], 0, [str(exc)]
     if not rows:
         return [], 0, []
 
-    expected_header = [c[1] for c in COLUMNS]
-    header = [h.strip() for h in rows[0]]
+    expected_header: List[str] = [c[1] for c in COLUMNS]
+    header: List[str] = [h.strip() for h in rows[0]]
 
     # Simple mapping: assume header equals expected or same set
     index_map: list[int | None]
@@ -109,38 +130,15 @@ def import_csv(path: str) -> Tuple[List[VerificationInput], int, List[str]]:
     models = []
     errors = []
     for i, row in enumerate(rows[1:], start=2):
-        kwargs: dict[str, object] = {}
-        row_bad = False
-        for key, idx in zip([c[0] for c in COLUMNS], index_map):
-            if idx is None:
-                continue
-            v = row[idx] if idx < len(row) else ""
-            attr = _col_to_attr(key)
-            if attr in NUMERIC_ATTRS:
-                s = str(v).strip()
-                if not s:
-                    kwargs[attr] = 0.0
-                    continue
-                try:
-                    kwargs[attr] = float(s.replace(",", "."))
-                except Exception:
-                    msg = f"Riga {i}: valore numerico non valido per '{key}': '{v}'"
-                    errors.append(msg)
-                    row_bad = True
-                    break
-            else:
-                # Non-numeric fields are strings; ensure small length to avoid overly long CSV cells
-                kwargs[attr] = v.strip() if isinstance(v, str) else v
-        if row_bad:
+        kwargs, err = _row_to_kwargs(row, index_map, i)
+        if err:
+            errors.append(err)
             continue
         try:
-            # VerificationInput expects specific typed fields; kwargs are runtime-parsed from CSV.
-            # Use a narrow ignore to accept the runtime construction
-            # while keeping strict checks elsewhere.
             models.append(VerificationInput(**kwargs))  # type: ignore[arg-type]
-        except Exception as e:
-            errors.append(f"Riga {i}: errore creazione modello: {e}")
+        except Exception as exc:
+            errors.append(f"Riga {i}: errore creazione modello: {exc}")
             # pragma: no cover - defensive branch for malformed csv rows (tests cover normal paths)
-    imported = len(models)
-    skipped = max(0, (len(rows) - 1) - imported)
+    imported: int = len(models)
+    skipped: int = max(0, (len(rows) - 1) - imported)
     return models, skipped, errors

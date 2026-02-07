@@ -463,7 +463,19 @@ class SectionManager(tk.Toplevel):
 
         NOTA: NON chiude il Section Manager (a differenza del comportamento precedente).
         """
-        # Caso 1: master è MainWindow (ha reset_form)
+        # Try multiple strategies to open/reset the geometry editor. Each helper
+        # encapsulates one approach and returns True when it handled the request.
+        if self._try_reset_master_form():
+            return
+        if self._try_open_geometry_from_master():
+            return
+        # Final fallback: ask user confirmation to open editor
+        try:
+            self._ask_and_open_geometry()
+        except Exception:
+            logger.exception("Errore mostrando dialogo fallback per nuova sezione")
+
+    def _try_reset_master_form(self) -> bool:
         try:
             if hasattr(self.master, "reset_form") and callable(getattr(self.master, "reset_form")):
                 try:
@@ -473,19 +485,18 @@ class SectionManager(tk.Toplevel):
                         self.master.focus_force()
                     except Exception:
                         pass
-                    # ✅ NON chiude il manager: rimosso self.destroy()
                     logger.debug("Reset form Geometry per nuova sezione (manager resta aperto)")
-                    return
+                    return True
                 except Exception:
                     logger.exception("Errore nel resettare la form del master per nuova sezione")
         except Exception:
             logger.exception("Errore nel controllare reset_form sul master")
+        return False
 
-        # Caso 2: master è ModuleSelector (ha _open_geometry)
+    def _try_open_geometry_from_master(self) -> bool:
         try:
             if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
                 try:
-                    # Apri Geometry tramite il master; ci aspettiamo che il master imposti _geometry_window
                     self.master._open_geometry()
                     gw = getattr(self.master, "_geometry_window", None)
                     if gw is not None and hasattr(gw, "reset_form") and callable(getattr(gw, "reset_form")):
@@ -496,46 +507,42 @@ class SectionManager(tk.Toplevel):
                                 gw.focus_force()
                             except Exception:
                                 pass
-                            # ✅ NON chiude il manager: rimosso self.destroy()
                             logger.debug("Aperto Geometry per nuova sezione (manager resta aperto)")
-                            return
+                            return True
                         except Exception:
                             logger.exception("Errore nel resettare la form di Geometry dopo apertura da ModuleSelector")
                 except Exception:
                     logger.exception("Errore aprendo Geometry dal master per nuova sezione")
         except Exception:
             logger.exception("Errore nel controllare _open_geometry sul master")
+        return False
 
-        # Fallback: chiedi all'utente se aprire l'editor
-        try:
+    def _ask_and_open_geometry(self) -> None:
 
-            def _on_confirm_open_editor(ans: bool):
-                if not ans:
-                    return
-                try:
-                    if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
-                        self.master._open_geometry()
-                        gw = getattr(self.master, "_geometry_window", None)
-                        if gw is not None and hasattr(gw, "reset_form"):
-                            try:
-                                gw.reset_form()
-                                gw.lift()
-                                gw.focus_force()
-                            except Exception:
-                                logger.exception("Errore nel resettare la form di Geometry (fallback)")
-                        # ✅ NON chiude il manager: rimosso self.destroy()
-                        logger.debug("Aperto Geometry per nuova sezione (fallback, manager resta aperto)")
-                except Exception:
-                    logger.exception("Errore nel fallback per aprire l'editor per nuova sezione")
+        def _on_confirm_open_editor(ans: bool):
+            if not ans:
+                return
+            try:
+                if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
+                    self.master._open_geometry()
+                    gw = getattr(self.master, "_geometry_window", None)
+                    if gw is not None and hasattr(gw, "reset_form"):
+                        try:
+                            gw.reset_form()
+                            gw.lift()
+                            gw.focus_force()
+                        except Exception:
+                            logger.exception("Errore nel resettare la form di Geometry (fallback)")
+                    logger.debug("Aperto Geometry per nuova sezione (fallback, manager resta aperto)")
+            except Exception:
+                logger.exception("Errore nel fallback per aprire l'editor per nuova sezione")
 
-            ask_confirm(
-                "Apri editor",
-                "Vuoi aprire l'editor per creare una nuova sezione?",
-                callback=_on_confirm_open_editor,
-                source="section_manager",
-            )
-        except Exception:
-            logger.exception("Errore mostrando dialogo fallback per nuova sezione")
+        ask_confirm(
+            "Apri editor",
+            "Vuoi aprire l'editor per creare una nuova sezione?",
+            callback=_on_confirm_open_editor,
+            source="section_manager",
+        )
 
     def _edit_section(self) -> None:
         section = self._get_selected_section()

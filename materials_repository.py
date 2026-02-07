@@ -11,23 +11,26 @@ in modo che le UI (es. `VerificationTableWindow`) possano aggiornare i suggerime
 from __future__ import annotations
 
 import logging
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from tools import materials_manager
 
-try:
-    from sections_app.services.event_bus import (
-        MATERIALS_ADDED,
-        MATERIALS_CLEARED,
-        MATERIALS_DELETED,
-        MATERIALS_UPDATED,
-        EventBus,
-    )
-except Exception:
-    EventBus = None
-    MATERIALS_CLEARED = MATERIALS_ADDED = MATERIALS_UPDATED = MATERIALS_DELETED = None
+# Defaults in case event bus is unavailable (e.g., in tests)
+EventBus = None
+MATERIALS_ADDED = "materials_added"
+MATERIALS_UPDATED = "materials_updated"
+MATERIALS_DELETED = "materials_deleted"
+MATERIALS_CLEARED = "materials_cleared"
 
-logger = logging.getLogger(__name__)
+try:
+    # Import EventBus class only when available; constants above remain valid
+    from sections_app.services.event_bus import EventBus as _EventBus
+    EventBus = _EventBus
+except ImportError:
+    # Running without the UI stack is acceptable; use defaults
+    pass
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class MaterialsRepository:
@@ -41,10 +44,10 @@ class MaterialsRepository:
     """
 
     def __init__(self) -> None:
-        self._materials: List[Dict] = []
+        self._materials: List[Dict[str, Any]] = []
         self.path: Optional[str] = None
 
-    def load_from_jsonm(self, path: str) -> List[Dict]:
+    def load_from_jsonm(self, path: str) -> List[Dict[str, Any]]:
         if not path.lower().endswith(".jsonm"):
             raise ValueError("Material file must have .jsonm extension")
         try:
@@ -63,11 +66,11 @@ class MaterialsRepository:
                             material_id=m.get("id") or m.get("name"),
                             material_name=m.get("name"),
                         )
-                except Exception:
-                    logger.exception("Error emitting EventBus events after load_from_jsonm")
+                except Exception as exc:  # noqa: B902
+                    logger.exception("Error emitting EventBus events after load_from_jsonm: %s", exc)
             return self._materials
-        except Exception as e:
-            logger.exception("Failed loading materials from %s: %s", path, e)
+        except Exception as exc:  # noqa: B902
+            logger.exception("Failed loading materials from %s: %s", path, exc)
             raise
 
     def save_to_jsonm(self, path: str) -> None:
@@ -77,29 +80,30 @@ class MaterialsRepository:
             # Use materials_manager.save_materials to keep file format consistent
             materials_manager.save_materials(self._materials, path)
             self.path = path
-        except Exception:
-            logger.exception("Error saving materials to %s", path)
+        except Exception as exc:  # noqa: B902
+            logger.exception("Error saving materials to %s: %s", path, exc)
             raise
 
-    def get_all(self) -> List[Dict]:
+    def get_all(self) -> List[Dict[str, Any]]:
         return [m.copy() for m in self._materials]
 
-    def get_by_name(self, name: str) -> Optional[Dict]:
+    def get_by_name(self, name: str) -> Optional[Dict[str, Any]]:
         for m in self._materials:
             if m.get("name") == name:
                 return m.copy()
         return None
 
-    def add(self, material: Dict) -> None:
+    def add(self, material: Dict[str, Any]) -> None:
         # Check duplicate by name
         if any(m.get("name") == material.get("name") for m in self._materials):
             raise ValueError(f"Material with name '{material.get('name')}' already exists")
-        # Ensure derived fields (use helper from materials_manager)
+        # Ensure derived fields (use public helper from materials_manager)
         try:
-            materials_manager._ensure_derived_fields(material)
-        except Exception:
+            # Prefer public wrapper to avoid accessing protected members
+            materials_manager.ensure_derived_fields(material)
+        except Exception as exc:  # noqa: B902
             # best-effort: ignore errors in derived field computation
-            pass
+            logger.debug("Derived field computation failed: %s", exc)
         self._materials.append(material.copy())
         if EventBus is not None:
             try:
@@ -108,17 +112,17 @@ class MaterialsRepository:
                     material_id=material.get("id") or material.get("name"),
                     material_name=material.get("name"),
                 )
-            except Exception:
-                logger.exception("Error emitting MATERIALS_ADDED")
+            except Exception as exc:  # noqa: B902
+                logger.exception("Error emitting MATERIALS_ADDED: %s", exc)
 
-    def update(self, name: str, updates: Dict) -> None:
+    def update(self, name: str, updates: Dict[str, Any]) -> None:
         for i, m in enumerate(self._materials):
             if m.get("name") == name:
                 new = {**m, **updates}
                 try:
-                    materials_manager._ensure_derived_fields(new)
-                except Exception:
-                    pass
+                    materials_manager.ensure_derived_fields(new)
+                except Exception as exc:  # noqa: B902
+                    logger.debug("Derived field computation failed during update: %s", exc)
                 self._materials[i] = new
                 if EventBus is not None:
                     try:
@@ -127,8 +131,8 @@ class MaterialsRepository:
                             material_id=new.get("id") or new.get("name"),
                             material_name=new.get("name"),
                         )
-                    except Exception:
-                        logger.exception("Error emitting MATERIALS_UPDATED")
+                    except Exception as exc:  # noqa: B902
+                        logger.exception("Error emitting MATERIALS_UPDATED: %s", exc)
                 return
         raise KeyError(f"Material with name '{name}' not found")
 
@@ -147,5 +151,5 @@ class MaterialsRepository:
                         material_id=d.get("id") or d.get("name"),
                         material_name=d.get("name"),
                     )
-            except Exception:
-                logger.exception("Error emitting MATERIALS_DELETED")
+            except Exception as exc:  # noqa: B902
+                logger.exception("Error emitting MATERIALS_DELETED: %s", exc)

@@ -3,11 +3,12 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 from tkinter import ttk
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
-from app.domain.models import VerificationInput  # type: ignore[import]
+from app.domain.models import VerificationInput
+from src.domain.domain.models import VerificationOutput  # type: ignore[import]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 ColumnDef = Tuple[str, str, int, str]
 
@@ -83,8 +84,8 @@ class VerificationTableApp(tk.Frame):
         self.master = master
         self.pack(fill="both", expand=True)
 
-        self.columns = [c[0] for c in COLUMNS]
-        self._last_col = self.columns[0]
+        self.columns: List[str] = [c[0] for c in COLUMNS]
+        self._last_col: str = self.columns[0]
 
         self.section_repository = section_repository
         self.material_repository = material_repository
@@ -103,8 +104,8 @@ class VerificationTableApp(tk.Frame):
         self.search_limit = int(search_limit)
         self.display_limit = int(display_limit)
 
-        self.section_names = self._resolve_section_names(section_repository, section_names)
-        self.material_names = self._resolve_material_names(material_names)
+        self.section_names: List[str] = self._resolve_section_names(section_repository, section_names)
+        self.material_names: List[str] | None = self._resolve_material_names(material_names)
 
         self.suggestions_map: Dict[str, object] = {
             "section": (lambda q: self._search_sections(q)),
@@ -152,7 +153,7 @@ class VerificationTableApp(tk.Frame):
             return
         from app.ui.suggestion_box import SuggestionBox
 
-        def on_select(value: str):
+        def on_select(value: str) -> None:
             try:
                 if self.edit_entry is not None:
                     self.edit_entry.delete(0, tk.END)
@@ -189,37 +190,37 @@ class VerificationTableApp(tk.Frame):
 
         try:
             load_project(self, None)
-        except Exception as e:
-            logger.exception("_on_load_project failed: %s", e)
+        except Exception as exc:
+            logger.exception("_on_load_project failed: %s", exc)
 
     def _on_save_project(self) -> None:
         from app.ui.project_actions import save_project
 
         try:
             save_project(self, None)
-        except Exception as e:
-            logger.exception("_on_save_project failed: %s", e)
+        except Exception as exc:
+            logger.exception("_on_save_project failed: %s", exc)
 
     def _on_add_list_elements(self) -> None:
         from app.ui.project_actions import add_list_elements
 
         try:
             add_list_elements(self, None)
-        except Exception as e:
-            logger.exception("_on_add_list_elements failed: %s", e)
+        except Exception as exc:
+            logger.exception("_on_add_list_elements failed: %s", exc)
 
     # --- Core data mapping and row helpers ---
     def table_row_to_model(self, row_index: int) -> VerificationInput:
-        items = list(self.tree.get_children())
+        items: List[str] = list(self.tree.get_children())
         if row_index < 0 or row_index >= len(items):
             raise IndexError("row_index out of range")
-        item = items[row_index]
+        item: str = items[row_index]
 
         def get(col: str) -> str:
             return str(self.tree.set(item, col) or "").strip()
 
         def num(col: str) -> float:
-            value = get(col)
+            value: str = get(col)
             if not value:
                 return 0.0
             try:
@@ -252,10 +253,10 @@ class VerificationTableApp(tk.Frame):
         )
 
     def update_row_from_model(self, row_index: int, model: VerificationInput) -> None:
-        items = list(self.tree.get_children())
+        items: List[str] = list(self.tree.get_children())
         if row_index < 0 or row_index >= len(items):
             raise IndexError("row_index out of range")
-        item = items[row_index]
+        item: str = items[row_index]
         values_map = {
             "element": model.element_name,
             "section": model.section_id,
@@ -289,9 +290,7 @@ class VerificationTableApp(tk.Frame):
 
         tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
         tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(
-            side="left", padx=(6, 0)
-        )
+        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(side="left", padx=(6, 0))
         tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6, 0))
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
@@ -352,7 +351,7 @@ class VerificationTableApp(tk.Frame):
 
         _export(path, self.get_rows(), include_header=include_header)
 
-    def import_csv(self, path: str, *, clear: bool = True):
+    def import_csv(self, path: str, *, clear: bool = True) -> Tuple[int, int, List[str]]:
         from app.ui.csv_io import import_csv as _import
 
         models, skipped, errors = _import(path)
@@ -369,14 +368,14 @@ class VerificationTableApp(tk.Frame):
         value: str,
         bbox: Tuple[int, int, int, int],
         initial_text: Optional[str] = None,
-    ):
+    ) -> ttk.Entry | ttk.Combobox:
         """Crea e ritorna un widget editor posizionato sopra la cella indicata.
         Usa `ttk.Combobox` per colonne materiali se `self.material_names` è disponibile,
         altrimenti `ttk.Entry`. Bind degli eventi di navigazione e suggerimenti vengono
         applicati qui centralmente per evitare duplicazione.
         """
         x, y, width, height = bbox
-        combobox_columns = {"mat_concrete", "mat_steel", "stirrups_mat", "verif_method"}
+        combobox_columns: set[str] = {"mat_concrete", "mat_steel", "stirrups_mat", "verif_method"}
         if col in combobox_columns:
             if col == "verif_method":
                 # Combobox con valori fissi per metodo di verifica
@@ -387,26 +386,7 @@ class VerificationTableApp(tk.Frame):
             else:
                 # Fallback a Entry se non ci sono materiali
                 editor = ttk.Entry(self.tree)
-                editor.place(x=x, y=y, width=width, height=height)
-                editor.insert(0, value)
-                if initial_text:
-                    editor.delete(0, tk.END)
-                    editor.insert(0, initial_text)
-                editor.select_range(0, tk.END)
-                editor.focus_set()
-                # Bind eventi comuni
-                editor.bind("<Return>", self._on_entry_commit_down)
-                editor.bind("<Shift-Return>", self._on_entry_commit_up)
-                editor.bind("<Tab>", self._on_entry_commit_next)
-                editor.bind("<Shift-Tab>", self._on_entry_commit_prev)
-                editor.bind("<Escape>", self._on_entry_cancel)
-                editor.bind("<Up>", self._on_entry_move_up)
-                editor.bind("<Down>", self._on_entry_move_down)
-                editor.bind("<Left>", self._on_entry_move_left)
-                editor.bind("<Right>", self._on_entry_move_right)
-                editor.bind("<FocusOut>", self._on_entry_focus_out)
-                editor.bind("<KeyRelease>", self._on_entry_keyrelease)
-                editor.bind("<KeyPress>", self._on_entry_keypress)
+                self._setup_and_bind_editor(editor, x, y, width, height, value, initial_text)
                 return editor
 
             editor.place(x=x, y=y, width=width, height=height)
@@ -424,9 +404,9 @@ class VerificationTableApp(tk.Frame):
             # This helps tests that use cb.set('...') and expect the value to be
             # available synchronously at commit time.
             try:
-                orig_set = editor.set
+                orig_set: Callable[..., None] = editor.set
 
-                def _set_and_record(val):
+                def _set_and_record(val) -> None:
                     orig_set(val)
                     try:
                         self._last_editor_value = editor.get()
@@ -438,21 +418,48 @@ class VerificationTableApp(tk.Frame):
                 pass
         else:
             editor = ttk.Entry(self.tree)
-            editor.place(x=x, y=y, width=width, height=height)
-            editor.insert(0, value)
-            if initial_text:
-                editor.delete(0, tk.END)
-                editor.insert(0, initial_text)
-            editor.select_range(0, tk.END)
-            editor.focus_set()
+            self._setup_and_bind_editor(editor, x, y, width, height, value, initial_text)
+            return editor
 
-        # Bind eventi comuni
+    def _setup_and_bind_editor(
+        self,
+        editor: ttk.Entry | ttk.Combobox,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        value: str,
+        initial_text: Optional[str] = None,
+    ) -> None:
+        """Place the editor widget, populate it with value/initial_text, select and bind common events."""
+        editor.place(x=x, y=y, width=width, height=height)
+        # Use .set for Combobox, .insert for Entry
+        try:
+            if hasattr(editor, "set"):
+                editor.set(value or "")
+            else:
+                editor.insert(0, value)
+        except Exception:
+            pass
+        if initial_text:
+            try:
+                if hasattr(editor, "delete"):
+                    editor.delete(0, tk.END)
+                    editor.insert(0, initial_text)
+            except Exception:
+                pass
+        try:
+            editor.select_range(0, tk.END)
+        except Exception:
+            pass
+        editor.focus_set()
+        # Bind common events
         editor.bind("<Return>", self._on_entry_commit_down)
         editor.bind("<Shift-Return>", self._on_entry_commit_up)
         editor.bind("<Tab>", self._on_entry_commit_next)
 
         # Keep a record of the current editor value on key events as well
-        def _record_key_event(_e=None):
+        def _record_key_event(_e=None) -> None:
             try:
                 self._last_editor_value = editor.get()
             except Exception:
@@ -468,7 +475,7 @@ class VerificationTableApp(tk.Frame):
         editor.bind("<FocusOut>", self._on_entry_focus_out)
         editor.bind("<KeyRelease>", self._on_entry_keyrelease)
         editor.bind("<KeyPress>", self._on_entry_keypress)
-        return editor
+
 
     def _compute_target_cell(
         self, current_item: str, current_col: str, delta_col: int, delta_row: int
@@ -477,35 +484,35 @@ class VerificationTableApp(tk.Frame):
         e dagli spostamenti `delta_col` e `delta_row`.
         Restituisce (target_item_id, target_col_key, created_new_row_flag).
         """
-        items = list(self.tree.get_children())
+        items: List[str] = list(self.tree.get_children())
         if not items:
             return current_item, current_col, False
         if current_item not in items:
             return current_item, current_col, False
-        row_idx = items.index(current_item)
-        col_idx = self.columns.index(current_col)
+        row_idx: int = items.index(current_item)
+        col_idx: int = self.columns.index(current_col)
 
-        new_col = col_idx + delta_col
-        new_row = row_idx + delta_row
+        new_col: int = col_idx + delta_col
+        new_row: int = row_idx + delta_row
 
         # wrap colonne
         if new_col >= len(self.columns):
             new_col = 0
             new_row += 1
         elif new_col < 0:
-            new_col = len(self.columns) - 1
+            new_col: int = len(self.columns) - 1
             new_row -= 1
 
         # se superiamo l'ultima riga creiamo una nuova riga copiando la corrente
         created = False
         if new_row >= len(items):
-            new_item = self.add_row_from_previous(current_item)
-            items = list(self.tree.get_children())
-            target_item = new_item
+            new_item: str = self.add_row_from_previous(current_item)
+            items: List[str] = list(self.tree.get_children())
+            target_item: str = new_item
             created = True
         else:
-            new_row = max(0, new_row)
-            target_item = items[new_row]
+            new_row: int = max(0, new_row)
+            target_item: str = items[new_row]
 
             # Se ci si sta spostando verso il basso e la riga target è vuota,
             # copia i valori della riga corrente nella riga target. Questo
@@ -513,19 +520,19 @@ class VerificationTableApp(tk.Frame):
             # o scende con Invio/freccia giù, ma non sovrascrive righe non vuote
             # e non interviene quando si scende verso l'alto (shift+tab o freccia su).
             if new_row > row_idx and self._row_is_empty(target_item):
-                prev_values = list(self.tree.item(current_item, "values"))
+                prev_values: List[str] = list(self.tree.item(current_item, "values"))
                 self.tree.item(target_item, values=prev_values)
 
-        target_col = self.columns[new_col]
+        target_col: str = self.columns[new_col]
         return target_item, target_col, created
 
     # --- API pubbliche -------------------------------------------------
-    def create_editor_for_cell(self, item: str, col: str, initial_text: Optional[str] = None):
+    def create_editor_for_cell(self, item: str, col: str, initial_text: Optional[str] = None) -> ttk.Entry | ttk.Combobox:
         """API pubblica: crea un editor (Entry o Combobox) posizionato sopra la cella
         `item`/`col` e lo restituisce. Solleva ValueError se la cella non è visibile
         (bbox vuoto).
         """
-        bbox = self.tree.bbox(item, col)
+        bbox: Tuple[int] | str = self.tree.bbox(item, col)
         if not bbox:
             raise ValueError(f"Impossibile creare editor: bbox vuoto per item={item}, col={col}")
         value = self.tree.set(item, col)
@@ -542,7 +549,7 @@ class VerificationTableApp(tk.Frame):
         return self._compute_target_cell(current_item, current_col, delta_col, delta_row)
 
     def _remove_selected_row(self) -> None:
-        sel = self.tree.focus()
+        sel: str = self.tree.focus()
         if sel:
             self.tree.delete(sel)
 
@@ -550,11 +557,11 @@ class VerificationTableApp(tk.Frame):
         region = self.tree.identify("region", event.x, event.y)
         if region != "cell":
             return
-        item = self.tree.identify_row(event.y)
-        col_id = self.tree.identify_column(event.x)
-        col = self._column_id_to_key(col_id)
+        item: str = self.tree.identify_row(event.y)
+        col_id: str = self.tree.identify_column(event.x)
+        col: str | None = self._column_id_to_key(col_id)
         if item and col:
-            self._last_col = col
+            self._last_col: str = col
             # Indica che la successiva chiamata a `_update_suggestions` può
             # mostrare l'elenco completo anche se l'entry è vuota.
             self._force_show_all_on_empty = True
@@ -563,46 +570,46 @@ class VerificationTableApp(tk.Frame):
             self.after(10, self._update_suggestions)
 
     def _on_tree_double_click(self, event: tk.Event) -> None:
-        item = self.tree.identify_row(event.y)
-        col_id = self.tree.identify_column(event.x)
-        col = self._column_id_to_key(col_id)
+        item: str = self.tree.identify_row(event.y)
+        col_id: str = self.tree.identify_column(event.x)
+        col: str | None = self._column_id_to_key(col_id)
         if not item:
-            new_item = self._add_row()
-            self._last_col = self.columns[0]
+            new_item: str = self._add_row()
+            self._last_col: str = self.columns[0]
             self._start_edit(new_item, self._last_col)
             return
         if self._row_is_empty(item):
-            new_item = self._add_row(after_item=item)
-            self._last_col = self.columns[0]
+            new_item: str = self._add_row(after_item=item)
+            self._last_col: str = self.columns[0]
             self._start_edit(new_item, self._last_col)
             return
         if item and col:
-            self._last_col = col
+            self._last_col: str = col
             self._start_edit(item, col)
 
     def _on_tree_return(self, _event: tk.Event) -> str:
-        item = self.tree.focus()
+        item: str = self.tree.focus()
         if not item:
             return "break"
         self._start_edit(item, self._last_col)
         return "break"
 
     def _on_tree_shift_return(self, _event: tk.Event) -> str:
-        item = self.tree.focus()
+        item: str = self.tree.focus()
         if not item:
             return "break"
         self._start_edit(item, self._last_col)
         return "break"
 
     def _on_tree_tab(self, _event: tk.Event) -> str:
-        item = self.tree.focus()
+        item: str = self.tree.focus()
         if not item:
             return "break"
         self._start_edit(item, self._last_col)
         return "break"
 
     def _on_tree_shift_tab(self, _event: tk.Event) -> str:
-        item = self.tree.focus()
+        item: str = self.tree.focus()
         if not item:
             return "break"
         self._start_edit(item, self._last_col)
@@ -613,42 +620,42 @@ class VerificationTableApp(tk.Frame):
             return
         if not event.char or not event.char.isprintable():
             return
-        item = self.tree.focus()
+        item: str = self.tree.focus()
         if not item:
             return
         self._start_edit(item, self._last_col, initial_text=event.char)
 
     def _on_tree_arrow(self, event: tk.Event) -> str:
-        item = self.tree.focus()
+        item: str = self.tree.focus()
         if not item:
             return "break"
         if event.keysym in {"Left", "Right"}:
-            delta = -1 if event.keysym == "Left" else 1
+            delta: int = -1 if event.keysym == "Left" else 1
             target_item, target_col = self._next_cell(item, self._last_col, delta_col=delta, delta_row=0)
         else:
-            delta = -1 if event.keysym == "Up" else 1
+            delta: int = -1 if event.keysym == "Up" else 1
             target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
-        self._last_col = target_col
+        self._last_col: str = target_col
         self._start_edit(target_item, target_col)
         return "break"
 
     def _on_tree_home(self, _event: tk.Event) -> str:
         """Sposta la cella attiva alla prima colonna della riga corrente e apre l'editor."""
-        item = self.tree.focus()
+        item: str = self.tree.focus()
         if not item:
             return "break"
-        first_col = self.columns[0]
-        self._last_col = first_col
+        first_col: str = self.columns[0]
+        self._last_col: str = first_col
         self._start_edit(item, first_col)
         return "break"
 
     def _on_tree_end(self, _event: tk.Event) -> str:
         """Sposta la cella attiva all'ultima colonna della riga corrente e apre l'editor."""
-        item = self.tree.focus()
+        item: str = self.tree.focus()
         if not item:
             return "break"
-        last_col = self.columns[-1]
-        self._last_col = last_col
+        last_col: str = self.columns[-1]
+        self._last_col: str = last_col
         self._start_edit(item, last_col)
         return "break"
 
@@ -656,7 +663,7 @@ class VerificationTableApp(tk.Frame):
         if not col_id or not col_id.startswith("#"):
             return None
         try:
-            idx = int(col_id.replace("#", "")) - 1
+            idx: int = int(col_id.replace("#", "")) - 1
         except ValueError:
             return None
         if 0 <= idx < len(self.columns):
@@ -667,7 +674,7 @@ class VerificationTableApp(tk.Frame):
         self._hide_suggestions()
         if self.edit_entry is not None:
             self._commit_edit()
-        bbox = self.tree.bbox(item, col)
+        bbox: Tuple[int] | str = self.tree.bbox(item, col)
         if not bbox:
             return
         x, y, width, height = bbox
@@ -683,9 +690,7 @@ class VerificationTableApp(tk.Frame):
             self.current_column_index = None
 
         # Crea l'editor (Entry o Combobox) in modo centralizzato
-        self.edit_entry = self._create_editor_for_cell(
-            item, col, value, (x, y, width, height), initial_text=initial_text
-        )
+        self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
 
         # Se lo start è esplicito (programma o click), consentiamo alla prima
         # chiamata a `_update_suggestions` di mostrare l'elenco completo se
@@ -700,7 +705,7 @@ class VerificationTableApp(tk.Frame):
             return
         # Prefer the last recorded editor value if available (helps with
         # programmatic .set() on Combobox which may not trigger a key event)
-        value = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
+        value: logging.Any | str = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
         # Record debug info via logger (no direct stdout prints)
         try:
             logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
@@ -714,7 +719,7 @@ class VerificationTableApp(tk.Frame):
             pass
         self.tree.set(self.edit_item, self.edit_column, value)
         logger.debug("Tree value after set: %r", self.tree.set(self.edit_item, self.edit_column))
-        self._last_col = self.edit_column
+        self._last_col: str = self.edit_column
         self.edit_entry.destroy()
         self.edit_entry = None
         self.edit_item = None
@@ -745,16 +750,16 @@ class VerificationTableApp(tk.Frame):
 
     def _on_entry_move_up(self, _event: tk.Event) -> str:
         if self._suggestion_box is not None and self._suggestion_box.size() > 0:
-            idx = self._current_suggestion_index()
-            prev_idx = max(idx - 1, 0)
+            idx: int = self._current_suggestion_index()
+            prev_idx: int = max(idx - 1, 0)
             self._select_suggestion(prev_idx)
             return "break"
         return self._commit_and_move(delta_col=0, delta_row=-1)
 
     def _on_entry_move_down(self, _event: tk.Event) -> str:
         if self._suggestion_box is not None and self._suggestion_box.size() > 0:
-            idx = self._current_suggestion_index()
-            next_idx = min(idx + 1, self._suggestion_box.size() - 1)
+            idx: int = self._current_suggestion_index()
+            next_idx: int = min(idx + 1, self._suggestion_box.size() - 1)
             self._select_suggestion(next_idx)
             return "break"
         return self._commit_and_move(delta_col=0, delta_row=1)
@@ -792,8 +797,8 @@ class VerificationTableApp(tk.Frame):
         if self._suggestion_box is not None and self._suggestion_box.size() > 0:
             self._apply_suggestion()
 
-        current_item = self.edit_item
-        current_col = self.edit_column
+        current_item: str = self.edit_item
+        current_col: str = self.edit_column
 
         # Applica suggerimento se presente e committa l'edit corrente
         if self._suggestion_box is not None and self._suggestion_box.size() > 0:
@@ -808,25 +813,25 @@ class VerificationTableApp(tk.Frame):
         return "break"
 
     def _next_cell(self, item: str, col: str, delta_col: int, delta_row: int) -> Tuple[str, str]:
-        items = list(self.tree.get_children())
+        items: List[str] = list(self.tree.get_children())
         if not items:
             return item, col
-        row_idx = items.index(item)
-        col_idx = self.columns.index(col)
+        row_idx: int = items.index(item)
+        col_idx: int = self.columns.index(col)
 
-        new_col = col_idx + delta_col
-        new_row = row_idx + delta_row
+        new_col: int = col_idx + delta_col
+        new_row: int = row_idx + delta_row
 
         if new_col >= len(self.columns):
             new_col = 0
             new_row += 1
         elif new_col < 0:
-            new_col = len(self.columns) - 1
+            new_col: int = len(self.columns) - 1
             new_row -= 1
 
-        new_row = max(0, min(new_row, len(items) - 1))
-        target_item = items[new_row]
-        target_col = self.columns[new_col]
+        new_row: int = max(0, min(new_row, len(items) - 1))
+        target_item: str = items[new_row]
+        target_col: str = self.columns[new_col]
         self.tree.focus(target_item)
         self.tree.selection_set(target_item)
         return target_item, target_col
@@ -841,7 +846,7 @@ class VerificationTableApp(tk.Frame):
     def _on_entry_keypress(self, event: tk.Event) -> Optional[str]:
         # Support both event.char and event.keysym to make programmatic key
         # generation in tests more reliable across platforms.
-        key = (getattr(event, "char", "") or getattr(event, "keysym", "")).lower()
+        key: str | logging.Any = (getattr(event, "char", "") or getattr(event, "keysym", "")).lower()
         if self.edit_column in {"As", "As_p"} and key == "c":
             self._open_rebar_calculator()
             return "break"
@@ -850,43 +855,16 @@ class VerificationTableApp(tk.Frame):
     def _update_suggestions(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
             return
-        source = self.suggestions_map.get(self.edit_column)
+        source: object | None = self.suggestions_map.get(self.edit_column)
         if not source:
             self._hide_suggestions()
             return
-        query = self.edit_entry.get().strip()
-        query_lower = query.lower()
+        query: str = self.edit_entry.get().strip()
+        query_lower: str = query.lower()
 
         # Support either a callable(source) -> list[str] or a static list
         try:
-            # Columns for which we want to show all suggestions immediately when the
-            # field is empty (section, concrete/steel/stirrups materials).
-            show_all_on_empty = {"section", "mat_concrete", "mat_steel", "stirrups_mat"}
-
-            if query == "":
-                # We only show the full suggestion list on empty query when the edit
-                # was explicitly opened (e.g. by clicking the cell). This avoids
-                # displaying suggestions when the user types and then deletes input.
-                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (
-                    self.edit_column in show_all_on_empty
-                )
-                # reset flag regardless
-                self._force_show_all_on_empty = False
-                if not show_all_flag:
-                    # Preserve old behavior: hide suggestions for empty query
-                    self._hide_suggestions()
-                    return
-                # For the allowed columns when explicitly requested, request full list
-                if callable(source):
-                    filtered = source("")
-                else:
-                    filtered = list(source)
-            else:
-                # Non-empty query: keep existing behavior
-                if callable(source):
-                    filtered = source(query)
-                else:
-                    filtered = [s for s in source if query_lower in s.lower()]
+            filtered = self._query_suggestions(source, query, query_lower)
         except Exception:
             logger.exception("Error while querying suggestions source")
             filtered = []
@@ -897,17 +875,44 @@ class VerificationTableApp(tk.Frame):
 
         # Show suggestions via SuggestionBox helper
         try:
+            candidates = filtered
             self._ensure_suggestion_box()
-            x = self.edit_entry.winfo_rootx()
-            y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
-            width = self.edit_entry.winfo_width()
-            height = min(120, self.edit_entry.winfo_height() * min(6, len(filtered)))
-            self._show_suggestions(filtered[: self.display_limit], (x, y, width, height))
+            x: int = self.edit_entry.winfo_rootx()
+            y: int = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
+            width: int = self.edit_entry.winfo_width()
+            n: int = min(6, len(candidates))
+            height: int = min(120, self.edit_entry.winfo_height() * n)
+            self._show_suggestions(candidates[: self.display_limit], (x, y, width, height))
             if self._suggestion_box is not None:
                 self._suggestion_box.selection_clear(0, "end")
                 self._suggestion_box.selection_set(0)
         except Exception:
             logger.exception("Error showing suggestions")
+
+    def _query_suggestions(self, source: object, query: str, query_lower: str) -> list[str]:
+        """Return filtered list of suggestions for a source and query.
+
+        Supports callable sources (source(query) -> list[str]) or static lists.
+        Handles the special "show all on empty query" behavior for some columns.
+        """
+        show_all_on_empty: set[str] = {"section", "mat_concrete", "mat_steel", "stirrups_mat"}
+        if query == "":
+            # Only show full list on empty query when editing was explicitly opened
+            show_all_flag: logging.Any | bool = getattr(self, "_force_show_all_on_empty", False) and (
+                self.edit_column in show_all_on_empty
+            )
+            # reset flag regardless
+            self._force_show_all_on_empty = False
+            if not show_all_flag:
+                return []
+            if callable(source):
+                return source("")
+            return list(source)
+        # Non-empty: query the source
+        if callable(source):
+            return source(query)
+        return [s for s in source if query_lower in s.lower()]
+
 
     def _commit_if_focus_outside(self) -> None:
         if self.edit_entry is None:
@@ -935,12 +940,12 @@ class VerificationTableApp(tk.Frame):
     def _get_rows_from_tree(self):
         """Recreate VerificationInput models from tree content."""
         rows = []
-        items = list(self.tree.get_children())
+        items: List[str] = list(self.tree.get_children())
         for item in items:
-            vals = list(self.tree.item(item, "values"))
+            vals: List[str] = list(self.tree.item(item, "values"))
             kwargs = {}
             for col_key, value in zip(self.columns, vals):
-                attr = {
+                attr: str = {
                     "element": "element_name",
                     "section": "section_id",
                     "verif_method": "verification_method",
@@ -995,12 +1000,12 @@ class VerificationTableApp(tk.Frame):
                 self.tree.set(item_id, "notes", "ERRORE: engine non disponibile")
                 return
             # Prefer using result.esito if available (compatibility with VerificationOutput)
-            es = getattr(result, "esito", None) or getattr(result, "esito", "")
-            sigma_c_max = getattr(result, "sigma_c_max", None)
-            sigma_c_min = getattr(result, "sigma_c_min", None)
-            note = f"{es}"
+            es: logging.Any | str = getattr(result, "esito", None) or getattr(result, "esito", "")
+            sigma_c_max: logging.Any | None = getattr(result, "sigma_c_max", None)
+            sigma_c_min: logging.Any | None = getattr(result, "sigma_c_min", None)
+            note: str = f"{es}"
             if sigma_c_max is not None and sigma_c_min is not None:
-                note = f"{es} σc_max={sigma_c_max:.3f} σc_min={sigma_c_min:.3f}"
+                note: str = f"{es} σc_max={sigma_c_max:.3f} σc_min={sigma_c_min:.3f}"
             self.tree.set(item_id, "notes", note)
         except Exception:
             self.tree.set(item_id, "notes", "ERRORE durante aggiornamento risultati")
@@ -1019,47 +1024,47 @@ class VerificationTableApp(tk.Frame):
         self._set_status(f"Calcolo in corso ({len(rows)} righe) …")
 
         # Fallback compute function (compatibility)
-        from verification_table import compute_verification_result
-
-        def _compute_for_pair(idx_item_row):
-            item_id, row = idx_item_row
-            try:
-                res = compute_verification_result(row, self.section_repository, self.material_repository)
-            except Exception:
-                res = None
-            return item_id, res
-
-        def _on_done(res_tuple):
-            if isinstance(res_tuple, Exception):
-                # error occurred
-                self._set_status("Calcolo terminato con errori")
-                self._clear_status(3000)
-                return
-            item_id, out = res_tuple
-            try:
-                self._apply_result_to_item(item_id, out)
-            except Exception:
-                pass
 
         # Submit tasks
         if self._bg is not None:
             for it, row in zip(items, rows):
-                self._bg.submit(_compute_for_pair, (it, row), callback=_on_done, tk_root=self)
+                self._bg.submit(self._compute_for_pair, (it, row), callback=self._on_compute_done, tk_root=self)
             # clear status after a short period; individual callbacks can set messages
             self._clear_status(2000)
         else:
             # Synchronous fallback
             for it, row in zip(items, rows):
-                item_id, out = _compute_for_pair((it, row))
+                item_id, out = self._compute_for_pair((it, row))
                 self._apply_result_to_item(item_id, out)
             self._set_status("Calcolo completato")
             self._clear_status(2000)
 
+    def _compute_for_pair(self, idx_item_row):
+        from verification_table import compute_verification_result
+
+        item_id, row = idx_item_row
+        try:
+            res: VerificationOutput = compute_verification_result(row, self.section_repository, self.material_repository)
+        except Exception:
+            res = None
+        return item_id, res
+
+    def _on_compute_done(self, res_tuple) -> None:
+        if isinstance(res_tuple, Exception):
+            # error occurred
+            self._set_status("Calcolo terminato con errori")
+            self._clear_status(3000)
+            return
+        item_id, out = res_tuple
+        try:
+            self._apply_result_to_item(item_id, out)
+        except Exception:
+            pass
     def _focus_is_suggestion(self) -> bool:
         if self._suggestion_box is None:
             return False
         try:
-            widget = self.winfo_toplevel().focus_get()
+            widget: tk.Misc | None = self.winfo_toplevel().focus_get()
         except KeyError:
             # Sometimes focus_get() raises KeyError for transient widgets
             return False
@@ -1096,7 +1101,7 @@ class VerificationTableApp(tk.Frame):
     def _apply_suggestion(self) -> None:
         if self.edit_entry is None or self._suggestion_box is None:
             return
-        idx = self._current_suggestion_index()
+        idx: int = self._current_suggestion_index()
         value = self._suggestion_box.get(idx)
         self.edit_entry.delete(0, tk.END)
         self.edit_entry.insert(0, value)
@@ -1148,15 +1153,9 @@ class VerificationTableApp(tk.Frame):
             return []
         try:
             if hasattr(section_repository, "get_all_sections"):
-                return [
-                    getattr(s, "section_id", getattr(s, "id", str(s)))
-                    for s in section_repository.get_all_sections()
-                ]
+                return [getattr(s, "section_id", getattr(s, "id", str(s))) for s in section_repository.get_all_sections()]
             if hasattr(section_repository, "get_all"):
-                return [
-                    getattr(s, "section_id", getattr(s, "id", str(s)))
-                    for s in section_repository.get_all()
-                ]
+                return [getattr(s, "section_id", getattr(s, "id", str(s))) for s in section_repository.get_all()]
             # Fallback: try to iterate over repository
             try:
                 return [str(s) for s in section_repository]
@@ -1180,22 +1179,22 @@ class VerificationTableApp(tk.Frame):
         return None
 
     def _search_sections(self, query: str) -> List[str]:
-        q = (query or "").strip().lower()
-        names = self.section_names or []
+        q: str = (query or "").strip().lower()
+        names: List[str] = self.section_names or []
         if not q:
             return names[: self.search_limit]
         return [n for n in names if q in n.lower()][: self.search_limit]
 
     def _search_materials(self, query: str, type_filter: Optional[str] = None) -> List[str]:
-        q = (query or "").strip().lower()
-        names = self.material_names or []
+        q: str = (query or "").strip().lower()
+        names: List[str] = self.material_names or []
         if not q:
-            results = names[: self.search_limit]
+            results: List[str] = names[: self.search_limit]
         else:
-            results = [n for n in names if q in n.lower()][: self.search_limit]
+            results: List[str] = [n for n in names if q in n.lower()][: self.search_limit]
         # Optionally filter by a crude type filter if requested (e.g., "steel", "concrete")
         if type_filter:
-            tf = type_filter.lower()
+            tf: str = type_filter.lower()
             results = [n for n in results if tf in n.lower()]
         return results
 
@@ -1207,21 +1206,19 @@ class VerificationTableApp(tk.Frame):
         if after_item is None:
             return self.tree.insert("", "end", values=["" for _ in self.columns])
         try:
-            idx = list(self.tree.get_children()).index(after_item)
+            idx: int = list(self.tree.get_children()).index(after_item)
         except ValueError:
             return self._add_row(None)
         # insert after idx
-        children = list(self.tree.get_children())
+        children: List[str] = list(self.tree.get_children())
         if idx + 1 >= len(children):
             return self.tree.insert("", "end", values=["" for _ in self.columns])
         # Create a new item and move it to desired position
-        new_item = self.tree.insert("", idx + 1, values=["" for _ in self.columns])
-        return new_item
+        return self.tree.insert("", idx + 1, values=["" for _ in self.columns])
 
     def add_row_from_previous(self, previous_item_id: str) -> str:
-        vals = list(self.tree.item(previous_item_id, "values"))
-        new_item = self.tree.insert("", "end", values=vals)
-        return new_item
+        vals: List[str] = list(self.tree.item(previous_item_id, "values"))
+        return self.tree.insert("", "end", values=vals)
 
     def get_rows(self) -> List[VerificationInput]:
         _, rows = self._get_rows_from_tree()
@@ -1258,7 +1255,7 @@ class VerificationTableApp(tk.Frame):
 
     def create_test_project(self) -> None:
         # Small helper to create a sample row for manual testing
-        item = self._add_row()
+        item: str = self._add_row()
         sample = VerificationInput(element_name="E01", section_id="B200x30", verification_method="TA")
         self.update_row_from_model(self.tree.index(item), sample)
 
@@ -1275,7 +1272,7 @@ class VerificationTableApp(tk.Frame):
         from tkinter import filedialog
 
         try:
-            path = filedialog.askopenfilename(filetypes=[("CSV", "*.csv;*.txt")])
+            path: str = filedialog.askopenfilename(filetypes=[("CSV", "*.csv;*.txt")])
             if not path:
                 return
             count, skipped, errors = self.import_csv(path)
@@ -1290,7 +1287,7 @@ class VerificationTableApp(tk.Frame):
         from tkinter import filedialog
 
         try:
-            path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV", "*.csv")])
+            path: str = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV", "*.csv")])
             if not path:
                 return
             self.export_csv(path, include_header=True)
@@ -1306,7 +1303,7 @@ class VerificationTableApp(tk.Frame):
             self._clear_status(2000)
             return
         try:
-            rows = self.get_rows()
+            rows: List[VerificationInput] = self.get_rows()
             for r in rows:
                 try:
                     self.verification_items_repository.save(r)

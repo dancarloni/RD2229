@@ -1,5 +1,10 @@
-"""Top-level package for the RD2229 project."""
+"""Top-level package for the RD2229 project.
 
-from . import core_calculus, domain, io, methods, repositories, ui, utils, validation  # noqa: F401
+This module avoids importing subpackages at import time to prevent circular
+imports during test collection. Import subpackages explicitly where needed
+(e.g., ``from src import core_calculus``).
+"""
+
+__all__ = ["core_calculus", "domain", "methods", "repositories", "ui", "utils"]
 
 __version__ = "0.1.0"

@@ -75,6 +75,15 @@ def _map_cement_type(cement_key: Optional[str]) -> CementType:
 
 def _ensure_derived_fields(material: Dict) -> bool:
     """Populate derived fields on a concrete material. Returns True if updated."""
+
+
+def ensure_derived_fields(material: Dict) -> bool:
+    """Public wrapper for deriving material fields.
+
+    This wraps the internal `_ensure_derived_fields` so external modules can
+    call it without accessing a protected member (helps static analyzers).
+    """
+    return _ensure_derived_fields(material)
     if material.get("type") != "concrete":
         return False
     dirty = False

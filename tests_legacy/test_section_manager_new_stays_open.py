@@ -31,12 +31,12 @@ class TestSectionManagerNewStaysOpen(unittest.TestCase):
         try:
             if hasattr(self, "manager") and self.manager.winfo_exists():
                 self.manager.destroy()
-        except:
+        except Exception:
             pass
 
         try:
             self.root.destroy()
-        except:
+        except Exception:
             pass
 
     def test_new_section_non_chiude_manager(self):

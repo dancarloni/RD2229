@@ -42,12 +42,12 @@ class TestSectionManagerAutoRefresh(unittest.TestCase):
         try:
             if hasattr(self, "manager") and self.manager.winfo_exists():
                 self.manager.destroy()
-        except:
+        except Exception:
             pass
 
         try:
             self.root.destroy()
-        except:
+        except Exception:
             pass
 
         # Reset EventBus

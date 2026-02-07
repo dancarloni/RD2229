@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 # broad exception handlers and protected access in this module.
 # pylint: disable=broad-exception-caught, protected-access
 
+
 class NotificationCenter:
     """A small NotificationCenter that subscribes to EventBus.NOTIFICATION.
 

@@ -3,8 +3,10 @@ Fornisce funzioni utili per calcoli elementari secondo la norma storica.
 Unità: kg/cm2 per tensioni, cm per copriferri.
 """
 
+from typing import Any, Dict, Optional
 
-def sigma_c_amm_from_r28(sigma_r28, mode="compression"):
+
+def sigma_c_amm_from_r28(sigma_r28: Optional[float], mode: str = "compression") -> float:
     """Calcola la tensione ammissibile del calcestruzzo data la resistenza a 28gg (sigma_r28).
     mode: 'compression' o 'flexure'
     Regola: sigma_c_amm = sigma_r28 / 3
@@ -12,7 +14,7 @@ def sigma_c_amm_from_r28(sigma_r28, mode="compression"):
     """
     if sigma_r28 is None:
         raise ValueError("sigma_r28 required")
-    sigma = float(sigma_r28) / 3.0
+    sigma: float = float(sigma_r28) / 3.0
     if mode == "compression":
         return min(sigma, 60.0)
     if mode == "flexure":
@@ -20,7 +22,7 @@ def sigma_c_amm_from_r28(sigma_r28, mode="compression"):
     raise ValueError("mode must be 'compression' or 'flexure'")
 
 
-def steel_sigma_amm(category="soft"):
+def steel_sigma_amm(category: str = "soft") -> float:
     """Restituisce la tensione ammissibile per l'acciaio in kg/cm2.
     category: 'soft' -> 1400, 'hard' -> 2000.
     """
@@ -31,15 +33,15 @@ def steel_sigma_amm(category="soft"):
     raise ValueError("category must be 'soft' or 'hard'")
 
 
-def n_modulus_ratio(concrete_type="common"):
+def n_modulus_ratio(concrete_type: str = "common") -> float:
     """Restituisce il coefficiente n = Es/Ec in funzione del tipo di conglomerato.
     concrete_type: 'common'->10, 'high'->8, 'aluminous'->6.
     """
-    mapping = {"common": 10.0, "high": 8.0, "aluminous": 6.0}
+    mapping: dict[str, float] = {"common": 10.0, "high": 8.0, "aluminous": 6.0}
     return mapping.get(concrete_type, 10.0)
 
 
-def shear_allowable(with_stirrups=False, concrete_type="ordinary"):
+def shear_allowable(with_stirrups: bool = False, concrete_type: str = "ordinary") -> float:
     """Ritorna la tensione tangenziale ammissibile del calcestruzzo (kg/cm2).
     without stirrups: tau_c0 = 4 (ordinary) or 6 (high)
     with stirrups: tau_c1 = 14 (ordinary) or 16 (high).
@@ -49,20 +51,26 @@ def shear_allowable(with_stirrups=False, concrete_type="ordinary"):
     return 6.0 if concrete_type == "high" else 4.0
 
 
-def check_cube_requirement(f_cub28, sigma_c_amm):
+def check_cube_requirement(f_cub28: float | None, sigma_c_amm: float | None) -> tuple[bool, str]:
     """Verifica la prescrizione f_cub28 >= 3 * sigma_c_amm e i minimi assoluti (120/160).
-    Restituisce tuple (ok_bool, message).
+    Restituisce una tuple (ok_bool, message).
     """
     if f_cub28 is None or sigma_c_amm is None:
         return (False, "Inputs required")
-    req = 3.0 * float(sigma_c_amm)
-    min_abs = 160.0 if float(sigma_c_amm) > 40.0 else 120.0
+    req: float = 3.0 * float(sigma_c_amm)
+    min_abs: float = 160.0 if float(sigma_c_amm) > 40.0 else 120.0
     if float(f_cub28) >= req and float(f_cub28) >= min_abs:
         return (True, f"f_cub28={f_cub28} OK (>= {req} and >= {min_abs})")
     return (False, f"f_cub28={f_cub28} NOT OK (required >= {req} and >= {min_abs})")
 
 
-def flexural_resistance_rectangular(b, d, A_s, sigma_s_amm=None, sigma_c_amm=None, units="kg_cm"):
+def flexural_resistance_rectangular(
+    b: float,
+    d: float,
+    A_s: float,
+    sigma_s_amm: Optional[float] = None,
+    sigma_c_amm: Optional[float] = None,
+) -> Dict[str, Any]:
     """Calcolo della resistenza a flessione di una sezione rettangolare semplicemente armata.
 
     Approccio: tensioni ammissibili semplificato.
@@ -85,10 +93,10 @@ def flexural_resistance_rectangular(b, d, A_s, sigma_s_amm=None, sigma_c_amm=Non
     if sigma_c_amm is None:
         sigma_c_amm = 40.0
     # Forza in acciaio (kg)
-    T = float(A_s) * float(sigma_s_amm)
+    T: float = float(A_s) * float(sigma_s_amm)
     # area di calcestruzzo compressa richiesta (cm2)
-    A_comp = T / float(sigma_c_amm)
-    a = A_comp / float(b)
+    A_comp: float = T / float(sigma_c_amm)
+    a: float = A_comp / float(b)
     if a <= 0:
         raise ValueError("Computed compression depth non-positive")
     if a > d:
@@ -112,8 +120,15 @@ def flexural_resistance_rectangular(b, d, A_s, sigma_s_amm=None, sigma_c_amm=Non
 
 
 def shear_verification(
-    V_applied, b, d, concrete_type="ordinary", with_stirrups=False, A_v=0.0, s=0.0, sigma_s_amm=None
-):
+    V_applied: float,
+    b: float,
+    d: float,
+    concrete_type: str = "ordinary",
+    with_stirrups: bool = False,
+    A_v: float = 0.0,
+    s: float = 0.0,
+    sigma_s_amm: Optional[float] = None,
+) -> Dict[str, Any]:
     """Verifica a taglio secondo valori e semplificazioni del R.D. 2229.
 
     Parametri:
@@ -134,15 +149,15 @@ def shear_verification(
     """
     if sigma_s_amm is None:
         sigma_s_amm = steel_sigma_amm("soft")
-    tau = shear_allowable(with_stirrups, concrete_type)
-    Vc = float(tau) * float(b) * float(d)
+    tau: float = shear_allowable(with_stirrups, concrete_type)
+    Vc: float = float(tau) * float(b) * float(d)
     Vs = 0.0
     if with_stirrups:
         if s <= 0 or A_v <= 0:
             raise ValueError("A_v and s must be > 0 when with_stirrups is True")
-        Vs = float(A_v) * float(sigma_s_amm) * float(d) / float(s)
-    Vtot = Vc + Vs
-    ok = float(V_applied) <= Vtot
+        Vs: float = float(A_v) * float(sigma_s_amm) * float(d) / float(s)
+    Vtot: float = Vc + Vs
+    ok: bool = float(V_applied) <= Vtot
     return {
         "ok": ok,
         "V_applied_kg": float(V_applied),

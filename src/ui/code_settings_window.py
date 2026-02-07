@@ -3,6 +3,7 @@
 Certain UI operations catch broad exceptions for robustness; suppress
 corresponding Pylint diagnostics at the module level.
 """
+
 # pylint: disable=broad-exception-caught
 
 from __future__ import annotations
@@ -13,10 +14,8 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
-from sections_app.services.notification import (
-    notify_error,  # type: ignore[import]
-    notify_info,  # type: ignore[import]
-)
+from sections_app.services.notification import notify_error  # type: ignore[import]
+from sections_app.services.notification import notify_info  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

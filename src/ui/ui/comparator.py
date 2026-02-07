@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import tkinter as tk
 import logging
+import tkinter as tk
 
 logger = logging.getLogger(__name__)
+
 
 class ComparatorWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc):
