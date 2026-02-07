@@ -32,10 +32,12 @@ jobs:
           # Ensure test runner and linters are available
           pip install pytest flake8 mypy
       - name: Type check (mypy)
+        env:
+          MYPYPATH: ${{ github.workspace }}
         run: |
           # Run mypy on active packages before installing the project to avoid duplicate-module mapping
-          # Explicitly map the repository top-level directory to avoid module-name collisions
-          mypy --explicit-package-bases=RD2229=. app core core_models
+          # Use --explicit-package-bases (flag only) and set MYPYPATH so module names are determined from workspace
+          mypy --explicit-package-bases app core core_models
       - name: Install package
         run: |
           # Install project in editable mode for tests
