@@ -4,8 +4,9 @@ import tkinter as tk
 import unittest
 from unittest.mock import MagicMock, patch
 
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.section_manager import SectionManager
+
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 
 
 class TestSectionManagerNewStaysOpen(unittest.TestCase):

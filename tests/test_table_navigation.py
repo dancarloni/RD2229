@@ -1,5 +1,6 @@
-from src.ui.ui.verification_table_app import VerificationTableApp
 from types import SimpleNamespace
+
+from src.ui.ui.verification_table_app import VerificationTableApp
 
 
 def test_compute_target_cell_creates_new_row_when_past_end():

@@ -5,9 +5,10 @@ from unittest.mock import MagicMock, patch
 
 os.environ["DISPLAY"] = ":0"
 
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.main_window import MainWindow
 from sections_app.ui.module_selector import ModuleSelectorWindow
+
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 
 
 class TestSectionManagerNewButton(unittest.TestCase):

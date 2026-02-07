@@ -18,8 +18,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("manual_demo")
 
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.module_selector import ModuleSelectorWindow
+
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from verification_table import VerificationTableWindow
 
 

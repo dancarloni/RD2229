@@ -15,7 +15,6 @@ Lo script è idempotente e stampa un riassunto delle operazioni.
 from __future__ import annotations
 
 import os
-import sys
 from typing import Dict, List
 
 

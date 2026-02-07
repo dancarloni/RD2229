@@ -10,10 +10,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from sections_app.ui.module_selector import ModuleSelectorWindow
+
 from core_models.materials import Material, MaterialRepository
 from sections_app.models.sections import RectangularSection
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.module_selector import ModuleSelectorWindow
 
 
 class TestExportBackupGUI(unittest.TestCase):

@@ -9,6 +9,7 @@ in local editable installs where the repo root appears on sys.path.
 from __future__ import annotations
 
 import sys
+
 from mypy import api
 
 

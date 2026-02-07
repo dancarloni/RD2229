@@ -7,6 +7,9 @@ from pathlib import Path
 from tkinter import filedialog, ttk
 from typing import Dict, Optional, Tuple
 
+from sections_app.ui.historical_material_window import HistoricalMaterialWindow
+from sections_app.ui.section_manager import SectionManager
+
 from core_models.materials import MaterialRepository
 from sections_app.models.sections import (
     CircularHollowSection,
@@ -29,8 +32,6 @@ from sections_app.services.notification import (
     notify_info,
 )
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow
-from sections_app.ui.section_manager import SectionManager
 
 logger = logging.getLogger(__name__)
 

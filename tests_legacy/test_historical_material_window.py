@@ -3,13 +3,14 @@ import tkinter as tk
 import unittest
 from pathlib import Path
 
+from sections_app.ui.historical_material_window import HistoricalMaterialWindow
+
 from core_models.materials import MaterialRepository
 from historical_materials import (
     HistoricalMaterial,
     HistoricalMaterialLibrary,
     HistoricalMaterialType,
 )
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow
 
 
 class TestHistoricalMaterialWindow(unittest.TestCase):
