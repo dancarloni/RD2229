@@ -11,7 +11,7 @@ import math
 import tkinter as tk
 from typing import Callable, Dict, Optional
 
-DIAMETERS = [6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
+DIAMETERS: list[int] = [6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
 
 
 def calculate_rebar_total(counts: Dict[int, int]) -> float:
@@ -25,8 +25,8 @@ def calculate_rebar_total(counts: Dict[int, int]) -> float:
             n_int = int(n or 0)
         except Exception:
             n_int = 0
-        d_cm = d / 10.0
-        area = math.pi * (d_cm**2) / 4.0
+        d_cm: float = d / 10.0
+        area: float = math.pi * (d_cm**2) / 4.0
         total += n_int * area
     return total
 
@@ -45,8 +45,8 @@ class RebarCalculatorWindow:
         on_confirm: Optional[Callable[[str], None]] = None,
         initial_values: Optional[Dict[int, int]] = None,
     ) -> None:
-        self.parent = parent
-        self.on_confirm = on_confirm
+        self.parent: tk.Misc = parent
+        self.on_confirm: Callable[[str], None] | None = on_confirm
         self._vars: Dict[int, tk.StringVar] = {}
         self._entries = []
         self._total_var = tk.StringVar(value="0.00")
@@ -99,11 +99,11 @@ class RebarCalculatorWindow:
         return counts
 
     def _update_total(self) -> None:
-        total = calculate_rebar_total(self._gather_counts())
+        total: float = calculate_rebar_total(self._gather_counts())
         self._total_var.set(f"{total:.2f}")
 
     def _confirm(self) -> None:
-        total = self._total_var.get()
+        total: str = self._total_var.get()
         if callable(self.on_confirm):
             try:
                 self.on_confirm(total)
