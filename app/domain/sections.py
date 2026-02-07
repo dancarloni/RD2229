@@ -19,9 +19,11 @@ def _get_section_by_id_or_name(section_id: str, section_repository: Optional[obj
     except Exception:
         logger.exception("Errore ricerca sezione per id=%s", section_id)
     try:
-        for sec in section_repository.get_all_sections():
-            if sec.id == section_id or sec.name == section_id:
-                return sec
+        get_all = getattr(section_repository, "get_all_sections", None)
+        if callable(get_all):
+            for sec in get_all():
+                if sec.id == section_id or sec.name == section_id:
+                    return sec
     except Exception:
         logger.exception("Errore ricerca sezione per nome=%s", section_id)
     return None

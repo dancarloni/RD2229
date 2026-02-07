@@ -77,11 +77,16 @@ class Material:
 # Historical materials module is provided in `historical_materials.py` as a
 # single authoritative source
 try:
-    from historical_materials import HistoricalMaterial, HistoricalMaterialLibrary
+    from historical_materials import (
+        HistoricalMaterial as _HistoricalMaterial_external,
+        HistoricalMaterialLibrary as _HistoricalMaterialLibrary_external,
+    )
+    HistoricalMaterial = _HistoricalMaterial_external
+    HistoricalMaterialLibrary = _HistoricalMaterialLibrary_external
 except Exception:
     # Fallback definitions (should not normally be used)
     @dataclass
-    class HistoricalMaterial:
+    class _HistoricalMaterial:
         code: str
         name: str
         fck: Optional[float] = None
@@ -112,8 +117,8 @@ except Exception:
             }
 
         @staticmethod
-        def from_dict(d: Dict) -> "HistoricalMaterial":
-            return HistoricalMaterial(
+        def from_dict(d: Dict) -> "_HistoricalMaterial":
+            return _HistoricalMaterial(
                 code=d.get("code", ""),
                 name=d.get("name", ""),
                 fck=d.get("fck"),
@@ -128,10 +133,10 @@ except Exception:
                 notes=d.get("notes"),
             )
 
-    class HistoricalMaterialLibrary:
+    class _HistoricalMaterialLibrary:
         def __init__(self, path: str | Path | None = None):
             self._file_path = Path(path or "historical_materials.json")
-            self._materials: List[HistoricalMaterial] = []
+            self._materials: List[_HistoricalMaterial] = []
 
         def load_from_file(self) -> None:
             self._materials.clear()
@@ -147,7 +152,7 @@ except Exception:
                     return
                 for idx, item in enumerate(raw):
                     try:
-                        self._materials.append(HistoricalMaterial.from_dict(item))
+                        self._materials.append(_HistoricalMaterial.from_dict(item))
                     except Exception:
                         logger.exception("Error parsing historical material %s", idx)
             except Exception:
@@ -166,21 +171,25 @@ except Exception:
             except Exception:
                 logger.exception("Error saving historical materials to %s", self._file_path)
 
-        def get_all(self) -> List[HistoricalMaterial]:
+        def get_all(self) -> List[_HistoricalMaterial]:
             return list(self._materials)
 
-        def add(self, material: HistoricalMaterial) -> None:
+        def add(self, material: "_HistoricalMaterial") -> None:
             existing = self.find_by_code(material.code)
             if existing:
                 self._materials = [m for m in self._materials if m.code != material.code]
             self._materials.append(material)
             self.save_to_file()
 
-        def find_by_code(self, code: str) -> Optional[HistoricalMaterial]:
+        def find_by_code(self, code: str) -> Optional["_HistoricalMaterial"]:
             for m in self._materials:
                 if m.code == code:
                     return m
             return None
+
+# Expose canonical names for runtime compatibility
+HistoricalMaterial = _HistoricalMaterial  # type: ignore
+HistoricalMaterialLibrary = _HistoricalMaterialLibrary  # type: ignore
 
 
 class MaterialRepository:
