@@ -268,10 +268,10 @@ class VerificationComparatorWindow(tk.Toplevel):
             # assume VerificationOutput-like
             msgs = getattr(res, "messaggi", []) or getattr(res, "messages", []) or []
             details = (
-                f"{label}: esito={getattr(res,'esito','')} "
-                f"sigma_c_max={getattr(res,'sigma_c_max','')} "
-                f"asse_neutro_x={getattr(res,'asse_neutro_x', getattr(res,'asse_neutro',''))} "
-                f"inclinazione={getattr(res,'inclinazione_asse_neutro','')}\n"
+                f"{label}: esito={getattr(res, 'esito', '')} "
+                f"sigma_c_max={getattr(res, 'sigma_c_max', '')} "
+                f"asse_neutro_x={getattr(res, 'asse_neutro_x', getattr(res, 'asse_neutro', ''))} "
+                f"inclinazione={getattr(res, 'inclinazione_asse_neutro', '')}\n"
             )
             return details + (msgs[0] + "\n" if msgs else "")
 
