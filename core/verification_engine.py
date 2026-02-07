@@ -27,14 +27,30 @@ from core.verification_core import (
     verify_allowable_stresses,
 )
 
+# Material type used by FRC model
+from core_models.materials import Material
+
+# Shorten mypy/flake8 agreeable imports (avoid long single-line imports)
+
+from typing import Any, Callable, Dict
+
+# Typed optional callables populated by config loaders (may be None in tests)
+load_code: "Optional[Callable[[str], Dict[str, Any]]]" = None
+get_concrete_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]" = None
+get_steel_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]" = None
+
 try:
-    from config.calculation_codes_loader import load_code
-    from config.historical_materials_loader import get_concrete_properties, get_steel_properties
+    from config.calculation_codes_loader import load_code as _load_code
+    from config.historical_materials_loader import (
+        get_concrete_properties as _get_concrete_properties,
+        get_steel_properties as _get_steel_properties,
+    )
+    load_code = _load_code
+    get_concrete_properties = _get_concrete_properties
+    get_steel_properties = _get_steel_properties
 except ImportError:
-    # Fallback if config modules not available
-    load_code = None
-    get_concrete_properties = None
-    get_steel_properties = None
+    # Fallback if config modules not available (keep typed None)
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -76,8 +92,8 @@ class VerificationEngine:
         """
         if get_concrete_properties and get_steel_properties:
             try:
-                concrete = get_concrete_properties(material_source, concrete_class)
-                steel = get_steel_properties(material_source, steel_type)
+                concrete = get_concrete_properties(material_source, concrete_class) or {}
+                steel = get_steel_properties(material_source, steel_type) or {}
 
                 # Extract properties based on source
                 if material_source == "RD2229":
@@ -145,7 +161,7 @@ class VerificationEngine:
         reinforcement_compressed: ReinforcementLayer,
         material: MaterialProperties,
         loads: LoadCase,
-        frc_material: "Optional[object]" = None,
+        frc_material: "Optional[Material]" = None,
         frc_area: float = 0.0,
     ) -> VerificationResult:
         """

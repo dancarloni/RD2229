@@ -51,7 +51,7 @@ class RebarCalculatorWindow:
         self._entries = []
         self._total_var = tk.StringVar(value="0.00")
 
-        self._win = tk.Toplevel(parent)
+        self._win: Optional[tk.Toplevel] = tk.Toplevel(parent)
         self._win.title("Calcolo area armatura")
         self._win.resizable(False, False)
         self._win.transient(parent.winfo_toplevel())
@@ -119,7 +119,8 @@ class RebarCalculatorWindow:
 
     def _close(self) -> None:
         try:
-            self._win.destroy()
+            if self._win is not None:
+                self._win.destroy()
         except Exception:
             logging.getLogger(__name__).exception("Error closing rebar window")
         self._win = None

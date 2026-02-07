@@ -16,6 +16,7 @@ import math
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Tuple
+from core_models.materials import Material
 
 
 class VerificationType(str, Enum):
@@ -203,7 +204,7 @@ class VerificationResult:
 
     # Verification outcome
     is_verified: bool = False
-    messages: list[str] = None
+    messages: "Optional[list[str]]" = None
 
     def __post_init__(self):
         """Initialize messages list."""
@@ -390,7 +391,7 @@ def calculate_stresses_simple_bending(
     moment: float,
     neutral_axis: NeutralAxis,
     method: str = "TA",
-    frc_material: "Optional[object]" = None,
+    frc_material: "Optional[Material]" = None,
     frc_area: float = 0.0,
 ) -> StressState:
     """
