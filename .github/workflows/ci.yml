@@ -36,7 +36,9 @@ jobs:
         run: pre-commit run --all-files
 
       - name: Type check (mypy)
-        run: python -m mypy --config-file mypy.ini --explicit-package-bases src=. src
+        env:
+          MYPYPATH: ${{ github.workspace }}
+        run: python tools/run_mypy_ci.py
       - name: Run tests and coverage
         run: |
           pytest -q -m "not slow" --maxfail=1 --cov=src --cov-report=xml --cov-fail-under=85
