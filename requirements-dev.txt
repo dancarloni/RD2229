@@ -1,2 +1,4 @@
 # Dipendenze per lo sviluppo e i test
-pytest
+pytest>=9.0,<10
+flake8
+mypy

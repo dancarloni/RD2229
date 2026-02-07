@@ -32,7 +32,7 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           # Make test runner, linters and mypy available during CI
-          pip install pytest flake8 mypy
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
       - name: Run tests (exclude slow)
         env:
@@ -60,7 +60,7 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           # Make test runner, linters and mypy available during CI
-          pip install pytest flake8 mypy
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
       - name: Run slow tests
         env:
