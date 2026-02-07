@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from sections_app.services.notification_settings import (

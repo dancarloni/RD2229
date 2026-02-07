@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Demonstration script for the .jsoncode configuration system and new verification parameters.
+"""Demonstration script for the .jsoncode configuration system and new verification parameters.
 
 This script demonstrates:
 1. Loading calculation code configurations (TA, SLU, SLE)

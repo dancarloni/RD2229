@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\tools\materials_manager.py
+# hypothesis_version: 6.151.5
+
+['.rd2229_config.yaml', 'E', 'E_calculated', 'E_conventional', 'E_defined', 'G', 'G_max', 'G_min', 'add_material', 'aluminous', 'cement_type', 'concrete', 'controlled_quality', 'data', 'delete_material', 'get_material', 'high', 'inflessa', 'list_materials', 'materials.json', 'materials_file', 'name', 'presso_inflessa', 'r', 'semplice', 'sigma_c', 'sigma_c28', 'sigma_c_inflessa', 'sigma_c_simple', 'slow', 'tau_max', 'tau_service', 'type', 'update_material', 'utf-8', 'w']

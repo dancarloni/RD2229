@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Analizzatore file JSON salvato dal SectionRepository.
+"""Analizzatore file JSON salvato dal SectionRepository.
 Mostra il contenuto e la struttura del file sections.json.
 """
 
@@ -11,7 +10,6 @@ import sys
 
 def analyze_json_file(json_file: str = "sections.json") -> None:
     """Analizza il contenuto del file JSON salvato."""
-
     print("\n" + "=" * 70)
     print("ANALIZZATORE FILE JSON SECTION REPOSITORY")
     print("=" * 70)

@@ -269,6 +269,7 @@ class Section:
 
         Returns:
             Tuple (Ix_global, Iy_global, Ixy_global) dopo rotazione
+
         """
         if self.rotation_angle_deg == 0:
             return ix_local, iy_local, ixy_local
@@ -314,9 +315,7 @@ class Section:
                 "Ixy": getattr(props, "ixy", None) if props else None,
                 "I1": getattr(props, "principal_ix", None) if props else None,
                 "I2": getattr(props, "principal_iy", None) if props else None,
-                "principal_angle_deg": (
-                    getattr(props, "principal_angle_deg", None) if props else None
-                ),
+                "principal_angle_deg": (getattr(props, "principal_angle_deg", None) if props else None),
                 "principal_rx": getattr(props, "principal_rx", None) if props else None,
                 "principal_ry": getattr(props, "principal_ry", None) if props else None,
                 "Qx": getattr(props, "qx", None) if props else None,
@@ -357,9 +356,7 @@ class RectangularSection(Section):
         note: str = "",
         rotation_angle_deg: float = 0.0,
     ):
-        super().__init__(
-            name=name, section_type="RECTANGULAR", note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        super().__init__(name=name, section_type="RECTANGULAR", note=note, rotation_angle_deg=rotation_angle_deg)
         self.width = width
         self.height = height
 
@@ -417,9 +414,7 @@ class CircularSection(Section):
     diameter: float = 0.0
 
     def __init__(self, name: str, diameter: float, note: str = "", rotation_angle_deg: float = 0.0):
-        super().__init__(
-            name=name, section_type="CIRCULAR", note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        super().__init__(name=name, section_type="CIRCULAR", note=note, rotation_angle_deg=rotation_angle_deg)
         self.diameter = diameter
 
     def _compute(self) -> SectionProperties:
@@ -489,9 +484,7 @@ class TSection(Section):
         note: str = "",
         rotation_angle_deg: float = 0.0,
     ):
-        super().__init__(
-            name=name, section_type="T_SECTION", note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        super().__init__(name=name, section_type="T_SECTION", note=note, rotation_angle_deg=rotation_angle_deg)
         self.flange_width = flange_width
         self.flange_thickness = flange_thickness
         self.web_thickness = web_thickness
@@ -599,9 +592,7 @@ class LSection(Section):
         note: str = "",
         rotation_angle_deg: float = 0.0,
     ):
-        super().__init__(
-            name=name, section_type="L_SECTION", note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        super().__init__(name=name, section_type="L_SECTION", note=note, rotation_angle_deg=rotation_angle_deg)
         self.width = width
         self.height = height
         self.t_horizontal = t_horizontal
@@ -884,9 +875,7 @@ class ISection(Section):
         note: str = "",
         rotation_angle_deg: float = 0.0,
     ):
-        super().__init__(
-            name=name, section_type="I_SECTION", note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        super().__init__(name=name, section_type="I_SECTION", note=note, rotation_angle_deg=rotation_angle_deg)
         self.flange_width = flange_width
         self.flange_thickness = flange_thickness
         self.web_height = web_height
@@ -1002,9 +991,7 @@ class PiSection(Section):
         note: str = "",
         rotation_angle_deg: float = 0.0,
     ):
-        super().__init__(
-            name=name, section_type="PI_SECTION", note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        super().__init__(name=name, section_type="PI_SECTION", note=note, rotation_angle_deg=rotation_angle_deg)
         self.flange_width = flange_width
         self.flange_thickness = flange_thickness
         self.web_height = web_height
@@ -1232,9 +1219,7 @@ class CSection(Section):
         note: str = "",
         rotation_angle_deg: float = 0.0,
     ):
-        super().__init__(
-            name=name, section_type="C_SECTION", note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        super().__init__(name=name, section_type="C_SECTION", note=note, rotation_angle_deg=rotation_angle_deg)
         self.width = width
         self.height = height
         self.flange_thickness = flange_thickness
@@ -1345,9 +1330,7 @@ class VSection(Section):
         note: str = "",
         rotation_angle_deg: float = 0.0,
     ):
-        super().__init__(
-            name=name, section_type="V_SECTION", note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        super().__init__(name=name, section_type="V_SECTION", note=note, rotation_angle_deg=rotation_angle_deg)
         self.width = width
         self.height = height
         self.thickness = thickness
@@ -1545,9 +1528,7 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
     elif section_type == "CIRCULAR":
         diameter = float(data.get("diameter") or 0)
         _ensure_positive(diameter, "diameter")
-        section = CircularSection(
-            name=name, diameter=diameter, note=note, rotation_angle_deg=rotation_angle_deg
-        )
+        section = CircularSection(name=name, diameter=diameter, note=note, rotation_angle_deg=rotation_angle_deg)
 
     elif section_type == "T_SECTION":
         flange_width = float(data.get("flange_width") or 0)
@@ -1581,14 +1562,20 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
             data.get("flange_thickness") is not None and data.get("flange_thickness") != ""
         ):
             logger.warning(
-                "Campo 'flange_thickness' trovato per L_SECTION: usato come 't_horizontal' per compatibilità. Considera l'aggiornamento dei dati."
+                (
+                    "Campo 'flange_thickness' trovato per L_SECTION: usato come 't_horizontal' "
+                    "per compatibilità. Considera l'aggiornamento dei dati."
+                )
             )
             t_horizontal_val = data.get("flange_thickness")
         if (t_vertical_val is None or t_vertical_val == "") and (
             data.get("web_thickness") is not None and data.get("web_thickness") != ""
         ):
             logger.warning(
-                "Campo 'web_thickness' trovato per L_SECTION: usato come 't_vertical' per compatibilità. Considera l'aggiornamento dei dati."
+                (
+                    "Campo 'web_thickness' trovato per L_SECTION: usato come 't_vertical' "
+                    "per compatibilità. Considera l'aggiornamento dei dati."
+                )
             )
             t_vertical_val = data.get("web_thickness")
         t_horizontal = float(t_horizontal_val or 0)
@@ -1774,11 +1761,7 @@ def create_section_from_dict(data: Dict[str, str]) -> Section:
     # If only A_y/A_z provided in CSV, and area is present, derive kappa to preserve
     # the imported effective areas upon re-saving (compatibility with older CSVs).
     try:
-        area_csv = (
-            float(data.get("area"))
-            if (data.get("area") is not None and data.get("area") != "")
-            else None
-        )
+        area_csv = float(data.get("area")) if (data.get("area") is not None and data.get("area") != "") else None
     except Exception:
         area_csv = None
 

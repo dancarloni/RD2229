@@ -1,5 +1,4 @@
-"""
-material_sources.py - Gestione delle fonti normative per i materiali strutturali.
+"""material_sources.py - Gestione delle fonti normative per i materiali strutturali.
 
 Questo modulo implementa:
 1. Il modello `MaterialSource` per rappresentare una fonte normativa
@@ -115,24 +114,19 @@ def _get_default_sources() -> List[MaterialSource]:
             id="RD2229",
             name="RD 2229/1939",
             description=(
-                "Regio Decreto 16 novembre 1939 - Norme per l'esecuzione "
-                "delle opere in conglomerato cementizio"
+                "Regio Decreto 16 novembre 1939 - Norme per l'esecuzione " "delle opere in conglomerato cementizio"
             ),
             year=1939,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
             is_historical=True,
             reference="R.D. 16/11/1939 n. 2229",
-            notes=(
-                "Prima norma italiana organica sul cemento armato. "
-                "Metodo n (tensioni ammissibili)."
-            ),
+            notes=("Prima norma italiana organica sul cemento armato. " "Metodo n (tensioni ammissibili)."),
         ),
         MaterialSource(
             id="DM72",
             name="DM 30/05/1972",
             description=(
-                "Decreto Ministeriale 30 maggio 1972 - Norme tecniche "
-                "per le costruzioni in cemento armato"
+                "Decreto Ministeriale 30 maggio 1972 - Norme tecniche " "per le costruzioni in cemento armato"
             ),
             year=1972,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
@@ -144,8 +138,7 @@ def _get_default_sources() -> List[MaterialSource]:
             id="DM92",
             name="DM 14/02/1992",
             description=(
-                "Decreto Ministeriale 14 febbraio 1992 - Norme tecniche "
-                "per le costruzioni in zona sismica"
+                "Decreto Ministeriale 14 febbraio 1992 - Norme tecniche " "per le costruzioni in zona sismica"
             ),
             year=1992,
             calculation_method=CalculationMethod.TENSIONI_AMMISSIBILI,
@@ -165,10 +158,7 @@ def _get_default_sources() -> List[MaterialSource]:
             calculation_method=CalculationMethod.SEMIPROBABILISTICO,
             is_historical=True,
             reference="D.M. 09/01/1996",
-            notes=(
-                "Introduce il metodo semiprobabilistico agli stati limite "
-                "come alternativa alle TA."
-            ),
+            notes=("Introduce il metodo semiprobabilistico agli stati limite " "come alternativa alle TA."),
         ),
         MaterialSource(
             id="OPCM3274",
@@ -186,17 +176,12 @@ def _get_default_sources() -> List[MaterialSource]:
         MaterialSource(
             id="NTC2008",
             name="NTC 2008",
-            description=(
-                "Norme Tecniche per le Costruzioni - DM 14 gennaio 2008"
-            ),
+            description=("Norme Tecniche per le Costruzioni - DM 14 gennaio 2008"),
             year=2008,
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=True,
             reference="D.M. 14/01/2008",
-            notes=(
-                "Prima versione delle NTC. Metodo SL obbligatorio, "
-                "TA ammesse solo per strutture semplici."
-            ),
+            notes=("Prima versione delle NTC. Metodo SL obbligatorio, " "TA ammesse solo per strutture semplici."),
         ),
         MaterialSource(
             id="NTC2018",
@@ -206,10 +191,7 @@ def _get_default_sources() -> List[MaterialSource]:
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=False,
             reference="D.M. 17/01/2018",
-            notes=(
-                "Norma vigente. Metodo agli stati limite. "
-                "Circolare applicativa n. 7/2019."
-            ),
+            notes=("Norma vigente. Metodo agli stati limite. " "Circolare applicativa n. 7/2019."),
         ),
         MaterialSource(
             id="LAB_TEST",
@@ -349,8 +331,7 @@ class MaterialSourceLibrary:
 
 
 def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[str, Any]:
-    """
-    Calcola i parametri del calcestruzzo secondo RD 2229/1939.
+    """Calcola i parametri del calcestruzzo secondo RD 2229/1939.
 
     NOTA: fck qui rappresenta σ_c,28 (resistenza cubica a 28 gg) in kg/cm².
 
@@ -360,6 +341,7 @@ def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[st
 
     Returns:
         Dizionario con i valori calcolati.
+
     """
     # Tensioni ammissibili secondo RD 2229/39
     # Riferimento: Art. 10-11 del RD 2229/1939
@@ -401,8 +383,7 @@ def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[st
 
 
 def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, Any]:
-    """
-    Calcola i parametri dell'acciaio secondo RD 2229/1939.
+    """Calcola i parametri dell'acciaio secondo RD 2229/1939.
 
     Args:
         fyk: Tensione di snervamento [kg/cm²]
@@ -410,6 +391,7 @@ def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, An
 
     Returns:
         Dizionario con i valori calcolati.
+
     """
     # Tensioni ammissibili secondo RD 2229/39
     # σ_s,amm ≤ fyk/2 (non deve superare metà del carico di snervamento)
@@ -432,8 +414,7 @@ def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, An
 
 
 def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
-    """
-    Calcola i parametri del calcestruzzo secondo NTC 2018.
+    """Calcola i parametri del calcestruzzo secondo NTC 2018.
 
     NOTA: fck è la resistenza caratteristica CILINDRICA [MPa o kg/cm²].
     Per conversione da cubica: fck_cil ≈ 0.83 * Rck
@@ -445,6 +426,7 @@ def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
         Dizionario con i valori calcolati.
 
     TODO: Verificare formule con NTC 2018 e Circolare n. 7/2019.
+
     """
     # Conversione approssimativa se il valore sembra essere cubico (> 150 kg/cm²)
     # In realtà NTC2018 usa MPa, qui manteniamo kg/cm² per coerenza col progetto
@@ -478,14 +460,14 @@ def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
 
 
 def _compute_ntc2018_steel(fyk: float) -> Dict[str, Any]:
-    """
-    Calcola i parametri dell'acciaio secondo NTC 2018.
+    """Calcola i parametri dell'acciaio secondo NTC 2018.
 
     Args:
         fyk: Tensione caratteristica di snervamento [kg/cm²]
 
     Returns:
         Dizionario con i valori calcolati.
+
     """
     # fyd = fyk / γ_s  (NTC 2018: γ_s = 1.15)
     gamma_s = 1.15
@@ -503,8 +485,7 @@ def _compute_ntc2018_steel(fyk: float) -> Dict[str, Any]:
 
 
 def _compute_dm96_concrete(fck: float) -> Dict[str, Any]:
-    """
-    Calcola i parametri del calcestruzzo secondo DM 09/01/1996.
+    """Calcola i parametri del calcestruzzo secondo DM 09/01/1996.
 
     TODO: Verificare formule con testo DM 96.
     """
@@ -526,9 +507,7 @@ def _compute_dm96_concrete(fck: float) -> Dict[str, Any]:
 
 
 def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
-    """
-    Calcola i parametri dell'acciaio secondo DM 09/01/1996.
-    """
+    """Calcola i parametri dell'acciaio secondo DM 09/01/1996."""
     gamma_s = 1.15
     fyd = fyk / gamma_s
     Es = 2100000.0
@@ -546,11 +525,8 @@ def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
 # =============================================================================
 
 
-def get_default_values_for_source(
-    source_id: str, material_type: str, base_params: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Calcola i valori predefiniti per un materiale in base alla fonte normativa.
+def get_default_values_for_source(source_id: str, material_type: str, base_params: Dict[str, Any]) -> Dict[str, Any]:
+    """Calcola i valori predefiniti per un materiale in base alla fonte normativa.
 
     AVVERTENZA: I valori restituiti sono da considerarsi DI ESEMPIO.
     Devono essere VERIFICATI da un ingegnere strutturista prima dell'uso
@@ -568,6 +544,7 @@ def get_default_values_for_source(
         - Calcestruzzo: fcd, tau_c0, tau_c1, n, Ec, gamma_c, fctm, ...
         - Acciaio: fyd, Es, gamma_s, ...
         - Sempre presente: "calculation_notes" con avvertenze
+
     """
     result: Dict[str, Any] = {"source_id": source_id, "calculation_notes": ""}
 
@@ -607,9 +584,7 @@ def get_default_values_for_source(
         if material_type == "concrete":
             if fck > 0:
                 vals = _compute_ntc2018_concrete(fck)
-                vals["calculation_notes"] = (
-                    "TODO: Valori da NTC 2008 - VERIFICARE. Simili a NTC 2018."
-                )
+                vals["calculation_notes"] = "TODO: Valori da NTC 2008 - VERIFICARE. Simili a NTC 2018."
                 result.update(vals)
         elif material_type in ("steel", "stirrup_steel"):
             if fyk > 0:
@@ -645,16 +620,12 @@ def get_default_values_for_source(
 
     else:
         # Fonte sconosciuta
-        result["calculation_notes"] = (
-            f"Fonte '{source_id}' non riconosciuta. Nessun calcolo automatico disponibile."
-        )
+        result["calculation_notes"] = f"Fonte '{source_id}' non riconosciuta. Nessun calcolo automatico disponibile."
 
     # Aggiungi avvertenza standard
     if result.get("calculation_notes"):
         result["calculation_notes"] += "\n"
-    result[
-        "calculation_notes"
-    ] += "AVVERTENZA: Valori di esempio. Verificare con normativa originale prima dell'uso."
+    result["calculation_notes"] += "AVVERTENZA: Valori di esempio. Verificare con normativa originale prima dell'uso."
 
     return result
 

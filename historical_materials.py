@@ -192,8 +192,7 @@ class HistoricalMaterialLibrary:
             pass
 
     def _ensure_default_materials(self) -> None:
-        """
-        Populate the library with a small set of example historical materials
+        """Populate the library with a small set of example historical materials
         if the JSON file does not exist or is empty. The numeric values are
         illustrative; a developer or user should replace them with exact values
         from RD 2229/39 or other historical datasets.
@@ -278,10 +277,7 @@ class HistoricalMaterialLibrary:
                 tau_c1=16.0,  # τ_c1: taglio massimo [kg/cm²]
                 n=8.0,  # coefficiente di omogeneizzazione Es/Ec
                 gamma_c=3.0,
-                notes=(
-                    "Cemento ad alta resistenza. "
-                    "Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²"
-                ),
+                notes=("Cemento ad alta resistenza. " "Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²"),
             )
         )
 
@@ -425,13 +421,9 @@ class HistoricalMaterialLibrary:
             self._materials.extend(examples)
             try:
                 self.save_to_file()
-                logger.info(
-                    "Populated historical materials with default examples: %s", self._file_path
-                )
+                logger.info("Populated historical materials with default examples: %s", self._file_path)
             except Exception:
-                logger.exception(
-                    "Failed to save default historical materials to %s", self._file_path
-                )
+                logger.exception("Failed to save default historical materials to %s", self._file_path)
 
     def load_from_file(self) -> None:
         self._materials.clear()
@@ -443,9 +435,7 @@ class HistoricalMaterialLibrary:
             with self._file_path.open("r", encoding="utf-8") as f:
                 raw = json.load(f)
             if not isinstance(raw, list):
-                logger.warning(
-                    "Historical materials file %s does not contain a list", self._file_path
-                )
+                logger.warning("Historical materials file %s does not contain a list", self._file_path)
                 # Replace with defaults
                 self._ensure_default_materials()
                 return
@@ -492,8 +482,7 @@ class HistoricalMaterialLibrary:
         return None
 
     def import_from_csv(self, file_path: str | Path, delimiter: str = ";") -> int:
-        """
-        Importa materiali storici da un CSV.
+        """Importa materiali storici da un CSV.
         - Ogni riga -> un HistoricalMaterial.
         - Se esiste già un materiale con stesso 'code', aggiornalo.
         - Altrimenti aggiungilo.
@@ -530,11 +519,7 @@ class HistoricalMaterialLibrary:
 
                         type_raw = (row.get("type") or row.get("Type") or "").strip().lower()
                         try:
-                            mtype = (
-                                HistoricalMaterialType(type_raw)
-                                if type_raw
-                                else HistoricalMaterialType.OTHER
-                            )
+                            mtype = HistoricalMaterialType(type_raw) if type_raw else HistoricalMaterialType.OTHER
                         except Exception:
                             # tolerant mapping
                             if "concr" in type_raw or "cls" in type_raw:
@@ -551,9 +536,7 @@ class HistoricalMaterialLibrary:
                             try:
                                 return float(v.replace(",", "."))
                             except Exception:
-                                logger.warning(
-                                    "CSV row %s: invalid numeric for %s: %r", idx, field, v
-                                )
+                                logger.warning("CSV row %s: invalid numeric for %s: %r", idx, field, v)
                                 return None
 
                         hist = HistoricalMaterial(

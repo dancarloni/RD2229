@@ -15,11 +15,8 @@ class RectangleElement:
     y_center: float  # Coordinata y del baricentro rispetto a un'origine locale (cm)
 
 
-def rotate_inertia(
-    Ix: float, Iy: float, Ixy: float, theta_rad: float
-) -> Tuple[float, float, float]:
-    """
-    Ruota il tensore di inerzia di un angolo theta_rad (radianti) attorno al baricentro.
+def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> Tuple[float, float, float]:
+    """Ruota il tensore di inerzia di un angolo theta_rad (radianti) attorno al baricentro.
 
     Formule di rototrasformazione del tensore di inerzia:
     - Ix' = Ix * cos²θ + Iy * sin²θ - 2 * Ixy * sinθ * cosθ
@@ -34,6 +31,7 @@ def rotate_inertia(
 
     Returns:
         Tuple (Ix_rot, Iy_rot, Ixy_rot) - inerzie ruotate (cm⁴)
+
     """
     c = cos(theta_rad)
     s = sin(theta_rad)
@@ -49,8 +47,7 @@ def rotate_inertia(
 
 
 def translate_inertia(I_local: float, area: float, distance: float) -> float:
-    """
-    Teorema di trasporto (Steiner) per momenti di inerzia.
+    """Teorema di trasporto (Steiner) per momenti di inerzia.
 
     I_global = I_local + A * d²
 
@@ -61,6 +58,7 @@ def translate_inertia(I_local: float, area: float, distance: float) -> float:
 
     Returns:
         Momento di inerzia rispetto all'asse traslato (cm⁴)
+
     """
     return I_local + area * distance * distance
 
@@ -88,8 +86,7 @@ def compute_principal_inertia(Ix: float, Iy: float, Ixy: float) -> tuple:
 def combine_rectangular_elements(
     elements: List[RectangleElement],
 ) -> Tuple[float, float, float, float, float, float]:
-    """
-    Combina elementi rettangolari per calcolare le proprietà globali di una sezione composta.
+    """Combina elementi rettangolari per calcolare le proprietà globali di una sezione composta.
 
     Calcola:
     - Area totale
@@ -101,6 +98,7 @@ def combine_rectangular_elements(
 
     Returns:
         Tuple (area_tot, x_G, y_G, Ix, Iy, Ixy)
+
     """
     if not elements:
         return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0

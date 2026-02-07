@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\src\domain\domain\materials.py
+# hypothesis_version: 6.151.5
+
+[0.5, 1.5, 10.197, 25.0, 450.0, 'fck', 'fck_MPa', 'fck_mpa', 'find_by_name', 'fyk', 'fyk_MPa', 'fyk_mpa', 'get_by_name', 'properties']

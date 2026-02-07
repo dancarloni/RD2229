@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Demo script for the verification calculation engine.
+"""Demo script for the verification calculation engine.
 
 This demonstrates the new calculation core integrated with the .jsoncode configuration system.
 """
@@ -46,9 +45,7 @@ print(f"\nTensile reinforcement: As = {rebar_bottom.area} cm² @ d = {rebar_bott
 print(f"Compressed reinforcement: As' = {rebar_top.area} cm² @ d' = {rebar_top.distance} cm")
 
 # Get material properties from .jsoncode
-material = engine_ta.get_material_properties(
-    concrete_class="R160", steel_type="FeB38k", material_source="RD2229"
-)
+material = engine_ta.get_material_properties(concrete_class="R160", steel_type="FeB38k", material_source="RD2229")
 print("\nMaterials (RD2229):")
 print(f"  Concrete R160: σ_c,28 = {material.fck} kg/cm², E_c = {material.Ec:.0f} kg/cm²")
 print(f"  Steel FeB38k: σ_sn = {material.fyk} kg/cm², E_s = {material.Es:.0f} kg/cm²")

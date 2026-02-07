@@ -4,7 +4,6 @@
 import json
 import os
 import tempfile
-from pathlib import Path
 
 from sections_app.models.sections import (
     CircularSection,
@@ -49,10 +48,10 @@ def test_persistence_create_and_load():
         with open(json_file, "r", encoding="utf-8") as f:
             data = json.load(f)
         assert len(data) == 3, f"JSON contiene {len(data)} sezioni, attese 3"
-        print(f"  ✓ JSON contiene 3 sezioni")
+        print("  ✓ JSON contiene 3 sezioni")
 
         # Stampa struttura JSON di una sezione
-        print(f"\n[2] Struttura JSON (prima sezione):")
+        print("\n[2] Struttura JSON (prima sezione):")
         first_section = data[0]
         print(f"  - id: {first_section.get('id')}")
         print(f"  - name: {first_section.get('name')}")
@@ -79,12 +78,12 @@ def test_persistence_create_and_load():
         assert rect_loaded.width == 20, f"Width errata: {rect_loaded.width}"
         assert rect_loaded.height == 30, f"Height errata: {rect_loaded.height}"
         assert rect_loaded.note == "Test", f"Note errata: {rect_loaded.note}"
-        print(f"  ✓ Verificate proprietà sezione rettangolare")
+        print("  ✓ Verificate proprietà sezione rettangolare")
 
         circ_loaded = next((s for s in loaded_sections if s.name == "Circolare d=25"), None)
         assert circ_loaded is not None, "Sezione circolare non caricata"
         assert circ_loaded.diameter == 25, f"Diameter errata: {circ_loaded.diameter}"
-        print(f"  ✓ Verificate proprietà sezione circolare")
+        print("  ✓ Verificate proprietà sezione circolare")
 
     print("\n✅ TEST 1 PASSATO\n")
 
@@ -107,7 +106,7 @@ def test_persistence_update_delete():
 
         repo1.add_section(rect1)
         repo1.add_section(rect2)
-        print(f"  ✓ Aggiunte 2 sezioni")
+        print("  ✓ Aggiunte 2 sezioni")
 
         rect1_id = rect1.id
         rect2_id = rect2.id
@@ -129,13 +128,13 @@ def test_persistence_update_delete():
         loaded_sections = repo2.get_all_sections()
 
         assert len(loaded_sections) == 1, f"Caricate {len(loaded_sections)} sezioni, attesa 1"
-        print(f"  ✓ Caricata 1 sezione (l'eliminata non c'è)")
+        print("  ✓ Caricata 1 sezione (l'eliminata non c'è)")
 
         loaded_section = loaded_sections[0]
         assert loaded_section.name == "Rect1_Modified", f"Name errato: {loaded_section.name}"
         assert loaded_section.width == 12, f"Width errata: {loaded_section.width}"
         assert loaded_section.height == 22, f"Height errata: {loaded_section.height}"
-        print(f"  ✓ Verificate proprietà modificate")
+        print("  ✓ Verificate proprietà modificate")
 
     print("\n✅ TEST 2 PASSATO\n")
 
@@ -152,12 +151,10 @@ def test_persistence_rotation():
         print("\n[1] Creazione sezione con rotazione...")
         repo1 = SectionRepository(json_file=json_file)
 
-        rect = RectangularSection(
-            name="Rotated Rect", width=20, height=30, rotation_angle_deg=45.0, note="Ruotata 45°"
-        )
+        rect = RectangularSection(name="Rotated Rect", width=20, height=30, rotation_angle_deg=45.0, note="Ruotata 45°")
         repo1.add_section(rect)
         rect_id = rect.id
-        print(f"  ✓ Aggiunta sezione con rotazione 45°")
+        print("  ✓ Aggiunta sezione con rotazione 45°")
 
         # Carica da file
         print("\n[2] Caricamento da file...")
@@ -165,9 +162,7 @@ def test_persistence_rotation():
         loaded_section = repo2.find_by_id(rect_id)
 
         assert loaded_section is not None, "Sezione non caricata"
-        assert (
-            loaded_section.rotation_angle_deg == 45.0
-        ), f"Rotazione errata: {loaded_section.rotation_angle_deg}"
+        assert loaded_section.rotation_angle_deg == 45.0, f"Rotazione errata: {loaded_section.rotation_angle_deg}"
         print(f"  ✓ Verificata rotazione: {loaded_section.rotation_angle_deg}°")
 
     print("\n✅ TEST 3 PASSATO\n")
@@ -186,7 +181,7 @@ def test_empty_repository():
         print("\n[1] Repository senza file...")
         repo1 = SectionRepository(json_file=json_file)
         assert len(repo1.get_all_sections()) == 0, "Repository non vuoto"
-        print(f"  ✓ Repository vuoto (file non esiste)")
+        print("  ✓ Repository vuoto (file non esiste)")
 
         # Aggiungi una sezione e poi cancella tutto
         print("\n[2] Svuotamento repository...")
@@ -196,7 +191,7 @@ def test_empty_repository():
 
         repo2 = SectionRepository(json_file=json_file)
         assert len(repo2.get_all_sections()) == 0, "Repository non svuotato"
-        print(f"  ✓ Repository svuotato e salvato")
+        print("  ✓ Repository svuotato e salvato")
 
     print("\n✅ TEST 4 PASSATO\n")
 

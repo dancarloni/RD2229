@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-"""
-Test: Verifica che VerificationTable riceve repository pre-popolati all'avvio.
-"""
+"""Test: Verifica che VerificationTable riceve repository pre-popolati all'avvio."""
 
-import json
 import os
 import tempfile
 
@@ -26,9 +23,7 @@ def test_verification_table_receives_populated_repositories():
         print("\n[FASE 1] Creazione archivi persistenti...")
 
         repo_sections = SectionRepository(json_file=sections_file)
-        repo_sections.add_section(
-            RectangularSection(name="Test Section 20x30", width=20, height=30)
-        )
+        repo_sections.add_section(RectangularSection(name="Test Section 20x30", width=20, height=30))
 
         repo_materials = MaterialRepository(json_file=materials_file)
         repo_materials.add(Material(name="C25/30", type="concrete", properties={"fck": 25}))
@@ -44,9 +39,7 @@ def test_verification_table_receives_populated_repositories():
         material_repo_app = MaterialRepository(json_file=materials_file)
         material_repo_app.load_from_file()
 
-        print(
-            f"  ✓ SectionRepository caricato: {len(section_repo_app.get_all_sections())} sezione/i"
-        )
+        print(f"  ✓ SectionRepository caricato: {len(section_repo_app.get_all_sections())} sezione/i")
         print(f"  ✓ MaterialRepository caricato: {len(material_repo_app.get_all())} materiale/i")
 
         # FASE 3: Simulazione ModuleSelectorWindow - passa repository a VerificationTable
@@ -56,7 +49,7 @@ def test_verification_table_receives_populated_repositories():
         selector_section_repo = section_repo_app
         selector_material_repo = material_repo_app or MaterialRepository()
 
-        print(f"  ✓ Repository pronti per VerificationTable")
+        print("  ✓ Repository pronti per VerificationTable")
         print(f"    - SectionRepository: {len(selector_section_repo.get_all_sections())} sezione/i")
         print(f"    - MaterialRepository: {len(selector_material_repo.get_all())} materiale/i")
 
@@ -101,9 +94,7 @@ def test_repositories_available_at_startup():
         repo_materials.add(Material(name="C30/37", type="concrete", properties={"fck": 30}))
         repo_materials.add(Material(name="A500S", type="steel", properties={"fyk": 500}))
 
-        print(
-            f"\n✓ Setup: {len(repo_sections.get_all_sections())} sezioni, {len(repo_materials.get_all())} materiali"
-        )
+        print(f"\n✓ Setup: {len(repo_sections.get_all_sections())} sezioni, {len(repo_materials.get_all())} materiali")
 
         # Simula il codice in app.py (linee 35-42)
         print("\nSimulazione app.py run_app():")
@@ -113,12 +104,8 @@ def test_repositories_available_at_startup():
         material_repository = MaterialRepository(json_file=materials_file)
         material_repository.load_from_file()
 
-        print(
-            f"  ✓ section_repository disponibile: {len(section_repository.get_all_sections())} sezioni"
-        )
-        print(
-            f"  ✓ material_repository disponibile: {len(material_repository.get_all())} materiali"
-        )
+        print(f"  ✓ section_repository disponibile: {len(section_repository.get_all_sections())} sezioni")
+        print(f"  ✓ material_repository disponibile: {len(material_repository.get_all())} materiali")
 
         # Verifica i dati
         sections = section_repository.get_all_sections()

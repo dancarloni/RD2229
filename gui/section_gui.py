@@ -6,9 +6,6 @@ from tkinter import messagebox, simpledialog, ttk
 from typing import Dict, List, Optional, Type
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle as MplCircle
-from matplotlib.patches import Rectangle as MplRectangle
-
 from core.geometry import (
     CircularHollowSection,
     CircularSection,
@@ -22,6 +19,8 @@ from core.geometry import (
     TSection,
 )
 from core.section_properties import compute_section_properties
+from matplotlib.patches import Circle as MplCircle
+from matplotlib.patches import Rectangle as MplRectangle
 
 
 class SectionType(Enum):
@@ -70,9 +69,7 @@ class SectionInputDialog(simpledialog.Dialog):
         )
         row = 1
         for param in self.section_type.params:
-            tk.Label(master, text=f"{param.replace('_', ' ').title()} (cm):").grid(
-                row=row, column=0, sticky="w"
-            )
+            tk.Label(master, text=f"{param.replace('_', ' ').title()} (cm):").grid(row=row, column=0, sticky="w")
             entry = tk.Entry(master)
             entry.grid(row=row, column=1)
             self.inputs[param] = entry
@@ -93,9 +90,7 @@ class SectionInputDialog(simpledialog.Dialog):
                 # Arrotonda a 1 decimale
                 value = round(value, 1)
             except ValueError:
-                messagebox.showerror(
-                    "Errore", f"{param} deve essere un numero positivo con al massimo 1 decimale"
-                )
+                messagebox.showerror("Errore", f"{param} deve essere un numero positivo con al massimo 1 decimale")
                 return
             kwargs[param] = value
         try:
@@ -130,12 +125,8 @@ class SectionApp(tk.Frame):
         # Pulsanti
         btn_frame = tk.Frame(self)
         btn_frame.pack(fill="x", padx=10)
-        tk.Button(btn_frame, text="Calcola proprietà", command=self.calculate_properties).pack(
-            side="left", padx=5
-        )
-        tk.Button(btn_frame, text="Mostra grafica", command=self.show_graphic).pack(
-            side="left", padx=5
-        )
+        tk.Button(btn_frame, text="Calcola proprietà", command=self.calculate_properties).pack(side="left", padx=5)
+        tk.Button(btn_frame, text="Mostra grafica", command=self.show_graphic).pack(side="left", padx=5)
 
         # Output
         self.output_text = tk.Text(self, height=10)
@@ -154,9 +145,7 @@ class SectionApp(tk.Frame):
 
         self.inputs: Dict[str, tk.Entry] = {}
         for param in section_type.params:
-            tk.Label(self.input_frame, text=f"{param.replace('_', ' ').title()} (cm):").pack(
-                anchor="w"
-            )
+            tk.Label(self.input_frame, text=f"{param.replace('_', ' ').title()} (cm):").pack(anchor="w")
             entry = tk.Entry(self.input_frame)
             entry.pack(fill="x", padx=10, pady=2)
             self.inputs[param] = entry
@@ -212,11 +201,7 @@ Momenti statici:
 
         # Disegna in base al tipo
         if isinstance(self.current_section, RectangularSection):
-            ax.add_patch(
-                MplRectangle(
-                    (0, 0), self.current_section.width, self.current_section.height, fill=False
-                )
-            )
+            ax.add_patch(MplRectangle((0, 0), self.current_section.width, self.current_section.height, fill=False))
         elif isinstance(self.current_section, CircularSection):
             circle = MplCircle(
                 (self.current_section.centroid()[0], self.current_section.centroid()[1]),

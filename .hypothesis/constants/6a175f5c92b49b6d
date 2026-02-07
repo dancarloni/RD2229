@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\sections_app\services\event_bus.py
+# hypothesis_version: 6.151.5
+
+['EventBus', 'materials_added', 'materials_cleared', 'materials_deleted', 'materials_updated', 'notification', 'sections_added', 'sections_cleared', 'sections_deleted', 'sections_updated']

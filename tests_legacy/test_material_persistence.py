@@ -37,10 +37,10 @@ def test_material_persistence_basic():
         with open(json_file, "r", encoding="utf-8") as f:
             data = json.load(f)
         assert len(data) == 3, f"JSON contiene {len(data)} materiali, attesi 3"
-        print(f"  ✓ JSON contiene 3 materiali")
+        print("  ✓ JSON contiene 3 materiali")
 
         # Stampa struttura JSON di un materiale
-        print(f"\n[2] Struttura JSON (primo materiale):")
+        print("\n[2] Struttura JSON (primo materiale):")
         first_material = data[0]
         print(f"  - id: {first_material.get('id')[:8]}...")
         print(f"  - name: {first_material.get('name')}")
@@ -62,18 +62,14 @@ def test_material_persistence_basic():
         c120_loaded = repo2.find_by_name("C120")
         assert c120_loaded is not None, "Materiale C120 non caricato"
         assert c120_loaded.type == "concrete", f"Type errato: {c120_loaded.type}"
-        assert (
-            c120_loaded.properties.get("fck") == 120
-        ), f"fck errata: {c120_loaded.properties.get('fck')}"
-        print(f"  ✓ Verificate proprietà materiale C120")
+        assert c120_loaded.properties.get("fck") == 120, f"fck errata: {c120_loaded.properties.get('fck')}"
+        print("  ✓ Verificate proprietà materiale C120")
 
         a500_loaded = repo2.find_by_name("A500")
         assert a500_loaded is not None, "Materiale A500 non caricato"
         assert a500_loaded.type == "steel", f"Type errato: {a500_loaded.type}"
-        assert (
-            a500_loaded.properties.get("fyk") == 500
-        ), f"fyk errata: {a500_loaded.properties.get('fyk')}"
-        print(f"  ✓ Verificate proprietà materiale A500")
+        assert a500_loaded.properties.get("fyk") == 500, f"fyk errata: {a500_loaded.properties.get('fyk')}"
+        print("  ✓ Verificate proprietà materiale A500")
 
     print("\n✅ TEST 1 PASSATO\n")
 
@@ -96,16 +92,14 @@ def test_material_persistence_update_delete():
 
         repo1.add(c120)
         repo1.add(c200)
-        print(f"  ✓ Aggiunti 2 materiali")
+        print("  ✓ Aggiunti 2 materiali")
 
         c120_id = c120.id
         c200_id = c200.id
 
         # Modifica un materiale
         print("\n[2] Modifica materiale...")
-        c120_modified = Material(
-            id=c120_id, name="C120_Modified", type="concrete", properties={"fck": 125}
-        )
+        c120_modified = Material(id=c120_id, name="C120_Modified", type="concrete", properties={"fck": 125})
         repo1.update(c120_id, c120_modified)
         print(f"  ✓ Modificato materiale {c120_id[:8]}...")
 
@@ -120,14 +114,12 @@ def test_material_persistence_update_delete():
         loaded_materials = repo2.get_all()
 
         assert len(loaded_materials) == 1, f"Caricati {len(loaded_materials)} materiali, atteso 1"
-        print(f"  ✓ Caricato 1 materiale (l'eliminato non c'è)")
+        print("  ✓ Caricato 1 materiale (l'eliminato non c'è)")
 
         loaded_material = loaded_materials[0]
         assert loaded_material.name == "C120_Modified", f"Name errato: {loaded_material.name}"
-        assert (
-            loaded_material.properties.get("fck") == 125
-        ), f"fck errata: {loaded_material.properties.get('fck')}"
-        print(f"  ✓ Verificate proprietà modificate")
+        assert loaded_material.properties.get("fck") == 125, f"fck errata: {loaded_material.properties.get('fck')}"
+        print("  ✓ Verificate proprietà modificate")
 
     print("\n✅ TEST 2 PASSATO\n")
 
@@ -145,7 +137,7 @@ def test_empty_repository():
         print("\n[1] Repository senza file...")
         repo1 = MaterialRepository(json_file=json_file)
         assert len(repo1.get_all()) == 0, "Repository non vuoto"
-        print(f"  ✓ Repository vuoto (file non esiste)")
+        print("  ✓ Repository vuoto (file non esiste)")
 
         # Aggiungi un materiale e poi cancella tutto
         print("\n[2] Svuotamento repository...")
@@ -155,7 +147,7 @@ def test_empty_repository():
 
         repo2 = MaterialRepository(json_file=json_file)
         assert len(repo2.get_all()) == 0, "Repository non svuotato"
-        print(f"  ✓ Repository svuotato e salvato")
+        print("  ✓ Repository svuotato e salvato")
 
     print("\n✅ TEST 3 PASSATO\n")
 

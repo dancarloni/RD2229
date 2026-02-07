@@ -1,5 +1,4 @@
-"""
-Demo Export Backup - SectionRepository
+"""Demo Export Backup - SectionRepository.
 ======================================
 
 Dimostra l'utilizzo della funzione export_backup() per esportare
@@ -55,7 +54,7 @@ def main():
         repo.add_section(circ)
         repo.add_section(tsec)
 
-        print(f"\n✓ Aggiunte 3 sezioni al repository:")
+        print("\n✓ Aggiunte 3 sezioni al repository:")
         print(f"  - {rect.name} (RECTANGULAR)")
         print(f"  - {circ.name} (CIRCULAR)")
         print(f"  - {tsec.name} (T_SECTION)")
@@ -107,7 +106,7 @@ def main():
         actual_file = temp_path / "export_senza_estensione.jsons"
         print(f"\n✓ File richiesto: {no_ext_export}")
         print(f"✓ File creato: {actual_file}")
-        print(f"  (Estensione .jsons aggiunta automaticamente)")
+        print("  (Estensione .jsons aggiunta automaticamente)")
 
         # Scenario 5: Export in directory nidificata
         print_section("Scenario 5: Export in Directory Nidificata")
@@ -137,12 +136,12 @@ def main():
         main_mtime_after = main_file.stat().st_mtime
         backup_mtime_after = backup_file.stat().st_mtime
 
-        print(f"\n✓ File principale NON modificato:")
+        print("\n✓ File principale NON modificato:")
         print(f"  Timestamp prima:  {main_mtime_before}")
         print(f"  Timestamp dopo:   {main_mtime_after}")
         print(f"  Modificato: {main_mtime_before != main_mtime_after}")
 
-        print(f"\n✓ File backup interno NON modificato:")
+        print("\n✓ File backup interno NON modificato:")
         print(f"  Timestamp prima:  {backup_mtime_before}")
         print(f"  Timestamp dopo:   {backup_mtime_after}")
         print(f"  Modificato: {backup_mtime_before != backup_mtime_after}")
@@ -153,7 +152,7 @@ def main():
         path_obj_export = Path(tmpdir) / "export_con_path_object.json"
         repo.export_backup(path_obj_export)
 
-        print(f"\n✓ Export usando Path object completato")
+        print("\n✓ Export usando Path object completato")
         print(f"  Tipo parametro: {type(path_obj_export).__name__}")
         print(f"  File creato: {path_obj_export.exists()}")
 

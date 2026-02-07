@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Demo: Mostra il funzionamento del sistema di backup automatico.
-"""
+"""Demo: Mostra il funzionamento del sistema di backup automatico."""
 
 import json
 import os
@@ -43,8 +41,8 @@ def demo_section_backup():
     sections_file = os.path.join(temp_dir, "demo_sections.jsons")
 
     print(f"\n📁 Directory temporanea: {temp_dir}")
-    print(f"📄 File principale: demo_sections.jsons")
-    print(f"💾 File backup: demo_sections_backup.jsons")
+    print("📄 File principale: demo_sections.jsons")
+    print("💾 File backup: demo_sections_backup.jsons")
 
     # Crea repository (canonical .jsons)
     repo = SectionRepository(json_file=sections_file)
@@ -143,8 +141,8 @@ def demo_material_backup():
     materials_file = os.path.join(temp_dir, "demo_materials.json")
 
     print(f"\n📁 Directory temporanea: {temp_dir}")
-    print(f"📄 File principale: demo_materials.json")
-    print(f"💾 File backup: demo_materials_backup.json")
+    print("📄 File principale: demo_materials.json")
+    print("💾 File backup: demo_materials_backup.json")
 
     # Crea repository
     repo = MaterialRepository(json_file=materials_file)

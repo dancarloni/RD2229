@@ -11,10 +11,10 @@ Uso:
 
 Lo script è idempotente e stampa un riassunto delle operazioni.
 """
+
 from __future__ import annotations
 
 import os
-import sys
 from typing import Dict, List
 
 
@@ -36,7 +36,7 @@ def ensure_init(path: str, doc: str = None) -> None:
             if doc:
                 fh.write(f'"""{doc}\n"""\n')
             else:
-                fh.write("""""""\n)
+                fh.write('"""\n"""\n')
 
 
 def mirror_modules(calculations_root: str, verifications_root: str) -> List[str]:
@@ -91,4 +91,3 @@ def main(argv: List[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

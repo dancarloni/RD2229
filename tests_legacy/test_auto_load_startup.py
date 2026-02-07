@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-"""
-Test: Verifica che i repository vengono caricati automaticamente all'avvio.
-"""
+"""Test: Verifica che i repository vengono caricati automaticamente all'avvio."""
 
-import json
 import os
 import tempfile
 

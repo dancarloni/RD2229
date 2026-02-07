@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test del Section Manager: verifica che il Treeview visualizzi tutte le colonne
+"""Test del Section Manager: verifica che il Treeview visualizzi tutte le colonne
 e che i dati siano caricati correttamente.
 """
 
@@ -11,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from sections_app.models.sections import CircularSection, RectangularSection, TSection
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.services.repository import SectionRepository
 
 
 def test_section_manager_data():
@@ -58,11 +57,11 @@ def test_section_manager_data():
         print(f"\n  Sezione: {data['name']}")
         print(f"    ID: {data['id']}")
         print(f"    Tipo: {data['section_type']}")
-        print(f"    Campi geometrici:")
+        print("    Campi geometrici:")
         for key in ["width", "height", "diameter", "flange_width"]:
             if data.get(key):
                 print(f"      {key}: {data[key]}")
-        print(f"    Campi calcolati (sample):")
+        print("    Campi calcolati (sample):")
         print(f"      area: {data.get('area', 'N/A')}")
         print(f"      A_y: {data.get('A_y', 'N/A')}")
         print(f"      A_z: {data.get('A_z', 'N/A')}")
@@ -146,10 +145,10 @@ def test_treeview_columns():
     # Verifica che tutte le colonne siano configurate
     missing = set(CSV_HEADERS) - set(col_config.keys())
     assert not missing, f"Colonne mancanti da configurare: {missing}"
-    print(f"  ✓ Tutte le colonne sono configurate")
+    print("  ✓ Tutte le colonne sono configurate")
 
     # Verifica larghezze
-    print(f"\nLarghezze colonne:")
+    print("\nLarghezze colonne:")
     id_width = col_config["id"][0]
     print(f"  ID (invisibile): {id_width} px {'✓' if id_width == 0 else '✗'}")
 

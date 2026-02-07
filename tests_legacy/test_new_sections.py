@@ -1,7 +1,7 @@
 """Test per le nuove tipologie di sezione e rotazione."""
 
 import unittest
-from math import cos, pi, radians, sin, sqrt
+from math import pi, radians
 
 from sections_app.models.sections import (
     CircularHollowSection,
@@ -61,7 +61,7 @@ class TestNewSectionTypes(unittest.TestCase):
         self.assertAlmostEqual(props.area, 96.0, places=4)
 
         # Baricentro dovrebbe essere al centro per simmetria
-        total_height = 2 * 2 + 16  # 20
+        2 * 2 + 16  # 20
         self.assertAlmostEqual(props.centroid_x, 10.0, places=4)
         self.assertAlmostEqual(props.centroid_y, 10.0, places=4)
 

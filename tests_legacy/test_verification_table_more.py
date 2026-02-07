@@ -302,9 +302,7 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIsNotNone(app._suggest_list)
         items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
         # At least one historical R160 material should be suggested
-        self.assertTrue(
-            any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}"
-        )
+        self.assertTrue(any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}")
         # Suggestions should be concrete materials only - none of the items should indicate a steel-only label
         # (simple heuristic: ensure no 'Acciaio' in suggested names)
         self.assertFalse(any("Acciaio" in it for it in items))
@@ -312,9 +310,6 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_section_suggestions_from_repository(self):
         """Verify suggestions are drawn from SectionRepository."""
-        from sections_app.models.sections import RectangularSection
-        from sections_app.services.repository import SectionRepository
-
         sec_repo = SectionRepository()
         sec_repo.clear()
         sec = RectangularSection(name="Rect-20x30", width=20, height=30)

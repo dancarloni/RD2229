@@ -1,6 +1,4 @@
-"""
-Test per verificare che Section Manager resti aperto dopo "Nuova sezione".
-"""
+"""Test per verificare che Section Manager resti aperto dopo "Nuova sezione"."""
 
 import tkinter as tk
 import unittest
@@ -59,9 +57,7 @@ class TestSectionManagerNewStaysOpen(unittest.TestCase):
         manager._new_section()
 
         # Verifica che il manager ESISTA ANCORA (non è stato chiuso)
-        self.assertTrue(
-            manager.winfo_exists(), "Section Manager dovrebbe restare aperto dopo _new_section"
-        )
+        self.assertTrue(manager.winfo_exists(), "Section Manager dovrebbe restare aperto dopo _new_section")
 
         # Verifica che reset_form sia stato chiamato
         manager.master.reset_form.assert_called_once()
@@ -120,9 +116,7 @@ class TestSectionManagerNewStaysOpen(unittest.TestCase):
             manager._new_section()
 
             # Verifica che il manager ESISTA ANCORA
-            self.assertTrue(
-                manager.winfo_exists(), "Manager dovrebbe restare aperto anche senza azioni"
-            )
+            self.assertTrue(manager.winfo_exists(), "Manager dovrebbe restare aperto anche senza azioni")
 
     def test_new_section_multiple_chiamate_non_chiudono_manager(self):
         """Verifica che chiamate multiple a _new_section mantengano il manager aperto."""

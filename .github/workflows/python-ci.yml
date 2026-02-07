@@ -35,9 +35,8 @@ jobs:
         env:
           MYPYPATH: ${{ github.workspace }}
         run: |
-          # Run mypy on active packages before installing the project to avoid duplicate-module mapping
-          # Use --explicit-package-bases (flag only) and set MYPYPATH so module names are determined from workspace
-          mypy --explicit-package-bases app core core_models
+          # Run mypy via tools/run_mypy_ci.py which handles platform-specific arg parsing
+          python tools/run_mypy_ci.py
       - name: Install package
         run: |
           # Install project in editable mode for tests

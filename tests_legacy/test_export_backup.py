@@ -1,5 +1,4 @@
-"""
-Test per la funzione export_backup di SectionRepository.
+"""Test per la funzione export_backup di SectionRepository.
 
 Verifica:
 1. Esportazione in formato JSON

@@ -1,12 +1,9 @@
-"""
-Test per le funzioni helper di gestione JSON del repository.
-"""
+"""Test per le funzioni helper di gestione JSON del repository."""
 
 import json
 import os
 import tempfile
 import unittest
-from pathlib import Path
 
 from sections_app.services.repository import load_sections_from_json, save_sections_to_json
 

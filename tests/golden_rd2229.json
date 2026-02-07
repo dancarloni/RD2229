@@ -1,0 +1,8 @@
+[
+  {
+    "id": "B1",
+    "method": "TA",
+    "inputs": {"width": 0.3, "height": 0.5, "M": 10.0},
+    "expected": {"NA_depth": 0.5}
+  }
+]

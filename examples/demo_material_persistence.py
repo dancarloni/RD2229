@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Demo: Persistenza MaterialRepository
+"""Demo: Persistenza MaterialRepository
 Dimostra salvataggio automatico, caricamento, modifica ed eliminazione di materiali.
 """
 
@@ -29,7 +28,6 @@ def print_materials(repo: MaterialRepository, title: str = "Materiali nel reposi
 
 def main():
     """Demo del MaterialRepository con persistenza."""
-
     json_file = "demo_materials.json"
 
     # Cancella file precedente se esiste
@@ -43,7 +41,7 @@ def main():
     print_header("[FASE 1] Primo avvio - Creazione materiali")
 
     repo1 = MaterialRepository(json_file=json_file)
-    print(f"\n✓ Repository inizializzato")
+    print("\n✓ Repository inizializzato")
     print(f"  File: {json_file}")
     print(f"  Materiali caricate: {len(repo1.get_all())}")
 
@@ -102,7 +100,7 @@ def main():
     print_header("[FASE 2] Modifica materiale")
 
     c25_original = repo1.find_by_name("C25/30")
-    print(f"\nMateriale originale:")
+    print("\nMateriale originale:")
     print(f"  Nome: {c25_original.name}")
     print(f"  Proprietà: {c25_original.properties}")
 
@@ -122,7 +120,7 @@ def main():
     )
 
     repo1.update(c25_id, c25_modified)
-    print(f"\nMateriale modificato e salvato")
+    print("\nMateriale modificato e salvato")
     print(f"  Nome: {c25_modified.name}")
     print(f"  Proprietà: {c25_modified.properties}")
 
@@ -132,20 +130,20 @@ def main():
     b450_to_delete = repo1.find_by_name("B450C")
     print(f"\nEliminazione: {b450_to_delete.name}")
     repo1.delete(b450_to_delete.id)
-    print(f"✓ Materiale eliminato e salvato")
+    print("✓ Materiale eliminato e salvato")
 
     print_materials(repo1, "Materiali rimanenti")
 
     # FASE 4: Simulazione riavvio applicazione
     print_header("[FASE 4] Simulazione riavvio applicazione")
 
-    print(f"\nChiusura applicazione...")
-    print(f"✓ Repository distrutto")
+    print("\nChiusura applicazione...")
+    print("✓ Repository distrutto")
     del repo1
 
-    print(f"\nRiapertura applicazione...")
+    print("\nRiapertura applicazione...")
     repo2 = MaterialRepository(json_file=json_file)
-    print(f"✓ Repository ripristinato")
+    print("✓ Repository ripristinato")
 
     print_materials(repo2, "Materiali caricati dal file")
 
@@ -158,11 +156,11 @@ def main():
         data = json.load(f)
 
     print(f"\nFile: {json_file}")
-    print(f"Formato: JSON")
+    print("Formato: JSON")
     print(f"Materiali salvati: {len(data)}")
 
     if data:
-        print(f"\nPrimo materiale (struttura JSON):")
+        print("\nPrimo materiale (struttura JSON):")
         first = data[0]
         for key, value in first.items():
             if key != "id":

@@ -1,4 +1,4 @@
-"""MaterialsRepository: gestione in-memory dei materiali con load/save .jsonm
+"""MaterialsRepository: gestione in-memory dei materiali con load/save .jsonm.
 
 Questo wrapper utilizza le utility esistenti in `tools.materials_manager`
 per il parsing e i campi derivati, ma mantiene i materiali in memoria fino a

@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""
-Demo: Mostra l'aggiornamento automatico della VerificationTable
+"""Demo: Mostra l'aggiornamento automatico della VerificationTable
 quando vengono aggiunte/modificate sezioni e materiali.
 """
 
 import os
 import tempfile
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox
 
 from core_models.materials import Material, MaterialRepository
 from sections_app.models.sections import CircularSection, RectangularSection

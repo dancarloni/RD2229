@@ -1,5 +1,4 @@
-"""
-Script di test per verificare la gestione dinamica dei campi di input.
+"""Script di test per verificare la gestione dinamica dei campi di input.
 
 Questo script dimostra:
 1. Come i campi cambiano al cambio di tipologia
@@ -31,7 +30,7 @@ def test_rectangular_section():
     width = 30.0  # Larghezza b (cm)
     height = 50.0  # Altezza h (cm)
 
-    print(f"Input:")
+    print("Input:")
     print(f"  - Larghezza b: {width:.1f} cm")
     print(f"  - Altezza h: {height:.1f} cm")
 
@@ -39,7 +38,7 @@ def test_rectangular_section():
     section = RectangularSection(name="Rett_Test", width=width, height=height)
     props = section.compute_properties()
 
-    print(f"\nProprietà calcolate:")
+    print("\nProprietà calcolate:")
     print(f"  - Area: {props.area:.1f} cm²")
     print(f"  - Baricentro: ({props.centroid_x:.1f}, {props.centroid_y:.1f}) cm")
     print(f"  - Ix: {props.ix:.1f} cm⁴")
@@ -58,14 +57,14 @@ def test_circular_section():
     # Parametri di input (tutti in cm)
     diameter = 40.0  # Diametro D (cm)
 
-    print(f"Input:")
+    print("Input:")
     print(f"  - Diametro D: {diameter:.1f} cm")
 
     # Crea sezione e calcola proprietà
     section = CircularSection(name="Circ_Test", diameter=diameter)
     props = section.compute_properties()
 
-    print(f"\nProprietà calcolate:")
+    print("\nProprietà calcolate:")
     print(f"  - Area: {props.area:.1f} cm²")
     print(f"  - Baricentro: ({props.centroid_x:.1f}, {props.centroid_y:.1f}) cm")
     print(f"  - Ix: {props.ix:.1f} cm⁴")
@@ -87,7 +86,7 @@ def test_t_section():
     web_thickness = 8.0  # Spessore anima bw (cm)
     web_height = 40.0  # Altezza anima hw (cm)
 
-    print(f"Input:")
+    print("Input:")
     print(f"  - Larghezza ala bf: {flange_width:.1f} cm")
     print(f"  - Spessore ala hf: {flange_thickness:.1f} cm")
     print(f"  - Spessore anima bw: {web_thickness:.1f} cm")
@@ -103,7 +102,7 @@ def test_t_section():
     )
     props = section.compute_properties()
 
-    print(f"\nProprietà calcolate:")
+    print("\nProprietà calcolate:")
     print(f"  - Area: {props.area:.1f} cm²")
     print(f"  - Baricentro: ({props.centroid_x:.1f}, {props.centroid_y:.1f}) cm")
     print(f"  - Ix: {props.ix:.1f} cm⁴")

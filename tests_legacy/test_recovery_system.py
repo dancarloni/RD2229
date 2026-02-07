@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test: Verifica che il sistema di recovery automatico funzioni correttamente
+"""Test: Verifica che il sistema di recovery automatico funzioni correttamente
 quando i file JSON sono danneggiati o mancanti.
 """
 
@@ -10,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from core_models.materials import Material, MaterialRepository
+from core_models.materials import MaterialRepository
 from sections_app.models.sections import RectangularSection
 from sections_app.services.repository import SectionRepository
 

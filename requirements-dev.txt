@@ -1,4 +1,14 @@
 # Dipendenze per lo sviluppo e i test
 pytest>=9.0,<10
+pytest-cov
+hypothesis
+mutmut
+ruff
+bandit
+mkdocs
+mkdocs-material
+pre-commit
 flake8
-mypy
+mypy>=1.19,<2
+black
+isort

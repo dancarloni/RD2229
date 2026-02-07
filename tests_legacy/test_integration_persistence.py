@@ -3,7 +3,6 @@
 
 import os
 import tempfile
-from pathlib import Path
 
 from sections_app.models.sections import (
     CircularSection,
@@ -69,7 +68,7 @@ def test_integration_with_csv_serializer():
             repo3.add_section(section)
 
         assert len(repo3.get_all_sections()) == 3, "Sezioni non importate"
-        print(f"  ✓ Importate 3 sezioni da CSV e salvate in JSON")
+        print("  ✓ Importate 3 sezioni da CSV e salvate in JSON")
 
         # FASE 5: Verifica che i due JSON siano equivalenti
         print("\n[5] Verifica equivalenza JSON...")
@@ -81,7 +80,7 @@ def test_integration_with_csv_serializer():
 
         for s4, s5 in zip(sections4, sections5):
             assert s4.name == s5.name, f"Nome diverso: {s4.name} vs {s5.name}"
-            assert s4.section_type == s5.section_type, f"Type diverso"
+            assert s4.section_type == s5.section_type, "Type diverso"
             print(f"  ✓ {s4.name}: equivalente")
 
     print("\n✅ TEST INTEGRAZIONE PASSATO\n")
@@ -161,7 +160,7 @@ def test_large_dataset():
                 print(f"  ✓ Aggiunte {i+1}/100 sezioni")
 
         assert len(repo1.get_all_sections()) == 100, "Sezioni non aggiunte"
-        print(f"  ✓ Tutte 100 sezioni aggiunte e salvate")
+        print("  ✓ Tutte 100 sezioni aggiunte e salvate")
 
         # Carica in nuovo repository
         print("\n[2] Caricamento 100 sezioni...")
@@ -169,7 +168,7 @@ def test_large_dataset():
         loaded = repo2.get_all_sections()
 
         assert len(loaded) == 100, f"Caricate {len(loaded)} sezioni, attese 100"
-        print(f"  ✓ Caricate 100 sezioni da file JSON")
+        print("  ✓ Caricate 100 sezioni da file JSON")
 
         # Modifica 10 sezioni (con dimensioni diverse per evitare conflitti)
         print("\n[3] Modifica 10 sezioni...")
@@ -178,11 +177,9 @@ def test_large_dataset():
             # Usa dimensioni uniche basate su i per evitare duplicati
             width = 100 + i * 10
             height = 200 + i * 10
-            modified = RectangularSection(
-                name=f"{section.name}_modified", width=width, height=height
-            )
+            modified = RectangularSection(name=f"{section.name}_modified", width=width, height=height)
             repo2.update_section(section.id, modified)
-        print(f"  ✓ Modificate 10 sezioni e salvate")
+        print("  ✓ Modificate 10 sezioni e salvate")
 
         # Carica di nuovo
         print("\n[4] Verifica modifiche...")
@@ -190,10 +187,8 @@ def test_large_dataset():
         final = repo3.get_all_sections()
 
         modified_sections = [s for s in final if s.name.endswith("_modified")]
-        assert (
-            len(modified_sections) == 10
-        ), f"Modificate {len(modified_sections)} sezioni, attese 10"
-        print(f"  ✓ Verificate 10 sezioni modificate")
+        assert len(modified_sections) == 10, f"Modificate {len(modified_sections)} sezioni, attese 10"
+        print("  ✓ Verificate 10 sezioni modificate")
 
     print("\n✅ TEST DATASET GRANDE PASSATO\n")
 

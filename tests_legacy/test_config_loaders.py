@@ -1,5 +1,4 @@
-"""
-Test module for configuration loaders.
+"""Test module for configuration loaders.
 
 Tests for calculation_codes_loader and historical_materials_loader modules.
 """
@@ -289,9 +288,7 @@ class TestVerificationInputOutput:
         """Test that VerificationOutput has new fields."""
         from verification_table import VerificationOutput
 
-        v_output = VerificationOutput(
-            sigma_c_max=10.0, sigma_c_min=0.0, sigma_s_max=200.0, asse_neutro=15.0
-        )
+        v_output = VerificationOutput(sigma_c_max=10.0, sigma_c_min=0.0, sigma_s_max=200.0, asse_neutro=15.0)
 
         # Check new fields exist with default values
         assert hasattr(v_output, "asse_neutro_x")

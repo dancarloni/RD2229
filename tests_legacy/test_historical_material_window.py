@@ -52,9 +52,7 @@ class TestHistoricalMaterialWindow(unittest.TestCase):
         self.tmpdir.cleanup()
 
     def test_window_loads_and_shows_items(self):
-        win = HistoricalMaterialWindow(
-            self.root, library=self.lib, material_repository=self.mat_repo
-        )
+        win = HistoricalMaterialWindow(self.root, library=self.lib, material_repository=self.mat_repo)
         # check the tree contains our codes
         codes = [win.tree.set(i, "code") for i in win.tree.get_children()]
         self.assertIn("HM1", codes)
@@ -62,9 +60,7 @@ class TestHistoricalMaterialWindow(unittest.TestCase):
         win.destroy()
 
     def test_import_to_material_repo(self):
-        win = HistoricalMaterialWindow(
-            self.root, library=self.lib, material_repository=self.mat_repo
-        )
+        win = HistoricalMaterialWindow(self.root, library=self.lib, material_repository=self.mat_repo)
         # select HM1
         win.tree.selection_set("HM1")
         win._on_import_selected()
@@ -74,9 +70,7 @@ class TestHistoricalMaterialWindow(unittest.TestCase):
         win.destroy()
 
     def test_add_and_delete(self):
-        win = HistoricalMaterialWindow(
-            self.root, library=self.lib, material_repository=self.mat_repo
-        )
+        win = HistoricalMaterialWindow(self.root, library=self.lib, material_repository=self.mat_repo)
         # Add new via library directly then refresh
         new = HistoricalMaterial(
             id="HM_NEW",
