@@ -34,7 +34,8 @@ jobs:
       - name: Type check (mypy)
         run: |
           # Run mypy on active packages before installing the project to avoid duplicate-module mapping
-          mypy app core core_models
+          # Explicitly map the repository top-level directory to avoid module-name collisions
+          mypy --explicit-package-bases=RD2229=. app core core_models
       - name: Install package
         run: |
           # Install project in editable mode for tests
