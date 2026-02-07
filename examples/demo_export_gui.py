@@ -1,5 +1,4 @@
-"""
-Demo GUI Export Backup
+"""Demo GUI Export Backup
 ======================
 
 Dimostra la funzionalità "Esporta backup..." dalla GUI principale.

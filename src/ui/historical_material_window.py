@@ -1,5 +1,4 @@
-"""
-historical_material_window.py - Finestra per la gestione dei materiali storici.
+"""historical_material_window.py - Finestra per la gestione dei materiali storici.
 
 Visualizza i materiali con doppia notazione (moderna e storica RD 2229/39)
 e supporta il popolamento automatico dei valori in base alla fonte normativa.
@@ -13,9 +12,8 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
-from pathlib import Path
 from tkinter import ttk
-from typing import List, Optional
+from typing import Optional
 
 from core_models.materials import MaterialRepository
 from historical_materials import (
@@ -530,6 +528,7 @@ class _HistoricalEditDialog(tk.Toplevel):
         Args:
             source_name: Nome della fonte normativa
             ask_confirm: Se True, chiede conferma prima di sovrascrivere
+
         """
         if not SOURCES_AVAILABLE:
             return

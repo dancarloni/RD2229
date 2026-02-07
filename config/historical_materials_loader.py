@@ -1,5 +1,4 @@
-"""
-Loader for historical materials configuration files (.jsoncode).
+"""Loader for historical materials configuration files (.jsoncode).
 
 This module loads and validates historical material properties from .jsoncode files
 for RD2229/39, DM92, NTC2008, and NTC2018.
@@ -24,6 +23,7 @@ class HistoricalMaterialsLoader:
         Args:
             config_dir: Directory containing .jsoncode files for historical materials.
                        Defaults to config/historical_materials/ in project root.
+
         """
         if config_dir is None:
             # Try to find config directory relative to this file
@@ -49,6 +49,7 @@ class HistoricalMaterialsLoader:
         Raises:
             FileNotFoundError: If the .jsoncode file is not found
             json.JSONDecodeError: If the file contains invalid JSON
+
         """
         source_name = source_name.upper()
 
@@ -93,6 +94,7 @@ class HistoricalMaterialsLoader:
 
         Returns:
             Dictionary with concrete classes (e.g., R120, R160, C20/25, etc.)
+
         """
         config = self.load_material_source(source_name)
         return config.get("concrete_classes", {})
@@ -108,6 +110,7 @@ class HistoricalMaterialsLoader:
 
         Returns:
             Dictionary with concrete properties, or None if not found
+
         """
         classes = self.get_concrete_classes(source_name)
         return classes.get(concrete_class)
@@ -120,6 +123,7 @@ class HistoricalMaterialsLoader:
 
         Returns:
             Dictionary with steel types (e.g., dolce, FeB38k, B450C, etc.)
+
         """
         config = self.load_material_source(source_name)
         return config.get("steel_types", {})
@@ -133,6 +137,7 @@ class HistoricalMaterialsLoader:
 
         Returns:
             Dictionary with steel properties, or None if not found
+
         """
         types = self.get_steel_types(source_name)
         return types.get(steel_type)
@@ -145,6 +150,7 @@ class HistoricalMaterialsLoader:
 
         Returns:
             Dictionary with cement types (e.g., normale, alluminoso, presa_lenta)
+
         """
         config = self.load_material_source(source_name)
         return config.get("cement_types", {})
@@ -157,6 +163,7 @@ class HistoricalMaterialsLoader:
 
         Returns:
             Dictionary with calculation formulas
+
         """
         config = self.load_material_source(source_name)
         return config.get("calculation_formulas", {})
@@ -169,6 +176,7 @@ class HistoricalMaterialsLoader:
 
         Returns:
             Dictionary with conversion factors
+
         """
         config = self.load_material_source(source_name)
         return config.get("conversion_factors", {})
@@ -178,6 +186,7 @@ class HistoricalMaterialsLoader:
 
         Returns:
             List of source names
+
         """
         if not self.config_dir.exists():
             return []

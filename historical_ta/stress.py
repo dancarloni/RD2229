@@ -4,7 +4,7 @@ import math
 from dataclasses import dataclass
 from typing import List, Tuple
 
-from .geometry import SectionGeometry, SectionProperties, compute_section_properties
+from .geometry import SectionGeometry, SectionProperties
 from .materials import ConcreteLawTA, SteelLawTA, sigma_c, sigma_s
 
 # Mapping: VB CalcoloTensNormali (4.3), PointP (util to find zero-stress point) and SezioneParzializzata.
@@ -105,7 +105,6 @@ def compute_normal_stresses_ta(
 
     Returns StressResult containing global extrema and per-bar stresses.
     """
-
     # initial properties
     section_props = props
 
@@ -267,27 +266,24 @@ def compute_normal_stresses_ta(
                 break
             prev_sigma_c_max = sigma_c_max
             continue
-        else:
-            # No parzializzazione required or allowed
-            sigma_c_pos = max(0.0, sigma_c_max)
-            sigma_c_neg = min(0.0, sigma_c_min)
-            sigma_c_med = (
-                loads.Nx / section_props.area_equivalent
-                if section_props.area_equivalent != 0
-                else 0.0
-            )
+        # No parzializzazione required or allowed
+        sigma_c_pos = max(0.0, sigma_c_max)
+        sigma_c_neg = min(0.0, sigma_c_min)
+        sigma_c_med = (
+            loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+        )
 
-            sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
-            return StressResult(
-                sigma_c_max=sigma_c_max,
-                sigma_c_min=sigma_c_min,
-                sigma_c_pos=sigma_c_pos,
-                sigma_c_neg=sigma_c_neg,
-                sigma_c_med=sigma_c_med,
-                sigma_s_max=sigma_s_max,
-                sigma_s_array=sigma_bars,
-                sigma_vertices=sigma_vertices,
-            )
+        sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
+        return StressResult(
+            sigma_c_max=sigma_c_max,
+            sigma_c_min=sigma_c_min,
+            sigma_c_pos=sigma_c_pos,
+            sigma_c_neg=sigma_c_neg,
+            sigma_c_med=sigma_c_med,
+            sigma_s_max=sigma_s_max,
+            sigma_s_array=sigma_bars,
+            sigma_vertices=sigma_vertices,
+        )
 
     # fallback: return last computed
     sigma_s_max = max(sigma_bars) if sigma_bars else 0.0

@@ -1,7 +1,3 @@
-import json
-from unittest.mock import patch
-
-from sections_app.services.notification_settings import load_notification_settings
 from sections_app.ui.notification_settings_window import NotificationSettingsWindow
 
 
@@ -41,7 +37,6 @@ def test_center_honors_level_setting(monkeypatch):
             "confirm_default": "ask",
         },
     )
-    from sections_app.services import notification as ns
     from sections_app.ui.notification_center import NotificationCenter
 
     center = NotificationCenter(master=None)

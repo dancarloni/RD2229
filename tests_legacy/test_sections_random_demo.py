@@ -1,5 +1,4 @@
-"""
-Test automatizzati per la verifica delle proprietà geometriche delle sezioni.
+"""Test automatizzati per la verifica delle proprietà geometriche delle sezioni.
 
 Questo modulo contiene test che:
 - Generano dimensioni casuali plausibili per diverse tipologie di sezione

@@ -77,10 +77,11 @@ class Material:
 # Historical materials module is provided in `historical_materials.py` as a
 # single authoritative source
 try:
+    from historical_materials import HistoricalMaterial as _HistoricalMaterial_external
     from historical_materials import (
-        HistoricalMaterial as _HistoricalMaterial_external,
         HistoricalMaterialLibrary as _HistoricalMaterialLibrary_external,
     )
+
     HistoricalMaterial = _HistoricalMaterial_external
     HistoricalMaterialLibrary = _HistoricalMaterialLibrary_external
 except Exception:
@@ -187,9 +188,17 @@ except Exception:
                     return m
             return None
 
-# Expose canonical names for runtime compatibility
-HistoricalMaterial = _HistoricalMaterial  # type: ignore
-HistoricalMaterialLibrary = _HistoricalMaterialLibrary  # type: ignore
+
+# Expose canonical names for runtime compatibility (use fallback only if needed)
+try:
+    HistoricalMaterial
+except NameError:
+    HistoricalMaterial = _HistoricalMaterial  # type: ignore
+
+try:
+    HistoricalMaterialLibrary
+except NameError:
+    HistoricalMaterialLibrary = _HistoricalMaterialLibrary  # type: ignore
 
 
 class MaterialRepository:
@@ -226,8 +235,7 @@ class MaterialRepository:
         return list(self._materials.values())
 
     def import_historical_material(self, hist: "HistoricalMaterial") -> Material:
-        """
-        Crea un oggetto Material a partire da un HistoricalMaterial senza
+        """Crea un oggetto Material a partire da un HistoricalMaterial senza
         aggiungerlo automaticamente all'archivio.
 
         ✅ Mantiene il `code` dalla fonte storica per permettere ricerca
@@ -447,8 +455,7 @@ class MaterialRepository:
             logger.exception("Errore salvataggio file JSON %s: %s", self._json_file, e)
 
     def export_backup(self, destination: Path | str) -> None:
-        """
-        Esporta l'archivio materiali nel percorso indicato.
+        """Esporta l'archivio materiali nel percorso indicato.
         Non modifica il file principale né il backup interno.
         Se destination ha estensione .json, salva JSON.
 
@@ -460,6 +467,7 @@ class MaterialRepository:
         Raises:
             ValueError: Se la destinazione non è valida
             IOError: Se c'è un errore di scrittura del file
+
         """
         try:
             # Converti a Path

@@ -30,8 +30,8 @@ def test_gui_compatibility():
             )  # Usa file sections.json nella cartella corrente
             serializer = CsvSectionSerializer()
 
-            print(f"  ✓ Repository inizializzato")
-            print(f"  ✓ Serializer inizializzato")
+            print("  ✓ Repository inizializzato")
+            print("  ✓ Serializer inizializzato")
             print(f"  ✓ Cartella di lavoro: {os.getcwd()}")
 
             # Aggiungi sezioni (come dall'interfaccia GUI)
@@ -41,23 +41,23 @@ def test_gui_compatibility():
             section1 = RectangularSection(name="Test Rectangle", width=30, height=40)
             result1 = repository.add_section(section1)
             assert result1, "Aggiunta sezione 1 fallita"
-            print(f"  ✓ Sezione 1 aggiunta (via GUI)")
+            print("  ✓ Sezione 1 aggiunta (via GUI)")
 
             # Simula click su "Nuovo > Circolare"
             section2 = CircularSection(name="Test Circle", diameter=50)
             result2 = repository.add_section(section2)
             assert result2, "Aggiunta sezione 2 fallita"
-            print(f"  ✓ Sezione 2 aggiunta (via GUI)")
+            print("  ✓ Sezione 2 aggiunta (via GUI)")
 
             # Verifica che il file JSON sia stato creato
             assert os.path.isfile("sections.json"), "File sections.json non creato"
-            print(f"  ✓ File sections.json creato automaticamente")
+            print("  ✓ File sections.json creato automaticamente")
 
             # Simula export CSV (click su "Esporta CSV")
             print("\n[3] Export CSV (da GUI)...")
             serializer.export_to_csv("sections.csv", repository.get_all_sections())
             assert os.path.isfile("sections.csv"), "CSV non creato"
-            print(f"  ✓ Esportato in sections.csv")
+            print("  ✓ Esportato in sections.csv")
 
             # Crea nuovo repository (simula riavvio applicazione)
             print("\n[4] Riavvio applicazione (nuovo repository)...")
@@ -75,26 +75,26 @@ def test_gui_compatibility():
                 name="Test Rectangle Modified", width=35, height=45
             )
             repository2.update_section(loaded_sections[0].id, section1_modified)
-            print(f"  ✓ Sezione modificata")
+            print("  ✓ Sezione modificata")
 
             # Verifica persistenza della modifica
             repository3 = SectionRepository("sections.json")
             final_sections = repository3.get_all_sections()
             modified_section = next((s for s in final_sections if "Modified" in s.name), None)
             assert modified_section is not None, "Modifica non persistita"
-            print(f"  ✓ Modifiche persistite nel file JSON")
+            print("  ✓ Modifiche persistite nel file JSON")
 
             # Elimina una sezione (simula click su "Elimina")
             print("\n[6] Eliminazione sezione (da GUI)...")
             section_to_delete = final_sections[1]
             repository3.delete_section(section_to_delete.id)
-            print(f"  ✓ Sezione eliminata")
+            print("  ✓ Sezione eliminata")
 
             # Verifica persistenza dell'eliminazione
             repository4 = SectionRepository("sections.json")
             final_count = len(repository4.get_all_sections())
             assert final_count == 1, f"Rimaste {final_count} sezioni, attesa 1"
-            print(f"  ✓ Eliminazione persistita nel file JSON")
+            print("  ✓ Eliminazione persistita nel file JSON")
 
         finally:
             os.chdir(original_cwd)

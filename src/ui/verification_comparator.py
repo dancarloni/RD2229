@@ -1,13 +1,10 @@
-"""
-GUI window to compare verification methods (.bas translation vs TA vs SLU)
-"""
+"""GUI window to compare verification methods (.bas translation vs TA vs SLU)"""
 
 from __future__ import annotations
 
 import logging
 import tkinter as tk
 from tkinter import ttk
-from typing import Optional
 
 import matplotlib
 

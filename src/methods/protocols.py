@@ -1,4 +1,4 @@
-from typing import Protocol, Dict, Any
+from typing import Any, Dict, Protocol
 
 
 class VerificationMethod(Protocol):
@@ -6,5 +6,4 @@ class VerificationMethod(Protocol):
 
     name: str
 
-    def compute(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        ...
+    def compute(self, inputs: Dict[str, Any]) -> Dict[str, Any]: ...

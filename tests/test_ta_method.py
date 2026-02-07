@@ -1,5 +1,5 @@
-from src.methods.ta import TangentialAreaMethod
 from src.core_calculus.verification_engine import VerificationEngine
+from src.methods.ta import TangentialAreaMethod
 
 
 def test_ta_compute_basic():

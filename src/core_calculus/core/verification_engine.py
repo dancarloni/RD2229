@@ -1,5 +1,4 @@
-"""
-Verification engine that integrates calculation core with configuration system.
+"""Verification engine that integrates calculation core with configuration system.
 
 This module provides the main interface for performing structural verifications
 using the .jsoncode configuration system and verification core calculations.
@@ -8,7 +7,12 @@ using the .jsoncode configuration system and verification core calculations.
 from __future__ import annotations
 
 import logging
-from typing import Optional
+
+# Shorten mypy/flake8 agreeable imports (avoid long single-line imports)
+from typing import Any, Callable, Dict, Optional
+
+# Material type used by FRC model
+from core_models.materials import Material
 
 from .verification_core import (
     LoadCase,
@@ -27,13 +31,6 @@ from .verification_core import (
     verify_allowable_stresses,
 )
 
-# Material type used by FRC model
-from core_models.materials import Material
-
-# Shorten mypy/flake8 agreeable imports (avoid long single-line imports)
-
-from typing import Any, Callable, Dict
-
 # Typed optional callables populated by config loaders (may be None in tests)
 load_code: "Optional[Callable[[str], Dict[str, Any]]]" = None
 get_concrete_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]" = None
@@ -43,8 +40,9 @@ try:
     from config.calculation_codes_loader import load_code as _load_code
     from config.historical_materials_loader import (
         get_concrete_properties as _get_concrete_properties,
-        get_steel_properties as _get_steel_properties,
     )
+    from config.historical_materials_loader import get_steel_properties as _get_steel_properties
+
     load_code = _load_code
     get_concrete_properties = _get_concrete_properties
     get_steel_properties = _get_steel_properties
@@ -59,11 +57,11 @@ class VerificationEngine:
     """Main verification engine."""
 
     def __init__(self, calculation_code: str = "TA"):
-        """
-        Initialize verification engine.
+        """Initialize verification engine.
 
         Args:
             calculation_code: Calculation code ("TA", "SLU", "SLE")
+
         """
         self.calculation_code = calculation_code.upper()
         self.config = None
@@ -79,13 +77,11 @@ class VerificationEngine:
     def get_material_properties(
         self, concrete_class: str, steel_type: str, material_source: str = "RD2229"
     ) -> MaterialProperties:
-        """
-        Get material properties from configuration.
+        """Get material properties from configuration.
 
         This method delegates to a cached helper to avoid repeated lookups
         against the historical materials repository which may be IO-heavy.
         """
-
         from functools import lru_cache
 
         @lru_cache(maxsize=512)
@@ -118,14 +114,14 @@ class VerificationEngine:
         return MaterialProperties(fck=fck, Ec=Ec, fyk=fyk, Es=Es)
 
     def get_allowable_stresses(self, material: MaterialProperties) -> tuple[float, float]:
-        """
-        Get allowable stresses from configuration.
+        """Get allowable stresses from configuration.
 
         Args:
             material: Material properties
 
         Returns:
             Tuple of (sigma_c_adm, sigma_s_adm)
+
         """
         if self.calculation_code == "TA":
             # For TA: σ_c,adm = 0.5 × σ_c,28
@@ -166,8 +162,7 @@ class VerificationEngine:
         frc_material: "Optional[Material]" = None,
         frc_area: float = 0.0,
     ) -> VerificationResult:
-        """
-        Perform complete structural verification.
+        """Perform complete structural verification.
 
         Args:
             section: Section geometry
@@ -178,6 +173,7 @@ class VerificationEngine:
 
         Returns:
             Verification result
+
         """
         # Determine verification type
         verif_type = loads.get_verification_type()
@@ -276,8 +272,7 @@ class VerificationEngine:
                         )
                 elif At_req > 0:
                     approx_notes.append(
-                        f"Armatura torsione richiesta ≈ {At_req:.3f} cm² "
-                        f"(nessun At fornita)"
+                        f"Armatura torsione richiesta ≈ {At_req:.3f} cm² " f"(nessun At fornita)"
                     )
             except Exception:
                 logger.exception("Errore stima armatura torsione")
@@ -313,13 +308,13 @@ class VerificationEngine:
 
 
 def create_verification_engine(calculation_code: str = "TA") -> VerificationEngine:
-    """
-    Create a verification engine instance.
+    """Create a verification engine instance.
 
     Args:
         calculation_code: Calculation code ("TA", "SLU", "SLE")
 
     Returns:
         Verification engine
+
     """
     return VerificationEngine(calculation_code=calculation_code)

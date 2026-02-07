@@ -1,8 +1,7 @@
 import tkinter as tk
 import unittest
 
-from sections_app.ui.module_selector import ModuleSelectorWindow
-from verification_table import VerificationTableApp, VerificationTableWindow
+from verification_table import VerificationTableWindow
 
 
 class TestVerificationTableIntegration(unittest.TestCase):

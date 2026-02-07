@@ -312,9 +312,6 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_section_suggestions_from_repository(self):
         """Verify suggestions are drawn from SectionRepository."""
-        from sections_app.models.sections import RectangularSection
-        from sections_app.services.repository import SectionRepository
-
         sec_repo = SectionRepository()
         sec_repo.clear()
         sec = RectangularSection(name="Rect-20x30", width=20, height=30)

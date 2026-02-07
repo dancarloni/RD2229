@@ -7,18 +7,19 @@ package to preserve backwards compatibility. Implementation lives in
 
 from __future__ import annotations
 
-from typing import List
 import logging
+from typing import List
+
+from app.domain.materials import get_concrete_properties, get_steel_properties
 
 # Re-export a small set of stable names for backward compatibility
 from app.domain.models import VerificationInput, VerificationOutput
 from app.domain.sections import get_section_geometry
-from app.domain.materials import get_concrete_properties, get_steel_properties
-from app.verification.engine_adapter import compute_with_engine
-from app.verification.methods_ta import compute_ta_verification
-from app.verification.methods_slu import compute_slu_verification
-from app.verification.methods_sle import compute_sle_verification
 from app.ui.verification_table_app import COLUMNS, VerificationTableApp, VerificationTableWindow
+from app.verification.engine_adapter import compute_with_engine
+from app.verification.methods_sle import compute_sle_verification
+from app.verification.methods_slu import compute_slu_verification
+from app.verification.methods_ta import compute_ta_verification
 
 # Logger and deprecation warning emitted at import time
 logger = logging.getLogger(__name__)
@@ -66,9 +67,9 @@ def compute_verification_result(
 
     if method == "TA":
         return compute_ta_verification(_input, section_repository, material_repository)
-    elif method == "SLU":
+    if method == "SLU":
         return compute_slu_verification(_input, section_repository, material_repository)
-    elif method == "SLE":
+    if method == "SLE":
         return compute_sle_verification(_input, section_repository, material_repository)
 
     return VerificationOutput(

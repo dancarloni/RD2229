@@ -1,16 +1,17 @@
 """Compatibility package exposing the previous `app` import paths while
 re-exporting implementations from `src` package for a smooth transition.
 """
+
 # flake8: noqa: E302,E305
 
 from importlib import import_module as _im
 
 # Lazy re-exports to avoid heavy imports at package import time
 
+
 def _reexport(module_name: str, attr: str) -> None:
     mod = _im(module_name)
     globals()[attr] = getattr(mod, attr)
-
 
 
 # Re-export commonly used modules and name to mimic old structure

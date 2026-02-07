@@ -1,5 +1,6 @@
 # Compatibility shim mapping to src.core_calculus.verification_engine
 from importlib import import_module as _im
+
 _mod = _im("src.core_calculus.verification_engine")
 for _name, _val in vars(_mod).items():
     if not _name.startswith("_"):

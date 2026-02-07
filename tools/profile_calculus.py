@@ -1,4 +1,5 @@
 """Profile core calculus with cProfile and print a short summary."""
+
 from __future__ import annotations
 
 import cProfile

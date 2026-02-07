@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Esempio pratico di persistenza del SectionRepository.
+"""Esempio pratico di persistenza del SectionRepository.
 
 Questo script mostra come le sezioni vengono salvate e ripristinate automaticamente.
 """
@@ -30,7 +29,7 @@ def main():
     print("-" * 70)
 
     repo = SectionRepository(json_file=json_file)
-    print(f"\n✓ Repository inizializzato")
+    print("\n✓ Repository inizializzato")
     print(f"  File: {json_file}")
     print(f"  Sezioni caricate: {len(repo.get_all_sections())}")
 
@@ -79,11 +78,11 @@ def main():
         print(
             f"  Baricentro: ({pilastro.properties.centroid_x:.2f}, {pilastro.properties.centroid_y:.2f})"
         )
-        print(f"  Momenti d'inerzia:")
+        print("  Momenti d'inerzia:")
         print(f"    Ix: {pilastro.properties.ix:.2f}")
         print(f"    Iy: {pilastro.properties.iy:.2f}")
         print(f"    Ixy: {pilastro.properties.ixy:.2f}")
-        print(f"  Raggi di inerzia:")
+        print("  Raggi di inerzia:")
         print(f"    rx: {pilastro.properties.rx:.2f}")
         print(f"    ry: {pilastro.properties.ry:.2f}")
 
@@ -93,7 +92,7 @@ def main():
 
     palo = next((s for s in repo.get_all_sections() if s.name == "Palo d=60"), None)
     if palo:
-        print(f"\nSezione originale:")
+        print("\nSezione originale:")
         print(f"  Nome: {palo.name}")
         print(f"  Diametro: {palo.diameter}")
         print(f"  Area: {palo.properties.area:.2f}")
@@ -104,7 +103,7 @@ def main():
         )
         repo.update_section(palo.id, palo_modificato)
 
-        print(f"\nSezione modificata e salvata:")
+        print("\nSezione modificata e salvata:")
         print(f"  Nome: {palo_modificato.name}")
         print(f"  Diametro: {palo_modificato.diameter}")
         print(f"  Area: {palo_modificato.properties.area:.2f}")
@@ -128,11 +127,11 @@ def main():
     del repo
     print("✓ Repository distrutto")
 
-    print(f"\nRiapertura applicazione...")
+    print("\nRiapertura applicazione...")
     repo2 = SectionRepository(json_file=json_file)
-    print(f"✓ Repository ripristinato")
+    print("✓ Repository ripristinato")
 
-    print(f"\nSezioni caricate dal file:")
+    print("\nSezioni caricate dal file:")
     for i, section in enumerate(repo2.get_all_sections(), 1):
         print(f"  {i}. {section.name} ({section.section_type})")
 
@@ -149,9 +148,9 @@ def main():
             data = json.load(f)
 
         print(f"\nFile: {json_file}")
-        print(f"Formato: JSON")
+        print("Formato: JSON")
         print(f"Sezioni salvate: {len(data)}")
-        print(f"\nPrima sezione (struttura JSON):")
+        print("\nPrima sezione (struttura JSON):")
         if data:
             first = data[0]
             print(f"  id: {first.get('id')[:8]}...")

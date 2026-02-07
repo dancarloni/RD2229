@@ -1,7 +1,8 @@
 """Compatibility shim for `app.ui` -> `src.ui`."""
+
+import sys as _sys
 from importlib import import_module as _im
 from types import ModuleType
-import sys as _sys
 
 _mod = _im("src.ui")
 for _name, _val in vars(_mod).items():

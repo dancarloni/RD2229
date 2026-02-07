@@ -269,6 +269,7 @@ class Section:
 
         Returns:
             Tuple (Ix_global, Iy_global, Ixy_global) dopo rotazione
+
         """
         if self.rotation_angle_deg == 0:
             return ix_local, iy_local, ixy_local

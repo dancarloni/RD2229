@@ -4,17 +4,15 @@ import logging
 import os
 import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, ttk
+from tkinter import filedialog
 from typing import Callable, Optional
 
 from core_models.materials import MaterialRepository
 from historical_materials import HistoricalMaterialLibrary
 from sections_app.models.sections import Section
 from sections_app.services.notification import (
-    ask_confirm,
     notify_error,
     notify_info,
-    notify_warning,
 )
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.code_settings_window import CodeSettingsWindow

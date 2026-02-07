@@ -7,10 +7,8 @@ from pathlib import Path
 from tkinter import ttk
 
 from sections_app.services.notification import (
-    ask_confirm,
     notify_error,
     notify_info,
-    notify_warning,
 )
 
 logger = logging.getLogger(__name__)

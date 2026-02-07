@@ -26,11 +26,11 @@ def compute_verification_result(
 
     if method == "TA":
         return compute_ta_verification(_input, section_repository, material_repository)
-    elif method == "SLU":
+    if method == "SLU":
         return compute_slu_verification(_input, section_repository, material_repository)
-    elif method == "SLE":
+    if method == "SLE":
         return compute_sle_verification(_input, section_repository, material_repository)
-    elif method in ("SANT", "PLACEHOLDER"):
+    if method in ("SANT", "PLACEHOLDER"):
         from app.verification.methods_ta import compute_ta_verification as _placeholder
 
         return _placeholder(_input, section_repository, material_repository)

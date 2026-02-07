@@ -3,7 +3,6 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import tkinter as tk
-from tkinter import ttk
 
 from verification_table import VerificationTableApp
 

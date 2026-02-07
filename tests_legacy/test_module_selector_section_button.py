@@ -83,14 +83,13 @@ class TestModuleSelectorSectionButton(unittest.TestCase):
 
     def test_on_section_edit_opens_geometry_and_loads_section(self):
         """Check that invoking the edit callback opens Geometry and loads the section."""
-        import time
-
         # Mock MainWindow to avoid flaky GUI creation in headless tests
         from unittest.mock import MagicMock
 
-        with patch("tkinter.Tk.mainloop"), patch(
-            "sections_app.ui.module_selector.MainWindow"
-        ) as MockMain:
+        with (
+            patch("tkinter.Tk.mainloop"),
+            patch("sections_app.ui.module_selector.MainWindow") as MockMain,
+        ):
             window = ModuleSelectorWindow(self.repo, self.serializer, self.material_repo)
             try:
                 # Create a sample section and invoke the callback

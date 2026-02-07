@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Demo script for the verification calculation engine.
+"""Demo script for the verification calculation engine.
 
 This demonstrates the new calculation core integrated with the .jsoncode configuration system.
 """

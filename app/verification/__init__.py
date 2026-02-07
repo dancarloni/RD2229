@@ -1,7 +1,8 @@
 """Compatibility shim for `app.verification` -> `src.methods`."""
+
+import sys as _sys
 from importlib import import_module as _im
 from types import ModuleType
-import sys as _sys
 
 _mod = _im("src.methods")
 for _name, _val in vars(_mod).items():

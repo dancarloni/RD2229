@@ -1,8 +1,8 @@
 """Compatibility shim for `app.domain` package re-exporting `src.domain`."""
 
+import sys as _sys
 from importlib import import_module as _im
 from types import ModuleType
-import sys as _sys
 
 _mod = _im("src.domain")
 # Re-export all public names

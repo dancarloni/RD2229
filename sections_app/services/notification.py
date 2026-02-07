@@ -1,5 +1,4 @@
-"""
-Notification service: non-blocking user notifications that emit EventBus NOTIFICATION
+"""Notification service: non-blocking user notifications that emit EventBus NOTIFICATION
 and also append to the in-memory log so the Debug Viewer can display them.
 
 This provides convenience functions `notify_info`, `notify_warning`, `notify_error`

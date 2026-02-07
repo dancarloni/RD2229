@@ -1,7 +1,7 @@
 import os
 import tkinter as tk
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 os.environ["DISPLAY"] = ":0"  # Set display for headless environments
 

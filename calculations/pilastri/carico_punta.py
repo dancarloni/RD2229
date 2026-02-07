@@ -29,6 +29,7 @@ class PointLoad:
     Attributes:
         P: forza in Newton
         e: eccentricità in metri (opzionale)
+
     """
 
     P: float

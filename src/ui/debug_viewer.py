@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 from tkinter import ttk
-from typing import Optional
 
 from sections_app.services.debug_log_stream import get_log_buffer
 

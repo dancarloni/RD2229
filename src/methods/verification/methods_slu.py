@@ -89,8 +89,7 @@ def compute_slu_verification(
             f"  Momento agente M_Ed = {M_kgm:.2f} kg·m",
             "",
             "VERIFICA:",
-            f"  M_Ed / M_Rd = {coeff_sicurezza:.3f} "
-            f"{('✓' if coeff_sicurezza <= 1.0 else '✗')}",
+            f"  M_Ed / M_Rd = {coeff_sicurezza:.3f} " f"{('✓' if coeff_sicurezza <= 1.0 else '✗')}",
             "",
             f"ESITO: {esito}",
         ]

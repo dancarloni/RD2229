@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 # Mapping to VB: f_Sigc (4.3.3) and f_Sigf (4.3.4)
 # We implement parameterized constitutive laws capturing the same branches used in the VB code.
@@ -70,6 +69,7 @@ def sigma_c(eps: float, law: ConcreteLawTA) -> float:
     Note: The VB code used Excel scaling factors (fmL, fmFL) and mixed units. This
     implementation adopts a consistent unit system: lengths [cm], areas [cm^2],
     forces [kg], moments [kg·m], stresses [kg/cm^2].
+
     """
     # Tension (positive eps) or zero strain: linear elastic for positive strains, zero if tension not allowed
     if eps >= 0:
@@ -77,9 +77,8 @@ def sigma_c(eps: float, law: ConcreteLawTA) -> float:
             return 0.0
         if law.allow_tension:
             return law.Ec * eps
-        else:
-            # typically concrete cannot resist tension in TA method -> zero
-            return 0.0
+        # typically concrete cannot resist tension in TA method -> zero
+        return 0.0
 
     # Compression branch (eps < 0)
     # We implement a smooth parabola that reaches -fcd at eps = -eps_cu
@@ -112,10 +111,9 @@ def sigma_s(eps: float, law: SteelLawTA) -> float:
     if law.elastoplastic and not law.bilinear:
         # perfectly plastic: stress = sign * fyd
         return sign * law.fyd
-    elif law.bilinear:
+    if law.bilinear:
         # bilinear: linear hardening beyond yield with factor Kincr
         eps_pl = eps_abs - law.eps_yd
         return sign * (law.fyd + law.Kincr * law.Es * eps_pl)
-    else:
-        # default plastic plateau
-        return sign * law.fyd
+    # default plastic plateau
+    return sign * law.fyd

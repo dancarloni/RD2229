@@ -14,6 +14,7 @@ def section_inertia(
 
     Returns:
         (area, I_x, I_y)
+
     """
     if thickness <= 0:
         area = width * height
@@ -21,16 +22,7 @@ def section_inertia(
         I_y = (height * width**3) / 12.0
     else:
         # hollow rectangle approximation: outer minus inner
-        area = (
-            width * height
-            - (width - 2 * thickness) * (height - 2 * thickness)
-        )
-        I_x = (
-            (width * height**3)
-            - (width - 2 * thickness) * (height - 2 * thickness) ** 3
-        ) / 12.0
-        I_y = (
-            (height * width**3)
-            - (height - 2 * thickness) * (width - 2 * thickness) ** 3
-        ) / 12.0
+        area = width * height - (width - 2 * thickness) * (height - 2 * thickness)
+        I_x = ((width * height**3) - (width - 2 * thickness) * (height - 2 * thickness) ** 3) / 12.0
+        I_y = ((height * width**3) - (height - 2 * thickness) * (width - 2 * thickness) ** 3) / 12.0
     return area, I_x, I_y

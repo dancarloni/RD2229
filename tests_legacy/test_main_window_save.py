@@ -3,7 +3,6 @@ import tkinter as tk
 
 import pytest
 
-from sections_app.models.sections import RectangularSection
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.main_window import MainWindow
 

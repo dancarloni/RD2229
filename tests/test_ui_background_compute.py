@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+
 from src.ui.ui.verification_table_app import VerificationTableApp
 
 

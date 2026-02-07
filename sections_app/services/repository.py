@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 from sections_app.models.sections import (
-    CSV_HEADERS,
     CircularHollowSection,
     CircularSection,
     CSection,
@@ -51,8 +50,7 @@ class SectionRepository:
     def __init__(
         self, json_file: Optional[str] = None, auto_migrate: Optional[bool] = None
     ) -> None:
-        """
-        Se `json_file` è None → usiamo il file canonico `DEFAULT_JSON_FILE` e
+        """Se `json_file` è None → usiamo il file canonico `DEFAULT_JSON_FILE` e
         abilitiamo la migrazione automatica da `sections.json` a `sec_repository/...jsons`
         (a meno che l'env var `RD2229_NO_AUTO_MIGRATE` sia attiva).
 
@@ -65,7 +63,7 @@ class SectionRepository:
         # Decidi se la migrazione automatica è abilitata (default: True)
         if auto_migrate is None:
             no_migrate = os.environ.get("RD2229_NO_AUTO_MIGRATE", "").lower()
-            auto_migrate = not (no_migrate in ("1", "true", "yes"))
+            auto_migrate = no_migrate not in ("1", "true", "yes")
 
         # Se l'utente ha passato un path esplicito, lo usiamo così com'è
         self._explicit_json_file = json_file is not None
@@ -502,7 +500,7 @@ class SectionRepository:
             logger.info("Caricate %d sezioni da %s", len(self._sections), self._file_path)
             self._ensure_seed_sections()
             return
-        except Exception as e:
+        except Exception:
             logger.exception("Errore nel caricamento di %s, provo il backup", self._file_path)
 
         # 2) Se fallisce, prova il backup
@@ -536,7 +534,7 @@ class SectionRepository:
             )
             self._ensure_seed_sections()
             return
-        except Exception as e:
+        except Exception:
             logger.exception("Errore anche nel caricamento del backup %s", self._backup_path)
 
         # 3) Se tutto fallisce, archivio vuoto
@@ -599,8 +597,7 @@ class SectionRepository:
             logger.exception("Errore salvataggio file JSON %s: %s", self._json_file, e)
 
     def export_backup(self, destination: Path | str) -> None:
-        """
-        Esporta l'archivio sezioni nel percorso indicato.
+        """Esporta l'archivio sezioni nel percorso indicato.
         Non modifica il file principale né il backup interno.
         Se destination ha estensione .json, salva JSON; se .csv, salva CSV.
 
@@ -613,6 +610,7 @@ class SectionRepository:
         Raises:
             ValueError: Se la destinazione non è valida
             IOError: Se c'è un errore di scrittura del file
+
         """
         try:
             # Converti a Path
@@ -714,8 +712,7 @@ class CsvSectionSerializer:
 
 
 def load_sections_from_json(json_file: str = DEFAULT_JSON_FILE) -> list[dict]:
-    """
-    Carica tutte le sezioni da un file JSON.
+    """Carica tutte le sezioni da un file JSON.
 
     Funzione di utilità che semplifica il caricamento delle sezioni
     quando non serve un'istanza persistente del repository.
@@ -739,6 +736,7 @@ def load_sections_from_json(json_file: str = DEFAULT_JSON_FILE) -> list[dict]:
         sections = load_sections_from_json("sections.json")
         for section_data in sections:
             print(f"{section_data['name']}: {section_data['area']} cm²")
+
     """
     try:
         repo = SectionRepository(json_file)
@@ -751,8 +749,7 @@ def load_sections_from_json(json_file: str = DEFAULT_JSON_FILE) -> list[dict]:
 
 
 def save_sections_to_json(sections: list[dict], json_file: str = DEFAULT_JSON_FILE) -> None:
-    """
-    Salva una lista di sezioni in un file JSON.
+    """Salva una lista di sezioni in un file JSON.
 
     Funzione di utilità che semplifica il salvataggio quando non serve
     un'istanza persistente del repository.
@@ -790,6 +787,7 @@ def save_sections_to_json(sections: list[dict], json_file: str = DEFAULT_JSON_FI
             }
         ]
         save_sections_to_json(sections, "sections.json")
+
     """
     try:
         # Crea repository e svuota l'archivio

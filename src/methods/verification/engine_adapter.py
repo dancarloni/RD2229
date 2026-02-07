@@ -31,9 +31,7 @@ def compute_with_engine(
     try:
         b_cm, h_cm = get_section_geometry(_input, section_repository, unit="cm")
         fck_mpa, fck_kgcm2, *_ = get_concrete_properties(_input, material_repository)
-        fyk_mpa, fyk_kgcm2, *_ = get_steel_properties(
-            _input, material_repository
-        )
+        fyk_mpa, fyk_kgcm2, *_ = get_steel_properties(_input, material_repository)
 
         section = SectionGeometry(width=b_cm, height=h_cm)
         d_top = _input.d_sup if _input.d_sup > 0 else 4.0

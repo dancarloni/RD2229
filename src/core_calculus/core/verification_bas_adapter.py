@@ -1,5 +1,4 @@
-"""
-Bas adapter: lightweight translation of key routines from Visual Basic modules
+"""Bas adapter: lightweight translation of key routines from Visual Basic modules
 (PrincipCA_TA.bas and CA_SLU.bas) for torsion and deviated bending.
 
 This module exposes functions that compute torsion checks and deviated-bending
@@ -38,8 +37,7 @@ def bas_torsion_verification(
     loads: LoadCase,
     method: str = "TA",
 ) -> Dict[str, Any]:
-    """
-    Compute torsion verification values emulating PrincipCA_TA.bas routines.
+    """Compute torsion verification values emulating PrincipCA_TA.bas routines.
 
     Returns a dict with keys describing the numeric outputs and messages. Typical
     keys include: 'Taux_max', 'A', 'p', 'Al_to', 'Pst_to', 'Mtu1', 'Mtu2',
@@ -118,14 +116,7 @@ def bas_torsion_verification(
             Asw_to = getattr(material, "Asw_to", 1.0)
             alfa_to = math.radians(getattr(material, "alfa_to_deg", 30.0))
             if Asw_to * math.sin(math.pi - teta - alfa_to) != 0:
-                Pst_to = (
-                    2.0
-                    * A
-                    * Asw_to
-                    * sigma_fa
-                    * math.sin(math.pi - teta - alfa_to)
-                    / abs(Mx)
-                )
+                Pst_to = 2.0 * A * Asw_to * sigma_fa * math.sin(math.pi - teta - alfa_to) / abs(Mx)
             else:
                 Pst_to = 0.0
 

@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+
 from src.utils.background import BackgroundExecutor
 
 

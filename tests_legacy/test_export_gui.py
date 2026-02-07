@@ -1,5 +1,4 @@
-"""
-Test per la funzionalità di esportazione backup dalla GUI.
+"""Test per la funzionalità di esportazione backup dalla GUI.
 
 Verifica che il menu "Esporta backup..." sia presente e funzionante.
 """
@@ -9,7 +8,7 @@ import tempfile
 import tkinter as tk
 import unittest
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from core_models.materials import Material, MaterialRepository
 from sections_app.models.sections import RectangularSection
@@ -88,7 +87,7 @@ class TestExportBackupGUI(unittest.TestCase):
                     try:
                         window.section_repository.export_backup(file_path)
                         # Non chiamiamo messagebox durante il test
-                    except Exception as e:
+                    except Exception:
                         pass
 
                 mock_export()

@@ -5,7 +5,6 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from typing import Optional
 
-from sections_app.models.sections import Section
 from sections_app.services.historical_calculations import (
     verify_flexure_allowable_stress,
 )

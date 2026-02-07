@@ -15,10 +15,9 @@ def sigma_c_amm_from_r28(sigma_r28, mode="compression"):
     sigma = float(sigma_r28) / 3.0
     if mode == "compression":
         return min(sigma, 60.0)
-    elif mode == "flexure":
+    if mode == "flexure":
         return min(sigma, 75.0)
-    else:
-        raise ValueError("mode must be 'compression' or 'flexure'")
+    raise ValueError("mode must be 'compression' or 'flexure'")
 
 
 def steel_sigma_amm(category="soft"):
@@ -27,10 +26,9 @@ def steel_sigma_amm(category="soft"):
     """
     if category == "soft":
         return 1400.0
-    elif category == "hard":
+    if category == "hard":
         return 2000.0
-    else:
-        raise ValueError("category must be 'soft' or 'hard'")
+    raise ValueError("category must be 'soft' or 'hard'")
 
 
 def n_modulus_ratio(concrete_type="common"):
@@ -48,8 +46,7 @@ def shear_allowable(with_stirrups=False, concrete_type="ordinary"):
     """
     if with_stirrups:
         return 16.0 if concrete_type == "high" else 14.0
-    else:
-        return 6.0 if concrete_type == "high" else 4.0
+    return 6.0 if concrete_type == "high" else 4.0
 
 
 def check_cube_requirement(f_cub28, sigma_c_amm):
@@ -62,8 +59,7 @@ def check_cube_requirement(f_cub28, sigma_c_amm):
     min_abs = 160.0 if float(sigma_c_amm) > 40.0 else 120.0
     if float(f_cub28) >= req and float(f_cub28) >= min_abs:
         return (True, f"f_cub28={f_cub28} OK (>= {req} and >= {min_abs})")
-    else:
-        return (False, f"f_cub28={f_cub28} NOT OK (required >= {req} and >= {min_abs})")
+    return (False, f"f_cub28={f_cub28} NOT OK (required >= {req} and >= {min_abs})")
 
 
 def flexural_resistance_rectangular(b, d, A_s, sigma_s_amm=None, sigma_c_amm=None, units="kg_cm"):

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple EventBus for notifying UI windows of repository changes.
+"""Simple EventBus for notifying UI windows of repository changes.
 
 This provides a lightweight pub/sub system to decouple the repository
 operations from the UI update logic.
@@ -36,6 +35,7 @@ class EventBus:
         Args:
             event_type: Type of event (e.g., "sections_changed", "materials_changed")
             callback: Function to call when event is emitted
+
         """
         if event_type not in self._listeners:
             self._listeners[event_type] = []
@@ -48,6 +48,7 @@ class EventBus:
         Args:
             event_type: Type of event
             callback: Function to unsubscribe
+
         """
         if event_type in self._listeners:
             try:
@@ -62,6 +63,7 @@ class EventBus:
         Args:
             event_type: Type of event
             *args, **kwargs: Arguments to pass to callbacks
+
         """
         if event_type not in self._listeners:
             logger.debug(f"No listeners for event: {event_type}")

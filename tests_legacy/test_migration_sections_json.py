@@ -1,9 +1,5 @@
 import json
-import os
-import shutil
 from pathlib import Path
-
-import pytest
 
 from sections_app.models.sections import create_section_from_dict
 from sections_app.services.repository import DEFAULT_JSON_FILE, SectionRepository

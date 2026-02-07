@@ -34,8 +34,6 @@ from typing import Dict, List, Optional
 
 from .concrete_strength import (
     CementType,
-    SectionCondition,
-    compute_allowable_compressive_stress,
     compute_allowable_shear,
     compute_ec,
     compute_ec_conventional,

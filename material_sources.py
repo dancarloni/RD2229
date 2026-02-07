@@ -1,5 +1,4 @@
-"""
-material_sources.py - Gestione delle fonti normative per i materiali strutturali.
+"""material_sources.py - Gestione delle fonti normative per i materiali strutturali.
 
 Questo modulo implementa:
 1. Il modello `MaterialSource` per rappresentare una fonte normativa
@@ -186,9 +185,7 @@ def _get_default_sources() -> List[MaterialSource]:
         MaterialSource(
             id="NTC2008",
             name="NTC 2008",
-            description=(
-                "Norme Tecniche per le Costruzioni - DM 14 gennaio 2008"
-            ),
+            description=("Norme Tecniche per le Costruzioni - DM 14 gennaio 2008"),
             year=2008,
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=True,
@@ -206,10 +203,7 @@ def _get_default_sources() -> List[MaterialSource]:
             calculation_method=CalculationMethod.STATI_LIMITE,
             is_historical=False,
             reference="D.M. 17/01/2018",
-            notes=(
-                "Norma vigente. Metodo agli stati limite. "
-                "Circolare applicativa n. 7/2019."
-            ),
+            notes=("Norma vigente. Metodo agli stati limite. " "Circolare applicativa n. 7/2019."),
         ),
         MaterialSource(
             id="LAB_TEST",
@@ -349,8 +343,7 @@ class MaterialSourceLibrary:
 
 
 def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[str, Any]:
-    """
-    Calcola i parametri del calcestruzzo secondo RD 2229/1939.
+    """Calcola i parametri del calcestruzzo secondo RD 2229/1939.
 
     NOTA: fck qui rappresenta σ_c,28 (resistenza cubica a 28 gg) in kg/cm².
 
@@ -360,6 +353,7 @@ def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[st
 
     Returns:
         Dizionario con i valori calcolati.
+
     """
     # Tensioni ammissibili secondo RD 2229/39
     # Riferimento: Art. 10-11 del RD 2229/1939
@@ -401,8 +395,7 @@ def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[st
 
 
 def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, Any]:
-    """
-    Calcola i parametri dell'acciaio secondo RD 2229/1939.
+    """Calcola i parametri dell'acciaio secondo RD 2229/1939.
 
     Args:
         fyk: Tensione di snervamento [kg/cm²]
@@ -410,6 +403,7 @@ def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, An
 
     Returns:
         Dizionario con i valori calcolati.
+
     """
     # Tensioni ammissibili secondo RD 2229/39
     # σ_s,amm ≤ fyk/2 (non deve superare metà del carico di snervamento)
@@ -432,8 +426,7 @@ def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, An
 
 
 def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
-    """
-    Calcola i parametri del calcestruzzo secondo NTC 2018.
+    """Calcola i parametri del calcestruzzo secondo NTC 2018.
 
     NOTA: fck è la resistenza caratteristica CILINDRICA [MPa o kg/cm²].
     Per conversione da cubica: fck_cil ≈ 0.83 * Rck
@@ -445,6 +438,7 @@ def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
         Dizionario con i valori calcolati.
 
     TODO: Verificare formule con NTC 2018 e Circolare n. 7/2019.
+
     """
     # Conversione approssimativa se il valore sembra essere cubico (> 150 kg/cm²)
     # In realtà NTC2018 usa MPa, qui manteniamo kg/cm² per coerenza col progetto
@@ -478,14 +472,14 @@ def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
 
 
 def _compute_ntc2018_steel(fyk: float) -> Dict[str, Any]:
-    """
-    Calcola i parametri dell'acciaio secondo NTC 2018.
+    """Calcola i parametri dell'acciaio secondo NTC 2018.
 
     Args:
         fyk: Tensione caratteristica di snervamento [kg/cm²]
 
     Returns:
         Dizionario con i valori calcolati.
+
     """
     # fyd = fyk / γ_s  (NTC 2018: γ_s = 1.15)
     gamma_s = 1.15
@@ -503,8 +497,7 @@ def _compute_ntc2018_steel(fyk: float) -> Dict[str, Any]:
 
 
 def _compute_dm96_concrete(fck: float) -> Dict[str, Any]:
-    """
-    Calcola i parametri del calcestruzzo secondo DM 09/01/1996.
+    """Calcola i parametri del calcestruzzo secondo DM 09/01/1996.
 
     TODO: Verificare formule con testo DM 96.
     """
@@ -526,9 +519,7 @@ def _compute_dm96_concrete(fck: float) -> Dict[str, Any]:
 
 
 def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
-    """
-    Calcola i parametri dell'acciaio secondo DM 09/01/1996.
-    """
+    """Calcola i parametri dell'acciaio secondo DM 09/01/1996."""
     gamma_s = 1.15
     fyd = fyk / gamma_s
     Es = 2100000.0
@@ -549,8 +540,7 @@ def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
 def get_default_values_for_source(
     source_id: str, material_type: str, base_params: Dict[str, Any]
 ) -> Dict[str, Any]:
-    """
-    Calcola i valori predefiniti per un materiale in base alla fonte normativa.
+    """Calcola i valori predefiniti per un materiale in base alla fonte normativa.
 
     AVVERTENZA: I valori restituiti sono da considerarsi DI ESEMPIO.
     Devono essere VERIFICATI da un ingegnere strutturista prima dell'uso
@@ -568,6 +558,7 @@ def get_default_values_for_source(
         - Calcestruzzo: fcd, tau_c0, tau_c1, n, Ec, gamma_c, fctm, ...
         - Acciaio: fyd, Es, gamma_s, ...
         - Sempre presente: "calculation_notes" con avvertenze
+
     """
     result: Dict[str, Any] = {"source_id": source_id, "calculation_notes": ""}
 

@@ -1,5 +1,4 @@
-"""
-Loader for calculation code configuration files (.jsoncode).
+"""Loader for calculation code configuration files (.jsoncode).
 
 This module loads and validates calculation code parameters from .jsoncode files
 for TA (Tensioni Ammissibili), SLU (Stato Limite Ultimo), and SLE (Stato Limite Esercizio).
@@ -24,6 +23,7 @@ class CalculationCodeLoader:
         Args:
             config_dir: Directory containing .jsoncode files.
                        Defaults to config/calculation_codes/ in project root.
+
         """
         if config_dir is None:
             # Try to find config directory relative to this file
@@ -49,6 +49,7 @@ class CalculationCodeLoader:
         Raises:
             FileNotFoundError: If the .jsoncode file is not found
             json.JSONDecodeError: If the file contains invalid JSON
+
         """
         code_name = code_name.upper()
 
@@ -93,6 +94,7 @@ class CalculationCodeLoader:
 
         Returns:
             Dictionary with safety coefficients
+
         """
         config = self.load_code(code_name)
         return config.get("safety_coefficients", {})
@@ -105,6 +107,7 @@ class CalculationCodeLoader:
 
         Returns:
             Dictionary with stress limits
+
         """
         config = self.load_code(code_name)
         return config.get("stress_limits", {})
@@ -117,6 +120,7 @@ class CalculationCodeLoader:
 
         Returns:
             Dictionary with strain limits
+
         """
         config = self.load_code(code_name)
         return config.get("strain_limits", {})
@@ -129,6 +133,7 @@ class CalculationCodeLoader:
 
         Returns:
             Default homogenization coefficient (n = Es/Ec), or None if not defined
+
         """
         config = self.load_code(code_name)
         homog = config.get("homogenization", {})
@@ -142,6 +147,7 @@ class CalculationCodeLoader:
 
         Returns:
             Dictionary with verification types
+
         """
         config = self.load_code(code_name)
         return config.get("verification_types", {})
@@ -154,6 +160,7 @@ class CalculationCodeLoader:
 
         Returns:
             Dictionary with material sources (e.g., RD2229, DM92, NTC2008, NTC2018)
+
         """
         config = self.load_code(code_name)
         return config.get("material_sources", {})
@@ -163,6 +170,7 @@ class CalculationCodeLoader:
 
         Returns:
             List of code names
+
         """
         if not self.config_dir.exists():
             return []

@@ -1,9 +1,10 @@
 """Modulo per il comportamento semplificato delle fibre composite (FRC).
 
-NOTE:
+Note:
 - Implementazione iniziale semplice: modello lineare troncato per la relazione stress-strain
   delle fibre. Il comportamento preciso sarà aggiornato per raggiungere la parità numerica
   con le formule VB in iterazioni successive.
+
 """
 
 from __future__ import annotations
@@ -23,6 +24,7 @@ def frc_stress(material: Material, strain: float) -> float:
 
     Returns:
         stress in same units as material.frc_fFtu (float)
+
     """
     if not getattr(material, "frc_enabled", False):
         return 0.0

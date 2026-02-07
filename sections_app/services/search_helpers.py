@@ -23,6 +23,7 @@ def search_sections(repo, names: Optional[List[str]], query: str, limit: int = 2
 
     Returns:
         List of matching section names (max length = limit)
+
     """
     q = (query or "").strip().lower()
     try:
@@ -63,6 +64,7 @@ def search_materials(
 
     Returns:
         List of matching material names (max length = limit), or material name/code combined if available
+
     """
     q = (query or "").strip().lower()
     try:

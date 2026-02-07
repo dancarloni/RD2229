@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-"""
-Test: Verifica che VerificationTable riceve repository pre-popolati all'avvio.
-"""
+"""Test: Verifica che VerificationTable riceve repository pre-popolati all'avvio."""
 
-import json
 import os
 import tempfile
 
@@ -56,7 +53,7 @@ def test_verification_table_receives_populated_repositories():
         selector_section_repo = section_repo_app
         selector_material_repo = material_repo_app or MaterialRepository()
 
-        print(f"  ✓ Repository pronti per VerificationTable")
+        print("  ✓ Repository pronti per VerificationTable")
         print(f"    - SectionRepository: {len(selector_section_repo.get_all_sections())} sezione/i")
         print(f"    - MaterialRepository: {len(selector_material_repo.get_all())} materiale/i")
 

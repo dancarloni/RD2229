@@ -1,6 +1,4 @@
-"""
-Test per il sistema di auto-refresh del Section Manager tramite EventBus.
-"""
+"""Test per il sistema di auto-refresh del Section Manager tramite EventBus."""
 
 import tkinter as tk
 import unittest

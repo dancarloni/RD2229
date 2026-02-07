@@ -1,6 +1,4 @@
-"""
-Test per verificare che Section Manager resti aperto dopo "Nuova sezione".
-"""
+"""Test per verificare che Section Manager resti aperto dopo "Nuova sezione"."""
 
 import tkinter as tk
 import unittest

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test: Verificare che VerificationTable si aggiorna automaticamente
+"""Test: Verificare che VerificationTable si aggiorna automaticamente
 quando cambiano sezioni e materiali.
 """
 

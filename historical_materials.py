@@ -192,8 +192,7 @@ class HistoricalMaterialLibrary:
             pass
 
     def _ensure_default_materials(self) -> None:
-        """
-        Populate the library with a small set of example historical materials
+        """Populate the library with a small set of example historical materials
         if the JSON file does not exist or is empty. The numeric values are
         illustrative; a developer or user should replace them with exact values
         from RD 2229/39 or other historical datasets.
@@ -492,8 +491,7 @@ class HistoricalMaterialLibrary:
         return None
 
     def import_from_csv(self, file_path: str | Path, delimiter: str = ";") -> int:
-        """
-        Importa materiali storici da un CSV.
+        """Importa materiali storici da un CSV.
         - Ogni riga -> un HistoricalMaterial.
         - Se esiste già un materiale con stesso 'code', aggiornalo.
         - Altrimenti aggiungilo.

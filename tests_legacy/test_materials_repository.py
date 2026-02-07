@@ -1,7 +1,3 @@
-import json
-import os
-from pathlib import Path
-
 from materials_repository import MaterialsRepository
 from tools import materials_manager
 

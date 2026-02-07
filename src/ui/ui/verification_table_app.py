@@ -7,7 +7,6 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 from app.domain.models import VerificationInput
 
-
 logger = logging.getLogger(__name__)
 
 ColumnDef = Tuple[str, str, int, str]
@@ -383,8 +382,7 @@ class VerificationTableApp(tk.Frame):
         bbox: Tuple[int, int, int, int],
         initial_text: Optional[str] = None,
     ):
-        """
-        Crea e ritorna un widget editor posizionato sopra la cella indicata.
+        """Crea e ritorna un widget editor posizionato sopra la cella indicata.
         Usa `ttk.Combobox` per colonne materiali se `self.material_names` è disponibile,
         altrimenti `ttk.Entry`. Bind degli eventi di navigazione e suggerimenti vengono
         applicati qui centralmente per evitare duplicazione.
@@ -487,8 +485,7 @@ class VerificationTableApp(tk.Frame):
     def _compute_target_cell(
         self, current_item: str, current_col: str, delta_col: int, delta_row: int
     ) -> Tuple[str, str, bool]:
-        """
-        Calcola l'item_id e la chiave di colonna target a partire dalla cella corrente
+        """Calcola l'item_id e la chiave di colonna target a partire dalla cella corrente
         e dagli spostamenti `delta_col` e `delta_row`.
         Restituisce (target_item_id, target_col_key, created_new_row_flag).
         """
@@ -536,8 +533,7 @@ class VerificationTableApp(tk.Frame):
 
     # --- API pubbliche -------------------------------------------------
     def create_editor_for_cell(self, item: str, col: str, initial_text: Optional[str] = None):
-        """
-        API pubblica: crea un editor (Entry o Combobox) posizionato sopra la cella
+        """API pubblica: crea un editor (Entry o Combobox) posizionato sopra la cella
         `item`/`col` e lo restituisce. Solleva ValueError se la cella non è visibile
         (bbox vuoto).
         """
@@ -753,8 +749,7 @@ class VerificationTableApp(tk.Frame):
         return self._commit_and_move(delta_col=-1, delta_row=0)
 
     def _on_entry_commit_down(self, _event: tk.Event) -> str:
-        """
-        Invio (Return): avanzare di una riga mantenendo la stessa colonna.
+        """Invio (Return): avanzare di una riga mantenendo la stessa colonna.
 
         Scelta: ho deciso di far sì che Invio sposti il cursore alla stessa
         colonna nella riga successiva (delta_row=1). Questo è comodo per
@@ -801,8 +796,7 @@ class VerificationTableApp(tk.Frame):
         return "break"
 
     def _commit_and_move(self, delta_col: int, delta_row: int) -> str:
-        """
-        Commette l'edit corrente e sposta l'editor secondo delta_col/delta_row.
+        """Commette l'edit corrente e sposta l'editor secondo delta_col/delta_row.
 
         Comportamento migliorato:
         - Se il movimento raggiunge una riga successiva che non esiste yet, viene
@@ -1007,7 +1001,9 @@ class VerificationTableApp(tk.Frame):
                     "stirrup_diameter",
                 }:
                     try:
-                        kwargs[attr] = float(str(value).replace(",", ".")) if str(value).strip() else 0.0
+                        kwargs[attr] = (
+                            float(str(value).replace(",", ".")) if str(value).strip() else 0.0
+                        )
                     except Exception:
                         kwargs[attr] = 0.0
                 else:
@@ -1050,8 +1046,10 @@ class VerificationTableApp(tk.Frame):
         def _compute_for_pair(idx_item_row):
             item_id, row = idx_item_row
             try:
-                res = compute_verification_result(row, self.section_repository, self.material_repository)
-            except Exception as e:
+                res = compute_verification_result(
+                    row, self.section_repository, self.material_repository
+                )
+            except Exception:
                 res = None
             return item_id, res
 

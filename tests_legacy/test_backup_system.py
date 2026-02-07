@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test: Verifica che il sistema di backup automatico funzioni correttamente
+"""Test: Verifica che il sistema di backup automatico funzioni correttamente
 per SectionRepository e MaterialRepository.
 """
 

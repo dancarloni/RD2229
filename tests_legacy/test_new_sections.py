@@ -1,7 +1,7 @@
 """Test per le nuove tipologie di sezione e rotazione."""
 
 import unittest
-from math import cos, pi, radians, sin, sqrt
+from math import pi, radians
 
 from sections_app.models.sections import (
     CircularHollowSection,

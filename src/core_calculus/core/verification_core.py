@@ -1,5 +1,4 @@
-"""
-Core calculation module for structural verifications.
+"""Core calculation module for structural verifications.
 
 This module implements the calculation procedures from Visual Basic .bas files
 for TA (Tensioni Ammissibili), SLU (Stato Limite Ultimo), and SLE (Stato Limite Esercizio).
@@ -16,6 +15,7 @@ import math
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Tuple
+
 from core_models.materials import Material
 
 
@@ -134,15 +134,13 @@ class LoadCase:
         if has_Mx and has_My:
             if has_N:
                 return VerificationType.AXIAL_BENDING_DEVIATED
-            else:
-                return VerificationType.BENDING_DEVIATED
+            return VerificationType.BENDING_DEVIATED
 
         # Simple bending (with or without axial)
         if has_Mx or has_My:
             if has_N:
                 return VerificationType.AXIAL_BENDING_SIMPLE
-            else:
-                return VerificationType.BENDING_SIMPLE
+            return VerificationType.BENDING_SIMPLE
 
         # Pure axial
         if has_N:
@@ -219,8 +217,7 @@ def calculate_neutral_axis_simple_bending(
     material: MaterialProperties,
     method: str = "TA",
 ) -> NeutralAxis:
-    """
-    Calculate neutral axis for simple bending.
+    """Calculate neutral axis for simple bending.
 
     Based on equilibrium equations from PrincipCA_TA.bas.
     For rectangular section with double reinforcement.
@@ -234,6 +231,7 @@ def calculate_neutral_axis_simple_bending(
 
     Returns:
         Neutral axis position
+
     """
     b = section.width
     h = section.height
@@ -293,8 +291,7 @@ def calculate_neutral_axis_deviated_bending(
     max_iter: int = 60,
     tol: float = 1e-3,
 ) -> NeutralAxis:
-    """
-    Iterative neutral axis calculation for deviated bending (SLU-style).
+    """Iterative neutral axis calculation for deviated bending (SLU-style).
 
     Approach:
     - Rotate axes so that the bending resultant is aligned with X (angle = atan2(My,Mx)).
@@ -394,8 +391,7 @@ def calculate_stresses_simple_bending(
     frc_material: "Optional[Material]" = None,
     frc_area: float = 0.0,
 ) -> StressState:
-    """
-    Calculate stresses for simple bending.
+    """Calculate stresses for simple bending.
 
     Based on formulas from PrincipCA_TA.bas.
 
@@ -410,6 +406,7 @@ def calculate_stresses_simple_bending(
 
     Returns:
         Stress state
+
     """
     b = section.width
     d = reinforcement_tensile.distance
@@ -510,8 +507,7 @@ def calculate_stresses_deviated_bending(
     N: float = 0.0,
     method: str = "SLU",
 ) -> StressState:
-    """
-    Stresses for deviated bending computed using the neutral axis found iteratively.
+    """Stresses for deviated bending computed using the neutral axis found iteratively.
 
     Uses equivalent moment magnitude for stress intensity, but neutral axis depth
     results from axial equilibrium (so stresses reflect N–M interaction).
@@ -586,8 +582,7 @@ def calculate_shear_torsion_stresses(
     reinforcement_area: float,
     material: Optional[MaterialProperties] = None,
 ) -> StressState:
-    """
-    Shear + Torsion simplified assessment.
+    """Shear + Torsion simplified assessment.
 
     - Shear stress: τ_shear = V / A
     - Torsion stress: τ_torsion ≈ Mz * r / J (r ~ half smallest dimension)
@@ -628,8 +623,7 @@ def calculate_shear_torsion_stresses(
 def verify_allowable_stresses(
     stress_state: StressState, material: MaterialProperties, sigma_c_adm: float, sigma_s_adm: float
 ) -> Tuple[bool, float, float, list[str]]:
-    """
-    Verify allowable stresses (TA method).
+    """Verify allowable stresses (TA method).
 
     Based on VerifResistCA_TA from PrincipCA_TA.bas.
 
@@ -641,6 +635,7 @@ def verify_allowable_stresses(
 
     Returns:
         Tuple of (is_verified, utilization_concrete, utilization_steel, messages)
+
     """
     messages = []
 

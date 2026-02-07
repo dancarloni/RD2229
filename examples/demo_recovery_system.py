@@ -1,5 +1,4 @@
-"""
-Demo Sistema Recovery Automatico
+"""Demo Sistema Recovery Automatico
 =================================
 
 Dimostra il funzionamento del sistema di recovery automatico a 3 livelli:
@@ -51,7 +50,7 @@ def scenario_1_normal_load():
 
         # Verifica risultati
         sections = repo.get_all_sections()
-        print(f"\n✓ File principale caricato correttamente")
+        print("\n✓ File principale caricato correttamente")
         print(f"  - Numero sezioni caricate: {len(sections)}")
         print(f"  - Sezione: {sections[0].name}")
         print(f"  - Dimensioni: {sections[0].width}x{sections[0].height} mm")
@@ -88,11 +87,11 @@ def scenario_2_recover_from_backup():
 
         # Verifica risultati
         sections = repo.get_all_sections()
-        print(f"\n✓ Recovery dal backup completato con successo!")
+        print("\n✓ Recovery dal backup completato con successo!")
         print(f"  - Numero sezioni recuperate: {len(sections)}")
         print(f"  - Sezione: {sections[0].name}")
         print(f"  - Dimensioni: {sections[0].width}x{sections[0].height} mm")
-        print(f"\n📝 NOTA: L'applicazione NON è andata in crash!")
+        print("\n📝 NOTA: L'applicazione NON è andata in crash!")
 
 
 def scenario_3_both_corrupted():
@@ -115,9 +114,9 @@ def scenario_3_both_corrupted():
 
         # Verifica risultati
         sections = repo.get_all_sections()
-        print(f"\n✓ Inizializzato archivio vuoto (graceful degradation)")
+        print("\n✓ Inizializzato archivio vuoto (graceful degradation)")
         print(f"  - Numero sezioni: {len(sections)}")
-        print(f"\n📝 NOTA: L'applicazione è ancora funzionante e pronta per nuovi dati!")
+        print("\n📝 NOTA: L'applicazione è ancora funzionante e pronta per nuovi dati!")
 
 
 def scenario_4_save_after_recovery():
@@ -148,7 +147,7 @@ def scenario_4_save_after_recovery():
         repo = MaterialRepository(json_file=str(materials_file))
         repo.load_from_file()
 
-        print(f"\n✓ Recovery completato dal backup")
+        print("\n✓ Recovery completato dal backup")
         print(f"  - Materiali recuperati: {len(repo.get_all())}")
 
         # Aggiungi un nuovo materiale
@@ -167,10 +166,10 @@ def scenario_4_save_after_recovery():
         with materials_file.open("r", encoding="utf-8") as f:
             saved_data = json.load(f)
 
-        print(f"\n✓ File principale salvato correttamente")
+        print("\n✓ File principale salvato correttamente")
         print(f"  - Materiali nel file: {len(saved_data)}")
         print(f"  - File backup creato: {backup_file.exists()}")
-        print(f"\n📝 NOTA: Il sistema è tornato completamente operativo!")
+        print("\n📝 NOTA: Il sistema è tornato completamente operativo!")
 
 
 def main():

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor, Future
-from typing import Callable, Any, Optional
+from concurrent.futures import Future, ThreadPoolExecutor
+from typing import Any, Callable, Optional
 
 
 class BackgroundExecutor:
@@ -26,6 +26,7 @@ class BackgroundExecutor:
         future = self._executor.submit(fn, *args)
 
         if callback:
+
             def _on_done(fut: Future) -> None:
                 try:
                     result = fut.result()

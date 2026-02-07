@@ -11,6 +11,7 @@ Esempi:
   python scripts/materials_cli.py update --name C120 --set sigma_c28=150
   python scripts/materials_cli.py delete --name C120 --yes
 """
+
 from __future__ import annotations
 
 import argparse
@@ -168,4 +169,3 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

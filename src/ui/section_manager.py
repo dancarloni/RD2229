@@ -15,9 +15,7 @@ from sections_app.services.event_bus import (
 )
 from sections_app.services.notification import (
     ask_confirm,
-    notify_error,
     notify_info,
-    notify_warning,
 )
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 
@@ -93,8 +91,7 @@ class TreeviewTooltip:
 
 
 def sort_treeview(tree: ttk.Treeview, col: str, reverse: bool) -> None:
-    """
-    Ordina il Treeview per colonna. Supporta numeri e stringhe.
+    """Ordina il Treeview per colonna. Supporta numeri e stringhe.
 
     Rileva automaticamente il tipo di dato (numerico o testuale) e ordina di conseguenza.
     Il click ripetuto alterna l'ordinamento crescente/decrescente.
@@ -103,6 +100,7 @@ def sort_treeview(tree: ttk.Treeview, col: str, reverse: bool) -> None:
         tree: Il Treeview da ordinare
         col: Nome della colonna su cui ordinare
         reverse: True per ordinamento decrescente
+
     """
     data = [(tree.set(item, col), item) for item in tree.get_children("")]
 
@@ -127,8 +125,7 @@ def sort_treeview(tree: ttk.Treeview, col: str, reverse: bool) -> None:
 
 
 class SectionManager(tk.Toplevel):
-    """
-    📊 FINESTRA DI GESTIONE ARCHIVIO SEZIONI - Visualizzazione Completa e Auto-Refresh
+    """📊 FINESTRA DI GESTIONE ARCHIVIO SEZIONI - Visualizzazione Completa e Auto-Refresh
 
     Responsabilità:
     - VISUALIZZAZIONE: Mostra tutte le proprietà geometriche e calcolate in tabella ottimizzata
@@ -194,8 +191,7 @@ class SectionManager(tk.Toplevel):
         self._refresh_table()
 
     def _on_sections_changed(self, *args, **kwargs) -> None:
-        """
-        Callback chiamato dall'EventBus quando le sezioni cambiano nel repository.
+        """Callback chiamato dall'EventBus quando le sezioni cambiano nel repository.
 
         Questo metodo ricarica automaticamente la lista delle sezioni nella Treeview,
         così l'utente vede sempre i dati aggiornati senza dover riaprire la finestra.
@@ -215,8 +211,7 @@ class SectionManager(tk.Toplevel):
             self._cleanup_event_subscriptions()
 
     def _cleanup_event_subscriptions(self) -> None:
-        """
-        Rimuove le sottoscrizioni agli eventi per evitare memory leak.
+        """Rimuove le sottoscrizioni agli eventi per evitare memory leak.
 
         Quando la finestra viene chiusa, è importante disiscriversi dall'EventBus
         per evitare che il callback venga chiamato su una finestra distrutta.
@@ -399,13 +394,13 @@ class SectionManager(tk.Toplevel):
         )
 
     def _on_heading_click(self, col: str) -> None:
-        """
-        Handler per il click su un intestazione: alterna ordinamento crescente/decrescente.
+        """Handler per il click su un intestazione: alterna ordinamento crescente/decrescente.
 
         Mantiene stato di toggle per ogni colonna per permettere ordinamenti alternati.
 
         Args:
             col: Nome della colonna cliccata
+
         """
         # Se è la prima volta che clicchiamo questa colonna, iniziamo con False (crescente)
         current_state = self._sort_state.get(col, False)
@@ -413,8 +408,7 @@ class SectionManager(tk.Toplevel):
         sort_treeview(self.tree, col, not current_state)
 
     def _refresh_table(self) -> None:
-        """
-        Svuota il Treeview e lo ricarica con tutte le sezioni dall'archivio.
+        """Svuota il Treeview e lo ricarica con tutte le sezioni dall'archivio.
 
         Legge i dati da `section.to_dict()` per ottenere tutti i campi, inclusi
         i valori calcolati (area, baricentro, momenti di inerzia, ecc.).
@@ -434,8 +428,7 @@ class SectionManager(tk.Toplevel):
         logger.debug("Treeview ricaricato con %d sezioni", len(self.tree.get_children()))
 
     def refresh_sections(self) -> None:
-        """
-        ✅ REFRESH MANUALE: ricarica tutte le sezioni dal repository e aggiorna la GUI.
+        """✅ REFRESH MANUALE: ricarica tutte le sezioni dal repository e aggiorna la GUI.
 
         Questo metodo è il punto centrale per aggiornare la visualizzazione:
         - Legge tutte le sezioni dal repository (che le carica da sections.json)
@@ -464,8 +457,7 @@ class SectionManager(tk.Toplevel):
         return self.repository.find_by_id(selected)
 
     def _new_section(self) -> None:
-        """
-        ✅ CREA NUOVA SEZIONE: apre il Geometry Module per creare una nuova sezione.
+        """✅ CREA NUOVA SEZIONE: apre il Geometry Module per creare una nuova sezione.
 
         COMPORTAMENTO CHIAVE:
         - Il Section Manager rimane aperto e attivo

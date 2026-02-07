@@ -1,5 +1,4 @@
-"""
-Test module for configuration loaders.
+"""Test module for configuration loaders.
 
 Tests for calculation_codes_loader and historical_materials_loader modules.
 """
