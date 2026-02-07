@@ -7,6 +7,9 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 from typing import Dict, List, Optional, Tuple
 
+from sections_app.ui.historical_material_window import HistoricalMaterialWindow  # type: ignore[import]
+from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
+
 from core_models.materials import MaterialRepository
 from sections_app.models.sections import (
     CircularHollowSection,
@@ -30,8 +33,6 @@ from sections_app.services.notification import (
     notify_info,
 )
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow  # type: ignore[import]
-from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -319,7 +320,7 @@ class MainWindow(tk.Toplevel):
                     self._material_manager_window.focus_force()
                     logger.debug("Material Manager già aperto, portato in primo piano")
                     return
-            except Exception:
+            except Exception:  # type: ignore[reportGeneralTypeIssues]
                 pass
 
         # Crea libreria storica e apri finestra
@@ -327,7 +328,7 @@ class MainWindow(tk.Toplevel):
             from historical_materials import HistoricalMaterialLibrary
 
             library = HistoricalMaterialLibrary()
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Impossibile inizializzare HistoricalMaterialLibrary")
             library = None
 
@@ -347,7 +348,7 @@ class MainWindow(tk.Toplevel):
                 "<Destroy>",
                 lambda e, w=self._material_manager_window: setattr(self, "_material_manager_window", None),
             )
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
         logger.debug("Material Manager aperto")
 
@@ -377,7 +378,7 @@ class MainWindow(tk.Toplevel):
         # tutte le modalità di modifica (mouse, tastiera, programmatico)
         try:
             self.section_var.trace_add("write", lambda *a: self._on_section_change())
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             # Fallback per versioni più vecchie di tkinter che usano trace_var
             self.section_var.trace("w", lambda *a: self._on_section_change())
 
@@ -446,7 +447,7 @@ class MainWindow(tk.Toplevel):
         # Inizializza le entry con i valori di default per la tipologia corrente
         try:
             self._set_default_kappa_entries()
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         self.buttons_frame = tk.Frame(self.left_frame)
@@ -558,7 +559,7 @@ class MainWindow(tk.Toplevel):
         # Assicura consistenza tra StringVar e combobox
         try:
             self.section_var.set(tipo_selezionato)
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         # Ricostruisce i campi di input per la nuova tipologia
@@ -584,7 +585,7 @@ class MainWindow(tk.Toplevel):
         """
         try:
             visible: str = self.section_combo.get()
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             visible = None
 
         if visible and visible != getattr(self, "_last_selected_type", None):
@@ -602,7 +603,7 @@ class MainWindow(tk.Toplevel):
                 self.after_cancel(self._polling_id)
                 self._polling_id = None
                 logger.debug("Polling selezione ComboBox annullato")
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
     def _on_close(self) -> None:
@@ -660,7 +661,7 @@ class MainWindow(tk.Toplevel):
         # Inizializza le entry dei fattori kappa con i valori di default per la tipologia
         try:
             self._set_default_kappa_entries()
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         logger.debug(f"Creati {len(self.inputs)} campi input")
@@ -689,7 +690,7 @@ class MainWindow(tk.Toplevel):
             self.kappa_y_entry.insert(0, f"{ky:.6g}")
             self.kappa_z_entry.delete(0, tk.END)
             self.kappa_z_entry.insert(0, f"{kz:.6g}")
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
     def _show_shear_help(self) -> None:
@@ -791,7 +792,7 @@ class MainWindow(tk.Toplevel):
             return
         try:
             section.compute_properties()
-        except Exception as exc:
+        except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore nel calcolo proprietà: %s", exc)
             messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {exc}")
             return
@@ -823,7 +824,9 @@ class MainWindow(tk.Toplevel):
         """Disegna la sezione sul canvas applicando la rotazione se presente."""
         self.canvas.delete("all")
         width, height = self._section_dimensions(section)
-        transform: CanvasTransform = compute_transform(width, height, int(self.canvas["width"]), int(self.canvas["height"]))
+        transform: CanvasTransform = compute_transform(
+            width, height, int(self.canvas["width"]), int(self.canvas["height"])
+        )
 
         # Disegna la sezione specifica con rotazione using a dispatch map to reduce branching
         draw_map = {
@@ -1188,7 +1191,7 @@ class MainWindow(tk.Toplevel):
             # Calcola sempre le proprietà per assicurare valori aggiornati (sempre chiamare compute_properties)
             section.compute_properties()
             logger.debug("Proprietà calcolate per sezione: %s", section.name)
-        except Exception as exc:
+        except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore nel calcolo proprietà: %s", exc)
             messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {exc}")
             return
@@ -1217,7 +1220,7 @@ class MainWindow(tk.Toplevel):
                 logger.debug("Sezione aggiornata: %s", self.editing_section_id)
                 self.editing_section_id = None
                 self._update_editing_mode_label()
-            except Exception as exc:
+            except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, exc)
                 notify_error("Errore", f"Impossibile aggiornare la sezione: {exc}", source="main_window")
                 return
@@ -1227,7 +1230,7 @@ class MainWindow(tk.Toplevel):
         if mgr and getattr(mgr, "winfo_exists", None) and mgr.winfo_exists():
             try:
                 mgr.reload_sections_in_treeview()
-            except Exception:
+            except Exception:  # type: ignore[reportGeneralTypeIssues]
                 logger.exception("Errore nel ricaricare il Section Manager dopo salvataggio")
         else:
             # Se la finestra manager non esiste più, puliamo il riferimento
@@ -1295,7 +1298,7 @@ class MainWindow(tk.Toplevel):
                 self.kappa_z_entry.insert(0, str(section.shear_factor_z))
             else:
                 self._set_default_kappa_entries()
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             # Non blocchiamo il caricamento se il campo non esiste
             pass
 
@@ -1362,7 +1365,7 @@ class MainWindow(tk.Toplevel):
                 "Backup completato",
                 f"Backup sezioni: {sections_path}\nBackup materiali: {materials_path}",
             )
-        except Exception as exc:
+        except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore esportazione backup completo: %s", exc)
             notify_error("Errore backup", f"Errore durante il backup: {exc}", source="main_window")
 

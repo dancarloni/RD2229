@@ -40,27 +40,27 @@ COLUMNS: List[ColumnDef] = [
 
 try:
     from tools.materials_manager import list_materials
-except Exception:  # pragma: no cover - fallback if import fails
+except Exception:  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
     list_materials = None
 
 try:
     from sections_app.services.repository import SectionRepository
-except Exception:  # pragma: no cover - fallback if import fails
+except Exception:  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
     SectionRepository = None  # type: ignore
 
 try:
     from core_models.materials import MaterialRepository
-except Exception:  # pragma: no cover - fallback if import fails
+except Exception:  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
     MaterialRepository = None  # type: ignore
 
 try:
     from verification_project import VerificationProject
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     VerificationProject = None
 
 try:
     from verification_items_repository import VerificationItemsRepository
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     VerificationItemsRepository = None  # type: ignore
 
 
@@ -290,7 +290,9 @@ class VerificationTableApp(tk.Frame):
 
         tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
         tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(side="left", padx=(6, 0))
+        tk.Button(
+            top, text="Aggiungi lista di elementi", command=self._on_add_list_elements
+        ).pack(side="left", padx=(6, 0))
         tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6, 0))
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
@@ -363,7 +365,6 @@ class VerificationTableApp(tk.Frame):
 
     def _create_editor_for_cell(
         self,
-        item: str,
         col: str,
         value: str,
         bbox: Tuple[int, int, int, int],
@@ -476,7 +477,6 @@ class VerificationTableApp(tk.Frame):
         editor.bind("<KeyRelease>", self._on_entry_keyrelease)
         editor.bind("<KeyPress>", self._on_entry_keypress)
 
-
     def _compute_target_cell(
         self, current_item: str, current_col: str, delta_col: int, delta_row: int
     ) -> Tuple[str, str, bool]:
@@ -527,7 +527,9 @@ class VerificationTableApp(tk.Frame):
         return target_item, target_col, created
 
     # --- API pubbliche -------------------------------------------------
-    def create_editor_for_cell(self, item: str, col: str, initial_text: Optional[str] = None) -> ttk.Entry | ttk.Combobox:
+    def create_editor_for_cell(
+        self, item: str, col: str, initial_text: Optional[str] = None
+    ) -> ttk.Entry | ttk.Combobox:
         """API pubblica: crea un editor (Entry o Combobox) posizionato sopra la cella
         `item`/`col` e lo restituisce. Solleva ValueError se la cella non è visibile
         (bbox vuoto).
@@ -536,7 +538,7 @@ class VerificationTableApp(tk.Frame):
         if not bbox:
             raise ValueError(f"Impossibile creare editor: bbox vuoto per item={item}, col={col}")
         value = self.tree.set(item, col)
-        return self._create_editor_for_cell(item, col, value, bbox, initial_text=initial_text)
+        return self._create_editor_for_cell(col, value, bbox, initial_text=initial_text)
 
     def compute_target_cell(
         self, current_item: str, current_col: str, delta_col: int, delta_row: int
@@ -690,7 +692,9 @@ class VerificationTableApp(tk.Frame):
             self.current_column_index = None
 
         # Crea l'editor (Entry o Combobox) in modo centralizzato
-        self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
+        self.edit_entry = self._create_editor_for_cell(
+            col, value, (x, y, width, height), initial_text=initial_text
+        )
 
         # Se lo start è esplicito (programma o click), consentiamo alla prima
         # chiamata a `_update_suggestions` di mostrare l'elenco completo se
@@ -913,7 +917,6 @@ class VerificationTableApp(tk.Frame):
             return source(query)
         return [s for s in source if query_lower in s.lower()]
 
-
     def _commit_if_focus_outside(self) -> None:
         if self.edit_entry is None:
             return
@@ -1044,7 +1047,9 @@ class VerificationTableApp(tk.Frame):
 
         item_id, row = idx_item_row
         try:
-            res: VerificationOutput = compute_verification_result(row, self.section_repository, self.material_repository)
+            res: VerificationOutput = compute_verification_result(
+                row, self.section_repository, self.material_repository
+            )
         except Exception:
             res = None
         return item_id, res
@@ -1060,6 +1065,7 @@ class VerificationTableApp(tk.Frame):
             self._apply_result_to_item(item_id, out)
         except Exception:
             pass
+
     def _focus_is_suggestion(self) -> bool:
         if self._suggestion_box is None:
             return False
@@ -1153,7 +1159,10 @@ class VerificationTableApp(tk.Frame):
             return []
         try:
             if hasattr(section_repository, "get_all_sections"):
-                return [getattr(s, "section_id", getattr(s, "id", str(s))) for s in section_repository.get_all_sections()]
+                return [
+                    getattr(s, "section_id", getattr(s, "id", str(s)))
+                    for s in section_repository.get_all_sections()
+                ]
             if hasattr(section_repository, "get_all"):
                 return [getattr(s, "section_id", getattr(s, "id", str(s))) for s in section_repository.get_all()]
             # Fallback: try to iterate over repository

@@ -115,7 +115,9 @@ class FrcVerificationWindow(tk.Toplevel):
         frc_mat = self._find_selected_material()
 
         engine = VerificationEngine(calculation_code="TA")
-        res = engine.perform_verification(section, As_layer, As_p, material, loads, frc_material=frc_mat, frc_area=frc_area)
+        res = engine.perform_verification(
+            section, As_layer, As_p, material, loads, frc_material=frc_mat, frc_area=frc_area
+        )
 
         self.output.delete("1.0", tk.END)
         self.output.insert(tk.END, f"Verification type: {res.verification_type}\n")

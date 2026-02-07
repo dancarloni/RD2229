@@ -19,7 +19,7 @@ import logging
 from typing import Any, Callable, Dict, Optional
 
 # Material type used by FRC model
-from core_models.materials import Material  # type: ignore[import]
+from core_models.materials import Material
 
 from .verification_core import (
     LoadCase,
@@ -44,11 +44,11 @@ get_concrete_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]"
 get_steel_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]" = None
 
 try:
-    from config.calculation_codes_loader import load_code as _load_code  # type: ignore[import]
+    from config.calculation_codes_loader import load_code as _load_code
     from config.historical_materials_loader import (
-        get_concrete_properties as _get_concrete_properties,  # type: ignore[import]
+        get_concrete_properties as _get_concrete_properties,
     )
-    from config.historical_materials_loader import get_steel_properties as _get_steel_properties  # type: ignore[import]
+    from config.historical_materials_loader import get_steel_properties as _get_steel_properties
 
     load_code = _load_code
     get_concrete_properties = _get_concrete_properties
@@ -267,7 +267,8 @@ class VerificationEngine:
                 if loads.At and loads.At > 0 and At_req > 0:
                     if loads.At < At_req:
                         approx_notes.append(
-                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², " f"fornita {loads.At:.3f} cm²"
+                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², "
+                            f"fornita {loads.At:.3f} cm²"
                         )
                     else:
                         approx_notes.append(

@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from app.domain.materials import get_concrete_properties, get_steel_properties  # type: ignore[import]
-from app.domain.models import VerificationInput, VerificationOutput  # type: ignore[import]
-from app.domain.sections import get_section_geometry  # type: ignore[import]
+from app.domain.materials import get_concrete_properties, get_steel_properties
+from app.domain.models import VerificationInput, VerificationOutput
+from app.domain.sections import get_section_geometry
 
 logger = logging.getLogger(__name__)
 

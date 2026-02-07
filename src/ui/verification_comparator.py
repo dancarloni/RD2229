@@ -6,28 +6,27 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
+from _csv import Writer
 from tkinter import ttk
 from typing import Any, Dict
 
 import matplotlib
-from _csv import Writer
-
-from sections_app.services.notification import notify_error, notify_info, notify_warning
-from src.domain.domain.models import VerificationInput, VerificationOutput
-
-matplotlib.use("Agg")  # Use Agg for headless tests; GUI will embed FigureCanvasTkAgg if available
 import matplotlib.patches as mpatches
 from matplotlib.figure import Figure
 
+from sections_app.services.notification import notify_error, notify_info, notify_warning
 from src.core_calculus.core.verification_bas_adapter import bas_torsion_verification
 from src.core_calculus.core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
 from src.core_calculus.core.verification_engine import VerificationEngine, create_verification_engine
+from src.domain.domain.models import VerificationInput, VerificationOutput
 from verification_table import (
     VerificationTableApp,
     compute_slu_verification,
     compute_ta_verification,
     get_section_geometry,
 )
+
+matplotlib.use("Agg")  # Use Agg for headless tests; GUI will embed FigureCanvasTkAgg if available
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -99,7 +98,9 @@ def _intersections_with_horizontals(
     return out
 
 
-def _line_rect_intersections(b: float, h: float, px: float, py: float, vx: float, vy: float) -> list[tuple[float, float]]:
+def _line_rect_intersections(
+    b: float, h: float, px: float, py: float, vx: float, vy: float
+) -> list[tuple[float, float]]:
     candidates: list[tuple[float, float]] = []
     candidates.extend(_intersections_with_verticals(b, h, px, py, vx, vy))
     candidates.extend(_intersections_with_horizontals(b, h, px, py, vx, vy))
@@ -162,6 +163,7 @@ def _metrics_of(res: Any) -> Dict[str, Any]:
         return _metrics_from_dict(res)
     return _metrics_from_obj(res)
 
+
 class VerificationComparatorWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc, verification_table_app: VerificationTableApp) -> None:
         super().__init__(master)
@@ -188,11 +190,11 @@ class VerificationComparatorWindow(tk.Toplevel):
 
         # Two subplots: left for section/NA, right for bar chart
         self.fig = Figure(figsize=(6, 4))
-        self.ax_section: mpatches.Axes = self.fig.add_subplot(121)
+        self.ax_section = self.fig.add_subplot(121)  # type: ignore
         self.ax_section.set_title("Sezione e asse neutro")
         self.ax_section.set_xlim(0, 1)
         self.ax_section.set_ylim(0, 1)
-        self.ax_bars: mpatches.Axes = self.fig.add_subplot(122)
+        self.ax_bars = self.fig.add_subplot(122)  # type: ignore
         self.ax_bars.set_title("σ (abs) comparison")
         self.canvas = None
         if FigureCanvasTkAgg is not None:
@@ -217,8 +219,6 @@ class VerificationComparatorWindow(tk.Toplevel):
         tk.Button(export_frame, text="Export CSV", command=lambda: self._export("csv")).pack(side="left", padx=4)
         tk.Button(export_frame, text="Export JSON", command=lambda: self._export("json")).pack(side="left", padx=4)
         tk.Button(export_frame, text="Export TXT", command=lambda: self._export("txt")).pack(side="left", padx=4)
-
-
 
     @staticmethod
     def _compute_na_endpoints(
@@ -301,7 +301,7 @@ class VerificationComparatorWindow(tk.Toplevel):
         h: float,
         p: tuple[float, float],
         angle_deg: float,
-        pick_side_point: tuple[float, float] = None,
+        pick_side_point: tuple[float, float] | None = None,
     ) -> list[tuple[float, float]]:
         # Build rectangle polygon
         rect: list[tuple[float, float]] = [(0.0, 0.0), (b, 0.0), (b, h), (0.0, h)]
@@ -324,13 +324,13 @@ class VerificationComparatorWindow(tk.Toplevel):
     def _present_summary(self, ta_res: Any, slu_res: Any, bas_tors: Any) -> None:
         self.txt_results.delete("1.0", tk.END)
 
-        def _summary(res, label) -> str | logging.Any:
+        def _summary(res, label) -> str | Any:
             if res is None:
                 return f"{label}: errore\n"
             if isinstance(res, dict):
                 return f"{label}: {res.get('messages', [])} OK={res.get('ok')}\n"
             # assume VerificationOutput-like
-            msgs: logging.Any | list[Any] = getattr(res, "messaggi", []) or getattr(res, "messages", []) or []
+            msgs: Any | list[Any] = getattr(res, "messaggi", []) or getattr(res, "messages", []) or []
             details: str = (
                 f"{label}: esito={getattr(res, 'esito', '')} "
                 f"sigma_c_max={getattr(res, 'sigma_c_max', '')} "
@@ -354,7 +354,7 @@ class VerificationComparatorWindow(tk.Toplevel):
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logger.exception("Errore calcolo TA: %s", exc)
         try:
-            slu_res: VerificationOutput = compute_slu_verification(inp, sec_repo, mat_repo)
+            slu_res = compute_slu_verification(inp, sec_repo, mat_repo)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logger.exception("Errore calcolo SLU: %s", exc)
         try:
@@ -413,10 +413,10 @@ class VerificationComparatorWindow(tk.Toplevel):
         mat_repo = self.verification_table_app.material_repository
 
         # Run TA and SLU
-        ta_res = None
-        slu_res = None
+        ta_res: VerificationOutput | None = None
+        slu_res: VerificationOutput | None = None
         try:
-            ta_res: VerificationOutput = compute_ta_verification(inp, sec_repo, mat_repo)
+            ta_res = compute_ta_verification(inp, sec_repo, mat_repo)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logger.exception("Errore calcolo TA: %s", exc)
         try:
@@ -451,27 +451,6 @@ class VerificationComparatorWindow(tk.Toplevel):
         b, h = get_section_geometry(inp, sec_repo, unit="cm")
         self.ax_section.add_patch(mpatches.Rectangle((0, 0), b, h, fill=False))
 
-        # helper to obtain a point on NA and angle
-        def na_point_and_angle(
-            res,
-        ) -> (
-            None
-            | tuple[tuple[int | float, int | float], Any | float]
-            | tuple[tuple[float, int | float], Any | float]
-            | tuple[tuple[float, float], Any | float]
-        ):
-            if res is None:
-                return None
-            # prefer explicit x,y if provided
-            px: logging.Any | None = getattr(res, "asse_neutro_x", None) or getattr(res, "asse_neutro", None)
-            py: logging.Any | None = getattr(res, "asse_neutro_y", None)
-            ang: logging.Any | float = getattr(res, "inclinazione_asse_neutro", 0.0)
-            if isinstance(px, (int, float)) and isinstance(py, (int, float)):
-                return (px, py), ang
-            if isinstance(px, (int, float)):
-                return (b / 2.0, px), ang
-            return (b / 2.0, h / 2.0), ang
-
         ta_metrics = _metrics_of(ta_res)
         slu_metrics = _metrics_of(slu_res)
         bas_metrics = _metrics_of(bas_tors)
@@ -489,12 +468,10 @@ class VerificationComparatorWindow(tk.Toplevel):
         self.ax_section.set_ylim(h + 0.1 * h, -0.1 * h)
 
         # Prepare bar chart and numeric table — reuse metrics computed above
-        self._populate_numeric_and_bars(b, h, ta_metrics, slu_metrics, bas_metrics)
+        self._populate_numeric_and_bars(ta_metrics, slu_metrics, bas_metrics)
 
     def _populate_numeric_and_bars(
         self,
-        b: float,
-        h: float,
         ta_metrics: Dict[str, Any],
         slu_metrics: Dict[str, Any],
         bas_metrics: Dict[str, Any],
@@ -525,6 +502,7 @@ class VerificationComparatorWindow(tk.Toplevel):
         self.ax_bars.set_ylabel("sigma_c_max (kg/cm2)")
         if self.canvas:
             self.canvas.draw()
+
     def _export(self, fmt: str) -> None:
         try:
             from tkinter import filedialog

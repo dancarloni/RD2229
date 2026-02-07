@@ -7,6 +7,14 @@ from pathlib import Path
 from tkinter import filedialog
 from typing import Callable, Optional
 
+from sections_app.ui.code_settings_window import CodeSettingsWindow
+from sections_app.ui.debug_viewer import DebugViewerWindow
+from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
+from sections_app.ui.historical_material_window import HistoricalMaterialWindow
+from sections_app.ui.main_window import MainWindow
+from sections_app.ui.notification_center import NotificationCenter
+from sections_app.ui.section_manager import SectionManager
+
 from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import HistoricalMaterialLibrary
 from sections_app.models.sections import Section
@@ -15,13 +23,6 @@ from sections_app.services.notification import (
     notify_info,
 )
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.code_settings_window import CodeSettingsWindow
-from sections_app.ui.debug_viewer import DebugViewerWindow
-from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow
-from sections_app.ui.main_window import MainWindow
-from sections_app.ui.notification_center import NotificationCenter
-from sections_app.ui.section_manager import SectionManager
 from verification_table import VerificationTableWindow
 
 logger = logging.getLogger(__name__)
@@ -235,20 +236,24 @@ class ModuleSelectorWindow(tk.Tk):
         )
 
     def _open_code_settings(self, code: str) -> None:
-        settings_path = Path(__file__).resolve().parents[2] / "config" / "calculation_codes" / f"{code.upper()}.jsoncode"
+        settings_path = (
+            Path(__file__).resolve().parents[2] / "config" / "calculation_codes" / f"{code.upper()}.jsoncode"
+        )
         win = CodeSettingsWindow(self, code=code, settings_path=settings_path)
         win.protocol("WM_DELETE_WINDOW", lambda w=win: w.destroy())
 
     def _open_notification_settings(self) -> None:
         try:
-            win = __import__("sections_app.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(self)
+            win = __import__(
+                "sections_app.ui.notification_settings_window", fromlist=["*"]
+            ).NotificationSettingsWindow(self)
             win._win.protocol("WM_DELETE_WINDOW", lambda w=win: w._on_cancel())
         except Exception:
             # Try to open headless settings window if something fails
             try:
-                win = __import__("sections_app.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(
-                    None
-                )
+                win = __import__(
+                    "sections_app.ui.notification_settings_window", fromlist=["*"]
+                ).NotificationSettingsWindow(None)
                 win.set_settings(win.get_settings())
                 win.save()
             except Exception:
@@ -389,7 +394,9 @@ class ModuleSelectorWindow(tk.Tk):
         win = FrcVerificationWindow(self, material_repository=self.material_repository)
         win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
 
-    def _add_module_frame(self, parent, title: str, description: str, button_text: str, command: Callable) -> tk.LabelFrame:
+    def _add_module_frame(
+        self, parent, title: str, description: str, button_text: str, command: Callable
+    ) -> tk.LabelFrame:
         """Helper per creare un LabelFrame di modulo con descrizione e bottone."""
         frm = tk.LabelFrame(parent, text=title)
         frm.pack(side="left", fill="both", expand=True, padx=(6, 6))
@@ -500,7 +507,9 @@ class ModuleSelectorWindow(tk.Tk):
 
                 notify_info(
                     "Export completato",
-                    f"Backup esportati correttamente:\n" f"• Sezioni: {sections_path}\n" f"• Materiali: {materials_path}",
+                    f"Backup esportati correttamente:\n"
+                    f"• Sezioni: {sections_path}\n"
+                    f"• Materiali: {materials_path}",
                     source="module_selector",
                 )
         except Exception as e:

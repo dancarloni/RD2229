@@ -7,7 +7,7 @@ try:
     from historical_materials import HistoricalMaterialLibrary
     from sections_app.ui.module_selector import ModuleSelectorWindow
     from verification_table import VerificationTableWindow
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     ModuleSelectorWindow = None
     VerificationTableWindow = None
     HistoricalMaterialLibrary = None

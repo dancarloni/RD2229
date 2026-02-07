@@ -23,7 +23,7 @@ def calculate_rebar_total(counts: Dict[int, int]) -> float:
     for d, n in counts.items():
         try:
             n_int = int(n or 0)
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             n_int = 0
         d_cm: float = d / 10.0
         area: float = math.pi * (d_cm**2) / 4.0
@@ -94,7 +94,7 @@ class RebarCalculatorWindow:
         for d, var in self._vars.items():
             try:
                 counts[d] = int(var.get() or 0)
-            except Exception:
+            except Exception:  # type: ignore[reportGeneralTypeIssues]
                 counts[d] = 0
         return counts
 
@@ -107,11 +107,11 @@ class RebarCalculatorWindow:
         if callable(self.on_confirm):
             try:
                 self.on_confirm(total)
-            except Exception:
+            except Exception:  # type: ignore[reportGeneralTypeIssues]
                 # Ignore errors in callback but log in parent if available
                 try:
                     logging.getLogger(__name__).exception("Error in rebar on_confirm callback")
-                except Exception:
+                except Exception:  # type: ignore[reportGeneralTypeIssues]
                     pass
         self._close()
 
@@ -119,6 +119,6 @@ class RebarCalculatorWindow:
         try:
             if self._win is not None:
                 self._win.destroy()
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             logging.getLogger(__name__).exception("Error closing rebar window")
         self._win = None

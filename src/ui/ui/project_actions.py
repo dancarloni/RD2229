@@ -22,13 +22,17 @@ def _elem_dict_to_input(e: dict) -> VerificationInput:
             n_homog=(float(e.get("coeff_n", e.get("n_homog", 15.0))) if e.get("coeff_n", None) is not None else 15.0),
             N=float(e.get("N", 0.0)) if e.get("N", None) is not None else 0.0,
             Mx=(
-                float(e.get("Mx", e.get("M", 0.0))) if e.get("Mx", None) is not None or e.get("M", None) is not None else 0.0
+                float(e.get("Mx", e.get("M", 0.0)))
+                if e.get("Mx", None) is not None or e.get("M", None) is not None
+                else 0.0
             ),
             My=float(e.get("My", 0.0)) if e.get("My", None) is not None else 0.0,
             Mz=float(e.get("Mz", 0.0)) if e.get("Mz", None) is not None else 0.0,
             Tx=float(e.get("Tx", 0.0)) if e.get("Tx", None) is not None else 0.0,
             Ty=(
-                float(e.get("Ty", e.get("T", 0.0))) if e.get("Ty", None) is not None or e.get("T", None) is not None else 0.0
+                float(e.get("Ty", e.get("T", 0.0)))
+                if e.get("Ty", None) is not None or e.get("T", None) is not None
+                else 0.0
             ),
             At=float(e.get("At", 0.0)) if e.get("At", None) is not None else 0.0,
             As_sup=(

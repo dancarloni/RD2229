@@ -23,7 +23,7 @@ import logging
 import math
 from typing import Any, Dict
 
-from core.verification_core import (  # type: ignore[import]
+from core.verification_core import (
     LoadCase,
     MaterialProperties,
     ReinforcementLayer,

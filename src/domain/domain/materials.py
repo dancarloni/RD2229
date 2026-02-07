@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Iterable, Optional
 
-from src.domain.domain.models import VerificationInput  # type: ignore
+from src.domain.domain.models import VerificationInput
 
 logger = logging.getLogger(__name__)
 

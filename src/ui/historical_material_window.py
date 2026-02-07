@@ -724,7 +724,8 @@ class SourceManagerWindow(tk.Toplevel):
         # Avviso
         warning_label = tk.Label(
             self,
-            text="NOTA: Le fonti predefinite non possono essere eliminate. " "È possibile aggiungere fonti personalizzate.",
+            text="NOTA: Le fonti predefinite non possono essere eliminate. "
+                 "È possibile aggiungere fonti personalizzate.",
             fg="gray",
             font=("TkDefaultFont", 8),
         )

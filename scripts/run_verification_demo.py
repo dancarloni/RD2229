@@ -11,7 +11,7 @@ from sections_app.services.repository import SectionRepository
 
 try:
     from core_models.materials import Material, MaterialRepository
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     MaterialRepository = None
     Material = None
 

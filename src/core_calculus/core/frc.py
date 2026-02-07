@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Tuple
 
-from core_models.materials import Material  # type: ignore[import]
+from core_models.materials import Material
 
 
 def frc_stress(material: Material, strain: float) -> float:

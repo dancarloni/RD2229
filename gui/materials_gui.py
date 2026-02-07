@@ -24,12 +24,12 @@ try:
         MATERIALS_UPDATED,
         EventBus,
     )
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     EventBus = None
     MATERIALS_CLEARED = MATERIALS_ADDED = MATERIALS_UPDATED = MATERIALS_DELETED = None
 try:
     from materials_repository import MaterialsRepository
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     MaterialsRepository = None
 from tools.concrete_strength import compute_allowable_shear, compute_sigma_c_all
 

@@ -80,7 +80,7 @@ try:
 
     HistoricalMaterial = _HistoricalMaterial_external
     HistoricalMaterialLibrary = _HistoricalMaterialLibrary_external
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     # Fallback definitions (should not normally be used)
     @dataclass
     class _HistoricalMaterial:
@@ -346,7 +346,6 @@ class MaterialRepository:
             return
         self._materials.clear()
 
-
         if self._try_load_sources():
             return
 
@@ -360,7 +359,8 @@ class MaterialRepository:
 
     def _try_load_sources(self) -> bool:
         """Tentativo sequenziale di lettura: file principale poi backup.
-        Restituisce True se i materiali sono stati caricati con successo."""
+        Restituisce True se i materiali sono stati caricati con successo.
+        """
         for path, is_backup in ((self._file_path, False), (self._backup_path, True)):
             raw_data = self._load_json(path)
             if not isinstance(raw_data, list):
