@@ -43,4 +43,4 @@ jobs:
       - name: Type check (mypy)
         run: |
           # Run mypy on active packages explicitly to avoid module path mapping issues
-          mypy --explicit-package-bases 'app=.,RD2229=.' app core core_models
+          mypy --explicit-package-bases=app=.,RD2229=. app core core_models
