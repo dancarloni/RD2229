@@ -6,6 +6,7 @@ exclude =
     tests_legacy,
     examples,
     sections_app,
+    src/ui,
     tools,
     scripts,
     verifications,

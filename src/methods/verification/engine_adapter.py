@@ -17,15 +17,23 @@ def compute_with_engine(
 ) -> Optional[VerificationOutput]:
     """Attempt to compute using the optional core engine. Returns None if engine is unavailable."""
     try:
-        from src.core_calculus.core.verification_core import LoadCase, ReinforcementLayer, SectionGeometry
-        from src.core_calculus.core.verification_engine import create_verification_engine
+        from src.core_calculus.core.verification_core import (
+            LoadCase,
+            ReinforcementLayer,
+            SectionGeometry,
+        )
+        from src.core_calculus.core.verification_engine import (
+            create_verification_engine,
+        )
     except Exception:  # pragma: no cover - optional engine
         return None
 
     try:
         b_cm, h_cm = get_section_geometry(_input, section_repository, unit="cm")
         fck_mpa, fck_kgcm2, *_ = get_concrete_properties(_input, material_repository)
-        fyk_mpa, fyk_kgcm2, *_ = get_steel_properties(_input, material_repository)
+        fyk_mpa, fyk_kgcm2, *_ = get_steel_properties(
+            _input, material_repository
+        )
 
         section = SectionGeometry(width=b_cm, height=h_cm)
         d_top = _input.d_sup if _input.d_sup > 0 else 4.0
