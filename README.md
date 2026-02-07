@@ -161,9 +161,14 @@ pre-commit install
 Run the checks locally with `pre-commit run --all-files` (useful before PRs).
 
 
-1. Creare un ambiente Python.
-2. Installare le dipendenze da [requirements.txt](requirements.txt).
-3. Usare i modelli in [src/rd2229](src/rd2229).
+1. Creare un ambiente Python (consigliato: `.venv`).
+   - Windows (PowerShell): `python -m venv .venv ; .\.venv\Scripts\Activate.ps1`
+   - macOS/Linux: `python -m venv .venv ; source .venv/bin/activate`
+2. Installare le dipendenze di runtime: `pip install -r requirements.txt`.
+3. Installare le dipendenze di sviluppo e test: `pip install -r requirements-dev.txt` (contiene `pytest`, `flake8`, `mypy`).
+4. Abilitare i pre-commit hooks: `pip install pre-commit && pre-commit install`.
+5. Eseguire i test: `pytest -q`.
+6. Usare i modelli in [src/rd2229](src/rd2229).
 
 ## Demo: Verification Table (GUI)
 Per aprire la finestra "Verification Table" con alcuni casi di esempio (sezioni e materiali di test) usa lo script demo incluso:
