@@ -15,7 +15,7 @@ from sections_app.ui.main_window import MainWindow
 from sections_app.ui.notification_center import NotificationCenter
 from sections_app.ui.section_manager import SectionManager
 
-from core_models.materials import MaterialRepository
+from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import HistoricalMaterialLibrary
 from sections_app.models.sections import Section
 from sections_app.services.notification import (

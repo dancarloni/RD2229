@@ -8,7 +8,7 @@ from tkinter import ttk
 
 import matplotlib
 
-from sections_app.services.notification import notify_error, notify_info, notify_warning
+from sections_app.services.notification import notify_error, notify_info, notify_warning  # type: ignore[import]
 
 matplotlib.use("Agg")  # Use Agg for headless tests; GUI will embed FigureCanvasTkAgg if available
 import matplotlib.patches as mpatches

@@ -4,7 +4,7 @@ import json
 import logging
 from typing import List, Optional, Tuple
 
-from app.domain.models import VerificationInput
+from app.domain.models import VerificationInput  # type: ignore[import]
 from sections_app.services.notification import notify_error, notify_info
 
 logger = logging.getLogger(__name__)

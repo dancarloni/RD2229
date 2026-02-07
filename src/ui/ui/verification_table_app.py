@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict, Iterable, List, Optional, Tuple
 
-from app.domain.models import VerificationInput
+from app.domain.models import VerificationInput  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

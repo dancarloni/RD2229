@@ -15,7 +15,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from typing import Optional
 
-from core_models.materials import MaterialRepository
+from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import (
     HistoricalMaterial,
     HistoricalMaterialLibrary,

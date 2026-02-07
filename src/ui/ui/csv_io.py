@@ -4,8 +4,8 @@ import csv
 import logging
 from typing import List, Tuple
 
-from app.domain.models import VerificationInput
-from app.ui.verification_table_app import COLUMNS
+from app.domain.models import VerificationInput  # type: ignore[import]
+from app.ui.verification_table_app import COLUMNS  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

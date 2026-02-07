@@ -7,9 +7,9 @@ from pathlib import Path
 from tkinter import ttk
 
 from sections_app.services.notification import (
-    notify_error,
-    notify_info,
-)
+    notify_error,  # type: ignore[import]
+    notify_info,  # type: ignore[import]
+)  
 
 logger = logging.getLogger(__name__)
 

@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from app.domain.models import VerificationInput, VerificationOutput
-from app.verification.engine_adapter import compute_with_engine
-from app.verification.methods_sle import compute_sle_verification
+from app.domain.models import VerificationInput, VerificationOutput  # type: ignore[import]
+from app.verification.engine_adapter import compute_with_engine  # type: ignore[import]
+from app.verification.methods_sle import compute_sle_verification  # type: ignore[import]
 from app.verification.methods_slu import compute_slu_verification
 from app.verification.methods_ta import compute_ta_verification
 

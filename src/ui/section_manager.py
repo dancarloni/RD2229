@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from typing import Callable, Dict, Optional, Tuple
 
-from sections_app.models.sections import CSV_HEADERS, Section
+from sections_app.models.sections import CSV_HEADERS, Section  # type: ignore[import]
 from sections_app.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_CLEARED,
@@ -17,7 +17,7 @@ from sections_app.services.notification import (
     ask_confirm,
     notify_info,
 )
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

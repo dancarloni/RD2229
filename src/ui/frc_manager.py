@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 from typing import Optional
 
-from core_models.materials import Material, MaterialRepository
+from core_models.materials import Material, MaterialRepository  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
