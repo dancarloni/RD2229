@@ -10,10 +10,18 @@ for _name, _val in vars(_mod).items():
         globals()[_name] = _val
 
 # Explicit re-exports to help static type checkers
-from src.methods.verification.engine_adapter import compute_with_engine  # type: ignore  # noqa: E402
-from src.methods.verification.methods_sle import compute_sle_verification  # type: ignore  # noqa: E402
-from src.methods.verification.methods_slu import compute_slu_verification  # type: ignore  # noqa: E402
-from src.methods.verification.methods_ta import compute_ta_verification  # type: ignore  # noqa: E402
+from src.methods.verification.engine_adapter import (  # type: ignore  # noqa: E402
+    compute_with_engine,
+)
+from src.methods.verification.methods_sle import (  # type: ignore  # noqa: E402
+    compute_sle_verification,
+)
+from src.methods.verification.methods_slu import (  # type: ignore  # noqa: E402
+    compute_slu_verification,
+)
+from src.methods.verification.methods_ta import (  # type: ignore  # noqa: E402
+    compute_ta_verification,
+)
 
 __all__ = [
     "compute_ta_verification",

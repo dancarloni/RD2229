@@ -7,12 +7,11 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from app_module.services.event_bus import SECTIONS_DELETED, EventBus
-from app_module.services.notification import (
-    notify_error,
-    notify_info,
-)
+from app_module.services.notification import notify_error, notify_info
 from app_module.services.repository import CsvSectionSerializer, GeometryRepository
-from app_module.ui.historical_material_window import HistoricalMaterialWindow  # type: ignore[import]
+from app_module.ui.historical_material_window import (
+    HistoricalMaterialWindow,  # type: ignore[import]
+)
 from app_module.ui.section_manager import SectionManager  # type: ignore[import]
 from section_calculations_module.models.sections import (
     CircularHollowSection,

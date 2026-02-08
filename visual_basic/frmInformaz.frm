@@ -69,7 +69,3 @@ Foglio2.Cells(6, 1) = txtTitolare
 ActiveWorkbook.Save
 'Unload Me
 End Sub
-
-
-
-

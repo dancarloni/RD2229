@@ -241,14 +241,16 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             if union.geom_type == "Polygon":
                 coords = list(union.exterior.coords)
                 return SectionGeometry(
-                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "T_SECTION"}
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    meta={"name": name, "type": "T_SECTION"},
                 )
             if union.geom_type == "MultiPolygon":
                 polys = list(union.geoms)
                 polys.sort(key=lambda p: p.area, reverse=True)
                 coords = list(polys[0].exterior.coords)
                 return SectionGeometry(
-                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "T_SECTION"}
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    meta={"name": name, "type": "T_SECTION"},
                 )
         # fallback simple polygon
         pts = [
@@ -276,14 +278,16 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             if union.geom_type == "Polygon":
                 coords = list(union.exterior.coords)
                 return SectionGeometry(
-                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "INVERTED_T_SECTION"}
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    meta={"name": name, "type": "INVERTED_T_SECTION"},
                 )
             if union.geom_type == "MultiPolygon":
                 polys = list(union.geoms)
                 polys.sort(key=lambda p: p.area, reverse=True)
                 coords = list(polys[0].exterior.coords)
                 return SectionGeometry(
-                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "INVERTED_T_SECTION"}
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    meta={"name": name, "type": "INVERTED_T_SECTION"},
                 )
         # fallback polygon: bottom flange then up the web and back
         pts = [
@@ -312,14 +316,16 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             if union.geom_type == "Polygon":
                 coords = list(union.exterior.coords)
                 return SectionGeometry(
-                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "I_SECTION"}
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    meta={"name": name, "type": "I_SECTION"},
                 )
             if union.geom_type == "MultiPolygon":
                 polys = list(union.geoms)
                 polys.sort(key=lambda p: p.area, reverse=True)
                 coords = list(polys[0].exterior.coords)
                 return SectionGeometry(
-                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "I_SECTION"}
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    meta={"name": name, "type": "I_SECTION"},
                 )
         # fallback composite polygon (stacked)
         pts = [
@@ -390,7 +396,8 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             union = unary_union([r1, r2])
             coords = list(union.exterior.coords)
             return SectionGeometry(
-                exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "L_SECTION"}
+                exterior=[(float(x), float(y)) for x, y in coords],
+                meta={"name": name, "type": "L_SECTION"},
             )
         # fallback polygon: vertical web left, flange at top
         pts = [(0.0, 0.0), (tv, 0.0), (tv, h - th), (w, h - th), (w, h), (0.0, h)]
@@ -462,7 +469,10 @@ def section_to_geometry(section: Section) -> SectionGeometry:
                 coords = list(union.exterior.coords)
                 return SectionGeometry(
                     exterior=[(float(x), float(y)) for x, y in coords],
-                    meta={"name": name, "type": "V_SECTION" if st == "V_SECTION" else "INVERTED_V_SECTION"},
+                    meta={
+                        "name": name,
+                        "type": "V_SECTION" if st == "V_SECTION" else "INVERTED_V_SECTION",
+                    },
                 )
             if union.geom_type == "MultiPolygon":
                 polys = list(union.geoms)
@@ -470,7 +480,10 @@ def section_to_geometry(section: Section) -> SectionGeometry:
                 coords = list(polys[0].exterior.coords)
                 return SectionGeometry(
                     exterior=[(float(x), float(y)) for x, y in coords],
-                    meta={"name": name, "type": "V_SECTION" if st == "V_SECTION" else "INVERTED_V_SECTION"},
+                    meta={
+                        "name": name,
+                        "type": "V_SECTION" if st == "V_SECTION" else "INVERTED_V_SECTION",
+                    },
                 )
         # fallback simple triangular representation
         if st == "V_SECTION":

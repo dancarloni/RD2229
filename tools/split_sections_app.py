@@ -313,7 +313,12 @@ def rewrite_imports_in_text(src_text: str, mapping: dict[str, str]) -> tuple[str
 
 
 def copy_and_rewrite(
-    collected_py: set[Path], support_files: set[Path], src_root: Path, out_root: Path, module_folder: str, dry_run: bool
+    collected_py: set[Path],
+    support_files: set[Path],
+    src_root: Path,
+    out_root: Path,
+    module_folder: str,
+    dry_run: bool,
 ) -> list[str]:
     """
     Copy files under out_root/module_folder/<relative paths>.

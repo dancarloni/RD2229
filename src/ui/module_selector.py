@@ -10,10 +10,7 @@ from tkinter import filedialog
 from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import HistoricalMaterialLibrary
 from sections_app.models.sections import Section
-from sections_app.services.notification import (
-    notify_error,
-    notify_info,
-)
+from sections_app.services.notification import notify_error, notify_info
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 from sections_app.ui.code_settings_window import CodeSettingsWindow
 from sections_app.ui.debug_viewer import DebugViewerWindow

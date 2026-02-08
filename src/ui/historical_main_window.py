@@ -4,9 +4,7 @@ import logging
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from sections_app.services.historical_calculations import (
-    verify_flexure_allowable_stress,
-)
+from sections_app.services.historical_calculations import verify_flexure_allowable_stress
 from sections_app.services.repository import SectionRepository  # type: ignore[import]
 
 logger = logging.getLogger(__name__)

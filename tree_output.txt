@@ -9653,4 +9653,3 @@ C:.
         verification_items_repository.cpython-312.pyc
         verification_project.cpython-312.pyc
         verification_table.cpython-312.pyc
-

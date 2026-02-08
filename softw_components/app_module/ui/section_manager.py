@@ -12,10 +12,7 @@ from app_module.services.event_bus import (
     SECTIONS_UPDATED,
     EventBus,
 )
-from app_module.services.notification import (
-    ask_confirm,
-    notify_info,
-)
+from app_module.services.notification import ask_confirm, notify_info
 from app_module.services.repository import (  # type: ignore[import]
     CsvSectionSerializer,
     SectionRepository,
@@ -521,7 +518,6 @@ class SectionManager(tk.Toplevel):
         return False
 
     def _ask_and_open_geometry(self) -> None:
-
         def _on_confirm_open_editor(ans: bool):
             if not ans:
                 return

@@ -5,7 +5,10 @@ ROOT = str(pathlib.Path(__file__).resolve().parents[1])
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 from sections_app.models.sections import LSection
-from sections_app.section_calculations import compute_section_properties_from_section, section_to_geometry
+from sections_app.section_calculations import (
+    compute_section_properties_from_section,
+    section_to_geometry,
+)
 
 sec = LSection(name="l", width=8.0, height=8.0, t_horizontal=1.0, t_vertical=1.0)
 old = sec.compute_properties()

@@ -125,4 +125,3 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
         shear_factors.cpython-312.pyc
         storage.cpython-312.pyc
         __init__.cpython-312.pyc
-

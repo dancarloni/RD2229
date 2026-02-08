@@ -42,10 +42,34 @@ def rel_close(a, b, tol=REL_TOL):
     [
         (RectangularSection, dict(name="r", width=10.0, height=20.0)),
         (CircularSection, dict(name="c", diameter=10.0)),
-        (TSection, dict(name="t", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0)),
-        (InvertedTSection, dict(name="it", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0)),
-        (ISection, dict(name="i", flange_width=10.0, flange_thickness=1.5, web_thickness=1.0, web_height=12.0)),
-        (CSection, dict(name="csh", width=10.0, height=8.0, flange_thickness=1.0, web_thickness=1.0)),
+        (
+            TSection,
+            dict(name="t", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0),
+        ),
+        (
+            InvertedTSection,
+            dict(
+                name="it",
+                flange_width=10.0,
+                flange_thickness=2.0,
+                web_thickness=1.0,
+                web_height=8.0,
+            ),
+        ),
+        (
+            ISection,
+            dict(
+                name="i",
+                flange_width=10.0,
+                flange_thickness=1.5,
+                web_thickness=1.0,
+                web_height=12.0,
+            ),
+        ),
+        (
+            CSection,
+            dict(name="csh", width=10.0, height=8.0, flange_thickness=1.0, web_thickness=1.0),
+        ),
         (LSection, dict(name="l", width=8.0, height=8.0, t_horizontal=1.0, t_vertical=1.0)),
         (RectangularHollowSection, dict(name="rh", width=10.0, height=8.0, thickness=1.0)),
         (CircularHollowSection, dict(name="ch", outer_diameter=10.0, thickness=1.0)),

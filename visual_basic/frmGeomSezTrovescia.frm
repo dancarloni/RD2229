@@ -227,4 +227,3 @@ If CalcVerif = False Then
     bttPacchettiArmat.Enabled = False
 End If
 End Sub
-

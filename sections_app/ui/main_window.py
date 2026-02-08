@@ -31,12 +31,11 @@ from sections_app.section_calculations import (
 from sections_app.section_graphics import SectionGraphicsController
 from sections_app.services.calculations import CanvasTransform, compute_transform
 from sections_app.services.event_bus import SECTIONS_DELETED, EventBus
-from sections_app.services.notification import (
-    notify_error,
-    notify_info,
-)
+from sections_app.services.notification import notify_error, notify_info
 from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow  # type: ignore[import]
+from sections_app.ui.historical_material_window import (
+    HistoricalMaterialWindow,  # type: ignore[import]
+)
 from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
 
 logger: logging.Logger = logging.getLogger(__name__)

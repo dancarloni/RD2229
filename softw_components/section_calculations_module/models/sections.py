@@ -5,7 +5,10 @@ from dataclasses import dataclass, field
 from math import degrees, pi, radians, sqrt
 from uuid import uuid4
 
-from section_calculations_module.services.calculations import compute_principal_inertia, rotate_inertia
+from section_calculations_module.services.calculations import (
+    compute_principal_inertia,
+    rotate_inertia,
+)
 
 logger = logging.getLogger(__name__)
 

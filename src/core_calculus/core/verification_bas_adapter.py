@@ -23,12 +23,7 @@ import logging
 import math
 from typing import Any
 
-from core.verification_core import (
-    LoadCase,
-    MaterialProperties,
-    ReinforcementLayer,
-    SectionGeometry,
-)
+from core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
 
 logger = logging.getLogger(__name__)
 

@@ -12,10 +12,7 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from sections_app.models.sections import (
-    DEFAULT_SHEAR_KAPPAS,
-    RectangularSection,
-)
+from sections_app.models.sections import DEFAULT_SHEAR_KAPPAS, RectangularSection
 from sections_app.services.area_calculations import (
     _area_inverted_t_section,
     _area_inverted_v_section,
@@ -104,12 +101,24 @@ class TestComputeShearAreasAllTypes:
             ("CIRCULAR", {"diameter": 20}),
             ("CIRCULAR_HOLLOW", {"outer_diameter": 30, "thickness": 3}),
             ("RECTANGULAR_HOLLOW", {"width": 30, "height": 50, "thickness": 3}),
-            ("T_SECTION", {"flange_width": 20, "flange_thickness": 3, "web_thickness": 2, "web_height": 17}),
-            ("I_SECTION", {"flange_width": 20, "flange_thickness": 3, "web_thickness": 2, "web_height": 14}),
+            (
+                "T_SECTION",
+                {"flange_width": 20, "flange_thickness": 3, "web_thickness": 2, "web_height": 17},
+            ),
+            (
+                "I_SECTION",
+                {"flange_width": 20, "flange_thickness": 3, "web_thickness": 2, "web_height": 14},
+            ),
             ("L_SECTION", {"width": 100, "height": 80, "t_horizontal": 10, "t_vertical": 10}),
             ("C_SECTION", {"width": 20, "height": 40, "thickness": 3}),
-            ("INVERTED_T_SECTION", {"flange_width": 20, "flange_thickness": 3, "web_thickness": 2, "web_height": 17}),
-            ("PI_SECTION", {"flange_width": 30, "flange_thickness": 3, "web_thickness": 2, "web_height": 20}),
+            (
+                "INVERTED_T_SECTION",
+                {"flange_width": 20, "flange_thickness": 3, "web_thickness": 2, "web_height": 17},
+            ),
+            (
+                "PI_SECTION",
+                {"flange_width": 30, "flange_thickness": 3, "web_thickness": 2, "web_height": 20},
+            ),
             ("V_SECTION", {"width": 20, "height": 15, "thickness": 2}),
             ("INVERTED_V_SECTION", {"width": 20, "height": 15, "thickness": 2}),
         ],

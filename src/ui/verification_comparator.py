@@ -6,12 +6,12 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
-from _csv import Writer
 from tkinter import ttk
 from typing import Any
 
 import matplotlib
 import matplotlib.patches as mpatches
+from _csv import Writer
 from matplotlib.figure import Figure
 
 from sections_app.services.notification import notify_error, notify_info, notify_warning

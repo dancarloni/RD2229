@@ -5,11 +5,7 @@ import json
 import os
 import tempfile
 
-from sections_app.models.sections import (
-    CircularSection,
-    RectangularSection,
-    TSection,
-)
+from sections_app.models.sections import CircularSection, RectangularSection, TSection
 from sections_app.services.repository import SectionRepository
 
 

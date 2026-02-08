@@ -1,9 +1,4 @@
-from .geometry import (
-    CircularHollowSection,
-    InvertedTSection,
-    PiSection,
-    RectangularHollowSection,
-)
+from .geometry import CircularHollowSection, InvertedTSection, PiSection, RectangularHollowSection
 from .section_properties import compute_section_properties
 
 

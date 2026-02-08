@@ -7,12 +7,7 @@ Questo script mostra come le sezioni vengono salvate e ripristinate automaticame
 import os
 import sys
 
-from sections_app.models.sections import (
-    CircularSection,
-    LSection,
-    RectangularSection,
-    TSection,
-)
+from sections_app.models.sections import CircularSection, LSection, RectangularSection, TSection
 from sections_app.services.repository import SectionRepository
 
 

@@ -286,4 +286,3 @@ python scripts/run_materials_gui.py
 
 La GUI è pensata per prototipazione: se preferisci posso integrarla in una
 futura GUI principale del progetto o adattarla a framework diversi (Qt, web).
-

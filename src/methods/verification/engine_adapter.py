@@ -21,9 +21,7 @@ def compute_with_engine(
             ReinforcementLayer,
             SectionGeometry,
         )
-        from src.core_calculus.core.verification_engine import (
-            create_verification_engine,
-        )
+        from src.core_calculus.core.verification_engine import create_verification_engine
     except Exception:  # pragma: no cover - optional engine
         return None
 

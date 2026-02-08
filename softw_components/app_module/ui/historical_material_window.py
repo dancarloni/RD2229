@@ -14,12 +14,7 @@ import logging
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from app_module.services.notification import (
-    ask_confirm,
-    notify_error,
-    notify_info,
-    notify_warning,
-)
+from app_module.services.notification import ask_confirm, notify_error, notify_info, notify_warning
 
 from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import (

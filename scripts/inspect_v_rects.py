@@ -31,7 +31,15 @@ print("right", right_rect)
 
 # Try to build polygon by tracing left outer edge (left_rect[0])->left_rect[1]??
 # Let's inspect points
-pts = [left_rect[0], left_rect[1], left_rect[2], right_rect[2], right_rect[1], right_rect[0], left_rect[3]]
+pts = [
+    left_rect[0],
+    left_rect[1],
+    left_rect[2],
+    right_rect[2],
+    right_rect[1],
+    right_rect[0],
+    left_rect[3],
+]
 print("trial pts", pts)
 
 
@@ -76,6 +84,9 @@ orders = [
 for i, o in enumerate(orders):
     print(f"right area order {i}", rect_area(o))
     if len(o) >= 4:
-        print(" edge lengths:", [math.hypot(o[j][0] - o[(j + 1) % 4][0], o[j][1] - o[(j + 1) % 4][1]) for j in range(4)])
+        print(
+            " edge lengths:",
+            [math.hypot(o[j][0] - o[(j + 1) % 4][0], o[j][1] - o[(j + 1) % 4][1]) for j in range(4)],
+        )
 print("sum with best order", rect_area(left_rect) + max(rect_area(o) for o in orders))
 # overlap area by intersection approx? not computed

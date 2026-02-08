@@ -14,10 +14,7 @@ from pathlib import Path
 from tkinter import Tk, filedialog
 
 from app_module.modules.registry import ModuleRegistry
-from app_module.services.notification import (
-    notify_error,
-    notify_info,
-)
+from app_module.services.notification import notify_error, notify_info
 from app_module.services.repository import CsvSectionSerializer, GeometryRepository
 from app_module.ui.code_settings_window import CodeSettingsWindow
 from app_module.ui.debug_viewer import DebugViewerWindow  # noqa: F401

@@ -16,10 +16,7 @@ from tkinter import Tk, filedialog
 from core_models.materials import MaterialRepository  # noqa: F401
 from historical_materials import HistoricalMaterialLibrary  # noqa: F401
 from sections_app.modules.registry import ModuleRegistry
-from sections_app.services.notification import (
-    notify_error,
-    notify_info,
-)
+from sections_app.services.notification import notify_error, notify_info
 from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
 from sections_app.ui.code_settings_window import CodeSettingsWindow
 from sections_app.ui.debug_viewer import DebugViewerWindow  # noqa: F401

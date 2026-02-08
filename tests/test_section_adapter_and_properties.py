@@ -1,4 +1,3 @@
-
 import pytest
 
 from sections_app.models.sections import RectangularSection, TSection

@@ -23,12 +23,11 @@ from sections_app.models.sections import (
     VSection,
 )
 from sections_app.services.calculations import compute_transform
-from sections_app.services.notification import (
-    notify_error,
-    notify_info,
-)
+from sections_app.services.notification import notify_error, notify_info
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow  # type: ignore[import]
+from sections_app.ui.historical_material_window import (
+    HistoricalMaterialWindow,  # type: ignore[import]
+)
 from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
 
 logger = logging.getLogger(__name__)

@@ -11,11 +11,7 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from core.verification_core import (  # noqa: E402
-    LoadCase,
-    ReinforcementLayer,
-    SectionGeometry,
-)
+from core.verification_core import LoadCase, ReinforcementLayer, SectionGeometry  # noqa: E402
 from core.verification_engine import create_verification_engine  # noqa: E402
 
 print("=" * 80)
@@ -167,7 +163,8 @@ print("  (Implementation in progress - full calculation coming soon)")
 print("\n" + "=" * 80)
 print("SUMMARY")
 print("=" * 80)
-print("""
+print(
+    """
 ✅ Verification Engine Implemented
   • TA, SLU, SLE calculation methods
   • Integration with .jsoncode configuration system
@@ -193,7 +190,8 @@ print("""
   • Integration with verification_table.py
   • Graphical results (neutral axis visualization)
   • Text export functionality
-""")
+"""
+)
 
 print("=" * 80)
 print("Run 'python demo_config_system.py' for .jsoncode system demonstration")

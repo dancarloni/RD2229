@@ -1,4 +1,3 @@
-
 from sections_app.modules.registry import ModuleRegistry
 
 

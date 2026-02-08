@@ -108,4 +108,3 @@ ElseIf FormSez = "Circolare piena o cava" Then
     txtTy.Enabled = False
 End If
 End Sub
-
