@@ -17,9 +17,26 @@ def main() -> int:
     # Prefer calling mypy via the CLI to avoid argument parsing quirks on Windows.
     cmd_variants = [
         # Try combined form first (most robust for CLI parsers):
-        [sys.executable, "-m", "mypy", "--config-file", "mypy.ini", "--explicit-package-bases=src=.", "src"],
+        [
+            sys.executable,
+            "-m",
+            "mypy",
+            "--config-file",
+            "mypy.ini",
+            "--explicit-package-bases=src=.",
+            "src",
+        ],
         # Fallback: separate args (older mypy or different parsers may accept this)
-        [sys.executable, "-m", "mypy", "--config-file", "mypy.ini", "--explicit-package-bases", "src=.", "src"],
+        [
+            sys.executable,
+            "-m",
+            "mypy",
+            "--config-file",
+            "mypy.ini",
+            "--explicit-package-bases",
+            "src=.",
+            "src",
+        ],
     ]
 
     for cmd in cmd_variants:
@@ -29,7 +46,9 @@ def main() -> int:
                 print(proc.stdout)
             return 0
         # If output indicates unknown arg parsing, try the next variant
-        if "ignored explicit argument" in (proc.stderr or "") or "can't read file 'src=." in (proc.stderr or ""):
+        if "ignored explicit argument" in (proc.stderr or "") or "can't read file 'src=." in (
+            proc.stderr or ""
+        ):
             # try next variant
             continue
         # Otherwise, print whatever mypy returned and return the exit code

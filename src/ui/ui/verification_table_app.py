@@ -43,7 +43,9 @@ COLUMNS: list[ColumnDef] = [
 
 try:
     from tools.materials_manager import list_materials as LIST_MATERIALS
-except Exception:  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
+except (
+    Exception
+):  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
     LIST_MATERIALS = None
 
 
@@ -77,9 +79,10 @@ class VerificationTableApp(tk.Frame):
         try:
             # Try to import and create project
             from src.domain.domain.models import VerificationProject  # type: ignore[import]
+
             if VerificationProject is not None:
                 self.project = VerificationProject()
-                if hasattr(self.project, 'new_project'):
+                if hasattr(self.project, "new_project"):
                     self.project.new_project()  # type: ignore
         except ImportError:
             pass
@@ -93,7 +96,9 @@ class VerificationTableApp(tk.Frame):
         self.search_limit = int(search_limit)
         self.display_limit = int(display_limit)
 
-        self.section_names: list[str] = self._resolve_section_names(section_repository, section_names)
+        self.section_names: list[str] = self._resolve_section_names(
+            section_repository, section_names
+        )
         self.material_names: list[str] | None = self._resolve_material_names(material_names)
 
         self.suggestions_map: dict[str, object] = {
@@ -278,22 +283,38 @@ class VerificationTableApp(tk.Frame):
         top.pack(fill="x", padx=8, pady=(8, 4))
 
         tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
-        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
-        tk.Button(
-            top, text="Aggiungi lista di elementi", command=self._on_add_list_elements
-        ).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(
+            side="left", padx=(6, 0)
+        )
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
-        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(
+            side="left", padx=(6, 0)
+        )
         # Status label to show non-blocking progress messages
         self._status_var = tk.StringVar(value="")
         tk.Label(top, textvariable=self._status_var, anchor="w").pack(side="right")
-        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(
+            side="left", padx=(6, 0)
+        )
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -623,10 +644,14 @@ class VerificationTableApp(tk.Frame):
             return "break"
         if event.keysym in {"Left", "Right"}:
             delta: int = -1 if event.keysym == "Left" else 1
-            target_item, target_col = self._next_cell(item, self._last_col, delta_col=delta, delta_row=0)
+            target_item, target_col = self._next_cell(
+                item, self._last_col, delta_col=delta, delta_row=0
+            )
         else:
             delta: int = -1 if event.keysym == "Up" else 1
-            target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
+            target_item, target_col = self._next_cell(
+                item, self._last_col, delta_col=0, delta_row=delta
+            )
         self._last_col: str = target_col
         self._start_edit(target_item, target_col)
         return "break"
@@ -702,7 +727,9 @@ class VerificationTableApp(tk.Frame):
         value: Any | str = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
         # Record debug info via logger (no direct stdout prints)
         try:
-            logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
+            logger.debug(
+                "Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value
+            )
             logger.debug("edit_entry type: %s", type(self.edit_entry))
             if hasattr(self.edit_entry, "cget"):
                 try:
@@ -800,7 +827,9 @@ class VerificationTableApp(tk.Frame):
         self._commit_edit()
 
         # Calcola la cella target (eventualmente creando una nuova riga copiando la corrente)
-        target_item, target_col, _created = self._compute_target_cell(current_item, current_col, delta_col, delta_row)
+        target_item, target_col, _created = self._compute_target_cell(
+            current_item, current_col, delta_col, delta_row
+        )
 
         # Apri l'editor sulla cella target
         self._start_edit(target_item, target_col)
@@ -979,7 +1008,9 @@ class VerificationTableApp(tk.Frame):
                     "stirrup_diameter",
                 }:
                     try:
-                        kwargs[attr] = float(str(value).replace(",", ".")) if str(value).strip() else 0.0
+                        kwargs[attr] = (
+                            float(str(value).replace(",", ".")) if str(value).strip() else 0.0
+                        )
                     except Exception:
                         kwargs[attr] = 0.0
                 else:
@@ -1021,7 +1052,9 @@ class VerificationTableApp(tk.Frame):
         # Submit tasks
         if self._bg is not None:
             for it, row in zip(items, rows):
-                self._bg.submit(self._compute_for_pair, (it, row), callback=self._on_compute_done, tk_root=self)
+                self._bg.submit(
+                    self._compute_for_pair, (it, row), callback=self._on_compute_done, tk_root=self
+                )
             # clear status after a short period; individual callbacks can set messages
             self._clear_status(2000)
         else:
@@ -1153,10 +1186,7 @@ class VerificationTableApp(tk.Frame):
             if hasattr(section_repository, "get_all_sections"):
                 try:
                     getter = getattr(section_repository, "get_all_sections")
-                    return [
-                        getattr(s, "section_id", getattr(s, "id", str(s)))
-                        for s in getter()
-                    ]
+                    return [getattr(s, "section_id", getattr(s, "id", str(s))) for s in getter()]
                 except Exception:
                     logger.exception("Errore chiamando get_all_sections")
                     return []
@@ -1186,9 +1216,11 @@ class VerificationTableApp(tk.Frame):
                 materials = LIST_MATERIALS()  # type: ignore
                 # Convert dicts to strings if needed
                 if materials and isinstance(materials[0], dict):
-                    return [str(m.get('name', m.get('id', str(m)))) for m in materials]  # type: ignore
+                    return [str(m.get("name", m.get("id", str(m)))) for m in materials]  # type: ignore
                 return materials  # type: ignore
-            if self.material_repository is not None and hasattr(self.material_repository, "get_all"):
+            if self.material_repository is not None and hasattr(
+                self.material_repository, "get_all"
+            ):
                 mats = self.material_repository.get_all()
                 return [getattr(m, "name", getattr(m, "id", str(m))) for m in mats]
         except Exception:
@@ -1273,7 +1305,9 @@ class VerificationTableApp(tk.Frame):
     def create_test_project(self) -> None:
         # Small helper to create a sample row for manual testing
         item: str = self._add_row()
-        sample = VerificationInput(element_name="E01", section_id="B200x30", verification_method="TA")
+        sample = VerificationInput(
+            element_name="E01", section_id="B200x30", verification_method="TA"
+        )
         self.update_row_from_model(self.tree.index(item), sample)
 
     def _open_comparator(self) -> None:
@@ -1304,7 +1338,9 @@ class VerificationTableApp(tk.Frame):
         from tkinter import filedialog
 
         try:
-            path: str = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV", "*.csv")])
+            path: str = filedialog.asksaveasfilename(
+                defaultextension=".csv", filetypes=[("CSV", "*.csv")]
+            )
             if not path:
                 return
             self.export_csv(path, include_header=True)

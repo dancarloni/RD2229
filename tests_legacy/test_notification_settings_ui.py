@@ -7,7 +7,9 @@ def test_ui_save_calls_save_notification_settings(monkeypatch, tmp_path):
     def fake_save(settings, path=None):
         called["settings"] = settings
 
-    monkeypatch.setattr("sections_app.ui.notification_settings_window.save_notification_settings", fake_save)
+    monkeypatch.setattr(
+        "sections_app.ui.notification_settings_window.save_notification_settings", fake_save
+    )
     ns = NotificationSettingsWindow(master=None)
     # programmatically set settings
     ns.set_settings(

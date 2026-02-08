@@ -66,14 +66,18 @@ class MaterialEditor(simpledialog.Dialog):
 
         tk.Label(master, text="Cement type:").grid(row=2, column=0, sticky="w")
         self.var_cement = tk.StringVar(value=self.material.get("cement_type", "normal"))
-        tk.OptionMenu(master, self.var_cement, "normal", "high", "aluminous", "slow").grid(row=2, column=1, sticky="we")
+        tk.OptionMenu(master, self.var_cement, "normal", "high", "aluminous", "slow").grid(
+            row=2, column=1, sticky="we"
+        )
 
         tk.Label(master, text="σ_c28 (Kg/cm²):").grid(row=3, column=0, sticky="w")
         self.ent_sigma = tk.Entry(master)
         self.ent_sigma.grid(row=3, column=1)
 
         tk.Label(master, text="Condition:").grid(row=4, column=0, sticky="w")
-        self.var_condition = tk.StringVar(value=self.material.get("condition", "semplicemente_compresa"))
+        self.var_condition = tk.StringVar(
+            value=self.material.get("condition", "semplicemente_compresa")
+        )
         tk.OptionMenu(
             master,
             self.var_condition,
@@ -82,7 +86,9 @@ class MaterialEditor(simpledialog.Dialog):
             "conglomerato_speciale",
         ).grid(row=4, column=1, sticky="we")
 
-        self.var_controlled = tk.BooleanVar(value=bool(self.material.get("controlled_quality", False)))
+        self.var_controlled = tk.BooleanVar(
+            value=bool(self.material.get("controlled_quality", False))
+        )
         tk.Checkbutton(master, text="Controlled quality", variable=self.var_controlled).grid(
             row=5, columnspan=2, sticky="w"
         )
@@ -91,12 +97,16 @@ class MaterialEditor(simpledialog.Dialog):
         self.ent_E = tk.Entry(master)
         self.ent_E.grid(row=6, column=1)
         self.var_E_defined = tk.BooleanVar(value=bool(self.material.get("E", None) is not None))
-        tk.Checkbutton(master, text="E defined", variable=self.var_E_defined).grid(row=7, columnspan=2, sticky="w")
+        tk.Checkbutton(master, text="E defined", variable=self.var_E_defined).grid(
+            row=7, columnspan=2, sticky="w"
+        )
 
         # Preview area
         self.preview_label = tk.Label(master, text="Preview: no σ_c28 provided")
         self.preview_label.grid(row=8, column=0, columnspan=2, sticky="w")
-        tk.Button(master, text="Preview", command=self.on_preview).grid(row=9, column=0, columnspan=2)
+        tk.Button(master, text="Preview", command=self.on_preview).grid(
+            row=9, column=0, columnspan=2
+        )
 
         # populate
         if self.material:
@@ -201,7 +211,9 @@ class MaterialEditor(simpledialog.Dialog):
             txt_lines.append("")
             txt_lines.append("LIMITI STORICI:")
             txt_lines.append(f"σ_t (trazione) = {sigma_t_min}÷{sigma_t_max} Kg/cm² (≈1/10÷1/9 σ_c)")
-            txt_lines.append(f"σ_tf (flessione) = {sigma_tf_min}÷{sigma_tf_max} Kg/cm² (≈1/5÷1/4 σ_c)")
+            txt_lines.append(
+                f"σ_tf (flessione) = {sigma_tf_min}÷{sigma_tf_max} Kg/cm² (≈1/5÷1/4 σ_c)"
+            )
             txt_lines.append("σ_taglio ≈ poco maggiore di σ_t")
 
         # if user didn't provide E, propose the computed value in the E entry
@@ -264,21 +276,31 @@ class MaterialsApp(tk.Frame):
         tk.Button(toolbar, text="Edit", command=self.on_edit).pack(side="left")
         tk.Button(toolbar, text="Delete", command=self.on_delete).pack(side="left")
         tk.Button(toolbar, text="Refresh", command=self.refresh_list).pack(side="left")
-        tk.Button(toolbar, text="Carica lista materiali", command=self.on_load_list).pack(side="left", padx=(8, 0))
-        tk.Button(toolbar, text="Salva lista materiali", command=self.on_save_list).pack(side="left")
+        tk.Button(toolbar, text="Carica lista materiali", command=self.on_load_list).pack(
+            side="left", padx=(8, 0)
+        )
+        tk.Button(toolbar, text="Salva lista materiali", command=self.on_save_list).pack(
+            side="left"
+        )
 
         # Filters frame
         filter_frame = tk.Frame(self)
         filter_frame.pack(fill="x", pady=4)
         tk.Label(filter_frame, text="Filter name:").pack(side="left")
         self.var_filter_name = tk.StringVar(value="")
-        tk.Entry(filter_frame, textvariable=self.var_filter_name, width=18).pack(side="left", padx=4)
+        tk.Entry(filter_frame, textvariable=self.var_filter_name, width=18).pack(
+            side="left", padx=4
+        )
         tk.Label(filter_frame, text="Cement:").pack(side="left")
         self.var_filter_cement = tk.StringVar(value="")
-        tk.OptionMenu(filter_frame, self.var_filter_cement, "", "normal", "high", "aluminous").pack(side="left", padx=4)
+        tk.OptionMenu(filter_frame, self.var_filter_cement, "", "normal", "high", "aluminous").pack(
+            side="left", padx=4
+        )
         tk.Label(filter_frame, text="min σ_c28:").pack(side="left")
         self.var_filter_min_sigma = tk.StringVar(value="")
-        tk.Entry(filter_frame, textvariable=self.var_filter_min_sigma, width=8).pack(side="left", padx=4)
+        tk.Entry(filter_frame, textvariable=self.var_filter_min_sigma, width=8).pack(
+            side="left", padx=4
+        )
         tk.Button(filter_frame, text="Apply", command=self.apply_filters).pack(side="left", padx=6)
         tk.Button(filter_frame, text="Clear", command=self.clear_filters).pack(side="left")
 
@@ -308,13 +330,21 @@ class MaterialsApp(tk.Frame):
         self._sort_reverse = False
         self.tree.heading("name", text="Name", command=lambda c="name": self.sort_by(c))
         self.tree.heading("cement", text="Cement", command=lambda c="cement": self.sort_by(c))
-        self.tree.heading("sigma_c28", text="σ_c,28 (Kg/cm²)", command=lambda c="sigma_c28": self.sort_by(c))
+        self.tree.heading(
+            "sigma_c28", text="σ_c,28 (Kg/cm²)", command=lambda c="sigma_c28": self.sort_by(c)
+        )
         self.tree.heading("E_user", text="E (utente)", command=lambda c="E_user": self.sort_by(c))
-        self.tree.heading("E_calc", text="E_c calc (Kg/cm²)", command=lambda c="E_calc": self.sort_by(c))
-        self.tree.heading("E_conv", text="E_c conv (Kg/cm²)", command=lambda c="E_conv": self.sort_by(c))
+        self.tree.heading(
+            "E_calc", text="E_c calc (Kg/cm²)", command=lambda c="E_calc": self.sort_by(c)
+        )
+        self.tree.heading(
+            "E_conv", text="E_c conv (Kg/cm²)", command=lambda c="E_conv": self.sort_by(c)
+        )
         self.tree.heading("G_min", text="G_c min", command=lambda c="G_min": self.sort_by(c))
         self.tree.heading("G_max", text="G_c max", command=lambda c="G_max": self.sort_by(c))
-        self.tree.heading("sigma_simple", text="σ_c (semplice)", command=lambda c="sigma_simple": self.sort_by(c))
+        self.tree.heading(
+            "sigma_simple", text="σ_c (semplice)", command=lambda c="sigma_simple": self.sort_by(c)
+        )
         self.tree.heading(
             "sigma_inflessa",
             text="σ_c (inflesse)",
@@ -325,9 +355,13 @@ class MaterialsApp(tk.Frame):
             text="σ_c (presso-inflesse)",
             command=lambda c="sigma_presso": self.sort_by(c),
         )
-        self.tree.heading("tau_service", text="tau service", command=lambda c="tau_service": self.sort_by(c))
+        self.tree.heading(
+            "tau_service", text="tau service", command=lambda c="tau_service": self.sort_by(c)
+        )
         self.tree.heading("tau_max", text="tau max", command=lambda c="tau_max": self.sort_by(c))
-        self.tree.heading("E_defined", text="E defined", command=lambda c="E_defined": self.sort_by(c))
+        self.tree.heading(
+            "E_defined", text="E defined", command=lambda c="E_defined": self.sort_by(c)
+        )
 
         # set reasonable column widths
         self.tree.column("name", width=160, anchor="w")
@@ -569,7 +603,9 @@ class MaterialsApp(tk.Frame):
         """
         path = MATERIALS_REPO_PATH
         if not os.path.exists(path):
-            messagebox.showinfo("Carica lista materiali", f"Nessun file materiali trovato in {path}")
+            messagebox.showinfo(
+                "Carica lista materiali", f"Nessun file materiali trovato in {path}"
+            )
             return
         try:
             if self.repo is not None:

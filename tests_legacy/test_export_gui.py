@@ -38,7 +38,9 @@ class TestExportBackupGUI(unittest.TestCase):
         self.section_repo.add_section(rect)
 
         self.material_repo = MaterialRepository(json_file=str(self.temp_path / "materials.json"))
-        mat = Material(id="MAT-001", name="Test Material", type="concrete", properties={"fck": 25.0})
+        mat = Material(
+            id="MAT-001", name="Test Material", type="concrete", properties={"fck": 25.0}
+        )
         self.material_repo.add(mat)
 
         self.serializer = CsvSectionSerializer()

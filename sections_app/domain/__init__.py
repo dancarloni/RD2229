@@ -32,7 +32,3 @@ __all__ = [
     "VSection",
     "InvertedVSection",
 ]
-
-
-
-

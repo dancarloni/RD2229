@@ -156,3 +156,9 @@ class NotificationCenter:
                 self._win.destroy()
             except Exception:
                 pass
+
+    def show(self) -> None:
+        """Show the notification center window."""
+        if self._win is not None:
+            self._win.deiconify()
+            self._win.lift()

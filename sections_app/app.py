@@ -30,21 +30,10 @@ def configure_logging() -> None:
 def run_app() -> None:
     configure_logging()
 
-    # Crea e carica i repository
-    section_repository = SectionRepository()
-    section_repository.load_from_file()
-
-    material_repository = None
-    if MaterialRepository is not None:
-        material_repository = MaterialRepository()
-        material_repository.load_from_file()
-
-    serializer = CsvSectionSerializer()
-
     # Mostra il selettore di modulo come prima finestra
     from sections_app.ui.module_selector import ModuleSelectorWindow
 
-    selector = ModuleSelectorWindow(section_repository, serializer, material_repository)
+    selector = ModuleSelectorWindow()
     selector.mainloop()
 
 

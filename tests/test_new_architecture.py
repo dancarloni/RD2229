@@ -21,7 +21,7 @@ def test_rectangular_section():
         name="Test Rectangle",
         dimensions={"width": 10.0, "height": 20.0},
         rotation_angle_deg=0.0,
-        note="Test section"
+        note="Test section",
     )
 
     print(f"ID: {section.id}")
@@ -33,6 +33,7 @@ def test_rectangular_section():
     print(f"Iy: {section.properties.Iy}")
     print("✓ RectangularSection OK\n")
 
+
 def test_circular_section():
     """Test sezione circolare."""
     print("Testing CircularSection...")
@@ -42,7 +43,7 @@ def test_circular_section():
         name="Test Circle",
         dimensions={"diameter": 15.0},
         rotation_angle_deg=0.0,
-        note="Test circular section"
+        note="Test circular section",
     )
 
     print(f"ID: {section.id}")
@@ -53,6 +54,7 @@ def test_circular_section():
     print(f"Ix: {section.properties.Ix:.2f}")
     print(f"Iy: {section.properties.Iy:.2f}")
     print("✓ CircularSection OK\n")
+
 
 def test_csv_factory():
     """Test factory da dizionario CSV."""
@@ -65,7 +67,7 @@ def test_csv_factory():
         "width": "12.5",
         "height": "25.0",
         "rotation_angle_deg": "30",
-        "note": "From CSV"
+        "note": "From CSV",
     }
 
     section = create_section_from_dict(data)
@@ -76,6 +78,7 @@ def test_csv_factory():
     print(f"Dimensions: {section.dimensions}")
     print(f"Rotation: {section.rotation_angle_deg}°")
     print("✓ CSV Factory OK\n")
+
 
 if __name__ == "__main__":
     print("=== Testing New Sections Architecture ===\n")
@@ -90,5 +93,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

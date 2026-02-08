@@ -46,7 +46,9 @@ class TestVerificationTableAPI(unittest.TestCase):
         first = items[0]
         # compute target for Tab from last column -> should create new row
         last_col = app.columns[-1]
-        target_item, target_col, created = app.compute_target_cell(first, last_col, delta_col=1, delta_row=0)
+        target_item, target_col, created = app.compute_target_cell(
+            first, last_col, delta_col=1, delta_row=0
+        )
         self.assertTrue(created)
         self.assertEqual(target_col, app.columns[0])
         # new item should exist in tree

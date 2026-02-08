@@ -67,7 +67,9 @@ def _compute_ta_branch(
         sigma_fa = sigma_fa * 10.197
 
     if TauC1_t == 0:
-        results_loc.setdefault("messages", []).append("TA torsion thresholds not provided; only outputs Taux_max")
+        results_loc.setdefault("messages", []).append(
+            "TA torsion thresholds not provided; only outputs Taux_max"
+        )
         return
 
     teta = math.radians(getattr(mat, "teta_to_deg", 30.0))
@@ -104,25 +106,41 @@ def _compute_slu_branch(
     if fyd < 2000:
         fyd = fyd * 10.197
 
-    Al_to = results_loc.get("Al_to", max(0.001, abs(Mx_loc) * p_loc / (2.0 * fyd * A_loc * max(math.tan(teta), 1e-6))))
+    Al_to = results_loc.get(
+        "Al_to", max(0.001, abs(Mx_loc) * p_loc / (2.0 * fyd * A_loc * max(math.tan(teta), 1e-6)))
+    )
     Asw_to = getattr(mat, "Asw_to", 1.0)
     alfa_to = math.radians(getattr(mat, "alfa_to_deg", 30.0))
     Pst_to = results_loc.get(
         "Pst_to",
         max(
             1.0,
-            2 * Asw_to * fyd * A_loc * math.sin(math.pi - teta - alfa_to) / (abs(Mx_loc) * max(math.sin(teta), 1e-6)),
+            2
+            * Asw_to
+            * fyd
+            * A_loc
+            * math.sin(math.pi - teta - alfa_to)
+            / (abs(Mx_loc) * max(math.sin(teta), 1e-6)),
         ),
     )
 
     Mtu1 = 2.0 * Al_to * fyd * A_loc / p_loc * math.tan(teta)
     if Pst_to * math.sin(teta) != 0.0:
-        Mtu2 = 2.0 * Asw_to * fyd * A_loc * math.sin(math.pi - teta - alfa_to) / (Pst_to * math.sin(teta))
+        Mtu2 = (
+            2.0
+            * Asw_to
+            * fyd
+            * A_loc
+            * math.sin(math.pi - teta - alfa_to)
+            / (Pst_to * math.sin(teta))
+        )
     else:
         Mtu2 = 0.0
 
     Mtu = min(Mtu1, Mtu2, Mtu3)
-    results_loc.update({"Mtu1": Mtu1, "Mtu2": Mtu2, "Mtu3": Mtu3, "Mtu": Mtu, "Al_to": Al_to, "Pst_to": Pst_to})
+    results_loc.update(
+        {"Mtu1": Mtu1, "Mtu2": Mtu2, "Mtu3": Mtu3, "Mtu": Mtu, "Al_to": Al_to, "Pst_to": Pst_to}
+    )
 
 
 def _finalize_torsion(

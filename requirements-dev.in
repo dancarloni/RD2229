@@ -23,3 +23,6 @@ mutmut
 
 # Development tools
 pip-tools
+
+# Optional, useful for robust geometric ops in tests and dev
+shapely

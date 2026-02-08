@@ -44,7 +44,9 @@ class TestVerificationTableWindow(unittest.TestCase):
         else:
             mat_repo = None
 
-        win = VerificationTableWindow(self.root, section_repository=section_repo, material_repository=mat_repo)
+        win = VerificationTableWindow(
+            self.root, section_repository=section_repo, material_repository=mat_repo
+        )
 
         # repositories stored on window
         self.assertIs(win.section_repository, section_repo)

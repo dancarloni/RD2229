@@ -73,7 +73,9 @@ def test_temp_file_extension_preserved(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     repo = SectionRepository()
     # Trigger a save by adding a new section using create_section_from_dict
-    sec = create_section_from_dict({"name": "t", "width": 10, "height": 10, "section_type": "RECTANGULAR"})
+    sec = create_section_from_dict(
+        {"name": "t", "width": 10, "height": 10, "section_type": "RECTANGULAR"}
+    )
     repo.add_section(sec)
     # Check for temp file if it was created (should end with .jsons.tmp or not exist)
     tmp_files = list(canonical_dir.glob("*.tmp"))

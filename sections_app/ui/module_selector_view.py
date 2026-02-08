@@ -52,6 +52,12 @@ class ModuleSelectorView(ttk.Frame):
         for spec in specs:
             self._add_card(spec)
 
+    def set_specs(self, specs: list[ModuleCardSpec]) -> None:
+        """Aggiorna le card mostrate con una nuova lista di specs."""
+        self.flow.clear()
+        for spec in specs:
+            self._add_card(spec)
+
     def _add_card(self, spec: ModuleCardSpec):
         """Aggiunge una card del modulo al layout.
 

@@ -13,5 +13,3 @@ __all__ = [
     "DIMENSION_KEYS",
     "SECTION_CLASS_MAP",
 ]
-
-

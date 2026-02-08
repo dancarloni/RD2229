@@ -42,7 +42,9 @@ class TestModuleSelectorMaterialButton(unittest.TestCase):
                     return None
 
                 button = find_button(window)
-                self.assertIsNotNone(button, "Button 'Open Materials' not found in ModuleSelectorWindow")
+                self.assertIsNotNone(
+                    button, "Button 'Open Materials' not found in ModuleSelectorWindow"
+                )
             finally:
                 if window.winfo_exists():
                     window.destroy()

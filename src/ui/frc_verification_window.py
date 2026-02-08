@@ -16,7 +16,9 @@ from src.core_calculus.core.verification_engine import VerificationEngine
 class FrcVerificationWindow(tk.Toplevel):
     """Simple window to run a quick verification with an FRC material."""
 
-    def __init__(self, master: tk.Misc, material_repository: MaterialRepository | None = None) -> None:
+    def __init__(
+        self, master: tk.Misc, material_repository: MaterialRepository | None = None
+    ) -> None:
         super().__init__(master)
         self.title("FRC Quick Verification")
         self.geometry("600x420")
@@ -64,8 +66,12 @@ class FrcVerificationWindow(tk.Toplevel):
         self.ent_M.insert(0, "1000.0")
         self.ent_M.grid(row=6, column=1, sticky="w")
 
-        tk.Button(frm, text="Load materials", command=self._load_materials).grid(row=0, column=2, padx=8)
-        tk.Button(frm, text="Run verification", command=self._run).grid(row=7, column=1, pady=(10, 0))
+        tk.Button(frm, text="Load materials", command=self._load_materials).grid(
+            row=0, column=2, padx=8
+        )
+        tk.Button(frm, text="Run verification", command=self._run).grid(
+            row=7, column=1, pady=(10, 0)
+        )
 
         self.output = tk.Text(self, height=10, width=80)
         self.output.pack(fill="both", padx=8, pady=8, expand=True)

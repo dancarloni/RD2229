@@ -32,6 +32,19 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+      - name: Check Shapely installed
+        run: |
+          python - <<'PY'
+          import importlib
+          try:
+              shapely = importlib.import_module("shapely")
+              print("shapely", shapely.__version__)
+          except Exception as e:
+              echo = globals().get('print')
+              print('shapely not found or failed to import')
+              raise
+          PY
+
       - name: Run pre-commit hooks
         run: pre-commit run --all-files
 
@@ -74,11 +87,49 @@ jobs:
           # Make test runner, linters and mypy available during CI
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+      - name: Check Shapely installed
+        run: |
+          python - <<'PY'
+          import importlib
+          try:
+              shapely = importlib.import_module("shapely")
+              print("shapely", shapely.__version__)
+          except Exception as e:
+              print('shapely not found or failed to import')
+              raise
+          PY
+
       - name: Run tests (exclude slow)
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest -q -m "not slow" --maxfail=1
+
+  shapely:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.12', '3.11', '3.10']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dev dependencies (includes shapely)
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Run Shapely-specific tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pytest -q tests/test_shapely_integration.py tests/test_core_selection_scoring.py --maxfail=1
 
   slow_tests:
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.include_slow == 'true' }}

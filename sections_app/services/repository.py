@@ -42,7 +42,7 @@ DEFAULT_JSON_FILE = os.path.abspath(
 )
 
 
-class SectionRepository:
+class GeometryRepository:
     """Archivio in memoria delle sezioni con persistenza JSON."""
 
     DEFAULT_JSON_FILE = DEFAULT_JSON_FILE
@@ -822,3 +822,7 @@ def save_sections_to_json(sections: list[dict], json_file: str = DEFAULT_JSON_FI
     except Exception as e:
         logger.exception("Errore nel salvataggio sezioni in %s: %s", json_file, e)
         raise
+
+
+# Alias for backward compatibility
+SectionRepository = GeometryRepository

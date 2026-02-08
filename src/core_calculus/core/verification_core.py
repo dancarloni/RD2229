@@ -447,7 +447,12 @@ def calculate_stresses_simple_bending(
         # ---- FRC contribution (MVP) ----
         sigma_frc_equiv = 0.0
         try:
-            if frc_material and getattr(frc_material, "frc_enabled", False) and frc_area and I_homog > 0:
+            if (
+                frc_material
+                and getattr(frc_material, "frc_enabled", False)
+                and frc_area
+                and I_homog > 0
+            ):
                 # Estimate curvature kappa = M / (Ec * I_homog)
                 Ec = material.Ec if material.Ec and material.Ec > 0 else 1.0
                 curvature = moment / (Ec * I_homog)
@@ -557,7 +562,11 @@ def estimate_required_torsion_reinforcement(
     d = reinforcement_tensile.distance
     z = 0.9 * d if d and d > 0 else 0.9 * (section.height / 2.0)
     # material.fyd may be in MPa; convert to kg/cm² if small magnitude suggests MPa
-    fyd = material.fyd if (material and material.fyd is not None) else (material.fyk if material else 380.0)
+    fyd = (
+        material.fyd
+        if (material and material.fyd is not None)
+        else (material.fyk if material else 380.0)
+    )
     # If fyd seems like MPa (e.g. < 2000), convert
     if fyd and fyd < 2000:
         fyd = fyd * 10.197

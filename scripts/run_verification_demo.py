@@ -20,7 +20,9 @@ from verification_table import VerificationInput, VerificationTableWindow
 def build_sample_sections(repo: SectionRepository) -> list[str]:
     rect = RectangularSection(name="Rect 20x30", width=20, height=30)
     circ = CircularSection(name="Circ d25", diameter=25)
-    t_sec = TSection(name="T 40x5x8x25", flange_width=40, flange_thickness=5, web_thickness=8, web_height=25)
+    t_sec = TSection(
+        name="T 40x5x8x25", flange_width=40, flange_thickness=5, web_thickness=8, web_height=25
+    )
     for s in (rect, circ, t_sec):
         s.compute_properties()
         repo.add_section(s)
@@ -58,7 +60,9 @@ def main():
 
     build_sample_sections(section_repo)
 
-    win = VerificationTableWindow(master=root, section_repository=section_repo, material_repository=material_repo)
+    win = VerificationTableWindow(
+        master=root, section_repository=section_repo, material_repository=material_repo
+    )
 
     # Add a few prefilled rows
     examples = [

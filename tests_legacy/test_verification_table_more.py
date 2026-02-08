@@ -302,7 +302,9 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIsNotNone(app._suggest_list)
         items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
         # At least one historical R160 material should be suggested
-        self.assertTrue(any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}")
+        self.assertTrue(
+            any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}"
+        )
         # Suggestions should be concrete materials only - none of the items should indicate a steel-only label
         # (simple heuristic: ensure no 'Acciaio' in suggested names)
         self.assertFalse(any("Acciaio" in it for it in items))

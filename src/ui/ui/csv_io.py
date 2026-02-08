@@ -83,7 +83,9 @@ def _col_to_attr(col: str) -> str:
     return mapping[col]
 
 
-def _row_to_kwargs(row: list[str], index_map: list[int | None], i: int) -> tuple[dict[str, object], str | None]:
+def _row_to_kwargs(
+    row: list[str], index_map: list[int | None], i: int
+) -> tuple[dict[str, object], str | None]:
     kwargs: dict[str, object] = {}
     for key, idx in zip([c[0] for c in COLUMNS], index_map):
         if idx is None:

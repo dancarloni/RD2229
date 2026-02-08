@@ -19,11 +19,19 @@ class HistoricalModuleMainWindow(tk.Toplevel):
     ✅ Può essere chiusa indipendentemente senza chiudere l'intera applicazione.
     """
 
-    def __init__(self, master: tk.Tk, repository: SectionRepository):
+    def __init__(self, master: tk.Tk, repository: SectionRepository | None = None):
         super().__init__(master)
         self.title("Historical Calculations - RD2229")
         self.geometry("720x420")
-        self.repository = repository
+
+        # Lazy loading: inizializza repository se non fornito
+        if repository is None:
+            from sections_app.services.repository import SectionRepository
+
+            self.repository = SectionRepository()
+        else:
+            self.repository = repository
+
         self.selected_section_id: str | None = None
         self._build_ui()
 

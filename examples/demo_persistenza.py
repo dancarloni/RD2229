@@ -54,7 +54,9 @@ def main():
             t_vertical=5,
             note="Angolare acciaio",
         ),
-        RectangularSection(name="Trave 40x60", width=40, height=60, rotation_angle_deg=45, note="Rotata 45°"),
+        RectangularSection(
+            name="Trave 40x60", width=40, height=60, rotation_angle_deg=45, note="Rotata 45°"
+        ),
     ]
 
     for i, section in enumerate(sections, 1):
@@ -73,7 +75,9 @@ def main():
         print(f"  Tipo: {pilastro.section_type}")
         print(f"  Dimensioni: {pilastro.width} x {pilastro.height}")
         print(f"  Area: {pilastro.properties.area:.2f}")
-        print(f"  Baricentro: ({pilastro.properties.centroid_x:.2f}, {pilastro.properties.centroid_y:.2f})")
+        print(
+            f"  Baricentro: ({pilastro.properties.centroid_x:.2f}, {pilastro.properties.centroid_y:.2f})"
+        )
         print("  Momenti d'inerzia:")
         print(f"    Ix: {pilastro.properties.ix:.2f}")
         print(f"    Iy: {pilastro.properties.iy:.2f}")

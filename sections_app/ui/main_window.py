@@ -6,7 +6,6 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
-from core_models.materials import MaterialRepository
 from sections_app.models.sections import (
     CircularHollowSection,
     CircularSection,
@@ -28,7 +27,15 @@ from sections_app.services.notification import (
     notify_error,
     notify_info,
 )
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+
+# New separated modules
+from sections_app.section_calculations import (
+    compute_section_properties_from_section,
+    compute_section_properties_from_geometry,
+    section_to_geometry,
+)
+from sections_app.section_graphics import SectionGraphicsController
+from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
 from sections_app.ui.historical_material_window import (
     HistoricalMaterialWindow,  # type: ignore[import]
 )
@@ -242,17 +249,27 @@ class MainWindow(tk.Toplevel):
     def __init__(
         self,
         master: tk.Tk,  # ✅ NUOVO: richiede il parent (ModuleSelector)
-        repository: SectionRepository,
-        serializer: CsvSectionSerializer,
-        material_repository: MaterialRepository | None = None,
+        repository: GeometryRepository | None = None,
+        serializer: CsvSectionSerializer | None = None,
     ) -> None:
+        print("MainWindow __init__ start")
         super().__init__(master=master)  # ✅ Passa master a Toplevel
+        print("MainWindow super init done")
         self.title("Gestione Proprietà Sezioni")
         self.geometry("980x620")
-        self.repository: SectionRepository = repository
-        self.section_repository: SectionRepository = repository
-        self.serializer: CsvSectionSerializer = serializer
-        self.material_repository: MaterialRepository | None = material_repository
+
+        # Lazy loading: inizializza repository se non forniti
+        if repository is None:
+            from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
+
+            self.repository = GeometryRepository()
+            self.serializer = CsvSectionSerializer()
+        else:
+            self.repository = repository
+            self.serializer = serializer
+
+        self.section_repository: GeometryRepository = self.repository
+
         self.current_section: Section | None = None
         # Quando si modifica una sezione dal Section Manager, qui viene salvato l'id
         self.editing_section_id: str | None = None
@@ -303,61 +320,15 @@ class MainWindow(tk.Toplevel):
 
         # Menu Gestione: strumenti aggiuntivi (es. gestione materiali)
         gestione_menu = tk.Menu(menubar, tearoff=0)
-        gestione_menu.add_command(label="Materiali…", command=self.open_material_manager)
+        # Removed material manager as geometry module should not depend on materials
         menubar.add_cascade(label="Gestione", menu=gestione_menu)
-
-    def open_material_manager(self) -> None:
-        """Apre (o porta in primo piano) la finestra di gestione materiali storici.
-
-        La finestra riceve l'istanza di `HistoricalMaterialLibrary` e il
-        `MaterialRepository` attualmente in uso dall'applicazione.
-        """
-        # Se la finestra è già aperta, portala in primo piano
-        if hasattr(self, "_material_manager_window") and self._material_manager_window is not None:
-            try:
-                if self._material_manager_window.winfo_exists():
-                    self._material_manager_window.lift()
-                    self._material_manager_window.focus_force()
-                    logger.debug("Material Manager già aperto, portato in primo piano")
-                    return
-            except Exception:  # type: ignore[reportGeneralTypeIssues]
-                pass
-
-        # Crea libreria storica e apri finestra
-        try:
-            from historical_materials import HistoricalMaterialLibrary
-
-            library = HistoricalMaterialLibrary()
-        except Exception:  # type: ignore[reportGeneralTypeIssues]
-            logger.exception("Impossibile inizializzare HistoricalMaterialLibrary")
-            library = None
-
-        self._material_manager_window = HistoricalMaterialWindow(
-            master=self, library=library, material_repository=self.material_repository
-        )
-        # Pulizia del riferimento quando la finestra viene chiusa
-        try:
-            self._material_manager_window.protocol(
-                "WM_DELETE_WINDOW",
-                lambda w=self._material_manager_window: (
-                    setattr(self, "_material_manager_window", None),
-                    w.destroy(),
-                ),
-            )
-            self._material_manager_window.bind(
-                "<Destroy>",
-                lambda e, w=self._material_manager_window: setattr(
-                    self, "_material_manager_window", None
-                ),
-            )
-        except Exception:  # type: ignore[reportGeneralTypeIssues]
-            pass
-        logger.debug("Material Manager aperto")
 
     def _build_left_panel(self) -> None:
         # Tipologia sezione con tooltip
         tipo_label = tk.Label(self.left_frame, text="Tipologia sezione")
         tipo_label.pack(anchor="w")
+        # Saved listbox must exist before other widgets that may call it
+        self.saved_listbox: tk.Listbox | None = None
 
         self.section_var = tk.StringVar(value=list(SECTION_DEFINITIONS.keys())[0])
         self.section_combo = ttk.Combobox(
@@ -521,24 +492,179 @@ class MainWindow(tk.Toplevel):
             variable=self.show_core_var,
         ).pack(anchor="w")
 
-        # Pulsante per aprire l'Editor Materiali (coerente con il resto dei bottoni)
-        # Posizionato sotto gli altri bottoni e collegato a `open_material_manager`.
-        tk.Button(
-            self.buttons_frame,
-            text="Editor materiali",
-            command=self.open_material_manager,
-            width=42,
-        ).grid(row=4, column=0, columnspan=2, padx=4, pady=4)
+        # Saved sections panel (Listbox + controls)
+        saved_frame = tk.LabelFrame(self.left_frame, text="Sezioni salvate")
+        saved_frame.pack(fill="x", pady=(8, 8))
+        self.saved_listbox = tk.Listbox(saved_frame, height=6)
+        self.saved_listbox.pack(side="left", fill="both", expand=True, padx=(4, 0), pady=4)
+        scrollbar = ttk.Scrollbar(saved_frame, orient="vertical", command=self.saved_listbox.yview)
+        scrollbar.pack(side="left", fill="y")
+        self.saved_listbox.config(yscrollcommand=scrollbar.set)
+        btns_frame = tk.Frame(saved_frame)
+        btns_frame.pack(side="left", padx=4)
+        tk.Button(btns_frame, text="Salva", width=8, command=self._save_current_section).pack(
+            fill="x", pady=(4, 2)
+        )
+        tk.Button(btns_frame, text="Aggiorna", width=8, command=self._update_selected_saved).pack(
+            fill="x", pady=2
+        )
+        tk.Button(btns_frame, text="Carica", width=8, command=self._load_selected_section).pack(
+            fill="x", pady=2
+        )
+        tk.Button(btns_frame, text="Elimina", width=8, command=self._delete_selected_saved).pack(
+            fill="x", pady=(2, 4)
+        )
+
+        # persistent store path
+        from pathlib import Path
+
+        self._saved_path = Path(__file__).parent.parent / "saved_sections.csv"
+        # load any existing saved sections
+        try:
+            self._populate_saved_list()
+        except Exception:
+            pass
 
         self.output_frame = tk.LabelFrame(self.left_frame, text="Proprietà calcolate")
         self.output_frame.pack(fill="both", expand=True)
         self.output_text = tk.Text(self.output_frame, width=36, height=16)
         self.output_text.pack(fill="both", expand=True, padx=4, pady=4)
+        print("MainWindow _build_left_panel done")
+
+    # ----------------- Saved sections support -----------------
+    def _populate_saved_list(self) -> None:
+        """Load saved sections from disk and populate the Listbox."""
+        try:
+            from sections_app.storage import import_sections_from_csv
+
+            items = import_sections_from_csv(str(self._saved_path))
+            self._saved_geoms = items
+            if self.saved_listbox is None:
+                return
+            self.saved_listbox.delete(0, tk.END)
+            for ge in items:
+                name = ge.meta.get("name") or ge.meta.get("type") or "(unnamed)"
+                self.saved_listbox.insert(tk.END, name)
+        except Exception as e:
+            logger.exception("Errore caricamento saved sections: %s", e)
+
+    def _save_current_section(self) -> None:
+        """Save current form section to persisted CSV and refresh list."""
+        try:
+            sec = self._build_section_from_inputs()
+            if not sec:
+                return
+            geom = section_to_geometry(sec)
+            # attach name from form
+            geom.meta.setdefault("name", sec.name)
+            from sections_app.storage import import_sections_from_csv, export_sections_to_csv
+
+            items = import_sections_from_csv(str(self._saved_path))
+            items.append(geom)
+            export_sections_to_csv(str(self._saved_path), items)
+            self._populate_saved_list()
+        except Exception as e:
+            logger.exception("Errore salvataggio sezione: %s", e)
+            notify_error("Errore", "Impossibile salvare la sezione")
+
+    def _on_saved_select(self) -> None:
+        sel = None
+        try:
+            idx = self.saved_listbox.curselection()
+            if not idx:
+                return
+            sel = int(idx[0])
+        except Exception:
+            return
+        try:
+            geom = self._saved_geoms[sel]
+            # load into form: map geometry to fields (simple rectangle support)
+            # best-effort: look at meta.type or deduce bbox
+            bb = geom.bounding_box()
+            b = bb[2] - bb[0]
+            h = bb[3] - bb[1]
+            self.section_var.set("Rettangolare")
+            self._create_inputs()
+            self.name_entry.delete(0, tk.END)
+            self.name_entry.insert(0, geom.meta.get("name", ""))
+            try:
+                self.inputs.get("width") and self.inputs["width"].delete(0, tk.END)
+                self.inputs.get("width") and self.inputs["width"].insert(0, str(b))
+            except Exception:
+                pass
+            try:
+                self.inputs.get("height") and self.inputs["height"].delete(0, tk.END)
+                self.inputs.get("height") and self.inputs["height"].insert(0, str(h))
+            except Exception:
+                pass
+        except Exception as e:
+            logger.exception("Errore caricamento sezione selezionata: %s", e)
+
+    def _load_selected_section(self) -> None:
+        try:
+            self._on_saved_select()
+        except Exception:
+            pass
+
+    def _update_selected_saved(self) -> None:
+        """Replace the currently selected saved section with the current form values."""
+        try:
+            idx = self.saved_listbox.curselection()
+            if not idx:
+                notify_error("Errore", "Nessuna sezione selezionata per aggiornare.")
+                return
+            sel = int(idx[0])
+            sec = self._build_section_from_inputs()
+            if not sec:
+                return
+            geom = section_to_geometry(sec)
+            geom.meta.setdefault("name", sec.name)
+            from sections_app.storage import import_sections_from_csv, export_sections_to_csv
+
+            items = import_sections_from_csv(str(self._saved_path))
+            if sel < 0 or sel >= len(items):
+                notify_error("Errore", "Indice sezione non valido")
+                return
+            items[sel] = geom
+            export_sections_to_csv(str(self._saved_path), items)
+            self._populate_saved_list()
+        except Exception as e:
+            logger.exception("Errore aggiornamento sezione salvata: %s", e)
+            notify_error("Errore", "Impossibile aggiornare la sezione")
+
+    def _delete_selected_saved(self) -> None:
+        try:
+            idx = self.saved_listbox.curselection()
+            if not idx:
+                return
+            sel = int(idx[0])
+            from sections_app.storage import import_sections_from_csv, export_sections_to_csv
+
+            items = import_sections_from_csv(str(self._saved_path))
+            if sel < 0 or sel >= len(items):
+                notify_error("Errore", "Indice sezione non valido")
+                return
+            del items[sel]
+            export_sections_to_csv(str(self._saved_path), items)
+            self._populate_saved_list()
+        except Exception as e:
+            logger.exception("Errore cancellazione sezione salvata: %s", e)
+            notify_error("Errore", "Impossibile eliminare la sezione")
 
     def _build_right_panel(self) -> None:
         tk.Label(self.right_frame, text="Grafica sezione").pack(anchor="w")
         self.canvas = tk.Canvas(self.right_frame, width=480, height=480, bg="white")
         self.canvas.pack(fill="both", expand=True)
+        # Graphics controller (separated concerns)
+        try:
+            self.graphics_controller = SectionGraphicsController(self.canvas)
+        except Exception:  # pragma: no cover - defensive
+            self.graphics_controller = None
+        # wire saved sections listbox selection
+        try:
+            self.saved_listbox.bind("<<ListboxSelect>>", lambda e: self._on_saved_select())
+        except Exception:
+            pass
 
     def _on_section_change(self, _event=None) -> None:
         """Handler per cambio tipologia sezione - ricostruisce campi input dinamicamente.
@@ -807,39 +933,102 @@ class MainWindow(tk.Toplevel):
         if not section:
             return
         self.current_section = section
-        props: SectionProperties = section.compute_properties()
-        self._show_properties(props, section)
+        # Use the calculation module to compute properties from Section
+        try:
+            props = compute_section_properties_from_section(section)
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.exception("Errore nel calcolo proprietà (sezione -> properties): %s", exc)
+            props = None
+        if props is not None:
+            # keep both representations: SectionProperties and Section (for legacy uses)
+            self._last_geom = section_to_geometry(section)
+            self._last_props = props
+            self._show_properties(props, section)
+            # optionally save to saved list automatically? no - user action via Salva
+            # update saved listbox display to reflect any possible external changes
+            try:
+                self._populate_saved_list()
+            except Exception:
+                pass
 
     def show_graphic(self) -> None:
         section: Section | None = self._build_section_from_inputs()
         if not section:
             return
+        # Ensure we have properties and geometry
         try:
-            section.compute_properties()
+            props = compute_section_properties_from_section(section)
+            geom = section_to_geometry(section)
         except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
-            logger.exception("Errore nel calcolo proprietà: %s", exc)
+            logger.exception("Errore nel calcolo proprietà per grafica: %s", exc)
             messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {exc}")
             return
         self.current_section = section
-        self._draw_section(section)
+        self._last_geom = geom
+        self._last_props = props
+        # delegate drawing to graphics controller
+        if getattr(self, "graphics_controller", None) is None:
+            try:
+                self.graphics_controller = SectionGraphicsController(self.canvas)
+            except Exception:
+                self.graphics_controller = None
+        if self.graphics_controller:
+            self.graphics_controller.draw_all(geom, props)
+        else:
+            # fallback to older drawer
+            self._draw_section(section)
 
     def _show_properties(self, props, section: Section) -> None:
+        """Show properties in the output panel. Accepts both legacy SectionProperties
+        objects (models.sections.SectionProperties) and new sections_app.geometry_model.SectionProperties.
+        """
+
+        # resilient attribute access: try new names first, fallback to legacy names
+        def _get(o, *names, default=0.0):
+            for n in names:
+                if hasattr(o, n):
+                    v = getattr(o, n)
+                    if v is None:
+                        return default
+                    return v
+            return default
+
+        area = _get(props, "area", "area")
+        ix = _get(props, "Ix", "ix")
+        iy = _get(props, "Iy", "iy")
+        ixy = _get(props, "Ixy", "ixy")
+        qx = _get(props, "qx", "qx")
+        qy = _get(props, "qy", "qy")
+        rx = _get(props, "r1", "rx")
+        ry = _get(props, "r2", "ry")
+        x_c = _get(props, "x_c", "centroid_x")
+        y_c = _get(props, "y_c", "centroid_y")
+        core_x = _get(props, "core_x", "core_x")
+        core_y = _get(props, "core_y", "core_y")
+        ellipse_a = _get(props, "ellipse", "ellipse_a")
+        ellipse_b = _get(props, "ellipse", "ellipse_b")
+        theta_p = _get(props, "theta_p_deg", "principal_angle_deg")
+
+        # If ellipse is object, extract its a/b
+        if hasattr(props, "ellipse") and getattr(props, "ellipse") is not None:
+            e = getattr(props, "ellipse")
+            ellipse_a = getattr(e, "a", ellipse_a)
+            ellipse_b = getattr(e, "b", ellipse_b)
+
         output: str = (
-            f"Sezione: {section.name}\n"
-            f"Tipo: {section.section_type}\n\n"
-            f"Area: {props.area:.3f} cm²\n"
-            f"Area a taglio A_y: {(props.shear_area_y or 0.0):.3f} cm²\n"
-            f"Area a taglio A_z: {(props.shear_area_z or 0.0):.3f} cm²\n"
-            f"Baricentro: ({props.centroid_x:.3f}, {props.centroid_y:.3f}) cm\n"
-            f"Ix: {props.ix:.3f} cm⁴\n"
-            f"Iy: {props.iy:.3f} cm⁴\n"
-            f"Ixy: {props.ixy:.3f} cm⁴\n"
-            f"Qx: {props.qx:.3f} cm³\n"
-            f"Qy: {props.qy:.3f} cm³\n"
-            f"rx: {props.rx:.3f} cm\n"
-            f"ry: {props.ry:.3f} cm\n"
-            f"Nocciolo (x,y): ({props.core_x:.3f}, {props.core_y:.3f}) cm\n"
-            f"Ellisse (a,b): ({props.ellipse_a:.3f}, {props.ellipse_b:.3f}) cm\n"
+            f"Sezione: {getattr(section, 'name', '')}\n"
+            f"Tipo: {getattr(section, 'section_type', '')}\n\n"
+            f"Area: {area:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}²\n"
+            f"Baricentro: ({x_c:.3f}, {y_c:.3f}) {getattr(props, 'meta', {}).get('units', 'cm')}\n"
+            f"Ix: {ix:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}⁴\n"
+            f"Iy: {iy:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}⁴\n"
+            f"Ixy: {ixy:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}⁴\n"
+            f"I1: {getattr(props, 'I1', getattr(props, 'principal_ix', 0.0)):.3f}\n"
+            f"I2: {getattr(props, 'I2', getattr(props, 'principal_iy', 0.0)):.3f}\n"
+            f"θ_p (deg): {theta_p:.3f}\n"
+            f"Raggi giratori: r1={rx:.3f}, r2={ry:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}\n"
+            f"Nocciolo (x,y): ({core_x:.3f}, {core_y:.3f}) {getattr(props, 'meta', {}).get('units', 'cm')}\n"
+            f"Ellisse (a,b): ({ellipse_a:.3f}, {ellipse_b:.3f}) {getattr(props, 'meta', {}).get('units', 'cm')}\n"
         )
         self.output_text.delete("1.0", tk.END)
         self.output_text.insert(tk.END, output)
@@ -1313,7 +1502,7 @@ class MainWindow(tk.Toplevel):
         label: str | None = self._label_from_section(section)
         if label:
             self.section_var.set(label)
-            self._create_inputs()
+            # _create_inputs is triggered by the var change if type changed
         self.name_entry.delete(0, tk.END)
         self.name_entry.insert(0, section.name)
 
@@ -1381,14 +1570,7 @@ class MainWindow(tk.Toplevel):
         messagebox.showinfo("Esporta CSV", "Esportazione completata")
 
     def export_full_backup(self) -> None:
-        """Esporta backup completo di sezioni e materiali in una cartella scelta dall'utente."""
-        if self.material_repository is None:
-            notify_error(
-                "Errore backup",
-                "Archivio materiali non disponibile.",
-            )
-            return
-
+        """Esporta backup completo di sezioni in una cartella scelta dall'utente."""
         folder: str = filedialog.askdirectory(title="Seleziona cartella per backup")
         if not folder:
             return
@@ -1396,14 +1578,12 @@ class MainWindow(tk.Toplevel):
         try:
             base = Path(folder)
             sections_path: Path = base / "sections_backup.json"
-            materials_path: Path = base / "materials_backup.json"
 
             self.section_repository.export_backup(sections_path)
-            self.material_repository.export_backup(materials_path)
 
             messagebox.showinfo(
                 "Backup completato",
-                f"Backup sezioni: {sections_path}\nBackup materiali: {materials_path}",
+                f"Backup sezioni: {sections_path}",
             )
         except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore esportazione backup completo: %s", exc)
@@ -1433,7 +1613,7 @@ class MainWindow(tk.Toplevel):
             )
             self.editing_mode_label.config(
                 text=f"Modalità: Modifica sezione '{section_name}'\n"
-                     f"ID: {self.editing_section_id[:8]}...",
+                f"ID: {self.editing_section_id[:8]}...",
                 fg="#cc6600",
             )
 

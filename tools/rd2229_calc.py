@@ -182,5 +182,7 @@ if __name__ == "__main__":
     res = flexural_resistance_rectangular(b=30, d=40, A_s=10)  # b=30cm, d=40cm, As=10cm2
     print("Flexural example:", res)
     # Esempio: verifica taglio
-    shear = shear_verification(V_applied=12000, b=30, d=40, concrete_type="ordinary", with_stirrups=False)
+    shear = shear_verification(
+        V_applied=12000, b=30, d=40, concrete_type="ordinary", with_stirrups=False
+    )
     print("Shear example:", shear)

@@ -52,7 +52,7 @@ class SectionProperties:
     ellipse_a: float = 0.0
     ellipse_b: float = 0.0
 
-    def compute_derived_properties(self) -> 'SectionProperties':
+    def compute_derived_properties(self) -> "SectionProperties":
         """Calcola proprietà derivate e restituisce una nuova istanza."""
         # Raggi di inerzia
         rx = math.sqrt(self.Ix / self.area) if self.Ix > 0 and self.area > 0 else 0.0

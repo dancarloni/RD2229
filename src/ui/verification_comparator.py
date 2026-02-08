@@ -54,7 +54,9 @@ def _write_csv_comp(comp: dict[str, Any], path: str) -> None:
         w.writerow(["method", "sigma_c_max", "asse_neutro_x", "angle"])
         for k, v in comp.items():
             if v:
-                w.writerow([k, v.get("sigma_c_max", ""), v.get("asse_neutro_x", ""), v.get("angle", "")])
+                w.writerow(
+                    [k, v.get("sigma_c_max", ""), v.get("asse_neutro_x", ""), v.get("angle", "")]
+                )
 
 
 def _write_json_comp(comp: dict[str, Any], path: str) -> None:
@@ -73,7 +75,10 @@ def _write_txt_comp(comp: dict[str, Any], path: str) -> None:
 
 # --- Helper geometry utilities ---------------------------------
 
-def _append_if_in_bounds(candidates: list[tuple[float, float]], x: float, y: float, b: float, h: float) -> None:
+
+def _append_if_in_bounds(
+    candidates: list[tuple[float, float]], x: float, y: float, b: float, h: float
+) -> None:
     if -1e-6 <= x <= b + 1e-6 and -1e-6 <= y <= h + 1e-6:
         candidates.append((x, y))
 
@@ -214,7 +219,9 @@ class VerificationComparatorWindow(tk.Toplevel):
         # Bottom frame for numeric summary and export
         bottom = tk.Frame(self)
         bottom.pack(fill="x", padx=8, pady=(0, 8))
-        self.summary_table = ttk.Treeview(bottom, columns=("metric", "TA", "SLU", ".bas"), show="headings", height=4)
+        self.summary_table = ttk.Treeview(
+            bottom, columns=("metric", "TA", "SLU", ".bas"), show="headings", height=4
+        )
         self.summary_table.heading("metric", text="Metric")
         self.summary_table.heading("TA", text="TA")
         self.summary_table.heading("SLU", text="SLU")
@@ -224,9 +231,15 @@ class VerificationComparatorWindow(tk.Toplevel):
 
         export_frame = tk.Frame(bottom)
         export_frame.pack(side="right")
-        tk.Button(export_frame, text="Export CSV", command=lambda: self._export("csv")).pack(side="left", padx=4)
-        tk.Button(export_frame, text="Export JSON", command=lambda: self._export("json")).pack(side="left", padx=4)
-        tk.Button(export_frame, text="Export TXT", command=lambda: self._export("txt")).pack(side="left", padx=4)
+        tk.Button(export_frame, text="Export CSV", command=lambda: self._export("csv")).pack(
+            side="left", padx=4
+        )
+        tk.Button(export_frame, text="Export JSON", command=lambda: self._export("json")).pack(
+            side="left", padx=4
+        )
+        tk.Button(export_frame, text="Export TXT", command=lambda: self._export("txt")).pack(
+            side="left", padx=4
+        )
 
     @staticmethod
     def _compute_na_endpoints(
@@ -327,7 +340,9 @@ class VerificationComparatorWindow(tk.Toplevel):
 
         sign: float = cross(v[0], v[1], pick_side_point[0] - p[0], pick_side_point[1] - p[1])
         keep_positive: bool = sign >= 0
-        return VerificationComparatorWindow._clip_polygon_by_halfplane(rect, p, v, keep_positive=keep_positive)
+        return VerificationComparatorWindow._clip_polygon_by_halfplane(
+            rect, p, v, keep_positive=keep_positive
+        )
 
     def _present_summary(self, ta_res: Any, slu_res: Any, bas_tors: Any) -> None:
         self.txt_results.delete("1.0", tk.END)
@@ -338,7 +353,9 @@ class VerificationComparatorWindow(tk.Toplevel):
             if isinstance(res, dict):
                 return f"{label}: {res.get('messages', [])} OK={res.get('ok')}\n"
             # assume VerificationOutput-like
-            msgs: Any | list[Any] = getattr(res, "messaggi", []) or getattr(res, "messages", []) or []
+            msgs: Any | list[Any] = (
+                getattr(res, "messaggi", []) or getattr(res, "messages", []) or []
+            )
             details: str = (
                 f"{label}: esito={getattr(res, 'esito', '')} "
                 f"sigma_c_max={getattr(res, 'sigma_c_max', '')} "
@@ -354,7 +371,9 @@ class VerificationComparatorWindow(tk.Toplevel):
         self.txt_results.insert(tk.END, "\nNumeric summary:\n")
         self.summary_table.delete(*self.summary_table.get_children())
 
-    def _compute_all_methods(self, inp: VerificationInput, sec_repo, mat_repo) -> tuple[Any, Any, dict[str, Any]]:
+    def _compute_all_methods(
+        self, inp: VerificationInput, sec_repo, mat_repo
+    ) -> tuple[Any, Any, dict[str, Any]]:
         ta_res = None
         slu_res = None
         try:
@@ -366,7 +385,9 @@ class VerificationComparatorWindow(tk.Toplevel):
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logger.exception("Errore calcolo SLU: %s", exc)
         try:
-            engine: VerificationEngine = create_verification_engine((inp.verification_method or "TA").upper())
+            engine: VerificationEngine = create_verification_engine(
+                (inp.verification_method or "TA").upper()
+            )
             mat_props: MaterialProperties = engine.get_material_properties(
                 inp.material_concrete or "", inp.material_steel or "", material_source="RD2229"
             )
@@ -375,7 +396,9 @@ class VerificationComparatorWindow(tk.Toplevel):
                 reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
                 reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),
                 material=mat_props,
-                loads=LoadCase(N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At),
+                loads=LoadCase(
+                    N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At
+                ),
                 method=(inp.verification_method or "TA"),
             )
         except Exception as exc:  # pylint: disable=broad-exception-caught
@@ -383,17 +406,25 @@ class VerificationComparatorWindow(tk.Toplevel):
             bas_tors = {"messages": [".bas adapter error"], "ok": False}
         return ta_res, slu_res, bas_tors
 
-    def _draw_method_na(self, b: float, h: float, label: str, res: Any, metrics: dict[str, Any], color: str) -> None:
+    def _draw_method_na(
+        self, b: float, h: float, label: str, res: Any, metrics: dict[str, Any], color: str
+    ) -> None:
         out = _na_point_and_angle(res, b, h)
         if out is None:
             return
         p, ang = out
         e1, e2 = self._compute_na_endpoints(b, h, p, ang)
         pick_point: tuple[float, float] = (
-            (b / 2.0, 0.0) if abs(metrics["sigma_c_max"]) >= abs(metrics["sigma_c_min"]) else (b / 2.0, h)
+            (b / 2.0, 0.0)
+            if abs(metrics["sigma_c_max"]) >= abs(metrics["sigma_c_min"])
+            else (b / 2.0, h)
         )
-        poly: list[tuple[float, float]] = self._compute_shaded_polygon(b, h, p, ang, pick_side_point=pick_point)
-        self.ax_section.plot([e1[0], e2[0]], [e1[1], e2[1]], color=color, linewidth=2, label=f"{label} NA")
+        poly: list[tuple[float, float]] = self._compute_shaded_polygon(
+            b, h, p, ang, pick_side_point=pick_point
+        )
+        self.ax_section.plot(
+            [e1[0], e2[0]], [e1[1], e2[1]], color=color, linewidth=2, label=f"{label} NA"
+        )
         if poly:
             self.ax_section.add_patch(mpatches.Polygon(poly, color=color, alpha=0.12))
         try:
@@ -434,7 +465,9 @@ class VerificationComparatorWindow(tk.Toplevel):
 
         # Run .bas (torsion/bending adapted)
         try:
-            engine: VerificationEngine = create_verification_engine((inp.verification_method or "TA").upper())
+            engine: VerificationEngine = create_verification_engine(
+                (inp.verification_method or "TA").upper()
+            )
             mat_props: MaterialProperties = engine.get_material_properties(
                 inp.material_concrete or "", inp.material_steel or "", material_source="RD2229"
             )
@@ -443,7 +476,9 @@ class VerificationComparatorWindow(tk.Toplevel):
                 reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
                 reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),
                 material=mat_props,
-                loads=LoadCase(N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At),
+                loads=LoadCase(
+                    N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At
+                ),
                 method=(inp.verification_method or "TA"),
             )
         except Exception as exc:  # pylint: disable=broad-exception-caught
@@ -525,7 +560,9 @@ class VerificationComparatorWindow(tk.Toplevel):
             mat_repo = self.verification_table_app.material_repository
             ta_res: VerificationOutput = compute_ta_verification(inp, sec_repo, mat_repo)
             slu_res: VerificationOutput = compute_slu_verification(inp, sec_repo, mat_repo)
-            engine: VerificationEngine = create_verification_engine((inp.verification_method or "TA").upper())
+            engine: VerificationEngine = create_verification_engine(
+                (inp.verification_method or "TA").upper()
+            )
             mat_props: MaterialProperties = engine.get_material_properties(
                 inp.material_concrete or "", inp.material_steel or "", material_source="RD2229"
             )
@@ -534,38 +571,50 @@ class VerificationComparatorWindow(tk.Toplevel):
                 reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
                 reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),
                 material=mat_props,
-                loads=LoadCase(N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At),
+                loads=LoadCase(
+                    N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At
+                ),
                 method=(inp.verification_method or "TA"),
             )
             comp = {
                 "TA": ta_res
                 and {
                     "sigma_c_max": getattr(ta_res, "sigma_c_max", None),
-                    "asse_neutro_x": getattr(ta_res, "asse_neutro_x", getattr(ta_res, "asse_neutro", None)),
+                    "asse_neutro_x": getattr(
+                        ta_res, "asse_neutro_x", getattr(ta_res, "asse_neutro", None)
+                    ),
                     "angle": getattr(ta_res, "inclinazione_asse_neutro", None),
                 },
                 "SLU": slu_res
                 and {
                     "sigma_c_max": getattr(slu_res, "sigma_c_max", None),
-                    "asse_neutro_x": getattr(slu_res, "asse_neutro_x", getattr(slu_res, "asse_neutro", None)),
+                    "asse_neutro_x": getattr(
+                        slu_res, "asse_neutro_x", getattr(slu_res, "asse_neutro", None)
+                    ),
                     "angle": getattr(slu_res, "inclinazione_asse_neutro", None),
                 },
                 ".bas": bas_tors,
             }
             if fmt == "csv":
-                path: str = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
+                path: str = filedialog.asksaveasfilename(
+                    defaultextension=".csv", filetypes=[("CSV files", "*.csv")]
+                )
                 if not path:
                     return
                 _write_csv_comp(comp, path)
                 notify_info("Export", f"Exported CSV to {path}")
             elif fmt == "json":
-                path: str = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+                path: str = filedialog.asksaveasfilename(
+                    defaultextension=".json", filetypes=[("JSON files", "*.json")]
+                )
                 if not path:
                     return
                 _write_json_comp(comp, path)
                 notify_info("Export", f"Exported JSON to {path}")
             else:
-                path: str = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
+                path: str = filedialog.asksaveasfilename(
+                    defaultextension=".txt", filetypes=[("Text files", "*.txt")]
+                )
                 if not path:
                     return
                 _write_txt_comp(comp, path)

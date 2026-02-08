@@ -27,7 +27,9 @@ class TestSectionRepositoryCanonicalPath:
 
     def test_default_json_file_points_to_canonical_path(self):
         """Verifica che DEFAULT_JSON_FILE punti a sec_repository/sec_repository.jsons."""
-        assert SECTIONS_DEFAULT.endswith("sec_repository/sec_repository.jsons") or SECTIONS_DEFAULT.endswith(
+        assert SECTIONS_DEFAULT.endswith(
+            "sec_repository/sec_repository.jsons"
+        ) or SECTIONS_DEFAULT.endswith(
             r"sec_repository\sec_repository.jsons"
         ), f"DEFAULT_JSON_FILE deve puntare a sec_repository/sec_repository.jsons, trovato: {SECTIONS_DEFAULT}"
 
@@ -105,7 +107,9 @@ class TestSectionHelperFunctions:
         test_file = os.path.join(tmpdir, "test_save_canonical.jsons")
 
         # Salva specificando il path
-        sample_sections = [{"name": "Save Test", "section_type": "RECTANGULAR", "width": 40.0, "height": 60.0}]
+        sample_sections = [
+            {"name": "Save Test", "section_type": "RECTANGULAR", "width": 40.0, "height": 60.0}
+        ]
         save_sections_to_json(sample_sections, test_file)
 
         # Verifica che il file sia stato creato
@@ -125,7 +129,9 @@ class TestMaterialsRepositoryCanonicalPath:
         """Verifica che materials_gui.py definisca MATERIALS_REPO_PATH."""
         from gui.materials_gui import MATERIALS_REPO_PATH
 
-        assert MATERIALS_REPO_PATH.endswith("mat_repository/Mat_repository.jsonm") or MATERIALS_REPO_PATH.endswith(
+        assert MATERIALS_REPO_PATH.endswith(
+            "mat_repository/Mat_repository.jsonm"
+        ) or MATERIALS_REPO_PATH.endswith(
             r"mat_repository\Mat_repository.jsonm"
         ), f"MATERIALS_REPO_PATH deve puntare a mat_repository/Mat_repository.jsonm, trovato: {MATERIALS_REPO_PATH}"
 
@@ -336,7 +342,9 @@ class TestBackupMechanisms:
         # Verifica che il backup contenga i dati precedenti
         with open(backup_file, encoding="utf-8") as f:
             backup_data = json.load(f)
-            assert len(backup_data) == 1, "Backup dovrebbe contenere 1 sezione (snapshot precedente)"
+            assert (
+                len(backup_data) == 1
+            ), "Backup dovrebbe contenere 1 sezione (snapshot precedente)"
 
 
 if __name__ == "__main__":

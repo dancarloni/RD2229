@@ -14,7 +14,10 @@ def test_center_records_info_notifications():
     EventBus().subscribe(NOTIFICATION, center._on_notification)
     ns.notify_info("Test", "This is a test")
     # event loop may be synchronous; history should contain payload
-    assert any(p.get("title") == "Test" and "This is a test" in p.get("message", "") for p in center.history)
+    assert any(
+        p.get("title") == "Test" and "This is a test" in p.get("message", "")
+        for p in center.history
+    )
 
 
 def test_confirm_responder_invokes_callback():
