@@ -297,6 +297,35 @@ class TestComputeShearAreas:
         assert A_y == 200.0
         assert A_z == 200.0
 
+    def test_apply_kappa_from_attributes(self):
+        # Create a lightweight object that exposes shear_factor attributes
+        class S:
+            section_type = "RECTANGULAR"
+            dimensions = {"width": 10.0, "height": 20.0}
+            shear_factor_y = 0.5
+            shear_factor_z = 0.25
+
+        sec = S()
+        A_y, A_z = compute_shear_areas(sec)
+        # Raw area = 200; after applying kappa -> 100 and 50
+        assert A_y == pytest.approx(100.0)
+        assert A_z == pytest.approx(50.0)
+
+    def test_apply_default_kappa_from_method(self):
+        # Object without shear_factor attributes but with get_default_shear_kappas()
+        class S2:
+            section_type = "RECTANGULAR"
+            dimensions = {"width": 10.0, "height": 20.0}
+
+            def get_default_shear_kappas(self):
+                return (0.6, 0.6)
+
+        sec = S2()
+        A_y, A_z = compute_shear_areas(sec)
+        # Raw area = 200; with default kappas 0.6 -> 120
+        assert A_y == pytest.approx(120.0)
+        assert A_z == pytest.approx(120.0)
+
     def test_section_none(self):
         with pytest.raises(ValueError, match="section non può essere None"):
             compute_shear_areas(None)

@@ -168,12 +168,43 @@ def compute_shear_areas(section: Section) -> tuple[float, float]:
     if not section:
         raise ValueError("section non può essere None")
 
+    # NOTE: historically this function returned raw geometric areas from the
+    # handlers and callers applied shear correction factors (kappa) elsewhere.
+    # That led to inconsistent usages and wrong effective shear areas in
+    # some code paths. This implementation applies the kappa factors here
+    # (when available) so callers always receive the Timoshenko effective
+    # shear areas (A_y = kappa_y * A_ref_y, A_z = kappa_z * A_ref_z).
+
     section_type = (section.section_type or "").upper()
     dims = getattr(section, "dimensions", {}) or {}
 
     handler = _SECTION_HANDLERS.get(section_type)
     if handler:
-        return handler(dims)
+        A_y, A_z = handler(dims)
+
+        # Determine shear correction factors (kappa_y, kappa_z).
+        # Priority: explicit attributes on the section -> section.get_default_shear_kappas() -> fallback 1.0
+        kappa_y = getattr(section, "shear_factor_y", None)
+        kappa_z = getattr(section, "shear_factor_z", None)
+
+        if not kappa_y or kappa_y <= 0 or not kappa_z or kappa_z <= 0:
+            # Try to call section method if available
+            try:
+                kdef = section.get_default_shear_kappas()
+                if isinstance(kdef, tuple) and len(kdef) == 2:
+                    if not kappa_y or kappa_y <= 0:
+                        kappa_y = float(kdef[0])
+                    if not kappa_z or kappa_z <= 0:
+                        kappa_z = float(kdef[1])
+            except Exception:
+                # Ignore and fallback
+                pass
+
+        # Final fallback to 1.0
+        kappa_y = float(kappa_y) if kappa_y and kappa_y > 0 else 1.0
+        kappa_z = float(kappa_z) if kappa_z and kappa_z > 0 else 1.0
+
+        return kappa_y * A_y, kappa_z * A_z
 
     # Default: usa proprietà area se disponibile
     props = getattr(section, "properties", None)
