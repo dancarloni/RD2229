@@ -1,0 +1,44 @@
+# ==========================================================
+# features.yml
+# ==========================================================
+# File di feature-flag del software.
+#
+# SERVE PER:
+# - Attivare/disattivare parti opzionali del programma
+# - Permettere sviluppo incrementale (strategie Plan)
+#
+# STUB S2 — da espandere.
+# ==========================================================
+
+features:
+
+  # --------------------------------------------------------
+  # Elementi e modellazione
+  # --------------------------------------------------------
+  enable_element_restrictions: true
+  enable_section_registry: true
+  enable_shear_area_fallback: true
+
+  # --------------------------------------------------------
+  # Materiali
+  # --------------------------------------------------------
+  enable_material_validation: true
+  enable_material_import_legacy: true
+
+  # --------------------------------------------------------
+  # Normative
+  # --------------------------------------------------------
+  enable_normative_bootstrap: true
+  enable_normative_overrides: false
+
+  # --------------------------------------------------------
+  # Report
+  # --------------------------------------------------------
+  enable_html_reports: true
+  enable_md_reports: true
+  enable_pdf_reports: false     # PDF disabilitato finché non implementato
+
+  # --------------------------------------------------------
+  # Debug e log
+  # --------------------------------------------------------
+  enable_debug_messages: false

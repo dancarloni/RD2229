@@ -1,0 +1,14 @@
+general:
+  title: "Eurocodice 2 - Progettazione delle strutture in calcestruzzo"
+  scope: "Strutture in c.a. e c.a.p."
+materials:
+  concrete:
+    limit_states:
+      - id: "ULS"
+        desc: "Ultimate Limit State."
+verification:
+  general:
+    warning: "Contenuto non normativo reale, da sostituire."
+    limits:
+      flexure: "Placeholder limite flessionale."
+      shear: "Placeholder limite taglio."
