@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, Tuple
 
 from app.domain.models import VerificationInput
 
 logger = logging.getLogger(__name__)
 
 
-def _get_section_by_id_or_name(section_id: str, section_repository: Optional[object]):
+def _get_section_by_id_or_name(section_id: str, section_repository: object | None):
     if not section_repository or not section_id:
         return None
     try:
@@ -29,7 +28,7 @@ def _get_section_by_id_or_name(section_id: str, section_repository: Optional[obj
     return None
 
 
-def _extract_section_dimensions_cm(section) -> Optional[Tuple[float, float]]:
+def _extract_section_dimensions_cm(section) -> tuple[float, float] | None:
     if section is None:
         return None
     width = None
@@ -49,10 +48,10 @@ def _extract_section_dimensions_cm(section) -> Optional[Tuple[float, float]]:
 
 def get_section_geometry(
     _input: VerificationInput,
-    section_repository: Optional[object],
+    section_repository: object | None,
     *,
     unit: str = "cm",
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     default_b, default_h = 30.0, 50.0
     if section_repository is None or not _input.section_id:
         logger.warning(

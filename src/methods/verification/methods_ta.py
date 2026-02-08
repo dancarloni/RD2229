@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import math
-from typing import Optional
 
 from app.domain.materials import get_concrete_properties, get_steel_properties
 from app.domain.models import VerificationInput, VerificationOutput
@@ -15,8 +14,8 @@ MPA_TO_KGCM2 = 10.197
 
 def compute_ta_verification(
     _input: VerificationInput,
-    section_repository: Optional[object] = None,
-    material_repository: Optional[object] = None,
+    section_repository: object | None = None,
+    material_repository: object | None = None,
 ) -> VerificationOutput:
     try:
         N = _input.N

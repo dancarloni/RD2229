@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 from tkinter import messagebox, ttk
-from typing import Optional
 
 from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import (
@@ -87,7 +86,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
         self,
         master: tk.Misc,
         library: HistoricalMaterialLibrary,
-        material_repository: Optional[MaterialRepository] = None,
+        material_repository: MaterialRepository | None = None,
     ) -> None:
         super().__init__(master)
         self.title("Archivio Materiali Storici - RD 2229/39")
@@ -285,12 +284,12 @@ class _HistoricalEditDialog(tk.Toplevel):
     - Modifica manuale di tutti i parametri
     """
 
-    def __init__(self, master: tk.Misc, title: str = "", material: Optional[HistoricalMaterial] = None) -> None:
+    def __init__(self, master: tk.Misc, title: str = "", material: HistoricalMaterial | None = None) -> None:
         super().__init__(master)
         self.title(title)
         self.transient(master)
         self.grab_set()
-        self.result: Optional[HistoricalMaterial] = None
+        self.result: HistoricalMaterial | None = None
         self._is_new = material is None
         self._original_material = material
 
@@ -803,12 +802,12 @@ class SourceManagerWindow(tk.Toplevel):
 class _SourceEditDialog(tk.Toplevel):
     """Dialog per aggiungere/modificare una fonte normativa."""
 
-    def __init__(self, master: tk.Misc, title: str = "", source: Optional[MaterialSource] = None) -> None:
+    def __init__(self, master: tk.Misc, title: str = "", source: MaterialSource | None = None) -> None:
         super().__init__(master)
         self.title(title)
         self.transient(master)
         self.grab_set()
-        self.result: Optional[MaterialSource] = None
+        self.result: MaterialSource | None = None
         self._original = source
 
         self._create_fields()

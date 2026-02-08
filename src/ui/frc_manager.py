@@ -11,7 +11,6 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
-from typing import Optional
 
 from core_models.materials import Material, MaterialRepository  # type: ignore[import]
 
@@ -31,7 +30,7 @@ class FrcManagerWindow(tk.Toplevel):
         ("frc_note", "Note"),
     ]
 
-    def __init__(self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None) -> None:
+    def __init__(self, master: tk.Misc, material_repository: MaterialRepository | None = None) -> None:
         super().__init__(master)
         self.title("FRC Manager")
         self.geometry("900x420")
@@ -132,7 +131,7 @@ class FrcManagerWindow(tk.Toplevel):
 
 
 class _FrcEditDialog(simpledialog.Dialog):
-    def __init__(self, parent, title: str, material: Optional[Material] = None):
+    def __init__(self, parent, title: str, material: Material | None = None):
         self.material = material
         super().__init__(parent, title=title)
 

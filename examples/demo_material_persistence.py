@@ -152,7 +152,7 @@ def main():
 
     import json
 
-    with open(json_file, "r", encoding="utf-8") as f:
+    with open(json_file, encoding="utf-8") as f:
         data = json.load(f)
 
     print(f"\nFile: {json_file}")

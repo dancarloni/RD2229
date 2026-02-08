@@ -124,7 +124,7 @@ class TestVerificationTableJSONP(unittest.TestCase):
                 app._on_save_project()
 
             # verify file exists and header
-            with open(tmp_save.name, "r", encoding="utf-8") as fh:
+            with open(tmp_save.name, encoding="utf-8") as fh:
                 data = json.load(fh)
             self.assertEqual(data.get("file_type"), "RD_VerificaSezioni_Project")
             self.assertEqual(data.get("module"), "VerificationTable")

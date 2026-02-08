@@ -3,10 +3,10 @@ Fornisce funzioni utili per calcoli elementari secondo la norma storica.
 Unità: kg/cm2 per tensioni, cm per copriferri.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
-def sigma_c_amm_from_r28(sigma_r28: Optional[float], mode: str = "compression") -> float:
+def sigma_c_amm_from_r28(sigma_r28: float | None, mode: str = "compression") -> float:
     """Calcola la tensione ammissibile del calcestruzzo data la resistenza a 28gg (sigma_r28).
     mode: 'compression' o 'flexure'
     Regola: sigma_c_amm = sigma_r28 / 3
@@ -68,9 +68,9 @@ def flexural_resistance_rectangular(
     b: float,
     d: float,
     A_s: float,
-    sigma_s_amm: Optional[float] = None,
-    sigma_c_amm: Optional[float] = None,
-) -> Dict[str, Any]:
+    sigma_s_amm: float | None = None,
+    sigma_c_amm: float | None = None,
+) -> dict[str, Any]:
     """Calcolo della resistenza a flessione di una sezione rettangolare semplicemente armata.
 
     Approccio: tensioni ammissibili semplificato.
@@ -127,8 +127,8 @@ def shear_verification(
     with_stirrups: bool = False,
     A_v: float = 0.0,
     s: float = 0.0,
-    sigma_s_amm: Optional[float] = None,
-) -> Dict[str, Any]:
+    sigma_s_amm: float | None = None,
+) -> dict[str, Any]:
     """Verifica a taglio secondo valori e semplificazioni del R.D. 2229.
 
     Parametri:

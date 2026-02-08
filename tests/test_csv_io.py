@@ -1,10 +1,11 @@
 from pathlib import Path
+from typing import cast
 
 from verification_table import VerificationInput, VerificationTableApp
 
 
 class Dummy:
-    def __init__(self, rows):
+    def __init__(self, rows: list[VerificationInput]):
         self._rows = rows
 
         # dummy tree with minimal interface
@@ -17,7 +18,7 @@ class Dummy:
 
         self.tree = Tree()
         self._set_rows_called = False
-        self._models_set = None
+        self._models_set: list[VerificationInput] | None = None
 
     def get_rows(self):
         return self._rows
@@ -65,7 +66,7 @@ class Dummy:
                 return s
         return str(value)
 
-    def set_rows(self, models):
+    def set_rows(self, models: list[VerificationInput]):
         self._set_rows_called = True
         self._models_set = models
 
@@ -82,22 +83,25 @@ def test_export_import_csv_roundtrip(tmp_path: Path):
     path = tmp_path / "test.csv"
 
     # Export
-    VerificationTableApp.export_csv(dummy, str(path))
+    VerificationTableApp.export_csv(cast(VerificationTableApp, dummy), str(path))
     assert path.exists()
 
     # Check delimiter and decimal comma in file content
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         content = fh.read()
     assert ";" in content
     assert "," in content
 
     # Import into a fresh dummy and verify models are set
     dummy2 = Dummy([])
-    imported, skipped, errors = VerificationTableApp.import_csv(dummy2, str(path), clear=True)
+    imported, skipped, errors = VerificationTableApp.import_csv(
+        cast(VerificationTableApp, dummy2), str(path), clear=True
+    )
     assert imported == 2
     assert skipped == 0
     assert errors == []
     assert dummy2._set_rows_called
+    assert dummy2._models_set is not None
     assert len(dummy2._models_set) == 2
     # Verify numeric conversion worked (Mx originally in kg·m, retained as float)
     assert abs(dummy2._models_set[0].Mx - 1.23) < 1e-6

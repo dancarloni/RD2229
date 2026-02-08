@@ -3,17 +3,9 @@ from __future__ import annotations
 import logging
 import os
 import tkinter as tk
+from collections.abc import Callable
 from pathlib import Path
 from tkinter import filedialog
-from typing import Callable, Optional
-
-from sections_app.ui.code_settings_window import CodeSettingsWindow
-from sections_app.ui.debug_viewer import DebugViewerWindow
-from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow
-from sections_app.ui.main_window import MainWindow
-from sections_app.ui.notification_center import NotificationCenter
-from sections_app.ui.section_manager import SectionManager
 
 from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import HistoricalMaterialLibrary
@@ -23,6 +15,13 @@ from sections_app.services.notification import (
     notify_info,
 )
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.code_settings_window import CodeSettingsWindow
+from sections_app.ui.debug_viewer import DebugViewerWindow
+from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
+from sections_app.ui.historical_material_window import HistoricalMaterialWindow
+from sections_app.ui.main_window import MainWindow
+from sections_app.ui.notification_center import NotificationCenter
+from sections_app.ui.section_manager import SectionManager
 from verification_table import VerificationTableWindow
 
 logger = logging.getLogger(__name__)
@@ -41,7 +40,7 @@ class ModuleSelectorWindow(tk.Tk):
         self,
         repository: SectionRepository,
         serializer: CsvSectionSerializer,
-        material_repository: Optional[MaterialRepository] = None,
+        material_repository: MaterialRepository | None = None,
     ):
         # Forza locale msgcat su EN per evitare errori quando i file lingua non sono presenti
         os.environ.setdefault("LANG", "en_US")
@@ -61,11 +60,11 @@ class ModuleSelectorWindow(tk.Tk):
         self.section_repository: SectionRepository = repository
         # Usa il material_repository passato, oppure creane uno nuovo
         self.material_repository: MaterialRepository = material_repository or MaterialRepository()
-        self._material_editor_window: Optional[HistoricalMaterialWindow] = None
+        self._material_editor_window: HistoricalMaterialWindow | None = None
         # Riferimenti a finestre aperte dal ModuleSelector
-        self._geometry_window: Optional[MainWindow] = None
-        self._section_manager_window: Optional[SectionManager] = None
-        self._debug_viewer_window: Optional[DebugViewerWindow] = None
+        self._geometry_window: MainWindow | None = None
+        self._section_manager_window: SectionManager | None = None
+        self._debug_viewer_window: DebugViewerWindow | None = None
         self._create_menu()
         self._build_ui()
 

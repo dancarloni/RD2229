@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import csv
 import logging
-from typing import List, Tuple
 
 from app.domain.models import VerificationInput  # type: ignore[import]
 from app.ui.verification_table_app import COLUMNS  # type: ignore[import]
@@ -42,9 +41,9 @@ def _format_value_for_csv(value: object) -> str:
     return str(value)
 
 
-def export_csv(path: str, rows: List[VerificationInput], include_header: bool = True) -> None:
-    keys: List[str] = [c[0] for c in COLUMNS]
-    header: List[str] = [c[1] for c in COLUMNS]
+def export_csv(path: str, rows: list[VerificationInput], include_header: bool = True) -> None:
+    keys: list[str] = [c[0] for c in COLUMNS]
+    header: list[str] = [c[1] for c in COLUMNS]
     with open(path, "w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh, delimiter=";")
         if include_header:
@@ -105,19 +104,19 @@ def _row_to_kwargs(row: list[str], index_map: list[int | None], i: int) -> tuple
     return kwargs, None
 
 
-def import_csv(path: str) -> Tuple[List[VerificationInput], int, List[str]]:
+def import_csv(path: str) -> tuple[list[VerificationInput], int, list[str]]:
     try:
         with open(path, newline="", encoding="utf-8") as fh:
             reader = csv.reader(fh, delimiter=";")
-            rows: List[List[str]] = list(reader)
+            rows: list[list[str]] = list(reader)
     except Exception as exc:
         logger.exception("Import CSV: impossibile leggere/parsare il file '%s': %s", path, exc)
         return [], 0, [str(exc)]
     if not rows:
         return [], 0, []
 
-    expected_header: List[str] = [c[1] for c in COLUMNS]
-    header: List[str] = [h.strip() for h in rows[0]]
+    expected_header: list[str] = [c[1] for c in COLUMNS]
+    header: list[str] = [h.strip() for h in rows[0]]
 
     # Simple mapping: assume header equals expected or same set
     index_map: list[int | None]

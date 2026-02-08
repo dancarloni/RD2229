@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 DEFAULT_FILE_TYPE = "RD_VerificaSezioni_Project"
 DEFAULT_MODULE = "VerificationTable"
@@ -12,13 +12,13 @@ DEFAULT_VERSION = 1
 
 @dataclass
 class VerificationProject:
-    materials: Dict[str, Dict[str, Any]] = field(default_factory=lambda: {"cls": {}, "steel": {}})
-    sections: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-    elements: List[Dict[str, Any]] = field(default_factory=list)
-    path: Optional[str] = None
+    materials: dict[str, dict[str, Any]] = field(default_factory=lambda: {"cls": {}, "steel": {}})
+    sections: dict[str, dict[str, Any]] = field(default_factory=dict)
+    elements: list[dict[str, Any]] = field(default_factory=list)
+    path: str | None = None
     dirty: bool = False
     last_action_was_add_list: bool = False
-    created_at: Optional[str] = None
+    created_at: str | None = None
 
     def new_project(self) -> None:
         self.materials = {"cls": {}, "steel": {}}
@@ -29,12 +29,12 @@ class VerificationProject:
         self.last_action_was_add_list = False
         self.created_at = datetime.utcnow().isoformat()
 
-    def _validate_header(self, data: Dict[str, Any]) -> None:
+    def _validate_header(self, data: dict[str, Any]) -> None:
         if data.get("file_type") != DEFAULT_FILE_TYPE or data.get("module") != DEFAULT_MODULE:
             raise ValueError("File non riconosciuto come progetto VerificationTable")
 
     def load_from_file(self, path: str) -> None:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         self._validate_header(data)
         self.created_at = data.get("created_at") or datetime.utcnow().isoformat()
@@ -89,12 +89,12 @@ class VerificationProject:
         self.dirty = False
         self.last_action_was_add_list = False
 
-    def add_elements_from_file(self, path: str) -> Tuple[int, int, int]:
+    def add_elements_from_file(self, path: str) -> tuple[int, int, int]:
         """Carica un file .jsonp e unisce materiali/sezioni/elementi senza cancellare.
 
         Returns tuple (new_materials, new_sections, new_elements_added)
         """
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         self._validate_header(data)
 

@@ -1,7 +1,6 @@
 import tkinter as tk
 
 from sections_app.ui.main_window import ModuleSelectorWindow
-
 from verification_table import VerificationTableWindow
 
 root = tk.Tk()

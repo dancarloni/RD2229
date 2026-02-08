@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 from tkinter import messagebox, ttk
-from typing import Optional
 
 from sections_app.services.historical_calculations import (
     verify_flexure_allowable_stress,
@@ -25,7 +24,7 @@ class HistoricalModuleMainWindow(tk.Toplevel):
         self.title("Historical Calculations - RD2229")
         self.geometry("720x420")
         self.repository = repository
-        self.selected_section_id: Optional[str] = None
+        self.selected_section_id: str | None = None
         self._build_ui()
 
         # ✅ Gestisci la chiusura della finestra in modo indipendente

@@ -62,7 +62,7 @@ class TestSectionRepositoryCanonicalPath:
         assert os.path.exists(test_file), f"File {test_file} dovrebbe essere creato"
 
         # Verifica che il file sia JSON valido
-        with open(test_file, "r", encoding="utf-8") as f:
+        with open(test_file, encoding="utf-8") as f:
             data = json.load(f)
             assert isinstance(data, list), "Il file dovrebbe contenere una lista"
             assert len(data) == 1, "La lista dovrebbe contenere 1 sezione"
@@ -112,7 +112,7 @@ class TestSectionHelperFunctions:
         assert os.path.exists(test_file), f"File {test_file} dovrebbe essere creato"
 
         # Verifica il contenuto
-        with open(test_file, "r", encoding="utf-8") as f:
+        with open(test_file, encoding="utf-8") as f:
             data = json.load(f)
             assert len(data) == 1
             assert data[0]["name"] == "Save Test"
@@ -180,7 +180,7 @@ class TestMaterialsRepositoryCanonicalPath:
         assert os.path.exists(test_file), f"File {test_file} dovrebbe essere creato"
 
         # Verifica il contenuto
-        with open(test_file, "r", encoding="utf-8") as f:
+        with open(test_file, encoding="utf-8") as f:
             data = json.load(f)
             assert isinstance(data, list)
             assert len(data) == 1
@@ -334,7 +334,7 @@ class TestBackupMechanisms:
         assert os.path.exists(backup_file), "File di backup dovrebbe essere creato"
 
         # Verifica che il backup contenga i dati precedenti
-        with open(backup_file, "r", encoding="utf-8") as f:
+        with open(backup_file, encoding="utf-8") as f:
             backup_data = json.load(f)
             assert len(backup_data) == 1, "Backup dovrebbe contenere 1 sezione (snapshot precedente)"
 

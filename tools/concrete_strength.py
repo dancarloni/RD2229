@@ -19,7 +19,6 @@ Unità e convenzioni storiche:
 from __future__ import annotations
 
 from enum import Enum
-from typing import Tuple
 
 # Conversione: 1 Kg/cm^2 = 0.0980665 MPa
 _KGCM2_TO_MPA = 0.0980665
@@ -149,7 +148,7 @@ def compute_sigma_c_all(
     }
 
 
-def compute_allowable_shear(cement: CementType = CementType.NORMAL) -> Tuple[float, float]:
+def compute_allowable_shear(cement: CementType = CementType.NORMAL) -> tuple[float, float]:
     """Ritorna una tupla `(service_tau, max_tau)` in Kg/cm².
 
     - `service_tau`: carico di sicurezza al taglio. Valori storici:

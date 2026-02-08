@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
-from math import atan2, cos, sin, sqrt
-from typing import List, Tuple
+from functools import lru_cache
 
 
 @dataclass
@@ -15,7 +15,10 @@ class RectangleElement:
     y_center: float  # Coordinata y del baricentro rispetto a un'origine locale (cm)
 
 
-def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> Tuple[float, float, float]:
+@lru_cache(maxsize=512)
+def rotate_inertia(
+    Ix: float, Iy: float, Ixy: float, theta_rad: float
+) -> tuple[float, float, float]:
     """Ruota il tensore di inerzia di un angolo theta_rad (radianti) attorno al baricentro.
 
     Formule di rototrasformazione del tensore di inerzia:
@@ -33,8 +36,8 @@ def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> Tuple[
         Tuple (Ix_rot, Iy_rot, Ixy_rot) - inerzie ruotate (cm⁴)
 
     """
-    c = cos(theta_rad)
-    s = sin(theta_rad)
+    c = math.cos(theta_rad)
+    s = math.sin(theta_rad)
     c2 = c * c
     s2 = s * s
     cs = c * s
@@ -76,16 +79,16 @@ def compute_principal_inertia(Ix: float, Iy: float, Ixy: float) -> tuple:
     Returns (I1, I2, angle_rad)
     """
     Imean = (Ix + Iy) / 2.0
-    R = sqrt(((Ix - Iy) / 2.0) ** 2 + (Ixy) ** 2)
+    R = math.sqrt(((Ix - Iy) / 2.0) ** 2 + (Ixy) ** 2)
     I1 = Imean + R
     I2 = Imean - R
-    angle = 0.5 * atan2(2.0 * Ixy, Ix - Iy)
+    angle = 0.5 * math.atan2(2.0 * Ixy, Ix - Iy)
     return I1, I2, angle
 
 
 def combine_rectangular_elements(
-    elements: List[RectangleElement],
-) -> Tuple[float, float, float, float, float, float]:
+    elements: list[RectangleElement],
+) -> tuple[float, float, float, float, float, float]:
     """Combina elementi rettangolari per calcolare le proprietà globali di una sezione composta.
 
     Calcola:
@@ -152,7 +155,7 @@ class CanvasTransform:
     offset_x: float
     offset_y: float
 
-    def to_canvas(self, x: float, y: float, height: float) -> Tuple[float, float]:
+    def to_canvas(self, x: float, y: float, height: float) -> tuple[float, float]:
         """Converte coordinate con origine in basso a sinistra (x,y) al canvas."""
         cx = self.offset_x + x * self.scale
         cy = self.offset_y + (height - y) * self.scale

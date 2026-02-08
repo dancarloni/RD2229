@@ -3,7 +3,6 @@ from __future__ import annotations
 import tkinter as tk
 from enum import Enum
 from tkinter import messagebox, simpledialog, ttk
-from typing import Dict, List, Optional, Type
 
 import matplotlib.pyplot as plt
 from core.geometry import (
@@ -50,7 +49,7 @@ class SectionType(Enum):
         ["outer_diameter", "inner_diameter"],
     )
 
-    def __init__(self, display_name: str, cls: Type[SectionGeometry], params: List[str]):
+    def __init__(self, display_name: str, cls: type[SectionGeometry], params: list[str]):
         self.display_name = display_name
         self.cls = cls
         self.params = params
@@ -59,8 +58,8 @@ class SectionType(Enum):
 class SectionInputDialog(simpledialog.Dialog):
     def __init__(self, parent, title: str, section_type: SectionType):
         self.section_type = section_type
-        self.inputs: Dict[str, tk.Entry] = {}
-        self.result: Optional[SectionGeometry] = None
+        self.inputs: dict[str, tk.Entry] = {}
+        self.result: SectionGeometry | None = None
         super().__init__(parent, title=title)
 
     def body(self, master):
@@ -100,12 +99,12 @@ class SectionInputDialog(simpledialog.Dialog):
 
 
 class SectionApp(tk.Frame):
-    def __init__(self, master: Optional[tk.Misc] = None):
+    def __init__(self, master: tk.Misc | None = None):
         super().__init__(master)
         # Annotiamo esplicitamente il tipo per evitare warning di Pylance su 'master'
-        self.master: Optional[tk.Misc] = master
+        self.master: tk.Misc | None = master
         self.pack(fill="both", expand=True)
-        self.current_section: Optional[SectionGeometry] = None
+        self.current_section: SectionGeometry | None = None
         self.create_widgets()
 
     def create_widgets(self):
@@ -143,7 +142,7 @@ class SectionApp(tk.Frame):
         selected_name = self.section_var.get()
         section_type = next(st for st in SectionType if st.display_name == selected_name)
 
-        self.inputs: Dict[str, tk.Entry] = {}
+        self.inputs: dict[str, tk.Entry] = {}
         for param in section_type.params:
             tk.Label(self.input_frame, text=f"{param.replace('_', ' ').title()} (cm):").pack(anchor="w")
             entry = tk.Entry(self.input_frame)

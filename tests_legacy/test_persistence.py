@@ -45,7 +45,7 @@ def test_persistence_create_and_load():
                 assert False, f"Errore aggiunta: {section.name}"
 
         # Verifica contenuto JSON
-        with open(json_file, "r", encoding="utf-8") as f:
+        with open(json_file, encoding="utf-8") as f:
             data = json.load(f)
         assert len(data) == 3, f"JSON contiene {len(data)} sezioni, attese 3"
         print("  ✓ JSON contiene 3 sezioni")

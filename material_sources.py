@@ -26,9 +26,9 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import asdict, dataclass
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 
-class CalculationMethod(str, Enum):
+class CalculationMethod(StrEnum):
     """Metodo di calcolo/verifica associato alla fonte."""
 
     TENSIONI_AMMISSIBILI = "TA"  # Metodo alle tensioni ammissibili
@@ -67,7 +67,7 @@ class MaterialSource:
     id: str
     name: str
     description: str = ""
-    year: Optional[int] = None
+    year: int | None = None
     calculation_method: CalculationMethod = CalculationMethod.TENSIONI_AMMISSIBILI
     is_historical: bool = False
     is_user_defined: bool = False
@@ -81,7 +81,7 @@ class MaterialSource:
         return d
 
     @staticmethod
-    def from_dict(d: dict) -> "MaterialSource":
+    def from_dict(d: dict) -> MaterialSource:
         """Deserializza da dizionario."""
         method = d.get("calculation_method", "TA")
         if isinstance(method, str):
@@ -107,7 +107,7 @@ class MaterialSource:
 # =============================================================================
 
 
-def _get_default_sources() -> List[MaterialSource]:
+def _get_default_sources() -> list[MaterialSource]:
     """Restituisce l'elenco delle fonti normative predefinite."""
     return [
         MaterialSource(
@@ -234,7 +234,7 @@ class MaterialSourceLibrary:
 
     def __init__(self, path: str | Path | None = None):
         self._file_path = Path(path or self.DEFAULT_FILE)
-        self._sources: List[MaterialSource] = []
+        self._sources: list[MaterialSource] = []
         self._load_or_create_defaults()
 
     def _load_or_create_defaults(self) -> None:
@@ -274,11 +274,11 @@ class MaterialSourceLibrary:
         except Exception:
             logger.exception("Errore salvataggio fonti in %s", self._file_path)
 
-    def get_all(self) -> List[MaterialSource]:
+    def get_all(self) -> list[MaterialSource]:
         """Restituisce tutte le fonti."""
         return list(self._sources)
 
-    def get_by_id(self, source_id: str) -> Optional[MaterialSource]:
+    def get_by_id(self, source_id: str) -> MaterialSource | None:
         """Trova una fonte per ID."""
         for s in self._sources:
             if s.id == source_id:
@@ -302,15 +302,15 @@ class MaterialSourceLibrary:
             return True
         return False
 
-    def get_source_names_for_combo(self) -> List[str]:
+    def get_source_names_for_combo(self) -> list[str]:
         """Restituisce lista di nomi per ComboBox UI."""
         return [s.name for s in self._sources]
 
-    def get_source_ids(self) -> List[str]:
+    def get_source_ids(self) -> list[str]:
         """Restituisce lista di ID."""
         return [s.id for s in self._sources]
 
-    def find_by_name(self, name: str) -> Optional[MaterialSource]:
+    def find_by_name(self, name: str) -> MaterialSource | None:
         """Trova una fonte per nome."""
         for s in self._sources:
             if s.name == name:
@@ -330,7 +330,7 @@ class MaterialSourceLibrary:
 #
 
 
-def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[str, Any]:
+def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> dict[str, Any]:
     """Calcola i parametri del calcestruzzo secondo RD 2229/1939.
 
     NOTA: fck qui rappresenta σ_c,28 (resistenza cubica a 28 gg) in kg/cm².
@@ -382,7 +382,7 @@ def _compute_rd2229_concrete(fck: float, cement_type: str = "normal") -> Dict[st
     }
 
 
-def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, Any]:
+def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> dict[str, Any]:
     """Calcola i parametri dell'acciaio secondo RD 2229/1939.
 
     Args:
@@ -396,11 +396,11 @@ def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, An
     # Tensioni ammissibili secondo RD 2229/39
     # σ_s,amm ≤ fyk/2 (non deve superare metà del carico di snervamento)
     if steel_type == "dolce":
-        sigma_s = 1400.0
+        sigma_s = min(fyk / 2, 1400.0)
     elif steel_type == "semiduro":
-        sigma_s = 1800.0  # 1600 per sez. T, 1800 per sez. rettangolari
+        sigma_s = min(fyk / 2, 1800.0)  # 1600 per sez. T, 1800 per sez. rettangolari
     else:  # duro
-        sigma_s = 2000.0  # 1800 per sez. T, 2000 per sez. rettangolari
+        sigma_s = min(fyk / 2, 2000.0)  # 1800 per sez. T, 2000 per sez. rettangolari
 
     # Modulo elastico acciaio (costante storica)
     Es = 2100000.0
@@ -408,12 +408,12 @@ def _compute_rd2229_steel(fyk: float, steel_type: str = "dolce") -> Dict[str, An
     return {
         "fyd": sigma_s,
         "Es": Es,
-        "gamma_s": 2.0,  # fyk/fyd = 2 (coefficiente di sicurezza storico)
+        "gamma_s": fyk / sigma_s if sigma_s > 0 else 2.0,
         "calculation_notes": "Valori da RD 2229/1939. σ_s ≤ fyk/2.",
     }
 
 
-def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
+def _compute_ntc2018_concrete(fck: float) -> dict[str, Any]:
     """Calcola i parametri del calcestruzzo secondo NTC 2018.
 
     NOTA: fck è la resistenza caratteristica CILINDRICA [MPa o kg/cm²].
@@ -459,7 +459,7 @@ def _compute_ntc2018_concrete(fck: float) -> Dict[str, Any]:
     }
 
 
-def _compute_ntc2018_steel(fyk: float) -> Dict[str, Any]:
+def _compute_ntc2018_steel(fyk: float) -> dict[str, Any]:
     """Calcola i parametri dell'acciaio secondo NTC 2018.
 
     Args:
@@ -484,7 +484,7 @@ def _compute_ntc2018_steel(fyk: float) -> Dict[str, Any]:
     }
 
 
-def _compute_dm96_concrete(fck: float) -> Dict[str, Any]:
+def _compute_dm96_concrete(fck: float) -> dict[str, Any]:
     """Calcola i parametri del calcestruzzo secondo DM 09/01/1996.
 
     TODO: Verificare formule con testo DM 96.
@@ -506,7 +506,7 @@ def _compute_dm96_concrete(fck: float) -> Dict[str, Any]:
     }
 
 
-def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
+def _compute_dm96_steel(fyk: float) -> dict[str, Any]:
     """Calcola i parametri dell'acciaio secondo DM 09/01/1996."""
     gamma_s = 1.15
     fyd = fyk / gamma_s
@@ -525,7 +525,7 @@ def _compute_dm96_steel(fyk: float) -> Dict[str, Any]:
 # =============================================================================
 
 
-def get_default_values_for_source(source_id: str, material_type: str, base_params: Dict[str, Any]) -> Dict[str, Any]:
+def get_default_values_for_source(source_id: str, material_type: str, base_params: dict[str, Any]) -> dict[str, Any]:
     """Calcola i valori predefiniti per un materiale in base alla fonte normativa.
 
     AVVERTENZA: I valori restituiti sono da considerarsi DI ESEMPIO.
@@ -546,7 +546,7 @@ def get_default_values_for_source(source_id: str, material_type: str, base_param
         - Sempre presente: "calculation_notes" con avvertenze
 
     """
-    result: Dict[str, Any] = {"source_id": source_id, "calculation_notes": ""}
+    result: dict[str, Any] = {"source_id": source_id, "calculation_notes": ""}
 
     # Estrai parametri di input
     fck = base_params.get("fck") or base_params.get("sigma_c28", 0)
@@ -635,7 +635,7 @@ def get_default_values_for_source(source_id: str, material_type: str, base_param
 # =============================================================================
 
 # Istanza singleton della libreria fonti (lazy loading)
-_source_library: Optional[MaterialSourceLibrary] = None
+_source_library: MaterialSourceLibrary | None = None
 
 
 def get_source_library() -> MaterialSourceLibrary:
@@ -646,16 +646,16 @@ def get_source_library() -> MaterialSourceLibrary:
     return _source_library
 
 
-def get_all_source_names() -> List[str]:
+def get_all_source_names() -> list[str]:
     """Shortcut per ottenere i nomi delle fonti per UI."""
     return get_source_library().get_source_names_for_combo()
 
 
-def get_source_by_name(name: str) -> Optional[MaterialSource]:
+def get_source_by_name(name: str) -> MaterialSource | None:
     """Shortcut per trovare una fonte per nome."""
     return get_source_library().find_by_name(name)
 
 
-def get_source_by_id(source_id: str) -> Optional[MaterialSource]:
+def get_source_by_id(source_id: str) -> MaterialSource | None:
     """Shortcut per trovare una fonte per ID."""
     return get_source_library().get_by_id(source_id)

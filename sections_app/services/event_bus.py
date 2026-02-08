@@ -6,7 +6,8 @@ operations from the UI update logic.
 """
 
 import logging
-from typing import Callable, List, Optional
+from collections.abc import Callable
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class EventBus:
         if self._initialized:
             return
         self._initialized = True
-        self._listeners: dict[str, List[Callable]] = {}
+        self._listeners: dict[str, list[Callable]] = {}
 
     def subscribe(self, event_type: str, callback: Callable) -> None:
         """Subscribe to an event type.

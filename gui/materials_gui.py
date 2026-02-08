@@ -12,7 +12,6 @@ import logging
 import os
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
-from typing import Optional
 
 from tools import materials_manager
 
@@ -52,7 +51,7 @@ MATERIALS_REPO_PATH = os.path.abspath(
 
 
 class MaterialEditor(simpledialog.Dialog):
-    def __init__(self, parent, title: str, material: Optional[dict] = None):
+    def __init__(self, parent, title: str, material: dict | None = None):
         self.material = material or {}
         super().__init__(parent, title=title)
 
@@ -227,7 +226,7 @@ class MaterialsApp(tk.Frame):
         # repository that holds current materials in-memory
         self.repo = MaterialsRepository() if MaterialsRepository is not None else None
         # current loaded materials file path (canonical repository)
-        self.current_materials_path: Optional[str] = MATERIALS_REPO_PATH
+        self.current_materials_path: str | None = MATERIALS_REPO_PATH
         self.create_widgets()
 
         # If repo exists, attempt to load canonical repository automatically
@@ -424,7 +423,7 @@ class MaterialsApp(tk.Frame):
                 self.tree.insert("", tk.END, values=values)
         self.detail.delete("1.0", tk.END)
 
-    def get_selected_name(self) -> Optional[str]:
+    def get_selected_name(self) -> str | None:
         sel = self.tree.selection()
         if not sel:
             return None

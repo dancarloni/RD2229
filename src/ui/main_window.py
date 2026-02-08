@@ -5,10 +5,6 @@ import math
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
-from typing import Dict, List, Optional, Tuple
-
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow  # type: ignore[import]
-from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
 
 from core_models.materials import MaterialRepository
 from sections_app.models.sections import (
@@ -33,6 +29,10 @@ from sections_app.services.notification import (
     notify_info,
 )
 from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.historical_material_window import (
+    HistoricalMaterialWindow,  # type: ignore[import]
+)
+from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -244,7 +244,7 @@ class MainWindow(tk.Toplevel):
         master: tk.Tk,  # ✅ NUOVO: richiede il parent (ModuleSelector)
         repository: SectionRepository,
         serializer: CsvSectionSerializer,
-        material_repository: Optional[MaterialRepository] = None,
+        material_repository: MaterialRepository | None = None,
     ) -> None:
         super().__init__(master=master)  # ✅ Passa master a Toplevel
         self.title("Gestione Proprietà Sezioni")
@@ -252,19 +252,19 @@ class MainWindow(tk.Toplevel):
         self.repository: SectionRepository = repository
         self.section_repository: SectionRepository = repository
         self.serializer: CsvSectionSerializer = serializer
-        self.material_repository: Optional[MaterialRepository] = material_repository
-        self.current_section: Optional[Section] = None
+        self.material_repository: MaterialRepository | None = material_repository
+        self.current_section: Section | None = None
         # Quando si modifica una sezione dal Section Manager, qui viene salvato l'id
-        self.editing_section_id: Optional[str] = None
+        self.editing_section_id: str | None = None
         # Riferimento opzionale al manager per aggiornamenti UI
-        self.section_manager: Optional[SectionManager] = None
+        self.section_manager: SectionManager | None = None
         # Riferimento opzionale alla finestra di gestione materiali storici
-        self._material_manager_window: Optional[HistoricalMaterialWindow] = None
+        self._material_manager_window: HistoricalMaterialWindow | None = None
 
         self._create_menu()
         self._build_layout()
         # Memorizza l'ultima tipologia selezionata per evitare rielaborazioni ridondanti
-        self._last_selected_type: Optional[str] = self.section_var.get()
+        self._last_selected_type: str | None = self.section_var.get()
         # Avvia un polling leggero per intercettare cambi di selezione che a volte
         # vengono mostrati nella combo senza emettere l'evento (fallback UX)
         self._polling_id: str = self.after(300, self._poll_section_selection)
@@ -404,7 +404,7 @@ class MainWindow(tk.Toplevel):
 
         self.inputs_frame = tk.LabelFrame(self.left_frame, text="Dati geometrici")
         self.inputs_frame.pack(fill="x", pady=(0, 8))
-        self.inputs: Dict[str, tk.Entry] = {}
+        self.inputs: dict[str, tk.Entry] = {}
         self._create_inputs()
 
         # Campo per angolo di rotazione (comune a tutte le sezioni)
@@ -644,7 +644,7 @@ class MainWindow(tk.Toplevel):
 
             # Entry per l'input del valore
             # Usa validazione per accettare solo numeri con 1 decimale
-            vcmd: Tuple[str] = (self.register(self._validate_float_input), "%P")
+            vcmd: tuple[str] = (self.register(self._validate_float_input), "%P")
             entry = tk.Entry(self.inputs_frame, width=18, validate="key", validatecommand=vcmd)
             entry.grid(row=row, column=1, padx=4, pady=4, sticky="ew")
 
@@ -674,7 +674,7 @@ class MainWindow(tk.Toplevel):
         """
         tipo: str = self.section_var.get()
         # Mappa dei default (tenere sincronizzati con DEFAULT_SHEAR_KAPPAS)
-        defaults: Dict[str, Tuple[float]] = {
+        defaults: dict[str, tuple[float]] = {
             "Rettangolare": (5.0 / 6.0, 5.0 / 6.0),
             "Circolare": (10.0 / 9.0, 10.0 / 9.0),
             "Circolare cava": (1.0, 1.0),
@@ -712,7 +712,7 @@ class MainWindow(tk.Toplevel):
         )
         notify_info("Fattori di forma a taglio (κ)", text, source="main_window")
 
-    def _build_section_from_inputs(self) -> Optional[Section]:
+    def _build_section_from_inputs(self) -> Section | None:
         definition = SECTION_DEFINITIONS[self.section_var.get()]
         section_class = definition["class"]
         # Collect field values (with validation)
@@ -734,8 +734,8 @@ class MainWindow(tk.Toplevel):
 
         return section
 
-    def _collect_section_values(self, definition: dict) -> Optional[Dict[str, float]]:
-        values: Dict[str, float] = {}
+    def _collect_section_values(self, definition: dict) -> dict[str, float] | None:
+        values: dict[str, float] = {}
         for field, _label in definition["fields"]:
             raw: str = self.inputs[field].get().strip()
             if not raw:
@@ -751,7 +751,7 @@ class MainWindow(tk.Toplevel):
             values[field] = value
         return values
 
-    def _parse_rotation_angle(self) -> Optional[float]:
+    def _parse_rotation_angle(self) -> float | None:
         rotation_raw: str = self.rotation_entry.get().strip()
         try:
             return float(rotation_raw) if rotation_raw else 0.0
@@ -855,7 +855,7 @@ class MainWindow(tk.Toplevel):
             if getattr(self, "show_core_var", None) is None or self.show_core_var.get():
                 self._draw_core(section, transform)
 
-    def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> Tuple[float, float]:
+    def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> tuple[float, float]:
         """Ruota un punto (x,y) attorno a (cx,cy) di angle_deg gradi."""
         from math import cos, radians, sin
 
@@ -883,7 +883,7 @@ class MainWindow(tk.Toplevel):
             cy: float = sum(p[1] for p in points) / len(points)
 
         # Ruota i punti attorno al baricentro
-        rotated: list[Tuple[float, float]] = [
+        rotated: list[tuple[float, float]] = [
             self._rotate_point(x, y, cx, cy, section.rotation_angle_deg) for x, y in points
         ]
 
@@ -895,7 +895,7 @@ class MainWindow(tk.Toplevel):
 
         self.canvas.create_polygon(canvas_points, **kwargs)
 
-    def _section_dimensions(self, section: Section) -> Tuple[float, float]:
+    def _section_dimensions(self, section: Section) -> tuple[float, float]:
         """Calcola le dimensioni bounding box della sezione."""
         # Dispatch mapping for common types
         dim_map = {
@@ -1309,7 +1309,7 @@ class MainWindow(tk.Toplevel):
         if section.properties:
             self._show_properties(section.properties, section)
 
-    def _label_from_section(self, section: Section) -> Optional[str]:
+    def _label_from_section(self, section: Section) -> str | None:
         for label, definition in SECTION_DEFINITIONS.items():
             if isinstance(section, definition["class"]):
                 return label
@@ -1322,7 +1322,7 @@ class MainWindow(tk.Toplevel):
         )
         if not file_path:
             return
-        sections: List[Section] = self.serializer.import_from_csv(file_path)
+        sections: list[Section] = self.serializer.import_from_csv(file_path)
         added = 0
         for section in sections:
             if self.repository.add_section(section):

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
-from typing import List
 
 from sections_app.models.sections import CircularSection, RectangularSection, TSection
 from sections_app.services.repository import SectionRepository
@@ -18,7 +17,7 @@ except Exception:  # pylint: disable=broad-exception-caught
 from verification_table import VerificationInput, VerificationTableWindow
 
 
-def build_sample_sections(repo: SectionRepository) -> List[str]:
+def build_sample_sections(repo: SectionRepository) -> list[str]:
     rect = RectangularSection(name="Rect 20x30", width=20, height=30)
     circ = CircularSection(name="Circ d25", diameter=25)
     t_sec = TSection(name="T 40x5x8x25", flange_width=40, flange_thickness=5, web_thickness=8, web_height=25)

@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_SETTINGS: Dict[str, Any] = {
+DEFAULT_SETTINGS: dict[str, Any] = {
     "level": "errors_only",  # errors_only | warnings_and_errors | all
     "show_toasts": True,
     "silent_sources": [],
@@ -23,7 +23,7 @@ def _ensure_dir(path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def load_notification_settings(path: Optional[Path] = None) -> Dict[str, Any]:
+def load_notification_settings(path: Path | None = None) -> dict[str, Any]:
     """Load settings from JSON; return defaults if missing or invalid."""
     p = Path(path) if path is not None else SETTINGS_PATH
     try:
@@ -42,7 +42,7 @@ def load_notification_settings(path: Optional[Path] = None) -> Dict[str, Any]:
         return dict(DEFAULT_SETTINGS)
 
 
-def save_notification_settings(settings: Dict[str, Any], path: Optional[Path] = None) -> None:
+def save_notification_settings(settings: dict[str, Any], path: Path | None = None) -> None:
     p = Path(path) if path is not None else SETTINGS_PATH
     try:
         _ensure_dir(p)

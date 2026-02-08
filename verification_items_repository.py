@@ -4,7 +4,6 @@ import json
 import logging
 from dataclasses import asdict
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from verification_items import VerificationItem
 
@@ -31,13 +30,13 @@ class VerificationItemsRepository:
 
     def __init__(self, path: str = "verification_items.json") -> None:
         self._path = Path(path)
-        self._items: Dict[str, VerificationItem] = {}
+        self._items: dict[str, VerificationItem] = {}
         self.load_from_file()
 
-    def get_all(self) -> List[VerificationItem]:
+    def get_all(self) -> list[VerificationItem]:
         return list(self._items.values())
 
-    def get_by_id(self, item_id: str) -> Optional[VerificationItem]:
+    def get_by_id(self, item_id: str) -> VerificationItem | None:
         return self._items.get(item_id)
 
     def save(self, item: VerificationItem) -> None:

@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import logging
 import math
-from typing import Any, Dict
+from typing import Any
 
 from core.verification_core import (
     LoadCase,
@@ -51,7 +51,7 @@ def _area_and_perimeter(sec: SectionGeometry, delta: float) -> tuple[float, floa
 
 
 def _compute_ta_branch(
-    results_loc: Dict[str, Any],
+    results_loc: dict[str, Any],
     mat: MaterialProperties,
     Mx_loc: float,
     p_loc: float,
@@ -87,7 +87,7 @@ def _compute_ta_branch(
 
 
 def _compute_slu_branch(
-    results_loc: Dict[str, Any],
+    results_loc: dict[str, Any],
     mat: MaterialProperties,
     Mx_loc: float,
     A_loc: float,
@@ -126,7 +126,7 @@ def _compute_slu_branch(
 
 
 def _finalize_torsion(
-    results_loc: Dict[str, Any],
+    results_loc: dict[str, Any],
     mat: MaterialProperties,
     Mx_loc: float,
     Taux_max_loc: float,
@@ -156,7 +156,7 @@ def bas_torsion_verification(
     material: MaterialProperties,
     loads: LoadCase,
     method: str = "TA",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Compute torsion verification values emulating PrincipCA_TA.bas routines.
 
     Returns a dict with keys describing the numeric outputs and messages. Typical
@@ -168,7 +168,7 @@ def bas_torsion_verification(
     # main
     Delta = 0.4
 
-    results: Dict[str, Any] = {}
+    results: dict[str, Any] = {}
 
     Mx = loads.Mx
     Ty = loads.Tx  # note: mapping differences between variable names

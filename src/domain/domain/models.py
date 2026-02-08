@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import InitVar, dataclass
-from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +30,10 @@ class VerificationInput:
     stirrup_material: str = ""
     notes: str = ""
     # Legacy Init vars to accept old keywords M and T in constructor
-    M_init: InitVar[Optional[float]] = None
-    T_init: InitVar[Optional[float]] = None
+    M_init: InitVar[float | None] = None
+    T_init: InitVar[float | None] = None
 
-    def __post_init__(self, M_init: Optional[float], T_init: Optional[float]) -> None:
+    def __post_init__(self, M_init: float | None, T_init: float | None) -> None:
         # Map legacy init kwargs to new internal fields for backward compatibility
         if M_init is not None:
             try:
@@ -94,7 +93,7 @@ class VerificationOutput:
     deformazioni: str = ""
     coeff_sicurezza: float = 1.0
     esito: str = ""
-    messaggi: Optional[List[str]] = None
+    messaggi: list[str] | None = None
 
     def __post_init__(self):
         if self.messaggi is None:

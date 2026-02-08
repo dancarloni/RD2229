@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
-from typing import Any, Dict, Optional
+from typing import Any
 
 from sections_app.services.notification import notify_info  # type: ignore[import]
 from sections_app.services.notification_settings import (
@@ -24,7 +24,7 @@ class NotificationSettingsWindow:
     and exposes a programmatic interface for tests.
     """
 
-    def __init__(self, master: Optional[tk.Misc] = None, settings_path: Optional[str] = None):
+    def __init__(self, master: tk.Misc | None = None, settings_path: str | None = None):
         self.master = master
         self.headless = master is None
         self._settings_path = settings_path
@@ -113,7 +113,7 @@ class NotificationSettingsWindow:
             logger.exception("Error closing settings window")
 
     # Programmatic helpers for tests
-    def set_settings(self, settings: Dict[str, Any]) -> None:
+    def set_settings(self, settings: dict[str, Any]) -> None:
         self._settings = dict(settings)
 
     def save(self) -> None:
@@ -121,5 +121,5 @@ class NotificationSettingsWindow:
         save_notification_settings(self._settings)
         notify_info("Notification Settings", "Settings saved")
 
-    def get_settings(self) -> Dict[str, Any]:
+    def get_settings(self) -> dict[str, Any]:
         return dict(self._settings)

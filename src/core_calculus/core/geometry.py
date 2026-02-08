@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from math import pi
-from typing import Iterable, List, Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -20,14 +20,14 @@ class SectionGeometry:
     def area(self) -> float:
         raise NotImplementedError
 
-    def centroid(self) -> Tuple[float, float]:
+    def centroid(self) -> tuple[float, float]:
         raise NotImplementedError
 
-    def inertia(self) -> Tuple[float, float]:
+    def inertia(self) -> tuple[float, float]:
         """Momenti d'inerzia baricentrici (Ix, Iy)."""
         raise NotImplementedError
 
-    def static_moment(self) -> Tuple[float, float]:
+    def static_moment(self) -> tuple[float, float]:
         """Momenti statici rispetto agli assi x=0 e y=0."""
         a = self.area()
         cx, cy = self.centroid()
@@ -44,10 +44,10 @@ class RectangularSection(SectionGeometry):
     def area(self) -> float:
         return self.width * self.height
 
-    def centroid(self) -> Tuple[float, float]:
+    def centroid(self) -> tuple[float, float]:
         return (self.x0 + self.width / 2.0, self.y0 + self.height / 2.0)
 
-    def inertia(self) -> Tuple[float, float]:
+    def inertia(self) -> tuple[float, float]:
         ix = self.width * self.height**3 / 12.0
         iy = self.height * self.width**3 / 12.0
         return ix, iy
@@ -63,11 +63,11 @@ class CircularSection(SectionGeometry):
         r = self.diameter / 2.0
         return pi * r * r
 
-    def centroid(self) -> Tuple[float, float]:
+    def centroid(self) -> tuple[float, float]:
         r = self.diameter / 2.0
         return (self.x0 + r, self.y0 + r)
 
-    def inertia(self) -> Tuple[float, float]:
+    def inertia(self) -> tuple[float, float]:
         r = self.diameter / 2.0
         i = pi * r**4 / 4.0
         return i, i
@@ -84,26 +84,26 @@ class _SignedRectangle:
     def area(self) -> float:
         return self.sign * self.width * self.height
 
-    def centroid(self) -> Tuple[float, float]:
+    def centroid(self) -> tuple[float, float]:
         return (self.x + self.width / 2.0, self.y + self.height / 2.0)
 
-    def inertia(self) -> Tuple[float, float]:
+    def inertia(self) -> tuple[float, float]:
         ix = self.width * self.height**3 / 12.0
         iy = self.height * self.width**3 / 12.0
         return ix, iy
 
 
 class CompositeSection(SectionGeometry):
-    def __init__(self, rectangles: Optional[Iterable[_SignedRectangle]] = None):
+    def __init__(self, rectangles: Iterable[_SignedRectangle] | None = None):
         self._rectangles = list(rectangles) if rectangles else []
 
-    def _rects(self) -> List[_SignedRectangle]:
+    def _rects(self) -> list[_SignedRectangle]:
         return self._rectangles
 
     def area(self) -> float:
         return sum(r.area() for r in self._rects())
 
-    def centroid(self) -> Tuple[float, float]:
+    def centroid(self) -> tuple[float, float]:
         rects = self._rects()
         a = self.area()
         if a == 0:
@@ -116,7 +116,7 @@ class CompositeSection(SectionGeometry):
             sy += r.area() * cy
         return sx / a, sy / a
 
-    def inertia(self) -> Tuple[float, float]:
+    def inertia(self) -> tuple[float, float]:
         rects = self._rects()
         cx, cy = self.centroid()
         ix = 0.0
@@ -244,10 +244,10 @@ class RectangularHollowSection(SectionGeometry):
     def area(self) -> float:
         return self.outer_width * self.outer_height - self.inner_width * self.inner_height
 
-    def centroid(self) -> Tuple[float, float]:
+    def centroid(self) -> tuple[float, float]:
         return (self.x0 + self.outer_width / 2.0, self.y0 + self.outer_height / 2.0)
 
-    def inertia(self) -> Tuple[float, float]:
+    def inertia(self) -> tuple[float, float]:
         ix_outer = self.outer_width * self.outer_height**3 / 12.0
         iy_outer = self.outer_height * self.outer_width**3 / 12.0
         ix_inner = self.inner_width * self.inner_height**3 / 12.0
@@ -267,11 +267,11 @@ class CircularHollowSection(SectionGeometry):
         ri = self.inner_diameter / 2.0
         return pi * (r * r - ri * ri)
 
-    def centroid(self) -> Tuple[float, float]:
+    def centroid(self) -> tuple[float, float]:
         r = self.outer_diameter / 2.0
         return (self.x0 + r, self.y0 + r)
 
-    def inertia(self) -> Tuple[float, float]:
+    def inertia(self) -> tuple[float, float]:
         r = self.outer_diameter / 2.0
         ri = self.inner_diameter / 2.0
         i_outer = pi * r**4 / 4.0

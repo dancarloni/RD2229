@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class HistoricalMaterialsLoader:
     """Loader for historical materials configuration files."""
 
-    def __init__(self, config_dir: Optional[Path] = None):
+    def __init__(self, config_dir: Path | None = None):
         """Initialize the loader.
 
         Args:
@@ -32,12 +32,12 @@ class HistoricalMaterialsLoader:
             config_dir = project_root / "config" / "historical_materials"
 
         self.config_dir = Path(config_dir)
-        self._cache: Dict[str, Dict[str, Any]] = {}
+        self._cache: dict[str, dict[str, Any]] = {}
 
         if not self.config_dir.exists():
             logger.warning(f"Config directory not found: {self.config_dir}")
 
-    def load_material_source(self, source_name: str) -> Dict[str, Any]:
+    def load_material_source(self, source_name: str) -> dict[str, Any]:
         """Load configuration for a specific material source.
 
         Args:
@@ -64,7 +64,7 @@ class HistoricalMaterialsLoader:
             raise FileNotFoundError(f"Material source configuration not found for '{source_name}': {file_path}")
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 config = json.load(f)
 
             # Validate basic structure
@@ -84,7 +84,7 @@ class HistoricalMaterialsLoader:
             logger.error(f"Error loading {file_path}: {e}")
             raise
 
-    def get_concrete_classes(self, source_name: str) -> Dict[str, Dict[str, Any]]:
+    def get_concrete_classes(self, source_name: str) -> dict[str, dict[str, Any]]:
         """Get concrete classes for a specific material source.
 
         Args:
@@ -97,7 +97,7 @@ class HistoricalMaterialsLoader:
         config = self.load_material_source(source_name)
         return config.get("concrete_classes", {})
 
-    def get_concrete_properties(self, source_name: str, concrete_class: str) -> Optional[Dict[str, Any]]:
+    def get_concrete_properties(self, source_name: str, concrete_class: str) -> dict[str, Any] | None:
         """Get properties for a specific concrete class.
 
         Args:
@@ -111,7 +111,7 @@ class HistoricalMaterialsLoader:
         classes = self.get_concrete_classes(source_name)
         return classes.get(concrete_class)
 
-    def get_steel_types(self, source_name: str) -> Dict[str, Dict[str, Any]]:
+    def get_steel_types(self, source_name: str) -> dict[str, dict[str, Any]]:
         """Get steel types for a specific material source.
 
         Args:
@@ -124,7 +124,7 @@ class HistoricalMaterialsLoader:
         config = self.load_material_source(source_name)
         return config.get("steel_types", {})
 
-    def get_steel_properties(self, source_name: str, steel_type: str) -> Optional[Dict[str, Any]]:
+    def get_steel_properties(self, source_name: str, steel_type: str) -> dict[str, Any] | None:
         """Get properties for a specific steel type.
 
         Args:
@@ -138,7 +138,7 @@ class HistoricalMaterialsLoader:
         types = self.get_steel_types(source_name)
         return types.get(steel_type)
 
-    def get_cement_types(self, source_name: str) -> Dict[str, Dict[str, Any]]:
+    def get_cement_types(self, source_name: str) -> dict[str, dict[str, Any]]:
         """Get cement types for a specific material source.
 
         Args:
@@ -151,7 +151,7 @@ class HistoricalMaterialsLoader:
         config = self.load_material_source(source_name)
         return config.get("cement_types", {})
 
-    def get_calculation_formulas(self, source_name: str) -> Dict[str, Any]:
+    def get_calculation_formulas(self, source_name: str) -> dict[str, Any]:
         """Get calculation formulas for a specific material source.
 
         Args:
@@ -164,7 +164,7 @@ class HistoricalMaterialsLoader:
         config = self.load_material_source(source_name)
         return config.get("calculation_formulas", {})
 
-    def get_conversion_factors(self, source_name: str) -> Dict[str, float]:
+    def get_conversion_factors(self, source_name: str) -> dict[str, float]:
         """Get unit conversion factors for a specific material source.
 
         Args:
@@ -200,7 +200,7 @@ class HistoricalMaterialsLoader:
 
 
 # Global instance for convenience
-_default_loader: Optional[HistoricalMaterialsLoader] = None
+_default_loader: HistoricalMaterialsLoader | None = None
 
 
 def get_default_loader() -> HistoricalMaterialsLoader:
@@ -212,27 +212,27 @@ def get_default_loader() -> HistoricalMaterialsLoader:
 
 
 # Convenience functions using the default loader
-def load_material_source(source_name: str) -> Dict[str, Any]:
+def load_material_source(source_name: str) -> dict[str, Any]:
     """Load material source configuration using the default loader."""
     return get_default_loader().load_material_source(source_name)
 
 
-def get_concrete_classes(source_name: str) -> Dict[str, Dict[str, Any]]:
+def get_concrete_classes(source_name: str) -> dict[str, dict[str, Any]]:
     """Get concrete classes for a source using the default loader."""
     return get_default_loader().get_concrete_classes(source_name)
 
 
-def get_concrete_properties(source_name: str, concrete_class: str) -> Optional[Dict[str, Any]]:
+def get_concrete_properties(source_name: str, concrete_class: str) -> dict[str, Any] | None:
     """Get concrete properties using the default loader."""
     return get_default_loader().get_concrete_properties(source_name, concrete_class)
 
 
-def get_steel_types(source_name: str) -> Dict[str, Dict[str, Any]]:
+def get_steel_types(source_name: str) -> dict[str, dict[str, Any]]:
     """Get steel types for a source using the default loader."""
     return get_default_loader().get_steel_types(source_name)
 
 
-def get_steel_properties(source_name: str, steel_type: str) -> Optional[Dict[str, Any]]:
+def get_steel_properties(source_name: str, steel_type: str) -> dict[str, Any] | None:
     """Get steel properties using the default loader."""
     return get_default_loader().get_steel_properties(source_name, steel_type)
 

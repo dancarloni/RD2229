@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 
 from .stress import StressResult
 
@@ -21,7 +20,7 @@ class AllowableCheckResult:
     check_concrete: bool
     check_steel: bool
     check_mean: bool
-    messages: List[str]
+    messages: list[str]
 
 
 def check_allowable_stresses_ta(stresses: StressResult, limits: AllowableStresses) -> AllowableCheckResult:

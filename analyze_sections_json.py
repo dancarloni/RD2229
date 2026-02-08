@@ -22,7 +22,7 @@ def analyze_json_file(json_file: str = "sections.json") -> None:
         return
 
     try:
-        with open(json_file, "r", encoding="utf-8") as f:
+        with open(json_file, encoding="utf-8") as f:
             data = json.load(f)
 
         print(f"\n✅ File caricato: {os.path.abspath(json_file)}")

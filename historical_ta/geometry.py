@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import pi
-from typing import List, Optional, Tuple
 
 # This module corresponds to VB routines: DatiSezioneCA, CalcoloAreaMomStaticiMomInerziaSezReagente,
 # SezioneParzializzata (support functions) and CoordBaricentriTondini.
 # The functions here are pure and operate on provided data structures (no Excel interaction).
 
-Point = Tuple[float, float]  # (y, z)
-Bar = Tuple[float, float, float]  # (y, z, diameter)
+Point = tuple[float, float]  # (y, z)
+Bar = tuple[float, float, float]  # (y, z, diameter)
 
 
 @dataclass
@@ -24,8 +23,8 @@ class SectionGeometry:
     """
 
     # polygons: list of polygon rings (outer followed by holes if any); each polygon is list of (y,z)
-    polygons: List[List[Point]]
-    bars: List[Bar]
+    polygons: list[list[Point]]
+    bars: list[Bar]
     n_homog: float = 1.0  # n = Es/Ec (homogenization coefficient)
 
 
@@ -39,9 +38,9 @@ class SectionProperties:
     Iz: float
     Iyz: float
     # internal raw values for transparency
-    A_contrib: Optional[float] = None
-    Sy: Optional[float] = None
-    Sz: Optional[float] = None
+    A_contrib: float | None = None
+    Sy: float | None = None
+    Sz: float | None = None
 
     """Units:
       - area_concrete, area_equivalent: [cm^2]
@@ -50,7 +49,7 @@ class SectionProperties:
     """
 
 
-def _polygon_area_centroid_inertia(polygon: List[Point]):
+def _polygon_area_centroid_inertia(polygon: list[Point]):
     """Compute area, centroid (y,z) and second moments for a single polygon ring about origin.
 
     Uses standard polygon formulas. Returns (A, y_c, z_c, Iy, Iz, Iyz) where Iy is integral y^2 dA etc.

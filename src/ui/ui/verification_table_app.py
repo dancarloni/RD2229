@@ -2,17 +2,20 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
+from collections.abc import Callable, Iterable
 from tkinter import ttk
-from typing import Callable, Dict, Iterable, List, Optional, Tuple
+from typing import Any
+
+# pylint: disable=too-many-lines,line-too-long,no-else-return,too-many-return-statements
 
 from app.domain.models import VerificationInput
 from src.domain.domain.models import VerificationOutput  # type: ignore[import]
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-ColumnDef = Tuple[str, str, int, str]
+ColumnDef = tuple[str, str, int, str]
 
-COLUMNS: List[ColumnDef] = [
+COLUMNS: list[ColumnDef] = [
     ("element", "Elemento", 160, "w"),
     ("section", "Sezione", 170, "w"),
     ("verif_method", "Metodo verifica", 120, "center"),
@@ -39,29 +42,9 @@ COLUMNS: List[ColumnDef] = [
 # Note: Column "As" maps to VerificationInput.As_sup and "As_p" to VerificationInput.As_inf
 
 try:
-    from tools.materials_manager import list_materials
+    from tools.materials_manager import list_materials as LIST_MATERIALS
 except Exception:  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
-    list_materials = None
-
-try:
-    from sections_app.services.repository import SectionRepository
-except Exception:  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
-    SectionRepository = None  # type: ignore
-
-try:
-    from core_models.materials import MaterialRepository
-except Exception:  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
-    MaterialRepository = None  # type: ignore
-
-try:
-    from verification_project import VerificationProject
-except Exception:  # pylint: disable=broad-exception-caught
-    VerificationProject = None
-
-try:
-    from verification_items_repository import VerificationItemsRepository
-except Exception:  # pylint: disable=broad-exception-caught
-    VerificationItemsRepository = None  # type: ignore
+    LIST_MATERIALS = None
 
 
 class VerificationTableApp(tk.Frame):
@@ -70,11 +53,11 @@ class VerificationTableApp(tk.Frame):
     def __init__(
         self,
         master: tk.Tk,
-        section_repository: Optional[SectionRepository] = None,
-        section_names: Optional[Iterable[str]] = None,
-        material_repository: Optional[MaterialRepository] = None,
-        material_names: Optional[Iterable[str]] = None,
-        verification_items_repository: Optional[VerificationItemsRepository] = None,
+        section_repository: Any = None,
+        section_names: Iterable[str] | None = None,
+        material_repository: Any = None,
+        material_names: Iterable[str] | None = None,
+        verification_items_repository: Any = None,
         initial_rows: int = 1,
         *,
         search_limit: int = 200,
@@ -84,16 +67,22 @@ class VerificationTableApp(tk.Frame):
         self.master = master
         self.pack(fill="both", expand=True)
 
-        self.columns: List[str] = [c[0] for c in COLUMNS]
+        self.columns: list[str] = [c[0] for c in COLUMNS]
         self._last_col: str = self.columns[0]
 
         self.section_repository = section_repository
         self.material_repository = material_repository
         # Project model to save/load .jsonp projects
-        self.project: Optional["VerificationProject"] = None
-        if VerificationProject is not None:
-            self.project = VerificationProject()
-            self.project.new_project()
+        self.project: object | None = None
+        try:
+            # Try to import and create project
+            from src.domain.domain.models import VerificationProject  # type: ignore[import]
+            if VerificationProject is not None:
+                self.project = VerificationProject()
+                if hasattr(self.project, 'new_project'):
+                    self.project.new_project()  # type: ignore
+        except ImportError:
+            pass
         # Optional external repository that stores VerificationItem objects
         self.verification_items_repository = verification_items_repository
         self.initial_rows = int(initial_rows)
@@ -104,37 +93,37 @@ class VerificationTableApp(tk.Frame):
         self.search_limit = int(search_limit)
         self.display_limit = int(display_limit)
 
-        self.section_names: List[str] = self._resolve_section_names(section_repository, section_names)
-        self.material_names: List[str] | None = self._resolve_material_names(material_names)
+        self.section_names: list[str] = self._resolve_section_names(section_repository, section_names)
+        self.material_names: list[str] | None = self._resolve_material_names(material_names)
 
-        self.suggestions_map: Dict[str, object] = {
+        self.suggestions_map: dict[str, object] = {
             "section": (lambda q: self._search_sections(q)),
             "mat_concrete": (lambda q: self._search_materials(q, type_filter="concrete")),
             "mat_steel": (lambda q: self._search_materials(q, type_filter="steel")),
             "stirrups_mat": (lambda q: self._search_materials(q, type_filter="steel")),
         }
 
-        self.edit_entry: Optional[ttk.Entry] = None
-        self.edit_item: Optional[str] = None
-        self.edit_column: Optional[str] = None
+        self.edit_entry: ttk.Entry | None = None
+        self.edit_item: str | None = None
+        self.edit_column: str | None = None
         # Suggestion box helper
-        self._suggestion_box = None  # type: Optional["SuggestionBox"]
+        self._suggestion_box: Any = None
         # Deprecated rebar attributes retained for backward compatibility.
         # Prefer `app.ui.rebar_calculator` for new code.
-        self._rebar_window: Optional[tk.Toplevel] = None
-        self._rebar_vars: Dict[int, tk.StringVar] = {}
-        self._rebar_entries: List[tk.Entry] = []
+        self._rebar_window: tk.Toplevel | None = None
+        self._rebar_vars: dict[int, tk.StringVar] = {}
+        self._rebar_entries: list[tk.Entry] = []
         self._rebar_total_var = tk.StringVar(value="0.00")
-        self._rebar_target_column: Optional[str] = None
+        self._rebar_target_column: str | None = None
         # Flag to avoid committing the entry when the rebar calculator is open
         self._in_rebar_calculator: bool = False
 
         # Editor state helpers
-        self._last_editor_value: Optional[str] = None
+        self._last_editor_value: str | None = None
         self._force_show_all_on_empty: bool = False
 
-        self.current_item_id: Optional[str] = None
-        self.current_column_index: Optional[int] = None
+        self.current_item_id: str | None = None
+        self.current_column_index: int | None = None
 
         self._build_ui()
         # Create a background executor for long-running computations
@@ -164,7 +153,7 @@ class VerificationTableApp(tk.Frame):
 
         self._suggestion_box = SuggestionBox(self, on_select=on_select)
 
-    def _show_suggestions(self, items: List[str], bbox: Tuple[int, int, int, int]) -> None:
+    def _show_suggestions(self, items: list[str], bbox: tuple[int, int, int, int]) -> None:
         """Show suggestions list positioned over the cell bbox."""
         if not items:
             self._hide_suggestions()
@@ -211,7 +200,7 @@ class VerificationTableApp(tk.Frame):
 
     # --- Core data mapping and row helpers ---
     def table_row_to_model(self, row_index: int) -> VerificationInput:
-        items: List[str] = list(self.tree.get_children())
+        items: list[str] = list(self.tree.get_children())
         if row_index < 0 or row_index >= len(items):
             raise IndexError("row_index out of range")
         item: str = items[row_index]
@@ -253,7 +242,7 @@ class VerificationTableApp(tk.Frame):
         )
 
     def update_row_from_model(self, row_index: int, model: VerificationInput) -> None:
-        items: List[str] = list(self.tree.get_children())
+        items: list[str] = list(self.tree.get_children())
         if row_index < 0 or row_index >= len(items):
             raise IndexError("row_index out of range")
         item: str = items[row_index]
@@ -328,7 +317,7 @@ class VerificationTableApp(tk.Frame):
 
         for key, label, width, anchor in COLUMNS:
             self.tree.heading(key, text=label)
-            self.tree.column(key, width=width, minwidth=width, anchor=anchor, stretch=False)
+            self.tree.column(key, width=width, minwidth=width, anchor=anchor, stretch=False)  # type: ignore
 
         self.tree.bind("<ButtonRelease-1>", self._on_tree_click)
         self.tree.bind("<Double-1>", self._on_tree_double_click)
@@ -353,7 +342,7 @@ class VerificationTableApp(tk.Frame):
 
         _export(path, self.get_rows(), include_header=include_header)
 
-    def import_csv(self, path: str, *, clear: bool = True) -> Tuple[int, int, List[str]]:
+    def import_csv(self, path: str, *, clear: bool = True) -> tuple[int, int, list[str]]:
         from app.ui.csv_io import import_csv as _import
 
         models, skipped, errors = _import(path)
@@ -367,8 +356,8 @@ class VerificationTableApp(tk.Frame):
         self,
         col: str,
         value: str,
-        bbox: Tuple[int, int, int, int],
-        initial_text: Optional[str] = None,
+        bbox: tuple[int, int, int, int],
+        initial_text: str | None = None,
     ) -> ttk.Entry | ttk.Combobox:
         """Crea e ritorna un widget editor posizionato sopra la cella indicata.
         Usa `ttk.Combobox` per colonne materiali se `self.material_names` è disponibile,
@@ -417,6 +406,7 @@ class VerificationTableApp(tk.Frame):
                 editor.set = _set_and_record  # type: ignore
             except Exception:
                 pass
+            return editor
         else:
             editor = ttk.Entry(self.tree)
             self._setup_and_bind_editor(editor, x, y, width, height, value, initial_text)
@@ -430,14 +420,14 @@ class VerificationTableApp(tk.Frame):
         width: int,
         height: int,
         value: str,
-        initial_text: Optional[str] = None,
+        initial_text: str | None = None,
     ) -> None:
         """Place the editor widget, populate it with value/initial_text, select and bind common events."""
         editor.place(x=x, y=y, width=width, height=height)
         # Use .set for Combobox, .insert for Entry
         try:
             if hasattr(editor, "set"):
-                editor.set(value or "")
+                editor.set(value or "")  # type: ignore
             else:
                 editor.insert(0, value)
         except Exception:
@@ -479,12 +469,12 @@ class VerificationTableApp(tk.Frame):
 
     def _compute_target_cell(
         self, current_item: str, current_col: str, delta_col: int, delta_row: int
-    ) -> Tuple[str, str, bool]:
+    ) -> tuple[str, str, bool]:
         """Calcola l'item_id e la chiave di colonna target a partire dalla cella corrente
         e dagli spostamenti `delta_col` e `delta_row`.
         Restituisce (target_item_id, target_col_key, created_new_row_flag).
         """
-        items: List[str] = list(self.tree.get_children())
+        items: list[str] = list(self.tree.get_children())
         if not items:
             return current_item, current_col, False
         if current_item not in items:
@@ -507,7 +497,7 @@ class VerificationTableApp(tk.Frame):
         created = False
         if new_row >= len(items):
             new_item: str = self.add_row_from_previous(current_item)
-            items: List[str] = list(self.tree.get_children())
+            items: list[str] = list(self.tree.get_children())
             target_item: str = new_item
             created = True
         else:
@@ -520,7 +510,7 @@ class VerificationTableApp(tk.Frame):
             # o scende con Invio/freccia giù, ma non sovrascrive righe non vuote
             # e non interviene quando si scende verso l'alto (shift+tab o freccia su).
             if new_row > row_idx and self._row_is_empty(target_item):
-                prev_values: List[str] = list(self.tree.item(current_item, "values"))
+                prev_values: list[str] = list(self.tree.item(current_item, "values"))
                 self.tree.item(target_item, values=prev_values)
 
         target_col: str = self.columns[new_col]
@@ -528,21 +518,21 @@ class VerificationTableApp(tk.Frame):
 
     # --- API pubbliche -------------------------------------------------
     def create_editor_for_cell(
-        self, item: str, col: str, initial_text: Optional[str] = None
+        self, item: str, col: str, initial_text: str | None = None
     ) -> ttk.Entry | ttk.Combobox:
         """API pubblica: crea un editor (Entry o Combobox) posizionato sopra la cella
         `item`/`col` e lo restituisce. Solleva ValueError se la cella non è visibile
         (bbox vuoto).
         """
-        bbox: Tuple[int] | str = self.tree.bbox(item, col)
+        bbox = self.tree.bbox(item, col)
         if not bbox:
             raise ValueError(f"Impossibile creare editor: bbox vuoto per item={item}, col={col}")
         value = self.tree.set(item, col)
-        return self._create_editor_for_cell(col, value, bbox, initial_text=initial_text)
+        return self._create_editor_for_cell(col, value, bbox, initial_text=initial_text)  # type: ignore
 
     def compute_target_cell(
         self, current_item: str, current_col: str, delta_col: int, delta_row: int
-    ) -> Tuple[str, str, bool]:
+    ) -> tuple[str, str, bool]:
         """Public API: wrapper for `_compute_target_cell`.
 
         Computes the target cell for the given row/column delta and returns
@@ -661,7 +651,7 @@ class VerificationTableApp(tk.Frame):
         self._start_edit(item, last_col)
         return "break"
 
-    def _column_id_to_key(self, col_id: str) -> Optional[str]:
+    def _column_id_to_key(self, col_id: str) -> str | None:
         if not col_id or not col_id.startswith("#"):
             return None
         try:
@@ -672,14 +662,14 @@ class VerificationTableApp(tk.Frame):
             return self.columns[idx]
         return None
 
-    def _start_edit(self, item: str, col: str, initial_text: Optional[str] = None) -> None:
+    def _start_edit(self, item: str, col: str, initial_text: str | None = None) -> None:
         self._hide_suggestions()
         if self.edit_entry is not None:
             self._commit_edit()
-        bbox: Tuple[int] | str = self.tree.bbox(item, col)
+        bbox = self.tree.bbox(item, col)
         if not bbox:
             return
-        x, y, width, height = bbox
+        x, y, width, height = bbox  # type: ignore
         value = self.tree.set(item, col)
 
         self.edit_item = item
@@ -709,7 +699,7 @@ class VerificationTableApp(tk.Frame):
             return
         # Prefer the last recorded editor value if available (helps with
         # programmatic .set() on Combobox which may not trigger a key event)
-        value: logging.Any | str = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
+        value: Any | str = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
         # Record debug info via logger (no direct stdout prints)
         try:
             logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
@@ -816,8 +806,8 @@ class VerificationTableApp(tk.Frame):
         self._start_edit(target_item, target_col)
         return "break"
 
-    def _next_cell(self, item: str, col: str, delta_col: int, delta_row: int) -> Tuple[str, str]:
-        items: List[str] = list(self.tree.get_children())
+    def _next_cell(self, item: str, col: str, delta_col: int, delta_row: int) -> tuple[str, str]:
+        items: list[str] = list(self.tree.get_children())
         if not items:
             return item, col
         row_idx: int = items.index(item)
@@ -847,10 +837,10 @@ class VerificationTableApp(tk.Frame):
     def _on_entry_keyrelease(self, _event: tk.Event) -> None:
         self._update_suggestions()
 
-    def _on_entry_keypress(self, event: tk.Event) -> Optional[str]:
+    def _on_entry_keypress(self, event: tk.Event) -> str | None:
         # Support both event.char and event.keysym to make programmatic key
         # generation in tests more reliable across platforms.
-        key: str | logging.Any = (getattr(event, "char", "") or getattr(event, "keysym", "")).lower()
+        key: str | Any = (getattr(event, "char", "") or getattr(event, "keysym", "")).lower()
         if self.edit_column in {"As", "As_p"} and key == "c":
             self._open_rebar_calculator()
             return "break"
@@ -902,20 +892,20 @@ class VerificationTableApp(tk.Frame):
         show_all_on_empty: set[str] = {"section", "mat_concrete", "mat_steel", "stirrups_mat"}
         if query == "":
             # Only show full list on empty query when editing was explicitly opened
-            show_all_flag: logging.Any | bool = getattr(self, "_force_show_all_on_empty", False) and (
+            show_all_flag: Any | bool = getattr(self, "_force_show_all_on_empty", False) and (
                 self.edit_column in show_all_on_empty
             )
             # reset flag regardless
             self._force_show_all_on_empty = False
             if not show_all_flag:
                 return []
-            if callable(source):
-                return source("")
-            return list(source)
+            if callable(source):  # type: ignore
+                return source("")  # type: ignore
+            return list(source)  # type: ignore
         # Non-empty: query the source
-        if callable(source):
-            return source(query)
-        return [s for s in source if query_lower in s.lower()]
+        if callable(source):  # type: ignore
+            return source(query)  # type: ignore
+        return [s for s in source if query_lower in s.lower()]  # type: ignore
 
     def _commit_if_focus_outside(self) -> None:
         if self.edit_entry is None:
@@ -943,9 +933,9 @@ class VerificationTableApp(tk.Frame):
     def _get_rows_from_tree(self):
         """Recreate VerificationInput models from tree content."""
         rows = []
-        items: List[str] = list(self.tree.get_children())
+        items: list[str] = list(self.tree.get_children())
         for item in items:
-            vals: List[str] = list(self.tree.item(item, "values"))
+            vals: list[str] = list(self.tree.item(item, "values"))
             kwargs = {}
             for col_key, value in zip(self.columns, vals):
                 attr: str = {
@@ -1003,9 +993,9 @@ class VerificationTableApp(tk.Frame):
                 self.tree.set(item_id, "notes", "ERRORE: engine non disponibile")
                 return
             # Prefer using result.esito if available (compatibility with VerificationOutput)
-            es: logging.Any | str = getattr(result, "esito", None) or getattr(result, "esito", "")
-            sigma_c_max: logging.Any | None = getattr(result, "sigma_c_max", None)
-            sigma_c_min: logging.Any | None = getattr(result, "sigma_c_min", None)
+            es: Any | str = getattr(result, "esito", None) or getattr(result, "esito", "")
+            sigma_c_max: Any | None = getattr(result, "sigma_c_max", None)
+            sigma_c_min: Any | None = getattr(result, "sigma_c_min", None)
             note: str = f"{es}"
             if sigma_c_max is not None and sigma_c_min is not None:
                 note: str = f"{es} σc_max={sigma_c_max:.3f} σc_min={sigma_c_min:.3f}"
@@ -1047,7 +1037,7 @@ class VerificationTableApp(tk.Frame):
 
         item_id, row = idx_item_row
         try:
-            res: VerificationOutput = compute_verification_result(
+            res: VerificationOutput | None = compute_verification_result(
                 row, self.section_repository, self.material_repository
             )
         except Exception:
@@ -1150,36 +1140,54 @@ class VerificationTableApp(tk.Frame):
     # --- Missing helpers implemented to complete functionality ---
     def _resolve_section_names(
         self,
-        section_repository: Optional[object],
-        section_names: Optional[Iterable[str]],
-    ) -> List[str]:
+        section_repository: object | None,
+        section_names: Iterable[str] | None,
+    ) -> list[str]:
         if section_names:
             return list(section_names)
         if section_repository is None:
             return []
         try:
+            # Use getattr to call repository methods to avoid static type check
+            # issues when `section_repository` is typed as `object`.
             if hasattr(section_repository, "get_all_sections"):
-                return [
-                    getattr(s, "section_id", getattr(s, "id", str(s)))
-                    for s in section_repository.get_all_sections()
-                ]
+                try:
+                    getter = getattr(section_repository, "get_all_sections")
+                    return [
+                        getattr(s, "section_id", getattr(s, "id", str(s)))
+                        for s in getter()
+                    ]
+                except Exception:
+                    logger.exception("Errore chiamando get_all_sections")
+                    return []
             if hasattr(section_repository, "get_all"):
-                return [getattr(s, "section_id", getattr(s, "id", str(s))) for s in section_repository.get_all()]
-            # Fallback: try to iterate over repository
-            try:
-                return [str(s) for s in section_repository]
-            except Exception:
-                return []
+                try:
+                    getter = getattr(section_repository, "get_all")
+                    return [getattr(s, "section_id", getattr(s, "id", str(s))) for s in getter()]
+                except Exception:
+                    logger.exception("Errore chiamando get_all")
+                    return []
+            # Fallback: try to iterate over repository if it is iterable
+            if isinstance(section_repository, Iterable):
+                try:
+                    return [str(s) for s in section_repository]
+                except Exception:
+                    return []
+            return []
         except Exception:
             logger.exception("Errore risoluzione nomi sezioni")
             return []
 
-    def _resolve_material_names(self, material_names: Optional[Iterable[str]]) -> Optional[List[str]]:
+    def _resolve_material_names(self, material_names: Iterable[str] | None) -> list[str] | None:
         if material_names:
             return list(material_names)
         try:
-            if list_materials is not None:
-                return list_materials()
+            if LIST_MATERIALS is not None:
+                materials = LIST_MATERIALS()  # type: ignore
+                # Convert dicts to strings if needed
+                if materials and isinstance(materials[0], dict):
+                    return [str(m.get('name', m.get('id', str(m)))) for m in materials]  # type: ignore
+                return materials  # type: ignore
             if self.material_repository is not None and hasattr(self.material_repository, "get_all"):
                 mats = self.material_repository.get_all()
                 return [getattr(m, "name", getattr(m, "id", str(m))) for m in mats]
@@ -1187,20 +1195,20 @@ class VerificationTableApp(tk.Frame):
             logger.exception("Errore risoluzione nomi materiali")
         return None
 
-    def _search_sections(self, query: str) -> List[str]:
+    def _search_sections(self, query: str) -> list[str]:
         q: str = (query or "").strip().lower()
-        names: List[str] = self.section_names or []
+        names: list[str] = self.section_names or []
         if not q:
             return names[: self.search_limit]
         return [n for n in names if q in n.lower()][: self.search_limit]
 
-    def _search_materials(self, query: str, type_filter: Optional[str] = None) -> List[str]:
+    def _search_materials(self, query: str, type_filter: str | None = None) -> list[str]:
         q: str = (query or "").strip().lower()
-        names: List[str] = self.material_names or []
+        names: list[str] = self.material_names or []
         if not q:
-            results: List[str] = names[: self.search_limit]
+            results: list[str] = names[: self.search_limit]
         else:
-            results: List[str] = [n for n in names if q in n.lower()][: self.search_limit]
+            results: list[str] = [n for n in names if q in n.lower()][: self.search_limit]
         # Optionally filter by a crude type filter if requested (e.g., "steel", "concrete")
         if type_filter:
             tf: str = type_filter.lower()
@@ -1211,7 +1219,7 @@ class VerificationTableApp(tk.Frame):
         for _ in range(int(n)):
             self.tree.insert("", "end", values=["" for _ in self.columns])
 
-    def _add_row(self, after_item: Optional[str] = None) -> str:
+    def _add_row(self, after_item: str | None = None) -> str:
         if after_item is None:
             return self.tree.insert("", "end", values=["" for _ in self.columns])
         try:
@@ -1219,17 +1227,17 @@ class VerificationTableApp(tk.Frame):
         except ValueError:
             return self._add_row(None)
         # insert after idx
-        children: List[str] = list(self.tree.get_children())
+        children: list[str] = list(self.tree.get_children())
         if idx + 1 >= len(children):
             return self.tree.insert("", "end", values=["" for _ in self.columns])
         # Create a new item and move it to desired position
         return self.tree.insert("", idx + 1, values=["" for _ in self.columns])
 
     def add_row_from_previous(self, previous_item_id: str) -> str:
-        vals: List[str] = list(self.tree.item(previous_item_id, "values"))
+        vals: list[str] = list(self.tree.item(previous_item_id, "values"))
         return self.tree.insert("", "end", values=vals)
 
-    def get_rows(self) -> List[VerificationInput]:
+    def get_rows(self) -> list[VerificationInput]:
         _, rows = self._get_rows_from_tree()
         return rows
 
@@ -1312,7 +1320,7 @@ class VerificationTableApp(tk.Frame):
             self._clear_status(2000)
             return
         try:
-            rows: List[VerificationInput] = self.get_rows()
+            rows: list[VerificationInput] = self.get_rows()
             for r in rows:
                 try:
                     self.verification_items_repository.save(r)
@@ -1333,9 +1341,9 @@ class VerificationTableWindow(tk.Toplevel):
     def __init__(
         self,
         master: tk.Misc,
-        section_repository: Optional[SectionRepository] = None,
-        material_repository: Optional[MaterialRepository] = None,
-        verification_items_repository: Optional[VerificationItemsRepository] = None,
+        section_repository: object | None = None,
+        material_repository: object | None = None,
+        verification_items_repository: object | None = None,
     ) -> None:
         super().__init__(master)
         self.section_repository = section_repository
@@ -1346,7 +1354,7 @@ class VerificationTableWindow(tk.Toplevel):
         self.geometry("1400x520")
 
         self.app = VerificationTableApp(
-            self,
+            self,  # type: ignore
             section_repository=section_repository,
             material_repository=material_repository,
             verification_items_repository=verification_items_repository,

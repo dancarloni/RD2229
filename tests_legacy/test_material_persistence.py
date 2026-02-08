@@ -34,7 +34,7 @@ def test_material_persistence_basic():
         print(f"  ✓ File JSON creato: {json_file}")
 
         # Verifica contenuto JSON
-        with open(json_file, "r", encoding="utf-8") as f:
+        with open(json_file, encoding="utf-8") as f:
             data = json.load(f)
         assert len(data) == 3, f"JSON contiene {len(data)} materiali, attesi 3"
         print("  ✓ JSON contiene 3 materiali")

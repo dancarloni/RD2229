@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Tuple
 
 
 @lru_cache(maxsize=1024)
@@ -9,7 +8,7 @@ def section_inertia(
     width: float,
     height: float,
     thickness: float = 0.0,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Compute area and second moment of inertia for a rectangular section.
 
     Returns:

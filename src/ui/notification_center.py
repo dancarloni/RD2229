@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from sections_app.services.event_bus import NOTIFICATION, EventBus
 from sections_app.services.notification_settings import load_notification_settings
@@ -23,13 +23,13 @@ class NotificationCenter:
     and does not try to create windows.
     """
 
-    def __init__(self, master: Optional[tk.Misc] = None):
+    def __init__(self, master: tk.Misc | None = None):
         self.master = master
         self.headless = master is None
-        self.history: List[Dict[str, Any]] = []
+        self.history: list[dict[str, Any]] = []
         self._subscribed = False
-        self._win: Optional[tk.Toplevel] = None
-        self._listbox: Optional[tk.Listbox] = None
+        self._win: tk.Toplevel | None = None
+        self._listbox: tk.Listbox | None = None
         self._load_settings()
         self._subscribe()
         if not self.headless:
@@ -64,7 +64,7 @@ class NotificationCenter:
         self._listbox = tk.Listbox(frame)
         self._listbox.pack(fill="both", expand=True)
 
-    def _should_display(self, payload: Dict[str, Any]) -> bool:
+    def _should_display(self, payload: dict[str, Any]) -> bool:
         lvl = payload.get("level", "info")
         level_setting = self.settings.get("level", "errors_only")
         if level_setting == "errors_only":
@@ -73,7 +73,7 @@ class NotificationCenter:
             return lvl in ("warning", "error", "confirm")
         return True
 
-    def _on_notification(self, payload: Dict[str, Any]) -> None:
+    def _on_notification(self, payload: dict[str, Any]) -> None:
         try:
             # Refresh settings on each notification to pick up edits
             self._load_settings()
@@ -90,7 +90,7 @@ class NotificationCenter:
         except Exception:
             logger.exception("Error handling notification")
 
-    def _show_toast(self, payload: Dict[str, Any]) -> None:
+    def _show_toast(self, payload: dict[str, Any]) -> None:
         text = f"{payload.get('title','')}: {payload.get('message','')}"
         logger.info("Notification toast: %s", text)
         if self.headless:
@@ -107,7 +107,7 @@ class NotificationCenter:
         except Exception:
             logger.exception("Error showing toast")
 
-    def _handle_confirm(self, payload: Dict[str, Any]) -> None:
+    def _handle_confirm(self, payload: dict[str, Any]) -> None:
         # If headless, do not block: leave payload in history so tests can call respond
         if self.headless:
             return

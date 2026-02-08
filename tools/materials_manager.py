@@ -30,7 +30,6 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Dict, List, Optional
 
 from .concrete_strength import (
     CementType,
@@ -44,10 +43,10 @@ from .concrete_strength import (
 _DEFAULT_MATERIALS_PATH = os.path.join("data", "materials.json")
 
 # Cache for loaded materials to avoid repeated file reads
-_materials_cache: Dict[str, tuple[List[Dict], float]] = {}
+_materials_cache: dict[str, tuple[list[dict], float]] = {}
 
 
-def _resolve_materials_path(config: Optional[Dict] = None) -> str:
+def _resolve_materials_path(config: dict | None = None) -> str:
     if config is None:
         # try read config file if exists
         cfg_path = os.path.join(os.getcwd(), ".rd2229_config.yaml")
@@ -55,7 +54,7 @@ def _resolve_materials_path(config: Optional[Dict] = None) -> str:
             import yaml  # type: ignore
 
             if os.path.exists(cfg_path):
-                with open(cfg_path, "r", encoding="utf-8") as fh:
+                with open(cfg_path, encoding="utf-8") as fh:
                     cfg = yaml.safe_load(fh) or {}
                     return cfg.get("materials_file", _DEFAULT_MATERIALS_PATH)
         except Exception:
@@ -63,7 +62,7 @@ def _resolve_materials_path(config: Optional[Dict] = None) -> str:
     return _DEFAULT_MATERIALS_PATH
 
 
-def _map_cement_type(cement_key: Optional[str]) -> CementType:
+def _map_cement_type(cement_key: str | None) -> CementType:
     if cement_key == "aluminous":
         return CementType.ALUMINOUS
     if cement_key == "high":
@@ -73,11 +72,11 @@ def _map_cement_type(cement_key: Optional[str]) -> CementType:
     return CementType.NORMAL
 
 
-def _ensure_derived_fields(material: Dict) -> bool:
+def _ensure_derived_fields(material: dict) -> bool:
     """Populate derived fields on a concrete material. Returns True if updated."""
 
 
-def ensure_derived_fields(material: Dict) -> bool:
+def ensure_derived_fields(material: dict) -> bool:
     """Public wrapper for deriving material fields.
 
     This wraps the internal `_ensure_derived_fields` so external modules can
@@ -133,7 +132,7 @@ def ensure_derived_fields(material: Dict) -> bool:
     return dirty
 
 
-def load_materials(path: Optional[str] = None) -> List[Dict]:
+def load_materials(path: str | None = None) -> list[dict]:
     path = path or _resolve_materials_path()
     path = os.path.abspath(path)
     if not os.path.exists(path):
@@ -146,7 +145,7 @@ def load_materials(path: Optional[str] = None) -> List[Dict]:
         if mtime == cached_mtime:
             return cached_mats.copy()  # Return copy to avoid mutations
 
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         mats = json.load(fh)
     dirty_any = False
     for m in mats:
@@ -162,7 +161,7 @@ def load_materials(path: Optional[str] = None) -> List[Dict]:
     return mats
 
 
-def save_materials(materials: List[Dict], path: Optional[str] = None) -> None:
+def save_materials(materials: list[dict], path: str | None = None) -> None:
     path = path or _resolve_materials_path()
     path = os.path.abspath(path)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -173,11 +172,11 @@ def save_materials(materials: List[Dict], path: Optional[str] = None) -> None:
         del _materials_cache[path]
 
 
-def list_materials(path: Optional[str] = None) -> List[Dict]:
+def list_materials(path: str | None = None) -> list[dict]:
     return load_materials(path)
 
 
-def get_material(name: str, path: Optional[str] = None) -> Optional[Dict]:
+def get_material(name: str, path: str | None = None) -> dict | None:
     materials = load_materials(path)
     for m in materials:
         if m.get("name") == name:
@@ -185,7 +184,7 @@ def get_material(name: str, path: Optional[str] = None) -> Optional[Dict]:
     return None
 
 
-def add_material(material: Dict, path: Optional[str] = None) -> None:
+def add_material(material: dict, path: str | None = None) -> None:
     """Aggiunge un materiale. Se `σ_c` mancante e il tipo è `concrete`, lo calcola."""
     materials = load_materials(path)
     if any(m.get("name") == material.get("name") for m in materials):
@@ -238,7 +237,7 @@ def add_material(material: Dict, path: Optional[str] = None) -> None:
     save_materials(materials, path)
 
 
-def update_material(name: str, updates: Dict, path: Optional[str] = None) -> None:
+def update_material(name: str, updates: dict, path: str | None = None) -> None:
     materials = load_materials(path)
     for i, m in enumerate(materials):
         if m.get("name") == name:
@@ -284,7 +283,7 @@ def update_material(name: str, updates: Dict, path: Optional[str] = None) -> Non
     raise KeyError(f"Material with name '{name}' not found")
 
 
-def delete_material(name: str, path: Optional[str] = None) -> None:
+def delete_material(name: str, path: str | None = None) -> None:
     materials = load_materials(path)
     new = [m for m in materials if m.get("name") != name]
     if len(new) == len(materials):

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import List, Optional, Tuple
 
 from app.domain.models import VerificationInput  # type: ignore[import]
 from sections_app.services.notification import notify_error, notify_info
@@ -73,7 +72,7 @@ def _elem_dict_to_input(e: dict) -> VerificationInput:
         raise
 
 
-def load_project(app_obj, path: Optional[str]) -> Tuple[int, List[str]]:
+def load_project(app_obj, path: str | None) -> tuple[int, list[str]]:
     """Load project file (jsonp) and add elements to the app's table.
 
     Returns (imported_count, errors)
@@ -88,7 +87,7 @@ def load_project(app_obj, path: Optional[str]) -> Tuple[int, List[str]]:
             path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
             if not path:
                 return 0, []
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         imported = 0
         errors = []
@@ -116,7 +115,7 @@ def load_project(app_obj, path: Optional[str]) -> Tuple[int, List[str]]:
         return 0, [str(e)]
 
 
-def save_project(app_obj, path: Optional[str]) -> Tuple[bool, str]:
+def save_project(app_obj, path: str | None) -> tuple[bool, str]:
     """Save current app rows into project file. Returns (ok, path_or_error)."""
     if app_obj.project is None:
         notify_error("Salva progetto", "Modulo progetto non disponibile", source="verification_table")
@@ -166,7 +165,7 @@ def save_project(app_obj, path: Optional[str]) -> Tuple[bool, str]:
         return False, str(e)
 
 
-def add_list_elements(app_obj, path: Optional[str]) -> Tuple[int, List[str]]:
+def add_list_elements(app_obj, path: str | None) -> tuple[int, list[str]]:
     """Add a list of elements to the current project/table from a .jsonp file."""
     if app_obj.project is None:
         notify_error(
@@ -182,7 +181,7 @@ def add_list_elements(app_obj, path: Optional[str]) -> Tuple[int, List[str]]:
             path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
             if not path:
                 return 0, []
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         new_elems = 0
         errors = []

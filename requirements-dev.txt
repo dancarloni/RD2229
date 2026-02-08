@@ -12,3 +12,4 @@ flake8
 mypy>=1.19,<2
 black
 isort
+pip-tools

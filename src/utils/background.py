@@ -9,8 +9,9 @@ Tkinter `tk_root` using `tk_root.after(0, ...)` when available.
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import Any, Callable, Optional
+from typing import Any
 
 
 class BackgroundExecutor:
@@ -29,8 +30,8 @@ class BackgroundExecutor:
         self,
         fn: Callable[..., Any],
         *args: Any,
-        callback: Optional[Callable[[Any], None]] = None,
-        tk_root: Optional[Any] = None,
+        callback: Callable[[Any], None] | None = None,
+        tk_root: Any | None = None,
     ) -> Future[Any]:
         """Submit ``fn`` to the background thread pool.
 

@@ -11,24 +11,61 @@ license = {text = "MIT"}
 requires-python = ">=3.11"
 
 [tool.black]
-line-length = 120
+line-length = 100
+target-version = ["py311"]
+skip-string-normalization = false
 
 [tool.isort]
 profile = "black"
-line_length = 120
+line_length = 100
+combine_as_imports = true
 
 [tool.ruff]
+line-length = 100
 target-version = "py311"
-line-length = 120
-exclude = ["tests_legacy"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "D", "N", "R"]
-extend-ignore = ["N803","N806","N802","N999","N815","D401","D417","D105","D100","D101","D102","D103","D104","D107","D205"]
+# Core: F (pyflakes), E/W (pycodestyle), I (isort), N (naming), UP (pyupgrade)
+select = ["F", "E", "W", "I", "N", "UP"]
+# Evita conflitti con Black e preferenze comuni
+ignore = ["E203", "N803", "N806", "E501", "N815", "N802"]
+
+[tool.ruff.lint.per-file-ignores]
+# Test files: allow long lines and mixed-case test method names
+"tests*/**/*.py" = ["E501", "N802", "E402"]
+# __init__.py files: allow imports not at top (for re-exports)
+"*/__init__.py" = ["E402"]
+
+[tool.ruff.format]
+# Usi Black come formatter principale → lascia il formatter di Ruff disattivo (default)
 
 [tool.flake8]
-max-line-length = 120
+max-line-length = 100
 extend-ignore = ["E203", "W503"]
+exclude = [".venv", "build", "dist", ".git"]
+
+[tool.pylint.main]
+py-version = "3.11"
+# Evita rumore su pattern legacy e allineati al tuo file (broad-exception, protected-access ecc.)
+disable = [
+  "C0114", "C0115", "C0116",            # docstring mancanti per moduli/classi/funzioni
+  "R0903",                              # troppe poche public methods (data classes)
+  "R0801",                              # codice duplicato (utile ma spesso rumoroso)
+  "W1514",                              # open() senza encoding esplicito
+  "E0401",                              # import error (in CI lo intercettiamo con pytest)
+  "W0511",                              # TODO/FIXME
+  "W0718",                              # broad-exception-caught (necessario per UI robusta)
+  "W0212",                              # protected-access (necessario per test e UI patterns)
+  "W0108",                              # unnecessary-lambda (pattern comune in UI)
+  "C0415",                              # import-outside-toplevel (caricamento dinamico moduli)
+  "R0901",                              # too-many-ancestors (ereditarietà Tkinter)
+  "R0913", "R0917",                     # too-many-arguments/positional (metodi UI)
+  "R0914", "R0915",                     # too-many-locals/statements (metodi complessi UI)
+  "R0902"                               # too-many-instance-attributes (classi UI complesse)
+]
+max-line-length = 100
+jobs = 0
+load-plugins = []
 
 [tool.mypy]
 ignore_missing_imports = false
@@ -37,16 +74,52 @@ no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
+strict = true
+show_error_codes = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 
 [tool.bandit]
 skips = ["B101"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=src --cov-report=xml --maxfail=1 -q"
-testpaths = ["tests"]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --disable-warnings"
+testpaths = ["tests", "tests_legacy"]
+pythonpath = ["."]
+markers = [
+  "gui: tests che richiedono ambiente grafico (usare xvfb in CI)",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::PendingDeprecationWarning",
+]
 
-[tool.mutmut]
-packages = ["src/core_calculus","src/methods"]
+[tool.pip-tools]
+generate-hashes = true
+annotate-index = true
+
+[tool.pre-commit]
+repos = [
+    { repo = "https://github.com/pre-commit/pre-commit-hooks", rev = "v4.5.0", hooks = [
+        { id = "trailing-whitespace" },
+        { id = "end-of-file-fixer" },
+        { id = "check-yaml" },
+        { id = "check-added-large-files" },
+    ]},
+    { repo = "https://github.com/psf/black", rev = "23.12.1", hooks = [
+        { id = "black", args = ["--line-length", "100"] },
+    ]},
+    { repo = "https://github.com/pycqa/isort", rev = "5.13.2", hooks = [
+        { id = "isort", args = ["--profile", "black", "--line-length", "100"] },
+    ]},
+    { repo = "https://github.com/charliermarsh/ruff-pre-commit", rev = "v0.1.14", hooks = [
+        { id = "ruff", args = ["--fix", "--show-fixes"] },
+        { id = "ruff-format" },
+    ]},
+    { repo = "https://github.com/pre-commit/mirrors-mypy", rev = "v1.8.0", hooks = [
+        { id = "mypy", args = ["--config-file", "pyproject.toml"] },
+    ]},
+]
 
 [tool.setuptools.packages.find]
 include = ["src*","src.*"]

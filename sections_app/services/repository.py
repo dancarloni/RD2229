@@ -6,8 +6,8 @@ import logging
 import os
 import random
 import shutil
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
 
 from sections_app.models.sections import (
     CircularHollowSection,
@@ -47,7 +47,7 @@ class SectionRepository:
 
     DEFAULT_JSON_FILE = DEFAULT_JSON_FILE
 
-    def __init__(self, json_file: Optional[str] = None, auto_migrate: Optional[bool] = None) -> None:
+    def __init__(self, json_file: str | None = None, auto_migrate: bool | None = None) -> None:
         """Se `json_file` è None → usiamo il file canonico `DEFAULT_JSON_FILE` e
         abilitiamo la migrazione automatica da `sections.json` a `sec_repository/...jsons`
         (a meno che l'env var `RD2229_NO_AUTO_MIGRATE` sia attiva).
@@ -55,8 +55,8 @@ class SectionRepository:
         Se `json_file` è esplicito (es. 'sections.json') → lo rispettiamo e non
         eseguiamo migrazioni automatiche.
         """
-        self._sections: Dict[str, Section] = {}
-        self._keys: Dict[tuple, str] = {}
+        self._sections: dict[str, Section] = {}
+        self._keys: dict[tuple, str] = {}
 
         # Decidi se la migrazione automatica è abilitata (default: True)
         if auto_migrate is None:
@@ -91,7 +91,9 @@ class SectionRepository:
                                 data = json.load(f)
 
                             # Preferisci creare un canonical locale nella stessa cartella del legacy
-                            local_canonical = cand.parent / "sec_repository" / "sec_repository.jsons"
+                            local_canonical = (
+                                cand.parent / "sec_repository" / "sec_repository.jsons"
+                            )
                             if not local_canonical.parent.exists():
                                 local_canonical.parent.mkdir(parents=True, exist_ok=True)
 
@@ -100,11 +102,14 @@ class SectionRepository:
                                 with local_canonical.open("w", encoding="utf-8") as f:
                                     json.dump(data, f, indent=2, ensure_ascii=False)
 
-                            # Aggiorna file path attivo per questo repository in modo che punti al locale
+                            # Aggiorna file path attivo per questo repository
+                            # in modo che punti al locale
                             self._json_file = str(local_canonical)
                             self._file_path = local_canonical
 
-                            logger.info("Migrato legacy %s -> %s (backup: %s)", cand, local_canonical, bak)
+                            logger.info(
+                                "Migrato legacy %s -> %s (backup: %s)", cand, local_canonical, bak
+                            )
 
                             # Rimuovo la messagebox informativa
 
@@ -119,7 +124,9 @@ class SectionRepository:
                     )
 
         # Percorsi per backup
-        self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
+        self._backup_path = self._file_path.with_name(
+            f"{self._file_path.stem}_backup{self._file_path.suffix}"
+        )
 
         # Carica le sezioni dal file JSON se esiste
         self.load_from_file()
@@ -135,7 +142,8 @@ class SectionRepository:
                 and self._file_path.resolve() != Path(self.DEFAULT_JSON_FILE).resolve()
             ):
                 logger.warning(
-                    "File locale %s non ha prodotto sezioni valide; provo a caricare il canonical globale %s",
+                    "File locale %s non ha prodotto sezioni valide; "
+                    "provo a caricare il canonical globale %s",
                     self._file_path,
                     Path(self.DEFAULT_JSON_FILE),
                 )
@@ -177,7 +185,8 @@ class SectionRepository:
         """Aggiorna una sezione esistente.
 
         Se la sezione non esiste, solleva KeyError. Se la nuova chiave logica entra in conflitto
-        con un'altra sezione esistente (diversa da quella aggiornata), solleva ValueError per evitare duplicati.
+        con un'altra sezione esistente (diversa da quella aggiornata), solleva ValueError
+        per evitare duplicati.
 
         Inoltre, prima dell'aggiornamento, esegue `compute_properties()` sulla sezione aggiornata
         e blocca l'aggiornamento se il calcolo fallisce.
@@ -239,10 +248,10 @@ class SectionRepository:
             # Emetti evento
             EventBus().emit(SECTIONS_DELETED, section_id=section_id, section_name=section.name)
 
-    def get_all_sections(self) -> List[Section]:
+    def get_all_sections(self) -> list[Section]:
         return list(self._sections.values())
 
-    def find_by_id(self, section_id: str) -> Optional[Section]:
+    def find_by_id(self, section_id: str) -> Section | None:
         return self._sections.get(section_id)
 
     def clear(self) -> None:
@@ -265,7 +274,7 @@ class SectionRepository:
     def _ensure_seed_sections(self) -> None:
         """Ensure at least 3 seeded sections for each section type."""
         rng = random.Random(2229)
-        sections_by_type: Dict[str, List[Section]] = {}
+        sections_by_type: dict[str, list[Section]] = {}
         for sec in self._sections.values():
             sections_by_type.setdefault(sec.section_type, []).append(sec)
 
@@ -294,7 +303,9 @@ class SectionRepository:
         def rect(i: int, rng: random.Random) -> Section:
             b = rng.uniform(20, 60)
             h = rng.uniform(30, 80)
-            return RectangularSection(name=f"SEED-RECT-{i}", width=b, height=h, note=note("RECTANGULAR"))
+            return RectangularSection(
+                name=f"SEED-RECT-{i}", width=b, height=h, note=note("RECTANGULAR")
+            )
 
         def circ(i: int, rng: random.Random) -> Section:
             d = rng.uniform(20, 80)
@@ -635,9 +646,9 @@ class SectionRepository:
                 serializer.export_to_csv(str(dest_path), sections)
                 logger.info("Esportate %d sezioni in CSV: %s", len(sections), dest_path)
 
-        except (OSError, IOError) as e:
+        except OSError as e:
             logger.exception("Errore I/O durante esportazione backup in %s: %s", destination, e)
-            raise IOError(f"Impossibile esportare backup in {destination}: {e}") from e
+            raise OSError(f"Impossibile esportare backup in {destination}: {e}") from e
         except Exception as e:
             logger.exception("Errore durante esportazione backup in %s: %s", destination, e)
             raise ValueError(f"Errore esportazione backup: {e}") from e
@@ -646,10 +657,13 @@ class SectionRepository:
 class CsvSectionSerializer:
     """Gestione import/export CSV con log dettagliato."""
 
-    def export_to_csv(self, file_path: str, sections: Iterable[Section], delimiter: str = ";") -> None:
+    def export_to_csv(
+        self, file_path: str, sections: Iterable[Section], delimiter: str = ";"
+    ) -> None:
         """Esporta tutte le colonne presenti nelle dict ritornate da Section.to_dict()."""
         rows = 0
-        # Determina dinamicamente tutte le chiavi in ordine preservando id/name/section_type all'inizio
+        # Determina dinamicamente tutte le chiavi in ordine preservando
+        # id/name/section_type all'inizio
         fieldnames = ["id", "name", "section_type"]
         for section in sections:
             for k in section.to_dict().keys():
@@ -665,9 +679,9 @@ class CsvSectionSerializer:
                 rows += 1
         logger.debug("Esportate %s righe in %s", rows, file_path)
 
-    def import_from_csv(self, file_path: str, delimiter: str = ";") -> List[Section]:
-        sections: List[Section] = []
-        with open(file_path, "r", encoding="utf-8", newline="") as file:
+    def import_from_csv(self, file_path: str, delimiter: str = ";") -> list[Section]:
+        sections: list[Section] = []
+        with open(file_path, encoding="utf-8", newline="") as file:
             reader = csv.DictReader(file, delimiter=delimiter)
             for idx, row in enumerate(reader, start=2):
                 if not row or all(not (value or "").strip() for value in row.values()):

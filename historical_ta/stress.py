@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import List, Tuple
 
 from .geometry import SectionGeometry, SectionProperties
 from .materials import ConcreteLawTA, SteelLawTA, sigma_c, sigma_s
@@ -25,8 +24,8 @@ class StressResult:
     sigma_c_neg: float
     sigma_c_med: float
     sigma_s_max: float
-    sigma_s_array: List[float]
-    sigma_vertices: List[float]
+    sigma_s_array: list[float]
+    sigma_vertices: list[float]
 
 
 def _build_MM(props: SectionProperties):
@@ -104,7 +103,7 @@ def compute_normal_stresses_ta(
     section_props = props
 
     # Prepare vertex list for stress sampling: flatten polygons to vertices
-    vertices: List[Tuple[float, float]] = []
+    vertices: list[tuple[float, float]] = []
     for poly in geom.polygons:
         for y, z in poly:
             vertices.append((y, z))

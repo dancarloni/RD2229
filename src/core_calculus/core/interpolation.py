@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Tuple
+from collections.abc import Iterable
 
 
 def linear_interpolate(x: float, x0: float, x1: float, y0: float, y1: float) -> float:
@@ -9,7 +9,7 @@ def linear_interpolate(x: float, x0: float, x1: float, y0: float, y1: float) -> 
     return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
 
 
-def linear_interpolate_table(x: float, table: Iterable[Tuple[float, float]]) -> float:
+def linear_interpolate_table(x: float, table: Iterable[tuple[float, float]]) -> float:
     """Interpolazione lineare su tabella ordinata per x."""
     items = sorted(table, key=lambda t: t[0])
     if len(items) < 2:

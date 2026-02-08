@@ -14,9 +14,10 @@ reports until a deeper refactor is performed.
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 
 # Shorten mypy/flake8 agreeable imports (avoid long single-line imports)
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 # Material type used by FRC model
 from core_models.materials import Material
@@ -39,9 +40,9 @@ from .verification_core import (
 )
 
 # Typed optional callables populated by config loaders (may be None in tests)
-load_code: "Optional[Callable[[str], Dict[str, Any]]]" = None
-get_concrete_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]" = None
-get_steel_properties: "Optional[Callable[[str, str], Dict[str, Any] | None]]" = None
+load_code: Callable[[str], dict[str, Any]] | None = None
+get_concrete_properties: Callable[[str, str], dict[str, Any] | None] | None = None
+get_steel_properties: Callable[[str, str], dict[str, Any] | None] | None = None
 
 try:
     from config.calculation_codes_loader import load_code as _load_code
@@ -166,7 +167,7 @@ class VerificationEngine:
         reinforcement_compressed: ReinforcementLayer,
         material: MaterialProperties,
         loads: LoadCase,
-        frc_material: "Optional[Material]" = None,
+        frc_material: Material | None = None,
         frc_area: float = 0.0,
     ) -> VerificationResult:
         """Perform complete structural verification.

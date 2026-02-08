@@ -3,15 +3,14 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import asdict, dataclass
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
-from typing import List, Optional
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
 
-class HistoricalMaterialType(str, Enum):
+class HistoricalMaterialType(StrEnum):
     CONCRETE = "concrete"
     STEEL = "steel"
     STIRRUP_STEEL = "stirrup_steel"
@@ -60,29 +59,29 @@ class HistoricalMaterial:
     # CALCESTRUZZO - Proprietà meccaniche [kg/cm²]
     # ============================================================
     # Notazione moderna | Alias storico RD 2229/39
-    fck: Optional[float] = None  # resistenza caratteristica = σ_c,28 (cubica 28 gg)
-    fcd: Optional[float] = None  # resistenza di calcolo = σ_c (tensione ammissibile)
-    fctm: Optional[float] = None  # trazione media [kg/cm²]
-    Ec: Optional[float] = None  # modulo elastico cls = E_c [kg/cm²]
+    fck: float | None = None  # resistenza caratteristica = σ_c,28 (cubica 28 gg)
+    fcd: float | None = None  # resistenza di calcolo = σ_c (tensione ammissibile)
+    fctm: float | None = None  # trazione media [kg/cm²]
+    Ec: float | None = None  # modulo elastico cls = E_c [kg/cm²]
 
     # Campi specifici RD 2229/39 per calcestruzzo
-    tau_c0: Optional[float] = None  # τ_c0: taglio di servizio [kg/cm²]
-    tau_c1: Optional[float] = None  # τ_c1: taglio massimo [kg/cm²]
-    n: Optional[float] = None  # coefficiente di omogeneizzazione (Es/Ec)
+    tau_c0: float | None = None  # τ_c0: taglio di servizio [kg/cm²]
+    tau_c1: float | None = None  # τ_c1: taglio massimo [kg/cm²]
+    n: float | None = None  # coefficiente di omogeneizzazione (Es/Ec)
 
     # ============================================================
     # ACCIAIO - Proprietà meccaniche [kg/cm²]
     # ============================================================
     # Notazione moderna | Alias storico RD 2229/39
-    fyk: Optional[float] = None  # snervamento = σ_sn (tensione di snervamento)
-    fyd: Optional[float] = None  # resistenza di calcolo = σ_s (tensione ammissibile)
-    Es: Optional[float] = None  # modulo acciaio = E_s [kg/cm²]
+    fyk: float | None = None  # snervamento = σ_sn (tensione di snervamento)
+    fyd: float | None = None  # resistenza di calcolo = σ_s (tensione ammissibile)
+    Es: float | None = None  # modulo acciaio = E_s [kg/cm²]
 
     # ============================================================
     # Coefficienti di sicurezza (rapporto resistenza/ammissibile)
     # ============================================================
-    gamma_c: Optional[float] = None  # cls: tipicamente ≈ 3 (fck/fcd)
-    gamma_s: Optional[float] = None  # acciaio: tipicamente = 2 (fyk/fyd)
+    gamma_c: float | None = None  # cls: tipicamente ≈ 3 (fck/fcd)
+    gamma_s: float | None = None  # acciaio: tipicamente = 2 (fyk/fyd)
 
     notes: str = ""
 
@@ -92,33 +91,33 @@ class HistoricalMaterial:
 
     # --- Calcestruzzo ---
     @property
-    def sigma_c28(self) -> Optional[float]:
+    def sigma_c28(self) -> float | None:
         """σ_c,28: Resistenza cubica a rottura a 28 giorni [kg/cm²] (alias di fck)."""
         return self.fck
 
     @property
-    def sigma_c(self) -> Optional[float]:
+    def sigma_c(self) -> float | None:
         """σ_c: Tensione ammissibile del calcestruzzo [kg/cm²] (alias di fcd)."""
         return self.fcd
 
     @property
-    def tau_service(self) -> Optional[float]:
+    def tau_service(self) -> float | None:
         """τ_c0: Tensione tangenziale di servizio [kg/cm²] (alias di tau_c0)."""
         return self.tau_c0
 
     @property
-    def tau_max(self) -> Optional[float]:
+    def tau_max(self) -> float | None:
         """τ_c1: Tensione tangenziale massima [kg/cm²] (alias di tau_c1)."""
         return self.tau_c1
 
     # --- Acciaio ---
     @property
-    def sigma_sn(self) -> Optional[float]:
+    def sigma_sn(self) -> float | None:
         """σ_sn: Tensione di snervamento acciaio [kg/cm²] (alias di fyk)."""
         return self.fyk
 
     @property
-    def sigma_s(self) -> Optional[float]:
+    def sigma_s(self) -> float | None:
         """σ_s: Tensione ammissibile dell'acciaio [kg/cm²] (alias di fyd)."""
         return self.fyd
 
@@ -138,7 +137,7 @@ class HistoricalMaterial:
         return d
 
     @staticmethod
-    def from_dict(d: dict) -> "HistoricalMaterial":
+    def from_dict(d: dict) -> HistoricalMaterial:
         """Deserializza da dizionario, accettando sia notazione moderna che storica."""
         # Supporta sia notazione moderna (fck, fcd) che storica (sigma_c28, sigma_c)
         fck = d.get("fck") or d.get("sigma_c28")
@@ -176,7 +175,7 @@ class HistoricalMaterialLibrary:
 
     def __init__(self, path: str | Path | None = None):
         self._file_path = Path(path or "historical_materials.json")
-        self._materials: List[HistoricalMaterial] = []
+        self._materials: list[HistoricalMaterial] = []
         # Ensure a sensible default set of historical materials exists on first use
         # (populated with example values and TODO notes for the user to replace with
         # authoritative values from RD 2229/39 or external datasets like ReLUIS/STIL)
@@ -214,7 +213,7 @@ class HistoricalMaterialLibrary:
         # Materiali base secondo RD 2229/39 (Regio Decreto 16 novembre 1939)
         # Valori tratti direttamente dalla normativa storica
         # Unità: tutte le tensioni in kg/cm²
-        examples: List[HistoricalMaterial] = []
+        examples: list[HistoricalMaterial] = []
 
         # ============================================================
         # CALCESTRUZZI - RD 2229/39
@@ -464,7 +463,7 @@ class HistoricalMaterialLibrary:
         except Exception:
             logger.exception("Error saving historical materials to %s", self._file_path)
 
-    def get_all(self) -> List[HistoricalMaterial]:
+    def get_all(self) -> list[HistoricalMaterial]:
         return list(self._materials)
 
     def add(self, material: HistoricalMaterial) -> None:
@@ -475,7 +474,7 @@ class HistoricalMaterialLibrary:
         self._materials.append(material)
         self.save_to_file()
 
-    def find_by_code(self, code: str) -> Optional[HistoricalMaterial]:
+    def find_by_code(self, code: str) -> HistoricalMaterial | None:
         for m in self._materials:
             if m.code == code:
                 return m
@@ -529,14 +528,14 @@ class HistoricalMaterialLibrary:
                             else:
                                 mtype = HistoricalMaterialType.OTHER
 
-                        def _num(field: str):
-                            v = (row.get(field) or "").strip()
+                        def _num(field: str, row_data: dict, row_idx: int):
+                            v = (row_data.get(field) or "").strip()
                             if v == "":
                                 return None
                             try:
                                 return float(v.replace(",", "."))
                             except Exception:
-                                logger.warning("CSV row %s: invalid numeric for %s: %r", idx, field, v)
+                                logger.warning("CSV row %s: invalid numeric for %s: %r", row_idx, field, v)
                                 return None
 
                         hist = HistoricalMaterial(
@@ -545,15 +544,15 @@ class HistoricalMaterialLibrary:
                             name=name,
                             source=source,
                             type=mtype,
-                            fck=_num("fck"),
-                            fcd=_num("fcd"),
-                            fctm=_num("fctm"),
-                            Ec=_num("Ec"),
-                            fyk=_num("fyk"),
-                            fyd=_num("fyd"),
-                            Es=_num("Es"),
-                            gamma_c=_num("gamma_c"),
-                            gamma_s=_num("gamma_s"),
+                            fck=_num("fck", row, idx),
+                            fcd=_num("fcd", row, idx),
+                            fctm=_num("fctm", row, idx),
+                            Ec=_num("Ec", row, idx),
+                            fyk=_num("fyk", row, idx),
+                            fyd=_num("fyd", row, idx),
+                            Es=_num("Es", row, idx),
+                            gamma_c=_num("gamma_c", row, idx),
+                            gamma_s=_num("gamma_s", row, idx),
                             notes=(row.get("notes") or row.get("Notes") or "").strip(),
                         )
 

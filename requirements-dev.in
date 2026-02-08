@@ -1,0 +1,25 @@
+# Requirements di sviluppo
+-r requirements.txt
+
+# Testing
+pytest>=9.0,<10
+pytest-cov
+hypothesis
+
+# Code quality
+ruff
+black
+isort
+mypy>=1.19,<2
+pre-commit
+bandit
+
+# Documentation
+mkdocs
+mkdocs-material
+
+# Mutation testing
+mutmut
+
+# Development tools
+pip-tools

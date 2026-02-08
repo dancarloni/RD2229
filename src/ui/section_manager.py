@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
+from collections.abc import Callable
 from tkinter import filedialog, messagebox, ttk
-from typing import Callable, Dict, Optional, Tuple
 
 from sections_app.models.sections import CSV_HEADERS, Section  # type: ignore[import]
 from sections_app.services.event_bus import (
@@ -17,7 +17,10 @@ from sections_app.services.notification import (
     ask_confirm,
     notify_info,
 )
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository  # type: ignore[import]
+from sections_app.services.repository import (  # type: ignore[import]
+    CsvSectionSerializer,
+    SectionRepository,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +34,9 @@ class TreeviewTooltip:
 
     def __init__(self, tree: ttk.Treeview):
         self.tree = tree
-        self.tipwindow: Optional[tk.Toplevel] = None
-        self.current_item: Optional[str] = None
-        self.current_column: Optional[str] = None
+        self.tipwindow: tk.Toplevel | None = None
+        self.current_item: str | None = None
+        self.current_column: str | None = None
 
         self.tree.bind("<Motion>", self.on_motion)
         self.tree.bind("<Leave>", self.on_leave)
@@ -176,7 +179,7 @@ class SectionManager(tk.Toplevel):
         self.on_edit = on_edit
 
         # Traccia se il sorting è stato mai toccato per la colonna corrente
-        self._sort_state: Dict[str, bool] = {}
+        self._sort_state: dict[str, bool] = {}
 
         # ✅ AUTO-REFRESH: sottoscrizione agli eventi del repository
         # Quando il Geometry Module salva/modifica/elimina una sezione, il repository
@@ -267,7 +270,7 @@ class SectionManager(tk.Toplevel):
         self.tree.pack(fill="both", expand=True)
 
         # Mappa colonne a larghezze minime e anchor
-        col_config: Dict[str, Tuple[int, str]] = {
+        col_config: dict[str, tuple[int, str]] = {
             "id": (0, "w"),  # invisibile
             "name": (100, "w"),  # nome sezione (sinistra)
             "section_type": (90, "center"),  # tipo sezione
@@ -311,7 +314,7 @@ class SectionManager(tk.Toplevel):
         }
 
         # Mappa colonne a etichette di intestazione leggibili
-        header_labels: Dict[str, str] = {
+        header_labels: dict[str, str] = {
             "id": "",
             "name": "Nome Sezione",
             "section_type": "Tipo",
@@ -443,7 +446,7 @@ class SectionManager(tk.Toplevel):
         """Public API legacy: alias per refresh_sections()."""
         self.refresh_sections()
 
-    def _get_selected_section(self) -> Optional[Section]:
+    def _get_selected_section(self) -> Section | None:
         selected = self.tree.focus()
         if not selected:
             notify_info("Info", "Seleziona una sezione", source="section_manager")

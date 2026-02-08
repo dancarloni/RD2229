@@ -8,7 +8,7 @@ import logging
 import tkinter as tk
 from _csv import Writer
 from tkinter import ttk
-from typing import Any, Dict
+from typing import Any
 
 import matplotlib
 import matplotlib.patches as mpatches
@@ -16,8 +16,16 @@ from matplotlib.figure import Figure
 
 from sections_app.services.notification import notify_error, notify_info, notify_warning
 from src.core_calculus.core.verification_bas_adapter import bas_torsion_verification
-from src.core_calculus.core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
-from src.core_calculus.core.verification_engine import VerificationEngine, create_verification_engine
+from src.core_calculus.core.verification_core import (
+    LoadCase,
+    MaterialProperties,
+    ReinforcementLayer,
+    SectionGeometry,
+)
+from src.core_calculus.core.verification_engine import (
+    VerificationEngine,
+    create_verification_engine,
+)
 from src.domain.domain.models import VerificationInput, VerificationOutput
 from verification_table import (
     VerificationTableApp,
@@ -38,7 +46,7 @@ except Exception as exc:  # pylint: disable=broad-exception-caught
 MATPLOTLIB_TK: bool = FigureCanvasTkAgg is not None
 
 
-def _write_csv_comp(comp: Dict[str, Any], path: str) -> None:
+def _write_csv_comp(comp: dict[str, Any], path: str) -> None:
     import csv
 
     with open(path, "w", newline="", encoding="utf-8") as fh:
@@ -49,14 +57,14 @@ def _write_csv_comp(comp: Dict[str, Any], path: str) -> None:
                 w.writerow([k, v.get("sigma_c_max", ""), v.get("asse_neutro_x", ""), v.get("angle", "")])
 
 
-def _write_json_comp(comp: Dict[str, Any], path: str) -> None:
+def _write_json_comp(comp: dict[str, Any], path: str) -> None:
     import json
 
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(comp, fh, default=str, indent=2)
 
 
-def _write_txt_comp(comp: Dict[str, Any], path: str) -> None:
+def _write_txt_comp(comp: dict[str, Any], path: str) -> None:
     with open(path, "w", encoding="utf-8") as fh:
         for k, v in comp.items():
             fh.write(f"== {k} ==\n")
@@ -126,7 +134,7 @@ def _na_point_and_angle(res: Any, b: float, h: float):
     return (b / 2.0, h / 2.0), ang
 
 
-def _metrics_none() -> Dict[str, Any]:
+def _metrics_none() -> dict[str, Any]:
     return {
         "sigma_c_max": 0.0,
         "sigma_c_min": 0.0,
@@ -136,7 +144,7 @@ def _metrics_none() -> Dict[str, Any]:
     }
 
 
-def _metrics_from_dict(res: Dict[str, Any]) -> Dict[str, Any]:
+def _metrics_from_dict(res: dict[str, Any]) -> dict[str, Any]:
     return {
         "sigma_c_max": res.get("Taux_max", 0.0),
         "sigma_c_min": 0.0,
@@ -146,7 +154,7 @@ def _metrics_from_dict(res: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _metrics_from_obj(res: Any) -> Dict[str, Any]:
+def _metrics_from_obj(res: Any) -> dict[str, Any]:
     return {
         "sigma_c_max": getattr(res, "sigma_c_max", 0.0),
         "sigma_c_min": getattr(res, "sigma_c_min", 0.0),
@@ -156,7 +164,7 @@ def _metrics_from_obj(res: Any) -> Dict[str, Any]:
     }
 
 
-def _metrics_of(res: Any) -> Dict[str, Any]:
+def _metrics_of(res: Any) -> dict[str, Any]:
     if res is None:
         return _metrics_none()
     if isinstance(res, dict):
@@ -346,7 +354,7 @@ class VerificationComparatorWindow(tk.Toplevel):
         self.txt_results.insert(tk.END, "\nNumeric summary:\n")
         self.summary_table.delete(*self.summary_table.get_children())
 
-    def _compute_all_methods(self, inp: VerificationInput, sec_repo, mat_repo) -> tuple[Any, Any, Dict[str, Any]]:
+    def _compute_all_methods(self, inp: VerificationInput, sec_repo, mat_repo) -> tuple[Any, Any, dict[str, Any]]:
         ta_res = None
         slu_res = None
         try:
@@ -362,7 +370,7 @@ class VerificationComparatorWindow(tk.Toplevel):
             mat_props: MaterialProperties = engine.get_material_properties(
                 inp.material_concrete or "", inp.material_steel or "", material_source="RD2229"
             )
-            bas_tors: Dict[str, Any] = bas_torsion_verification(
+            bas_tors: dict[str, Any] = bas_torsion_verification(
                 section=SectionGeometry(*get_section_geometry(inp, sec_repo, unit="cm")),
                 reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
                 reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),
@@ -375,7 +383,7 @@ class VerificationComparatorWindow(tk.Toplevel):
             bas_tors = {"messages": [".bas adapter error"], "ok": False}
         return ta_res, slu_res, bas_tors
 
-    def _draw_method_na(self, b: float, h: float, label: str, res: Any, metrics: Dict[str, Any], color: str) -> None:
+    def _draw_method_na(self, b: float, h: float, label: str, res: Any, metrics: dict[str, Any], color: str) -> None:
         out = _na_point_and_angle(res, b, h)
         if out is None:
             return
@@ -430,7 +438,7 @@ class VerificationComparatorWindow(tk.Toplevel):
             mat_props: MaterialProperties = engine.get_material_properties(
                 inp.material_concrete or "", inp.material_steel or "", material_source="RD2229"
             )
-            bas_tors: Dict[str, Any] = bas_torsion_verification(
+            bas_tors: dict[str, Any] = bas_torsion_verification(
                 section=SectionGeometry(*get_section_geometry(inp, sec_repo, unit="cm")),
                 reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
                 reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),
@@ -472,9 +480,9 @@ class VerificationComparatorWindow(tk.Toplevel):
 
     def _populate_numeric_and_bars(
         self,
-        ta_metrics: Dict[str, Any],
-        slu_metrics: Dict[str, Any],
-        bas_metrics: Dict[str, Any],
+        ta_metrics: dict[str, Any],
+        slu_metrics: dict[str, Any],
+        bas_metrics: dict[str, Any],
     ) -> None:
         asse_x_ta = f"{ta_metrics['asse_x']}"
         asse_x_slu = f"{slu_metrics['asse_x']}"
@@ -521,7 +529,7 @@ class VerificationComparatorWindow(tk.Toplevel):
             mat_props: MaterialProperties = engine.get_material_properties(
                 inp.material_concrete or "", inp.material_steel or "", material_source="RD2229"
             )
-            bas_tors: Dict[str, Any] = bas_torsion_verification(
+            bas_tors: dict[str, Any] = bas_torsion_verification(
                 section=SectionGeometry(*get_section_geometry(inp, sec_repo, unit="cm")),
                 reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
                 reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),

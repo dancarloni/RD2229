@@ -1,1 +1,5 @@
 """Servizi di calcolo e persistenza."""
+
+from .shear_calculations import compute_shear_areas
+
+__all__ = ["compute_shear_areas"]

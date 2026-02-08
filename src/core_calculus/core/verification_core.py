@@ -15,13 +15,12 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from enum import Enum
-from typing import Optional, Tuple
+from enum import StrEnum
 
 from core_models.materials import Material
 
 
-class VerificationType(str, Enum):
+class VerificationType(StrEnum):
     """Types of structural verification."""
 
     BENDING_SIMPLE = "bending_simple"  # Flessione retta (only Mx or My)
@@ -72,16 +71,16 @@ class MaterialProperties:
 
     # Concrete
     fck: float  # Characteristic compressive strength [kg/cm² or MPa]
-    fcd: Optional[float] = None  # Design compressive strength
-    Ec: Optional[float] = None  # Elastic modulus
+    fcd: float | None = None  # Design compressive strength
+    Ec: float | None = None  # Elastic modulus
 
     # Steel
     fyk: float = 0.0  # Characteristic yield strength
-    fyd: Optional[float] = None  # Design yield strength
+    fyd: float | None = None  # Design yield strength
     Es: float = 2100000.0  # Elastic modulus [kg/cm²] or 200000 [MPa]
 
     # Homogenization
-    n: Optional[float] = None  # Es/Ec
+    n: float | None = None  # Es/Ec
 
     def __post_init__(self):
         """Calculate derived properties if not provided."""
@@ -204,7 +203,7 @@ class VerificationResult:
 
     # Verification outcome
     is_verified: bool = False
-    messages: "Optional[list[str]]" = None
+    messages: list[str] | None = None
 
     def __post_init__(self):
         """Initialize messages list."""
@@ -389,7 +388,7 @@ def calculate_stresses_simple_bending(
     moment: float,
     neutral_axis: NeutralAxis,
     method: str = "TA",
-    frc_material: "Optional[Material]" = None,
+    frc_material: Material | None = None,
     frc_area: float = 0.0,
 ) -> StressState:
     """Calculate stresses for simple bending.
@@ -539,7 +538,7 @@ def estimate_required_torsion_reinforcement(
     section: SectionGeometry,
     reinforcement_tensile: ReinforcementLayer,
     loads: LoadCase,
-    material: Optional[MaterialProperties] = None,
+    material: MaterialProperties | None = None,
 ) -> float:
     """Estimate required torsion reinforcement area At [cm²] (simplified NTC-like).
 
@@ -572,7 +571,7 @@ def calculate_shear_torsion_stresses(
     section: SectionGeometry,
     loads: LoadCase,
     reinforcement_area: float,
-    material: Optional[MaterialProperties] = None,
+    material: MaterialProperties | None = None,
 ) -> StressState:
     """Shear + Torsion simplified assessment.
 
@@ -614,7 +613,7 @@ def calculate_shear_torsion_stresses(
 
 def verify_allowable_stresses(
     stress_state: StressState, material: MaterialProperties, sigma_c_adm: float, sigma_s_adm: float
-) -> Tuple[bool, float, float, list[str]]:
+) -> tuple[bool, float, float, list[str]]:
     """Verify allowable stresses (TA method).
 
     Based on VerifResistCA_TA from PrincipCA_TA.bas.

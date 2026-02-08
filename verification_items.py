@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 try:
     from verification_table import VerificationInput
@@ -25,4 +25,4 @@ class VerificationItem:
     id: str
     name: str
     input: VerificationInput
-    group: Optional[str] = None
+    group: str | None = None

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 from app.domain.materials import get_concrete_properties, get_steel_properties
 from app.domain.models import VerificationInput, VerificationOutput
@@ -12,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 def compute_with_engine(
     _input: VerificationInput,
-    section_repository: Optional[object],
-    material_repository: Optional[object],
-) -> Optional[VerificationOutput]:
+    section_repository: object | None,
+    material_repository: object | None,
+) -> VerificationOutput | None:
     """Attempt to compute using the optional core engine. Returns None if engine is unavailable."""
     try:
         from src.core_calculus.core.verification_core import (

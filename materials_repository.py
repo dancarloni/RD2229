@@ -11,7 +11,7 @@ in modo che le UI (es. `VerificationTableWindow`) possano aggiornare i suggerime
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from tools import materials_manager
 
@@ -44,10 +44,10 @@ class MaterialsRepository:
     """
 
     def __init__(self) -> None:
-        self._materials: List[Dict[str, Any]] = []
-        self.path: Optional[str] = None
+        self._materials: list[dict[str, Any]] = []
+        self.path: str | None = None
 
-    def load_from_jsonm(self, path: str) -> List[Dict[str, Any]]:
+    def load_from_jsonm(self, path: str) -> list[dict[str, Any]]:
         if not path.lower().endswith(".jsonm"):
             raise ValueError("Material file must have .jsonm extension")
         try:
@@ -84,16 +84,16 @@ class MaterialsRepository:
             logger.exception("Error saving materials to %s: %s", path, exc)
             raise
 
-    def get_all(self) -> List[Dict[str, Any]]:
+    def get_all(self) -> list[dict[str, Any]]:
         return [m.copy() for m in self._materials]
 
-    def get_by_name(self, name: str) -> Optional[Dict[str, Any]]:
+    def get_by_name(self, name: str) -> dict[str, Any] | None:
         for m in self._materials:
             if m.get("name") == name:
                 return m.copy()
         return None
 
-    def add(self, material: Dict[str, Any]) -> None:
+    def add(self, material: dict[str, Any]) -> None:
         # Check duplicate by name
         if any(m.get("name") == material.get("name") for m in self._materials):
             raise ValueError(f"Material with name '{material.get('name')}' already exists")
@@ -115,7 +115,7 @@ class MaterialsRepository:
             except Exception as exc:  # noqa: B902
                 logger.exception("Error emitting MATERIALS_ADDED: %s", exc)
 
-    def update(self, name: str, updates: Dict[str, Any]) -> None:
+    def update(self, name: str, updates: dict[str, Any]) -> None:
         for i, m in enumerate(self._materials):
             if m.get("name") == name:
                 new = {**m, **updates}

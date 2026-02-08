@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 from app.domain.models import VerificationInput, VerificationOutput
 from app.verification.engine_adapter import compute_with_engine
@@ -14,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 def compute_verification_result(
     _input: VerificationInput,
-    section_repository: Optional[object] = None,
-    material_repository: Optional[object] = None,
+    section_repository: object | None = None,
+    material_repository: object | None = None,
 ) -> VerificationOutput:
     method = (_input.verification_method or "").upper().strip()
 
@@ -44,7 +43,7 @@ def compute_verification_result(
         coeff_sicurezza=0.0,
         esito="ERRORE",
         messaggi=[
-            "Metodo di verifica non specificato o sconosciuto: '{}'".format(method),
+            f"Metodo di verifica non specificato o sconosciuto: '{method}'",
             "Selezionare un metodo dalla colonna 'Metodo verifica': TA, SLU, SLE, SANT",
         ],
     )

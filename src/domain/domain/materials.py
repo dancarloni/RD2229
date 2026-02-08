@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import logging
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 from src.domain.domain.models import VerificationInput
 
 logger = logging.getLogger(__name__)
 
 
-def _get_material_by_name(material_repository: Optional[object], name: str):
+def _get_material_by_name(material_repository: object | None, name: str):
     if not material_repository or not name:
         return None
     try:
@@ -21,7 +21,7 @@ def _get_material_by_name(material_repository: Optional[object], name: str):
     return None
 
 
-def _extract_material_property(material, keys: Iterable[str]) -> Optional[float]:
+def _extract_material_property(material, keys: Iterable[str]) -> float | None:
     for key in keys:
         if hasattr(material, key):
             val = getattr(material, key)
@@ -36,7 +36,7 @@ def _extract_material_property(material, keys: Iterable[str]) -> Optional[float]
 
 def get_concrete_properties(
     _input: VerificationInput,
-    material_repository: Optional[object],
+    material_repository: object | None,
 ) -> tuple[float, float, float]:
     """Returns (fck_MPa, fck_kgcm2, sigma_ca_kgcm2)."""
     fallback_fck = 25.0
@@ -55,7 +55,7 @@ def get_concrete_properties(
 
 def get_steel_properties(
     _input: VerificationInput,
-    material_repository: Optional[object],
+    material_repository: object | None,
 ) -> tuple[float, float, float]:
     """Returns (fyk_MPa, fyk_kgcm2, sigma_fa_kgcm2)."""
     fallback_fyk = 450.0

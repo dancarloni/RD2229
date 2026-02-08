@@ -21,7 +21,7 @@ RE_SIGMA = re.compile(r"\bsigma\b")
 
 def replace_in_markdown(path: str) -> bool:
     changed = False
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         lines = fh.readlines()
 
     out = []

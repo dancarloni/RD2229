@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import tkinter as tk
-from typing import Callable, List, Optional
+from collections.abc import Callable
 
 
 class SuggestionBox:
-    def __init__(self, parent: tk.Misc, on_select: Optional[Callable[[str], None]] = None):
+    def __init__(self, parent: tk.Misc, on_select: Callable[[str], None] | None = None):
         self.parent = parent
         self.on_select = on_select
-        self._box: Optional[tk.Toplevel] = None
-        self._list: Optional[tk.Listbox] = None
+        self._box: tk.Toplevel | None = None
+        self._list: tk.Listbox | None = None
 
     def ensure(self) -> None:
         if self._box is not None and self._box.winfo_exists():
@@ -23,7 +23,7 @@ class SuggestionBox:
         self._list.bind("<Return>", self._on_enter)
         self._list.bind("<Escape>", lambda _e: self.hide())
 
-    def show(self, items: List[str], x: int, y: int, width: int, height: int) -> None:
+    def show(self, items: list[str], x: int, y: int, width: int, height: int) -> None:
         self.ensure()
         if not self._box or not self._list:
             return

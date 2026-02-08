@@ -8,7 +8,6 @@ package to preserve backwards compatibility. Implementation lives in
 from __future__ import annotations
 
 import logging
-from typing import List
 
 from app.domain.materials import get_concrete_properties, get_steel_properties
 
@@ -28,7 +27,7 @@ logger.warning(
     "(e.g., 'app.domain'/'app.verification'/'app.ui') instead."
 )
 
-__all__: List[str] = [
+__all__: list[str] = [
     "VerificationInput",
     "VerificationOutput",
     "get_section_geometry",
@@ -81,7 +80,7 @@ def compute_verification_result(
         coeff_sicurezza=0.0,
         esito="ERRORE",
         messaggi=[
-            "Metodo di verifica non specificato o sconosciuto: '{}'".format(method),
+            f"Metodo di verifica non specificato o sconosciuto: '{method}'",
             "Selezionare un metodo dalla colonna 'Metodo verifica': TA, SLU, SLE, SANT",
         ],
     )

@@ -89,7 +89,7 @@ class TestJsonWrappers(unittest.TestCase):
         self.assertTrue(os.path.exists(self.test_file))
 
         # Verifica contenuto
-        with open(self.test_file, "r") as f:
+        with open(self.test_file) as f:
             saved_data = json.load(f)
 
         self.assertEqual(len(saved_data), 2)

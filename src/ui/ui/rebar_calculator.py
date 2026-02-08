@@ -9,12 +9,12 @@ from __future__ import annotations
 import logging
 import math
 import tkinter as tk
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
 
 DIAMETERS: list[int] = [6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
 
 
-def calculate_rebar_total(counts: Dict[int, int]) -> float:
+def calculate_rebar_total(counts: dict[int, int]) -> float:
     """Return total rebar area in cm^2 given a mapping diameter(mm) -> count.
 
     Calculation matches previous logic in `VerificationTableApp`.
@@ -42,16 +42,16 @@ class RebarCalculatorWindow:
     def __init__(
         self,
         parent: tk.Misc,
-        on_confirm: Optional[Callable[[str], None]] = None,
-        initial_values: Optional[Dict[int, int]] = None,
+        on_confirm: Callable[[str], None] | None = None,
+        initial_values: dict[int, int] | None = None,
     ) -> None:
         self.parent: tk.Misc = parent
         self.on_confirm: Callable[[str], None] | None = on_confirm
-        self._vars: Dict[int, tk.StringVar] = {}
+        self._vars: dict[int, tk.StringVar] = {}
         self._entries = []
         self._total_var = tk.StringVar(value="0.00")
 
-        self._win: Optional[tk.Toplevel] = tk.Toplevel(parent)
+        self._win: tk.Toplevel | None = tk.Toplevel(parent)
         self._win.title("Calcolo area armatura")
         self._win.resizable(False, False)
         self._win.transient(parent.winfo_toplevel())
@@ -89,8 +89,8 @@ class RebarCalculatorWindow:
         # initialize
         self._update_total()
 
-    def _gather_counts(self) -> Dict[int, int]:
-        counts: Dict[int, int] = {}
+    def _gather_counts(self) -> dict[int, int]:
+        counts: dict[int, int] = {}
         for d, var in self._vars.items():
             try:
                 counts[d] = int(var.get() or 0)

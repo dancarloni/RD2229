@@ -1,4 +1,5 @@
 from core.verification_bas_adapter import bas_torsion_verification
+
 from core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
 
 

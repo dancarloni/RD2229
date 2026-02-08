@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from typing import Dict
 
 from tools.materials_manager import (
     add_material,
@@ -48,7 +47,7 @@ def cmd_get(args: argparse.Namespace) -> int:
 
 
 def cmd_add(args: argparse.Namespace) -> int:
-    mat: Dict = {
+    mat: dict = {
         "name": args.name,
         "type": args.type,
     }
@@ -70,8 +69,8 @@ def cmd_add(args: argparse.Namespace) -> int:
     return 0
 
 
-def _parse_set_pairs(pairs: str) -> Dict[str, object]:
-    updates: Dict[str, object] = {}
+def _parse_set_pairs(pairs: str) -> dict[str, object]:
+    updates: dict[str, object] = {}
     for item in pairs:
         if "=" not in item:
             raise ValueError(f"Invalid set expression: {item}")

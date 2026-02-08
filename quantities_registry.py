@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Dict
 
 import pandas as pd
 
@@ -18,7 +17,7 @@ def leggi_registro() -> pd.DataFrame:
     return pd.read_csv(CSV_PATH, encoding="utf-8")
 
 
-def aggiungi_grandezza(grandezza_dict: Dict) -> None:
+def aggiungi_grandezza(grandezza_dict: dict) -> None:
     """Aggiunge una nuova grandezza al registro.
 
     Appende una riga al CSV esistente o lo crea se mancasse.

@@ -16,12 +16,12 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def read_config(path: str = ".rd2229_config.yaml") -> Dict[str, Any]:
+def read_config(path: str = ".rd2229_config.yaml") -> dict[str, Any]:
     try:
         import yaml  # type: ignore
     except ImportError:
@@ -29,7 +29,7 @@ def read_config(path: str = ".rd2229_config.yaml") -> Dict[str, Any]:
         return {}
 
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             return yaml.safe_load(fh) or {}
     except (FileNotFoundError, getattr(__import__("yaml"), "YAMLError", Exception)) as exc:  # type: ignore
         logger.debug("No config found at %s, using defaults: %s", path, exc)
@@ -48,8 +48,8 @@ def ensure_init(path: str | Path, doc: str | None = None) -> None:
                 fh.write('"""\n"""\n')
 
 
-def mirror_modules(calculations_root: str, verifications_root: str) -> List[str]:
-    ops: List[str] = []
+def mirror_modules(calculations_root: str, verifications_root: str) -> list[str]:
+    ops: list[str] = []
     calc_root = Path(calculations_root)
     ver_root = Path(verifications_root)
 
@@ -77,7 +77,7 @@ def mirror_modules(calculations_root: str, verifications_root: str) -> List[str]
     return ops
 
 
-def main(_argv: List[str] | None = None) -> int:
+def main(_argv: list[str] | None = None) -> int:
     cfg = read_config()
     calculations = cfg.get("calculations_path", "src/rd2229/calculations")
     verifications = cfg.get("verifications_path", "src/rd2229/verifications")
