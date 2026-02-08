@@ -5,14 +5,14 @@ i file .bas e altri file py contengono codice di calcolo per diverse situazioni:
 - calcolo alle tensioni ammissibili TA.
 - dividere e predisporre il nucleo di calcolo per ciascuna situazione
 
-Per ognuno dei tre tipi di calcolo SLE, SLU, TA, estrarre le procedure di calcolo di 
-- asse neutro, 
+Per ognuno dei tre tipi di calcolo SLE, SLU, TA, estrarre le procedure di calcolo di
+- asse neutro,
 - Tensioni
 - deformazioni
 - qualsiasi altro parametro richiesto dalla procedura di calcolo
 
 Il flusso di lavoro prevede:
-- leggere il progetto di calcolo creato con il configuration module. 
+- leggere il progetto di calcolo creato con il configuration module.
 
 per ogni rigo del progetto (ovvero elemento strutturale da verificare), è necessario
 - comprendere quale verifica è stata richiesta dall'utente (TA, SLU, SLE)
@@ -273,9 +273,9 @@ Useremo i `.bas` come fonte autorevole e mapperemo le procedure in moduli Python
 Se vuoi, nel prossimo passaggio posso preparare l’elenco delle procedure `.bas` e il mapping dettagliato input/output da cui partire per l’implementazione.
 
 User: considera che in futuro potrà essere aggiunto al verification module anche un ulteriore momento flettente, (My) e un momento torcente (Mt), oltre che armature a torsione aggiunti (At). al momento tali sollecitazioni, non presenti nel verification module possono essere considerate pari a 0, ma se previste nei file. bas e .py dovranno essere attualmente configurati nelle nuove gui che ho già indicato.
-considera di dover anche implementate funzionalità grafiche per la rappresentazione dei risultati. rappresentando, per ogni elemento oggetto di verifiche sezione della trave, la posizione in scala dell'asse neutro, evidenziazione delle zone compresse e tese della sezione, eventuale inclinazione dell'asse neutro, 
+considera di dover anche implementate funzionalità grafiche per la rappresentazione dei risultati. rappresentando, per ogni elemento oggetto di verifiche sezione della trave, la posizione in scala dell'asse neutro, evidenziazione delle zone compresse e tese della sezione, eventuale inclinazione dell'asse neutro,
 
-i risultati numerici potranno essere anche in termini di tensioni sulle aree di acciaio tese e compressioni sulle aree di acciaio compresse nonché tensioni o compressioni sul calcestruzzo. Puoi accedere a internet per la teoria scientifica. 
+i risultati numerici potranno essere anche in termini di tensioni sulle aree di acciaio tese e compressioni sulle aree di acciaio compresse nonché tensioni o compressioni sul calcestruzzo. Puoi accedere a internet per la teoria scientifica.
 
 GitHub Copilot: Discover visuals and torsion inputs
 
@@ -411,7 +411,7 @@ Se vuoi, preparo il mapping preciso dei campi UI e dei parametri dei `.bas` da c
 
 User: Aggiungi anche la possibilità di avere verifiche a taglio lungo due direzioni diverse. L'attuale T deve essere rinominato in Ty. deve essere introdotto Tx
 
-Le verifiche possono essere 
+Le verifiche possono essere
 - a flessione retta, anche detta semplice (solo Mx o solo My diverso da zero)
 - a flessione deviata (Mx e My entrambi diversi da zero)
 - a compressione o trazione semplice N diverso da zero, e Mx=My=0
@@ -571,7 +571,7 @@ Integro i nuovi requisiti: i `.bas` vengono convertiti in JSON in modo rigoroso 
 Se vuoi, preparo subito lo schema JSON delle formule e la mappa variabili/condizioni per ciascun `.bas` prima di implementare la conversione.
 
 User: Considera di applicare già gli aggiornamenti al modulo verification, introducendo i nuovi Tx Ty Mx My Mz, At
-considera che i parametri, i coefficienti di sicurezza, i coefficienti, previsti dalle normative, e qualsiasi altra informazione nell'intero progetot che deve essere scelta o 
+considera che i parametri, i coefficienti di sicurezza, i coefficienti, previsti dalle normative, e qualsiasi altra informazione nell'intero progetot che deve essere scelta o
 
 GitHub Copilot: Una domanda posta (Parametri)
 
@@ -611,7 +611,7 @@ Procedo con gli aggiornamenti al modulo verification introducendo i nuovi carich
 
 Quando sei pronto, avanzo con la lettura rigorosa dei `.bas` e l'implementazione dei file `.jsoncode`. Vuoi che inizi?
 
-User: Trasforma qualsiasi gruppo di parametri che non siano As As' At N Mx My Mz Vx Vy Vz in appositi file json. ad Esempio, le tipolgie di sorgente dei materiali (NTC 2008, NTC 2018 DM92 DM96 selezionabili nei menu a tendina) devono essere codificati in file json per successive integrazioni e sviluppi. Privilegia la modularità senza riscrivere il codice esistente se non necessario. l'impostazione generale dela gui è conforme alle aspettivative. 
+User: Trasforma qualsiasi gruppo di parametri che non siano As As' At N Mx My Mz Vx Vy Vz in appositi file json. ad Esempio, le tipolgie di sorgente dei materiali (NTC 2008, NTC 2018 DM92 DM96 selezionabili nei menu a tendina) devono essere codificati in file json per successive integrazioni e sviluppi. Privilegia la modularità senza riscrivere il codice esistente se non necessario. l'impostazione generale dela gui è conforme alle aspettivative.
 
 GitHub Copilot: Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/PrincipCA_TA.bas#1-1), righe da 1 a 100
 
@@ -651,15 +651,15 @@ User: approvo
 
 GitHub Copilot: Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/visual_basic/PrincipCA_TA.bas#1-1), righe da 1 a 300
 
-Inizio l'implementazione. Creo i file `.jsoncode` modulari e il loader, poi aggiorno la UI. 
+Inizio l'implementazione. Creo i file `.jsoncode` modulari e il loader, poi aggiorno la UI.
 
 Lettura [](file:///c%3A/Users/DanieleCarloni/RD2229/.rd2229_config.yaml)
 
-Creo la struttura dei file `.jsoncode` e il loader. Partiamo con TA: 
+Creo la struttura dei file `.jsoncode` e il loader. Partiamo con TA:
 
 Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/verification_table.py#54-54), righe da 54 a 80
 
-Utilizzo un agente per implementare i file `.jsoncode`, il loader e gli aggiornamenti ai dataclass: 
+Utilizzo un agente per implementare i file `.jsoncode`, il loader e gli aggiornamenti ai dataclass:
 
 Implement .jsoncode files and loader
 
@@ -691,11 +691,11 @@ Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/verification_table.py#50-50)
 
 Lettura [](file:///c%3A/Users/DanieleCarloni/RD2229)
 
-Ottimo! Ho preparato tutti i contenuti. Ora creiamo uno script che li salvi automaticamente nel progetto: Creo uno script di inizializzazione che crei tutti i file `.jsoncode` e aggiorni verification_table.py: 
+Ottimo! Ho preparato tutti i contenuti. Ora creiamo uno script che li salvi automaticamente nel progetto: Creo uno script di inizializzazione che crei tutti i file `.jsoncode` e aggiorni verification_table.py:
 
 Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/__init__.py#1-1), righe da 1 a 1
 
-Preparerò uno script che crei automaticamente tutti i file. Facciamo questo: 
+Preparerò uno script che crei automaticamente tutti i file. Facciamo questo:
 
 Create setup script for .jsoncode and verification update
 
@@ -709,7 +709,7 @@ Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/verification_table.py#54-54)
 
 Ricerca di file corrispondenti `**/visual_basic/*.bas`, 4 corrispondenze
 
-Uso un agente per eseguire direttamente lo script di setup: 
+Uso un agente per eseguire direttamente lo script di setup:
 
 Execute setup verification system
 
@@ -775,7 +775,7 @@ Oppure, **se vuoi che proceda direttamente**, confermami che posso:
 
 Cosa preferisci?
 
-User: trova nei codici le modalità di calcolo delle caratteristiche meccaniche (resistenze) del calcestruzzo e dell'acciaio. Accedi ad internet e ai contenuti reluis, controlla le normative attuali e le normative storiche con particolare attenzione al RD2229/39, ai calcoli eseguiti con il santarella, al progetto simulati agli acciai AQ ai calcestruzzi a presa lenta, al cemento alluminoso, ad alta resistenza. Documentati sulla storia dell'ingegneria dei materiali e sulle normative del tempo. 
+User: trova nei codici le modalità di calcolo delle caratteristiche meccaniche (resistenze) del calcestruzzo e dell'acciaio. Accedi ad internet e ai contenuti reluis, controlla le normative attuali e le normative storiche con particolare attenzione al RD2229/39, ai calcoli eseguiti con il santarella, al progetto simulati agli acciai AQ ai calcestruzzi a presa lenta, al cemento alluminoso, ad alta resistenza. Documentati sulla storia dell'ingegneria dei materiali e sulle normative del tempo.
 
 GitHub Copilot: Espressione regolare `fck|fyk|Rck|resistenza|characteristic|strength` (`**/visual_basic/*.bas`) ricercata, 20 risultati
 
@@ -847,7 +847,7 @@ Espressione regolare `Ec.*=/|Es.*=|n.*=.*Es.*Ec` (`**/visual_basic/*.bas`) ricer
 
 Leggere [](file:///c%3A/Users/DanieleCarloni/RD2229/data/materials.json#128-128), righe da 128 a 128
 
-Ottimo report dal codice! Ora cerco informazioni storiche specifiche su ingenio-web.it:     
+Ottimo report dal codice! Ora cerco informazioni storiche specifiche su ingenio-web.it:
 
 
 

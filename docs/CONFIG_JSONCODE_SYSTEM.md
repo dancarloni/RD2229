@@ -84,7 +84,7 @@ Configurazione per verifiche SLE (tensioni, fessurazione, deformazioni).
 
 ### RD2229.jsoncode - Regio Decreto 2229/39
 
-**Periodo:** 1939-1972  
+**Periodo:** 1939-1972
 **Unità:** Sistema tecnico (kg/cm²)
 
 **Classi calcestruzzo:**
@@ -115,7 +115,7 @@ n = E_s / E_c
 
 ### DM92.jsoncode - DM 09/01/1996
 
-**Periodo:** 1992-2008  
+**Periodo:** 1992-2008
 **Unità:** Sistema SI (MPa)
 
 Transizione dal sistema tecnico al SI. Classi calcestruzzo: C12/15, C16/20, C20/25, C25/30, C28/35, C30/37, C35/45, C40/50.
@@ -126,7 +126,7 @@ Acciai: FeB38k, FeB44k, Feb38ks, Feb44ks (saldabili).
 
 **Unità:** SI (MPa)
 
-Classi calcestruzzo moderne: da C20/25 a C90/105.  
+Classi calcestruzzo moderne: da C20/25 a C90/105.
 Acciai: B450C (duttile, classe C), B450A (normale, classe A - deprecato in zona sismica).
 
 **Formule modulo elastico:**
@@ -140,7 +140,7 @@ E_cm = 22000 × (f_cm / 10)^0.3
 
 ```python
 from config.calculation_codes_loader import (
-    load_code, 
+    load_code,
     get_safety_coefficients,
     get_stress_limits,
     list_available_codes

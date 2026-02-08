@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmGeomSezDoppioT 
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmGeomSezDoppioT
    Caption         =   "SEZIONE IN C.A. A DOPPIO T"
    ClientHeight    =   5850
    ClientLeft      =   84

@@ -17,7 +17,7 @@ if (Test-Path .\.venv\Scripts\python.exe) {
         . .\.venv\Scripts\python.exe -m pip install -r requirements.txt
     }
 } else {
-    Write-Warning "Python virtualenv non trovato. Assicurati che Python sia installato e raggiungibile." 
+    Write-Warning "Python virtualenv non trovato. Assicurati che Python sia installato e raggiungibile."
 }
 
 Write-Host "Creazione branch locale senza upstream: 'local-work'"

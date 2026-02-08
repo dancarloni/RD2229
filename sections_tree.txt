@@ -9,37 +9,37 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
 |   shear_factors.py
 |   storage.py
 |   __init__.py
-|   
+|
 +---config
 |   |   constants.py
 |   |   __init__.py
-|   |   
+|   |
 |           constants.cpython-312.pyc
 |           __init__.cpython-312.pyc
-|           
+|
 +---domain
 |   |   base.py
 |   |   shapes.py
 |   |   __init__.py
-|   |   
+|   |
 |           base.cpython-312.pyc
 |           shapes.cpython-312.pyc
 |           __init__.cpython-312.pyc
-|           
+|
 +---io
 |   |   csv_sections.py
 |   |   __init__.py
-|   |   
+|   |
 |           csv_sections.cpython-312.pyc
 |           __init__.cpython-312.pyc
-|           
+|
 +---models
 |   |   sections.py
 |   |   __init__.py
-|   |   
+|   |
 |           sections.cpython-312.pyc
 |           __init__.cpython-312.pyc
-|           
+|
 +---modules
 |   |   debug.py
 |   |   frc.py
@@ -50,7 +50,7 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
 |   |   registry.py
 |   |   verification.py
 |   |   __init__.py
-|   |   
+|   |
 |           debug.cpython-312.pyc
 |           frc.cpython-312.pyc
 |           geometry.cpython-312.pyc
@@ -59,7 +59,7 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
 |           registry.cpython-312.pyc
 |           verification.cpython-312.pyc
 |           __init__.cpython-312.pyc
-|           
+|
 +---services
 |   |   area_calculations.py
 |   |   calculations.py
@@ -71,7 +71,7 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
 |   |   repository.py
 |   |   search_helpers.py
 |   |   __init__.py
-|   |   
+|   |
 |           area_calculations.cpython-312.pyc
 |           calculations.cpython-312.pyc
 |           debug_log_stream.cpython-312.pyc
@@ -82,7 +82,7 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
 |           repository.cpython-312.pyc
 |           shear_calculations.cpython-312.pyc
 |           __init__.cpython-312.pyc
-|           
+|
 +---ui
 |   |   code_settings_window.py
 |   |   debug_viewer.py
@@ -99,12 +99,12 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
 |   |   section_manager.py
 |   |   verification_comparator.py
 |   |   __init__.py
-|   |   
+|   |
 |   +---components
 |   |   |   flow_wrap.py
-|   |   |   
+|   |   |
 |   |           flow_wrap.cpython-312.pyc
-|   |           
+|   |
 |           code_settings_window.cpython-312.pyc
 |           debug_viewer.cpython-312.pyc
 |           frc_manager.cpython-312.pyc
@@ -117,7 +117,7 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
 |           notification_center.cpython-312.pyc
 |           section_manager.cpython-312.pyc
 |           __init__.cpython-312.pyc
-|           
+|
         app.cpython-312.pyc
         geometry_model.cpython-312.pyc
         section_calculations.cpython-312.pyc
@@ -125,4 +125,4 @@ C:\WORKSPACES\RD2229\RD2229\SECTIONS_APP
         shear_factors.cpython-312.pyc
         storage.cpython-312.pyc
         __init__.cpython-312.pyc
-        
+

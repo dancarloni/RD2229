@@ -8,10 +8,10 @@ Risolto il problema per cui la finestra principale (Module Selector) si chiudeva
 
 ## 🎯 Comportamento Finale Corretto
 
-✅ **Module Selector** rimane sempre visibile in background  
-✅ Ogni modulo (Geometry, Historical, Verification Table, Materials) apre una nuova finestra **senza** chiudere la principale  
-✅ È possibile chiudere singolarmente ogni finestra di modulo  
-✅ Chiudere la finestra principale chiude l'intera applicazione  
+✅ **Module Selector** rimane sempre visibile in background
+✅ Ogni modulo (Geometry, Historical, Verification Table, Materials) apre una nuova finestra **senza** chiudere la principale
+✅ È possibile chiudere singolarmente ogni finestra di modulo
+✅ Chiudere la finestra principale chiude l'intera applicazione
 ✅ **Un solo `mainloop()`** nell'applicazione (nella root principale)
 
 ---
@@ -25,7 +25,7 @@ Risolto il problema per cui la finestra principale (Module Selector) si chiudeva
 ```python
 class MainWindow(tk.Tk):
     """Finestra principale dell'applicazione."""
-    
+
     def __init__(self, repository, serializer, material_repository=None):
         super().__init__()  # ❌ Crea una nuova root Tk separata
 ```
@@ -34,12 +34,12 @@ class MainWindow(tk.Tk):
 ```python
 class MainWindow(tk.Toplevel):
     """Finestra del modulo Geometry - aperta come Toplevel dalla finestra principale ModuleSelector.
-    
+
     ✅ Estende tk.Toplevel (non tk.Tk) - rimane una finestra figlia della root principale.
     ✅ Accetta la finestra parent nel costruttore.
     ✅ Un solo mainloop() nell'applicazione (nel ModuleSelector).
     """
-    
+
     def __init__(self, master: tk.Tk, repository, serializer, material_repository=None):
         super().__init__(master=master)  # ✅ Usa master come parent
 ```
@@ -76,7 +76,7 @@ def _on_child_close(self) -> None:
 ```python
 def _open_geometry(self) -> None:
     """Apre il modulo Geometry come finestra Toplevel.
-    
+
     La finestra principale ModuleSelector rimane visibile in background.
     """
     logger.debug("Opening Geometry module")
@@ -143,7 +143,7 @@ def setUp(self):
         test_root.destroy()
     except tk.TclError:
         self.skipTest("Tkinter not available (headless environment)")
-    
+
     self.repo = SectionRepository()
     self.serializer = CsvSectionSerializer()
     self.material_repo = MaterialRepository()
@@ -235,7 +235,7 @@ Nel file `main_window.py`, la classe MainWindow ha ora commenti espliciti:
 ```python
 class MainWindow(tk.Toplevel):
     """Finestra del modulo Geometry - aperta come Toplevel dalla finestra principale ModuleSelector.
-    
+
     ✅ Estende tk.Toplevel (non tk.Tk) - rimane una finestra figlia della root principale.
     ✅ Accetta la finestra parent nel costruttore.
     ✅ Un solo mainloop() nell'applicazione (nel ModuleSelector).
@@ -247,7 +247,7 @@ Nel `module_selector.py`:
 ```python
 def _open_geometry(self) -> None:
     """Apre il modulo Geometry come finestra Toplevel.
-    
+
     La finestra principale ModuleSelector rimane visibile in background.
     """
 ```
@@ -260,7 +260,7 @@ def _open_geometry(self) -> None:
 
 **Soluzione:** Convertire MainWindow a `tk.Toplevel()` la rende una **finestra figlia** della root principale, mantenendo la gerarchia corretta e permettendo la coesistenza di multiple finestre.
 
-**Regola d'Oro Tkinter:** 
+**Regola d'Oro Tkinter:**
 > In un'applicazione Tkinter, ci deve essere **una sola `tk.Tk()`** (la root), e tutti gli altri top-level dovrebbero essere **`tk.Toplevel()`** (figlie della root).
 
 ---

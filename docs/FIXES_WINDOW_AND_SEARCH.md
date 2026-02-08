@@ -27,7 +27,7 @@ Aggiunto il metodo `_on_close()` e il protocol handler nel costruttore:
 ```python
 class MainWindow(tk.Toplevel):
     """Finestra del modulo Geometry - aperta come Toplevel dalla finestra principale ModuleSelector.
-    
+
     ✅ Estende tk.Toplevel (non tk.Tk) - rimane una finestra figlia della root principale.
     ✅ Accetta la finestra parent nel costruttore.
     ✅ Un solo mainloop() nell'applicazione (nel ModuleSelector).
@@ -36,13 +36,13 @@ class MainWindow(tk.Toplevel):
     def __init__(self, master: tk.Tk, repository, serializer, material_repository=None):
         super().__init__(master=master)  # ✅ Passa master a Toplevel
         # ... resto del codice ...
-        
+
         # ✅ Gestisci la chiusura della finestra in modo indipendente
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
     def _on_close(self) -> None:
         """Handler per la chiusura della finestra - chiude solo questa Toplevel, non l'intera app.
-        
+
         ✅ Assicura che il polling sia cancellato e la finestra sia distrutta correttamente.
         """
         self._cancel_polling()
@@ -56,7 +56,7 @@ Aggiunto il metodo `_on_close()` e il protocol handler nel costruttore:
 ```python
 class HistoricalModuleMainWindow(tk.Toplevel):
     """Finestra principale (stub) per i calcoli storici RD 2229 / Santarella / Giangreco.
-    
+
     ✅ Estende tk.Toplevel per rimanere una finestra figlia della root principale.
     ✅ Può essere chiusa indipendentemente senza chiudere l'intera applicazione.
     """
@@ -64,7 +64,7 @@ class HistoricalModuleMainWindow(tk.Toplevel):
     def __init__(self, master: tk.Tk, repository: SectionRepository):
         super().__init__(master)
         # ... resto del codice ...
-        
+
         # ✅ Gestisci la chiusura della finestra in modo indipendente
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
@@ -126,7 +126,7 @@ class Material:
     code: str = ""  # ✅ NUOVO: codice del materiale (es. "C100", "A500") - permette ricerca per codice
     properties: Dict[str, float] = field(default_factory=dict)
     id: str = field(default_factory=lambda: str(uuid4()))
-    
+
     def to_dict(self) -> Dict:
         """Converte il Material a dizionario per JSON."""
         return {
@@ -136,7 +136,7 @@ class Material:
             "code": self.code,  # ✅ Persisti codice nel JSON
             "properties": self.properties,
         }
-    
+
     @staticmethod
     def from_dict(data: Dict) -> Material:
         """Crea un Material da un dizionario JSON."""
@@ -156,7 +156,7 @@ def import_historical_material(self, hist: "HistoricalMaterial") -> Material:
     """
     Crea un oggetto Material a partire da un HistoricalMaterial senza aggiungerlo automaticamente
     all'archivio.
-    
+
     ✅ Mantiene il `code` dalla fonte storica per permettere ricerca per codice.
     """
     props: Dict[str, float] = {}
@@ -184,7 +184,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
     """Search materials using MaterialRepository or a static list.
 
     ✅ Ricerca sia nel campo 'name' che nel campo 'code' del materiale.
-    
+
     Args:
         repo: MaterialRepository or None
         names: fallback list of material names
@@ -206,15 +206,15 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
                 name = m.name if hasattr(m, "name") else (m.get("name") if isinstance(m, dict) else "")
                 code = getattr(m, "code", "") or (m.get("code") if isinstance(m, dict) else "")  # ✅ Nuovo: includi code
                 mtype = getattr(m, "type", None) or (m.get("type") if isinstance(m, dict) else None)
-                
+
                 # Filtra per tipo se specificato
                 if type_filter and mtype is not None and mtype != type_filter:
                     continue
-                
+
                 # ✅ Ricerca sia in name che in code (case-insensitive)
                 name_match = q in (name or "").lower()
                 code_match = q in (code or "").lower()
-                
+
                 if name_match or code_match:
                     results.append(name)
             return results[:limit]
@@ -270,19 +270,19 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
 ```
 
 ### Comportamenti Verificati
-✅ MainWindow (Geometry) è chiudibile indipendentemente  
-✅ HistoricalModuleMainWindow è chiudibile indipendentemente  
-✅ VerificationTableWindow è chiudibile indipendentemente (aveva già handler)  
-✅ HistoricalMaterialWindow è chiudibile indipendentemente (aveva già handler)  
-✅ Chiudere un modulo NON chiude la finestra principale  
-✅ Module Selector rimane sempre accessibile  
+✅ MainWindow (Geometry) è chiudibile indipendentemente
+✅ HistoricalModuleMainWindow è chiudibile indipendentemente
+✅ VerificationTableWindow è chiudibile indipendentemente (aveva già handler)
+✅ HistoricalMaterialWindow è chiudibile indipendentemente (aveva già handler)
+✅ Chiudere un modulo NON chiude la finestra principale
+✅ Module Selector rimane sempre accessibile
 
-✅ Ricerca per nome materiale funziona (es. "Calcestruzzo")  
-✅ Ricerca per codice funziona (es. "C100", "A500")  
-✅ Filtro per tipo calcestruzzo funziona  
-✅ Filtro per tipo acciaio funziona  
-✅ Case-insensitive search funziona  
-✅ Material JSON persistence funziona (code viene salvato/caricato)  
+✅ Ricerca per nome materiale funziona (es. "Calcestruzzo")
+✅ Ricerca per codice funziona (es. "C100", "A500")
+✅ Filtro per tipo calcestruzzo funziona
+✅ Filtro per tipo acciaio funziona
+✅ Case-insensitive search funziona
+✅ Material JSON persistence funziona (code viene salvato/caricato)
 
 ---
 

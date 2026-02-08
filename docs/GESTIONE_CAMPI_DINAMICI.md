@@ -43,15 +43,15 @@ def _on_section_change(self, _event=None) -> None:
     """Handler per cambio tipologia sezione - ricostruisce campi input dinamicamente."""
     tipo_selezionato = self.section_var.get()
     logger.debug(f"Cambio tipologia sezione: {tipo_selezionato}")
-    
+
     # Ricostruisce i campi di input per la nuova tipologia
     self._create_inputs()
-    
+
     # Se era in modalità editing, resetta (la tipologia è cambiata)
     if self.editing_section_id is not None:
         self.editing_section_id = None
         self._update_editing_mode_label()
-    
+
     # Pulisce eventuali calcoli precedenti
     self.current_section = None
     self.output_text.delete("1.0", tk.END)
@@ -79,13 +79,13 @@ def _create_inputs(self) -> None:
     tipo_sezione = self.section_var.get()
     definition = SECTION_DEFINITIONS[tipo_sezione]
     field_tooltips = definition.get("field_tooltips", {})
-    
+
     # 3. Crea i campi di input dinamicamente
     for row, (field, label_text) in enumerate(definition["fields"]):
         # Label del parametro
         lbl = tk.Label(self.inputs_frame, text=label_text, anchor="w")
         lbl.grid(row=row, column=0, sticky="w", padx=4, pady=4)
-        
+
         # Entry con validazione float a 1 decimale
         vcmd = (self.register(self._validate_float_input), '%P')
         entry = tk.Entry(
@@ -95,10 +95,10 @@ def _create_inputs(self) -> None:
             validatecommand=vcmd
         )
         entry.grid(row=row, column=1, padx=4, pady=4, sticky="ew")
-        
+
         # Memorizza l'entry
         self.inputs[field] = entry
-        
+
         # Aggiunge tooltip se disponibile
         if field in field_tooltips:
             self._create_tooltip(entry, field_tooltips[field])
@@ -122,10 +122,10 @@ def _validate_float_input(self, value: str) -> bool:
     """
     if value == "":
         return True
-    
+
     try:
         float(value)
-        
+
         # Controlla il numero di cifre decimali
         if '.' in value:
             parts = value.split('.')
@@ -156,7 +156,7 @@ def _create_tooltip(self, widget: tk.Widget, text: str) -> None:
         tooltip = tk.Toplevel(widget)
         tooltip.wm_overrideredirect(True)
         tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
-        
+
         label = tk.Label(
             tooltip,
             text=text,
@@ -170,12 +170,12 @@ def _create_tooltip(self, widget: tk.Widget, text: str) -> None:
         )
         label.pack()
         widget._tooltip = tooltip
-    
+
     def on_leave(event):
         if hasattr(widget, '_tooltip'):
             widget._tooltip.destroy()
             del widget._tooltip
-    
+
     widget.bind("<Enter>", on_enter)
     widget.bind("<Leave>", on_leave)
 ```
@@ -216,21 +216,21 @@ In `src/rd2229/sections_app/models/sections.py`:
 @dataclass
 class ISection(Section):
     """Sezione a doppia T (I)."""
-    
+
     flange_width: float = 0.0
     flange_thickness: float = 0.0
     web_height: float = 0.0
     web_thickness: float = 0.0
-    
-    def __init__(self, name: str, flange_width: float, 
-                 flange_thickness: float, web_height: float, 
+
+    def __init__(self, name: str, flange_width: float,
+                 flange_thickness: float, web_height: float,
                  web_thickness: float, note: str = ""):
         super().__init__(name=name, section_type="I_SECTION", note=note)
         self.flange_width = flange_width
         self.flange_thickness = flange_thickness
         self.web_height = web_height
         self.web_thickness = web_thickness
-    
+
     def _compute(self) -> SectionProperties:
         # Implementare calcolo delle proprietà
         ...

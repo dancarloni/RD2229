@@ -129,7 +129,7 @@ index fc4b935..aaadb2c 100644
 +    frc_eps_fu: Optional[float] = None  # ultimate strain of fibers
 +    frc_note: Optional[str] = None  # free-text note or source
      id: str = field(default_factory=lambda: str(uuid4()))
-     
+
      def to_dict(self) -> Dict:
 @@ -35,6 +41,12 @@ class Material:
              "type": self.type,
@@ -142,7 +142,7 @@ index fc4b935..aaadb2c 100644
 +            "frc_eps_fu": self.frc_eps_fu,
 +            "frc_note": self.frc_note,
          }
-     
+
      @staticmethod
 @@ -46,6 +58,11 @@ class Material:
              type=data.get("type", ""),
@@ -154,8 +154,8 @@ index fc4b935..aaadb2c 100644
 +            frc_eps_fu=data.get("frc_eps_fu"),
 +            frc_note=data.get("frc_note"),
          )
- 
- 
+
+
 diff --git a/docs/IMPLEMENTAZIONE_PERSISTENZA.md b/docs/IMPLEMENTAZIONE_PERSISTENZA.md
 index 1e6aad5..20562ab 100644
 --- a/docs/IMPLEMENTAZIONE_PERSISTENZA.md
@@ -163,7 +163,7 @@ index 1e6aad5..20562ab 100644
 @@ -95,6 +95,8 @@ repo = SectionRepository()  # Usa default "sections.json"
  repo = SectionRepository(json_file="/path/to/custom.json")
  ```
- 
+
 +> Nota: il file legacy `sections.json` è deprecato. Il nuovo percorso canonico è `sec_repository/sec_repository.jsons`. Se viene trovato `sections.json` in posizioni legacy (es. cartella di lavoro) verrà migrato automaticamente nel file canonico con creazione di un backup `sections.json.bak`. Per disabilitare la migrazione automatica impostare `RD2229_NO_AUTO_MIGRATE=1`.
 +
  ### Repository usati nel progetto:
@@ -175,16 +175,16 @@ index 2450573..631b858 100644
 +++ b/docs/PERSISTENZA_SUMMARY.md
 @@ -79,11 +79,11 @@ repo = SectionRepository(json_file="data/sections.json")
  ## 🧪 Esecuzione Demo
- 
+
  ```bash
 -# Demo pratico (crea demo_sections.json)
 +# Demo pratico (crea demo_sections.jsons)
  python demo_persistenza.py
- 
+
  # Analizza file JSON salvato
 -python analyze_sections_json.py demo_sections.json
 +python analyze_sections_json.py demo_sections.jsons
- 
+
  # Esegui test
  python test_persistence.py
 diff --git a/examples/demo_backup_system.py b/examples/demo_backup_system.py
@@ -192,22 +192,22 @@ index 7d2b20e..92dc2ec 100644
 --- a/examples/demo_backup_system.py
 +++ b/examples/demo_backup_system.py
 @@ -40,13 +40,13 @@ def demo_section_backup():
-     
+
      # Crea directory temporanea
      temp_dir = tempfile.mkdtemp()
 -    sections_file = os.path.join(temp_dir, "demo_sections.json")
 +    sections_file = os.path.join(temp_dir, "demo_sections.jsons")
-     
+
      print(f"\n📁 Directory temporanea: {temp_dir}")
 -    print(f"📄 File principale: demo_sections.json")
 -    print(f"💾 File backup: demo_sections_backup.json")
 +    print(f"📄 File principale: demo_sections.jsons")
 +    print(f"💾 File backup: demo_sections_backup.jsons")
-     
+
 -    # Crea repository
 +    # Crea repository (canonical .jsons)
      repo = SectionRepository(json_file=sections_file)
-     
+
      # FASE 1: Prima aggiunta
 diff --git a/examples/demo_export_backup.py b/examples/demo_export_backup.py
 index e9b7bae..dd60908 100644
@@ -222,7 +222,7 @@ index e9b7bae..dd60908 100644
 +        sec_dir = temp_path / "sec_repository"
 +        sec_dir.mkdir(exist_ok=True)
 +        repo = SectionRepository(json_file=str(sec_dir / "sec_repository.jsons"))
-         
+
          # Scenario 1: Popola repository con sezioni
          print_section("Scenario 1: Creazione Repository con Sezioni di Test")
 @@ -63,8 +66,8 @@ def main():
@@ -233,19 +233,19 @@ index e9b7bae..dd60908 100644
 -        print(f"✓ File backup automatico: {temp_path / 'sections_backup.json'}")
 +        print(f"\n✓ File principale: {sec_dir / 'sec_repository.jsons'}")
 +        print(f"✓ File backup automatico: {sec_dir / 'sec_repository_backup.jsons'}")
-         
+
          # Scenario 2: Export in JSON
          print_section("Scenario 2: Export in Formato JSON")
 @@ -100,16 +103,16 @@ def main():
          print(f"  Colonne: {list(rows[0].keys())[:5]}... (prime 5)")
-         
+
          # Scenario 4: Export senza estensione (default .json)
 -        print_section("Scenario 4: Export Senza Estensione (Default .json)")
 +        # Scenario 4: Export Senza Estensione (Default .jsons)
-         
+
          no_ext_export = temp_path / "export_senza_estensione"
          repo.export_backup(no_ext_export)
-         
+
 -        # Il file verrà salvato con .json aggiunto automaticamente
 -        actual_file = temp_path / "export_senza_estensione.json"
 +        # Il file verrà salvato con .jsons aggiunto automaticamente
@@ -254,7 +254,7 @@ index e9b7bae..dd60908 100644
          print(f"✓ File creato: {actual_file}")
 -        print(f"  (Estensione .json aggiunta automaticamente)")
 +        print(f"  (Estensione .jsons aggiunta automaticamente)")
-         
+
          # Scenario 5: Export in directory nidificata
          print_section("Scenario 5: Export in Directory Nidificata")
 diff --git a/examples/demo_export_gui.py b/examples/demo_export_gui.py
@@ -264,14 +264,14 @@ index 9bbad6c..588fa54 100644
 @@ -35,8 +35,10 @@ def main():
      temp_dir = tempfile.mkdtemp()
      temp_path = Path(temp_dir)
-     
+
 -    # Repository sezioni con dati di esempio
 -    section_repo = SectionRepository(json_file=str(temp_path / "sections.json"))
 +    # Repository sezioni con dati di esempio (canonical .jsons in temp)
 +    sec_dir = temp_path / "sec_repository"
 +    sec_dir.mkdir(exist_ok=True)
 +    section_repo = SectionRepository(json_file=str(sec_dir / "sec_repository.jsons"))
-     
+
      rect = RectangularSection(name="Pilastro 30x50", width=300, height=500)
      circ = CircularSection(name="Palo Circolare D40", diameter=400)
 diff --git a/examples/demo_persistenza.py b/examples/demo_persistenza.py
@@ -280,11 +280,11 @@ index 92922e9..e115d5f 100644
 +++ b/examples/demo_persistenza.py
 @@ -22,7 +22,7 @@ def main():
      print("=" * 70)
-     
+
      # Usa un file JSON personalizzato per la demo
 -    json_file = "demo_sections.json"
 +    json_file = "demo_sections.jsons"
-     
+
      # FASE 1: Primo avvio - crea sezioni
      print("\n[FASE 1] Primo avvio - Creazione sezioni")
 diff --git a/examples/demo_verification_table_auto_update.py b/examples/demo_verification_table_auto_update.py
@@ -292,13 +292,13 @@ index 1f8bd99..89ecc11 100644
 --- a/examples/demo_verification_table_auto_update.py
 +++ b/examples/demo_verification_table_auto_update.py
 @@ -26,7 +26,7 @@ class DemoControlPanel(tk.Tk):
-         
+
          # Create temp repositories
          self.temp_dir = tempfile.mkdtemp()
 -        self.sections_file = os.path.join(self.temp_dir, "demo_sections.json")
 +        self.sections_file = os.path.join(self.temp_dir, "demo_sections.jsons")
          self.materials_file = os.path.join(self.temp_dir, "demo_materials.json")
-         
+
          self.section_repo = SectionRepository(json_file=self.sections_file)
 diff --git a/pytest.ini b/pytest.ini
 new file mode 100644
@@ -550,20 +550,20 @@ index 0c4c229..12ec84a 100644
 +++ b/sections_app/models/sections.py
 @@ -1,13 +1,13 @@
  from __future__ import annotations
- 
+
  from dataclasses import dataclass, field
 -from math import pi, sqrt, radians
 +from math import pi, sqrt, radians, degrees
  from typing import Dict, Optional, Tuple
  from uuid import uuid4
- 
+
  import logging
- 
+
 -from sections_app.services.calculations import rotate_inertia
 +from sections_app.services.calculations import rotate_inertia, compute_principal_inertia
- 
+
  logger = logging.getLogger(__name__)
- 
+
 @@ -37,6 +37,11 @@ CSV_HEADERS = [
      "Ix",
      "Iy",
@@ -579,7 +579,7 @@ index 0c4c229..12ec84a 100644
 @@ -105,6 +110,13 @@ class SectionProperties:
      ellipse_a: Optional[float] = None
      ellipse_b: Optional[float] = None
- 
+
 +    # Principal inertia results
 +    principal_ix: Optional[float] = None
 +    principal_iy: Optional[float] = None
@@ -593,7 +593,7 @@ index 0c4c229..12ec84a 100644
 @@ -145,6 +157,27 @@ class Section:
          # Calcola le proprietà geometriche specifiche di ogni sottoclasse
          self.properties = self._compute()
- 
+
 +        # Calcola principali inerzie (I1, I2, angolo) se possibile
 +        props = self.properties
 +        if props is not None:
@@ -617,7 +617,7 @@ index 0c4c229..12ec84a 100644
 +
          # Costruisci il dizionario delle dimensioni (tutte le chiavi presenti)
          self.dimensions = self._collect_dimensions()
- 
+
 @@ -270,6 +303,11 @@ class Section:
                  "Ix": getattr(props, "ix", None) if props else None,
                  "Iy": getattr(props, "iy", None) if props else None,
@@ -636,17 +636,17 @@ index 175a4f0..257e0c6 100644
 +++ b/sections_app/services/calculations.py
 @@ -1,7 +1,7 @@
  from __future__ import annotations
- 
+
  from dataclasses import dataclass
 -from math import cos, sin
 +from math import cos, sin, sqrt, atan2
  from typing import List, Tuple
- 
- 
+
+
 @@ -63,6 +63,26 @@ def translate_inertia(I_local: float, area: float, distance: float) -> float:
      return I_local + area * distance * distance
- 
- 
+
+
 +def compute_principal_inertia(Ix: float, Iy: float, Ixy: float) -> tuple:
 +    """Compute principal inertias and principal angle (in radians).
 +
@@ -675,9 +675,9 @@ index 5ddf696..c42b51c 100644
 --- a/sections_app/services/repository.py
 +++ b/sections_app/services/repository.py
 @@ -21,15 +21,67 @@ class SectionRepository:
- 
+
      DEFAULT_JSON_FILE = DEFAULT_JSON_FILE
- 
+
 -    def __init__(self, json_file: str = DEFAULT_JSON_FILE) -> None:
 +    def __init__(self, json_file: Optional[str] = None, auto_migrate: Optional[bool] = None) -> None:
 +        """
@@ -691,7 +691,7 @@ index 5ddf696..c42b51c 100644
          self._sections: Dict[str, Section] = {}
          self._keys: Dict[tuple, str] = {}
 -        self._json_file = json_file
--        
+-
 +
 +        # Decidi se la migrazione automatica è abilitata (default: True)
 +        if auto_migrate is None:
@@ -742,15 +742,15 @@ index 5ddf696..c42b51c 100644
          # Percorsi per backup
 -        self._file_path = Path(json_file)
          self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
--        
+-
 +
          # Carica le sezioni dal file JSON se esiste
          self.load_from_file()
- 
+
 @@ -252,8 +304,8 @@ class SectionRepository:
                  except Exception as exc:
                      logger.warning("Impossibile creare backup di %s: %s", self._file_path, exc)
-             
+
 -            # Scrivi su file temporaneo
 -            tmp_path = self._file_path.with_suffix(".json.tmp")
 +            # Scrivi su file temporaneo preservando l'estensione originale
@@ -759,7 +759,7 @@ index 5ddf696..c42b51c 100644
                  with tmp_path.open("w", encoding="utf-8") as f:
                      json.dump(data, f, indent=2, ensure_ascii=False)
 @@ -292,11 +344,11 @@ class SectionRepository:
-             
+
              # Determina estensione e normalizza
              suffix = dest_path.suffix.lower()
 -            if suffix not in ['.json', '.csv']:
@@ -772,13 +772,13 @@ index 5ddf696..c42b51c 100644
 +                dest_path = dest_path.with_suffix('.jsons')
 +                suffix = '.jsons'
 +                logger.info("Estensione mancante o non valida, uso .jsons: %s", dest_path)
-             
+
              # Crea directory di destinazione se necessaria
              if dest_path.parent.exists() is False and str(dest_path.parent) != '.':
 @@ -306,7 +358,7 @@ class SectionRepository:
              # Ottieni tutte le sezioni
              sections = self.get_all_sections()
-             
+
 -            if suffix == '.json':
 +            if suffix in ('.json', '.jsons'):
                  # Esporta in JSON
@@ -789,7 +789,7 @@ index b4bed3b..9c25f93 100644
 --- a/sections_app/ui/main_window.py
 +++ b/sections_app/ui/main_window.py
 @@ -1125,22 +1125,9 @@ class MainWindow(tk.Toplevel):
- 
+
          # OBIETTIVO 4: Calcola proprietà automaticamente se assenti o se parametri sono cambiati
          try:
 -            needs_recalc = False
@@ -804,7 +804,7 @@ index b4bed3b..9c25f93 100644
 -                    needs_recalc = True
 -            else:
 -                needs_recalc = True
--            
+-
 -            if needs_recalc:
 -                section.compute_properties()
 -                logger.debug("Proprietà calcolate per sezione: %s", section.name)
@@ -1235,6 +1235,6 @@ index 0000000..2ae3c55
 +
 +    diff = abs(_normalize_angle_deg(angle_deg) - _normalize_angle_deg(expected_deg))
 +    assert diff < 1e-6
--- 
+--
 2.52.0.windows.1
 

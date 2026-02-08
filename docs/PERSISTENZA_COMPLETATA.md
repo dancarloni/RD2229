@@ -24,16 +24,16 @@ class SectionRepository:
     # Nuovi attributi
     DEFAULT_JSON_FILE = "sections.json"
     _json_file: str
-    
+
     # Modificato __init__()
     def __init__(self, json_file: str = DEFAULT_JSON_FILE) -> None:
         ...
         self.load_from_file()  # Carica dal JSON all'avvio
-    
+
     # Nuovi metodi
     def load_from_file(self) -> None: ...
     def save_to_file(self) -> None: ...
-    
+
     # Modificati (aggiunto self.save_to_file())
     def add_section(self, section: Section) -> bool: ...
     def update_section(self, section_id: str, updated_section: Section) -> None: ...

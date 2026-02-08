@@ -173,7 +173,7 @@ Run the checks locally with `pre-commit run --all-files` (useful before PRs).
    ```
 
 3. Installare le dipendenze di sviluppo e test: `pip install -r requirements-dev.txt` (contiene `pytest`, `flake8`, `mypy`).
-4. Abilitare i pre-commit hooks: `pip install pre-commit && pre-commit install`. 
+4. Abilitare i pre-commit hooks: `pip install pre-commit && pre-commit install`.
 5. Eseguire i test: `pytest -q`.
 6. Usare i modelli in [src/rd2229](src/rd2229).
 

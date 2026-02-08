@@ -2,7 +2,7 @@
 
 ## Resoconto Finale
 
-Data: **4 febbraio 2026**  
+Data: **4 febbraio 2026**
 Status: **✅ COMPLETATO CON SUCCESSO**
 
 ---
@@ -30,12 +30,12 @@ class MaterialRepository:
     # Nuovi attributi
     DEFAULT_JSON_FILE = "materials.json"
     _json_file: str
-    
+
     # Modificato __init__()
     def __init__(self, json_file: str = DEFAULT_JSON_FILE) -> None:
         ...
         self.load_from_file()  # Carica dal JSON
-    
+
     # Nuovi metodi
     def load_from_file(self) -> None: ...
     def save_to_file(self) -> None: ...
@@ -43,7 +43,7 @@ class MaterialRepository:
     def update(self, material_id: str, updated_material: Material) -> None: ...
     def delete(self, material_id: str) -> None: ...
     def clear(self) -> None: ...
-    
+
     # Modificati (aggiunto save_to_file())
     def add(self, mat: Material) -> None: ...
 ```
@@ -274,6 +274,6 @@ La funzionalità è:
 
 ---
 
-**Status: ✅ COMPLETATO**  
-**Data: 4 febbraio 2026**  
+**Status: ✅ COMPLETATO**
+**Data: 4 febbraio 2026**
 **Commit: 7b869ea**

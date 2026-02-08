@@ -22,7 +22,7 @@ except Exception as e:
     self.geometry("1600x550")  # Fallback
 ```
 
-**Effetto**: 
+**Effetto**:
 - ✅ Finestra si apre con larghezza calcolata (~1825 px)
 - ✅ Se non possibile evitare scrollbar, mantiene comunque buone dimensioni
 - ✅ Fallback su 1600×550 se calcolo fallisce
@@ -44,35 +44,35 @@ header_labels: Dict[str, str] = {
     "flange_thickness": "hf (cm)",
     "web_thickness": "bw (cm)",
     "web_height": "hw (cm)",
-    
+
     # Area
     "area": "Area (cm²)",
-    
+
     # Baricentro
     "x_G": "x_G (cm)",
     "y_G": "y_G (cm)",
-    
+
     # Inerzie
     "Ix": "Ix (cm⁴)",
     "Iy": "Iy (cm⁴)",
     "Ixy": "Ixy (cm⁴)",
-    
+
     # Momenti statici
     "Qx": "Qx (cm³)",
     "Qy": "Qy (cm³)",
-    
+
     # Raggi giratori
     "rx": "rx (cm)",
     "ry": "ry (cm)",
-    
+
     # Nocciolo
     "core_x": "x nocciolo (cm)",
     "core_y": "y nocciolo (cm)",
-    
+
     # Ellisse
     "ellipse_a": "a ellisse (cm)",
     "ellipse_b": "b ellisse (cm)",
-    
+
     # Metadati
     "name": "Nome Sezione",
     "section_type": "Tipo",
@@ -111,7 +111,7 @@ else:
 6. Chiama `update_section()` con stesso ID
 7. **Nessuna nuova sezione creata** ✅
 
-**Label di stato**: 
+**Label di stato**:
 ```python
 # Mostra visualmente se siamo in "modifica" o "nuova"
 "Modalità: Modifica sezione '{name}'\nID: {id_short}..."
@@ -139,7 +139,7 @@ try:
             needs_recalc = True
     else:
         needs_recalc = True
-    
+
     if needs_recalc:
         section.compute_properties()
         logger.debug("Proprietà calcolate per sezione: %s", section.name)
@@ -154,7 +154,7 @@ except Exception as e:
 
 ## ✅ OBIETTIVO 5: Mantenere import/export CSV invariati
 
-**File**: 
+**File**:
 - `sections_app/services/repository.py` - `CsvSectionSerializer`
 - `sections_app/models/sections.py` - `Section.to_dict()`
 
@@ -175,12 +175,12 @@ except Exception as e:
 ```python
 def update_section(self, section_id: str, updated_section: Section) -> None:
     """Aggiorna una sezione esistente.
-    
+
     Se la sezione non esiste, solleva KeyError.
     Se la nuova chiave logica entra in conflitto, solleva ValueError.
     """
     logger.debug("Updating section %s with %s", section_id, updated_section)
-    
+
     if section_id not in self._sections:
         logger.warning("Attempted update on non-existing section: %s", section_id)
         raise KeyError(f"Sezione non trovata: {section_id}")
@@ -222,7 +222,7 @@ def update_section(self, section_id: str, updated_section: Section) -> None:
 
 ## ✅ OBIETTIVO 7: Sincronizzazione interfaccia dopo add/update/delete
 
-**File**: 
+**File**:
 - `sections_app/ui/section_manager.py` - `reload_sections_in_treeview()`
 - `sections_app/ui/main_window.py` - `save_section()` con reload
 
