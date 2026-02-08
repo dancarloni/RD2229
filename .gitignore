@@ -59,3 +59,6 @@ docs/_build/
 .cache/
 
 nul
+
+# Pre-commit cache (local)
+.pre-commit-cache/
