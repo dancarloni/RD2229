@@ -3,10 +3,7 @@
 Verifica create, update, delete e gestione dei casi limite.
 """
 
-import json
 import sys
-import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -14,17 +11,14 @@ sys.path.insert(0, ".")
 
 from sections_app.models.sections import (
     RectangularSection,
-    CircularSection,
-    TSection,
-    LSection,
 )
-from sections_app.services.repository import GeometryRepository
 from sections_app.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_DELETED,
     SECTIONS_UPDATED,
     EventBus,
 )
+from sections_app.services.repository import GeometryRepository
 
 
 @pytest.fixture

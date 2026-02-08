@@ -12,37 +12,20 @@ import pytest
 
 sys.path.insert(0, ".")
 
+from sections_app.models.sections import (
+    DEFAULT_SHEAR_KAPPAS,
+    RectangularSection,
+)
 from sections_app.services.area_calculations import (
-    _area_c_section,
-    _area_circular,
-    _area_circular_hollow,
-    _area_i_section,
     _area_inverted_t_section,
     _area_inverted_v_section,
     _area_l_section,
     _area_pi_section,
-    _area_rectangular,
-    _area_rectangular_hollow,
     _area_t_section,
     _area_v_section,
     compute_shear_areas,
 )
-from sections_app.models.sections import (
-    CircularHollowSection,
-    CircularSection,
-    CSection,
-    InvertedTSection,
-    InvertedVSection,
-    ISection,
-    LSection,
-    PiSection,
-    RectangularHollowSection,
-    RectangularSection,
-    TSection,
-    VSection,
-    DEFAULT_SHEAR_KAPPAS,
-)
-from sections_app.shear_factors import DEFAULT_SHEAR_FACTORS, get_default_shear_factor
+from sections_app.shear_factors import get_default_shear_factor
 
 
 # Mock section for testing compute_shear_areas
@@ -182,9 +165,7 @@ class TestShearFactorsComplete:
     )
     def test_kappa_pair_defined(self, section_type):
         """Each section type should have kappa (y, z) pair in DEFAULT_SHEAR_KAPPAS."""
-        assert section_type in DEFAULT_SHEAR_KAPPAS, (
-            f"{section_type} missing from DEFAULT_SHEAR_KAPPAS"
-        )
+        assert section_type in DEFAULT_SHEAR_KAPPAS, f"{section_type} missing from DEFAULT_SHEAR_KAPPAS"
         ky, kz = DEFAULT_SHEAR_KAPPAS[section_type]
         assert ky > 0
         assert kz > 0

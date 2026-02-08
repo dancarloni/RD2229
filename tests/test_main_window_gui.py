@@ -1,5 +1,6 @@
 import tkinter as tk
 from pathlib import Path
+
 from sections_app.ui.main_window import MainWindow
 
 
@@ -15,7 +16,7 @@ def test_save_section_via_repository(tmp_path: Path):
     json_file = str(tmp_path / "test_repo.jsons")
     Path(json_file).write_text("[]", encoding="utf-8")
 
-    from sections_app.services.repository import GeometryRepository, CsvSectionSerializer
+    from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
 
     repo = GeometryRepository(json_file=json_file, auto_migrate=False)
     serializer = CsvSectionSerializer()

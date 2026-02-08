@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
 from pathlib import Path
 from tkinter import Tk, filedialog
 
 from core_models.materials import MaterialRepository  # noqa: F401
 from historical_materials import HistoricalMaterialLibrary  # noqa: F401
+from sections_app.modules.registry import ModuleRegistry
 from sections_app.services.notification import (
     notify_error,
     notify_info,
@@ -26,8 +28,6 @@ from sections_app.ui.historical_material_window import HistoricalMaterialWindow 
 from sections_app.ui.main_window import MainWindow  # noqa: F401
 from sections_app.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
 from sections_app.ui.notification_center import NotificationCenter
-from sections_app.modules.registry import ModuleRegistry
-import threading
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class ModuleSelectorController:
         """Carica configurazione moduli da file JSON."""
         config_path = Path(__file__).parent / "modules_config.json"
         if config_path.exists():
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, encoding="utf-8") as f:
                 return json.load(f)
         # Fallback predefinito se il file non esiste
         logger.warning("modules_config.json non trovato, uso configurazione predefinita.")
@@ -95,9 +95,7 @@ class ModuleSelectorController:
                 self.open_windows.append(window)
 
             # start the module in a separate thread to avoid blocking the selector UI
-            thread = threading.Thread(
-                target=self._run_window, args=(window, module_key), daemon=True
-            )
+            thread = threading.Thread(target=self._run_window, args=(window, module_key), daemon=True)
             thread.start()
             logger.info("Modulo '%s' avviato in background.", module_key)
         except Exception as e:
@@ -241,12 +239,8 @@ class ModuleSelectorWindow(Tk):
 
         tools_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Strumenti", menu=tools_menu)
-        tools_menu.add_command(
-            label="Impostazioni Codice", command=self.controller.open_code_settings
-        )
-        tools_menu.add_command(
-            label="Centro Notifiche", command=self.controller.open_notification_center
-        )
+        tools_menu.add_command(label="Impostazioni Codice", command=self.controller.open_code_settings)
+        tools_menu.add_command(label="Centro Notifiche", command=self.controller.open_notification_center)
         tools_menu.add_separator()
         tools_menu.add_command(label="Aggiorna Moduli", command=self._refresh_modules)
 

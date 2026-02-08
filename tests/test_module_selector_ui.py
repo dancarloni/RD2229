@@ -5,7 +5,7 @@ including the FlowWrapFrame layout manager and ModuleSelectorView.
 """
 
 import tkinter as tk
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 

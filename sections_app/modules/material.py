@@ -16,12 +16,10 @@ class _Placeholder:
 def create_module(master=None, material_repo=None, **_):
     try:
         # import lazily the real window if available
-        from sections_app.ui.historical_material_window import HistoricalMaterialWindow
         from historical_materials import HistoricalMaterialLibrary
+        from sections_app.ui.historical_material_window import HistoricalMaterialWindow
 
         library = HistoricalMaterialLibrary()
-        return HistoricalMaterialWindow(
-            master=master, library=library, material_repository=material_repo
-        )
+        return HistoricalMaterialWindow(master=master, library=library, material_repository=material_repo)
     except Exception:
         return _Placeholder(master)

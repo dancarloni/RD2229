@@ -46,9 +46,7 @@ def get_concrete_properties(
         if mat is not None:
             fck_mpa = _extract_material_property(mat, ["fck_MPa", "fck_mpa", "fck"])
     if fck_mpa is None:
-        logger.warning(
-            "Materiale cls '%s' non trovato; uso fck=%s MPa", _input.material_concrete, fallback_fck
-        )
+        logger.warning("Materiale cls '%s' non trovato; uso fck=%s MPa", _input.material_concrete, fallback_fck)
         fck_mpa = fallback_fck
     fck_kgcm2 = fck_mpa * 10.197
     sigma_ca = 0.5 * fck_kgcm2

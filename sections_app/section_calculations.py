@@ -4,15 +4,15 @@ No tkinter or GUI imports here.
 """
 
 from __future__ import annotations
-from math import atan2, degrees, sqrt, cos, sin, radians
+
 import math
-from typing import Tuple
+from math import atan2, cos, degrees, radians, sin, sqrt
 
 from sections_app.geometry_model import (
+    CoreData,
+    EllipseData,
     SectionGeometry,
     SectionProperties,
-    EllipseData,
-    CoreData,
 )
 
 # Optional shapely support for robust geometry operations
@@ -61,15 +61,11 @@ def compute_centroid(geom: SectionGeometry) -> tuple[float, float]:
     return weighted_x / total_area, weighted_y / total_area
 
 
-def compute_inertia(
-    geom: SectionGeometry, centroid: tuple[float, float]
-) -> tuple[float, float, float]:
+def compute_inertia(geom: SectionGeometry, centroid: tuple[float, float]) -> tuple[float, float, float]:
     """Compute Ix, Iy, Ixy about centroid, accounting for holes by subtraction."""
     cx, cy = centroid
 
-    def poly_inertia_about_centroid(
-        pts: list[tuple[float, float]], cx0: float, cy0: float
-    ) -> tuple[float, float, float]:
+    def poly_inertia_about_centroid(pts: list[tuple[float, float]], cx0: float, cy0: float) -> tuple[float, float, float]:
         Ix = 0.0
         Iy = 0.0
         Ixy = 0.0
@@ -188,7 +184,7 @@ def compute_inertia_ellipse(props: SectionProperties) -> EllipseData:
 
 # Convenience: convert Section (existing code model) to SectionGeometry
 # to reuse this calculations module with existing Section objects.
-from sections_app.models.sections import Section, RectangularSection, CircularSection
+from sections_app.models.sections import Section
 
 
 def section_to_geometry(section: Section) -> SectionGeometry:
@@ -201,9 +197,7 @@ def section_to_geometry(section: Section) -> SectionGeometry:
     if st == "RECTANGULAR" and hasattr(section, "width") and hasattr(section, "height"):
         b = float(getattr(section, "width"))
         h = float(getattr(section, "height"))
-        geom = SectionGeometry.from_rectangle(
-            b=b, h=h, rotation_deg=section.rotation_angle_deg, name=name
-        )
+        geom = SectionGeometry.from_rectangle(b=b, h=h, rotation_deg=section.rotation_angle_deg, name=name)
         # apply rotation to points if necessary
         if abs(section.rotation_angle_deg) > 1e-9:
             theta = radians(section.rotation_angle_deg)
@@ -246,14 +240,27 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             union = unary_union([flange, web])
             if union.geom_type == "Polygon":
                 coords = list(union.exterior.coords)
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "T_SECTION"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "T_SECTION"}
+                )
             if union.geom_type == "MultiPolygon":
                 polys = list(union.geoms)
                 polys.sort(key=lambda p: p.area, reverse=True)
                 coords = list(polys[0].exterior.coords)
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "T_SECTION"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "T_SECTION"}
+                )
         # fallback simple polygon
-        pts = [(-wt/2.0,0),(wt/2.0,0),(wt/2.0,wh),(fw/2.0,wh),(fw/2.0,wh+ft),(-fw/2.0,wh+ft),(-fw/2.0,wh),(-wt/2.0,wh)]
+        pts = [
+            (-wt / 2.0, 0),
+            (wt / 2.0, 0),
+            (wt / 2.0, wh),
+            (fw / 2.0, wh),
+            (fw / 2.0, wh + ft),
+            (-fw / 2.0, wh + ft),
+            (-fw / 2.0, wh),
+            (-wt / 2.0, wh),
+        ]
         return SectionGeometry(exterior=pts, meta={"name": name, "type": "T_SECTION"})
 
     if st == "INVERTED_T_SECTION":
@@ -268,12 +275,16 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             union = unary_union([flange, web])
             if union.geom_type == "Polygon":
                 coords = list(union.exterior.coords)
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "INVERTED_T_SECTION"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "INVERTED_T_SECTION"}
+                )
             if union.geom_type == "MultiPolygon":
                 polys = list(union.geoms)
                 polys.sort(key=lambda p: p.area, reverse=True)
                 coords = list(polys[0].exterior.coords)
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "INVERTED_T_SECTION"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "INVERTED_T_SECTION"}
+                )
         # fallback polygon: bottom flange then up the web and back
         pts = [
             (-fw / 2.0, 0.0),
@@ -300,14 +311,31 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             union = unary_union([top, web, bottom])
             if union.geom_type == "Polygon":
                 coords = list(union.exterior.coords)
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "I_SECTION"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "I_SECTION"}
+                )
             if union.geom_type == "MultiPolygon":
                 polys = list(union.geoms)
                 polys.sort(key=lambda p: p.area, reverse=True)
                 coords = list(polys[0].exterior.coords)
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "I_SECTION"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "I_SECTION"}
+                )
         # fallback composite polygon (stacked)
-        pts = [(-fw/2.0,0), (fw/2.0,0), (fw/2.0,ft), (wt/2.0,ft), (wt/2.0,wh+ft), (fw/2.0,wh+ft), (fw/2.0,wh+2*ft), (-fw/2.0,wh+2*ft), (-fw/2.0,wh+ft), (-wt/2.0,wh+ft), (-wt/2.0,ft), (-fw/2.0,ft)]
+        pts = [
+            (-fw / 2.0, 0),
+            (fw / 2.0, 0),
+            (fw / 2.0, ft),
+            (wt / 2.0, ft),
+            (wt / 2.0, wh + ft),
+            (fw / 2.0, wh + ft),
+            (fw / 2.0, wh + 2 * ft),
+            (-fw / 2.0, wh + 2 * ft),
+            (-fw / 2.0, wh + ft),
+            (-wt / 2.0, wh + ft),
+            (-wt / 2.0, ft),
+            (-fw / 2.0, ft),
+        ]
         return SectionGeometry(exterior=pts, meta={"name": name, "type": "I_SECTION"})
 
     if st == "C_SECTION":
@@ -361,7 +389,9 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             r2 = box(0.0, 0.0, tv, h - th)
             union = unary_union([r1, r2])
             coords = list(union.exterior.coords)
-            return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "L_SECTION"})
+            return SectionGeometry(
+                exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "L_SECTION"}
+            )
         # fallback polygon: vertical web left, flange at top
         pts = [(0.0, 0.0), (tv, 0.0), (tv, h - th), (w, h - th), (w, h), (0.0, h)]
         return SectionGeometry(exterior=pts, meta={"name": name, "type": "L_SECTION"})
@@ -377,13 +407,21 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             if poly.geom_type == "Polygon":
                 coords = list(poly.exterior.coords)
                 holes = [list(inner.exterior.coords)]
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], holes=[[(float(x), float(y)) for x, y in inner.exterior.coords]], meta={"name": name, "type": "RECTANGULAR_HOLLOW"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    holes=[[(float(x), float(y)) for x, y in inner.exterior.coords]],
+                    meta={"name": name, "type": "RECTANGULAR_HOLLOW"},
+                )
             if poly.geom_type == "MultiPolygon":
                 polys = list(poly.geoms)
                 polys.sort(key=lambda p: p.area, reverse=True)
                 coords = list(polys[0].exterior.coords)
                 holes = [list(polys[0].interiors[0].coords)] if polys[0].interiors else []
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], holes=[[(float(x), float(y)) for x, y in holes[0]]] if holes else [], meta={"name": name, "type": "RECTANGULAR_HOLLOW"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    holes=[[(float(x), float(y)) for x, y in holes[0]]] if holes else [],
+                    meta={"name": name, "type": "RECTANGULAR_HOLLOW"},
+                )
         outer = [(0.0, 0.0), (w, 0.0), (w, h), (0.0, h)]
         inner = [(t, t), (w - t, t), (w - t, h - t), (t, h - t)]
         return SectionGeometry(exterior=outer, holes=[inner], meta={"name": name, "type": "RECTANGULAR_HOLLOW"})
@@ -422,19 +460,25 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             union = unary_union([left, right])
             if union.geom_type == "Polygon":
                 coords = list(union.exterior.coords)
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "V_SECTION" if st=="V_SECTION" else "INVERTED_V_SECTION"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    meta={"name": name, "type": "V_SECTION" if st == "V_SECTION" else "INVERTED_V_SECTION"},
+                )
             if union.geom_type == "MultiPolygon":
                 polys = list(union.geoms)
                 polys.sort(key=lambda p: p.area, reverse=True)
                 coords = list(polys[0].exterior.coords)
-                return SectionGeometry(exterior=[(float(x), float(y)) for x, y in coords], meta={"name": name, "type": "V_SECTION" if st=="V_SECTION" else "INVERTED_V_SECTION"})
+                return SectionGeometry(
+                    exterior=[(float(x), float(y)) for x, y in coords],
+                    meta={"name": name, "type": "V_SECTION" if st == "V_SECTION" else "INVERTED_V_SECTION"},
+                )
         # fallback simple triangular representation
         if st == "V_SECTION":
             # approximate thin V as union of two thin rectangles (fallback without shapely)
             half = w / 2.0
             length = math.hypot(half, h)
             if length <= 0:
-                pts = [(-w/2.0, 0.0), (w/2.0, 0.0), (0.0, h)]
+                pts = [(-w / 2.0, 0.0), (w / 2.0, 0.0), (0.0, h)]
                 return SectionGeometry(exterior=pts, meta={"name": name, "type": "V_SECTION"})
             ux = half / length
             uy = h / length
@@ -490,7 +534,7 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             half = w / 2.0
             length = math.hypot(half, h)
             if length <= 0:
-                pts = [(-w/2.0, h), (w/2.0, h), (0.0, 0.0)]
+                pts = [(-w / 2.0, h), (w / 2.0, h), (0.0, 0.0)]
                 return SectionGeometry(exterior=pts, meta={"name": name, "type": "INVERTED_V_SECTION"})
             ux = half / length
             uy = h / length
@@ -533,22 +577,17 @@ def section_to_geometry(section: Section) -> SectionGeometry:
                     unique_pts.append((float(x), float(y)))
             return SectionGeometry(exterior=unique_pts, meta={"name": name, "type": "INVERTED_V_SECTION"})
 
-
     # Fallback: try to use dimensions dict if present
     dims = getattr(section, "dimensions", None) or {}
     if dims.get("width") and dims.get("height"):
         b = float(dims.get("width"))
         h = float(dims.get("height"))
-        return SectionGeometry.from_rectangle(
-            b=b, h=h, rotation_deg=section.rotation_angle_deg, name=name
-        )
+        return SectionGeometry.from_rectangle(b=b, h=h, rotation_deg=section.rotation_angle_deg, name=name)
     # last resort: tiny degenerate square
     return SectionGeometry.from_rectangle(1.0, 1.0, name=name)
 
 
-def compute_section_properties_from_geometry(
-    geom: SectionGeometry, shear_factor: float | None = None
-) -> SectionProperties:
+def compute_section_properties_from_geometry(geom: SectionGeometry, shear_factor: float | None = None) -> SectionProperties:
     """High-level pipeline returning SectionProperties from SectionGeometry.
 
     If shapely is available, use it for robust area and centroid calculations and for
@@ -566,6 +605,7 @@ def compute_section_properties_from_geometry(
             x_c, y_c = float(centroid.x), float(centroid.y)
         except Exception:  # pragma: no cover - fallback
             x_c, y_c = compute_centroid(geom)
+
             # compute area considering holes
             def poly_area(pts: list[tuple[float, float]]) -> float:
                 area2 = 0.0
@@ -580,6 +620,7 @@ def compute_section_properties_from_geometry(
             area = area_ext - area_holes
     else:
         x_c, y_c = compute_centroid(geom)
+
         # compute area considering holes
         def poly_area(pts: list[tuple[float, float]]) -> float:
             area2 = 0.0
@@ -656,10 +697,10 @@ def compute_section_properties_from_geometry(
                         min_dim = min(dx, dy)
                         max_dim = max(dx, dy)
                         if min_dim <= 1e-12:
-                            aspect = float('inf')
+                            aspect = float("inf")
                         else:
                             aspect = max_dim / (min_dim + 1e-12)
-                        aspect_factor = 1.0 / aspect if aspect > 0 and aspect != float('inf') else 0.0
+                        aspect_factor = 1.0 / aspect if aspect > 0 and aspect != float("inf") else 0.0
                         # require a minimum area fraction of the original polygon
                         if cand_area < 0.005 * float(poly.area):
                             continue
@@ -782,8 +823,8 @@ def compute_section_properties_from_section(section: Section, shear_factor: floa
 
     # Compute directional shear areas (A_y, A_z) and store them in props.meta
     try:
-        from sections_app.services.area_calculations import compute_shear_areas
         from sections_app.models.sections import DEFAULT_SHEAR_KAPPAS
+        from sections_app.services.area_calculations import compute_shear_areas
 
         A_y_ref, A_z_ref = compute_shear_areas(section)
         # determine kappa factors (use section-provided ones if valid, otherwise defaults)

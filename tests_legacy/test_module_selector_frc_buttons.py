@@ -47,10 +47,7 @@ class TestModuleSelectorFrcButtons(unittest.TestCase):
             try:
 
                 def find_button(parent):
-                    if (
-                        isinstance(parent, tk.Button)
-                        and parent.cget("text") == "Open FRC Verification"
-                    ):
+                    if isinstance(parent, tk.Button) and parent.cget("text") == "Open FRC Verification":
                         return parent
                     for child in parent.winfo_children():
                         result = find_button(child)

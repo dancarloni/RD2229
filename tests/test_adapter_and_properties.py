@@ -1,6 +1,6 @@
-import math
-import sys
 import pathlib
+import sys
+
 import pytest
 
 # Ensure repo root is on sys.path for pytest collection environments
@@ -8,22 +8,22 @@ ROOT = str(pathlib.Path(__file__).resolve().parents[1])
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from sections_app.section_calculations import (
-    section_to_geometry,
-    compute_section_properties_from_section,
-)
 from sections_app.models.sections import (
-    RectangularSection,
+    CircularHollowSection,
     CircularSection,
-    TSection,
-    InvertedTSection,
-    ISection,
     CSection,
+    InvertedTSection,
+    InvertedVSection,
+    ISection,
     LSection,
     RectangularHollowSection,
-    CircularHollowSection,
+    RectangularSection,
+    TSection,
     VSection,
-    InvertedVSection,
+)
+from sections_app.section_calculations import (
+    compute_section_properties_from_section,
+    section_to_geometry,
 )
 
 REL_TOL = 1e-4

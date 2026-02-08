@@ -151,9 +151,7 @@ def test_persistence_rotation():
         print("\n[1] Creazione sezione con rotazione...")
         repo1 = SectionRepository(json_file=json_file)
 
-        rect = RectangularSection(
-            name="Rotated Rect", width=20, height=30, rotation_angle_deg=45.0, note="Ruotata 45°"
-        )
+        rect = RectangularSection(name="Rotated Rect", width=20, height=30, rotation_angle_deg=45.0, note="Ruotata 45°")
         repo1.add_section(rect)
         rect_id = rect.id
         print("  ✓ Aggiunta sezione con rotazione 45°")
@@ -164,9 +162,7 @@ def test_persistence_rotation():
         loaded_section = repo2.find_by_id(rect_id)
 
         assert loaded_section is not None, "Sezione non caricata"
-        assert (
-            loaded_section.rotation_angle_deg == 45.0
-        ), f"Rotazione errata: {loaded_section.rotation_angle_deg}"
+        assert loaded_section.rotation_angle_deg == 45.0, f"Rotazione errata: {loaded_section.rotation_angle_deg}"
         print(f"  ✓ Verificata rotazione: {loaded_section.rotation_angle_deg}°")
 
     print("\n✅ TEST 3 PASSATO\n")

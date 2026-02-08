@@ -68,9 +68,7 @@ class MaterialsRepository:
                             material_name=m.get("name"),
                         )
                 except Exception as exc:  # noqa: B902
-                    logger.exception(
-                        "Error emitting EventBus events after load_from_jsonm: %s", exc
-                    )
+                    logger.exception("Error emitting EventBus events after load_from_jsonm: %s", exc)
             return self._materials
         except Exception as exc:  # noqa: B902
             logger.exception("Failed loading materials from %s: %s", path, exc)

@@ -8,10 +8,7 @@ def test_rotated_rectangle_centroid_invariant():
     import math
 
     th = math.radians(30)
-    pts = [
-        (x * math.cos(th) - y * math.sin(th), x * math.sin(th) + y * math.cos(th))
-        for (x, y) in geom.exterior
-    ]
+    pts = [(x * math.cos(th) - y * math.sin(th), x * math.sin(th) + y * math.cos(th)) for (x, y) in geom.exterior]
     geom_rot = SectionGeometry(exterior=pts, meta=geom.meta)
     p1 = compute_section_properties_from_geometry(geom)
     p2 = compute_section_properties_from_geometry(geom_rot)

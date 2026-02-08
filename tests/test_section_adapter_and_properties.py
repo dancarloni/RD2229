@@ -1,8 +1,11 @@
-import math
+
 import pytest
 
 from sections_app.models.sections import RectangularSection, TSection
-from sections_app.section_calculations import section_to_geometry, compute_section_properties_from_geometry, compute_section_properties_from_section
+from sections_app.section_calculations import (
+    compute_section_properties_from_geometry,
+    section_to_geometry,
+)
 
 
 def approx_eq(a, b, rel=1e-4):
@@ -53,6 +56,7 @@ def test_T_adapter_bbox_and_area_consistency():
     # polygon area matches computed area (use shapely if available, else compute shoelace)
     shapely = pytest.importorskip("shapely")
     from shapely.geometry import Polygon as ShPolygon
+
     poly = ShPolygon(geom.exterior, holes=geom.holes)
     assert approx_eq(poly.area, props_old.area)
 

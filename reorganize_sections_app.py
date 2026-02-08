@@ -49,14 +49,13 @@ import sys
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 # ---------------------------------------------------------------------------
 # CONFIGURATION — edit these to match your project
 # ---------------------------------------------------------------------------
 
 # Root modules to extract (basenames of .py files in sections_app/modules/).
-ROOT_MODULES: List[str] = [
+ROOT_MODULES: list[str] = [
     "frc",
     "historical",
     "geometry",
@@ -69,33 +68,35 @@ ROOT_MODULES: List[str] = [
 PACKAGE_NAME = "sections_app"
 
 # File extensions treated as copyable resources.
-RESOURCE_EXTS: Set[str] = {".json", ".csv", ".txt", ".yaml", ".yml", ".ini"}
+RESOURCE_EXTS: set[str] = {".json", ".csv", ".txt", ".yaml", ".yml", ".ini"}
 
 # Directories to skip during scanning.
-IGNORE_DIRS: Set[str] = {"__pycache__", ".mypy_cache", ".pytest_cache"}
+IGNORE_DIRS: set[str] = {"__pycache__", ".mypy_cache", ".pytest_cache"}
 
 
 # ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class DepGraph:
     """Container for the results of dependency graph construction."""
 
-    graph: Dict[Path, Set[Path]] = field(default_factory=lambda: defaultdict(set))
-    modname_to_path: Dict[str, Path] = field(default_factory=dict)
-    path_to_modname: Dict[Path, str] = field(default_factory=dict)
-    file_to_literals: Dict[Path, Set[str]] = field(default_factory=lambda: defaultdict(set))
+    graph: dict[Path, set[Path]] = field(default_factory=lambda: defaultdict(set))
+    modname_to_path: dict[str, Path] = field(default_factory=dict)
+    path_to_modname: dict[Path, str] = field(default_factory=dict)
+    file_to_literals: dict[Path, set[str]] = field(default_factory=lambda: defaultdict(set))
 
 
 # ---------------------------------------------------------------------------
 # Phase 1 — Build dependency graph
 # ---------------------------------------------------------------------------
 
-def find_python_files(root: Path) -> List[Path]:
+
+def find_python_files(root: Path) -> list[Path]:
     """Return all .py files under *root*, skipping ignored directories."""
-    result: List[Path] = []
+    result: list[Path] = []
     for p in root.rglob("*.py"):
         if any(part in IGNORE_DIRS for part in p.parts):
             continue
@@ -121,10 +122,10 @@ def module_name_from_path(root: Path, p: Path, package_name: str) -> str:
     return package_name
 
 
-def _parse_imports_and_literals(filepath: Path) -> Tuple[Set[str], Set[str]]:
+def _parse_imports_and_literals(filepath: Path) -> tuple[set[str], set[str]]:
     """Parse a Python file with AST and return (import_strings, string_literals)."""
-    imports: Set[str] = set()
-    literals: Set[str] = set()
+    imports: set[str] = set()
+    literals: set[str] = set()
     try:
         text = filepath.read_text(encoding="utf-8")
     except Exception:
@@ -213,14 +214,14 @@ def build_dependency_graph(root: Path, package_name: str) -> DepGraph:
         dg.path_to_modname[p] = modname
 
     # Step 2: Parse imports and literals from every file
-    file_to_imports: Dict[Path, Set[str]] = {}
+    file_to_imports: dict[Path, set[str]] = {}
     for p in py_files:
         imports, literals = _parse_imports_and_literals(p)
         file_to_imports[p] = imports
         dg.file_to_literals[p] = literals
 
     # Step 3: Resolve import strings to file paths and build graph edges
-    def resolve(imp: str, src_modname: str, is_package: bool = False) -> Optional[Path]:
+    def resolve(imp: str, src_modname: str, is_package: bool = False) -> Path | None:
         # Handle relative imports
         if imp.startswith("."):
             imp = _resolve_relative_import(imp, src_modname, is_package=is_package)
@@ -261,11 +262,12 @@ def build_dependency_graph(root: Path, package_name: str) -> DepGraph:
 # Phase 2 — Collect per-module dependency sets
 # ---------------------------------------------------------------------------
 
+
 def collect_module_dependencies(
     root: Path,
     dg: DepGraph,
     module_basename: str,
-) -> Set[Path]:
+) -> set[Path]:
     """Return the transitive closure of files that *module_basename* depends on.
 
     Also ensures that every package directory containing at least one included
@@ -274,15 +276,13 @@ def collect_module_dependencies(
     """
     module_file = root / "modules" / f"{module_basename}.py"
     if not module_file.exists():
-        raise FileNotFoundError(
-            f"Module file for '{module_basename}' not found at {module_file}"
-        )
+        raise FileNotFoundError(f"Module file for '{module_basename}' not found at {module_file}")
 
     # BFS for transitive dependencies.
     # After the initial BFS, add required __init__.py files and continue BFS
     # from them so that their dependencies are also included (e.g. domain/__init__.py
     # imports domain/shapes.py which should be pulled into the set).
-    result: Set[Path] = set()
+    result: set[Path] = set()
     queue: deque[Path] = deque([module_file])
 
     while queue:
@@ -299,7 +299,7 @@ def collect_module_dependencies(
     changed = True
     while changed:
         changed = False
-        init_files_to_add: Set[Path] = set()
+        init_files_to_add: set[Path] = set()
         for p in result:
             d = p.parent
             while d != root and d != root.parent:
@@ -333,20 +333,21 @@ def collect_module_dependencies(
 # Phase 3 — Detect resources and copy files
 # ---------------------------------------------------------------------------
 
+
 def detect_resource_files(
     root: Path,
-    file_set: Set[Path],
-    file_to_literals: Dict[Path, Set[str]],
-) -> Set[Path]:
+    file_set: set[Path],
+    file_to_literals: dict[Path, set[str]],
+) -> set[Path]:
     """Find resource files (.json, .csv, etc.) referenced by *file_set*.
 
     Searches for string literals in the code that match filenames of existing
     resource files under *root*.
     """
-    resources: Set[Path] = set()
+    resources: set[Path] = set()
 
     # Gather all resource files that exist under root
-    all_resources: Dict[str, List[Path]] = defaultdict(list)
+    all_resources: dict[str, list[Path]] = defaultdict(list)
     for p in root.rglob("*"):
         if p.is_file() and p.suffix.lower() in RESOURCE_EXTS:
             if not any(part in IGNORE_DIRS for part in p.parts):
@@ -372,18 +373,18 @@ def copy_module_tree(
     root: Path,
     out_root: Path,
     module_basename: str,
-    file_set: Set[Path],
-    resource_set: Set[Path],
+    file_set: set[Path],
+    resource_set: set[Path],
     dry_run: bool,
-) -> Tuple[List[Tuple[Path, Path]], List[Tuple[Path, Path]]]:
+) -> tuple[list[tuple[Path, Path]], list[tuple[Path, Path]]]:
     """Copy Python files and resources into the output directory.
 
     Returns (python_mappings, resource_mappings) where each is a list of
     (source, destination) tuples.
     """
     out_dir = out_root / module_basename
-    py_mappings: List[Tuple[Path, Path]] = []
-    res_mappings: List[Tuple[Path, Path]] = []
+    py_mappings: list[tuple[Path, Path]] = []
+    res_mappings: list[tuple[Path, Path]] = []
 
     # Copy Python files
     for src in sorted(file_set):
@@ -413,12 +414,13 @@ def copy_module_tree(
 # Phase 4 — Rewrite imports in copied files
 # ---------------------------------------------------------------------------
 
+
 def rewrite_imports_in_file(
     filepath: Path,
     old_package: str,
     new_package: str,
     dry_run: bool,
-) -> List[Tuple[str, str]]:
+) -> list[tuple[str, str]]:
     """Rewrite absolute imports in *filepath* from *old_package* to *new_package*.
 
     Uses AST to locate import statements (including multi-line ones) and
@@ -438,7 +440,7 @@ def rewrite_imports_in_file(
     lines = text.split("\n")
     # Collect spans that need rewriting: (start_line_0idx, end_line_0idx)
     # We process them in reverse order so line indices stay valid after edits
-    spans_to_rewrite: List[Tuple[int, int]] = []
+    spans_to_rewrite: list[tuple[int, int]] = []
 
     for node in ast.walk(tree):
         if not isinstance(node, (ast.Import, ast.ImportFrom)):
@@ -467,7 +469,7 @@ def rewrite_imports_in_file(
     if not spans_to_rewrite:
         return []
 
-    rewrites: List[Tuple[str, str]] = []
+    rewrites: list[tuple[str, str]] = []
 
     # Process in reverse order to preserve line indices
     for start, end in sorted(spans_to_rewrite, reverse=True):
@@ -497,12 +499,13 @@ def rewrite_imports_in_file(
 # Phase 5 — Filter __init__.py files
 # ---------------------------------------------------------------------------
 
+
 def filter_init_file(
     source_path: Path,
     dest_path: Path,
-    available_source_files: Set[Path],
+    available_source_files: set[Path],
     dry_run: bool,
-) -> List[str]:
+) -> list[str]:
     """Adjust an __init__.py so it only imports sub-modules that exist in the output.
 
     *source_path* is the original file (always readable).
@@ -523,8 +526,8 @@ def filter_init_file(
 
     init_dir = source_path.parent
     lines = text.split("\n")
-    changes: List[str] = []
-    removals: List[Tuple[int, int]] = []  # (start_0idx, end_0idx) of lines to remove
+    changes: list[str] = []
+    removals: list[tuple[int, int]] = []  # (start_0idx, end_0idx) of lines to remove
 
     for node in ast.walk(tree):
         if not isinstance(node, (ast.Import, ast.ImportFrom)):
@@ -635,10 +638,11 @@ def filter_init_file(
 # Phase 6 — Orchestration
 # ---------------------------------------------------------------------------
 
+
 def run_reorganization(
     root_path: str,
     out_path: str,
-    modules: List[str],
+    modules: list[str],
     package_name: str,
     dry_run: bool,
 ) -> None:
@@ -696,12 +700,10 @@ def run_reorganization(
             shutil.rmtree(mod_out)
 
         # Copy files
-        py_mappings, res_mappings = copy_module_tree(
-            root, out_root, mod, file_set, resource_set, dry_run
-        )
+        py_mappings, res_mappings = copy_module_tree(root, out_root, mod, file_set, resource_set, dry_run)
 
         # Rewrite imports in copied files
-        print(f"\n  Import rewrites:")
+        print("\n  Import rewrites:")
         total_rewrites = 0
         for src, dest in py_mappings:
             source_to_read = src if dry_run else dest
@@ -733,9 +735,7 @@ def run_reorganization(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Reorganize sections_app into per-module folders."
-    )
+    parser = argparse.ArgumentParser(description="Reorganize sections_app into per-module folders.")
     parser.add_argument(
         "--root",
         required=True,

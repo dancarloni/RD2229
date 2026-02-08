@@ -1,5 +1,7 @@
 import tkinter as tk
+
 import pytest
+
 from sections_app.geometry_model import SectionGeometry
 from sections_app.section_calculations import compute_section_properties_from_geometry
 from sections_app.section_graphics import SectionGraphicsController

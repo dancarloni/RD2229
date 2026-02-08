@@ -1,10 +1,12 @@
 """Optional: CSV/Archive I/O for sections. Keeps persistence separate from GUI."""
 
 from __future__ import annotations
+
 import csv
 import json
-from typing import Iterable, List
+from collections.abc import Iterable
 from pathlib import Path
+
 from sections_app.geometry_model import SectionGeometry
 
 
@@ -31,12 +33,12 @@ def export_sections_to_csv(path: str, sections: Iterable[SectionGeometry]):
             )
 
 
-def import_sections_from_csv(path: str) -> List[SectionGeometry]:
+def import_sections_from_csv(path: str) -> list[SectionGeometry]:
     """Import SectionGeometry list from CSV produced by export_sections_to_csv."""
     pathp = Path(path)
     if not pathp.exists():
         return []
-    out: List[SectionGeometry] = []
+    out: list[SectionGeometry] = []
     with pathp.open("r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:

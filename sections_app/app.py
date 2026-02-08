@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 
 from sections_app.services.debug_log_stream import get_in_memory_handler
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 
 try:
     from core_models.materials import MaterialRepository

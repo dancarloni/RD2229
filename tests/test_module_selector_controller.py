@@ -1,6 +1,8 @@
 # filepath: tests/test_module_selector_controller.py
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import MagicMock, patch, Mock
+
 from sections_app.ui.module_selector import ModuleSelectorController
 
 
@@ -57,9 +59,7 @@ def test_load_sections(controller, monkeypatch):
     # ensure GeometryRepository used inside load_sections is a mock so add_section calls are observable
     mock_repo = MagicMock()
     mock_repo.add_section = MagicMock(return_value=True)
-    monkeypatch.setattr(
-        "sections_app.ui.module_selector.GeometryRepository", lambda *a, **kw: mock_repo
-    )
+    monkeypatch.setattr("sections_app.ui.module_selector.GeometryRepository", lambda *a, **kw: mock_repo)
 
     controller.load_sections("test.csv")
     # repository should be created and add_section called twice

@@ -1,9 +1,9 @@
 """Graphics module: world->screen transform and drawing routines using tk.Canvas."""
 
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Tuple, List
+
 import math
+from dataclasses import dataclass
 
 from sections_app.geometry_model import SectionGeometry, SectionProperties
 
@@ -12,7 +12,7 @@ from sections_app.geometry_model import SectionGeometry, SectionProperties
 class SectionViewTransform:
     """Compute uniform scale and offsets to map world coordinates -> canvas screen coordinates."""
 
-    bbox: Tuple[float, float, float, float]  # (minx, miny, maxx, maxy)
+    bbox: tuple[float, float, float, float]  # (minx, miny, maxx, maxy)
     canvas_width: int
     canvas_height: int
     margin: int = 20  # pixels margin around drawing
@@ -39,7 +39,7 @@ class SectionViewTransform:
         else:
             self.ty = screen_cy - self.scale * world_cy
 
-    def world_to_screen(self, x: float, y: float) -> Tuple[float, float]:
+    def world_to_screen(self, x: float, y: float) -> tuple[float, float]:
         sx = self.scale * x + self.tx
         if self.flip_y:
             sy = -self.scale * y + self.ty
@@ -85,11 +85,7 @@ class SectionGraphicsController:
         self.canvas.create_text(sx + 10, sy, text="G", anchor="w", fill="red")
 
     def draw_principal_axes(self, props: SectionProperties):
-        length = (
-            max(self.canvas.winfo_width(), self.canvas.winfo_height())
-            * 0.4
-            / (self.transform.scale or 1)
-        )
+        length = max(self.canvas.winfo_width(), self.canvas.winfo_height()) * 0.4 / (self.transform.scale or 1)
         theta = math.radians(props.theta_p_deg)
         cx, cy = props.x_c, props.y_c
         dx = math.cos(theta) * length
@@ -124,6 +120,7 @@ class SectionGraphicsController:
         ly = y1 + oy
         # small halo background for readability
         self.canvas.create_text(lx, ly, text=label, anchor="center", fill="black")
+
     def draw_inertia_ellipse(self, props: SectionProperties):
         if not props.ellipse:
             return
@@ -178,9 +175,7 @@ class SectionGraphicsController:
             theta = math.radians(props.theta_p_deg)
             cx, cy = props.x_c, props.y_c
             sx0, sy0 = self.transform.world_to_screen(cx, cy)
-            sx1, sy1 = self.transform.world_to_screen(
-                cx + props.r1 * math.cos(theta), cy + props.r1 * math.sin(theta)
-            )
+            sx1, sy1 = self.transform.world_to_screen(cx + props.r1 * math.cos(theta), cy + props.r1 * math.sin(theta))
             self.canvas.create_line(sx0, sy0, sx1, sy1, fill="brown", width=2)
             self.canvas.create_oval(sx1 - 3, sy1 - 3, sx1 + 3, sy1 + 3, fill="brown")
 
@@ -193,9 +188,7 @@ class SectionGraphicsController:
     ):
         self.clear()
         bbox = geometry.bounding_box()
-        transform = SectionViewTransform(
-            bbox, self.canvas.winfo_width(), self.canvas.winfo_height(), margin=20
-        )
+        transform = SectionViewTransform(bbox, self.canvas.winfo_width(), self.canvas.winfo_height(), margin=20)
         self.set_transform(transform)
         self.draw_section_contour(geometry)
         self.draw_dimensioning(geometry)

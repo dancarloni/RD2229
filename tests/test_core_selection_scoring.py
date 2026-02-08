@@ -1,8 +1,9 @@
-import pytest
 from math import pi
 
-from sections_app.section_calculations import compute_section_properties_from_geometry
+import pytest
+
 from sections_app.geometry_model import SectionGeometry
+from sections_app.section_calculations import compute_section_properties_from_geometry
 
 
 def test_core_selection_prefers_compact_candidate():
@@ -27,7 +28,7 @@ def test_core_selection_prefers_compact_candidate():
     dy = hy1 - hy0
     min_dim = min(dx, dy)
     max_dim = max(dx, dy)
-    aspect = float('inf') if min_dim <= 1e-12 else max_dim / (min_dim + 1e-12)
+    aspect = float("inf") if min_dim <= 1e-12 else max_dim / (min_dim + 1e-12)
 
     # core should be reasonably compact and not a skinny sliver
     assert compactness > 0.05

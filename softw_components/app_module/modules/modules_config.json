@@ -1,0 +1,11 @@
+{
+    "order": ["geometry", "historical", "material", "frc", "verification", "debug"],
+    "modules": {
+        "geometry": {"enabled": true},
+        "historical": {"enabled": true},
+        "material": {"enabled": true},
+        "frc": {"enabled": true},
+        "verification": {"enabled": true},
+        "debug": {"enabled": true}
+    }
+}
