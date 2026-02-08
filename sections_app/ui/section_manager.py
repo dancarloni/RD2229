@@ -592,14 +592,21 @@ class SectionManager(tk.Toplevel):
             if not ans:
                 return
             try:
-                self.repository.delete_section(section.id)
+                deleted = self.repository.delete_section(section.id)
                 self.refresh_sections()
-                notify_info(
-                    "Eliminazione",
-                    f"Sezione '{section.name}' eliminata dall'archivio.",
-                    source="section_manager",
-                )
-                logger.debug("Sezione eliminata tramite UI: %s", section.id)
+                if deleted:
+                    notify_info(
+                        "Eliminazione",
+                        f"Sezione '{section.name}' eliminata dall'archivio.",
+                        source="section_manager",
+                    )
+                    logger.debug("Sezione eliminata tramite UI: %s", section.id)
+                else:
+                    notify_info(
+                        "Eliminazione non riuscita",
+                        f"Impossibile eliminare la sezione '{section.name}'.",
+                        source="section_manager",
+                    )
             except Exception:
                 logger.exception("Errore eliminazione sezione dopo conferma")
 

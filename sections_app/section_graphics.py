@@ -1,4 +1,4 @@
-2"""Graphics module: world->screen transform and drawing routines using tk.Canvas."""
+"""Graphics module: world->screen transform and drawing routines using tk.Canvas."""
 
 from __future__ import annotations
 from dataclasses import dataclass
@@ -97,13 +97,33 @@ class SectionGraphicsController:
         sx0, sy0 = self.transform.world_to_screen(cx - dx, cy - dy)
         sx1, sy1 = self.transform.world_to_screen(cx + dx, cy + dy)
         self.canvas.create_line(sx0, sy0, sx1, sy1, fill="blue", dash=(4, 2), width=2)
+        # draw labels for principal axes
+        self._draw_axis_label_at_line((sx0, sy0, sx1, sy1), label="x")
         theta2 = theta + math.pi / 2.0
         dx2 = math.cos(theta2) * length
         dy2 = math.sin(theta2) * length
-        sx0, sy0 = self.transform.world_to_screen(cx - dx2, cy - dy2)
-        sx1, sy1 = self.transform.world_to_screen(cx + dx2, cy + dy2)
-        self.canvas.create_line(sx0, sy0, sx1, sy1, fill="green", dash=(4, 2), width=2)
+        sx0b, sy0b = self.transform.world_to_screen(cx - dx2, cy - dy2)
+        sx1b, sy1b = self.transform.world_to_screen(cx + dx2, cy + dy2)
+        self.canvas.create_line(sx0b, sy0b, sx1b, sy1b, fill="green", dash=(4, 2), width=2)
+        self._draw_axis_label_at_line((sx0b, sy0b, sx1b, sy1b), label="y")
 
+    def _draw_axis_label_at_line(self, line_coords: tuple[float, float, float, float], label: str):
+        """Place a short axis label (x/y) slightly beyond the end of a line.
+
+        line_coords: (x0, y0, x1, y1) in screen coords.
+        """
+        x0, y0, x1, y1 = line_coords
+        # vector from center to end
+        vx = x1 - x0
+        vy = y1 - y0
+        # normalize and offset
+        mag = math.hypot(vx, vy) or 1.0
+        ox = vx / mag * 12.0
+        oy = vy / mag * 12.0
+        lx = x1 + ox
+        ly = y1 + oy
+        # small halo background for readability
+        self.canvas.create_text(lx, ly, text=label, anchor="center", fill="black")
     def draw_inertia_ellipse(self, props: SectionProperties):
         if not props.ellipse:
             return
@@ -133,14 +153,25 @@ class SectionGraphicsController:
         self.canvas.create_polygon(coords, outline="orange", fill="", width=1, dash=(3, 3))
 
     def draw_dimensioning(self, geometry: SectionGeometry):
+        """Draw both width (b) and height (h) dimensions outside the section with offsets.
+
+        Horizontal dimension (b) is drawn below the section by a fixed pixel offset.
+        Vertical dimension (h) is drawn to the right of the section by a fixed pixel offset.
+        """
         minx, miny, maxx, maxy = geometry.bounding_box()
         sx0, sy0 = self.transform.world_to_screen(minx, miny)
         sx1, sy1 = self.transform.world_to_screen(maxx, miny)
-        midy = (sy0 + sy1) / 2.0
-        self.canvas.create_line(sx0, midy, sx1, midy, arrow="both")
-        self.canvas.create_text(
-            (sx0 + sx1) / 2.0, midy - 10, text=f"b = {maxx - minx:.2f} {geometry.units}"
-        )
+        offset = 30  # pixels to offset dimension lines from the section edges
+        # horizontal dimension (b) below the section
+        sy_dim = sy0 + offset
+        self.canvas.create_line(sx0, sy_dim, sx1, sy_dim, arrow="both")
+        self.canvas.create_text((sx0 + sx1) / 2.0, sy_dim - 10, text=f"b = {maxx - minx:.2f} {geometry.units}")
+        # vertical dimension (h) on the right of the section
+        sx_dim = sx1 + offset
+        sy_top = self.transform.world_to_screen(maxx, maxy)[1]
+        sy_bot = self.transform.world_to_screen(maxx, miny)[1]
+        self.canvas.create_line(sx_dim, sy_top, sx_dim, sy_bot, arrow="both")
+        self.canvas.create_text(sx_dim + 10, (sy_top + sy_bot) / 2.0, text=f"h = {maxy - miny:.2f} {geometry.units}")
 
     def draw_radii_of_gyration(self, props: SectionProperties):
         if props.r1 and props.r2:
@@ -153,7 +184,13 @@ class SectionGraphicsController:
             self.canvas.create_line(sx0, sy0, sx1, sy1, fill="brown", width=2)
             self.canvas.create_oval(sx1 - 3, sy1 - 3, sx1 + 3, sy1 + 3, fill="brown")
 
-    def draw_all(self, geometry: SectionGeometry, props: SectionProperties):
+    def draw_all(
+        self,
+        geometry: SectionGeometry,
+        props: SectionProperties,
+        show_core: bool = True,
+        show_ellipse: bool = True,
+    ):
         self.clear()
         bbox = geometry.bounding_box()
         transform = SectionViewTransform(
@@ -165,5 +202,7 @@ class SectionGraphicsController:
         self.draw_centroid(props)
         self.draw_principal_axes(props)
         self.draw_radii_of_gyration(props)
-        self.draw_inertia_ellipse(props)
-        self.draw_core_of_inertia(props)
+        if show_ellipse:
+            self.draw_inertia_ellipse(props)
+        if show_core:
+            self.draw_core_of_inertia(props)

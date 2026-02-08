@@ -106,6 +106,37 @@ def _area_c_section(dims: dict[str, float]) -> tuple[float, float]:
     return A_y, A_z
 
 
+def _area_inverted_t_section(dims: dict[str, float]) -> tuple[float, float]:
+    # Same geometry as T_SECTION (just flipped vertically), shear areas are the same
+    return _area_t_section(dims)
+
+
+def _area_pi_section(dims: dict[str, float]) -> tuple[float, float]:
+    flange_width = _get(dims, "flange_width")
+    flange_thickness = _get(dims, "flange_thickness")
+    web_thickness = _get(dims, "web_thickness")
+    web_height = _get(dims, "web_height")
+    # Double web: shear carried by both webs
+    A_y = 2 * web_thickness * web_height + flange_width * flange_thickness
+    A_z = 2 * web_thickness * web_height
+    return A_y, A_z
+
+
+def _area_v_section(dims: dict[str, float]) -> tuple[float, float]:
+    # V sections: no standard shear area formula, use total area as fallback
+    width = _get(dims, "width")
+    height = _get(dims, "height")
+    thickness = _get(dims, "thickness")
+    half_width = width / 2
+    length = math.sqrt(half_width**2 + height**2) if (half_width > 0 and height > 0) else 0
+    area = 2 * length * thickness
+    return area, area
+
+
+def _area_inverted_v_section(dims: dict[str, float]) -> tuple[float, float]:
+    return _area_v_section(dims)
+
+
 _SECTION_HANDLERS = {
     "RECTANGULAR": _area_rectangular,
     "CIRCULAR": _area_circular,
@@ -115,6 +146,10 @@ _SECTION_HANDLERS = {
     "I_SECTION": _area_i_section,
     "L_SECTION": _area_l_section,
     "C_SECTION": _area_c_section,
+    "INVERTED_T_SECTION": _area_inverted_t_section,
+    "PI_SECTION": _area_pi_section,
+    "V_SECTION": _area_v_section,
+    "INVERTED_V_SECTION": _area_inverted_v_section,
 }
 
 

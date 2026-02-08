@@ -1,4 +1,5 @@
 from unittest.mock import patch
+
 from sections_app.ui.module_selector import ModuleSelectorController
 
 
@@ -9,7 +10,7 @@ def test_controller_selects_module_calls_factory(monkeypatch):
         def mainloop(self):
             return None
 
-    def factory(master=None, **_):
+    def factory(_master=None, **_):
         return Dummy()
 
     # inject dummy factory into registry

@@ -44,6 +44,8 @@ CSV_HEADERS = [
     "Qy",
     "rx",
     "ry",
+    "Wx",
+    "Wy",
     "core_x",
     "core_y",
     "ellipse_a",
@@ -66,6 +68,10 @@ DEFAULT_SHEAR_KAPPAS = {
     "I_SECTION": (1.0, 0.9),
     "INVERTED_T_SECTION": (1.0, 0.9),
     "C_SECTION": (1.0, 0.9),
+    "L_SECTION": (5.0 / 6.0, 5.0 / 6.0),
+    "PI_SECTION": (1.0, 0.9),
+    "V_SECTION": (5.0 / 6.0, 5.0 / 6.0),
+    "INVERTED_V_SECTION": (5.0 / 6.0, 5.0 / 6.0),
 }
 
 # Tutte le possibili chiavi dimensionali supportate (garantire presenza nella dict dimensions)
@@ -114,6 +120,10 @@ class SectionProperties:
     principal_angle_deg: float | None = None
     principal_rx: float | None = None
     principal_ry: float | None = None
+
+    # Section moduli (Wx, Wy) in cm³
+    wx: float | None = None  # Modulo resistente Wx = Ix / y_max
+    wy: float | None = None  # Modulo resistente Wy = Iy / x_max
 
     # Timoshenko effective shear areas (A_y, A_z) in cm²
     # These are computed as A_y = kappa_y * A_ref_y and A_z = kappa_z * A_ref_z
@@ -175,6 +185,49 @@ class Section:
             except Exception:
                 # Non blocchiamo il calcolo principale se qualcosa va storto
                 logger.exception("Errore nel calcolo delle inerzie principali")
+
+        # --- Compute section moduli Wx, Wy ---
+        if props is not None:
+            try:
+                # Determine total height for y_max
+                total_h = getattr(self, "total_height", None)
+                if total_h is None:
+                    total_h = getattr(self, "height", None)
+                if total_h is None:
+                    total_h = getattr(self, "diameter", None)
+                if total_h is None:
+                    total_h = getattr(self, "outer_diameter", None)
+
+                if (
+                    props.ix is not None
+                    and props.centroid_y is not None
+                    and total_h is not None
+                    and total_h > 0
+                ):
+                    y_max = max(props.centroid_y, total_h - props.centroid_y)
+                    if y_max > 0:
+                        props.wx = props.ix / y_max
+
+                # Determine total width for x_max
+                total_w = getattr(self, "width", None)
+                if total_w is None:
+                    total_w = getattr(self, "flange_width", None)
+                if total_w is None:
+                    total_w = getattr(self, "diameter", None)
+                if total_w is None:
+                    total_w = getattr(self, "outer_diameter", None)
+
+                if (
+                    props.iy is not None
+                    and props.centroid_x is not None
+                    and total_w is not None
+                    and total_w > 0
+                ):
+                    x_max = max(props.centroid_x, total_w - props.centroid_x)
+                    if x_max > 0:
+                        props.wy = props.iy / x_max
+            except Exception:
+                logger.exception("Errore nel calcolo dei moduli resistenti Wx/Wy")
 
         # Costruisci il dizionario delle dimensioni (tutte le chiavi presenti)
         self.dimensions = self._collect_dimensions()
@@ -323,6 +376,8 @@ class Section:
                 "Qy": getattr(props, "qy", None) if props else None,
                 "rx": getattr(props, "rx", None) if props else None,
                 "ry": getattr(props, "ry", None) if props else None,
+                "Wx": getattr(props, "wx", None) if props else None,
+                "Wy": getattr(props, "wy", None) if props else None,
                 "core_x": getattr(props, "core_x", None) if props else None,
                 "core_y": getattr(props, "core_y", None) if props else None,
                 "ellipse_a": getattr(props, "ellipse_a", None) if props else None,

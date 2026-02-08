@@ -1,9 +1,13 @@
 import tkinter as tk
 from pathlib import Path
+
+from sections_app.models.sections import RectangularSection
+from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
 from sections_app.ui.main_window import MainWindow
 
 
 def test_save_multiple_edit_and_delete(tmp_path: Path):
+    """Test CRUD operations through the repository (replaced local CSV panel)."""
     try:
         root = tk.Tk()
     except tk.TclError:
@@ -11,61 +15,41 @@ def test_save_multiple_edit_and_delete(tmp_path: Path):
 
         pytest.skip("Tk not available in this environment")
     root.withdraw()
-    win = MainWindow(master=root)
-    win._saved_path = tmp_path / "saved_sections.csv"
+    json_file = str(tmp_path / "test_repo.jsons")
+    Path(json_file).write_text("[]", encoding="utf-8")
 
-    # Save first section
-    win.section_var.set("Rettangolare")
-    win._create_inputs()
-    if "width" in win.inputs:
-        win.inputs["width"].delete(0, tk.END)
-        win.inputs["width"].insert(0, "10")
-    if "height" in win.inputs:
-        win.inputs["height"].delete(0, tk.END)
-        win.inputs["height"].insert(0, "20")
-    win.name_entry.delete(0, tk.END)
-    win.name_entry.insert(0, "rect1")
-    win._save_current_section()
+    repo = GeometryRepository(json_file=json_file, auto_migrate=False)
+    serializer = CsvSectionSerializer()
+    win = MainWindow(master=root, repository=repo, serializer=serializer)
 
-    # Save second section
-    win.inputs["width"].delete(0, tk.END)
-    win.inputs["width"].insert(0, "5")
-    win.inputs["height"].delete(0, tk.END)
-    win.inputs["height"].insert(0, "8")
-    win.name_entry.delete(0, tk.END)
-    win.name_entry.insert(0, "rect2")
-    win._save_current_section()
+    # Save first section via repository
+    sec1 = RectangularSection("rect1", 10, 20)
+    assert repo.add_section(sec1) is True
 
-    # refresh and check two items
-    win._populate_saved_list()
-    assert win.saved_listbox.size() == 2
+    # Save second section via repository
+    sec2 = RectangularSection("rect2", 5, 8)
+    assert repo.add_section(sec2) is True
 
-    # select second, load and edit
-    win.saved_listbox.selection_clear(0, tk.END)
-    win.saved_listbox.selection_set(1)
-    win._load_selected_section()
-    assert win.name_entry.get() == "rect2"
-    # edit fields
-    if "width" in win.inputs:
-        win.inputs["width"].delete(0, tk.END)
-        win.inputs["width"].insert(0, "6")
-    win._update_selected_saved()
+    # Check two sections exist
+    assert len(repo.get_all_sections()) >= 2
 
-    # reload and ensure updated
-    win._populate_saved_list()
-    win.saved_listbox.selection_clear(0, tk.END)
-    win.saved_listbox.selection_set(1)
-    win._load_selected_section()
-    if "width" in win.inputs:
-        # numeric comparison to be robust to '6' vs '6.0' string formatting
-        assert abs(float(win.inputs["width"].get()) - 6.0) < 1e-9
+    # Update second section
+    updated = RectangularSection("rect2_updated", 6, 8)
+    repo.update_section(sec2.id, updated)
+    found = repo.find_by_id(sec2.id)
+    assert found is not None
+    assert found.name == "rect2_updated"
 
-    # delete first
-    win.saved_listbox.selection_clear(0, tk.END)
-    win.saved_listbox.selection_set(0)
-    win._delete_selected_saved()
-    win._populate_saved_list()
-    assert win.saved_listbox.size() == 1
+    # Delete first section
+    deleted = repo.delete_section(sec1.id)
+    assert deleted is True
+    assert repo.find_by_id(sec1.id) is None
+
+    # Verify load_section_into_form works with remaining section
+    remaining = repo.find_by_id(sec2.id)
+    if remaining:
+        win.load_section_into_form(remaining)
+        assert win.editing_section_id == sec2.id
 
     win.destroy()
     root.destroy()

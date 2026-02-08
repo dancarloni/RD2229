@@ -23,6 +23,7 @@ from sections_app.models.sections import (
     VSection,
 )
 from sections_app.services.calculations import CanvasTransform, compute_transform
+from sections_app.services.event_bus import SECTIONS_DELETED, EventBus
 from sections_app.services.notification import (
     notify_error,
     notify_info,
@@ -288,6 +289,13 @@ class MainWindow(tk.Toplevel):
         # Assicura di fermare il polling quando la finestra viene distrutta
         self.bind("<Destroy>", lambda e: self._cancel_polling())
 
+        # Subscribe to SECTIONS_DELETED to clear edit mode if the edited section is deleted
+        try:
+            self._event_bus = EventBus()
+            self._event_bus.subscribe(SECTIONS_DELETED, self._on_section_deleted)
+        except Exception:
+            self._event_bus = None
+
         # ✅ Gestisci la chiusura della finestra in modo indipendente
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
@@ -327,9 +335,6 @@ class MainWindow(tk.Toplevel):
         # Tipologia sezione con tooltip
         tipo_label = tk.Label(self.left_frame, text="Tipologia sezione")
         tipo_label.pack(anchor="w")
-        # Saved listbox must exist before other widgets that may call it
-        self.saved_listbox: tk.Listbox | None = None
-
         self.section_var = tk.StringVar(value=list(SECTION_DEFINITIONS.keys())[0])
         self.section_combo = ttk.Combobox(
             self.left_frame,
@@ -397,7 +402,7 @@ class MainWindow(tk.Toplevel):
             "Influenza i momenti d'inerzia globali e la grafica.",
         )
 
-        # Campi per i fattori di forma a taglio (kappa_y, kappa_z)
+        # Campi per i fattori di forma a taglio (kappa_y, kappa_z) e fattore unico k
         shear_frame = tk.Frame(self.left_frame)
         shear_frame.pack(fill="x", pady=(0, 8))
         tk.Label(shear_frame, text="Fattore di forma a taglio κ_y:").pack(side="left", padx=(0, 4))
@@ -406,6 +411,10 @@ class MainWindow(tk.Toplevel):
         tk.Label(shear_frame, text="κ_z:").pack(side="left", padx=(8, 4))
         self.kappa_z_entry = tk.Entry(shear_frame, width=8)
         self.kappa_z_entry.pack(side="left")
+        # Unified shear factor k (area * k)
+        tk.Label(shear_frame, text="   k (fattore area taglio):").pack(side="left", padx=(8, 4))
+        self.shear_k_entry = tk.Entry(shear_frame, width=8)
+        self.shear_k_entry.pack(side="left")
         # Help button with detailed explanation (opens dialog)
         help_btn = tk.Button(shear_frame, text="?", width=2, command=self._show_shear_help)
         help_btn.pack(side="left", padx=(8, 0))
@@ -418,6 +427,11 @@ class MainWindow(tk.Toplevel):
             self.kappa_z_entry,
             "Fattore di forma a taglio κ_z (Timoshenko). "
             "Valore predefinito in base al tipo di sezione.",
+        )
+        self._create_tooltip(
+            self.shear_k_entry,
+            "Fattore unico di area a taglio k; usato per calcolare "
+            "props.meta['shear_area'] = area * k. Viene preimpostato dal tipo.",
         )
         self._create_tooltip(
             help_btn,
@@ -492,164 +506,11 @@ class MainWindow(tk.Toplevel):
             variable=self.show_core_var,
         ).pack(anchor="w")
 
-        # Saved sections panel (Listbox + controls)
-        saved_frame = tk.LabelFrame(self.left_frame, text="Sezioni salvate")
-        saved_frame.pack(fill="x", pady=(8, 8))
-        self.saved_listbox = tk.Listbox(saved_frame, height=6)
-        self.saved_listbox.pack(side="left", fill="both", expand=True, padx=(4, 0), pady=4)
-        scrollbar = ttk.Scrollbar(saved_frame, orient="vertical", command=self.saved_listbox.yview)
-        scrollbar.pack(side="left", fill="y")
-        self.saved_listbox.config(yscrollcommand=scrollbar.set)
-        btns_frame = tk.Frame(saved_frame)
-        btns_frame.pack(side="left", padx=4)
-        tk.Button(btns_frame, text="Salva", width=8, command=self._save_current_section).pack(
-            fill="x", pady=(4, 2)
-        )
-        tk.Button(btns_frame, text="Aggiorna", width=8, command=self._update_selected_saved).pack(
-            fill="x", pady=2
-        )
-        tk.Button(btns_frame, text="Carica", width=8, command=self._load_selected_section).pack(
-            fill="x", pady=2
-        )
-        tk.Button(btns_frame, text="Elimina", width=8, command=self._delete_selected_saved).pack(
-            fill="x", pady=(2, 4)
-        )
-
-        # persistent store path
-        from pathlib import Path
-
-        self._saved_path = Path(__file__).parent.parent / "saved_sections.csv"
-        # load any existing saved sections
-        try:
-            self._populate_saved_list()
-        except Exception:
-            pass
-
         self.output_frame = tk.LabelFrame(self.left_frame, text="Proprietà calcolate")
         self.output_frame.pack(fill="both", expand=True)
         self.output_text = tk.Text(self.output_frame, width=36, height=16)
         self.output_text.pack(fill="both", expand=True, padx=4, pady=4)
         print("MainWindow _build_left_panel done")
-
-    # ----------------- Saved sections support -----------------
-    def _populate_saved_list(self) -> None:
-        """Load saved sections from disk and populate the Listbox."""
-        try:
-            from sections_app.storage import import_sections_from_csv
-
-            items = import_sections_from_csv(str(self._saved_path))
-            self._saved_geoms = items
-            if self.saved_listbox is None:
-                return
-            self.saved_listbox.delete(0, tk.END)
-            for ge in items:
-                name = ge.meta.get("name") or ge.meta.get("type") or "(unnamed)"
-                self.saved_listbox.insert(tk.END, name)
-        except Exception as e:
-            logger.exception("Errore caricamento saved sections: %s", e)
-
-    def _save_current_section(self) -> None:
-        """Save current form section to persisted CSV and refresh list."""
-        try:
-            sec = self._build_section_from_inputs()
-            if not sec:
-                return
-            geom = section_to_geometry(sec)
-            # attach name from form
-            geom.meta.setdefault("name", sec.name)
-            from sections_app.storage import import_sections_from_csv, export_sections_to_csv
-
-            items = import_sections_from_csv(str(self._saved_path))
-            items.append(geom)
-            export_sections_to_csv(str(self._saved_path), items)
-            self._populate_saved_list()
-        except Exception as e:
-            logger.exception("Errore salvataggio sezione: %s", e)
-            notify_error("Errore", "Impossibile salvare la sezione")
-
-    def _on_saved_select(self) -> None:
-        sel = None
-        try:
-            idx = self.saved_listbox.curselection()
-            if not idx:
-                return
-            sel = int(idx[0])
-        except Exception:
-            return
-        try:
-            geom = self._saved_geoms[sel]
-            # load into form: map geometry to fields (simple rectangle support)
-            # best-effort: look at meta.type or deduce bbox
-            bb = geom.bounding_box()
-            b = bb[2] - bb[0]
-            h = bb[3] - bb[1]
-            self.section_var.set("Rettangolare")
-            self._create_inputs()
-            self.name_entry.delete(0, tk.END)
-            self.name_entry.insert(0, geom.meta.get("name", ""))
-            try:
-                self.inputs.get("width") and self.inputs["width"].delete(0, tk.END)
-                self.inputs.get("width") and self.inputs["width"].insert(0, str(b))
-            except Exception:
-                pass
-            try:
-                self.inputs.get("height") and self.inputs["height"].delete(0, tk.END)
-                self.inputs.get("height") and self.inputs["height"].insert(0, str(h))
-            except Exception:
-                pass
-        except Exception as e:
-            logger.exception("Errore caricamento sezione selezionata: %s", e)
-
-    def _load_selected_section(self) -> None:
-        try:
-            self._on_saved_select()
-        except Exception:
-            pass
-
-    def _update_selected_saved(self) -> None:
-        """Replace the currently selected saved section with the current form values."""
-        try:
-            idx = self.saved_listbox.curselection()
-            if not idx:
-                notify_error("Errore", "Nessuna sezione selezionata per aggiornare.")
-                return
-            sel = int(idx[0])
-            sec = self._build_section_from_inputs()
-            if not sec:
-                return
-            geom = section_to_geometry(sec)
-            geom.meta.setdefault("name", sec.name)
-            from sections_app.storage import import_sections_from_csv, export_sections_to_csv
-
-            items = import_sections_from_csv(str(self._saved_path))
-            if sel < 0 or sel >= len(items):
-                notify_error("Errore", "Indice sezione non valido")
-                return
-            items[sel] = geom
-            export_sections_to_csv(str(self._saved_path), items)
-            self._populate_saved_list()
-        except Exception as e:
-            logger.exception("Errore aggiornamento sezione salvata: %s", e)
-            notify_error("Errore", "Impossibile aggiornare la sezione")
-
-    def _delete_selected_saved(self) -> None:
-        try:
-            idx = self.saved_listbox.curselection()
-            if not idx:
-                return
-            sel = int(idx[0])
-            from sections_app.storage import import_sections_from_csv, export_sections_to_csv
-
-            items = import_sections_from_csv(str(self._saved_path))
-            if sel < 0 or sel >= len(items):
-                notify_error("Errore", "Indice sezione non valido")
-                return
-            del items[sel]
-            export_sections_to_csv(str(self._saved_path), items)
-            self._populate_saved_list()
-        except Exception as e:
-            logger.exception("Errore cancellazione sezione salvata: %s", e)
-            notify_error("Errore", "Impossibile eliminare la sezione")
 
     def _build_right_panel(self) -> None:
         tk.Label(self.right_frame, text="Grafica sezione").pack(anchor="w")
@@ -660,11 +521,6 @@ class MainWindow(tk.Toplevel):
             self.graphics_controller = SectionGraphicsController(self.canvas)
         except Exception:  # pragma: no cover - defensive
             self.graphics_controller = None
-        # wire saved sections listbox selection
-        try:
-            self.saved_listbox.bind("<<ListboxSelect>>", lambda e: self._on_saved_select())
-        except Exception:
-            pass
 
     def _on_section_change(self, _event=None) -> None:
         """Handler per cambio tipologia sezione - ricostruisce campi input dinamicamente.
@@ -741,12 +597,30 @@ class MainWindow(tk.Toplevel):
         except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
+    def _on_section_deleted(self, *args, **kwargs) -> None:
+        """Handle section deletion: clear edit mode if the deleted section was being edited."""
+        deleted_id = kwargs.get("section_id")
+        if deleted_id and self.editing_section_id == deleted_id:
+            self.editing_section_id = None
+            self.current_section = None
+            self._update_editing_mode_label()
+            notify_info(
+                "Sezione eliminata",
+                "La sezione in modifica è stata eliminata dall'archivio.",
+                source="main_window",
+            )
+
     def _on_close(self) -> None:
         """Handler per la chiusura della finestra - chiude solo questa Toplevel, non l'intera app.
 
         ✅ Assicura che il polling sia cancellato e la finestra sia distrutta correttamente.
         """
         self._cancel_polling()
+        try:
+            if getattr(self, "_event_bus", None) is not None:
+                self._event_bus.unsubscribe(SECTIONS_DELETED, self._on_section_deleted)
+        except Exception:
+            pass
         self.destroy()
 
     def _create_inputs(self) -> None:
@@ -826,6 +700,15 @@ class MainWindow(tk.Toplevel):
             self.kappa_y_entry.insert(0, f"{ky:.6g}")
             self.kappa_z_entry.delete(0, tk.END)
             self.kappa_z_entry.insert(0, f"{kz:.6g}")
+            # set default unified shear factor k from shear_factors module
+            try:
+                from sections_app.shear_factors import get_default_shear_factor
+
+                kdef = get_default_shear_factor(tipo)
+            except Exception:  # pragma: no cover - resilience
+                kdef = ky
+            self.shear_k_entry.delete(0, tk.END)
+            self.shear_k_entry.insert(0, f"{kdef:.6g}")
         except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
@@ -851,6 +734,21 @@ class MainWindow(tk.Toplevel):
             "Vedi file docs/SHEAR_FORM_FACTORS.md per dettagli e riferimenti."
         )
         notify_info("Fattori di forma a taglio (κ)", text, source="main_window")
+
+    def _get_shear_factor_from_ui(self) -> float:
+        """Read unified shear factor k from UI; fallback to defaults if invalid."""
+        try:
+            val = self.shear_k_entry.get().strip()
+            if val == "":
+                raise ValueError
+            return float(val)
+        except Exception:
+            try:
+                from sections_app.shear_factors import get_default_shear_factor
+
+                return get_default_shear_factor(self.section_var.get())
+            except Exception:
+                return 1.0
 
     def _build_section_from_inputs(self) -> Section | None:
         definition = SECTION_DEFINITIONS[self.section_var.get()]
@@ -935,7 +833,8 @@ class MainWindow(tk.Toplevel):
         self.current_section = section
         # Use the calculation module to compute properties from Section
         try:
-            props = compute_section_properties_from_section(section)
+            shear_k = self._get_shear_factor_from_ui()
+            props = compute_section_properties_from_section(section, shear_factor=shear_k)
         except Exception as exc:  # pragma: no cover - defensive
             logger.exception("Errore nel calcolo proprietà (sezione -> properties): %s", exc)
             props = None
@@ -957,7 +856,8 @@ class MainWindow(tk.Toplevel):
             return
         # Ensure we have properties and geometry
         try:
-            props = compute_section_properties_from_section(section)
+            shear_k = self._get_shear_factor_from_ui()
+            props = compute_section_properties_from_section(section, shear_factor=shear_k)
             geom = section_to_geometry(section)
         except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore nel calcolo proprietà per grafica: %s", exc)
@@ -973,7 +873,12 @@ class MainWindow(tk.Toplevel):
             except Exception:
                 self.graphics_controller = None
         if self.graphics_controller:
-            self.graphics_controller.draw_all(geom, props)
+            self.graphics_controller.draw_all(
+                geom,
+                props,
+                show_core=(getattr(self, "show_core_var", None) is None or self.show_core_var.get()),
+                show_ellipse=(getattr(self, "show_ellipse_var", None) is None or self.show_ellipse_var.get()),
+            )
         else:
             # fallback to older drawer
             self._draw_section(section)
@@ -1015,20 +920,35 @@ class MainWindow(tk.Toplevel):
             ellipse_a = getattr(e, "a", ellipse_a)
             ellipse_b = getattr(e, "b", ellipse_b)
 
+        wx = _get(props, "wx", "wx")
+        wy = _get(props, "wy", "wy")
+        shear_area_y = _get(props, "shear_area_y", "shear_area_y")
+        shear_area_z = _get(props, "shear_area_z", "shear_area_z")
+        kappa_y = _get(section, "shear_factor_y", default=0.0)
+        kappa_z = _get(section, "shear_factor_z", default=0.0)
+
+        u = getattr(props, "meta", {}).get("units", "cm") if hasattr(props, "meta") else "cm"
         output: str = (
             f"Sezione: {getattr(section, 'name', '')}\n"
             f"Tipo: {getattr(section, 'section_type', '')}\n\n"
-            f"Area: {area:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}²\n"
-            f"Baricentro: ({x_c:.3f}, {y_c:.3f}) {getattr(props, 'meta', {}).get('units', 'cm')}\n"
-            f"Ix: {ix:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}⁴\n"
-            f"Iy: {iy:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}⁴\n"
-            f"Ixy: {ixy:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}⁴\n"
+            f"Area: {area:.3f} {u}²\n"
+            f"Baricentro: ({x_c:.3f}, {y_c:.3f}) {u}\n"
+            f"Ix: {ix:.3f} {u}⁴\n"
+            f"Iy: {iy:.3f} {u}⁴\n"
+            f"Ixy: {ixy:.3f} {u}⁴\n"
             f"I1: {getattr(props, 'I1', getattr(props, 'principal_ix', 0.0)):.3f}\n"
             f"I2: {getattr(props, 'I2', getattr(props, 'principal_iy', 0.0)):.3f}\n"
             f"θ_p (deg): {theta_p:.3f}\n"
-            f"Raggi giratori: r1={rx:.3f}, r2={ry:.3f} {getattr(props, 'meta', {}).get('units', 'cm')}\n"
-            f"Nocciolo (x,y): ({core_x:.3f}, {core_y:.3f}) {getattr(props, 'meta', {}).get('units', 'cm')}\n"
-            f"Ellisse (a,b): ({ellipse_a:.3f}, {ellipse_b:.3f}) {getattr(props, 'meta', {}).get('units', 'cm')}\n"
+            f"Raggi giratori: r1={rx:.3f}, r2={ry:.3f} {u}\n\n"
+            f"Moduli resistenti:\n"
+            f"  Wx: {wx:.3f} {u}³\n"
+            f"  Wy: {wy:.3f} {u}³\n\n"
+            f"Aree a taglio (Timoshenko):\n"
+            f"  κ_y={kappa_y:.4f}, κ_z={kappa_z:.4f}\n"
+            f"  A_y: {shear_area_y:.3f} {u}²\n"
+            f"  A_z: {shear_area_z:.3f} {u}²\n\n"
+            f"Nocciolo (x,y): ({core_x:.3f}, {core_y:.3f}) {u}\n"
+            f"Ellisse (a,b): ({ellipse_a:.3f}, {ellipse_b:.3f}) {u}\n"
         )
         self.output_text.delete("1.0", tk.END)
         self.output_text.insert(tk.END, output)
@@ -1406,18 +1326,9 @@ class MainWindow(tk.Toplevel):
         if not section:
             return
 
-        # OBIETTIVO 4: Calcola proprietà automaticamente se assenti o se parametri sono cambiati
-        try:
-            # Calcola sempre le proprietà per assicurare valori aggiornati
-            # (sempre chiamare compute_properties)
-            section.compute_properties()
-            logger.debug("Proprietà calcolate per sezione: %s", section.name)
-        except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
-            logger.exception("Errore nel calcolo proprietà: %s", exc)
-            messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {exc}")
-            return
-
         # OBIETTIVO 3: Modifica non crea nuova sezione, fa update della sezione esistente
+        # NOTE: compute_properties() is called internally by repository.add_section()
+        # and repository.update_section(), so we don't call it here to avoid double computation.
         if self.editing_section_id is None:
             # Nuova sezione
             added: bool = self.repository.add_section(section)
@@ -1429,7 +1340,12 @@ class MainWindow(tk.Toplevel):
                 )
                 logger.debug("Sezione creata: %s", section.id)
             else:
-                messagebox.showinfo("Salvataggio", "Sezione duplicata: non salvata")
+                notify_error(
+                    "Errore salvataggio",
+                    f"Impossibile salvare la sezione '{section.name}': "
+                    "duplicata o errore nel calcolo proprietà.",
+                    source="main_window",
+                )
         else:
             # Modifica sezione esistente: aggiorna mantenendo lo stesso ID
             try:
@@ -1517,18 +1433,18 @@ class MainWindow(tk.Toplevel):
 
         # Carica i fattori kappa se presenti, altrimenti mostra i default
         try:
-            if getattr(section, "shear_factor_y", None) is not None:
+            ky = getattr(section, "shear_factor_y", None)
+            kz = getattr(section, "shear_factor_z", None)
+            if ky is not None:
                 self.kappa_y_entry.delete(0, tk.END)
-                self.kappa_y_entry.insert(0, str(section.shear_factor_y))
-            else:
-                self._set_default_kappa_entries()
-            if getattr(section, "shear_factor_z", None) is not None:
+                self.kappa_y_entry.insert(0, str(ky))
+            if kz is not None:
                 self.kappa_z_entry.delete(0, tk.END)
-                self.kappa_z_entry.insert(0, str(section.shear_factor_z))
-            else:
+                self.kappa_z_entry.insert(0, str(kz))
+            # Only reset to defaults if both are missing
+            if ky is None and kz is None:
                 self._set_default_kappa_entries()
         except Exception:  # type: ignore[reportGeneralTypeIssues]
-            # Non blocchiamo il caricamento se il campo non esiste
             pass
 
         self.current_section = section
@@ -1598,6 +1514,11 @@ class MainWindow(tk.Toplevel):
             entry.delete(0, tk.END)
         self.rotation_entry.delete(0, tk.END)
         self.rotation_entry.insert(0, "0.0")
+        # Reset kappa entries to defaults for the current section type
+        try:
+            self._set_default_kappa_entries()
+        except Exception:
+            pass
         self.output_text.delete("1.0", tk.END)
         self.canvas.delete("all")
         self._update_editing_mode_label()

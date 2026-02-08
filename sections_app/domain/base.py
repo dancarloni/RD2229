@@ -78,8 +78,7 @@ class SectionProperties:
                 if abs(self.Ixy) < 1e-10:
                     principal_angle_deg = 0.0
                 else:
-                    tan_2theta = 2 * self.Ixy / (self.Ix - self.Iy)
-                    theta_rad = math.atan(tan_2theta) / 2
+                    theta_rad = 0.5 * math.atan2(2 * self.Ixy, self.Ix - self.Iy)
                     principal_angle_deg = math.degrees(theta_rad)
 
                 # Raggi di inerzia principali

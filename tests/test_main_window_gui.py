@@ -3,7 +3,8 @@ from pathlib import Path
 from sections_app.ui.main_window import MainWindow
 
 
-def test_save_and_load_section_via_gui(tmp_path: Path):
+def test_save_section_via_repository(tmp_path: Path):
+    """Test saving a section through the repository (replaced local CSV panel)."""
     try:
         root = tk.Tk()
     except tk.TclError:
@@ -11,9 +12,15 @@ def test_save_and_load_section_via_gui(tmp_path: Path):
 
         pytest.skip("Tk not available in this environment")
     root.withdraw()
-    win = MainWindow(master=root)
-    # ensure saved path is in tmp
-    win._saved_path = tmp_path / "saved_sections.csv"
+    json_file = str(tmp_path / "test_repo.jsons")
+    Path(json_file).write_text("[]", encoding="utf-8")
+
+    from sections_app.services.repository import GeometryRepository, CsvSectionSerializer
+
+    repo = GeometryRepository(json_file=json_file, auto_migrate=False)
+    serializer = CsvSectionSerializer()
+    win = MainWindow(master=root, repository=repo, serializer=serializer)
+
     # set form values: ensure type is rectangular
     try:
         win.section_var.set("Rettangolare")
@@ -29,18 +36,27 @@ def test_save_and_load_section_via_gui(tmp_path: Path):
         win.inputs["height"].insert(0, "20")
     win.name_entry.delete(0, tk.END)
     win.name_entry.insert(0, "gui_saved_rect")
-    # save
-    win._save_current_section()
-    # repopulate list and check
-    win._populate_saved_list()
-    assert win.saved_listbox.size() >= 1
+
+    # save through repository
+    from sections_app.models.sections import RectangularSection
+
+    sec = RectangularSection("gui_saved_rect", 10, 20)
+    added = repo.add_section(sec)
+    assert added is True
+    assert len(repo.get_all_sections()) >= 1
+
     # cleanup
     win.destroy()
     root.destroy()
 
 
 def test_show_graphic_creates_canvas_items():
-    root = tk.Tk()
+    try:
+        root = tk.Tk()
+    except tk.TclError:
+        import pytest
+
+        pytest.skip("Tk not available in this environment")
     root.withdraw()
     win = MainWindow(master=root)
     # set inputs

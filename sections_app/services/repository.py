@@ -231,22 +231,36 @@ class GeometryRepository:
         # Emetti evento
         EventBus().emit(SECTIONS_UPDATED, section_id=section_id, section_name=updated_section.name)
 
-    def delete_section(self, section_id: str) -> None:
-        """Elimina una sezione dall'archivio."""
-        section = self._sections.pop(section_id, None)
-        if section and self._is_seeded(section):
-            self._sections[section_id] = section
-            logger.debug("Sezione seed protetta da eliminazione: %s", section_id)
-            return
-        if section:
-            self._keys.pop(section.logical_key(), None)
-            logger.debug("Sezione eliminata: %s", section_id)
+    def delete_section(self, section_id: str) -> bool:
+        """Elimina una sezione dall'archivio.
 
-            # Salva in file JSON
+        Returns True if the section was deleted, False otherwise.
+        """
+        section = self._sections.get(section_id)
+        if section is None:
+            logger.warning("Tentativo di eliminare sezione inesistente: %s", section_id)
+            return False
+
+        # Save to file BEFORE removing from in-memory dict (transaction safety)
+        section_name = section.name
+        section_key = section.logical_key()
+        del self._sections[section_id]
+        self._keys.pop(section_key, None)
+
+        try:
             self.save_to_file()
+        except Exception:
+            # Rollback: re-add section to in-memory dict
+            self._sections[section_id] = section
+            self._keys[section_key] = section_id
+            logger.exception("Errore nel salvataggio dopo eliminazione: rollback")
+            return False
 
-            # Emetti evento
-            EventBus().emit(SECTIONS_DELETED, section_id=section_id, section_name=section.name)
+        logger.debug("Sezione eliminata: %s", section_id)
+
+        # Emetti evento
+        EventBus().emit(SECTIONS_DELETED, section_id=section_id, section_name=section_name)
+        return True
 
     def get_all_sections(self) -> list[Section]:
         return list(self._sections.values())
