@@ -40,7 +40,7 @@ ignore = ["E203", "N803", "N806", "E501", "N815", "N802"]
 # Usi Black come formatter principale → lascia il formatter di Ruff disattivo (default)
 
 [tool.flake8]
-max-line-length = 100
+max-line-length = 125
 extend-ignore = ["E203", "W503"]
 exclude = [".venv", "build", "dist", ".git"]
 
