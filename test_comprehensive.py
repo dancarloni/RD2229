@@ -142,9 +142,9 @@ def test_csv_roundtrip(sections):
     finally:
         os.unlink(tmp_path)
 
-def test_shear_calculations(sections):
-    """Test calcoli shear."""
-    print("\nTesting shear calculations...")
+def test_area_calculations(sections):
+    """Test calcoli area shear."""
+    print("\nTesting area calculations...")
 
     for section in sections:
         kappa_y, kappa_z = section.get_default_shear_kappas()
@@ -167,7 +167,7 @@ if __name__ == "__main__":
         test_csv_roundtrip(sections)
 
         # Test shear
-        test_shear_calculations(sections)
+        test_area_calculations(sections)
 
         print("\n🎉 All comprehensive tests passed!")
         print("✅ Modular architecture successfully implemented")

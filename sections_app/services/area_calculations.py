@@ -10,20 +10,19 @@ from dataclasses import dataclass
 
 # Provo a usare il Section reale, ma forzo un fallback per i test locali
 try:
-    from ..domain.base import Section  # type: ignore
-except ImportError:
-    # Fallback per test locali - non usato
-    pass
-except Exception:  # pragma: no cover - fallback per test locale
+    from ..domain.base import Section, SectionProperties  # type: ignore
+except (ImportError, Exception):
+    from dataclasses import field
+
     @dataclass
-    class Properties:
+    class SectionProperties:
         area: float = 0.0
 
     @dataclass
     class Section:  # semplice stub usato solo se l'import reale non è disponibile
         section_type: str
         dimensions: dict[str, float]
-        properties: Properties = Properties()
+        properties: SectionProperties = field(default_factory=SectionProperties)
 
 
 def _get(dims: dict[str, float], key: str) -> float:
@@ -149,5 +148,3 @@ def compute_shear_areas(section: Section) -> tuple[float, float]:
 
     # Ultima risorsa: 0,0
     return 0.0, 0.0
-
-

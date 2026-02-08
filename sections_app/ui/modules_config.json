@@ -1,0 +1,17 @@
+{
+    "geometry": {
+        "name": "Geometry Module",
+        "class": "MainWindow",
+        "description": "Modulo per calcoli geometrici di sezioni strutturali."
+    },
+    "historical": {
+        "name": "Historical Module",
+        "class": "HistoricalModuleMainWindow",
+        "description": "Modulo per gestione materiali storici."
+    },
+    "debug": {
+        "name": "Debug Viewer",
+        "class": "DebugViewerWindow",
+        "description": "Strumento per visualizzare log e debug."
+    }
+}
