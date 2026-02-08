@@ -11,17 +11,17 @@ license = {text = "MIT"}
 requires-python = ">=3.11"
 
 [tool.black]
-line-length = 100
+line-length = 125
 target-version = ["py311"]
 skip-string-normalization = false
 
 [tool.isort]
 profile = "black"
-line_length = 100
+line_length = 125
 combine_as_imports = true
 
 [tool.ruff]
-line-length = 100
+line-length = 125
 target-version = "py311"
 
 [tool.ruff.lint]
@@ -107,10 +107,10 @@ repos = [
         { id = "check-added-large-files" },
     ]},
     { repo = "https://github.com/psf/black", rev = "23.12.1", hooks = [
-        { id = "black", args = ["--line-length", "100"] },
+      { id = "black", args = ["--line-length", "125"] },
     ]},
     { repo = "https://github.com/pycqa/isort", rev = "5.13.2", hooks = [
-        { id = "isort", args = ["--profile", "black", "--line-length", "100"] },
+      { id = "isort", args = ["--profile", "black", "--line-length", "125"] },
     ]},
     { repo = "https://github.com/charliermarsh/ruff-pre-commit", rev = "v0.1.14", hooks = [
         { id = "ruff", args = ["--fix", "--show-fixes"] },
