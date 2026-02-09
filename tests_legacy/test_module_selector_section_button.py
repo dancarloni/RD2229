@@ -118,7 +118,7 @@ class TestModuleSelectorSectionButton(unittest.TestCase):
                 try:
                     if getattr(window, "_geometry_window", None) is not None and window._geometry_window.winfo_exists():
                         window._geometry_window.destroy()
-                except Exception:
+                except Exception:  # nosec
                     pass
                 if window.winfo_exists():
                     window.destroy()

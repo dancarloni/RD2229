@@ -21,7 +21,7 @@ class TestVerificationTableCSVRoundtrip(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_export_import_roundtrip_preserves_values(self):
@@ -71,7 +71,7 @@ class TestVerificationTableCSVRoundtrip(unittest.TestCase):
         finally:
             try:
                 os.unlink(tmp_path)
-            except Exception:
+            except Exception:  # nosec
                 pass
         top.destroy()
 

@@ -77,6 +77,9 @@ warn_return_any = true
 strict = true
 show_error_codes = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+# Exclude local duplicate module that collides with top-level package name
+# This avoids "Duplicate module named \"app\"" during local mypy runs.
+exclude = '(^|/)(softw_components/app_module/app\\.py)$'
 
 [tool.bandit]
 skips = ["B101"]

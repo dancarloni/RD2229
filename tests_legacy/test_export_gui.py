@@ -84,7 +84,7 @@ class TestExportBackupGUI(unittest.TestCase):
                     try:
                         window.section_repository.export_backup(file_path)
                         # Non chiamiamo messagebox durante il test
-                    except Exception:
+                    except Exception:  # nosec
                         pass
 
                 mock_export()

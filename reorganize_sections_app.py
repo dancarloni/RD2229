@@ -666,9 +666,9 @@ def run_reorganization(
     print(f"\n{prefix}Processing {len(modules)} root module(s): {', '.join(modules)}")
 
     for mod in modules:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"  Module: {mod}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         # Collect transitive dependencies
         try:
@@ -730,7 +730,7 @@ def run_reorganization(
                     for ch in changes:
                         print(f"    {rel}: {ch}")
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"{prefix}Done. Output in: {out_root}")
 
 

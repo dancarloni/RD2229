@@ -47,7 +47,7 @@ class TestHistoricalMaterialWindow(unittest.TestCase):
     def tearDown(self):
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
         self.tmpdir.cleanup()
 

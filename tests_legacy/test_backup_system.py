@@ -28,7 +28,7 @@ class TestBackupSystem(unittest.TestCase):
 
         try:
             shutil.rmtree(self.temp_dir)
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_section_backup_created_on_save(self):

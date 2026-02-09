@@ -25,7 +25,7 @@ class TestVerificationTableWindow(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_window_receives_repositories_and_debug_info(self):

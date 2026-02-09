@@ -39,7 +39,7 @@ class TestSectionManagerNewButton(unittest.TestCase):
                 try:
                     if getattr(main, "section_manager", None) is not None and main.section_manager.winfo_exists():
                         main.section_manager.destroy()
-                except Exception:
+                except Exception:  # nosec
                     pass
                 if main.winfo_exists():
                     main.destroy()
@@ -74,7 +74,7 @@ class TestSectionManagerNewButton(unittest.TestCase):
                         and selector._section_manager_window.winfo_exists()
                     ):
                         selector._section_manager_window.destroy()
-                except Exception:
+                except Exception:  # nosec
                     pass
                 if selector.winfo_exists():
                     selector.destroy()

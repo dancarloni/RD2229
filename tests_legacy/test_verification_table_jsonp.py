@@ -19,7 +19,7 @@ class TestVerificationTableJSONP(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def make_project_file(self, path, elems=None, mats=None, secs=None):

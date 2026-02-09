@@ -53,7 +53,7 @@ def test_T_adapter_bbox_and_area_consistency():
     assert pytest.approx(maxy, rel=1e-6) == wh + ft
 
     # polygon area matches computed area (use shapely if available, else compute shoelace)
-    shapely = pytest.importorskip("shapely")
+    pytest.importorskip("shapely")
     from shapely.geometry import Polygon as ShPolygon
 
     poly = ShPolygon(geom.exterior, holes=geom.holes)

@@ -9,7 +9,7 @@ in local editable installs where the repo root appears on sys.path.
 
 from __future__ import annotations
 
-import subprocess
+import subprocess  # nosec
 import sys
 
 
@@ -40,7 +40,7 @@ def main() -> int:
     ]
 
     for cmd in cmd_variants:
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(cmd, capture_output=True, text=True)  # nosec
         if proc.returncode == 0:
             if proc.stdout:
                 print(proc.stdout)
