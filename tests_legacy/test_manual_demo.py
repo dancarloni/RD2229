@@ -31,7 +31,7 @@ class TestManualDemo(unittest.TestCase):
     def tearDown(self):
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_demo_flow_open_close_and_suggestions(self):
@@ -107,11 +107,11 @@ class TestManualDemo(unittest.TestCase):
         # Cleanup
         try:
             vt.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
         try:
             sel.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
 

@@ -15,7 +15,7 @@ class TestVerificationTableIntegration(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_select_suggestion_with_keyboard(self):

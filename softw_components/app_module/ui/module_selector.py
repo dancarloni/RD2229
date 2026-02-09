@@ -129,7 +129,7 @@ class ModuleSelectorController:
                         import time
 
                         time.sleep(0.1)
-                except Exception:
+                except Exception:  # nosec
                     # If winfo_exists fails, we'll simply continue to cleanup
                     pass
             else:

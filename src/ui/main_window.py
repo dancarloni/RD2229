@@ -316,7 +316,7 @@ class MainWindow(tk.Toplevel):
                     self._material_manager_window.focus_force()
                     logger.debug("Material Manager già aperto, portato in primo piano")
                     return
-            except Exception:
+            except Exception:  # nosec
                 pass
 
         # Crea libreria storica e apri finestra
@@ -344,7 +344,7 @@ class MainWindow(tk.Toplevel):
                 "<Destroy>",
                 lambda e, w=self._material_manager_window: setattr(self, "_material_manager_window", None),
             )
-        except Exception:
+        except Exception:  # nosec
             pass
         logger.debug("Material Manager aperto")
 
@@ -412,8 +412,7 @@ class MainWindow(tk.Toplevel):
         self.rotation_entry.insert(0, "0.0")
         self._create_tooltip(
             self.rotation_entry,
-            "Angolo di rotazione della sezione nel suo piano (gradi). "
-            "Influenza i momenti d'inerzia globali e la grafica.",
+            "Angolo di rotazione della sezione nel suo piano (gradi). Influenza i momenti d'inerzia globali e la grafica.",
         )
 
         # Campi per i fattori di forma a taglio (kappa_y, kappa_z)
@@ -443,7 +442,7 @@ class MainWindow(tk.Toplevel):
         # Inizializza le entry con i valori di default per la tipologia corrente
         try:
             self._set_default_kappa_entries()
-        except Exception:
+        except Exception:  # nosec
             pass
 
         self.buttons_frame = tk.Frame(self.left_frame)
@@ -555,7 +554,7 @@ class MainWindow(tk.Toplevel):
         # Assicura consistenza tra StringVar e combobox
         try:
             self.section_var.set(tipo_selezionato)
-        except Exception:
+        except Exception:  # nosec
             pass
 
         # Ricostruisce i campi di input per la nuova tipologia
@@ -599,7 +598,7 @@ class MainWindow(tk.Toplevel):
                 self.after_cancel(self._polling_id)
                 self._polling_id = None
                 logger.debug("Polling selezione ComboBox annullato")
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def _on_close(self) -> None:
@@ -657,7 +656,7 @@ class MainWindow(tk.Toplevel):
         # Inizializza le entry dei fattori kappa con i valori di default per la tipologia
         try:
             self._set_default_kappa_entries()
-        except Exception:
+        except Exception:  # nosec
             pass
 
         logger.debug(f"Creati {len(self.inputs)} campi input")
@@ -686,7 +685,7 @@ class MainWindow(tk.Toplevel):
             self.kappa_y_entry.insert(0, f"{ky:.6g}")
             self.kappa_z_entry.delete(0, tk.END)
             self.kappa_z_entry.insert(0, f"{kz:.6g}")
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def _show_shear_help(self) -> None:
@@ -1283,7 +1282,7 @@ class MainWindow(tk.Toplevel):
                 self.kappa_z_entry.insert(0, str(section.shear_factor_z))
             else:
                 self._set_default_kappa_entries()
-        except Exception:
+        except Exception:  # nosec
             # Non blocchiamo il caricamento se il campo non esiste
             pass
 
@@ -1425,7 +1424,7 @@ class MainWindow(tk.Toplevel):
             # Crea finestra tooltip
             tooltip = tk.Toplevel(widget)
             tooltip.wm_overrideredirect(True)
-            tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
+            tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
 
             label = tk.Label(
                 tooltip,

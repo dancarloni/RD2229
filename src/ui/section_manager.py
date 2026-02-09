@@ -483,7 +483,7 @@ class SectionManager(tk.Toplevel):
                     try:
                         self.master.lift()
                         self.master.focus_force()
-                    except Exception:
+                    except Exception:  # nosec
                         pass
                     logger.debug("Reset form Geometry per nuova sezione (manager resta aperto)")
                     return True
@@ -505,7 +505,7 @@ class SectionManager(tk.Toplevel):
                             try:
                                 gw.lift()
                                 gw.focus_force()
-                            except Exception:
+                            except Exception:  # nosec
                                 pass
                             logger.debug("Aperto Geometry per nuova sezione (manager resta aperto)")
                             return True

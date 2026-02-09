@@ -17,7 +17,7 @@ class TestMainWindowMaterialButton(unittest.TestCase):
     def tearDown(self):
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_editor_material_button_triggers_open_material_manager(self):
@@ -41,7 +41,7 @@ class TestMainWindowMaterialButton(unittest.TestCase):
                     child.invoke()
                     found = True
                     break
-            except Exception:
+            except Exception:  # nosec
                 continue
 
         self.assertTrue(found, "Editor materiali button not found in MainWindow")

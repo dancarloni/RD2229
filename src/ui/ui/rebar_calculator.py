@@ -111,7 +111,7 @@ class RebarCalculatorWindow:
                 # Ignore errors in callback but log in parent if available
                 try:
                     logging.getLogger(__name__).exception("Error in rebar on_confirm callback")
-                except Exception:  # type: ignore[reportGeneralTypeIssues]
+                except Exception:  # type: ignore[reportGeneralTypeIssues]  # nosec
                     pass
         self._close()
 

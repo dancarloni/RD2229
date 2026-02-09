@@ -49,7 +49,7 @@ class TestHistoricalMaterials(unittest.TestCase):
         # Ensure no file exists
         try:
             lib_path.unlink(missing_ok=True)
-        except Exception:
+        except Exception:  # nosec
             pass
         lib = HistoricalMaterialLibrary(path=lib_path)
         # calling load should populate defaults and write file

@@ -20,7 +20,7 @@ class TestVerificationTableSuggestionsOnEmpty(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def _suggestion_list_items(self, app):

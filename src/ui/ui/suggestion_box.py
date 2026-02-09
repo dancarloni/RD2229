@@ -38,7 +38,7 @@ class SuggestionBox:
         if self._box is not None:
             try:
                 self._box.withdraw()
-            except Exception:
+            except Exception:  # nosec
                 pass
 
     def _on_click(self, _ev) -> None:
