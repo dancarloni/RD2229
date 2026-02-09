@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
-from math import cos, sin, sqrt, atan2
-from typing import List, Tuple
+from functools import lru_cache
 
 
 @dataclass
@@ -15,9 +15,9 @@ class RectangleElement:
     y_center: float  # Coordinata y del baricentro rispetto a un'origine locale (cm)
 
 
-def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> Tuple[float, float, float]:
-    """
-    Ruota il tensore di inerzia di un angolo theta_rad (radianti) attorno al baricentro.
+@lru_cache(maxsize=512)
+def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> tuple[float, float, float]:
+    """Ruota il tensore di inerzia di un angolo theta_rad (radianti) attorno al baricentro.
 
     Formule di rototrasformazione del tensore di inerzia:
     - Ix' = Ix * cos²θ + Iy * sin²θ - 2 * Ixy * sinθ * cosθ
@@ -32,9 +32,10 @@ def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> Tuple[
 
     Returns:
         Tuple (Ix_rot, Iy_rot, Ixy_rot) - inerzie ruotate (cm⁴)
+
     """
-    c = cos(theta_rad)
-    s = sin(theta_rad)
+    c = math.cos(theta_rad)
+    s = math.sin(theta_rad)
     c2 = c * c
     s2 = s * s
     cs = c * s
@@ -47,8 +48,7 @@ def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> Tuple[
 
 
 def translate_inertia(I_local: float, area: float, distance: float) -> float:
-    """
-    Teorema di trasporto (Steiner) per momenti di inerzia.
+    """Teorema di trasporto (Steiner) per momenti di inerzia.
 
     I_global = I_local + A * d²
 
@@ -59,6 +59,7 @@ def translate_inertia(I_local: float, area: float, distance: float) -> float:
 
     Returns:
         Momento di inerzia rispetto all'asse traslato (cm⁴)
+
     """
     return I_local + area * distance * distance
 
@@ -76,16 +77,17 @@ def compute_principal_inertia(Ix: float, Iy: float, Ixy: float) -> tuple:
     Returns (I1, I2, angle_rad)
     """
     Imean = (Ix + Iy) / 2.0
-    R = sqrt(((Ix - Iy) / 2.0) ** 2 + (Ixy) ** 2)
+    R = math.sqrt(((Ix - Iy) / 2.0) ** 2 + (Ixy) ** 2)
     I1 = Imean + R
     I2 = Imean - R
-    angle = 0.5 * atan2(2.0 * Ixy, Ix - Iy)
+    angle = 0.5 * math.atan2(2.0 * Ixy, Ix - Iy)
     return I1, I2, angle
 
 
-def combine_rectangular_elements(elements: List[RectangleElement]) -> Tuple[float, float, float, float, float, float]:
-    """
-    Combina elementi rettangolari per calcolare le proprietà globali di una sezione composta.
+def combine_rectangular_elements(
+    elements: list[RectangleElement],
+) -> tuple[float, float, float, float, float, float]:
+    """Combina elementi rettangolari per calcolare le proprietà globali di una sezione composta.
 
     Calcola:
     - Area totale
@@ -97,6 +99,7 @@ def combine_rectangular_elements(elements: List[RectangleElement]) -> Tuple[floa
 
     Returns:
         Tuple (area_tot, x_G, y_G, Ix, Iy, Ixy)
+
     """
     if not elements:
         return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
@@ -150,14 +153,16 @@ class CanvasTransform:
     offset_x: float
     offset_y: float
 
-    def to_canvas(self, x: float, y: float, height: float) -> Tuple[float, float]:
+    def to_canvas(self, x: float, y: float, height: float) -> tuple[float, float]:
         """Converte coordinate con origine in basso a sinistra (x,y) al canvas."""
         cx = self.offset_x + x * self.scale
         cy = self.offset_y + (height - y) * self.scale
         return cx, cy
 
 
-def compute_transform(width: float, height: float, canvas_width: int, canvas_height: int, padding: int = 20) -> CanvasTransform:
+def compute_transform(
+    width: float, height: float, canvas_width: int, canvas_height: int, padding: int = 20
+) -> CanvasTransform:
     """Calcola il fattore di scala per adattare la sezione al canvas."""
     if width <= 0 or height <= 0:
         return CanvasTransform(scale=1.0, offset_x=padding, offset_y=padding)
@@ -165,4 +170,3 @@ def compute_transform(width: float, height: float, canvas_width: int, canvas_hei
     offset_x = (canvas_width - width * scale) / 2
     offset_y = (canvas_height - height * scale) / 2
     return CanvasTransform(scale=scale, offset_x=offset_x, offset_y=offset_y)
-

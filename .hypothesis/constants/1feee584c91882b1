@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\src\methods\verification\methods_sle.py
+# hypothesis_version: 6.151.5
+
+[0.0, 0.001, 0.05, 0.3, 0.425, 0.6, 0.8, 0.95, 2.5, 3.4, 4.0, 12.0, 15.0, 300.0, 100, 1000, 200000, 'DATI INPUT:', 'ERRORE', 'LIMITI TENSIONI SLE:', 'NON VERIFICATO', 'VERIFICATO', 'cm']

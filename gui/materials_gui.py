@@ -5,32 +5,32 @@ per le operazioni CRUD e non contiene logica di calcolo.
 
 Nota: è una interfaccia di utilità leggera pensata per prototipazione.
 """
+
 from __future__ import annotations
 
 import logging
 import os
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
-from typing import Optional
 
 from tools import materials_manager
-from tkinter import filedialog
+
 try:
     from sections_app.services.event_bus import (
-        EventBus,
-        MATERIALS_CLEARED,
         MATERIALS_ADDED,
-        MATERIALS_UPDATED,
+        MATERIALS_CLEARED,
         MATERIALS_DELETED,
+        MATERIALS_UPDATED,
+        EventBus,
     )
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     EventBus = None
     MATERIALS_CLEARED = MATERIALS_ADDED = MATERIALS_UPDATED = MATERIALS_DELETED = None
 try:
     from materials_repository import MaterialsRepository
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     MaterialsRepository = None
-from tools.concrete_strength import compute_sigma_c_all, compute_allowable_shear
+from tools.concrete_strength import compute_allowable_shear, compute_sigma_c_all
 
 # Configure logging
 log_dir = os.path.join(os.path.dirname(__file__), "..", "..", "logs")
@@ -40,7 +40,7 @@ logging.basicConfig(
     filename=log_file,
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ MATERIALS_REPO_PATH = os.path.abspath(
 
 
 class MaterialEditor(simpledialog.Dialog):
-    def __init__(self, parent, title: str, material: Optional[dict] = None):
+    def __init__(self, parent, title: str, material: dict | None = None):
         self.material = material or {}
         super().__init__(parent, title=title)
 
@@ -161,16 +161,16 @@ class MaterialEditor(simpledialog.Dialog):
         sigma_all = compute_sigma_c_all(s28, cement, controlled)
         service_tau, max_tau = compute_allowable_shear(cement)
         # compute elastic moduli using sigma_c28
-        from tools.concrete_strength import compute_ec, compute_gc, compute_ec_conventional
+        from tools.concrete_strength import compute_ec, compute_ec_conventional, compute_gc
 
         ec = compute_ec(s28)
         ec_conv = compute_ec_conventional(s28, cement)
         g_min, g_mean, g_max = compute_gc(ec) if ec is not None else (None, None, None)
-        
+
         # Get calculated sigma values
-        sigma_c_simple = sigma_all.get('semplice')
-        sigma_c_inflessa = sigma_all.get('inflessa')
-        
+        sigma_c_simple = sigma_all.get("semplice")
+        sigma_c_inflessa = sigma_all.get("inflessa")
+
         # Historical resistance limits (from image)
         # Traction: 15-20 kg/cm², circa 1/9-1/10 of compression resistance
         sigma_t_min = round(sigma_c_simple / 10) if sigma_c_simple else None
@@ -183,8 +183,8 @@ class MaterialEditor(simpledialog.Dialog):
         txt_lines.append(f"σ_c (semplice) = {sigma_c_simple} Kg/cm²")
         txt_lines.append(f"σ_c (inflesse) = {sigma_c_inflessa} Kg/cm²")
         txt_lines.append(f"tau service = {service_tau} Kg/cm², tau max = {max_tau} Kg/cm²")
-        txt_lines.append(f"")
-        txt_lines.append(f"MODULI ELASTICI:")
+        txt_lines.append("")
+        txt_lines.append("MODULI ELASTICI:")
         if ec is not None:
             txt_lines.append(f"E_c (calcolato) = {ec} Kg/cm²")
         if ec_conv is not None:
@@ -196,11 +196,11 @@ class MaterialEditor(simpledialog.Dialog):
         if g_min and g_max:
             txt_lines.append(f"G_c = {g_mean} Kg/cm² (range: {g_min} ÷ {g_max})")
         if sigma_t_min and sigma_t_max:
-            txt_lines.append(f"")
-            txt_lines.append(f"LIMITI STORICI:")
+            txt_lines.append("")
+            txt_lines.append("LIMITI STORICI:")
             txt_lines.append(f"σ_t (trazione) = {sigma_t_min}÷{sigma_t_max} Kg/cm² (≈1/10÷1/9 σ_c)")
             txt_lines.append(f"σ_tf (flessione) = {sigma_tf_min}÷{sigma_tf_max} Kg/cm² (≈1/5÷1/4 σ_c)")
-            txt_lines.append(f"σ_taglio ≈ poco maggiore di σ_t")
+            txt_lines.append("σ_taglio ≈ poco maggiore di σ_t")
 
         # if user didn't provide E, propose the computed value in the E entry
         try:
@@ -224,9 +224,9 @@ class MaterialsApp(tk.Frame):
         # repository that holds current materials in-memory
         self.repo = MaterialsRepository() if MaterialsRepository is not None else None
         # current loaded materials file path (canonical repository)
-        self.current_materials_path: Optional[str] = MATERIALS_REPO_PATH
+        self.current_materials_path: str | None = MATERIALS_REPO_PATH
         self.create_widgets()
-        
+
         # If repo exists, attempt to load canonical repository automatically
         if self.repo is not None:
             try:
@@ -244,11 +244,14 @@ class MaterialsApp(tk.Frame):
                                 os.makedirs(os.path.dirname(MATERIALS_REPO_PATH), exist_ok=True)
                                 self.repo.save_to_jsonm(MATERIALS_REPO_PATH)
                             except Exception:
-                                logger.exception("Impossibile salvare il repository iniziale su %s", MATERIALS_REPO_PATH)
+                                logger.exception(
+                                    "Impossibile salvare il repository iniziale su %s",
+                                    MATERIALS_REPO_PATH,
+                                )
             except Exception:
                 # ignore and proceed
                 logger.exception("Errore caricamento repository materiali all'avvio")
-        
+
         self.refresh_list()
 
     def create_widgets(self):
@@ -259,7 +262,7 @@ class MaterialsApp(tk.Frame):
         tk.Button(toolbar, text="Edit", command=self.on_edit).pack(side="left")
         tk.Button(toolbar, text="Delete", command=self.on_delete).pack(side="left")
         tk.Button(toolbar, text="Refresh", command=self.refresh_list).pack(side="left")
-        tk.Button(toolbar, text="Carica lista materiali", command=self.on_load_list).pack(side="left", padx=(8,0))
+        tk.Button(toolbar, text="Carica lista materiali", command=self.on_load_list).pack(side="left", padx=(8, 0))
         tk.Button(toolbar, text="Salva lista materiali", command=self.on_save_list).pack(side="left")
 
         # Filters frame
@@ -310,8 +313,16 @@ class MaterialsApp(tk.Frame):
         self.tree.heading("G_min", text="G_c min", command=lambda c="G_min": self.sort_by(c))
         self.tree.heading("G_max", text="G_c max", command=lambda c="G_max": self.sort_by(c))
         self.tree.heading("sigma_simple", text="σ_c (semplice)", command=lambda c="sigma_simple": self.sort_by(c))
-        self.tree.heading("sigma_inflessa", text="σ_c (inflesse)", command=lambda c="sigma_inflessa": self.sort_by(c))
-        self.tree.heading("sigma_presso", text="σ_c (presso-inflesse)", command=lambda c="sigma_presso": self.sort_by(c))
+        self.tree.heading(
+            "sigma_inflessa",
+            text="σ_c (inflesse)",
+            command=lambda c="sigma_inflessa": self.sort_by(c),
+        )
+        self.tree.heading(
+            "sigma_presso",
+            text="σ_c (presso-inflesse)",
+            command=lambda c="sigma_presso": self.sort_by(c),
+        )
         self.tree.heading("tau_service", text="tau service", command=lambda c="tau_service": self.sort_by(c))
         self.tree.heading("tau_max", text="tau max", command=lambda c="tau_max": self.sort_by(c))
         self.tree.heading("E_defined", text="E defined", command=lambda c="E_defined": self.sort_by(c))
@@ -410,7 +421,7 @@ class MaterialsApp(tk.Frame):
                 self.tree.insert("", tk.END, values=values)
         self.detail.delete("1.0", tk.END)
 
-    def get_selected_name(self) -> Optional[str]:
+    def get_selected_name(self) -> str | None:
         sel = self.tree.selection()
         if not sel:
             return None
@@ -461,7 +472,11 @@ class MaterialsApp(tk.Frame):
                     logger.info(f"Materiale aggiunto: {mat.get('name')}")
                     if EventBus is not None:
                         try:
-                            EventBus().emit(MATERIALS_ADDED, material_id=mat.get('id') or mat.get('name'), material_name=mat.get('name'))
+                            EventBus().emit(
+                                MATERIALS_ADDED,
+                                material_id=mat.get("id") or mat.get("name"),
+                                material_name=mat.get("name"),
+                            )
                         except Exception:
                             logger.exception("Errore emissione EventBus dopo add")
                 self.refresh_list()
@@ -502,7 +517,11 @@ class MaterialsApp(tk.Frame):
                     logger.info(f"Materiale modificato: {name} -> {mat.get('name')}")
                     if EventBus is not None:
                         try:
-                            EventBus().emit(MATERIALS_UPDATED, material_id=updates.get('id') or updates.get('name') or name, material_name=updates.get('name') or name)
+                            EventBus().emit(
+                                MATERIALS_UPDATED,
+                                material_id=updates.get("id") or updates.get("name") or name,
+                                material_name=updates.get("name") or name,
+                            )
                         except Exception:
                             logger.exception("Errore emissione EventBus dopo update")
                 self.refresh_list()
@@ -565,7 +584,11 @@ class MaterialsApp(tk.Frame):
                     bus = EventBus()
                     bus.emit(MATERIALS_CLEARED)
                     for m in mats:
-                        bus.emit(MATERIALS_ADDED, material_id=m.get('id') or m.get('name'), material_name=m.get('name'))
+                        bus.emit(
+                            MATERIALS_ADDED,
+                            material_id=m.get("id") or m.get("name"),
+                            material_name=m.get("name"),
+                        )
                 except Exception:
                     logger.exception("Errore emissione eventi EventBus dopo caricamento materiali")
         except Exception as e:
@@ -595,7 +618,11 @@ class MaterialsApp(tk.Frame):
                     else:
                         mats = materials_manager.list_materials(path)
                     for m in mats:
-                        bus.emit(MATERIALS_ADDED, material_id=m.get('id') or m.get('name'), material_name=m.get('name'))
+                        bus.emit(
+                            MATERIALS_ADDED,
+                            material_id=m.get("id") or m.get("name"),
+                            material_name=m.get("name"),
+                        )
                 except Exception:
                     logger.exception("Errore emissione eventi EventBus dopo salvataggio materiali")
             messagebox.showinfo("Salva lista materiali", f"Lista salvata in {path}")
@@ -608,7 +635,7 @@ def run_app():
     logger.info("Avvio applicazione GUI Materials Manager")
     root = tk.Tk()
     root.title("Materials Manager")
-    app = MaterialsApp(master=root)
+    _ = MaterialsApp(master=root)
     root.geometry("640x480")
     root.mainloop()
     logger.info("Chiusura applicazione GUI Materials Manager")
@@ -616,4 +643,3 @@ def run_app():
 
 if __name__ == "__main__":
     run_app()
-

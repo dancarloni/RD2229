@@ -1,4 +1,4 @@
-$env:PYTHONPATH='c:\workspaces\RD2229\RD2229\src'; python scripts/run_materials_gui.py"""CLI per la gestione dei materiali (usa `materials_manager`).
+"""CLI per la gestione dei materiali (usa `materials_manager`).
 
 Questa CLI è separata dalle routine di calcolo e serve solo come
 interfaccia testuale/di utilità per aggiungere, modificare e rimuovere
@@ -11,19 +11,19 @@ Esempi:
   python scripts/materials_cli.py update --name C120 --set sigma_c28=150
   python scripts/materials_cli.py delete --name C120 --yes
 """
+
 from __future__ import annotations
 
 import argparse
 import json
 import sys
-from typing import Dict
 
 from tools.materials_manager import (
     add_material,
-    list_materials,
-    get_material,
-    update_material,
     delete_material,
+    get_material,
+    list_materials,
+    update_material,
 )
 
 
@@ -47,7 +47,7 @@ def cmd_get(args: argparse.Namespace) -> int:
 
 
 def cmd_add(args: argparse.Namespace) -> int:
-    mat: Dict = {
+    mat: dict = {
         "name": args.name,
         "type": args.type,
     }
@@ -69,8 +69,8 @@ def cmd_add(args: argparse.Namespace) -> int:
     return 0
 
 
-def _parse_set_pairs(pairs: str) -> Dict[str, object]:
-    updates: Dict[str, object] = {}
+def _parse_set_pairs(pairs: str) -> dict[str, object]:
+    updates: dict[str, object] = {}
     for item in pairs:
         if "=" not in item:
             raise ValueError(f"Invalid set expression: {item}")
@@ -168,4 +168,3 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

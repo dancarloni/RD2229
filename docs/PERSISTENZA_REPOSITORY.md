@@ -201,7 +201,7 @@ repo = SectionRepository(json_file="demo.json")
 
 rect = RectangularSection(name="Rect", width=20, height=30)
 circ = CircularSection(name="Circle", diameter=25)
-t_section = TSection(name="T", flange_width=40, flange_thickness=5, 
+t_section = TSection(name="T", flange_width=40, flange_thickness=5,
                      web_thickness=8, web_height=25)
 
 for section in [rect, circ, t_section]:

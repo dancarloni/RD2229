@@ -30,6 +30,6 @@ echo "Setup completato. Esempi utili:
 
 echo -e "Se vuoi lavorare completamente offline e rimuovere l'origin remoto:
   git remote remove origin
-" 
+"
 
 echo "Fine."

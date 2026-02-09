@@ -28,18 +28,18 @@ def run_app() -> None:
 ```python
 def run_app() -> None:
     configure_logging()
-    
+
     # Crea e carica i repository
     section_repository = SectionRepository()
     section_repository.load_from_file()
-    
+
     material_repository = None
     if MaterialRepository is not None:
         material_repository = MaterialRepository()
         material_repository.load_from_file()
-    
+
     serializer = CsvSectionSerializer()
-    
+
     from sections_app.ui.module_selector import ModuleSelectorWindow
     selector = ModuleSelectorWindow(section_repository, serializer, material_repository)
     selector.mainloop()
@@ -198,5 +198,5 @@ def __init__(
 
 ---
 
-**Completato:** $(date)**  
+**Completato:** $(date)**
 **Status:** ✅ ATTIVO IN PRODUZIONE

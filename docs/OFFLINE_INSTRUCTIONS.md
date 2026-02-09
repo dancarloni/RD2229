@@ -58,4 +58,3 @@ Istruzioni per lavorare offline con il repository RD2229
 
       git checkout local-work
       git branch --set-upstream-to origin/main
-

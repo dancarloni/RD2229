@@ -3,15 +3,15 @@
 This module centralizes searchable helpers used by the UI (Verification Table)
 so they can be reused and tested independently.
 """
+
 from __future__ import annotations
 
-from typing import List, Optional
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def search_sections(repo, names: Optional[List[str]], query: str, limit: int = 200) -> List[str]:
+def search_sections(repo, names: list[str] | None, query: str, limit: int = 200) -> list[str]:
     """Search section names using SectionRepository or a static list.
 
     Args:
@@ -22,6 +22,7 @@ def search_sections(repo, names: Optional[List[str]], query: str, limit: int = 2
 
     Returns:
         List of matching section names (max length = limit)
+
     """
     q = (query or "").strip().lower()
     try:
@@ -42,24 +43,33 @@ def search_sections(repo, names: Optional[List[str]], query: str, limit: int = 2
         return [s for s in (names or []) if q in s.lower()][:limit]
 
 
-def search_materials(repo, names: Optional[List[str]], query: str, type_filter: Optional[str] = None, limit: int = 200) -> List[str]:
+def search_materials(
+    repo,
+    names: list[str] | None,
+    query: str,
+    type_filter: str | None = None,
+    limit: int = 200,
+) -> list[str]:
     """Search materials using MaterialRepository or a static list.
 
     ✅ Ricerca sia nel campo 'name' che nel campo 'code' del materiale.
-    
+
     Args:
         repo: MaterialRepository or None
         names: fallback list of material names
-        query: user query (case-insensitive substring match on name OR code). Empty string returns all materials of the type.
+        query: user query (case-insensitive substring match on name OR code).
+               Empty string returns all materials of the type.
         type_filter: "concrete", "steel", or None to disable type filtering
         limit: maximum number of results to return
 
     Returns:
-        List of matching material names (max length = limit), or material name/code combined if available
+        List of matching material names (max length = limit).
+        If available, returns material name/code combined.
+
     """
     q = (query or "").strip().lower()
     try:
-        results: List[str] = []
+        results: list[str] = []
         seen = set()
 
         # 1) Search in provided MaterialRepository if available
@@ -85,6 +95,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         if not results:
             try:
                 from core_models.materials import MaterialRepository
+
                 tmp_repo = MaterialRepository()
                 mats = tmp_repo.get_all()
                 for m in mats:
@@ -103,9 +114,10 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
                 pass
 
         # 3) Fallback: if no repo or names provided, also try matching on the 'names' list
-        # NOTE: Only use fallback 'names' if NO type_filter is specified, since 'names' lacks type info
+        # NOTE: Only use fallback 'names' if NO type_filter is specified,
+        # since 'names' lacks type info
         if not results and (names or []) and not type_filter:
-            for n in (names or []):
+            for n in names or []:
                 if not q or (q in n.lower()):
                     if n not in seen:
                         seen.add(n)
@@ -114,6 +126,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         # 4) Additionally, include matches from HistoricalMaterialLibrary (if available)
         try:
             from historical_materials import HistoricalMaterialLibrary
+
             lib = HistoricalMaterialLibrary()
             for hist in lib.get_all():
                 hist_name = getattr(hist, "name", "")
@@ -147,6 +160,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
                             results.append(name)
                 # Historical library fallback
                 from historical_materials import HistoricalMaterialLibrary
+
                 lib = HistoricalMaterialLibrary()
                 for hist in lib.get_all():
                     hist_name = getattr(hist, "name", "")
@@ -161,7 +175,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
             # a plausible suggestion (e.g. 'Fe B 38 k') so the UI can show a helpful
             # choice that includes the user's code fragment.
             if q.isdigit() and not any(q in r for r in results):
-                synth = f"Fe B {q} k" if type_filter == 'steel' else f"C{q}"
+                synth = f"Fe B {q} k" if type_filter == "steel" else f"C{q}"
                 results.append(synth)
 
         # If the query is numeric-only (e.g. '160'), collapse multiple suggestions
@@ -170,6 +184,7 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
         # showing up multiple times for the user when they search a numeric code.
         try:
             import re
+
             if q.isdigit():
                 seen_nums = set()
                 filtered_results = []

@@ -1,10 +1,9 @@
 import logging
 import threading
-from typing import List
 
 _MAX_LOG_LINES = 2000
 
-_LOG_BUFFER: List[str] = []
+_LOG_BUFFER: list[str] = []
 _LOCK = threading.Lock()
 
 
@@ -20,7 +19,7 @@ class InMemoryLogHandler(logging.Handler):
                 del _LOG_BUFFER[: len(_LOG_BUFFER) - _MAX_LOG_LINES]
 
 
-def get_log_buffer() -> List[str]:
+def get_log_buffer() -> list[str]:
     with _LOCK:
         return list(_LOG_BUFFER)
 

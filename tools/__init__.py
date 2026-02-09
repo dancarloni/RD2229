@@ -5,4 +5,3 @@ ma utili per la gestione del repository (es. sincronizzazione verifications).
 """
 
 __all__ = []
-

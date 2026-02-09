@@ -69,7 +69,7 @@ from sections_app.services.event_bus import EventBus, SECTIONS_ADDED, SECTIONS_U
 def add_section(self, section: Section) -> bool:
     # ... logica esistente ...
     self.save_to_file()
-    
+
     # ✨ NUOVO: Emetti evento
     EventBus().emit(SECTIONS_ADDED, section_id=section.id, section_name=section.name)
     return True
@@ -80,7 +80,7 @@ def add_section(self, section: Section) -> bool:
 def update_section(self, section_id: str, updated_section: Section) -> None:
     # ... logica esistente ...
     self.save_to_file()
-    
+
     # ✨ NUOVO: Emetti evento
     EventBus().emit(SECTIONS_UPDATED, section_id=section_id, section_name=updated_section.name)
 ```
@@ -90,7 +90,7 @@ def update_section(self, section_id: str, updated_section: Section) -> None:
 def delete_section(self, section_id: str) -> None:
     # ... logica esistente ...
     self.save_to_file()
-    
+
     # ✨ NUOVO: Emetti evento
     EventBus().emit(SECTIONS_DELETED, section_id=section_id, section_name=section.name)
 ```
@@ -101,7 +101,7 @@ def clear(self) -> None:
     self._sections.clear()
     self._keys.clear()
     self.save_to_file()
-    
+
     # ✨ NUOVO: Emetti evento
     EventBus().emit(SECTIONS_CLEARED)
 ```
@@ -126,7 +126,7 @@ except ImportError:
 def add(self, mat: Material) -> None:
     # ... logica esistente ...
     self.save_to_file()
-    
+
     # ✨ NUOVO: Emetti evento se disponibile
     if HAS_EVENT_BUS:
         EventBus().emit(MATERIALS_ADDED, material_id=mat.id, material_name=mat.name)
@@ -155,19 +155,19 @@ def _subscribe_to_events(self) -> None:
     try:
         from sections_app.services.event_bus import EventBus, SECTIONS_ADDED, ...
         bus = EventBus()
-        
+
         # Subscribe to sections events
         bus.subscribe(SECTIONS_ADDED, self._on_sections_changed)
         bus.subscribe(SECTIONS_UPDATED, self._on_sections_changed)
         bus.subscribe(SECTIONS_DELETED, self._on_sections_changed)
         bus.subscribe(SECTIONS_CLEARED, self._on_sections_changed)
-        
+
         # Subscribe to materials events
         bus.subscribe(MATERIALS_ADDED, self._on_materials_changed)
         bus.subscribe(MATERIALS_UPDATED, self._on_materials_changed)
         bus.subscribe(MATERIALS_DELETED, self._on_materials_changed)
         bus.subscribe(MATERIALS_CLEARED, self._on_materials_changed)
-        
+
         logger.debug("VerificationTableWindow subscribed to repository events")
     except ImportError:
         logger.warning("EventBus not available, automatic refresh disabled")
@@ -365,8 +365,8 @@ repository.add_section() → EventBus → VerificationTable.reload()
 
 ## 📞 Informazioni
 
-**Data Completamento:** 4 febbraio 2026  
-**Test:** 6/6 ✅  
+**Data Completamento:** 4 febbraio 2026
+**Test:** 6/6 ✅
 **Status:** 🟢 PRONTO PER PRODUZIONE
 
 ---

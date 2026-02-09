@@ -3,37 +3,42 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 from tkinter import messagebox, ttk
-from typing import Optional
 
-from sections_app.models.sections import Section
-from sections_app.services.repository import SectionRepository
-from sections_app.services.historical_calculations import (
-    verify_flexure_allowable_stress,
-)
+from sections_app.services.historical_calculations import verify_flexure_allowable_stress
+from sections_app.services.repository import SectionRepository  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
 
 class HistoricalModuleMainWindow(tk.Toplevel):
     """Finestra principale (stub) per i calcoli storici RD 2229 / Santarella / Giangreco.
-    
+
     ✅ Estende tk.Toplevel per rimanere una finestra figlia della root principale.
     ✅ Può essere chiusa indipendentemente senza chiudere l'intera applicazione.
     """
 
-    def __init__(self, master: tk.Tk, repository: SectionRepository):
+    def __init__(self, master: tk.Tk, repository: SectionRepository | None = None):
         super().__init__(master)
         self.title("Historical Calculations - RD2229")
         self.geometry("720x420")
-        self.repository = repository
-        self.selected_section_id: Optional[str] = None
+
+        # Lazy loading: inizializza repository se non fornito
+        if repository is None:
+            from sections_app.services.repository import SectionRepository
+
+            self.repository = SectionRepository()
+        else:
+            self.repository = repository
+
+        self.selected_section_id: str | None = None
         self._build_ui()
-        
+
         # ✅ Gestisci la chiusura della finestra in modo indipendente
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
     def _on_close(self) -> None:
-        """Handler per la chiusura della finestra - chiude solo questa Toplevel, non l'intera app."""
+        """Handler per la chiusura della finestra - chiude solo questa Toplevel,
+        non l'intera app."""
         self.destroy()
 
     def _build_ui(self) -> None:
@@ -103,4 +108,3 @@ class HistoricalModuleMainWindow(tk.Toplevel):
         result = verify_flexure_allowable_stress(section, N, Mx, My)
         self.output.delete("1.0", tk.END)
         self.output.insert(tk.END, result)
-

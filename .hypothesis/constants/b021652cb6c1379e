@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\src\methods\verification\methods_ta.py
+# hypothesis_version: 6.151.5
+
+[0.0, 0.001, 0.01, 0.05, 0.1, 0.3, 0.95, 1.0, 4.0, 10.197, 15.0, 100, 'DATI INPUT:', 'ERRORE', 'NON VERIFICATO', 'RISULTATI CALCOLO:', 'VERIFICATO', 'VERIFICHE:', 'cm']

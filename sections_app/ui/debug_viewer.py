@@ -1,11 +1,18 @@
+"""Real-time debug log viewer window.
+
+This module interacts with logging backends and uses defensive exception
+handling to keep the viewer robust; suppress corresponding Pylint warnings.
+"""
+
+# pylint: disable=broad-exception-caught
+
 from __future__ import annotations
 
 import logging
 import tkinter as tk
 from tkinter import ttk
-from typing import Optional
 
-from sections_app.services.debug_log_stream import get_log_buffer
+from sections_app.services.debug_log_stream import get_log_buffer  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

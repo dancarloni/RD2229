@@ -2,35 +2,49 @@ from __future__ import annotations
 
 import logging
 import math
-from pathlib import Path
-from typing import Dict, Optional, Tuple
-
 import tkinter as tk
-from tkinter import filedialog, ttk
-from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
+from pathlib import Path
+from tkinter import filedialog, messagebox, ttk
 
 from sections_app.models.sections import (
-    CSection,
     CircularHollowSection,
     CircularSection,
-    ISection,
+    CSection,
     InvertedTSection,
     InvertedVSection,
+    ISection,
     LSection,
     PiSection,
     RectangularHollowSection,
     RectangularSection,
     Section,
+    SectionProperties,
     TSection,
     VSection,
 )
-from sections_app.services.calculations import compute_transform
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.section_manager import SectionManager
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow
-from core_models.materials import MaterialRepository
 
-logger = logging.getLogger(__name__)
+# New separated modules
+from sections_app.section_calculations import (
+    compute_section_properties_from_section,
+    section_to_geometry,
+)
+from sections_app.section_graphics import SectionGraphicsController
+from sections_app.services.calculations import CanvasTransform, compute_transform
+from sections_app.services.event_bus import SECTIONS_DELETED, EventBus
+from sections_app.services.notification import notify_error, notify_info
+from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
+from sections_app.ui.historical_material_window import (
+    HistoricalMaterialWindow,  # type: ignore[import]
+)
+from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
+
+logger: logging.Logger = logging.getLogger(__name__)
+
+# Pylint: the main UI window uses many dynamic attribute assignments and
+# defensive exception handlers. Suppress noisy checks that are low value
+# for the current incremental cleanup.
+# pylint: disable=broad-exception-caught, attribute-defined-outside-init
+# pylint: disable=protected-access, logging-fstring-interpolation, unused-argument
 
 # ========================================================================
 # CONFIGURAZIONE TIPOLOGIE DI SEZIONE
@@ -223,7 +237,7 @@ SECTION_DEFINITIONS = {
 
 class MainWindow(tk.Toplevel):
     """Finestra del modulo Geometry - aperta come Toplevel dalla finestra principale ModuleSelector.
-    
+
     ✅ Estende tk.Toplevel (non tk.Tk) - rimane una finestra figlia della root principale.
     ✅ Accetta la finestra parent nel costruttore.
     ✅ Un solo mainloop() nell'applicazione (nel ModuleSelector).
@@ -232,35 +246,52 @@ class MainWindow(tk.Toplevel):
     def __init__(
         self,
         master: tk.Tk,  # ✅ NUOVO: richiede il parent (ModuleSelector)
-        repository: SectionRepository,
-        serializer: CsvSectionSerializer,
-        material_repository: Optional[MaterialRepository] = None,
-    ):
+        repository: GeometryRepository | None = None,
+        serializer: CsvSectionSerializer | None = None,
+    ) -> None:
+        print("MainWindow __init__ start")
         super().__init__(master=master)  # ✅ Passa master a Toplevel
+        print("MainWindow super init done")
         self.title("Gestione Proprietà Sezioni")
         self.geometry("980x620")
-        self.repository = repository
-        self.section_repository: SectionRepository = repository
-        self.serializer = serializer
-        self.material_repository: Optional[MaterialRepository] = material_repository
-        self.current_section: Optional[Section] = None
+
+        # Lazy loading: inizializza repository se non forniti
+        if repository is None:
+            from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
+
+            self.repository = GeometryRepository()
+            self.serializer = CsvSectionSerializer()
+        else:
+            self.repository = repository
+            self.serializer = serializer
+
+        self.section_repository: GeometryRepository = self.repository
+
+        self.current_section: Section | None = None
         # Quando si modifica una sezione dal Section Manager, qui viene salvato l'id
-        self.editing_section_id: Optional[str] = None
+        self.editing_section_id: str | None = None
         # Riferimento opzionale al manager per aggiornamenti UI
-        self.section_manager: Optional[SectionManager] = None
+        self.section_manager: SectionManager | None = None
         # Riferimento opzionale alla finestra di gestione materiali storici
-        self._material_manager_window: Optional[HistoricalMaterialWindow] = None
+        self._material_manager_window: HistoricalMaterialWindow | None = None
 
         self._create_menu()
         self._build_layout()
         # Memorizza l'ultima tipologia selezionata per evitare rielaborazioni ridondanti
-        self._last_selected_type: Optional[str] = self.section_var.get()
+        self._last_selected_type: str | None = self.section_var.get()
         # Avvia un polling leggero per intercettare cambi di selezione che a volte
         # vengono mostrati nella combo senza emettere l'evento (fallback UX)
-        self._polling_id = self.after(300, self._poll_section_selection)
+        self._polling_id: str = self.after(300, self._poll_section_selection)
         # Assicura di fermare il polling quando la finestra viene distrutta
         self.bind("<Destroy>", lambda e: self._cancel_polling())
-        
+
+        # Subscribe to SECTIONS_DELETED to clear edit mode if the edited section is deleted
+        try:
+            self._event_bus = EventBus()
+            self._event_bus.subscribe(SECTIONS_DELETED, self._on_section_deleted)
+        except Exception:
+            self._event_bus = None
+
         # ✅ Gestisci la chiusura della finestra in modo indipendente
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
@@ -293,48 +324,13 @@ class MainWindow(tk.Toplevel):
 
         # Menu Gestione: strumenti aggiuntivi (es. gestione materiali)
         gestione_menu = tk.Menu(menubar, tearoff=0)
-        gestione_menu.add_command(label="Materiali…", command=self.open_material_manager)
+        # Removed material manager as geometry module should not depend on materials
         menubar.add_cascade(label="Gestione", menu=gestione_menu)
-
-    def open_material_manager(self) -> None:
-        """Apre (o porta in primo piano) la finestra di gestione materiali storici.
-
-        La finestra riceve l'istanza di `HistoricalMaterialLibrary` e il
-        `MaterialRepository` attualmente in uso dall'applicazione.
-        """
-        # Se la finestra è già aperta, portala in primo piano
-        if hasattr(self, "_material_manager_window") and self._material_manager_window is not None:
-            try:
-                if self._material_manager_window.winfo_exists():
-                    self._material_manager_window.lift()
-                    self._material_manager_window.focus_force()
-                    logger.debug("Material Manager già aperto, portato in primo piano")
-                    return
-            except Exception:
-                pass
-
-        # Crea libreria storica e apri finestra
-        try:
-            from historical_materials import HistoricalMaterialLibrary
-            library = HistoricalMaterialLibrary()
-        except Exception:
-            logger.exception("Impossibile inizializzare HistoricalMaterialLibrary")
-            library = None
-
-        self._material_manager_window = HistoricalMaterialWindow(master=self, library=library, material_repository=self.material_repository)
-        # Pulizia del riferimento quando la finestra viene chiusa
-        try:
-            self._material_manager_window.protocol("WM_DELETE_WINDOW", lambda w=self._material_manager_window: (setattr(self, "_material_manager_window", None), w.destroy()))
-            self._material_manager_window.bind("<Destroy>", lambda e, w=self._material_manager_window: setattr(self, "_material_manager_window", None))
-        except Exception:
-            pass
-        logger.debug("Material Manager aperto")
 
     def _build_left_panel(self) -> None:
         # Tipologia sezione con tooltip
         tipo_label = tk.Label(self.left_frame, text="Tipologia sezione")
         tipo_label.pack(anchor="w")
-        
         self.section_var = tk.StringVar(value=list(SECTION_DEFINITIONS.keys())[0])
         self.section_combo = ttk.Combobox(
             self.left_frame,
@@ -344,7 +340,7 @@ class MainWindow(tk.Toplevel):
             width=28,
         )
         self.section_combo.pack(anchor="w", pady=(0, 8))
-        
+
         # Evento per cambio tipologia - aggiorna campi dinamicamente
         self.section_combo.bind("<<ComboboxSelected>>", self._on_section_change)
         # Binding addizionali per coprire casi in cui l'evento non venga emesso
@@ -355,24 +351,24 @@ class MainWindow(tk.Toplevel):
         # Inoltre, tracciamo ogni cambiamento della variabile per essere sicuri di intercettare
         # tutte le modalità di modifica (mouse, tastiera, programmatico)
         try:
-            self.section_var.trace_add('write', lambda *a: self._on_section_change())
-        except Exception:
+            self.section_var.trace_add("write", lambda *a: self._on_section_change())
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             # Fallback per versioni più vecchie di tkinter che usano trace_var
-            self.section_var.trace('w', lambda *a: self._on_section_change())
-        
+            self.section_var.trace("w", lambda *a: self._on_section_change())
+
         # Pulsante per applicare esplicitamente la tipologia (fallback UX)
         self.apply_type_btn = tk.Button(self.left_frame, text="Applica tipo", command=self._on_section_change, width=12)
         self.apply_type_btn.pack(anchor="w", pady=(0, 4))
-        
+
         # Tooltip sulla combobox
         self._create_tooltip(self.section_combo, "Seleziona il tipo di sezione da analizzare")
 
         # Label indicatore stato editing
         self.editing_mode_label = tk.Label(
-            self.left_frame, 
+            self.left_frame,
             text="Modalità: Nuova sezione",
             font=("Arial", 9, "italic"),
-            fg="#0066cc"
+            fg="#0066cc",
         )
         self.editing_mode_label.pack(anchor="w", pady=(0, 8))
 
@@ -382,7 +378,7 @@ class MainWindow(tk.Toplevel):
 
         self.inputs_frame = tk.LabelFrame(self.left_frame, text="Dati geometrici")
         self.inputs_frame.pack(fill="x", pady=(0, 8))
-        self.inputs: Dict[str, tk.Entry] = {}
+        self.inputs: dict[str, tk.Entry] = {}
         self._create_inputs()
 
         # Campo per angolo di rotazione (comune a tutte le sezioni)
@@ -395,10 +391,10 @@ class MainWindow(tk.Toplevel):
         self._create_tooltip(
             self.rotation_entry,
             "Angolo di rotazione della sezione nel suo piano (gradi). "
-            "Influenza i momenti d'inerzia globali e la grafica."
+            "Influenza i momenti d'inerzia globali e la grafica.",
         )
 
-        # Campi per i fattori di forma a taglio (kappa_y, kappa_z)
+        # Campi per i fattori di forma a taglio (kappa_y, kappa_z) e fattore unico k
         shear_frame = tk.Frame(self.left_frame)
         shear_frame.pack(fill="x", pady=(0, 8))
         tk.Label(shear_frame, text="Fattore di forma a taglio κ_y:").pack(side="left", padx=(0, 4))
@@ -407,22 +403,34 @@ class MainWindow(tk.Toplevel):
         tk.Label(shear_frame, text="κ_z:").pack(side="left", padx=(8, 4))
         self.kappa_z_entry = tk.Entry(shear_frame, width=8)
         self.kappa_z_entry.pack(side="left")
+        # Unified shear factor k (area * k)
+        tk.Label(shear_frame, text="   k (fattore area taglio):").pack(side="left", padx=(8, 4))
+        self.shear_k_entry = tk.Entry(shear_frame, width=8)
+        self.shear_k_entry.pack(side="left")
         # Help button with detailed explanation (opens dialog)
         help_btn = tk.Button(shear_frame, text="?", width=2, command=self._show_shear_help)
         help_btn.pack(side="left", padx=(8, 0))
         self._create_tooltip(
             self.kappa_y_entry,
-            "Fattore di forma a taglio κ_y (Timoshenko). Valore predefinito in base al tipo di sezione."
+            "Fattore di forma a taglio κ_y (Timoshenko). " "Valore predefinito in base al tipo di sezione.",
         )
         self._create_tooltip(
             self.kappa_z_entry,
-            "Fattore di forma a taglio κ_z (Timoshenko). Valore predefinito in base al tipo di sezione."
+            "Fattore di forma a taglio κ_z (Timoshenko). " "Valore predefinito in base al tipo di sezione.",
         )
-        self._create_tooltip(help_btn, "Informazioni dettagliate sui valori predefiniti di κ e sulle assunzioni (clicca per aprire)")
+        self._create_tooltip(
+            self.shear_k_entry,
+            "Fattore unico di area a taglio k; usato per calcolare "
+            "props.meta['shear_area'] = area * k. Viene preimpostato dal tipo.",
+        )
+        self._create_tooltip(
+            help_btn,
+            "Informazioni dettagliate sui valori predefiniti di κ e sulle assunzioni " "(clicca per aprire)",
+        )
         # Inizializza le entry con i valori di default per la tipologia corrente
         try:
             self._set_default_kappa_entries()
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         self.buttons_frame = tk.Frame(self.left_frame)
@@ -487,24 +495,21 @@ class MainWindow(tk.Toplevel):
             variable=self.show_core_var,
         ).pack(anchor="w")
 
-        # Pulsante per aprire l'Editor Materiali (coerente con il resto dei bottoni)
-        # Posizionato sotto gli altri bottoni e collegato a `open_material_manager`.
-        tk.Button(
-            self.buttons_frame,
-            text="Editor materiali",
-            command=self.open_material_manager,
-            width=42,
-        ).grid(row=4, column=0, columnspan=2, padx=4, pady=4)
-
         self.output_frame = tk.LabelFrame(self.left_frame, text="Proprietà calcolate")
         self.output_frame.pack(fill="both", expand=True)
         self.output_text = tk.Text(self.output_frame, width=36, height=16)
         self.output_text.pack(fill="both", expand=True, padx=4, pady=4)
+        print("MainWindow _build_left_panel done")
 
     def _build_right_panel(self) -> None:
         tk.Label(self.right_frame, text="Grafica sezione").pack(anchor="w")
         self.canvas = tk.Canvas(self.right_frame, width=480, height=480, bg="white")
         self.canvas.pack(fill="both", expand=True)
+        # Graphics controller (separated concerns)
+        try:
+            self.graphics_controller = SectionGraphicsController(self.canvas)
+        except Exception:  # pragma: no cover - defensive
+            self.graphics_controller = None
 
     def _on_section_change(self, _event=None) -> None:
         """Handler per cambio tipologia sezione - ricostruisce campi input dinamicamente.
@@ -514,10 +519,10 @@ class MainWindow(tk.Toplevel):
         tastiera, focus out, o modifica programmatica). Se la selezione è identica
         alla precedente viene ignorata (evita flicker e rielaborazioni inutili).
         """
-        selected_from_var = self.section_var.get()
-        selected_from_combo = self.section_combo.get()
+        selected_from_var: str = self.section_var.get()
+        selected_from_combo: str = self.section_combo.get()
         # Preferiamo il valore visibile nella combo, se presente
-        tipo_selezionato = selected_from_combo or selected_from_var
+        tipo_selezionato: str = selected_from_combo or selected_from_var
         logger.debug(
             "Cambio tipologia sezione: var='%s' combo='%s' -> using '%s'",
             selected_from_var,
@@ -534,7 +539,7 @@ class MainWindow(tk.Toplevel):
         # Assicura consistenza tra StringVar e combobox
         try:
             self.section_var.set(tipo_selezionato)
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         # Ricostruisce i campi di input per la nuova tipologia
@@ -559,8 +564,8 @@ class MainWindow(tk.Toplevel):
         coerentemente quando l'utente vede un valore diverso nella ComboBox.
         """
         try:
-            visible = self.section_combo.get()
-        except Exception:
+            visible: str = self.section_combo.get()
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             visible = None
 
         if visible and visible != getattr(self, "_last_selected_type", None):
@@ -569,7 +574,7 @@ class MainWindow(tk.Toplevel):
             self._on_section_change()
 
         # Riesegui il polling periodicamente
-        self._polling_id = self.after(300, self._poll_section_selection)
+        self._polling_id: str = self.after(300, self._poll_section_selection)
 
     def _cancel_polling(self) -> None:
         """Cancella il polling quando la finestra viene distrutta."""
@@ -578,21 +583,39 @@ class MainWindow(tk.Toplevel):
                 self.after_cancel(self._polling_id)
                 self._polling_id = None
                 logger.debug("Polling selezione ComboBox annullato")
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
+
+    def _on_section_deleted(self, *args, **kwargs) -> None:
+        """Handle section deletion: clear edit mode if the deleted section was being edited."""
+        deleted_id = kwargs.get("section_id")
+        if deleted_id and self.editing_section_id == deleted_id:
+            self.editing_section_id = None
+            self.current_section = None
+            self._update_editing_mode_label()
+            notify_info(
+                "Sezione eliminata",
+                "La sezione in modifica è stata eliminata dall'archivio.",
+                source="main_window",
+            )
 
     def _on_close(self) -> None:
         """Handler per la chiusura della finestra - chiude solo questa Toplevel, non l'intera app.
-        
+
         ✅ Assicura che il polling sia cancellato e la finestra sia distrutta correttamente.
         """
         self._cancel_polling()
+        try:
+            if getattr(self, "_event_bus", None) is not None:
+                self._event_bus.unsubscribe(SECTIONS_DELETED, self._on_section_deleted)
+        except Exception:
+            pass
         self.destroy()
 
     def _create_inputs(self) -> None:
-        """
-        Ricostruisce dinamicamente i campi di input in base alla tipologia di sezione selezionata.
-        
+        """Ricostruisce dinamicamente i campi di input in base alla tipologia
+        di sezione selezionata.
+
         Logica:
         - Distrugge tutti i widget esistenti nel frame "Dati geometrici"
         - Legge la definizione della tipologia corrente da SECTION_DEFINITIONS
@@ -606,55 +629,51 @@ class MainWindow(tk.Toplevel):
         self.inputs.clear()
 
         # Recupera la definizione della tipologia selezionata
-        tipo_sezione = self.section_var.get()
+        tipo_sezione: str = self.section_var.get()
         definition = SECTION_DEFINITIONS[tipo_sezione]
         field_tooltips = definition.get("field_tooltips", {})
-        
+
         logger.debug(f"Creazione campi input per tipologia: {tipo_sezione}")
-        
+
         # Crea i campi di input dinamicamente
         for row, (field, label_text) in enumerate(definition["fields"]):
             # Label del parametro
             lbl = tk.Label(self.inputs_frame, text=label_text, anchor="w")
             lbl.grid(row=row, column=0, sticky="w", padx=4, pady=4)
-            
+
             # Entry per l'input del valore
             # Usa validazione per accettare solo numeri con 1 decimale
-            vcmd = (self.register(self._validate_float_input), '%P')
-            entry = tk.Entry(
-                self.inputs_frame,
-                width=18,
-                validate="key",
-                validatecommand=vcmd
-            )
+            vcmd: tuple[str] = (self.register(self._validate_float_input), "%P")
+            entry = tk.Entry(self.inputs_frame, width=18, validate="key", validatecommand=vcmd)
             entry.grid(row=row, column=1, padx=4, pady=4, sticky="ew")
-            
+
             # Memorizza l'entry per accesso successivo
             self.inputs[field] = entry
-            
+
             # Aggiunge tooltip se disponibile
             if field in field_tooltips:
                 self._create_tooltip(entry, field_tooltips[field])
-            
+
         # Configura il peso della colonna per espansione
         self.inputs_frame.columnconfigure(1, weight=1)
-        
+
         # Inizializza le entry dei fattori kappa con i valori di default per la tipologia
         try:
             self._set_default_kappa_entries()
-        except Exception:
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
-        
+
         logger.debug(f"Creati {len(self.inputs)} campi input")
 
     def _set_default_kappa_entries(self) -> None:
         """Imposta i valori di default per κ_y e κ_z basati sulla tipologia selezionata.
 
         I valori sono mantenuti in sincronia con le impostazioni centrali usate per il calcolo
-        (vedi DEFAULT_SHEAR_KAPPAS in models.sections)."""
-        tipo = self.section_var.get()
+        (vedi DEFAULT_SHEAR_KAPPAS in models.sections).
+        """
+        tipo: str = self.section_var.get()
         # Mappa dei default (tenere sincronizzati con DEFAULT_SHEAR_KAPPAS)
-        defaults = {
+        defaults: dict[str, tuple[float]] = {
             "Rettangolare": (5.0 / 6.0, 5.0 / 6.0),
             "Circolare": (10.0 / 9.0, 10.0 / 9.0),
             "Circolare cava": (1.0, 1.0),
@@ -670,7 +689,16 @@ class MainWindow(tk.Toplevel):
             self.kappa_y_entry.insert(0, f"{ky:.6g}")
             self.kappa_z_entry.delete(0, tk.END)
             self.kappa_z_entry.insert(0, f"{kz:.6g}")
-        except Exception:
+            # set default unified shear factor k from shear_factors module
+            try:
+                from sections_app.shear_factors import get_default_shear_factor
+
+                kdef = get_default_shear_factor(tipo)
+            except Exception:  # pragma: no cover - resilience
+                kdef = ky
+            self.shear_k_entry.delete(0, tk.END)
+            self.shear_k_entry.insert(0, f"{kdef:.6g}")
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
     def _show_shear_help(self) -> None:
@@ -682,23 +710,61 @@ class MainWindow(tk.Toplevel):
             "Fattori di forma a taglio (κ) - note rapide:\n\n"
             "- Rettangolare (b×h): κ ≈ 5/6 (~0.8333)\n"
             "- Circolare piena: κ ≈ 10/9 (~1.1111)\n"
-            "- Sezioni T/I (anima prevalente): κ_y ≈ 1.0 (direzione anima), κ_z ≈ 0.9 (direzione trasversale)\n\n"
+            "- Sezioni T/I (anima prevalente): κ_y ≈ 1.0 (direzione anima), "
+            "κ_z ≈ 0.9 (direzione trasversale)\n\n"
             "Definizione: A_y = κ_y * A_ref_y, A_z = κ_z * A_ref_z.\n"
-            "Per sezioni con anima (T/I/C), A_ref_y è tipicamente l'area dell'anima (web_area = bw * hw),\n"
+            "Per sezioni con anima (T/I/C), A_ref_y è tipicamente l'area dell'anima "
+            "(web_area = bw * hw),\n"
             "mentre per sezioni compatte si usa l'area totale.\n\n"
-            "Questi sono valori di pratica ingegneristica tratti da testi classici (p.es. Roark, Timoshenko)\n"
-            "e da tabelle usate comunemente in progettazione. Modifica i valori se desideri usare dati più precisi.\n\n"
-            "Vedi file docs/SHEAR_FORM_FACTORS.md per dettagli e riferimenti." 
+            "Questi sono valori di pratica ingegneristica tratti da testi classici "
+            "(p.es. Roark, Timoshenko)\n"
+            "e da tabelle usate comunemente in progettazione. Modifica i valori se desideri "
+            "usare dati più precisi.\n\n"
+            "Vedi file docs/SHEAR_FORM_FACTORS.md per dettagli e riferimenti."
         )
         notify_info("Fattori di forma a taglio (κ)", text, source="main_window")
 
-    def _build_section_from_inputs(self) -> Optional[Section]:
+    def _get_shear_factor_from_ui(self) -> float:
+        """Read unified shear factor k from UI; fallback to defaults if invalid."""
+        try:
+            val = self.shear_k_entry.get().strip()
+            if val == "":
+                raise ValueError
+            return float(val)
+        except Exception:
+            try:
+                from sections_app.shear_factors import get_default_shear_factor
+
+                return get_default_shear_factor(self.section_var.get())
+            except Exception:
+                return 1.0
+
+    def _build_section_from_inputs(self) -> Section | None:
         definition = SECTION_DEFINITIONS[self.section_var.get()]
         section_class = definition["class"]
-        values: Dict[str, float] = {}
+        # Collect field values (with validation)
+        values = self._collect_section_values(definition)
+        if values is None:
+            return None
 
+        # Parse rotation angle
+        rotation_angle_deg = self._parse_rotation_angle()
+        if rotation_angle_deg is None:
+            return None
+
+        name: str = self.name_entry.get().strip() or self.section_var.get()
+        section = section_class(name=name, rotation_angle_deg=rotation_angle_deg, **values)
+
+        # Parse and apply kappa factors
+        if not self._parse_and_apply_kappa(section):
+            return None
+
+        return section
+
+    def _collect_section_values(self, definition: dict) -> dict[str, float] | None:
+        values: dict[str, float] = {}
         for field, _label in definition["fields"]:
-            raw = self.inputs[field].get().strip()
+            raw: str = self.inputs[field].get().strip()
             if not raw:
                 notify_error("Errore", f"{field} è richiesto", source="main_window")
                 return None
@@ -710,24 +776,22 @@ class MainWindow(tk.Toplevel):
                 notify_error("Errore", f"{field} deve essere un numero positivo", source="main_window")
                 return None
             values[field] = value
+        return values
 
-        # Leggi l'angolo di rotazione
-        rotation_raw = self.rotation_entry.get().strip()
+    def _parse_rotation_angle(self) -> float | None:
+        rotation_raw: str = self.rotation_entry.get().strip()
         try:
-            rotation_angle_deg = float(rotation_raw) if rotation_raw else 0.0
+            return float(rotation_raw) if rotation_raw else 0.0
         except ValueError:
             notify_error("Errore", "Angolo di rotazione deve essere un numero", source="main_window")
             return None
 
-        name = self.name_entry.get().strip() or self.section_var.get()
-        section = section_class(name=name, rotation_angle_deg=rotation_angle_deg, **values)
-
-        # Leggi i fattori di forma a taglio (kappa) se forniti dall'utente
+    def _parse_and_apply_kappa(self, section: Section) -> bool:
         try:
-            k_y_raw = self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
-            k_z_raw = self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
-            k_y = float(k_y_raw) if k_y_raw else None
-            k_z = float(k_z_raw) if k_z_raw else None
+            k_y_raw: str = self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
+            k_z_raw: str = self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
+            k_y: float | None = float(k_y_raw) if k_y_raw else None
+            k_z: float | None = float(k_z_raw) if k_z_raw else None
             if k_y is not None and k_y <= 0:
                 raise ValueError("kappa_y must be positive")
             if k_z is not None and k_z <= 0:
@@ -736,50 +800,141 @@ class MainWindow(tk.Toplevel):
                 section.shear_factor_y = k_y
             if k_z is not None:
                 section.shear_factor_z = k_z
+            return True
         except ValueError:
             notify_error("Errore", "I fattori κ devono essere numeri positivi", source="main_window")
-            return None
-
-        return section
+            return False
 
     def calculate_properties(self) -> None:
-        section = self._build_section_from_inputs()
+        section: Section | None = self._build_section_from_inputs()
         if not section:
             return
         self.current_section = section
-        props = section.compute_properties()
-        self._show_properties(props, section)
+        # Use the calculation module to compute properties from Section
+        try:
+            shear_k = self._get_shear_factor_from_ui()
+            props = compute_section_properties_from_section(section, shear_factor=shear_k)
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.exception("Errore nel calcolo proprietà (sezione -> properties): %s", exc)
+            props = None
+        if props is not None:
+            # keep both representations: SectionProperties and Section (for legacy uses)
+            self._last_geom = section_to_geometry(section)
+            self._last_props = props
+            self._show_properties(props, section)
+            # optionally save to saved list automatically? no - user action via Salva
+            # update saved listbox display to reflect any possible external changes
+            try:
+                self._populate_saved_list()
+            except Exception:
+                pass
 
     def show_graphic(self) -> None:
-        section = self._build_section_from_inputs()
+        section: Section | None = self._build_section_from_inputs()
         if not section:
             return
+        # Ensure we have properties and geometry
         try:
+<<<<<<< HEAD
             section.compute_properties()
         except Exception as e:
             logger.exception("Errore nel calcolo proprietà: %s", e)
             notify_error("Errore", f"Errore nel calcolo proprietà: {e}", source="main_window")
+=======
+            shear_k = self._get_shear_factor_from_ui()
+            props = compute_section_properties_from_section(section, shear_factor=shear_k)
+            geom = section_to_geometry(section)
+        except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
+            logger.exception("Errore nel calcolo proprietà per grafica: %s", exc)
+            messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {exc}")
+>>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
             return
         self.current_section = section
-        self._draw_section(section)
+        self._last_geom = geom
+        self._last_props = props
+        # delegate drawing to graphics controller
+        if getattr(self, "graphics_controller", None) is None:
+            try:
+                self.graphics_controller = SectionGraphicsController(self.canvas)
+            except Exception:
+                self.graphics_controller = None
+        if self.graphics_controller:
+            self.graphics_controller.draw_all(
+                geom,
+                props,
+                show_core=(getattr(self, "show_core_var", None) is None or self.show_core_var.get()),
+                show_ellipse=(getattr(self, "show_ellipse_var", None) is None or self.show_ellipse_var.get()),
+            )
+        else:
+            # fallback to older drawer
+            self._draw_section(section)
 
     def _show_properties(self, props, section: Section) -> None:
-        output = (
-            f"Sezione: {section.name}\n"
-            f"Tipo: {section.section_type}\n\n"
-            f"Area: {props.area:.3f} cm²\n"
-            f"Area a taglio A_y: {(props.shear_area_y or 0.0):.3f} cm²\n"
-            f"Area a taglio A_z: {(props.shear_area_z or 0.0):.3f} cm²\n"
-            f"Baricentro: ({props.centroid_x:.3f}, {props.centroid_y:.3f}) cm\n"
-            f"Ix: {props.ix:.3f} cm⁴\n"
-            f"Iy: {props.iy:.3f} cm⁴\n"
-            f"Ixy: {props.ixy:.3f} cm⁴\n"
-            f"Qx: {props.qx:.3f} cm³\n"
-            f"Qy: {props.qy:.3f} cm³\n"
-            f"rx: {props.rx:.3f} cm\n"
-            f"ry: {props.ry:.3f} cm\n"
-            f"Nocciolo (x,y): ({props.core_x:.3f}, {props.core_y:.3f}) cm\n"
-            f"Ellisse (a,b): ({props.ellipse_a:.3f}, {props.ellipse_b:.3f}) cm\n"
+        """Show properties in the output panel. Accepts both legacy SectionProperties
+        objects (models.sections.SectionProperties) and new sections_app.geometry_model.SectionProperties.
+        """
+
+        # resilient attribute access: try new names first, fallback to legacy names
+        def _get(o, *names, default=0.0):
+            for n in names:
+                if hasattr(o, n):
+                    v = getattr(o, n)
+                    if v is None:
+                        return default
+                    return v
+            return default
+
+        area = _get(props, "area", "area")
+        ix = _get(props, "Ix", "ix")
+        iy = _get(props, "Iy", "iy")
+        ixy = _get(props, "Ixy", "ixy")
+        qx = _get(props, "qx", "qx")
+        qy = _get(props, "qy", "qy")
+        rx = _get(props, "r1", "rx")
+        ry = _get(props, "r2", "ry")
+        x_c = _get(props, "x_c", "centroid_x")
+        y_c = _get(props, "y_c", "centroid_y")
+        core_x = _get(props, "core_x", "core_x")
+        core_y = _get(props, "core_y", "core_y")
+        ellipse_a = _get(props, "ellipse", "ellipse_a")
+        ellipse_b = _get(props, "ellipse", "ellipse_b")
+        theta_p = _get(props, "theta_p_deg", "principal_angle_deg")
+
+        # If ellipse is object, extract its a/b
+        if hasattr(props, "ellipse") and getattr(props, "ellipse") is not None:
+            e = getattr(props, "ellipse")
+            ellipse_a = getattr(e, "a", ellipse_a)
+            ellipse_b = getattr(e, "b", ellipse_b)
+
+        wx = _get(props, "wx", "wx")
+        wy = _get(props, "wy", "wy")
+        shear_area_y = _get(props, "shear_area_y", "shear_area_y")
+        shear_area_z = _get(props, "shear_area_z", "shear_area_z")
+        kappa_y = _get(section, "shear_factor_y", default=0.0)
+        kappa_z = _get(section, "shear_factor_z", default=0.0)
+
+        u = getattr(props, "meta", {}).get("units", "cm") if hasattr(props, "meta") else "cm"
+        output: str = (
+            f"Sezione: {getattr(section, 'name', '')}\n"
+            f"Tipo: {getattr(section, 'section_type', '')}\n\n"
+            f"Area: {area:.3f} {u}²\n"
+            f"Baricentro: ({x_c:.3f}, {y_c:.3f}) {u}\n"
+            f"Ix: {ix:.3f} {u}⁴\n"
+            f"Iy: {iy:.3f} {u}⁴\n"
+            f"Ixy: {ixy:.3f} {u}⁴\n"
+            f"I1: {getattr(props, 'I1', getattr(props, 'principal_ix', 0.0)):.3f}\n"
+            f"I2: {getattr(props, 'I2', getattr(props, 'principal_iy', 0.0)):.3f}\n"
+            f"θ_p (deg): {theta_p:.3f}\n"
+            f"Raggi giratori: r1={rx:.3f}, r2={ry:.3f} {u}\n\n"
+            f"Moduli resistenti:\n"
+            f"  Wx: {wx:.3f} {u}³\n"
+            f"  Wy: {wy:.3f} {u}³\n\n"
+            f"Aree a taglio (Timoshenko):\n"
+            f"  κ_y={kappa_y:.4f}, κ_z={kappa_z:.4f}\n"
+            f"  A_y: {shear_area_y:.3f} {u}²\n"
+            f"  A_z: {shear_area_z:.3f} {u}²\n\n"
+            f"Nocciolo (x,y): ({core_x:.3f}, {core_y:.3f}) {u}\n"
+            f"Ellisse (a,b): ({ellipse_a:.3f}, {ellipse_b:.3f}) {u}\n"
         )
         self.output_text.delete("1.0", tk.END)
         self.output_text.insert(tk.END, output)
@@ -788,32 +943,28 @@ class MainWindow(tk.Toplevel):
         """Disegna la sezione sul canvas applicando la rotazione se presente."""
         self.canvas.delete("all")
         width, height = self._section_dimensions(section)
-        transform = compute_transform(width, height, int(self.canvas["width"]), int(self.canvas["height"]))
+        transform: CanvasTransform = compute_transform(width, height, int(self.canvas["width"]), int(self.canvas["height"]))
 
-        # Disegna la sezione specifica con rotazione
-        if isinstance(section, RectangularSection):
-            self._draw_rectangle(section, transform)
-        elif isinstance(section, CircularSection):
-            self._draw_circle(section, transform)
-        elif isinstance(section, TSection):
-            self._draw_t_section(section, transform)
-        elif isinstance(section, LSection):
-            self._draw_l_section(section, transform)
-        elif isinstance(section, ISection):
-            self._draw_i_section(section, transform)
-        elif isinstance(section, PiSection):
-            self._draw_pi_section(section, transform)
-        elif isinstance(section, InvertedTSection):
-            self._draw_inverted_t_section(section, transform)
-        elif isinstance(section, CSection):
-            self._draw_c_section(section, transform)
-        elif isinstance(section, CircularHollowSection):
-            self._draw_circular_hollow(section, transform)
-        elif isinstance(section, RectangularHollowSection):
-            self._draw_rectangular_hollow(section, transform)
-        elif isinstance(section, (VSection, InvertedVSection)):
-            self._draw_v_section(section, transform)
-
+        # Disegna la sezione specifica con rotazione using a dispatch map to reduce branching
+        draw_map = {
+            RectangularSection: self._draw_rectangle,
+            CircularSection: self._draw_circle,
+            TSection: self._draw_t_section,
+            LSection: self._draw_l_section,
+            ISection: self._draw_i_section,
+            PiSection: self._draw_pi_section,
+            InvertedTSection: self._draw_inverted_t_section,
+            CSection: self._draw_c_section,
+            CircularHollowSection: self._draw_circular_hollow,
+            RectangularHollowSection: self._draw_rectangular_hollow,
+        }
+        for cls, fn in draw_map.items():
+            if isinstance(section, cls):
+                fn(section, transform)
+                break
+        else:
+            if isinstance(section, (VSection, InvertedVSection)):
+                self._draw_v_section(section, transform)
         if section.properties:
             self._draw_centroid(section, transform)
             if getattr(self, "show_ellipse_var", None) is None or self.show_ellipse_var.get():
@@ -821,67 +972,66 @@ class MainWindow(tk.Toplevel):
             if getattr(self, "show_core_var", None) is None or self.show_core_var.get():
                 self._draw_core(section, transform)
 
-    def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> Tuple[float, float]:
+    def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> tuple[float, float]:
         """Ruota un punto (x,y) attorno a (cx,cy) di angle_deg gradi."""
-        from math import cos, sin, radians
+        from math import cos, radians, sin
+
         if angle_deg == 0:
             return x, y
-        theta = radians(angle_deg)
-        c = cos(theta)
-        s = sin(theta)
-        dx = x - cx
-        dy = y - cy
-        x_rot = cx + dx * c - dy * s
-        y_rot = cy + dx * s + dy * c
+        theta: float = radians(angle_deg)
+        c: float = cos(theta)
+        s: float = sin(theta)
+        dx: float = x - cx
+        dy: float = y - cy
+        x_rot: float = cx + dx * c - dy * s
+        y_rot: float = cy + dx * s + dy * c
         return x_rot, y_rot
 
     def _draw_rotated_polygon(self, points: list, section: Section, transform, **kwargs) -> None:
         """Disegna un poligono applicando la rotazione della sezione."""
         _, height = self._section_dimensions(section)
-        props = section.properties
+        props: SectionProperties | None = section.properties
         if props:
-            cx = props.centroid_x
-            cy = props.centroid_y
+            cx: float | None = props.centroid_x
+            cy: float | None = props.centroid_y
         else:
             # Usa il centro geometrico della sezione
-            cx = sum(p[0] for p in points) / len(points)
-            cy = sum(p[1] for p in points) / len(points)
-        
+            cx: float = sum(p[0] for p in points) / len(points)
+            cy: float = sum(p[1] for p in points) / len(points)
+
         # Ruota i punti attorno al baricentro
-        rotated = [self._rotate_point(x, y, cx, cy, section.rotation_angle_deg) for x, y in points]
-        
+        rotated: list[tuple[float, float]] = [
+            self._rotate_point(x, y, cx, cy, section.rotation_angle_deg) for x, y in points
+        ]
+
         # Trasforma in coordinate canvas
         canvas_points = []
         for x, y in rotated:
             cx_canvas, cy_canvas = transform.to_canvas(x, y, height)
             canvas_points.extend([cx_canvas, cy_canvas])
-        
+
         self.canvas.create_polygon(canvas_points, **kwargs)
 
-    def _section_dimensions(self, section: Section) -> Tuple[float, float]:
+    def _section_dimensions(self, section: Section) -> tuple[float, float]:
         """Calcola le dimensioni bounding box della sezione."""
-        if isinstance(section, RectangularSection):
-            return section.width, section.height
-        if isinstance(section, CircularSection):
-            return section.diameter, section.diameter
-        if isinstance(section, TSection):
-            return section.flange_width, section.total_height
-        if isinstance(section, LSection):
-            return section.width, section.height
-        if isinstance(section, ISection):
-            return section.flange_width, section.total_height
-        if isinstance(section, PiSection):
-            return section.flange_width, section.total_height
-        if isinstance(section, InvertedTSection):
-            return section.flange_width, section.total_height
-        if isinstance(section, CSection):
-            return section.width, section.height
-        if isinstance(section, CircularHollowSection):
-            return section.outer_diameter, section.outer_diameter
-        if isinstance(section, RectangularHollowSection):
-            return section.width, section.height
-        if isinstance(section, (VSection, InvertedVSection)):
-            return section.width, section.height
+        # Dispatch mapping for common types
+        dim_map = {
+            RectangularSection: lambda s: (s.width, s.height),
+            CircularSection: lambda s: (s.diameter, s.diameter),
+            TSection: lambda s: (s.flange_width, s.total_height),
+            LSection: lambda s: (s.width, s.height),
+            ISection: lambda s: (s.flange_width, s.total_height),
+            PiSection: lambda s: (s.flange_width, s.total_height),
+            InvertedTSection: lambda s: (s.flange_width, s.total_height),
+            CSection: lambda s: (s.width, s.height),
+            CircularHollowSection: lambda s: (s.outer_diameter, s.outer_diameter),
+            RectangularHollowSection: lambda s: (s.width, s.height),
+            VSection: lambda s: (s.width, s.height),
+            InvertedVSection: lambda s: (s.width, s.height),
+        }
+        for cls, fn in dim_map.items():
+            if isinstance(section, cls):
+                return fn(section)
         return 1.0, 1.0
 
     def _draw_rectangle(self, section: RectangularSection, transform) -> None:
@@ -896,46 +1046,31 @@ class MainWindow(tk.Toplevel):
 
     def _draw_circle(self, section: CircularSection, transform) -> None:
         """Disegna cerchio (la rotazione non ha effetto visivo per circolare piena)."""
-        diameter = section.diameter
-        radius = diameter / 2
+        diameter: float = section.diameter
+        radius: float = diameter / 2
         _, height = self._section_dimensions(section)
-        
+
         # Centro del cerchio
-        cx_sec = radius
-        cy_sec = radius
-        
+        cx_sec: float = radius
+        cy_sec: float = radius
+
         # Trasforma in canvas
         cx, cy = transform.to_canvas(cx_sec, cy_sec, height)
         r_canvas = radius * transform.scale
-        
-        self.canvas.create_oval(
-            cx - r_canvas, cy - r_canvas,
-            cx + r_canvas, cy + r_canvas,
-            outline="#1f77b4", width=2
-        )
+
+        self.canvas.create_oval(cx - r_canvas, cy - r_canvas, cx + r_canvas, cy + r_canvas, outline="#1f77b4", width=2)
 
     def _draw_t_section(self, section: TSection, transform) -> None:
         """Disegna sezione a T con rotazione."""
-        height = section.total_height
-        web_x0 = (section.flange_width - section.web_thickness) / 2
-        web_x1 = web_x0 + section.web_thickness
-        
+        height: float = section.total_height
+        web_x0: float = (section.flange_width - section.web_thickness) / 2
+        web_x1: float = web_x0 + section.web_thickness
+
         # Ala (rettangolo superiore)
-        flange_points = [
-            (0, height - section.flange_thickness),
-            (section.flange_width, height - section.flange_thickness),
-            (section.flange_width, height),
-            (0, height),
-        ]
-        
+        # (handled below as part of the full polygon)
+
         # Anima (rettangolo inferiore centrale)
-        web_points = [
-            (web_x0, 0),
-            (web_x1, 0),
-            (web_x1, section.web_height),
-            (web_x0, section.web_height),
-        ]
-        
+
         # Disegna come poligono unico per rotazione corretta
         all_points = [
             (0, height - section.flange_thickness),
@@ -951,7 +1086,7 @@ class MainWindow(tk.Toplevel):
 
     def _draw_l_section(self, section: LSection, transform) -> None:
         """Disegna sezione ad L con rotazione."""
-        h_vert = section.height - section.t_horizontal
+        h_vert: float = section.height - section.t_horizontal
         points = [
             (0, 0),
             (section.t_vertical, 0),
@@ -964,10 +1099,10 @@ class MainWindow(tk.Toplevel):
 
     def _draw_i_section(self, section: ISection, transform) -> None:
         """Disegna sezione ad I con rotazione."""
-        height = section.total_height
-        web_x0 = (section.flange_width - section.web_thickness) / 2
-        web_x1 = web_x0 + section.web_thickness
-        
+        height: float = section.total_height
+        web_x0: float = (section.flange_width - section.web_thickness) / 2
+        web_x1: float = web_x0 + section.web_thickness
+
         points = [
             # Ala inferiore
             (0, 0),
@@ -990,7 +1125,7 @@ class MainWindow(tk.Toplevel):
 
     def _draw_pi_section(self, section: PiSection, transform) -> None:
         """Disegna sezione a Pi greco con rotazione."""
-        height = section.total_height
+        height: float = section.total_height
         points = [
             (0, 0),
             (section.web_thickness, 0),
@@ -1005,10 +1140,10 @@ class MainWindow(tk.Toplevel):
 
     def _draw_inverted_t_section(self, section: InvertedTSection, transform) -> None:
         """Disegna sezione a T rovescia con rotazione."""
-        height = section.total_height
-        web_x0 = (section.flange_width - section.web_thickness) / 2
-        web_x1 = web_x0 + section.web_thickness
-        
+        height: float = section.total_height
+        web_x0: float = (section.flange_width - section.web_thickness) / 2
+        web_x1: float = web_x0 + section.web_thickness
+
         points = [
             (0, 0),
             (section.flange_width, 0),
@@ -1023,7 +1158,7 @@ class MainWindow(tk.Toplevel):
 
     def _draw_c_section(self, section: CSection, transform) -> None:
         """Disegna sezione a C con rotazione."""
-        h_web = section.height - 2 * section.flange_thickness
+        h_web: float = section.height - 2 * section.flange_thickness
         points = [
             (0, 0),
             (section.width, 0),
@@ -1039,35 +1174,41 @@ class MainWindow(tk.Toplevel):
     def _draw_circular_hollow(self, section: CircularHollowSection, transform) -> None:
         """Disegna cerchio cavo."""
         _, height = self._section_dimensions(section)
-        r_out = section.outer_diameter / 2
-        r_in = (section.outer_diameter - 2 * section.thickness) / 2
-        
-        cx_sec = r_out
-        cy_sec = r_out
-        
+        r_out: float = section.outer_diameter / 2
+        r_in: float = (section.outer_diameter - 2 * section.thickness) / 2
+
+        cx_sec: float = r_out
+        cy_sec: float = r_out
+
         cx, cy = transform.to_canvas(cx_sec, cy_sec, height)
         r_out_canvas = r_out * transform.scale
         r_in_canvas = r_in * transform.scale
-        
+
         # Cerchio esterno
         self.canvas.create_oval(
-            cx - r_out_canvas, cy - r_out_canvas,
-            cx + r_out_canvas, cy + r_out_canvas,
-            outline="#1f77b4", width=2
+            cx - r_out_canvas,
+            cy - r_out_canvas,
+            cx + r_out_canvas,
+            cy + r_out_canvas,
+            outline="#1f77b4",
+            width=2,
         )
         # Cerchio interno
         self.canvas.create_oval(
-            cx - r_in_canvas, cy - r_in_canvas,
-            cx + r_in_canvas, cy + r_in_canvas,
-            outline="#1f77b4", width=1
+            cx - r_in_canvas,
+            cy - r_in_canvas,
+            cx + r_in_canvas,
+            cy + r_in_canvas,
+            outline="#1f77b4",
+            width=1,
         )
 
     def _draw_rectangular_hollow(self, section: RectangularHollowSection, transform) -> None:
         """Disegna rettangolo cavo con rotazione."""
-        t = section.thickness
-        w_in = section.width - 2 * t
-        h_in = section.height - 2 * t
-        
+        t: float = section.thickness
+        w_in: float = section.width - 2 * t
+        h_in: float = section.height - 2 * t
+
         # Poligono esterno
         outer = [
             (0, 0),
@@ -1076,9 +1217,9 @@ class MainWindow(tk.Toplevel):
             (0, section.height),
         ]
         self._draw_rotated_polygon(outer, section, transform, outline="#1f77b4", width=2, fill="")
-        
+
         # Poligono interno
-        inner = [
+        inner: list[tuple[float, float]] = [
             (t, t),
             (t + w_in, t),
             (t + w_in, t + h_in),
@@ -1091,7 +1232,7 @@ class MainWindow(tk.Toplevel):
         # Approssimazione semplice della V
         half_w = section.width / 2
         t = section.thickness
-        
+
         # Triangolo esterno
         outer = [
             (0, 0),
@@ -1104,31 +1245,31 @@ class MainWindow(tk.Toplevel):
             (section.width - t, 0),
             (half_w, section.height - t),
         ]
-        
+
         self._draw_rotated_polygon(outer, section, transform, outline="#1f77b4", width=2, fill="")
         self._draw_rotated_polygon(inner, section, transform, outline="#1f77b4", width=1, fill="")
 
     def _draw_centroid(self, section: Section, transform) -> None:
-        props = section.properties
+        props: SectionProperties | None = section.properties
         if not props:
             return
-        height = self._section_dimensions(section)[1]
+        height: float = self._section_dimensions(section)[1]
         cx, cy = transform.to_canvas(props.centroid_x, props.centroid_y, height)
         self.canvas.create_oval(cx - 4, cy - 4, cx + 4, cy + 4, fill="red")
         self.canvas.create_text(cx + 6, cy - 6, text="G", fill="red")
 
     def _draw_ellipse(self, section: Section, transform) -> None:
-        props = section.properties
+        props: SectionProperties | None = section.properties
         if not props:
             return
-        height = self._section_dimensions(section)[1]
+        height: float = self._section_dimensions(section)[1]
         if props.ellipse_a is None or props.ellipse_b is None:
             return
-        angle_deg = props.principal_angle_deg or 0.0
+        angle_deg: float = props.principal_angle_deg or 0.0
         points = []
         steps = 60
         for i in range(steps + 1):
-            t = (2 * math.pi * i) / steps
+            t: float = (2 * math.pi * i) / steps
             x = props.centroid_x + props.ellipse_b * math.cos(t)
             y = props.centroid_y + props.ellipse_a * math.sin(t)
             x_rot, y_rot = self._rotate_point(x, y, props.centroid_x, props.centroid_y, angle_deg)
@@ -1137,13 +1278,13 @@ class MainWindow(tk.Toplevel):
         self.canvas.create_line(points, fill="#ff7f0e", dash=(4, 2), smooth=True)
 
     def _draw_core(self, section: Section, transform) -> None:
-        props = section.properties
+        props: SectionProperties | None = section.properties
         if not props:
             return
-        height = self._section_dimensions(section)[1]
+        height: float = self._section_dimensions(section)[1]
         if props.core_x is None or props.core_y is None:
             return
-        angle_deg = props.principal_angle_deg or 0.0
+        angle_deg: float = props.principal_angle_deg or 0.0
         corners = [
             (props.centroid_x - props.core_x, props.centroid_y - props.core_y),
             (props.centroid_x + props.core_x, props.centroid_y - props.core_y),
@@ -1159,10 +1300,11 @@ class MainWindow(tk.Toplevel):
 
     def save_section(self) -> None:
         # OBIETTIVO 3+4: Costruisce sezione e gestisce correttamente nuova vs modifica
-        section = self._build_section_from_inputs()
+        section: Section | None = self._build_section_from_inputs()
         if not section:
             return
 
+<<<<<<< HEAD
         # OBIETTIVO 4: Calcola proprietà automaticamente se assenti o se parametri sono cambiati
         try:
             # Calcola sempre le proprietà per assicurare valori aggiornati (sempre chiamare compute_properties)
@@ -1173,11 +1315,16 @@ class MainWindow(tk.Toplevel):
             notify_error("Errore", f"Errore nel calcolo proprietà: {e}", source="main_window")
             return
 
+=======
+>>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
         # OBIETTIVO 3: Modifica non crea nuova sezione, fa update della sezione esistente
+        # NOTE: compute_properties() is called internally by repository.add_section()
+        # and repository.update_section(), so we don't call it here to avoid double computation.
         if self.editing_section_id is None:
             # Nuova sezione
-            added = self.repository.add_section(section)
+            added: bool = self.repository.add_section(section)
             if added:
+<<<<<<< HEAD
                 notify_info(
                     "Salvataggio",
                     f"Sezione '{section.name}' salvata correttamente nell'archivio.\nID: {section.id}",
@@ -1186,30 +1333,55 @@ class MainWindow(tk.Toplevel):
                 logger.debug("Sezione creata: %s", section.id)
             else:
                 notify_info("Salvataggio", "Sezione duplicata: non salvata", source="main_window")
+=======
+                messagebox.showinfo(
+                    "Salvataggio",
+                    f"Sezione '{section.name}' salvata correttamente nell'archivio.\n" f"ID: {section.id}",
+                )
+                logger.debug("Sezione creata: %s", section.id)
+            else:
+                notify_error(
+                    "Errore salvataggio",
+                    f"Impossibile salvare la sezione '{section.name}': " "duplicata o errore nel calcolo proprietà.",
+                    source="main_window",
+                )
+>>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
         else:
             # Modifica sezione esistente: aggiorna mantenendo lo stesso ID
             try:
                 section.id = self.editing_section_id  # Preserva ID originale
                 self.repository.update_section(self.editing_section_id, section)
+<<<<<<< HEAD
                 notify_info(
                     "Aggiornamento",
                     f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\nID: {self.editing_section_id}",
                     source="main_window",
+=======
+                messagebox.showinfo(
+                    "Aggiornamento",
+                    f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\n" f"ID: {self.editing_section_id}",
+>>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
                 )
                 logger.debug("Sezione aggiornata: %s", self.editing_section_id)
                 self.editing_section_id = None
                 self._update_editing_mode_label()
+<<<<<<< HEAD
             except Exception as e:
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
                 notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
+=======
+            except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
+                logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, exc)
+                notify_error("Errore", f"Impossibile aggiornare la sezione: {exc}", source="main_window")
+>>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
                 return
 
         # Se il manager è aperto, ricarica la tabella
-        mgr = getattr(self, "section_manager", None)
+        mgr: logging.Any | None = getattr(self, "section_manager", None)
         if mgr and getattr(mgr, "winfo_exists", None) and mgr.winfo_exists():
             try:
                 mgr.reload_sections_in_treeview()
-            except Exception:
+            except Exception:  # type: ignore[reportGeneralTypeIssues]
                 logger.exception("Errore nel ricaricare il Section Manager dopo salvataggio")
         else:
             # Se la finestra manager non esiste più, puliamo il riferimento
@@ -1218,14 +1390,14 @@ class MainWindow(tk.Toplevel):
 
     def open_manager(self) -> None:
         # Verifica se il manager è già aperto
-        if hasattr(self, 'section_manager') and self.section_manager is not None:
+        if hasattr(self, "section_manager") and self.section_manager is not None:
             if self.section_manager.winfo_exists():
                 # Porta in primo piano la finestra esistente
                 self.section_manager.lift()
                 self.section_manager.focus_force()
                 logger.debug("Section Manager già aperto, portato in primo piano")
                 return
-        
+
         # Crea nuova istanza del manager
         manager = SectionManager(self, self.repository, self.serializer, self.load_section_into_form)
         self.section_manager = manager
@@ -1249,38 +1421,38 @@ class MainWindow(tk.Toplevel):
 
     def load_section_into_form(self, section: Section) -> None:
         """Carica i dati di una sezione nella form in modalità modifica."""
-        label = self._label_from_section(section)
+        label: str | None = self._label_from_section(section)
         if label:
             self.section_var.set(label)
-            self._create_inputs()
+            # _create_inputs is triggered by the var change if type changed
         self.name_entry.delete(0, tk.END)
         self.name_entry.insert(0, section.name)
 
         for field, entry in self.inputs.items():
-            value = getattr(section, field, "")
+            value: logging.Any | str = getattr(section, field, "")
             entry.delete(0, tk.END)
             entry.insert(0, value)
-        
+
         # Carica l'angolo di rotazione
         self.rotation_entry.delete(0, tk.END)
         self.rotation_entry.insert(0, str(section.rotation_angle_deg))
 
         # Carica i fattori kappa se presenti, altrimenti mostra i default
         try:
-            if getattr(section, "shear_factor_y", None) is not None:
+            ky = getattr(section, "shear_factor_y", None)
+            kz = getattr(section, "shear_factor_z", None)
+            if ky is not None:
                 self.kappa_y_entry.delete(0, tk.END)
-                self.kappa_y_entry.insert(0, str(section.shear_factor_y))
-            else:
-                self._set_default_kappa_entries()
-            if getattr(section, "shear_factor_z", None) is not None:
+                self.kappa_y_entry.insert(0, str(ky))
+            if kz is not None:
                 self.kappa_z_entry.delete(0, tk.END)
-                self.kappa_z_entry.insert(0, str(section.shear_factor_z))
-            else:
+                self.kappa_z_entry.insert(0, str(kz))
+            # Only reset to defaults if both are missing
+            if ky is None and kz is None:
                 self._set_default_kappa_entries()
-        except Exception:
-            # Non blocchiamo il caricamento se il campo non esiste
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
-        
+
         self.current_section = section
         # Imposta l'id di modifica in modo che il salvataggio faccia update
         self.editing_section_id = section.id
@@ -1288,20 +1460,20 @@ class MainWindow(tk.Toplevel):
         if section.properties:
             self._show_properties(section.properties, section)
 
-    def _label_from_section(self, section: Section) -> Optional[str]:
+    def _label_from_section(self, section: Section) -> str | None:
         for label, definition in SECTION_DEFINITIONS.items():
             if isinstance(section, definition["class"]):
                 return label
         return None
 
     def import_csv(self) -> None:
-        file_path = filedialog.askopenfilename(
+        file_path: str = filedialog.askopenfilename(
             title="Importa CSV",
             filetypes=[("CSV", "*.csv"), ("Tutti i file", "*.*")],
         )
         if not file_path:
             return
-        sections = self.serializer.import_from_csv(file_path)
+        sections: list[Section] = self.serializer.import_from_csv(file_path)
         added = 0
         for section in sections:
             if self.repository.add_section(section):
@@ -1309,7 +1481,7 @@ class MainWindow(tk.Toplevel):
         notify_info("Importa CSV", f"Importate {added} sezioni", source="main_window")
 
     def export_csv(self) -> None:
-        file_path = filedialog.asksaveasfilename(
+        file_path: str = filedialog.asksaveasfilename(
             title="Esporta CSV",
             defaultextension=".csv",
             filetypes=[("CSV", "*.csv")],
@@ -1320,35 +1492,28 @@ class MainWindow(tk.Toplevel):
         notify_info("Esporta CSV", "Esportazione completata", source="main_window")
 
     def export_full_backup(self) -> None:
-        """
-        Esporta backup completo di sezioni e materiali in una cartella scelta dall'utente.
-        """
-        if self.material_repository is None:
-            notify_error(
-                "Errore backup",
-                "Archivio materiali non disponibile.",
-            )
-            return
-
-        folder = filedialog.askdirectory(title="Seleziona cartella per backup")
+        """Esporta backup completo di sezioni in una cartella scelta dall'utente."""
+        folder: str = filedialog.askdirectory(title="Seleziona cartella per backup")
         if not folder:
             return
 
         try:
             base = Path(folder)
-            sections_path = base / "sections_backup.json"
-            materials_path = base / "materials_backup.json"
+            sections_path: Path = base / "sections_backup.json"
 
             self.section_repository.export_backup(sections_path)
-            self.material_repository.export_backup(materials_path)
 
             notify_info(
                 "Backup completato",
+<<<<<<< HEAD
                 f"Backup sezioni: {sections_path}\nBackup materiali: {materials_path}",
                 source="main_window",
+=======
+                f"Backup sezioni: {sections_path}",
+>>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
             )
-        except Exception as exc:
-            logger.exception("Errore esportazione backup completo")
+        except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
+            logger.exception("Errore esportazione backup completo: %s", exc)
             notify_error("Errore backup", f"Errore durante il backup: {exc}", source="main_window")
 
     def reset_form(self) -> None:
@@ -1360,6 +1525,11 @@ class MainWindow(tk.Toplevel):
             entry.delete(0, tk.END)
         self.rotation_entry.delete(0, tk.END)
         self.rotation_entry.insert(0, "0.0")
+        # Reset kappa entries to defaults for the current section type
+        try:
+            self._set_default_kappa_entries()
+        except Exception:
+            pass
         self.output_text.delete("1.0", tk.END)
         self.canvas.delete("all")
         self._update_editing_mode_label()
@@ -1368,66 +1538,62 @@ class MainWindow(tk.Toplevel):
     def _update_editing_mode_label(self) -> None:
         """Aggiorna la label che mostra lo stato editing corrente."""
         if self.editing_section_id is None:
-            self.editing_mode_label.config(
-                text="Modalità: Nuova sezione",
-                fg="#0066cc"
-            )
+            self.editing_mode_label.config(text="Modalità: Nuova sezione", fg="#0066cc")
         else:
-            section_name = self.current_section.name if self.current_section else "(sconosciuto)"
+            section_name: str = self.current_section.name if self.current_section else "(sconosciuto)"
             self.editing_mode_label.config(
-                text=f"Modalità: Modifica sezione '{section_name}'\nID: {self.editing_section_id[:8]}...",
-                fg="#cc6600"
+                text=f"Modalità: Modifica sezione '{section_name}'\n" f"ID: {self.editing_section_id[:8]}...",
+                fg="#cc6600",
             )
-    
+
     def _validate_float_input(self, value: str) -> bool:
-        """
-        Valida input numerico: accetta solo float con massimo 1 cifra decimale.
-        
+        """Valida input numerico: accetta solo float con massimo 1 cifra decimale.
+
         Args:
             value: Stringa da validare
-            
+
         Returns:
             True se il valore è valido (vuoto, numero intero, o numero con max 1 decimale)
+
         """
         if value == "":
             return True
-        
+
         # Accetta segno negativo all'inizio (anche se poi il valore deve essere positivo)
         if value == "-":
             return True
-            
+
         try:
             # Verifica che sia un numero valido
             float(value)
-            
+
             # Controlla il numero di cifre decimali
-            if '.' in value:
-                parts = value.split('.')
+            if "." in value:
+                parts: list[str] = value.split(".")
                 # Massimo 1 cifra decimale
                 if len(parts) == 2 and len(parts[1]) <= 1:
                     return True
-                else:
-                    return False
-            else:
-                # Numero intero OK
-                return True
+                return False
+            # Numero intero OK
+            return True
         except ValueError:
             return False
-    
+
     def _create_tooltip(self, widget: tk.Widget, text: str) -> None:
-        """
-        Crea un tooltip che appare al passaggio del mouse su un widget.
-        
+        """Crea un tooltip che appare al passaggio del mouse su un widget.
+
         Args:
             widget: Widget Tkinter su cui mostrare il tooltip
             text: Testo del tooltip
+
         """
-        def on_enter(event):
+
+        def on_enter(event) -> None:
             # Crea finestra tooltip
             tooltip = tk.Toplevel(widget)
             tooltip.wm_overrideredirect(True)
-            tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
-            
+            tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
+
             label = tk.Label(
                 tooltip,
                 text=text,
@@ -1437,19 +1603,18 @@ class MainWindow(tk.Toplevel):
                 font=("Arial", 9),
                 justify="left",
                 padx=4,
-                pady=2
+                pady=2,
             )
             label.pack()
-            
+
             # Memorizza riferimento al tooltip
             widget._tooltip = tooltip
-        
-        def on_leave(event):
+
+        def on_leave(event) -> None:
             # Distrugge tooltip
-            if hasattr(widget, '_tooltip'):
+            if hasattr(widget, "_tooltip"):
                 widget._tooltip.destroy()
                 del widget._tooltip
-        
+
         widget.bind("<Enter>", on_enter)
         widget.bind("<Leave>", on_leave)
-

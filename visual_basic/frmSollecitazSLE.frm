@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSollecitazSLE 
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSollecitazSLE
    Caption         =   "SOLLECITAZ. AGENTI PER LE COMBINAZ. DI CARICO S.L.E."
    ClientHeight    =   5970
    ClientLeft      =   84

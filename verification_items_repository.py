@@ -4,16 +4,10 @@ import json
 import logging
 from dataclasses import asdict
 from pathlib import Path
-from typing import Dict, List, Optional
-
-from typing import TYPE_CHECKING
 
 from verification_items import VerificationItem
 
-if TYPE_CHECKING:  # pragma: no cover - typing only
-    from verification_table import VerificationInput
-
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class VerificationItemsRepository:
@@ -36,13 +30,13 @@ class VerificationItemsRepository:
 
     def __init__(self, path: str = "verification_items.json") -> None:
         self._path = Path(path)
-        self._items: Dict[str, VerificationItem] = {}
+        self._items: dict[str, VerificationItem] = {}
         self.load_from_file()
 
-    def get_all(self) -> List[VerificationItem]:
+    def get_all(self) -> list[VerificationItem]:
         return list(self._items.values())
 
-    def get_by_id(self, item_id: str) -> Optional[VerificationItem]:
+    def get_by_id(self, item_id: str) -> VerificationItem | None:
         return self._items.get(item_id)
 
     def save(self, item: VerificationItem) -> None:
@@ -78,6 +72,7 @@ class VerificationItemsRepository:
             for idx, item in enumerate(raw):
                 try:
                     from verification_table import VerificationInput
+
                     input_data = item.get("input", {}) if isinstance(item, dict) else {}
                     ver_input = VerificationInput(**input_data)
                     ver_item = VerificationItem(
@@ -88,10 +83,10 @@ class VerificationItemsRepository:
                     )
                     if ver_item.id:
                         self._items[ver_item.id] = ver_item
-                except Exception:
-                    logger.exception("Errore parsing VerificationItem #%s", idx)
-        except Exception:
-            logger.exception("Errore caricamento VerificationItems da %s", self._path)
+                except (TypeError, ValueError, KeyError) as exc:
+                    logger.exception("Errore parsing VerificationItem #%s: %s", idx, exc)
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.exception("Errore caricamento VerificationItems da %s: %s", self._path, exc)
 
     def save_to_file(self) -> None:
         """Salva gli elementi su file JSON con struttura semplice."""
@@ -108,9 +103,9 @@ class VerificationItemsRepository:
                         "input": asdict(item.input),
                     }
                 )
-            tmp = self._path.with_suffix(self._path.suffix + ".tmp")
+            tmp: Path = self._path.with_suffix(self._path.suffix + ".tmp")
             with tmp.open("w", encoding="utf-8") as fh:
                 json.dump(payload, fh, indent=2, ensure_ascii=False)
             tmp.replace(self._path)
-        except Exception:
-            logger.exception("Errore salvataggio VerificationItems su %s", self._path)
+        except (OSError, TypeError) as exc:
+            logger.exception("Errore salvataggio VerificationItems su %s: %s", self._path, exc)
