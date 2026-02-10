@@ -4,8 +4,8 @@ for section homogenization and TA verifications translated from
 PrincipCA_TA.bas (see comments in modules for mappings).
 """
 
-from .checks import AllowableCheckResult, AllowableStresses, check_allowable_stresses_ta
 from .carbon_fiber_placeholder import SectionGeometry, SectionProperties, compute_section_properties
+from .checks import AllowableCheckResult, AllowableStresses, check_allowable_stresses_ta
 from .materials import ConcreteLawTA, SteelLawTA
 from .stress import LoadState, StressResult, compute_normal_stresses_ta
 

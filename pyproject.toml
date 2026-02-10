@@ -11,17 +11,17 @@ license = {text = "MIT"}
 requires-python = ">=3.11"
 
 [tool.black]
-line-length = 125
+line-length = 100
 target-version = ["py311"]
 skip-string-normalization = false
 
 [tool.isort]
 profile = "black"
-line_length = 125
+line_length = 100
 combine_as_imports = true
 
 [tool.ruff]
-line-length = 125
+line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
@@ -40,7 +40,7 @@ ignore = ["E203", "N803", "N806", "E501", "N815", "N802"]
 # Usi Black come formatter principale → lascia il formatter di Ruff disattivo (default)
 
 [tool.flake8]
-max-line-length = 125
+max-line-length = 100
 extend-ignore = ["E203", "W503"]
 exclude = [".venv", "build", "dist", ".git"]
 
@@ -110,10 +110,10 @@ repos = [
         { id = "check-added-large-files" },
     ]},
     { repo = "https://github.com/psf/black", rev = "23.12.1", hooks = [
-      { id = "black", args = ["--line-length", "125"] },
+      { id = "black", args = ["--line-length", "100"] },
     ]},
     { repo = "https://github.com/pycqa/isort", rev = "5.13.2", hooks = [
-      { id = "isort", args = ["--profile", "black", "--line-length", "125"] },
+      { id = "isort", args = ["--profile", "black", "--line-length", "100"] },
     ]},
     { repo = "https://github.com/charliermarsh/ruff-pre-commit", rev = "v0.1.14", hooks = [
         { id = "ruff", args = ["--fix", "--show-fixes"] },

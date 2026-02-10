@@ -13,7 +13,8 @@ Usage examples
     python reorganize_sections_app.py --root apps.sections --out SECTIONS_APP_REFACTORED
 
   Process only specific modules:
-    python reorganize_sections_app.py --root apps.sections --out SECTIONS_APP_REFACTORED --modules carbon_fiber_placeholder historical
+    python reorganize_sections_app.py --root apps.sections --out SECTIONS_APP_REFACTORED \
+        --modules carbon_fiber_placeholder historical
 
 Configuration
 -------------
@@ -605,7 +606,10 @@ def filter_init_file(
                                 # in a file that exists
                                 target_py = init_dir / (name + ".py")
                                 target_pkg = init_dir / name / "__init__.py"
-                                if target_py in available_source_files or target_pkg in available_source_files:
+                                if (
+                                    target_py in available_source_files
+                                    or target_pkg in available_source_files
+                                ):
                                     remaining.append(name)
                                 else:
                                     # The name might be a class/function re-exported from
@@ -700,7 +704,9 @@ def run_reorganization(
             shutil.rmtree(mod_out)
 
         # Copy files
-        py_mappings, res_mappings = copy_module_tree(root, out_root, mod, file_set, resource_set, dry_run)
+        py_mappings, res_mappings = copy_module_tree(
+            root, out_root, mod, file_set, resource_set, dry_run
+        )
 
         # Rewrite imports in copied files
         print("\n  Import rewrites:")
@@ -735,7 +741,9 @@ def run_reorganization(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Reorganize apps.sections into per-module folders.")
+    parser = argparse.ArgumentParser(
+        description="Reorganize apps.sections into per-module folders."
+    )
     parser.add_argument(
         "--root",
         required=True,

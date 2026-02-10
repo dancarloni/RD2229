@@ -12,16 +12,14 @@ import os
 
 import pytest
 
-from materials_repository import MaterialsRepository
 from apps.sections.models.sections import RectangularSection
 from apps.sections.services.repository import (
     DEFAULT_JSON_FILE as SECTIONS_DEFAULT,
-)
-from apps.sections.services.repository import (
     SectionRepository,
     load_sections_from_json,
     save_sections_to_json,
 )
+from materials_repository import MaterialsRepository
 
 
 class TestSectionRepositoryCanonicalPath:
@@ -29,9 +27,11 @@ class TestSectionRepositoryCanonicalPath:
 
     def test_default_json_file_points_to_canonical_path(self):
         """Verifica che DEFAULT_JSON_FILE punti a sec_repository/sec_repository.jsons."""
-        assert SECTIONS_DEFAULT.endswith("sec_repository/sec_repository.jsons") or SECTIONS_DEFAULT.endswith(
-            r"sec_repository\sec_repository.jsons"
-        ), f"DEFAULT_JSON_FILE deve puntare a sec_repository/sec_repository.jsons, trovato: {SECTIONS_DEFAULT}"
+        assert SECTIONS_DEFAULT.endswith(
+            "sec_repository/sec_repository.jsons"
+        ) or SECTIONS_DEFAULT.endswith(r"sec_repository\sec_repository.jsons"), (
+            f"DEFAULT_JSON_FILE deve puntare a sec_repository/sec_repository.jsons, trovato: {SECTIONS_DEFAULT}"
+        )
 
     def test_section_repository_uses_canonical_path_by_default(self):
         """Verifica che SectionRepository usi il percorso canonico di default."""
@@ -39,7 +39,9 @@ class TestSectionRepositoryCanonicalPath:
         repo = SectionRepository()
 
         # Verifica che il path sia quello canonico
-        assert repo._json_file == SECTIONS_DEFAULT, f"Repository dovrebbe usare {SECTIONS_DEFAULT}, usa: {repo._json_file}"
+        assert repo._json_file == SECTIONS_DEFAULT, (
+            f"Repository dovrebbe usare {SECTIONS_DEFAULT}, usa: {repo._json_file}"
+        )
 
     def test_section_repository_creates_canonical_directory(self):
         """Verifica che il repository crei la directory sec_repository se non esiste."""
@@ -74,9 +76,9 @@ class TestSectionRepositoryCanonicalPath:
 
         # Il backup path dovrebbe avere _backup nel nome
         expected_backup = os.path.join(tmpdir, "test_sections_backup.jsons")
-        assert (
-            str(repo._backup_path) == expected_backup
-        ), f"Backup path dovrebbe essere {expected_backup}, trovato: {repo._backup_path}"
+        assert str(repo._backup_path) == expected_backup, (
+            f"Backup path dovrebbe essere {expected_backup}, trovato: {repo._backup_path}"
+        )
 
 
 class TestSectionHelperFunctions:
@@ -105,7 +107,9 @@ class TestSectionHelperFunctions:
         test_file = os.path.join(tmpdir, "test_save_canonical.jsons")
 
         # Salva specificando il path
-        sample_sections = [{"name": "Save Test", "section_type": "RECTANGULAR", "width": 40.0, "height": 60.0}]
+        sample_sections = [
+            {"name": "Save Test", "section_type": "RECTANGULAR", "width": 40.0, "height": 60.0}
+        ]
         save_sections_to_json(sample_sections, test_file)
 
         # Verifica che il file sia stato creato
@@ -125,9 +129,11 @@ class TestMaterialsRepositoryCanonicalPath:
         """Verifica che materials_gui.py definisca MATERIALS_REPO_PATH."""
         from gui.materials_gui import MATERIALS_REPO_PATH
 
-        assert MATERIALS_REPO_PATH.endswith("mat_repository/Mat_repository.jsonm") or MATERIALS_REPO_PATH.endswith(
-            r"mat_repository\Mat_repository.jsonm"
-        ), f"MATERIALS_REPO_PATH deve puntare a mat_repository/Mat_repository.jsonm, trovato: {MATERIALS_REPO_PATH}"
+        assert MATERIALS_REPO_PATH.endswith(
+            "mat_repository/Mat_repository.jsonm"
+        ) or MATERIALS_REPO_PATH.endswith(r"mat_repository\Mat_repository.jsonm"), (
+            f"MATERIALS_REPO_PATH deve puntare a mat_repository/Mat_repository.jsonm, trovato: {MATERIALS_REPO_PATH}"
+        )
 
     def test_materials_repository_can_use_jsonm_extension(self, tmpdir):
         """Verifica che MaterialsRepository accetti file .jsonm."""
@@ -229,9 +235,9 @@ class TestMaterialsGUIIntegration:
             app = MaterialsApp(master=root)
 
             # Verifica che current_materials_path sia il canonico
-            assert (
-                app.current_materials_path == test_canonical
-            ), f"current_materials_path dovrebbe essere {test_canonical}, trovato: {app.current_materials_path}"
+            assert app.current_materials_path == test_canonical, (
+                f"current_materials_path dovrebbe essere {test_canonical}, trovato: {app.current_materials_path}"
+            )
 
             root.destroy()
         except Exception as e:
@@ -336,7 +342,9 @@ class TestBackupMechanisms:
         # Verifica che il backup contenga i dati precedenti
         with open(backup_file, encoding="utf-8") as f:
             backup_data = json.load(f)
-            assert len(backup_data) == 1, "Backup dovrebbe contenere 1 sezione (snapshot precedente)"
+            assert len(backup_data) == 1, (
+                "Backup dovrebbe contenere 1 sezione (snapshot precedente)"
+            )
 
 
 if __name__ == "__main__":

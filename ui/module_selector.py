@@ -13,7 +13,8 @@ import threading
 from pathlib import Path
 from tkinter import Tk, filedialog
 
-from modules.registry import ModuleRegistry
+from core_models.materials import MaterialRepository  # noqa: F401
+from historical_materials import HistoricalMaterialLibrary  # noqa: F401
 from libs.app_module.services.notification import notify_error, notify_info
 from libs.app_module.services.repository import CsvSectionSerializer, GeometryRepository
 from libs.app_module.ui.code_settings_window import CodeSettingsWindow
@@ -23,9 +24,7 @@ from libs.app_module.ui.historical_material_window import HistoricalMaterialWind
 from libs.app_module.ui.main_window import MainWindow  # noqa: F401
 from libs.app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
 from libs.app_module.ui.notification_center import NotificationCenter
-
-from core_models.materials import MaterialRepository  # noqa: F401
-from historical_materials import HistoricalMaterialLibrary  # noqa: F401
+from modules.registry import ModuleRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +92,9 @@ class ModuleSelectorController:
                 self.open_windows.append(window)
 
             # start the module in a separate thread to avoid blocking the selector UI
-            thread = threading.Thread(target=self._run_window, args=(window, module_key), daemon=True)
+            thread = threading.Thread(
+                target=self._run_window, args=(window, module_key), daemon=True
+            )
             thread.start()
             logger.info("Modulo '%s' avviato in background.", module_key)
         except Exception as e:
@@ -237,8 +238,12 @@ class ModuleSelectorWindow(Tk):
 
         tools_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Strumenti", menu=tools_menu)
-        tools_menu.add_command(label="Impostazioni Codice", command=self.controller.open_code_settings)
-        tools_menu.add_command(label="Centro Notifiche", command=self.controller.open_notification_center)
+        tools_menu.add_command(
+            label="Impostazioni Codice", command=self.controller.open_code_settings
+        )
+        tools_menu.add_command(
+            label="Centro Notifiche", command=self.controller.open_notification_center
+        )
         tools_menu.add_separator()
         tools_menu.add_command(label="Aggiorna Moduli", command=self._refresh_modules)
 

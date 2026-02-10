@@ -1,6 +1,5 @@
 try:
-    from hypothesis import given
-    from hypothesis import strategies as st
+    from hypothesis import given, strategies as st
 except Exception:  # pragma: no cover - Hypothesis not installed in this environment
     import pytest
 

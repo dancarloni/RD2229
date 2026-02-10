@@ -10,8 +10,8 @@ from unittest.mock import patch
 import pytest
 
 from apps.sections.ui.components.flow_wrap import FlowWrapFrame
-from ui.module_selector import ModuleSelectorWindow
 from libs.app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
+from ui.module_selector import ModuleSelectorWindow
 
 
 class TestFlowWrapFrame:

@@ -33,7 +33,9 @@ def test_get_available_modules(controller):
 def test_select_module_valid(controller):
     with patch("ui.module_selector.MainWindow") as mock_window:
         # ensure registry returns a factory that calls MainWindow
-        controller.registry._factories["carbon_fiber_placeholder"] = lambda master=None, **kw: mock_window()
+        controller.registry._factories["carbon_fiber_placeholder"] = lambda master=None, **kw: (
+            mock_window()
+        )
         with patch("threading.Thread") as mock_thread:
             controller.select_module("carbon_fiber_placeholder")
             mock_thread.assert_called_once()

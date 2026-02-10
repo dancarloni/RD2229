@@ -17,5 +17,7 @@ print(
     "new centroid",
     (new.x_c, new.y_c),
 )
-print("old Ix,Iy,Ixy", getattr(old, "Ix", None), getattr(old, "Iy", None), getattr(old, "Ixy", None))
+print(
+    "old Ix,Iy,Ixy", getattr(old, "Ix", None), getattr(old, "Iy", None), getattr(old, "Ixy", None)
+)
 print("new Ix,Iy,Ixy", new.Ix, new.Iy, new.Ixy)

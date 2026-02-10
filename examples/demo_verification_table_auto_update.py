@@ -8,9 +8,9 @@ import tempfile
 import tkinter as tk
 from tkinter import messagebox
 
-from core_models.materials import Material, MaterialRepository
 from apps.sections.models.sections import CircularSection, RectangularSection
 from apps.sections.services.repository import SectionRepository
+from core_models.materials import Material, MaterialRepository
 from verification_table import VerificationTableWindow
 
 

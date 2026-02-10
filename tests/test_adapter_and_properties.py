@@ -44,7 +44,9 @@ def rel_close(a, b, tol=REL_TOL):
         (CircularSection, dict(name="c", diameter=10.0)),
         (
             TSection,
-            dict(name="t", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0),
+            dict(
+                name="t", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0
+            ),
         ),
         (
             InvertedTSection,
@@ -105,7 +107,9 @@ def test_section_properties_match_legacy(section, kwargs):
 
 def test_adaptor_returns_nontrivial_geometry():
     # For non-rect/circ types, ensure adapter does not fallback to 1x1 degenerate polygon
-    sec = TSection(name="t", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0)
+    sec = TSection(
+        name="t", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0
+    )
     geom = section_to_geometry(sec)
     # area should be > 1 and bbox should have expected extents
     minx, miny, maxx, maxy = geom.bounding_box()

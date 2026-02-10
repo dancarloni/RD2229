@@ -529,7 +529,9 @@ class ISection(Section):
         ix_web = (web_thickness * web_height**3) / 12
 
         ix_local = ix_flange_top + ix_flange_bottom + ix_web
-        iy_local = 2 * (flange_thickness * flange_width**3) / 12 + (web_height * web_thickness**3) / 12
+        iy_local = (
+            2 * (flange_thickness * flange_width**3) / 12 + (web_height * web_thickness**3) / 12
+        )
         ixy_local = 0.0
 
         # Applica rotazione se necessario
@@ -681,7 +683,9 @@ class InvertedTSection(Section):
         iy_flange = (flange_thickness * flange_width**3) / 12
 
         # Anima
-        ix_web = (web_thickness * web_height**3) / 12 + area_web * (flange_thickness + web_height / 2 - y_g) ** 2
+        ix_web = (web_thickness * web_height**3) / 12 + area_web * (
+            flange_thickness + web_height / 2 - y_g
+        ) ** 2
         iy_web = (web_height * web_thickness**3) / 12
 
         ix_local = ix_flange + ix_web

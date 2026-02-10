@@ -6,6 +6,7 @@ Orchestrates discovery, configuration, logging, and startup.
 import logging
 from importlib import import_module
 
+
 def configure_logging():
     """Configure logging for the application."""
     logging.basicConfig(
@@ -18,9 +19,10 @@ def configure_logging():
     fh.setFormatter(fmt)
     logging.getLogger().addHandler(fh)
 
+
 def run_app():
     """Main entry point for the application."""
     configure_logging()
     # Import and run the main app from apps.sections
-    app_module = import_module('apps.sections.app')
+    app_module = import_module("apps.sections.app")
     app_module.run_app()

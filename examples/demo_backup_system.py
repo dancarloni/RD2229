@@ -6,9 +6,9 @@ import os
 import tempfile
 from pathlib import Path
 
-from core_models.materials import Material, MaterialRepository
 from apps.sections.models.sections import CircularSection, RectangularSection
 from apps.sections.services.repository import SectionRepository
+from core_models.materials import Material, MaterialRepository
 
 
 def print_file_content(file_path: Path, title: str):

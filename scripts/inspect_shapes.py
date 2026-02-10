@@ -21,7 +21,9 @@ for cls, kw in cases:
     area_ext, cx_ext, cy_ext = _polygon_area_and_centroid(geom.exterior)
     area_holes = sum(_polygon_area_and_centroid(h)[0] for h in geom.holes) if geom.holes else 0.0
     total = area_ext - area_holes
-    print(f"{cls.__name__}: old area={old.area}, geom area(ext={area_ext}, holes={area_holes}) total={total}")
+    print(
+        f"{cls.__name__}: old area={old.area}, geom area(ext={area_ext}, holes={area_holes}) total={total}"
+    )
     print(" bbox", geom.bounding_box())
     print(" ext sample", geom.exterior[:8])
     if geom.holes:

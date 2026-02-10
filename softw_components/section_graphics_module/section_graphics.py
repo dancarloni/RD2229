@@ -85,7 +85,11 @@ class SectionGraphicsController:
         self.canvas.create_text(sx + 10, sy, text="G", anchor="w", fill="red")
 
     def draw_principal_axes(self, props: SectionProperties):
-        length = max(self.canvas.winfo_width(), self.canvas.winfo_height()) * 0.4 / (self.transform.scale or 1)
+        length = (
+            max(self.canvas.winfo_width(), self.canvas.winfo_height())
+            * 0.4
+            / (self.transform.scale or 1)
+        )
         theta = math.radians(props.theta_p_deg)
         cx, cy = props.x_c, props.y_c
         dx = math.cos(theta) * length
@@ -162,20 +166,30 @@ class SectionGraphicsController:
         # horizontal dimension (b) below the section
         sy_dim = sy0 + offset
         self.canvas.create_line(sx0, sy_dim, sx1, sy_dim, arrow="both")
-        self.canvas.create_text((sx0 + sx1) / 2.0, sy_dim - 10, text=f"b = {maxx - minx:.2f} {carbon_fiber_placeholder.units}")
+        self.canvas.create_text(
+            (sx0 + sx1) / 2.0,
+            sy_dim - 10,
+            text=f"b = {maxx - minx:.2f} {carbon_fiber_placeholder.units}",
+        )
         # vertical dimension (h) on the right of the section
         sx_dim = sx1 + offset
         sy_top = self.transform.world_to_screen(maxx, maxy)[1]
         sy_bot = self.transform.world_to_screen(maxx, miny)[1]
         self.canvas.create_line(sx_dim, sy_top, sx_dim, sy_bot, arrow="both")
-        self.canvas.create_text(sx_dim + 10, (sy_top + sy_bot) / 2.0, text=f"h = {maxy - miny:.2f} {carbon_fiber_placeholder.units}")
+        self.canvas.create_text(
+            sx_dim + 10,
+            (sy_top + sy_bot) / 2.0,
+            text=f"h = {maxy - miny:.2f} {carbon_fiber_placeholder.units}",
+        )
 
     def draw_radii_of_gyration(self, props: SectionProperties):
         if props.r1 and props.r2:
             theta = math.radians(props.theta_p_deg)
             cx, cy = props.x_c, props.y_c
             sx0, sy0 = self.transform.world_to_screen(cx, cy)
-            sx1, sy1 = self.transform.world_to_screen(cx + props.r1 * math.cos(theta), cy + props.r1 * math.sin(theta))
+            sx1, sy1 = self.transform.world_to_screen(
+                cx + props.r1 * math.cos(theta), cy + props.r1 * math.sin(theta)
+            )
             self.canvas.create_line(sx0, sy0, sx1, sy1, fill="brown", width=2)
             self.canvas.create_oval(sx1 - 3, sy1 - 3, sx1 + 3, sy1 + 3, fill="brown")
 
@@ -188,7 +202,9 @@ class SectionGraphicsController:
     ):
         self.clear()
         bbox = carbon_fiber_placeholder.bounding_box()
-        transform = SectionViewTransform(bbox, self.canvas.winfo_width(), self.canvas.winfo_height(), margin=20)
+        transform = SectionViewTransform(
+            bbox, self.canvas.winfo_width(), self.canvas.winfo_height(), margin=20
+        )
         self.set_transform(transform)
         self.draw_section_contour(carbon_fiber_placeholder)
         self.draw_dimensioning(carbon_fiber_placeholder)

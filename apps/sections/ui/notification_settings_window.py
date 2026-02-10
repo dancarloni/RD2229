@@ -7,6 +7,8 @@ from typing import Any
 from apps.sections.services.notification import notify_info  # type: ignore[import]
 from apps.sections.services.notification_settings import (
     load_notification_settings,  # type: ignore[import]
+)
+from apps.sections.services.notification_settings import (
     save_notification_settings,  # type: ignore[import]
 )
 
@@ -46,7 +48,9 @@ class NotificationSettingsWindow:
             ("All", "all"),
         ]
         for i, (lab, val) in enumerate(levels):
-            tk.Radiobutton(frame, text=lab, variable=self.level_var, value=val).grid(row=0, column=1 + i, sticky="w")
+            tk.Radiobutton(frame, text=lab, variable=self.level_var, value=val).grid(
+                row=0, column=1 + i, sticky="w"
+            )
 
         # Show toasts
         self.show_toasts_var = tk.BooleanVar(value=self._settings.get("show_toasts", True))
@@ -57,13 +61,15 @@ class NotificationSettingsWindow:
         # Confirm default
         tk.Label(frame, text="Confirm default action:").grid(row=2, column=0, sticky="w")
         self.confirm_var = tk.StringVar(value=self._settings.get("confirm_default", "ask"))
-        tk.Radiobutton(frame, text="Ask user", variable=self.confirm_var, value="ask").grid(row=2, column=1, sticky="w")
-        tk.Radiobutton(frame, text="Default Yes", variable=self.confirm_var, value="default_yes").grid(
-            row=2, column=2, sticky="w"
+        tk.Radiobutton(frame, text="Ask user", variable=self.confirm_var, value="ask").grid(
+            row=2, column=1, sticky="w"
         )
-        tk.Radiobutton(frame, text="Default No", variable=self.confirm_var, value="default_no").grid(
-            row=2, column=3, sticky="w"
-        )
+        tk.Radiobutton(
+            frame, text="Default Yes", variable=self.confirm_var, value="default_yes"
+        ).grid(row=2, column=2, sticky="w")
+        tk.Radiobutton(
+            frame, text="Default No", variable=self.confirm_var, value="default_no"
+        ).grid(row=2, column=3, sticky="w")
 
         # Silent sources
         tk.Label(frame, text="Silent sources (comma-separated):").grid(row=3, column=0, sticky="w")
@@ -79,9 +85,15 @@ class NotificationSettingsWindow:
 
     def _on_save(self) -> None:
         s = {
-            "level": (getattr(self, "level_var", None).get() if not self.headless else self._settings.get("level")),
+            "level": (
+                getattr(self, "level_var", None).get()
+                if not self.headless
+                else self._settings.get("level")
+            ),
             "show_toasts": (
-                getattr(self, "show_toasts_var", None).get() if not self.headless else self._settings.get("show_toasts")
+                getattr(self, "show_toasts_var", None).get()
+                if not self.headless
+                else self._settings.get("show_toasts")
             ),
             "silent_sources": [
                 x.strip()
@@ -93,7 +105,9 @@ class NotificationSettingsWindow:
                 if x.strip()
             ],
             "confirm_default": (
-                getattr(self, "confirm_var", None).get() if not self.headless else self._settings.get("confirm_default")
+                getattr(self, "confirm_var", None).get()
+                if not self.headless
+                else self._settings.get("confirm_default")
             ),
         }
         save_notification_settings(s)
