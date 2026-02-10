@@ -5,19 +5,19 @@ import tkinter as tk
 from collections.abc import Callable
 from tkinter import filedialog, messagebox, ttk
 
-from app_module.services.event_bus import (
+from libs.app_module.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_CLEARED,
     SECTIONS_DELETED,
     SECTIONS_UPDATED,
     EventBus,
 )
-from app_module.services.notification import ask_confirm, notify_info
-from app_module.services.repository import (  # type: ignore[import]
+from libs.app_module.services.notification import ask_confirm, notify_info
+from libs.app_module.services.repository import (  # type: ignore[import]
     CsvSectionSerializer,
     SectionRepository,
 )
-from section_calculations_module.models.sections import CSV_HEADERS, Section  # type: ignore[import]
+from apps.sections.models.sections import CSV_HEADERS, Section  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

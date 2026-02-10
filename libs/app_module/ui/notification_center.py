@@ -4,8 +4,8 @@ import logging
 import tkinter as tk
 from typing import Any
 
-from app_module.services.event_bus import NOTIFICATION, EventBus
-from app_module.services.notification_settings import load_notification_settings
+from libs.app_module.services.event_bus import NOTIFICATION, EventBus
+from libs.app_module.services.notification_settings import load_notification_settings
 
 logger = logging.getLogger(__name__)
 

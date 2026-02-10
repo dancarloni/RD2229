@@ -24,7 +24,7 @@ How it works
 ------------
   1. Scans all .py files in apps.sections and builds a dependency graph using AST
      import analysis.  Module names are computed WITH the package prefix
-     (e.g. "apps.sections.ui.main_window") so that absolute imports resolve correctly.
+     (e.g. "libs.app_module.ui.main_window") so that absolute imports resolve correctly.
   2. For each root module, collects the transitive dependency set via BFS.
   3. Copies the file set into an output folder preserving the internal directory
      structure (e.g. SECTIONS_APP_REFACTORED/carbon_fiber_placeholder/ui/main_window.py).
@@ -108,7 +108,7 @@ def module_name_from_path(root: Path, p: Path, package_name: str) -> str:
     """Compute the dotted module name INCLUDING the package prefix.
 
     Examples (assuming package_name="apps.sections"):
-      root/ui/main_window.py  -> "apps.sections.ui.main_window"
+      root/ui/main_window.py  -> "libs.app_module.ui.main_window"
       root/domain/__init__.py -> "apps.sections.domain"
       root/__init__.py        -> "apps.sections"
     """
@@ -201,7 +201,7 @@ def build_dependency_graph(root: Path, package_name: str) -> DepGraph:
     """Scan all .py files under *root* and build a dependency graph.
 
     Module names are computed WITH the package prefix so that absolute imports
-    like ``from apps.sections.ui.main_window import MainWindow`` resolve via
+    like ``from libs.app_module.ui.main_window import MainWindow`` resolve via
     exact match.
     """
     dg = DepGraph()

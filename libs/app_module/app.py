@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from app_module.services.debug_log_stream import get_in_memory_handler
+from libs.app_module.services.debug_log_stream import get_in_memory_handler
 
 try:
     from core_models.materials import MaterialRepository
@@ -30,7 +30,7 @@ def run_app() -> None:
     configure_logging()
 
     # Mostra il selettore di modulo come prima finestra
-    from app_module.ui.module_selector import ModuleSelectorWindow
+    from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
     selector = ModuleSelectorWindow()
     selector.mainloop()

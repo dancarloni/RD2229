@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from section_calculations_module.geometry_model import SectionGeometry, SectionProperties
+from apps.sections.geometry_model import SectionGeometry, SectionProperties
 
 
 @dataclass

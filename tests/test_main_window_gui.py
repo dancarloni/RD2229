@@ -1,7 +1,7 @@
 import tkinter as tk
 from pathlib import Path
 
-from apps.sections.ui.main_window import MainWindow
+from libs.app_module.ui.main_window import MainWindow
 
 
 def test_save_section_via_repository(tmp_path: Path):

@@ -13,16 +13,16 @@ import threading
 from pathlib import Path
 from tkinter import Tk, filedialog
 
-from app_module.modules.registry import ModuleRegistry
-from app_module.services.notification import notify_error, notify_info
-from app_module.services.repository import CsvSectionSerializer, GeometryRepository
-from app_module.ui.code_settings_window import CodeSettingsWindow
-from app_module.ui.debug_viewer import DebugViewerWindow  # noqa: F401
-from app_module.ui.historical_main_window import HistoricalModuleMainWindow  # noqa: F401
-from app_module.ui.historical_material_window import HistoricalMaterialWindow  # noqa: F401
-from app_module.ui.main_window import MainWindow  # noqa: F401
-from app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
-from app_module.ui.notification_center import NotificationCenter
+from modules.registry import ModuleRegistry
+from libs.app_module.services.notification import notify_error, notify_info
+from libs.app_module.services.repository import CsvSectionSerializer, GeometryRepository
+from libs.app_module.ui.code_settings_window import CodeSettingsWindow
+from libs.app_module.ui.debug_viewer import DebugViewerWindow  # noqa: F401
+from libs.app_module.ui.historical_main_window import HistoricalModuleMainWindow  # noqa: F401
+from libs.app_module.ui.historical_material_window import HistoricalMaterialWindow  # noqa: F401
+from libs.app_module.ui.main_window import MainWindow  # noqa: F401
+from libs.app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
+from libs.app_module.ui.notification_center import NotificationCenter
 
 from core_models.materials import MaterialRepository  # noqa: F401
 from historical_materials import HistoricalMaterialLibrary  # noqa: F401

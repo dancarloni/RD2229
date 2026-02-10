@@ -1,11 +1,11 @@
 {
-    "order": ["geometry", "historical", "material", "frc", "verification", "debug"],
+    "order": ["geometry", "historical", "material", "frc", "carbon_fiber_placeholder", "debug"],
     "modules": {
         "geometry": {"enabled": true},
         "historical": {"enabled": true},
         "material": {"enabled": true},
         "frc": {"enabled": true},
-        "verification": {"enabled": true},
+        "carbon_fiber_placeholder": {"enabled": true},
         "debug": {"enabled": true}
     }
 }

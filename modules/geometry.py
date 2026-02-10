@@ -1,7 +1,7 @@
 MODULE_SPEC = {
-    "key": "historical",
-    "name": "Historical Module",
-    "description": "Modulo per gestione materiali storici.",
+    "key": "geometry",
+    "name": "Geometry Module",
+    "description": "Modulo per creazione e calcolo caratteristiche delle sezioni.",
 }
 
 
@@ -15,8 +15,8 @@ class _Placeholder:
 
 def create_module(master=None, section_repo=None, **_):
     try:
-        from apps.sections.ui.historical_main_window import HistoricalModuleMainWindow
+        from libs.app_module.ui.main_window import MainWindow
 
-        return HistoricalModuleMainWindow(master, section_repo)
+        return MainWindow(master, section_repo)
     except Exception:
         return _Placeholder(master)

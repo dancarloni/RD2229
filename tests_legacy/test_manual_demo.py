@@ -5,7 +5,7 @@ from apps.sections.services.repository import CsvSectionSerializer, SectionRepos
 
 try:
     from historical_materials import HistoricalMaterialLibrary
-    from apps.sections.ui.module_selector import ModuleSelectorWindow
+    from libs.app_module.ui.module_selector import ModuleSelectorWindow
     from verification_table import VerificationTableWindow
 except Exception:  # pylint: disable=broad-exception-caught
     ModuleSelectorWindow = None

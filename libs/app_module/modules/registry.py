@@ -21,7 +21,7 @@ class ModuleSpec:
 
 
 class ModuleRegistry:
-    """Discover modules under the `apps.sections.modules` package.
+    """Discover modules under the `modules` package.
 
     Behavior:
     - Scans package modules using pkgutil.iter_modules
@@ -29,7 +29,7 @@ class ModuleRegistry:
     - Reads optional `modules_config.json` next to the package for ordering/enabling
     """
 
-    def __init__(self, package: str = "apps.sections.modules") -> None:
+    def __init__(self, package: str = "modules") -> None:
         self.package = package
         self._specs: dict[str, ModuleSpec] = {}
         self._factories: dict[str, Callable] = {}

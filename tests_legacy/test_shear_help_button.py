@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from apps.sections.ui.main_window import MainWindow
+from libs.app_module.ui.main_window import MainWindow
 
 
 class TestShearHelpButton(unittest.TestCase):
@@ -43,7 +43,7 @@ class TestShearHelpButton(unittest.TestCase):
         self.assertIsNotNone(help_btn, "Help button '?' not found in MainWindow")
 
         # Patch messagebox.showinfo and invoke the button
-        with patch("apps.sections.ui.main_window.notify_info") as mock_info:
+        with patch("libs.app_module.ui.main_window.notify_info") as mock_info:
             help_btn.invoke()
             mock_info.assert_called_once()
             # the first arg is the title used in notify_info

@@ -8,7 +8,7 @@ import tkinter as tk
 from dataclasses import dataclass
 from tkinter import ttk
 
-from .components.flow_wrap import FlowWrapFrame
+from apps.sections.ui.components.flow_wrap import FlowWrapFrame
 
 
 @dataclass

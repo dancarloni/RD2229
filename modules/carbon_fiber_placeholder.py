@@ -19,7 +19,7 @@ class _Placeholder:
 
 def create_module(master=None, section_repo=None, serializer=None):
     try:
-        from apps.sections.ui.main_window import MainWindow
+        from libs.app_module.ui.main_window import MainWindow
 
         # Provide None as repos if not given; MainWindow handles lazy loading
         return MainWindow(master, section_repo, serializer)

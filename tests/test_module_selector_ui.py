@@ -10,8 +10,8 @@ from unittest.mock import patch
 import pytest
 
 from apps.sections.ui.components.flow_wrap import FlowWrapFrame
-from apps.sections.ui.module_selector import ModuleSelectorWindow
-from apps.sections.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
+from ui.module_selector import ModuleSelectorWindow
+from libs.app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
 
 
 class TestFlowWrapFrame:
@@ -244,7 +244,7 @@ class TestModuleSelectorView:
 class TestModuleSelectorWindow:
     """Test per ModuleSelectorWindow con nuova implementazione."""
 
-    @patch("apps.sections.ui.module_selector.NotificationCenter")
+    @patch("ui.module_selector.NotificationCenter")
     @patch("tkinter.Tk")
     def test_initialization_uses_view(self, mock_tk, mock_notification):
         """Test che ModuleSelectorWindow usi ModuleSelectorView."""
@@ -267,7 +267,7 @@ class TestModuleSelectorWindow:
             if "window" in locals():
                 window.destroy()
 
-    @patch("apps.sections.ui.module_selector.NotificationCenter")
+    @patch("ui.module_selector.NotificationCenter")
     @patch("tkinter.Tk")
     def test_specs_creation(self, mock_tk, mock_notification):
         """Test che le specs siano create correttamente."""

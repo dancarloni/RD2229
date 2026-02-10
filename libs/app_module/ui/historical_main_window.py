@@ -4,8 +4,8 @@ import logging
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from app_module.services.historical_calculations import verify_flexure_allowable_stress
-from app_module.services.repository import SectionRepository  # type: ignore[import]
+from libs.app_module.services.historical_calculations import verify_flexure_allowable_stress
+from libs.app_module.services.repository import SectionRepository  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class HistoricalModuleMainWindow(tk.Toplevel):
 
         # Lazy loading: inizializza repository se non fornito
         if repository is None:
-            from app_module.services.repository import SectionRepository
+            from libs.app_module.services.repository import SectionRepository
 
             self.repository = SectionRepository()
         else:

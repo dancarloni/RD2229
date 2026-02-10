@@ -33,10 +33,10 @@ from apps.sections.services.calculations import CanvasTransform, compute_transfo
 from apps.sections.services.event_bus import SECTIONS_DELETED, EventBus
 from apps.sections.services.notification import notify_error, notify_info
 from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository
-from apps.sections.ui.historical_material_window import (
+from libs.app_module.ui.historical_material_window import (
     HistoricalMaterialWindow,  # type: ignore[import]
 )
-from apps.sections.ui.section_manager import SectionManager  # type: ignore[import]
+from libs.app_module.ui.section_manager import SectionManager  # type: ignore[import]
 
 logger: logging.Logger = logging.getLogger(__name__)
 

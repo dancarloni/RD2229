@@ -3,7 +3,7 @@ from pathlib import Path
 
 from apps.sections.models.sections import RectangularSection
 from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository
-from apps.sections.ui.main_window import MainWindow
+from libs.app_module.ui.main_window import MainWindow
 
 
 def test_save_multiple_edit_and_delete(tmp_path: Path):

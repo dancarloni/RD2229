@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 from math import atan2, cos, degrees, radians, sin, sqrt
 
-from section_calculations_module.geometry_model import (
+from apps.sections.geometry_model import (
     CoreData,
     EllipseData,
     SectionGeometry,
@@ -184,7 +184,7 @@ def compute_inertia_ellipse(props: SectionProperties) -> EllipseData:
 
 # Convenience: convert Section (existing code model) to SectionGeometry
 # to reuse this calculations module with existing Section objects.
-from section_calculations_module.models.sections import Section
+from apps.sections.models.sections import Section
 
 
 def section_to_geometry(section: Section) -> SectionGeometry:
@@ -835,8 +835,8 @@ def compute_section_properties_from_section(section: Section, shear_factor: floa
 
     # Compute directional shear areas (A_y, A_z) and store them in props.meta
     try:
-        from section_calculations_module.models.sections import DEFAULT_SHEAR_KAPPAS
-        from section_calculations_module.services.area_calculations import compute_shear_areas
+        from apps.sections.models.sections import DEFAULT_SHEAR_KAPPAS
+        from apps.sections.services.area_calculations import compute_shear_areas
 
         A_y_ref, A_z_ref = compute_shear_areas(section)
         # determine kappa factors (use section-provided ones if valid, otherwise defaults)

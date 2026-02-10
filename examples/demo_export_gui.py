@@ -20,7 +20,7 @@ from pathlib import Path
 from core_models.materials import Material, MaterialRepository
 from apps.sections.models.sections import CircularSection, RectangularSection, TSection
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from apps.sections.ui.module_selector import ModuleSelectorWindow
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
 
 def main():

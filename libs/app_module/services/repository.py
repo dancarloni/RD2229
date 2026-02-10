@@ -9,14 +9,14 @@ import shutil
 from collections.abc import Iterable
 from pathlib import Path
 
-from app_module.services.event_bus import (
+from libs.app_module.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_CLEARED,
     SECTIONS_DELETED,
     SECTIONS_UPDATED,
     EventBus,
 )
-from section_calculations_module.models.sections import (
+from apps.sections.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,

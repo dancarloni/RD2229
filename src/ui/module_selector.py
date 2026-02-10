@@ -12,13 +12,13 @@ from historical_materials import HistoricalMaterialLibrary
 from apps.sections.models.sections import Section
 from apps.sections.services.notification import notify_error, notify_info
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from apps.sections.ui.code_settings_window import CodeSettingsWindow
-from apps.sections.ui.debug_viewer import DebugViewerWindow
-from apps.sections.ui.historical_main_window import HistoricalModuleMainWindow
-from apps.sections.ui.historical_material_window import HistoricalMaterialWindow
-from apps.sections.ui.main_window import MainWindow
-from apps.sections.ui.notification_center import NotificationCenter
-from apps.sections.ui.section_manager import SectionManager
+from libs.app_module.ui.code_settings_window import CodeSettingsWindow
+from libs.app_module.ui.debug_viewer import DebugViewerWindow
+from libs.app_module.ui.historical_main_window import HistoricalModuleMainWindow
+from libs.app_module.ui.historical_material_window import HistoricalMaterialWindow
+from libs.app_module.ui.main_window import MainWindow
+from libs.app_module.ui.notification_center import NotificationCenter
+from libs.app_module.ui.section_manager import SectionManager
 from verification_table import VerificationTableWindow
 
 logger = logging.getLogger(__name__)
@@ -238,12 +238,12 @@ class ModuleSelectorWindow(tk.Tk):
 
     def _open_notification_settings(self) -> None:
         try:
-            win = __import__("apps.sections.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(self)
+            win = __import__("libs.app_module.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(self)
             win._win.protocol("WM_DELETE_WINDOW", lambda w=win: w._on_cancel())
         except Exception:
             # Try to open headless settings window if something fails
             try:
-                win = __import__("apps.sections.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(
+                win = __import__("libs.app_module.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(
                     None
                 )
                 win.set_settings(win.get_settings())
@@ -369,7 +369,7 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_frc_manager(self) -> None:
         logger.debug("Opening FRC Manager module")
         try:
-            from apps.sections.ui.frc_manager import FrcManagerWindow
+            from libs.app_module.ui.frc_manager import FrcManagerWindow
         except Exception:
             logger.exception("FRC Manager module not available")
             return
@@ -379,7 +379,7 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_frc_verification(self) -> None:
         logger.debug("Opening FRC Verification module")
         try:
-            from apps.sections.ui.frc_verification_window import FrcVerificationWindow
+            from libs.app_module.ui.frc_verification_window import FrcVerificationWindow
         except Exception:
             logger.exception("FRC Verification module not available")
             return

@@ -1,7 +1,7 @@
 MODULE_SPEC = {
     "key": "debug",
     "name": "Debug Viewer",
-    "description": "Strumento per visualizzare log e debug.",
+    "description": "Strumento per visualizzare log e debug - completamente funzionante.",
 }
 
 
@@ -15,7 +15,7 @@ class _Placeholder:
 
 def create_module(master=None, **_):
     try:
-        from apps.sections.ui.debug_viewer import DebugViewerWindow
+        from libs.app_module.ui.debug_viewer import DebugViewerWindow
 
         return DebugViewerWindow(master)
     except Exception:

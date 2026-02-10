@@ -1,7 +1,7 @@
 MODULE_SPEC = {
     "key": "frc",
-    "name": "FRC Module",
-    "description": "Modulo per verifiche FRC (placeholder).",
+    "name": "FRC Module (Placeholder)",
+    "description": "Modulo per verifiche FRC - attualmente placeholder, in sviluppo.",
 }
 
 

@@ -12,7 +12,7 @@ from apps.sections.services.event_bus import (
     EventBus,
 )
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from apps.sections.ui.section_manager import SectionManager
+from libs.app_module.ui.section_manager import SectionManager
 
 
 class TestSectionManagerAutoRefresh(unittest.TestCase):

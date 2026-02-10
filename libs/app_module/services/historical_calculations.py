@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from section_calculations_module.models.sections import Section
+from apps.sections.models.sections import Section
 
 logger = logging.getLogger(__name__)
 

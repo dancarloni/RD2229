@@ -13,8 +13,8 @@ import time
 from collections.abc import Callable
 from typing import Any
 
-from app_module.services.debug_log_stream import emit_to_in_memory_buffer
-from app_module.services.event_bus import NOTIFICATION, EventBus
+from libs.app_module.services.debug_log_stream import emit_to_in_memory_buffer
+from libs.app_module.services.event_bus import NOTIFICATION, EventBus
 
 logger = logging.getLogger(__name__)
 

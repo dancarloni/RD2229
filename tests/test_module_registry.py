@@ -1,4 +1,4 @@
-from apps.sections.modules.registry import ModuleRegistry
+from modules.registry import ModuleRegistry
 
 
 def test_registry_discovers_modules():
@@ -27,7 +27,7 @@ def test_ordering_from_config(tmp_path, monkeypatch):
 
     import importlib
 
-    pkg = importlib.import_module("apps.sections.modules")
+    pkg = importlib.import_module("modules")
     # monkeypatch the config path to point to tmp file
     monkeypatch.setattr(pkg, "__file__", str(cfg_file))
 

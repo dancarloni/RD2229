@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from math import degrees, pi, radians, sqrt
 from uuid import uuid4
 
-from section_calculations_module.services.calculations import (
+from apps.sections.services.calculations import (
     compute_principal_inertia,
     rotate_inertia,
 )
@@ -642,7 +642,7 @@ class LSection(Section):
         self.t_vertical = t_vertical
 
     def _compute(self) -> SectionProperties:
-        from section_calculations_module.services.calculations import (
+        from apps.sections.services.calculations import (
             RectangleElement,
             combine_rectangular_elements,
         )
@@ -929,7 +929,7 @@ class ISection(Section):
         return 2 * self.flange_thickness + self.web_height
 
     def _compute(self) -> SectionProperties:
-        from section_calculations_module.services.calculations import (
+        from apps.sections.services.calculations import (
             RectangleElement,
             combine_rectangular_elements,
         )
@@ -1045,7 +1045,7 @@ class PiSection(Section):
         return self.flange_thickness + self.web_height
 
     def _compute(self) -> SectionProperties:
-        from section_calculations_module.services.calculations import (
+        from apps.sections.services.calculations import (
             RectangleElement,
             combine_rectangular_elements,
         )
@@ -1165,7 +1165,7 @@ class InvertedTSection(Section):
         return self.flange_thickness + self.web_height
 
     def _compute(self) -> SectionProperties:
-        from section_calculations_module.services.calculations import (
+        from apps.sections.services.calculations import (
             RectangleElement,
             combine_rectangular_elements,
         )
@@ -1269,7 +1269,7 @@ class CSection(Section):
         self.web_thickness = web_thickness
 
     def _compute(self) -> SectionProperties:
-        from section_calculations_module.services.calculations import (
+        from apps.sections.services.calculations import (
             RectangleElement,
             combine_rectangular_elements,
         )

@@ -15,16 +15,16 @@ from tkinter import Tk, filedialog
 
 from core_models.materials import MaterialRepository  # noqa: F401
 from historical_materials import HistoricalMaterialLibrary  # noqa: F401
-from apps.sections.modules.registry import ModuleRegistry
+from modules.registry import ModuleRegistry
 from apps.sections.services.notification import notify_error, notify_info
 from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository
-from apps.sections.ui.code_settings_window import CodeSettingsWindow
-from apps.sections.ui.debug_viewer import DebugViewerWindow  # noqa: F401
-from apps.sections.ui.historical_main_window import HistoricalModuleMainWindow  # noqa: F401
-from apps.sections.ui.historical_material_window import HistoricalMaterialWindow  # noqa: F401
-from apps.sections.ui.main_window import MainWindow  # noqa: F401
-from apps.sections.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
-from apps.sections.ui.notification_center import NotificationCenter
+from libs.app_module.ui.code_settings_window import CodeSettingsWindow
+from libs.app_module.ui.debug_viewer import DebugViewerWindow  # noqa: F401
+from libs.app_module.ui.historical_main_window import HistoricalModuleMainWindow  # noqa: F401
+from libs.app_module.ui.historical_material_window import HistoricalMaterialWindow  # noqa: F401
+from libs.app_module.ui.main_window import MainWindow  # noqa: F401
+from libs.app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
+from libs.app_module.ui.notification_center import NotificationCenter
 
 logger = logging.getLogger(__name__)
 

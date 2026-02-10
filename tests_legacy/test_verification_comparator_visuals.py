@@ -1,4 +1,4 @@
-from apps.sections.ui.verification_comparator import VerificationComparatorWindow
+from libs.app_module.ui.verification_comparator import VerificationComparatorWindow
 
 
 def polygon_area(poly):

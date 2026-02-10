@@ -25,10 +25,10 @@ from apps.sections.models.sections import (
 from apps.sections.services.calculations import compute_transform
 from apps.sections.services.notification import notify_error, notify_info
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from apps.sections.ui.historical_material_window import (
+from libs.app_module.ui.historical_material_window import (
     HistoricalMaterialWindow,  # type: ignore[import]
 )
-from apps.sections.ui.section_manager import SectionManager  # type: ignore[import]
+from libs.app_module.ui.section_manager import SectionManager  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

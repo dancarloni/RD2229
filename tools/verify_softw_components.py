@@ -44,7 +44,7 @@ def parse_imports(file_path: Path) -> list[ast.AST]:
 
 
 def resolve_relative(from_mod: str, level: int, module: str | None) -> str | None:
-    # from_mod: e.g. 'app_module.ui.module_selector'
+    # from_mod: e.g. 'libs.app_module.ui.module_selector'
     if level == 0:
         return module
     parts = from_mod.split(".") if from_mod else []

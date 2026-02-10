@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from apps.sections.ui.section_manager import SectionManager
+from libs.app_module.ui.section_manager import SectionManager
 
 
 class TestSectionManagerNewStaysOpen(unittest.TestCase):

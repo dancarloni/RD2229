@@ -8,7 +8,7 @@ os.environ["DISPLAY"] = ":0"  # Set display for headless environments
 from core_models.materials import MaterialRepository
 from apps.sections.models.sections import RectangularSection
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from apps.sections.ui.module_selector import ModuleSelectorWindow
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
 
 class TestModuleSelectorSectionButton(unittest.TestCase):
@@ -86,7 +86,7 @@ class TestModuleSelectorSectionButton(unittest.TestCase):
 
         with (
             patch("tkinter.Tk.mainloop"),
-            patch("apps.sections.ui.module_selector.MainWindow") as MockMain,
+            patch("libs.app_module.ui.module_selector.MainWindow") as MockMain,
         ):
             window = ModuleSelectorWindow(self.repo, self.serializer, self.material_repo)
             try:

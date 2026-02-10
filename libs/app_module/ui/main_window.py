@@ -6,14 +6,14 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
-from app_module.services.event_bus import SECTIONS_DELETED, EventBus
-from app_module.services.notification import notify_error, notify_info
-from app_module.services.repository import CsvSectionSerializer, GeometryRepository
-from app_module.ui.historical_material_window import (
+from libs.app_module.services.event_bus import SECTIONS_DELETED, EventBus
+from libs.app_module.services.notification import notify_error, notify_info
+from libs.app_module.services.repository import CsvSectionSerializer, GeometryRepository
+from libs.app_module.ui.historical_material_window import (
     HistoricalMaterialWindow,  # type: ignore[import]
 )
-from app_module.ui.section_manager import SectionManager  # type: ignore[import]
-from section_calculations_module.models.sections import (
+from libs.app_module.ui.section_manager import SectionManager  # type: ignore[import]
+from apps.sections.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,
@@ -31,12 +31,12 @@ from section_calculations_module.models.sections import (
 )
 
 # New separated modules
-from section_calculations_module.section_calculations import (
+from apps.sections.section_calculations import (
     compute_section_properties_from_section,
     section_to_geometry,
 )
-from section_calculations_module.services.calculations import CanvasTransform, compute_transform
-from section_graphics_module.section_graphics import SectionGraphicsController
+from apps.sections.services.calculations import CanvasTransform, compute_transform
+from apps.sections.section_graphics import SectionGraphicsController
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -253,11 +253,11 @@ class MainWindow(tk.Toplevel):
         super().__init__(master=master)  # ✅ Passa master a Toplevel
         print("MainWindow super init done")
         self.title("Gestione Proprietà Sezioni")
-        self.carbon_fiber_placeholder("980x620")
+        self.geometry("980x620")
 
         # Lazy loading: inizializza repository se non forniti
         if repository is None:
-            from app_module.services.repository import CsvSectionSerializer, GeometryRepository
+            from libs.app_module.services.repository import CsvSectionSerializer, GeometryRepository
 
             self.repository = GeometryRepository()
             self.serializer = CsvSectionSerializer()

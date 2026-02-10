@@ -13,7 +13,7 @@ from unittest.mock import patch
 from core_models.materials import Material, MaterialRepository
 from apps.sections.models.sections import RectangularSection
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from apps.sections.ui.module_selector import ModuleSelectorWindow
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
 
 class TestExportBackupGUI(unittest.TestCase):
@@ -58,8 +58,8 @@ class TestExportBackupGUI(unittest.TestCase):
         # Chiudi la finestra
         window.destroy()
 
-    @patch("apps.sections.ui.module_selector.filedialog.asksaveasfilename")
-    @patch("apps.sections.ui.module_selector.notify_info")
+    @patch("libs.app_module.ui.module_selector.filedialog.asksaveasfilename")
+    @patch("libs.app_module.ui.module_selector.notify_info")
     def test_export_sections_json(self, mock_showinfo, mock_asksaveasfilename):
         """Test: Export sezioni in JSON dalla GUI."""
         export_path = self.temp_path / "export_test.json"

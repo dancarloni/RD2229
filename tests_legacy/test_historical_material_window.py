@@ -9,7 +9,7 @@ from historical_materials import (
     HistoricalMaterialLibrary,
     HistoricalMaterialType,
 )
-from apps.sections.ui.historical_material_window import HistoricalMaterialWindow
+from libs.app_module.ui.historical_material_window import HistoricalMaterialWindow
 
 
 class TestHistoricalMaterialWindow(unittest.TestCase):
