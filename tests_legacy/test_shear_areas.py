@@ -1,6 +1,6 @@
 import unittest
 
-from sections_app.models.sections import RectangularSection, TSection
+from apps.sections.models.sections import RectangularSection, TSection
 
 
 class TestShearAreas(unittest.TestCase):

@@ -7,7 +7,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from core_models.materials import MaterialRepository
-from sections_app.models.sections import (
+from apps.sections.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,
@@ -22,13 +22,13 @@ from sections_app.models.sections import (
     TSection,
     VSection,
 )
-from sections_app.services.calculations import compute_transform
-from sections_app.services.notification import notify_error, notify_info
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.historical_material_window import (
+from apps.sections.services.calculations import compute_transform
+from apps.sections.services.notification import notify_error, notify_info
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+from apps.sections.ui.historical_material_window import (
     HistoricalMaterialWindow,  # type: ignore[import]
 )
-from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
+from apps.sections.ui.section_manager import SectionManager  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
@@ -244,7 +244,7 @@ class MainWindow(tk.Toplevel):
     ):
         super().__init__(master=master)  # ✅ Passa master a Toplevel
         self.title("Gestione Proprietà Sezioni")
-        self.geometry("980x620")
+        self.carbon_fiber_placeholder("980x620")
         self.repository = repository
         self.section_repository: SectionRepository = repository
         self.serializer = serializer

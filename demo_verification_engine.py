@@ -28,7 +28,7 @@ print("=" * 80)
 # Create verification engine for TA
 engine_ta = create_verification_engine("TA")
 
-# Define section geometry (rectangular beam)
+# Define section carbon_fiber_placeholder (rectangular beam)
 section = SectionGeometry(width=30.0, height=50.0)  # 30x50 cm
 print(f"\nSection: {section.width} × {section.height} cm")
 print(f"Area: {section.area():.2f} cm²")

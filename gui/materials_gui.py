@@ -16,7 +16,7 @@ from tkinter import messagebox, simpledialog, ttk
 from tools import materials_manager
 
 try:
-    from sections_app.services.event_bus import (
+    from apps.sections.services.event_bus import (
         MATERIALS_ADDED,
         MATERIALS_CLEARED,
         MATERIALS_DELETED,
@@ -636,7 +636,7 @@ def run_app():
     root = tk.Tk()
     root.title("Materials Manager")
     _ = MaterialsApp(master=root)
-    root.geometry("640x480")
+    root.carbon_fiber_placeholder("640x480")
     root.mainloop()
     logger.info("Chiusura applicazione GUI Materials Manager")
 

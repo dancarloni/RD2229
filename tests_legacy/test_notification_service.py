@@ -1,6 +1,6 @@
-from sections_app.services.debug_log_stream import get_log_buffer
-from sections_app.services.event_bus import NOTIFICATION, EventBus
-from sections_app.services.notification import ask_confirm, notify_info
+from apps.sections.services.debug_log_stream import get_log_buffer
+from apps.sections.services.event_bus import NOTIFICATION, EventBus
+from apps.sections.services.notification import ask_confirm, notify_info
 
 
 def test_notify_info_emits_event_and_logs():

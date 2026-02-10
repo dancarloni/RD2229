@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from sections_app.ui.module_selector import ModuleSelectorController
+from apps.sections.ui.module_selector import ModuleSelectorController
 
 
 def test_controller_selects_module_calls_factory(monkeypatch):

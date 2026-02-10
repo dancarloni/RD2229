@@ -7,28 +7,28 @@ Reorganize SECTIONS_APP into per-module folders based on dependency analysis.
 Usage examples
 --------------
   Dry-run (prints plan without writing any files):
-    python reorganize_sections_app.py --root sections_app --out SECTIONS_APP_REFACTORED --dry-run
+    python reorganize_sections_app.py --root apps.sections --out SECTIONS_APP_REFACTORED --dry-run
 
   Real run:
-    python reorganize_sections_app.py --root sections_app --out SECTIONS_APP_REFACTORED
+    python reorganize_sections_app.py --root apps.sections --out SECTIONS_APP_REFACTORED
 
   Process only specific modules:
-    python reorganize_sections_app.py --root sections_app --out SECTIONS_APP_REFACTORED --modules geometry historical
+    python reorganize_sections_app.py --root apps.sections --out SECTIONS_APP_REFACTORED --modules carbon_fiber_placeholder historical
 
 Configuration
 -------------
   Edit ROOT_MODULES below to control which modules are extracted.
-  Each entry is the basename (without .py) of a file in sections_app/modules/.
+  Each entry is the basename (without .py) of a file in apps.sections/modules/.
 
 How it works
 ------------
-  1. Scans all .py files in sections_app and builds a dependency graph using AST
+  1. Scans all .py files in apps.sections and builds a dependency graph using AST
      import analysis.  Module names are computed WITH the package prefix
-     (e.g. "sections_app.ui.main_window") so that absolute imports resolve correctly.
+     (e.g. "apps.sections.ui.main_window") so that absolute imports resolve correctly.
   2. For each root module, collects the transitive dependency set via BFS.
   3. Copies the file set into an output folder preserving the internal directory
-     structure (e.g. SECTIONS_APP_REFACTORED/geometry/ui/main_window.py).
-  4. Rewrites absolute imports: replaces "sections_app." with "<module_name>."
+     structure (e.g. SECTIONS_APP_REFACTORED/carbon_fiber_placeholder/ui/main_window.py).
+  4. Rewrites absolute imports: replaces "apps.sections." with "<module_name>."
      in all copied Python files.  Relative imports are left unchanged because
      the internal structure is preserved.
   5. Filters __init__.py files so they only reference sub-modules/packages that
@@ -54,18 +54,18 @@ from pathlib import Path
 # CONFIGURATION — edit these to match your project
 # ---------------------------------------------------------------------------
 
-# Root modules to extract (basenames of .py files in sections_app/modules/).
+# Root modules to extract (basenames of .py files in apps.sections/modules/).
 ROOT_MODULES: list[str] = [
     "frc",
     "historical",
-    "geometry",
+    "carbon_fiber_placeholder",
     "verification",
     "material",
     "debug",
 ]
 
 # The package name as it appears in import statements.
-PACKAGE_NAME = "sections_app"
+PACKAGE_NAME = "apps.sections"
 
 # File extensions treated as copyable resources.
 RESOURCE_EXTS: set[str] = {".json", ".csv", ".txt", ".yaml", ".yml", ".ini"}
@@ -107,10 +107,10 @@ def find_python_files(root: Path) -> list[Path]:
 def module_name_from_path(root: Path, p: Path, package_name: str) -> str:
     """Compute the dotted module name INCLUDING the package prefix.
 
-    Examples (assuming package_name="sections_app"):
-      root/ui/main_window.py  -> "sections_app.ui.main_window"
-      root/domain/__init__.py -> "sections_app.domain"
-      root/__init__.py        -> "sections_app"
+    Examples (assuming package_name="apps.sections"):
+      root/ui/main_window.py  -> "apps.sections.ui.main_window"
+      root/domain/__init__.py -> "apps.sections.domain"
+      root/__init__.py        -> "apps.sections"
     """
     rel = p.relative_to(root)
     parts = list(rel.with_suffix("").parts)
@@ -170,19 +170,19 @@ def _resolve_relative_import(imp: str, src_modname: str, is_package: bool = Fals
     """Convert a relative import string (with leading dots) to an absolute one.
 
     For regular modules (e.g. ``services/area_calculations.py`` whose modname is
-    ``sections_app.services.area_calculations``), level=1 means "this package"
-    which strips the last segment to get ``sections_app.services``.
+    ``apps.sections.services.area_calculations``), level=1 means "this package"
+    which strips the last segment to get ``apps.sections.services``.
 
     For ``__init__.py`` files (e.g. ``domain/__init__.py`` whose modname is
-    ``sections_app.domain``), the module IS the package, so level=1 stays in the
+    ``apps.sections.domain``), the module IS the package, so level=1 stays in the
     same package (no stripping).  Set *is_package=True* for this case.
 
     Examples:
-      imp="..domain.base", src_modname="sections_app.services.area_calculations"
-      -> "sections_app.domain.base"
+      imp="..domain.base", src_modname="apps.sections.services.area_calculations"
+      -> "apps.sections.domain.base"
 
-      imp=".base", src_modname="sections_app.domain", is_package=True
-      -> "sections_app.domain.base"
+      imp=".base", src_modname="apps.sections.domain", is_package=True
+      -> "apps.sections.domain.base"
     """
     level = len(imp) - len(imp.lstrip("."))
     rest = imp[level:]
@@ -201,7 +201,7 @@ def build_dependency_graph(root: Path, package_name: str) -> DepGraph:
     """Scan all .py files under *root* and build a dependency graph.
 
     Module names are computed WITH the package prefix so that absolute imports
-    like ``from sections_app.ui.main_window import MainWindow`` resolve via
+    like ``from apps.sections.ui.main_window import MainWindow`` resolve via
     exact match.
     """
     dg = DepGraph()
@@ -237,8 +237,8 @@ def build_dependency_graph(root: Path, package_name: str) -> DepGraph:
             return dg.modname_to_path[imp]
 
         # The last segment might be a class/function name, not a module.
-        # Strip it and retry.  E.g. "sections_app.models.sections.Section"
-        # -> try "sections_app.models.sections"
+        # Strip it and retry.  E.g. "apps.sections.models.sections.Section"
+        # -> try "apps.sections.models.sections"
         dot = imp.rfind(".")
         if dot > 0:
             parent = imp[:dot]
@@ -476,9 +476,9 @@ def rewrite_imports_in_file(
         old_block = "\n".join(lines[start : end + 1])
         # Replace the package name in the block.
         # Use word-boundary-aware replacement to avoid partial matches.
-        # "sections_app." -> "geometry." and bare "sections_app" at word boundary
+        # "apps.sections." -> "carbon_fiber_placeholder." and bare "apps.sections" at word boundary
         new_block = old_block.replace(old_package + ".", new_package + ".")
-        # Also handle bare package reference (e.g., "import sections_app")
+        # Also handle bare package reference (e.g., "import apps.sections")
         new_block = re.sub(
             rf"\b{re.escape(old_package)}\b",
             new_package,
@@ -735,11 +735,11 @@ def run_reorganization(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Reorganize sections_app into per-module folders.")
+    parser = argparse.ArgumentParser(description="Reorganize apps.sections into per-module folders.")
     parser.add_argument(
         "--root",
         required=True,
-        help="Path to sections_app root directory",
+        help="Path to apps.sections root directory",
     )
     parser.add_argument(
         "--out",

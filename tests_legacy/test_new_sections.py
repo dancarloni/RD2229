@@ -3,14 +3,14 @@
 import unittest
 from math import pi, radians
 
-from sections_app.models.sections import (
+from apps.sections.models.sections import (
     CircularHollowSection,
     ISection,
     LSection,
     RectangularHollowSection,
     RectangularSection,
 )
-from sections_app.services.calculations import rotate_inertia
+from apps.sections.services.calculations import rotate_inertia
 
 
 class TestNewSectionTypes(unittest.TestCase):

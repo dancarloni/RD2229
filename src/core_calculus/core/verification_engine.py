@@ -175,7 +175,7 @@ class VerificationEngine:
         """Perform complete structural verification.
 
         Args:
-            section: Section geometry
+            section: Section carbon_fiber_placeholder
             reinforcement_tensile: Tensile reinforcement
             reinforcement_compressed: Compressed reinforcement
             material: Material properties

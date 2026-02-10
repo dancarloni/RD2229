@@ -1,5 +1,5 @@
-from sections_app.geometry_model import SectionGeometry
-from sections_app.section_calculations import compute_section_properties_from_geometry
+from apps.sections.geometry_model import SectionGeometry
+from apps.sections.section_calculations import compute_section_properties_from_geometry
 
 
 def test_rectangle_properties_area_centroid_and_principal_axes():
@@ -24,9 +24,9 @@ def test_rectangle_properties_area_centroid_and_principal_axes():
 
 
 def test_section_conversion_and_properties_from_section_model():
-    # Ensure adapter from sections_app.models.Section works
-    from sections_app.models.sections import RectangularSection
-    from sections_app.section_calculations import compute_section_properties_from_section
+    # Ensure adapter from apps.sections.models.Section works
+    from apps.sections.models.sections import RectangularSection
+    from apps.sections.section_calculations import compute_section_properties_from_section
 
     sec = RectangularSection(name="test", width=10.0, height=20.0)
     props = compute_section_properties_from_section(sec)

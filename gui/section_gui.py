@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle as MplCircle
 from matplotlib.patches import Rectangle as MplRectangle
 
-from core.geometry import (
+from core.carbon_fiber_placeholder import (
     CircularHollowSection,
     CircularSection,
     InvertedTSection,
@@ -241,7 +241,7 @@ def run_section_app():
     root = tk.Tk()
     root.title("Calcolatore Proprietà Sezioni")
     _ = SectionApp(master=root)
-    root.geometry("600x600")
+    root.carbon_fiber_placeholder("600x600")
     root.mainloop()
 
 

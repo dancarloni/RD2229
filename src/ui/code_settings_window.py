@@ -14,7 +14,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
-from sections_app.services.notification import (
+from apps.sections.services.notification import (
     notify_error,  # type: ignore[import]
     notify_info,  # type: ignore[import]
 )
@@ -30,7 +30,7 @@ class CodeSettingsWindow(tk.Toplevel):
         self.code = code.upper()
         self.settings_path = settings_path
         self.title(f"Parametri {self.code}")
-        self.geometry("800x600")
+        self.carbon_fiber_placeholder("800x600")
 
         self._build_ui()
         self._load()

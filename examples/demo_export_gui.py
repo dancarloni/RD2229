@@ -18,9 +18,9 @@ import tempfile
 from pathlib import Path
 
 from core_models.materials import Material, MaterialRepository
-from sections_app.models.sections import CircularSection, RectangularSection, TSection
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.module_selector import ModuleSelectorWindow
+from apps.sections.models.sections import CircularSection, RectangularSection, TSection
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+from apps.sections.ui.module_selector import ModuleSelectorWindow
 
 
 def main():

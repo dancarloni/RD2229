@@ -14,7 +14,7 @@ import matplotlib.patches as mpatches
 from _csv import Writer
 from matplotlib.figure import Figure
 
-from sections_app.services.notification import notify_error, notify_info, notify_warning
+from apps.sections.services.notification import notify_error, notify_info, notify_warning
 from src.core_calculus.core.verification_bas_adapter import bas_torsion_verification
 from src.core_calculus.core.verification_core import (
     LoadCase,
@@ -71,7 +71,7 @@ def _write_txt_comp(comp: dict[str, Any], path: str) -> None:
             fh.write(str(v) + "\n")
 
 
-# --- Helper geometry utilities ---------------------------------
+# --- Helper carbon_fiber_placeholder utilities ---------------------------------
 
 
 def _append_if_in_bounds(candidates: list[tuple[float, float]], x: float, y: float, b: float, h: float) -> None:
@@ -175,7 +175,7 @@ class VerificationComparatorWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc, verification_table_app: VerificationTableApp) -> None:
         super().__init__(master)
         self.title("Confronto metodi: .bas vs TA vs SLU")
-        self.geometry("900x600")
+        self.carbon_fiber_placeholder("900x600")
         self.verification_table_app: VerificationTableApp = verification_table_app
 
         top = tk.Frame(self)

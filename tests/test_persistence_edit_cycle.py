@@ -1,9 +1,9 @@
 import tkinter as tk
 from pathlib import Path
 
-from sections_app.models.sections import RectangularSection
-from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
-from sections_app.ui.main_window import MainWindow
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository
+from apps.sections.ui.main_window import MainWindow
 
 
 def test_save_multiple_edit_and_delete(tmp_path: Path):

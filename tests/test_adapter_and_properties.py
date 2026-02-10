@@ -8,7 +8,7 @@ ROOT = str(pathlib.Path(__file__).resolve().parents[1])
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from sections_app.models.sections import (
+from apps.sections.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,
@@ -21,7 +21,7 @@ from sections_app.models.sections import (
     TSection,
     VSection,
 )
-from sections_app.section_calculations import (
+from apps.sections.section_calculations import (
     compute_section_properties_from_section,
     section_to_geometry,
 )
@@ -82,7 +82,7 @@ def test_section_properties_match_legacy(section, kwargs):
     sec = section(**kwargs)
     old_props = sec.compute_properties()
 
-    # Compute new geometry-based properties
+    # Compute new carbon_fiber_placeholder-based properties
     # pass shear factor None to use defaults internally
     new_props = compute_section_properties_from_section(sec)
     geom = section_to_geometry(sec)

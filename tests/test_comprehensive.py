@@ -10,7 +10,7 @@ import pytest
 # Aggiungi il percorso del progetto
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sections_app.domain import (
+from apps.sections.domain import (
     CircularHollowSection,
     CircularSection,
     ISection,
@@ -19,7 +19,7 @@ from sections_app.domain import (
     RectangularSection,
     TSection,
 )
-from sections_app.io import export_sections_to_csv, import_sections_from_csv
+from apps.sections.io import export_sections_to_csv, import_sections_from_csv
 
 
 @pytest.fixture

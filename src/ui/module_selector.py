@@ -9,16 +9,16 @@ from tkinter import filedialog
 
 from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import HistoricalMaterialLibrary
-from sections_app.models.sections import Section
-from sections_app.services.notification import notify_error, notify_info
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.code_settings_window import CodeSettingsWindow
-from sections_app.ui.debug_viewer import DebugViewerWindow
-from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow
-from sections_app.ui.main_window import MainWindow
-from sections_app.ui.notification_center import NotificationCenter
-from sections_app.ui.section_manager import SectionManager
+from apps.sections.models.sections import Section
+from apps.sections.services.notification import notify_error, notify_info
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+from apps.sections.ui.code_settings_window import CodeSettingsWindow
+from apps.sections.ui.debug_viewer import DebugViewerWindow
+from apps.sections.ui.historical_main_window import HistoricalModuleMainWindow
+from apps.sections.ui.historical_material_window import HistoricalMaterialWindow
+from apps.sections.ui.main_window import MainWindow
+from apps.sections.ui.notification_center import NotificationCenter
+from apps.sections.ui.section_manager import SectionManager
 from verification_table import VerificationTableWindow
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ class ModuleSelectorWindow(tk.Tk):
         os.environ.setdefault("LC_ALL", "en_US")
         super().__init__()
         self.title("Module Selector - RD2229 Tools")
-        self.geometry("1200x340")
+        self.carbon_fiber_placeholder("1200x340")
         # Instantiate NotificationCenter for the application (non-blocking notifications)
         try:
             self.notification_center = NotificationCenter(self)
@@ -89,7 +89,7 @@ class ModuleSelectorWindow(tk.Tk):
         modules_frame.pack(fill="both", expand=True)
 
         # Geometry Module (first, different padding)
-        geom_desc = "Compute and manage section geometry\n(areas, centroids, inertia, drawings, CSV archive)"
+        geom_desc = "Compute and manage section carbon_fiber_placeholder\n(areas, centroids, inertia, drawings, CSV archive)"
         geom_frame = tk.LabelFrame(modules_frame, text="Geometry module")
         geom_frame.pack(side="left", fill="both", expand=True, padx=(0, 6))
         tk.Label(geom_frame, text=geom_desc, justify="left", wraplength=220).pack(padx=8, pady=8)
@@ -238,12 +238,12 @@ class ModuleSelectorWindow(tk.Tk):
 
     def _open_notification_settings(self) -> None:
         try:
-            win = __import__("sections_app.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(self)
+            win = __import__("apps.sections.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(self)
             win._win.protocol("WM_DELETE_WINDOW", lambda w=win: w._on_cancel())
         except Exception:
             # Try to open headless settings window if something fails
             try:
-                win = __import__("sections_app.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(
+                win = __import__("apps.sections.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(
                     None
                 )
                 win.set_settings(win.get_settings())
@@ -369,7 +369,7 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_frc_manager(self) -> None:
         logger.debug("Opening FRC Manager module")
         try:
-            from sections_app.ui.frc_manager import FrcManagerWindow
+            from apps.sections.ui.frc_manager import FrcManagerWindow
         except Exception:
             logger.exception("FRC Manager module not available")
             return
@@ -379,7 +379,7 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_frc_verification(self) -> None:
         logger.debug("Opening FRC Verification module")
         try:
-            from sections_app.ui.frc_verification_window import FrcVerificationWindow
+            from apps.sections.ui.frc_verification_window import FrcVerificationWindow
         except Exception:
             logger.exception("FRC Verification module not available")
             return
@@ -399,7 +399,7 @@ class ModuleSelectorWindow(tk.Tk):
         # Chiedi all'utente cosa esportare
         dialog = tk.Toplevel(self)
         dialog.title("Esporta backup")
-        dialog.geometry("400x200")
+        dialog.carbon_fiber_placeholder("400x200")
         dialog.transient(self)
         dialog.grab_set()
 

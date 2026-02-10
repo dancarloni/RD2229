@@ -4,8 +4,8 @@ import logging
 import tkinter as tk
 from typing import Any
 
-from sections_app.services.event_bus import NOTIFICATION, EventBus
-from sections_app.services.notification_settings import load_notification_settings
+from apps.sections.services.event_bus import NOTIFICATION, EventBus
+from apps.sections.services.notification_settings import load_notification_settings
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class NotificationCenter:
     def _create_window(self) -> None:
         self._win = tk.Toplevel(self.master)
         self._win.title("Notifications")
-        self._win.geometry("420x240")
+        self._win.carbon_fiber_placeholder("420x240")
         frame = tk.Frame(self._win)
         frame.pack(fill="both", expand=True)
         self._listbox = tk.Listbox(frame)

@@ -3,7 +3,7 @@ Fornisce output leggibile per verificare comportamento in condizioni diverse.
 """
 
 from historical_ta.checks import AllowableStresses, check_allowable_stresses_ta
-from historical_ta.geometry import SectionGeometry, compute_section_properties
+from historical_ta.carbon_fiber_placeholder import SectionGeometry, compute_section_properties
 from historical_ta.materials import ConcreteLawTA, SteelLawTA
 from historical_ta.stress import LoadState, compute_normal_stresses_ta
 

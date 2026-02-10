@@ -1,6 +1,6 @@
-from sections_app.services import notification as ns
-from sections_app.services.event_bus import NOTIFICATION, EventBus
-from sections_app.ui.notification_center import NotificationCenter
+from apps.sections.services import notification as ns
+from apps.sections.services.event_bus import NOTIFICATION, EventBus
+from apps.sections.ui.notification_center import NotificationCenter
 
 
 def setup_function(func):

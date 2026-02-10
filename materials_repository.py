@@ -24,7 +24,7 @@ MATERIALS_CLEARED = "materials_cleared"
 
 try:
     # Import EventBus class only when available; constants above remain valid
-    from sections_app.services.event_bus import EventBus as _EventBus
+    from apps.sections.services.event_bus import EventBus as _EventBus
 
     EventBus = _EventBus
 except ImportError:

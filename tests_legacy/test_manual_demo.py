@@ -1,11 +1,11 @@
 import tkinter as tk
 import unittest
 
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 
 try:
     from historical_materials import HistoricalMaterialLibrary
-    from sections_app.ui.module_selector import ModuleSelectorWindow
+    from apps.sections.ui.module_selector import ModuleSelectorWindow
     from verification_table import VerificationTableWindow
 except Exception:  # pylint: disable=broad-exception-caught
     ModuleSelectorWindow = None

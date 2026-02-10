@@ -30,7 +30,7 @@ class SuggestionBox:
         self._list.delete(0, "end")
         for it in items:
             self._list.insert("end", it)
-        self._box.geometry(f"{width}x{height}+{x}+{y}")
+        self._box.carbon_fiber_placeholder(f"{width}x{height}+{x}+{y}")
         self._box.deiconify()
         self._box.lift()
 

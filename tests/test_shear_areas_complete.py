@@ -12,8 +12,8 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from sections_app.models.sections import DEFAULT_SHEAR_KAPPAS, RectangularSection
-from sections_app.services.area_calculations import (
+from apps.sections.models.sections import DEFAULT_SHEAR_KAPPAS, RectangularSection
+from apps.sections.services.area_calculations import (
     _area_inverted_t_section,
     _area_inverted_v_section,
     _area_l_section,
@@ -22,7 +22,7 @@ from sections_app.services.area_calculations import (
     _area_v_section,
     compute_shear_areas,
 )
-from sections_app.shear_factors import get_default_shear_factor
+from apps.sections.shear_factors import get_default_shear_factor
 
 
 # Mock section for testing compute_shear_areas

@@ -8,7 +8,7 @@ import sys
 import tkinter as tk
 from pathlib import Path
 
-# Ensure project root is on sys.path so local packages (sections_app, core_models, etc.) can be imported
+# Ensure project root is on sys.path so local packages (apps.sections, core_models, etc.) can be imported
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -26,8 +26,8 @@ def main():
         return
 
     # Local imports that rely on project root being added to sys.path
-    from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-    from sections_app.ui.module_selector import ModuleSelectorWindow
+    from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+    from apps.sections.ui.module_selector import ModuleSelectorWindow
     from verification_table import VerificationTableWindow
 
     repo = SectionRepository()

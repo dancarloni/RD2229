@@ -5,8 +5,8 @@ import json
 import os
 import tempfile
 
-from sections_app.models.sections import CircularSection, RectangularSection, TSection
-from sections_app.services.repository import SectionRepository
+from apps.sections.models.sections import CircularSection, RectangularSection, TSection
+from apps.sections.services.repository import SectionRepository
 
 
 def test_persistence_create_and_load():

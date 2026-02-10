@@ -14,7 +14,7 @@ import math
 import random
 import unittest
 
-from sections_app.models.sections import CircularSection, RectangularSection, TSection
+from apps.sections.models.sections import CircularSection, RectangularSection, TSection
 
 
 class TestRectangularSectionProperties(unittest.TestCase):

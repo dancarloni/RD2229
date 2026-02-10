@@ -9,8 +9,8 @@ import tkinter as tk
 from tkinter import messagebox
 
 from core_models.materials import Material, MaterialRepository
-from sections_app.models.sections import CircularSection, RectangularSection
-from sections_app.services.repository import SectionRepository
+from apps.sections.models.sections import CircularSection, RectangularSection
+from apps.sections.services.repository import SectionRepository
 from verification_table import VerificationTableWindow
 
 
@@ -21,7 +21,7 @@ class DemoControlPanel(tk.Tk):
         super().__init__()
 
         self.title("Demo: Auto-Aggiornamento VerificationTable")
-        self.geometry("600x500")
+        self.carbon_fiber_placeholder("600x500")
 
         # Create temp repositories
         self.temp_dir = tempfile.mkdtemp()

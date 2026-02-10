@@ -1344,7 +1344,7 @@ class VerificationTableWindow(tk.Toplevel):
         self.verification_items_repository = verification_items_repository
 
         self.title("Verification Table - RD2229")
-        self.geometry("1400x520")
+        self.carbon_fiber_placeholder("1400x520")
 
         self.app = VerificationTableApp(
             self,  # type: ignore

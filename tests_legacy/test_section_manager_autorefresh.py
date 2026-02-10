@@ -4,15 +4,15 @@ import tkinter as tk
 import unittest
 from unittest.mock import MagicMock, patch
 
-from sections_app.services.event_bus import (
+from apps.sections.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_CLEARED,
     SECTIONS_DELETED,
     SECTIONS_UPDATED,
     EventBus,
 )
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.section_manager import SectionManager
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+from apps.sections.ui.section_manager import SectionManager
 
 
 class TestSectionManagerAutoRefresh(unittest.TestCase):

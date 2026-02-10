@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # Importa EventBus con try/except per evitare circular imports
 try:
-    from sections_app.services.event_bus import (
+    from apps.sections.services.event_bus import (
         MATERIALS_ADDED,
         MATERIALS_CLEARED,
         MATERIALS_DELETED,

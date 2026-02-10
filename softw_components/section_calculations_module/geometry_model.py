@@ -1,4 +1,4 @@
-"""Data models for section geometry and computed properties.
+"""Data models for section carbon_fiber_placeholder and computed properties.
 
 This module contains pure data classes and small helpers. No GUI dependencies.
 """

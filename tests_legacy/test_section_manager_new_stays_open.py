@@ -4,8 +4,8 @@ import tkinter as tk
 import unittest
 from unittest.mock import MagicMock, patch
 
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.section_manager import SectionManager
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+from apps.sections.ui.section_manager import SectionManager
 
 
 class TestSectionManagerNewStaysOpen(unittest.TestCase):
@@ -111,7 +111,7 @@ class TestSectionManagerNewStaysOpen(unittest.TestCase):
                 callback(False)
             return lambda ans: None
 
-        with patch("sections_app.services.notification.ask_confirm", side_effect=_fake_ask_confirm):
+        with patch("apps.sections.services.notification.ask_confirm", side_effect=_fake_ask_confirm):
             # Chiama _new_section
             manager._new_section()
 

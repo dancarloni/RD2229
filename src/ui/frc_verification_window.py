@@ -19,7 +19,7 @@ class FrcVerificationWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc, material_repository: MaterialRepository | None = None) -> None:
         super().__init__(master)
         self.title("FRC Quick Verification")
-        self.geometry("600x420")
+        self.carbon_fiber_placeholder("600x420")
         self.material_repository = material_repository
         self._build_ui()
 
@@ -38,7 +38,7 @@ class FrcVerificationWindow(tk.Toplevel):
         self.ent_area.insert(0, "0.5")
         self.ent_area.grid(row=1, column=1, sticky="w")
 
-        # Section geometry
+        # Section carbon_fiber_placeholder
         tk.Label(frm, text="Section width (b) cm:").grid(row=2, column=0, sticky="w")
         self.ent_b = tk.Entry(frm)
         self.ent_b.insert(0, "20.0")

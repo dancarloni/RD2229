@@ -58,7 +58,7 @@ def compute_long_rebar_limits_ta(
     Nx: float,
     fyd: float,
     fctm: float,
-    geometry,
+    carbon_fiber_placeholder,
     is_column: bool,
     is_beam: bool,
     zona_sismica: bool,

@@ -5,8 +5,8 @@ import os
 import tempfile
 
 from core_models.materials import Material, MaterialRepository
-from sections_app.models.sections import RectangularSection
-from sections_app.services.repository import SectionRepository
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.repository import SectionRepository
 
 
 def test_verification_table_receives_populated_repositories():

@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from sections_app.models.sections import create_section_from_dict
-from sections_app.services.repository import DEFAULT_JSON_FILE, SectionRepository
+from apps.sections.models.sections import create_section_from_dict
+from apps.sections.services.repository import DEFAULT_JSON_FILE, SectionRepository
 
 
 def test_migrate_legacy_to_canonical(tmp_path, monkeypatch):

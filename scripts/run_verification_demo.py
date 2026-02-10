@@ -5,8 +5,8 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 
-from sections_app.models.sections import CircularSection, RectangularSection, TSection
-from sections_app.services.repository import SectionRepository
+from apps.sections.models.sections import CircularSection, RectangularSection, TSection
+from apps.sections.services.repository import SectionRepository
 
 try:
     from core_models.materials import Material, MaterialRepository

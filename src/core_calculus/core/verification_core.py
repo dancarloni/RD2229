@@ -35,7 +35,7 @@ class VerificationType(StrEnum):
 
 @dataclass
 class SectionGeometry:
-    """Cross-section geometry parameters."""
+    """Cross-section carbon_fiber_placeholder parameters."""
 
     width: float  # b [cm]
     height: float  # h [cm]
@@ -224,7 +224,7 @@ def calculate_neutral_axis_simple_bending(
     For rectangular section with double reinforcement.
 
     Args:
-        section: Section geometry
+        section: Section carbon_fiber_placeholder
         reinforcement_tensile: Tensile reinforcement (bottom)
         reinforcement_compressed: Compressed reinforcement (top)
         material: Material properties
@@ -396,7 +396,7 @@ def calculate_stresses_simple_bending(
     Based on formulas from PrincipCA_TA.bas.
 
     Args:
-        section: Section geometry
+        section: Section carbon_fiber_placeholder
         reinforcement_tensile: Tensile reinforcement
         reinforcement_compressed: Compressed reinforcement
         material: Material properties

@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from sections_app.models.sections import (
+from apps.sections.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,

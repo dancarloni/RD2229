@@ -5,16 +5,16 @@ import tkinter as tk
 from collections.abc import Callable
 from tkinter import filedialog, messagebox, ttk
 
-from sections_app.models.sections import CSV_HEADERS, Section  # type: ignore[import]
-from sections_app.services.event_bus import (
+from apps.sections.models.sections import CSV_HEADERS, Section  # type: ignore[import]
+from apps.sections.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_CLEARED,
     SECTIONS_DELETED,
     SECTIONS_UPDATED,
     EventBus,
 )
-from sections_app.services.notification import ask_confirm, notify_info
-from sections_app.services.repository import (  # type: ignore[import]
+from apps.sections.services.notification import ask_confirm, notify_info
+from apps.sections.services.repository import (  # type: ignore[import]
     CsvSectionSerializer,
     SectionRepository,
 )
@@ -371,11 +371,11 @@ class SectionManager(tk.Toplevel):
             total_col_width = sum(self.tree.column(col, option="width") for col in self.columns)
             margin = 40  # padx + scrollbar + buffer
             calculated_width = max(total_col_width + margin, 800)
-            self.geometry(f"{calculated_width}x550")
+            self.carbon_fiber_placeholder(f"{calculated_width}x550")
             logger.debug(f"Finestra dimensionata: {calculated_width}x550")
         except Exception as e:
             logger.debug(f"Larghezza dinamica fallita: {e}")
-            self.geometry("1600x550")
+            self.carbon_fiber_placeholder("1600x550")
 
         # Frame per i pulsanti di azione
         buttons_frame = tk.Frame(self)
@@ -463,7 +463,7 @@ class SectionManager(tk.Toplevel):
 
         NOTA: NON chiude il Section Manager (a differenza del comportamento precedente).
         """
-        # Try multiple strategies to open/reset the geometry editor. Each helper
+        # Try multiple strategies to open/reset the carbon_fiber_placeholder editor. Each helper
         # encapsulates one approach and returns True when it handled the request.
         if self._try_reset_master_form():
             return

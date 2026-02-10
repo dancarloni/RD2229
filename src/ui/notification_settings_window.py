@@ -4,8 +4,8 @@ import logging
 import tkinter as tk
 from typing import Any
 
-from sections_app.services.notification import notify_info  # type: ignore[import]
-from sections_app.services.notification_settings import (
+from apps.sections.services.notification import notify_info  # type: ignore[import]
+from apps.sections.services.notification_settings import (
     load_notification_settings,  # type: ignore[import]
     save_notification_settings,  # type: ignore[import]
 )

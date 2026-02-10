@@ -1,4 +1,4 @@
-from sections_app.section_graphics import SectionViewTransform
+from apps.sections.section_graphics import SectionViewTransform
 
 
 def test_uniform_scale_and_centering():

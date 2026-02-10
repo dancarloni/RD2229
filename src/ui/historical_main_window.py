@@ -4,8 +4,8 @@ import logging
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from sections_app.services.historical_calculations import verify_flexure_allowable_stress
-from sections_app.services.repository import SectionRepository  # type: ignore[import]
+from apps.sections.services.historical_calculations import verify_flexure_allowable_stress
+from apps.sections.services.repository import SectionRepository  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class HistoricalModuleMainWindow(tk.Toplevel):
     def __init__(self, master: tk.Tk, repository: SectionRepository):
         super().__init__(master)
         self.title("Historical Calculations - RD2229")
-        self.geometry("720x420")
+        self.carbon_fiber_placeholder("720x420")
         self.repository = repository
         self.selected_section_id: str | None = None
         self._build_ui()
