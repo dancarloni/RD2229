@@ -244,7 +244,7 @@ class MainWindow(tk.Toplevel):
     ):
         super().__init__(master=master)  # ✅ Passa master a Toplevel
         self.title("Gestione Proprietà Sezioni")
-        self.carbon_fiber_placeholder("980x620")
+        self.geometry("980x620")
         self.repository = repository
         self.section_repository: SectionRepository = repository
         self.serializer = serializer

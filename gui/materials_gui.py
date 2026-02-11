@@ -674,7 +674,7 @@ def run_app():
     root = tk.Tk()
     root.title("Materials Manager")
     _ = MaterialsApp(master=root)
-    root.carbon_fiber_placeholder("640x480")
+    root.geometry("640x480")
     root.mainloop()
     logger.info("Chiusura applicazione GUI Materials Manager")
 

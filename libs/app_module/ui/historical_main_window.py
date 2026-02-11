@@ -20,7 +20,7 @@ class HistoricalModuleMainWindow(tk.Toplevel):
     def __init__(self, master: tk.Tk, repository: SectionRepository | None = None):
         super().__init__(master)
         self.title("Historical Calculations - RD2229")
-        self.carbon_fiber_placeholder("720x420")
+        self.geometry("720x420")
 
         # Lazy loading: inizializza repository se non fornito
         if repository is None:

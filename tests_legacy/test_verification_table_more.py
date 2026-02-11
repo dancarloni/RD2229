@@ -46,7 +46,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_suggestions_popup_filters(self):
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         app = VerificationTableApp(top)
         # ensure there is at least one row and start editing the section cell
         item = list(app.tree.get_children())[0]
@@ -76,7 +76,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_rebar_calculator_applies_value(self):
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         # Ensure widgets rendered so bbox() works
@@ -108,7 +108,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_commit_not_performed_while_rebar_calculator_open(self):
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         top.update_idletasks()
@@ -139,7 +139,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_rebar_via_keypress_opens_and_applies(self):
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         top.update_idletasks()
@@ -180,7 +180,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_rebar_via_keypress_on_As_prime_opens_and_applies(self):
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         top.update_idletasks()
@@ -217,7 +217,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_material_suggestions_popup_filters(self):
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         app = VerificationTableApp(top)
         # ensure there is at least one row and start editing the material cell
         item = list(app.tree.get_children())[0]
@@ -263,7 +263,7 @@ class TestVerificationTableMore(unittest.TestCase):
         tmprepo.add(m3)
 
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
         app = win.app
         top.update_idletasks()
@@ -285,7 +285,7 @@ class TestVerificationTableMore(unittest.TestCase):
     def test_historical_materials_are_suggested(self):
         """Verify historical materials (built-in library) appear in suggestions for concrete."""
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         # No material_repository provided - search should include historical library
         win = VerificationTableWindow(top, section_repository=None, material_repository=None)
         app = win.app
@@ -319,7 +319,7 @@ class TestVerificationTableMore(unittest.TestCase):
         sec_repo.add_section(sec)
 
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         win = VerificationTableWindow(top, section_repository=sec_repo, material_repository=None)
         app = win.app
         top.update_idletasks()
@@ -345,7 +345,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_material_steel_suggestions_popup_filters(self):
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         app = VerificationTableApp(top)
         # ensure there is at least one row and start editing the material steel cell
         item = list(app.tree.get_children())[0]
@@ -377,7 +377,7 @@ class TestVerificationTableMore(unittest.TestCase):
     def test_empty_query_shows_no_suggestions(self):
         """If the user types an empty query, no suggestions should appear."""
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         top.update_idletasks()
@@ -411,7 +411,7 @@ class TestVerificationTableMore(unittest.TestCase):
         tmprepo.add(m1)
 
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
         app = win.app
         top.update_idletasks()
@@ -445,7 +445,7 @@ class TestVerificationTableMore(unittest.TestCase):
         tmprepo.add(m1)
 
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
         app = win.app
         top.update_idletasks()
@@ -480,7 +480,7 @@ class TestVerificationTableMore(unittest.TestCase):
         tmprepo.add(m2)
 
         top = tk.Toplevel(self.root)
-        top.carbon_fiber_placeholder("900x300")
+        top.geometry("900x300")
         win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
         app = win.app
         top.update_idletasks()

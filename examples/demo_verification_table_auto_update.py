@@ -21,7 +21,7 @@ class DemoControlPanel(tk.Tk):
         super().__init__()
 
         self.title("Demo: Auto-Aggiornamento VerificationTable")
-        self.carbon_fiber_placeholder("600x500")
+        self.geometry("600x500")
 
         # Create temp repositories
         self.temp_dir = tempfile.mkdtemp()

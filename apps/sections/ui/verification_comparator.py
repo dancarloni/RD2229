@@ -181,7 +181,7 @@ class VerificationComparatorWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc, verification_table_app: VerificationTableApp) -> None:
         super().__init__(master)
         self.title("Confronto metodi: .bas vs TA vs SLU")
-        self.carbon_fiber_placeholder("900x600")
+        self.geometry("900x600")
         self.verification_table_app: VerificationTableApp = verification_table_app
 
         top = tk.Frame(self)

@@ -35,7 +35,7 @@ class FrcManagerWindow(tk.Toplevel):
     ) -> None:
         super().__init__(master)
         self.title("FRC Manager")
-        self.carbon_fiber_placeholder("900x420")
+        self.geometry("900x420")
         self.material_repository = material_repository
         self._build_ui()
         self._refresh()

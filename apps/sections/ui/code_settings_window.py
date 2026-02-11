@@ -28,7 +28,7 @@ class CodeSettingsWindow(tk.Toplevel):
         self.code = code.upper()
         self.settings_path = settings_path
         self.title(f"Parametri {self.code}")
-        self.carbon_fiber_placeholder("800x600")
+        self.geometry("800x600")
 
         self._build_ui()
         self._load()

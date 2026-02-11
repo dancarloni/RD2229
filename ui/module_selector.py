@@ -208,7 +208,7 @@ class ModuleSelectorWindow(Tk):
         self._setup_menu()
         self._bind_events()
         self.title("RD2229 Module Selector")
-        self.carbon_fiber_placeholder("800x600")
+        self.geometry("800x600")
 
     def _create_specs(self) -> list[ModuleCardSpec]:
         """Crea le specifiche delle card dai moduli disponibili (usando ModuleRegistry)."""

@@ -44,7 +44,7 @@ class ModuleSelectorWindow(tk.Tk):
         os.environ.setdefault("LC_ALL", "en_US")
         super().__init__()
         self.title("Module Selector - RD2229 Tools")
-        self.carbon_fiber_placeholder("1200x340")
+        self.geometry("1200x340")
         # Instantiate NotificationCenter for the application (non-blocking notifications)
         try:
             self.notification_center = NotificationCenter(self)
@@ -431,7 +431,7 @@ class ModuleSelectorWindow(tk.Tk):
         # Chiedi all'utente cosa esportare
         dialog = tk.Toplevel(self)
         dialog.title("Esporta backup")
-        dialog.carbon_fiber_placeholder("400x200")
+        dialog.geometry("400x200")
         dialog.transient(self)
         dialog.grab_set()
 

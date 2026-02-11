@@ -371,11 +371,11 @@ class SectionManager(tk.Toplevel):
             total_col_width = sum(self.tree.column(col, option="width") for col in self.columns)
             margin = 40  # padx + scrollbar + buffer
             calculated_width = max(total_col_width + margin, 800)
-            self.carbon_fiber_placeholder(f"{calculated_width}x550")
+            self.geometry(f"{calculated_width}x550")
             logger.debug(f"Finestra dimensionata: {calculated_width}x550")
         except Exception as e:
             logger.debug(f"Larghezza dinamica fallita: {e}")
-            self.carbon_fiber_placeholder("1600x550")
+            self.geometry("1600x550")
 
         # Frame per i pulsanti di azione
         buttons_frame = tk.Frame(self)

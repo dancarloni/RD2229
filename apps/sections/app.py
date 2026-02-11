@@ -30,7 +30,7 @@ def run_app() -> None:
     configure_logging()
 
     # Mostra il selettore di modulo come prima finestra
-    from libs.app_module.ui.module_selector import ModuleSelectorWindow
+    from apps.sections.ui.module_selector import ModuleSelectorWindow
 
     selector = ModuleSelectorWindow()
     selector.mainloop()

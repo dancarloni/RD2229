@@ -90,7 +90,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
     ) -> None:
         super().__init__(master)
         self.title("Archivio Materiali Storici - RD 2229/39")
-        self.carbon_fiber_placeholder("1200x520")
+        self.geometry("1200x520")
         self.library = library
         self.material_repository = material_repository
 
@@ -686,7 +686,7 @@ class SourceManagerWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc) -> None:
         super().__init__(master)
         self.title("Gestione Fonti Normative")
-        self.carbon_fiber_placeholder("700x450")
+        self.geometry("700x450")
         self.transient(master)
 
         if not SOURCES_AVAILABLE:

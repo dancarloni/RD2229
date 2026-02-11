@@ -256,7 +256,7 @@ def run_section_app():
     root = tk.Tk()
     root.title("Calcolatore Proprietà Sezioni")
     _ = SectionApp(master=root)
-    root.carbon_fiber_placeholder("600x600")
+    root.geometry("600x600")
     root.mainloop()
 
 

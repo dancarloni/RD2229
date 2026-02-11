@@ -23,7 +23,7 @@ class DebugViewerWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc):
         super().__init__(master)
         self.title("Debug Viewer")
-        self.carbon_fiber_placeholder("900x600")
+        self.geometry("900x600")
         self._last_index = 0
         self._auto_scroll = tk.BooleanVar(value=True)
         self._filter_var = tk.StringVar(value="")

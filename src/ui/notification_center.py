@@ -60,7 +60,7 @@ class NotificationCenter:
     def _create_window(self) -> None:
         self._win = tk.Toplevel(self.master)
         self._win.title("Notifications")
-        self._win.carbon_fiber_placeholder("420x240")
+        self._win.geometry("420x240")
         frame = tk.Frame(self._win)
         frame.pack(fill="both", expand=True)
         self._listbox = tk.Listbox(frame)

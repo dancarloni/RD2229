@@ -10,6 +10,6 @@ class ComparatorWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc):
         super().__init__(master)
         self.title("Comparator")
-        self.carbon_fiber_placeholder("400x200")
+        self.geometry("400x200")
         tk.Label(self, text="Comparator placeholder").pack(padx=8, pady=8)
         logger.debug("ComparatorWindow placeholder created")

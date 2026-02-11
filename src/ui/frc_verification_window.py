@@ -21,7 +21,7 @@ class FrcVerificationWindow(tk.Toplevel):
     ) -> None:
         super().__init__(master)
         self.title("FRC Quick Verification")
-        self.carbon_fiber_placeholder("600x420")
+        self.geometry("600x420")
         self.material_repository = material_repository
         self._build_ui()
 
