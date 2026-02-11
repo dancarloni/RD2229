@@ -33,11 +33,7 @@ from historical_ta.checks import (
 from historical_ta.geometry import SectionGeometry, compute_section_properties
 from historical_ta.materials import ConcreteLawTA, SteelLawTA
 from historical_ta.stress import LoadState, compute_normal_stresses_ta
-from src.core_calculus.contracts import (
-    CalcInput,
-    SingleCheckResult,
-    VerificationTemplate,
-)
+from src.core_calculus.contracts import CalcInput, SingleCheckResult, VerificationTemplate
 
 # ==============================================================================
 # UTILITY FUNCTIONS: UNIT CONVERSIONS
@@ -583,9 +579,7 @@ def check_flessione_ta_rett(
         ]
 
         if not ok:
-            messages_it.extend(
-                ["", "VERIFICA NON SODDISFATTA:"] + check_result.messages
-            )
+            messages_it.extend(["", "VERIFICA NON SODDISFATTA:"] + check_result.messages)
 
         # 8. Ritorna risultato
         return SingleCheckResult(
@@ -607,8 +601,7 @@ def check_flessione_ta_rett(
                 "check_steel": check_result.check_steel,
                 "check_mean": check_result.check_mean,
             },
-            norm_references=[template.primary_reference]
-            + template.secondary_references,
+            norm_references=[template.primary_reference] + template.secondary_references,
             messages_it=messages_it,
             check_category=template.check_category,
             limit_state=template.limit_state,
@@ -820,10 +813,7 @@ def check_taglio_ta_rett(
         material = calc_input.material
 
         # Verifica se ci sono staffe
-        has_staffe = (
-            calc_input.staffe_passo is not None
-            and calc_input.staffe_diametro is not None
-        )
+        has_staffe = calc_input.staffe_passo is not None and calc_input.staffe_diametro is not None
 
         if hasattr(material, "tau_c0") and hasattr(material, "tau_c1"):
             # Valori diretti da RD2229.jsoncode
@@ -895,8 +885,7 @@ def check_taglio_ta_rett(
                 "d_cm": d_cm,
                 "has_staffe": has_staffe,
             },
-            norm_references=[template.primary_reference]
-            + template.secondary_references,
+            norm_references=[template.primary_reference] + template.secondary_references,
             messages_it=messages_it,
             check_category=template.check_category,
             limit_state=template.limit_state,
@@ -967,7 +956,7 @@ def check_minimi_armatura_ta(
 
         # 3. Determina tipo elemento (trave o pilastro)
         # Euristica: compressione significativa → pilastro
-        has_compression = (calc_input.N is not None and calc_input.N < -50.0)
+        has_compression = calc_input.N is not None and calc_input.N < -50.0
         is_column = has_compression
         is_beam = not is_column
 
@@ -1061,8 +1050,7 @@ def check_minimi_armatura_ta(
                 "is_column": is_column,
                 "is_beam": is_beam,
             },
-            norm_references=[template.primary_reference]
-            + template.secondary_references,
+            norm_references=[template.primary_reference] + template.secondary_references,
             messages_it=messages_it,
             check_category=template.check_category,
             limit_state=template.limit_state,
@@ -1169,9 +1157,7 @@ def check_pressoflessione_deviata_ta_concrete(
         sigma_c_adm_base = allowable.sigma_c_allow  # kg/cm²
 
         # 5. Apply slenderness reduction if A_min < 25 cm
-        sigma_c_adm, slender_details = apply_slenderness_reduction_ta(
-            sigma_c_adm_base, b_cm, h_cm
-        )
+        sigma_c_adm, slender_details = apply_slenderness_reduction_ta(sigma_c_adm_base, b_cm, h_cm)
 
         # 6. Compute σ_c,max with elastic superposition (Art. 29)
         sigma_c_max = compute_sigma_concrete_biaxial_ta(
@@ -1192,21 +1178,31 @@ def check_pressoflessione_deviata_ta_concrete(
             "",
             "Sollecitazioni:",
             f"  N = {calc_input.N:.1f} kN = {N_kg:.0f} kg" if N_present else "  N = 0 kN",
-            f"  Mx = {calc_input.Mx:.1f} kNm = {Mx_kg_cm:.0f} kg·cm" if Mx_present else "  Mx = 0 kNm",
-            f"  My = {calc_input.My:.1f} kNm = {My_kg_cm:.0f} kg·cm" if My_present else "  My = 0 kNm",
+            (
+                f"  Mx = {calc_input.Mx:.1f} kNm = {Mx_kg_cm:.0f} kg·cm"
+                if Mx_present
+                else "  Mx = 0 kNm"
+            ),
+            (
+                f"  My = {calc_input.My:.1f} kNm = {My_kg_cm:.0f} kg·cm"
+                if My_present
+                else "  My = 0 kNm"
+            ),
             "",
             f"Tensione ammissibile cls (Art. 18): σ_c,adm = {sigma_c_adm_base:.1f} kg/cm²",
         ]
 
         # Slenderness reduction info
         if slender_details["reduction_applied"]:
-            messages_it.extend([
-                "",
-                "Riduzione sezioni snelle (feature repository):",
-                f"  A_min = min(b,h) = {slender_details['A_min_cm']:.1f} cm < 25 cm",
-                f"  Fattore riduzione = {slender_details['reduction_factor']:.3f}",
-                f"  σ_c,adm ridotta = {sigma_c_adm:.1f} kg/cm²",
-            ])
+            messages_it.extend(
+                [
+                    "",
+                    "Riduzione sezioni snelle (feature repository):",
+                    f"  A_min = min(b,h) = {slender_details['A_min_cm']:.1f} cm < 25 cm",
+                    f"  Fattore riduzione = {slender_details['reduction_factor']:.3f}",
+                    f"  σ_c,adm ridotta = {sigma_c_adm:.1f} kg/cm²",
+                ]
+            )
         elif slender_details["A_min_cm"] >= 25.0:
             messages_it.append(
                 f"Sezione non snella (A_min = {slender_details['A_min_cm']:.1f} cm ≥ 25 cm)"
@@ -1217,29 +1213,33 @@ def check_pressoflessione_deviata_ta_concrete(
         sigma_Mx_component = abs(Mx_kg_cm / Wx_cm3) if Wx_cm3 > 0 else 0.0
         sigma_My_component = abs(My_kg_cm / Wy_cm3) if Wy_cm3 > 0 else 0.0
 
-        messages_it.extend([
-            "",
-            "Metodo elastico con sovrapposizione effetti (Art. 29):",
-            "  σ_c,max = N/A + |Mx|/Wx + |My|/Wy",
-            f"  σ_c,max = {sigma_N_component:.2f} + {sigma_Mx_component:.2f} + {sigma_My_component:.2f}",
-            f"  σ_c,max = {sigma_c_max:.2f} kg/cm²",
-            "",
-            f"Verifica: {sigma_c_max:.2f} ≤ {sigma_c_adm:.2f} → {'✓ OK' if ok else '✗ NON OK'}",
-            f"Utilizzazione: {utilisazione:.3f}",
-            "",
-            "Nota: RD 2229/39 non prevede domini N-Mx-My; usa sovrapposizione elastica.",
-        ])
+        messages_it.extend(
+            [
+                "",
+                "Metodo elastico con sovrapposizione effetti (Art. 29):",
+                "  σ_c,max = N/A + |Mx|/Wx + |My|/Wy",
+                f"  σ_c,max = {sigma_N_component:.2f} + {sigma_Mx_component:.2f} + {sigma_My_component:.2f}",
+                f"  σ_c,max = {sigma_c_max:.2f} kg/cm²",
+                "",
+                f"Verifica: {sigma_c_max:.2f} ≤ {sigma_c_adm:.2f} → {'✓ OK' if ok else '✗ NON OK'}",
+                f"Utilizzazione: {utilisazione:.3f}",
+                "",
+                "Nota: RD 2229/39 non prevede domini N-Mx-My; usa sovrapposizione elastica.",
+            ]
+        )
 
         # Warning if slender column (λ > 15)
         if calc_input.extra and calc_input.extra.get("lambda"):
             lambda_val = calc_input.extra["lambda"]
             if lambda_val > 15:
-                messages_it.extend([
-                    "",
-                    f"⚠️ Pilastro snello: λ = {lambda_val:.1f} > 15",
-                    "   Necessaria verifica stabilità (Art. 30 RD 2229/39) - NON implementata.",
-                    "   BLOCCO: richiede l₀ (lunghezza libera inflessione).",
-                ])
+                messages_it.extend(
+                    [
+                        "",
+                        f"⚠️ Pilastro snello: λ = {lambda_val:.1f} > 15",
+                        "   Necessaria verifica stabilità (Art. 30 RD 2229/39) - NON implementata.",
+                        "   BLOCCO: richiede l₀ (lunghezza libera inflessione).",
+                    ]
+                )
 
         # 9. Return result
         return SingleCheckResult(
@@ -1435,4 +1435,3 @@ def check_pressoflessione_deviata_ta_steel(
             check_category=template.check_category,
             limit_state=template.limit_state,
         )
-

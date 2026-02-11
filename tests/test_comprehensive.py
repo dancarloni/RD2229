@@ -124,15 +124,15 @@ def test_csv_roundtrip(sections):
         assert len(imported_sections) == len(sections), "Different number of sections"
 
         for orig, imp in zip(sections, imported_sections):
-            assert orig.section_type == imp.section_type, (
-                f"Type mismatch: {orig.section_type} vs {imp.section_type}"
-            )
-            assert abs(orig.properties.area - imp.properties.area) < 1e-6, (
-                f"Area mismatch for {orig.section_type}"
-            )
-            assert abs(orig.properties.Ix - imp.properties.Ix) < 1e-3, (
-                f"Ix mismatch for {orig.section_type}"
-            )
+            assert (
+                orig.section_type == imp.section_type
+            ), f"Type mismatch: {orig.section_type} vs {imp.section_type}"
+            assert (
+                abs(orig.properties.area - imp.properties.area) < 1e-6
+            ), f"Area mismatch for {orig.section_type}"
+            assert (
+                abs(orig.properties.Ix - imp.properties.Ix) < 1e-3
+            ), f"Ix mismatch for {orig.section_type}"
 
         print("✓ All sections match after roundtrip")
 

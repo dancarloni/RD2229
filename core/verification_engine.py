@@ -1,5 +1,6 @@
 # Compatibility shim mapping to src.core_calculus.verification_engine
 from __future__ import annotations
+
 from importlib import import_module as _im
 
 try:
@@ -14,10 +15,10 @@ for _name, _val in vars(_mod).items():
     if not _name.startswith("_"):
         globals()[_name] = _val
 
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Sequence
-
 import logging
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,9 @@ if TYPE_CHECKING:
     # NOTE: aggiorna questi import in base alla struttura reale del progetto.
     from app.core.contracts import CalcInput  # noqa: F401
     from app.core.norms.plugins import NormPlugin  # noqa: F401
+    from app.core.norms.references import NormReference  # noqa: F401
     from app.core.norms.templates import VerificationTemplate  # noqa: F401
     from app.core.validation import ValidationResult  # noqa: F401
-    from app.core.norms.references import NormReference  # noqa: F401
 else:
     CalcInput = Any  # type: ignore[assignment]
     NormPlugin = Any  # type: ignore[assignment]
@@ -59,9 +60,9 @@ class SingleCheckResult:
     template_id: str
     ok: bool
     utilisation: float | None = None
-    details: Dict[str, float | str] = field(default_factory=dict)
-    norm_references: List[NormReference] = field(default_factory=list)
-    messages_it: List[str] = field(default_factory=list)
+    details: dict[str, float | str] = field(default_factory=dict)
+    norm_references: list[NormReference] = field(default_factory=list)
+    messages_it: list[str] = field(default_factory=list)
     check_category: str | None = None
     limit_state: str | None = None
 
@@ -88,9 +89,9 @@ class CalcOutput:
     element_name: str
     norm_code: str
     ok: bool
-    per_template_results: Dict[str, SingleCheckResult] = field(default_factory=dict)
+    per_template_results: dict[str, SingleCheckResult] = field(default_factory=dict)
     validation_result: ValidationResult | None = None
-    summary_metrics: Dict[str, float | bool | str] = field(default_factory=dict)
+    summary_metrics: dict[str, float | bool | str] = field(default_factory=dict)
 
 
 # ======================================================================
@@ -173,7 +174,7 @@ def run_verifications_for_element(
         )
 
     # 3) Esecuzione verifiche (tutti i template)
-    per_template_results: Dict[str, SingleCheckResult] = {}
+    per_template_results: dict[str, SingleCheckResult] = {}
 
     for tpl in templates:
         tpl_id = getattr(tpl, "template_id", "<senza_id>")
@@ -198,8 +199,7 @@ def run_verifications_for_element(
                 details={"exception": str(exc)},
                 norm_references=[],
                 messages_it=[
-                    "Errore interno durante la verifica. "
-                    "Consultare i log per maggiori dettagli."
+                    "Errore interno durante la verifica. " "Consultare i log per maggiori dettagli."
                 ],
                 check_category=getattr(tpl, "check_category", None),
                 limit_state=getattr(tpl, "limit_state", None),
@@ -211,7 +211,7 @@ def run_verifications_for_element(
     max_util = _compute_max_utilisation(per_template_results.values())
     controlling_template_id = _find_controlling_template_id(per_template_results)
 
-    summary_metrics: Dict[str, float | bool | str] = {
+    summary_metrics: dict[str, float | bool | str] = {
         "status": "OK" if global_ok else "NON_OK",
         "utilizzazione_massima": max_util if max_util is not None else 0.0,
         "template_controllante": controlling_template_id or "",
@@ -244,7 +244,7 @@ def run_verifications_for_all(
     calc_inputs: Sequence[CalcInput],
     active_norm: NormPlugin,
     enabled_limit_states: Sequence[str] | None = None,
-) -> List[CalcOutput]:
+) -> list[CalcOutput]:
     """Esegue le verifiche per una collezione di elementi (bulk).
 
     Questa funzione è pensata per essere richiamata dal pulsante
@@ -259,7 +259,7 @@ def run_verifications_for_all(
     Returns:
         Lista di CalcOutput, nello stesso ordine di calc_inputs.
     """
-    outputs: List[CalcOutput] = []
+    outputs: list[CalcOutput] = []
     for ci in calc_inputs:
         outputs.append(
             run_verifications_for_element(
@@ -280,7 +280,7 @@ def _select_templates_for_element(
     calc_input: CalcInput,
     active_norm: NormPlugin,
     enabled_limit_states: Sequence[str] | None,
-) -> List[VerificationTemplate]:
+) -> list[VerificationTemplate]:
     """Seleziona i template di verifica applicabili per l'elemento.
 
     La selezione deve essere eseguita nel CORE (non nella GUI) e deve tenere conto di:
@@ -358,14 +358,14 @@ def _execute_template(
     # Per ora, placeholder:
     utilisation = None
     ok = False
-    details: Dict[str, float | str] = {}
+    details: dict[str, float | str] = {}
 
     messages_it = [
         "TODO: implementare la verifica per questo template "
         "in base alla normativa corrispondente."
     ]
 
-    norm_refs: List[NormReference] = []
+    norm_refs: list[NormReference] = []
     if primary_ref is not None:
         norm_refs.append(primary_ref)
     norm_refs.extend(secondary_refs)
@@ -386,16 +386,14 @@ def _compute_max_utilisation(
     results: Iterable[SingleCheckResult],
 ) -> float | None:
     """Calcola l'utilizzazione massima tra tutti i risultati disponibili."""
-    utilis = [
-        r.utilisation for r in results if r.utilisation is not None and r.utilisation >= 0
-    ]
+    utilis = [r.utilisation for r in results if r.utilisation is not None and r.utilisation >= 0]
     if not utilis:
         return None
     return max(utilis)
 
 
 def _find_controlling_template_id(
-    results: Dict[str, SingleCheckResult],
+    results: dict[str, SingleCheckResult],
 ) -> str | None:
     """Individua il template 'controllante' (utilizzazione massima)."""
     max_util = -1.0

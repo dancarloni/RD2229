@@ -13,7 +13,6 @@ from src.methods.checks_rd2229 import (
     check_pressoflessione_deviata_ta_steel,
 )
 
-
 # ==============================================================================
 # MOCK OBJECTS (per test senza dipendenze esterne)
 # ==============================================================================
@@ -59,9 +58,7 @@ def esempio_1_verifica_concrete_ok():
     # Recupera template dal registry
     templates = get_rd2229_templates()
     template = next(
-        t
-        for t in templates
-        if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
+        t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
     )
 
     # Prepara input
@@ -109,9 +106,7 @@ def esempio_2_verifica_sezione_snella():
 
     templates = get_rd2229_templates()
     template = next(
-        t
-        for t in templates
-        if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
+        t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
     )
 
     # Sezione snella: b = 20 cm < 25 cm
@@ -137,15 +132,9 @@ def esempio_2_verifica_sezione_snella():
     if result.details.get("reduction_applied"):
         print("[!] RIDUZIONE PER SEZIONE SNELLA APPLICATA:")
         print(f"  A_min = {result.details['A_min_cm']:.1f} cm < 25 cm")
-        print(
-            f"  Fattore riduzione = {result.details['reduction_factor']:.3f}"
-        )
-        print(
-            f"  σ_c,adm base = {result.details['sigma_c_adm_base_kg_cm2']:.1f} kg/cm²"
-        )
-        print(
-            f"  σ_c,adm ridotta = {result.details['sigma_c_adm_kg_cm2']:.1f} kg/cm²"
-        )
+        print(f"  Fattore riduzione = {result.details['reduction_factor']:.3f}")
+        print(f"  σ_c,adm base = {result.details['sigma_c_adm_base_kg_cm2']:.1f} kg/cm²")
+        print(f"  σ_c,adm ridotta = {result.details['sigma_c_adm_kg_cm2']:.1f} kg/cm²")
 
     return result
 
@@ -158,9 +147,7 @@ def esempio_3_verifica_steel_senza_moduli():
 
     templates = get_rd2229_templates()
     template = next(
-        t
-        for t in templates
-        if t.template_id == "rd2229_ta_pressoflessione_deviata_steel"
+        t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_steel"
     )
 
     section = MockSection(width=300.0, height=500.0)
@@ -198,9 +185,7 @@ def esempio_4_verifica_steel_con_moduli():
 
     templates = get_rd2229_templates()
     template = next(
-        t
-        for t in templates
-        if t.template_id == "rd2229_ta_pressoflessione_deviata_steel"
+        t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_steel"
     )
 
     section = MockSection(width=300.0, height=500.0)

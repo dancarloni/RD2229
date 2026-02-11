@@ -1,6 +1,7 @@
 """Test veloce pressoflessione deviata RD 2229/39 - ASCII only."""
 
 from dataclasses import dataclass
+
 from src.core_calculus.contracts import CalcInput
 from src.core_calculus.normative_registry import get_rd2229_templates
 from src.methods.checks_rd2229 import check_pressoflessione_deviata_ta_concrete
@@ -32,8 +33,7 @@ print("=" * 60)
 
 templates = get_rd2229_templates()
 template = next(
-    t for t in templates
-    if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
+    t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
 )
 
 section = MockSection(width=300.0, height=500.0)
@@ -54,7 +54,7 @@ result = check_pressoflessione_deviata_ta_concrete(calc_input, template)
 
 print(f"\nRisultato: {'OK' if result.ok else 'NON OK'}")
 print(f"Utilizzazione: {result.utilisation:.1%}")
-print(f"\nDettagli tecnici:")
+print("\nDettagli tecnici:")
 print(f"  Sezione: {section.width/10:.0f}x{section.height/10:.0f} cm")
 print(f"  N  = {calc_input.N:.1f} kN")
 print(f"  Mx = {calc_input.Mx:.1f} kNm")
@@ -65,8 +65,8 @@ print("MESSAGGI ITALIANI COMPLETI:")
 print("=" * 60)
 for msg in result.messages_it:
     # Sostituisci caratteri greci con ASCII
-    msg_ascii = msg.replace('σ', 'sigma').replace('·', '.').replace('≤', '<=').replace('≥', '>=')
-    msg_ascii = msg_ascii.replace('✓', '[OK]').replace('✗', '[X]').replace('→', '->')
+    msg_ascii = msg.replace("σ", "sigma").replace("·", ".").replace("≤", "<=").replace("≥", ">=")
+    msg_ascii = msg_ascii.replace("✓", "[OK]").replace("✗", "[X]").replace("→", "->")
     print(msg_ascii)
 
 print("\n" + "=" * 60)

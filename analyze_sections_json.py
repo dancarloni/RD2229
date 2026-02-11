@@ -6,7 +6,7 @@ Mostra il contenuto e la struttura del file sections.json.
 import json
 import os
 import sys
-from typing import Any, List
+from typing import Any
 
 
 def analyze_json_file(json_file: str = "sections.json") -> None:
@@ -24,7 +24,7 @@ def analyze_json_file(json_file: str = "sections.json") -> None:
 
     try:
         with open(json_file, encoding="utf-8") as f:
-            data: List[Any] = json.load(f)
+            data: list[Any] = json.load(f)
 
         print(f"\n✅ File caricato: {os.path.abspath(json_file)}")
         print(f"   Dimensione: {os.path.getsize(json_file)} bytes")

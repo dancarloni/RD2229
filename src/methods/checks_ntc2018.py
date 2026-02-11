@@ -206,9 +206,11 @@ def check_flessione_slu_rett(
     messages_it = [
         f"Sezione: {b/10:.1f} × {h/10:.1f} cm, d = {d:.1f} cm, d' = {d_prime:.1f} cm",
         f"Armatura tesa: As = {As:.2f} cm²",
-        f"Armatura compressa: As' = {As_prime:.2f} cm²"
-        if As_prime > 0.01
-        else "Armatura compressa: As' = 0 (sezione semplicemente armata)",
+        (
+            f"Armatura compressa: As' = {As_prime:.2f} cm²"
+            if As_prime > 0.01
+            else "Armatura compressa: As' = 0 (sezione semplicemente armata)"
+        ),
         f"Materiali: C{f_ck:.0f}/{f_yk:.0f} (f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa)",
         "",
         "Calcolo asse neutro (NTC 2018 § 4.1.2.1.3.1):",

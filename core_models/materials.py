@@ -78,6 +78,8 @@ class Material:
 try:
     from historical_materials import (
         HistoricalMaterial as _HistoricalMaterial_external,
+    )
+    from historical_materials import (
         HistoricalMaterialLibrary as _HistoricalMaterialLibrary_external,
     )
 

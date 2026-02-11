@@ -1,5 +1,6 @@
 # Compatibility shim mapping to src.core_calculus.verification_core
 from __future__ import annotations
+
 from importlib import import_module as _im
 
 try:
@@ -16,18 +17,18 @@ for _name, _val in vars(_mod).items():
     if not _name.startswith("_"):
         globals()[_name] = _val
 
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, List, Sequence
-
 import logging
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     # NOTE: aggiorna questi import in base alla struttura reale del progetto
-    from app.core.norms.references import NormReference  # noqa: F401
     from app.core.contracts import CalcInput  # noqa: F401
     from app.core.norms.plugins import NormPlugin  # noqa: F401
+    from app.core.norms.references import NormReference  # noqa: F401
     from app.core.norms.templates import VerificationTemplate  # noqa: F401
 else:
     # Fallback tipo Any per evitare errori in fase di import se i moduli
@@ -56,7 +57,7 @@ class ValidationIssue:
     code: str
     message_it: str
     norm_reference: NormReference | None = None
-    context: Dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
 
     def is_error(self) -> bool:
         """Return True se la severità è 'error' (case-insensitive)."""
@@ -75,7 +76,7 @@ class ValidationResult:
         issues: Lista di problemi (errori/avvertimenti/info).
     """
 
-    issues: List[ValidationIssue] = field(default_factory=list)
+    issues: list[ValidationIssue] = field(default_factory=list)
 
     @property
     def has_errors(self) -> bool:
@@ -151,7 +152,7 @@ def validate_calc_input(
 def _validate_geometry(
     calc_input: CalcInput,
     active_norm: NormPlugin,
-) -> List[ValidationIssue]:
+) -> list[ValidationIssue]:
     """Esegue i controlli geometrici di base (indipendenti o quasi dalla norma).
 
     Esempi di controlli da implementare:
@@ -171,7 +172,7 @@ def _validate_geometry(
     Returns:
         Lista di ValidationIssue (può essere vuota).
     """
-    issues: List[ValidationIssue] = []
+    issues: list[ValidationIssue] = []
 
     # Esempio di scheletro (i nomi dei campi vanno adattati a CalcInput reale):
 
@@ -205,7 +206,7 @@ def _validate_geometry(
 def _validate_materials(
     calc_input: CalcInput,
     active_norm: NormPlugin,
-) -> List[ValidationIssue]:
+) -> list[ValidationIssue]:
     """Controlla coerenza dei materiali e delle azioni interne.
 
     Esempi di controlli:
@@ -221,7 +222,7 @@ def _validate_materials(
     Returns:
         Lista di ValidationIssue (può essere vuota).
     """
-    issues: List[ValidationIssue] = []
+    issues: list[ValidationIssue] = []
 
     material = getattr(calc_input, "material", None)
     if material is None:
@@ -260,7 +261,7 @@ def _validate_norm_compatibility(
     calc_input: CalcInput,
     active_norm: NormPlugin,
     templates: Sequence[VerificationTemplate],
-) -> List[ValidationIssue]:
+) -> list[ValidationIssue]:
     """Verifica la compatibilità tra norma attiva, template scelti e dati di input.
 
     Esempi di controlli:
@@ -276,7 +277,7 @@ def _validate_norm_compatibility(
     Returns:
         Lista di ValidationIssue (può essere vuota).
     """
-    issues: List[ValidationIssue] = []
+    issues: list[ValidationIssue] = []
 
     # Esempio di scheletro (i campi norm_code/limit_state vanno adattati):
 

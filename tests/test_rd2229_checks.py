@@ -760,7 +760,9 @@ def test_minimi_armatura_ta_beam_vs_column():
 
     # Should fail for column (3.0 < 4.5)
     assert not result_column.ok, "Column with As=3.0 cm² should fail (min=4.5 cm²)"
-    assert "pilastro" in "\n".join(result_column.messages_it).lower(), "Messages should mention 'pilastro'"
+    assert (
+        "pilastro" in "\n".join(result_column.messages_it).lower()
+    ), "Messages should mention 'pilastro'"
     assert result_column.details["element_type"] == "pilastro"
     assert result_column.details["is_column"]
     assert not result_column.details["is_beam"]
@@ -810,7 +812,9 @@ def test_pressoflessione_ta_slenderness_reduction():
     # Expected reduction_factor = 1 - 0.03 * (25 - 20) = 1 - 0.15 = 0.85
     expected_reduction = 0.85
     actual_reduction = result_slender.details["reduction_factor"]
-    assert abs(actual_reduction - expected_reduction) < 0.01, f"Reduction factor should be ~{expected_reduction}, got {actual_reduction}"
+    assert (
+        abs(actual_reduction - expected_reduction) < 0.01
+    ), f"Reduction factor should be ~{expected_reduction}, got {actual_reduction}"
 
     # Test 2: Non-slender section (A_min ≥ 25 cm)
     section_thick = MockRD2229Section(b=400.0, h=400.0)  # b=40cm > 25cm
@@ -829,13 +833,18 @@ def test_pressoflessione_ta_slenderness_reduction():
     result_thick = check_pressoflessione_ta_rett(calc_input_thick, template)
 
     messages_text_thick = "\n".join(result_thick.messages_it)
-    assert "non snella" in messages_text_thick or "riduzione non applicata" in messages_text_thick, \
-        "Should mention no reduction for thick section"
+    assert (
+        "non snella" in messages_text_thick or "riduzione non applicata" in messages_text_thick
+    ), "Should mention no reduction for thick section"
 
     # Verify PARTIAL status improved to mention slenderness implementation
-    assert "MIGLIORATA" in messages_text or "PARTIAL" in messages_text, "Should show improved status"
-    assert "Riduzione σ_c,adm per sezioni snelle implementata" in messages_text or \
-           "riduzione σ_c,adm" in messages_text.lower(), "Should mention slenderness implemented"
+    assert (
+        "MIGLIORATA" in messages_text or "PARTIAL" in messages_text
+    ), "Should show improved status"
+    assert (
+        "Riduzione σ_c,adm per sezioni snelle implementata" in messages_text
+        or "riduzione σ_c,adm" in messages_text.lower()
+    ), "Should mention slenderness implemented"
 
 
 # ==============================================================================
@@ -859,8 +868,8 @@ def test_pressoflessione_deviata_ta_concrete_ok():
         norm_code="RD2229",
         limit_states_enabled=["TA"],
         N=-100.0,  # kN - compression
-        Mx=30.0,   # kNm - bending around x-axis (reduced)
-        My=20.0,   # kNm - bending around y-axis (reduced)
+        Mx=30.0,  # kNm - bending around x-axis (reduced)
+        My=20.0,  # kNm - bending around y-axis (reduced)
         lc="LC2",
         fc=1.20,
     )
@@ -882,7 +891,9 @@ def test_pressoflessione_deviata_ta_concrete_ok():
     # Check stresses within limits
     sigma_c_max = result.details["sigma_c_max_kg_cm2"]
     sigma_c_adm = result.details["sigma_c_adm_kg_cm2"]
-    assert sigma_c_max <= sigma_c_adm, f"σ_c,max ({sigma_c_max}) should be ≤ σ_c,adm ({sigma_c_adm})"
+    assert (
+        sigma_c_max <= sigma_c_adm
+    ), f"σ_c,max ({sigma_c_max}) should be ≤ σ_c,adm ({sigma_c_adm})"
     assert 50.0 < sigma_c_max < 65.0, f"Expected σ_c,max ≈ 58 kg/cm², got {sigma_c_max}"
 
     # Check Italian messages contain key phrases
@@ -908,8 +919,8 @@ def test_pressoflessione_deviata_ta_slenderness():
         norm_code="RD2229",
         limit_states_enabled=["TA"],
         N=-150.0,  # kN - compression
-        Mx=40.0,   # kNm
-        My=25.0,   # kNm
+        Mx=40.0,  # kNm
+        My=25.0,  # kNm
         lc="LC2",
         fc=1.20,
     )
@@ -918,22 +929,28 @@ def test_pressoflessione_deviata_ta_slenderness():
     result = check_pressoflessione_deviata_ta_concrete(calc_input, template)
 
     # Should have reduction applied
-    assert result.details["reduction_applied"] is True, "Reduction should be applied for b=20cm < 25cm"
+    assert (
+        result.details["reduction_applied"] is True
+    ), "Reduction should be applied for b=20cm < 25cm"
     assert "A_min_cm" in result.details
-    assert result.details["A_min_cm"] == 20.0, f"A_min should be 20cm, got {result.details['A_min_cm']}"
+    assert (
+        result.details["A_min_cm"] == 20.0
+    ), f"A_min should be 20cm, got {result.details['A_min_cm']}"
 
     # Check reduction factor = 0.85
     reduction_factor = result.details["reduction_factor"]
     expected_reduction = 0.85
-    assert abs(reduction_factor - expected_reduction) < 0.01, \
-        f"Reduction factor should be ~{expected_reduction}, got {reduction_factor}"
+    assert (
+        abs(reduction_factor - expected_reduction) < 0.01
+    ), f"Reduction factor should be ~{expected_reduction}, got {reduction_factor}"
 
     # Check reduced σ_c,adm = 80 * 0.85 = 68 kg/cm²
     # The reduced value should be used for verification
     sigma_c_adm = result.details["sigma_c_adm_kg_cm2"]
     expected_adm_reduced = 80.0 * 0.85
-    assert abs(sigma_c_adm - expected_adm_reduced) < 1.0, \
-        f"Reduced σ_c,adm should be ~{expected_adm_reduced}, got {sigma_c_adm}"
+    assert (
+        abs(sigma_c_adm - expected_adm_reduced) < 1.0
+    ), f"Reduced σ_c,adm should be ~{expected_adm_reduced}, got {sigma_c_adm}"
 
     # Check Italian messages mention slenderness
     messages_text = "\n".join(result.messages_it)
@@ -1001,8 +1018,8 @@ def test_pressoflessione_deviata_ta_steel_with_moduli():
         norm_code="RD2229",
         limit_states_enabled=["TA"],
         N=-100.0,
-        Mx=50.0,   # kNm
-        My=30.0,   # kNm
+        Mx=50.0,  # kNm
+        My=30.0,  # kNm
         lc="LC2",
         fc=1.20,
         extra={

@@ -185,9 +185,9 @@ def test_large_dataset():
         final = repo3.get_all_sections()
 
         modified_sections = [s for s in final if s.name.endswith("_modified")]
-        assert len(modified_sections) == 10, (
-            f"Modificate {len(modified_sections)} sezioni, attese 10"
-        )
+        assert (
+            len(modified_sections) == 10
+        ), f"Modificate {len(modified_sections)} sezioni, attese 10"
         print("  ✓ Verificate 10 sezioni modificate")
 
     print("\n✅ TEST DATASET GRANDE PASSATO\n")

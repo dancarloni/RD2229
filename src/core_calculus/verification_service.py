@@ -114,9 +114,11 @@ def run_verifications_for_element(
                 ok=False,
                 utilisation=None,
                 details={"error": str(e)},
-                norm_references=template.secondary_references
-                if template.primary_reference is None
-                else [template.primary_reference] + template.secondary_references,
+                norm_references=(
+                    template.secondary_references
+                    if template.primary_reference is None
+                    else [template.primary_reference] + template.secondary_references
+                ),
                 messages_it=[f"Errore nell'esecuzione della verifica: {e}"],
                 check_category=template.check_category,
                 limit_state=template.limit_state,

@@ -14,8 +14,10 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
-from libs.app_module.services.notification import notify_error  # type: ignore[import]
-from libs.app_module.services.notification import notify_info  # type: ignore[import]
+from libs.app_module.services.notification import (
+    notify_error,  # type: ignore[import]
+    notify_info,  # type: ignore[import]
+)
 
 logger = logging.getLogger(__name__)
 
