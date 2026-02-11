@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from .carbon_fiber_placeholder import SectionGeometry, SectionProperties
+from .geometry import SectionGeometry, SectionProperties
 from .materials import ConcreteLawTA, SteelLawTA, sigma_c, sigma_s
 
 # Mapping: VB CalcoloTensNormali (4.3), PointP (util to find zero-stress point) and SezioneParzializzata.
@@ -304,6 +304,6 @@ def compute_normal_stresses_ta(
 
 # helper: compute polygon centroid and area and inertias, but return raw sums used earlier
 def _poly_aux(poly):
-    from .carbon_fiber_placeholder import _polygon_area_centroid_inertia
+    from .geometry import _polygon_area_centroid_inertia
 
     return _polygon_area_centroid_inertia(poly)

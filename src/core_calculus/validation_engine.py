@@ -360,4 +360,97 @@ def validate_calc_input(
                     )
                 )
 
+    # 9. RD2229-specific validation (Tensioni Ammissibili)
+    if active_norm == "RD2229":
+        # Warn if LC/FC not specified (TA typically for existing structures)
+        if calc_input.lc is None or calc_input.fc is None:
+            issues.append(
+                ValidationIssue(
+                    severity="warning",
+                    field="lc",
+                    code="MISSING_LC_FC_FOR_EXISTING",
+                    message_it=(
+                        "RD 2229/39 tipicamente utilizzato per strutture esistenti: "
+                        "considerare di specificare LC (Livello di Conoscenza) e FC (Fattore di Confidenza)"
+                    ),
+                    norm_reference=NormReference(
+                        norm_code="NTC2018",
+                        chapter="8",
+                        paragraph="8.5.4",
+                        description_it="Livelli di conoscenza per strutture esistenti",
+                    ),
+                )
+            )
+
+        # Check material has TA-compatible properties
+        if calc_input.material is not None:
+            material = calc_input.material
+            # Check if material has either RD2229 properties or modern properties
+            has_rd2229_props = hasattr(material, "sigma_c_adm") or hasattr(material, "sigma_c28")
+            has_modern_props = hasattr(material, "f_ck")
+
+            if not has_rd2229_props and not has_modern_props:
+                issues.append(
+                    ValidationIssue(
+                        severity="error",
+                        field="material",
+                        code="MISSING_TA_MATERIAL_PROPERTIES",
+                        message_it=(
+                            "Materiale non compatibile con RD 2229/39: "
+                            "deve avere sigma_c_adm/sigma_c28 (proprietà TA storiche) o f_ck (moderne)"
+                        ),
+                    )
+                )
+
+        # Warn if section dimensions seem wrong (possible unit error)
+        if calc_input.section is not None:
+            section = calc_input.section
+            if hasattr(section, "width") and section.width > 10000:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="section.width",
+                        code="POSSIBLE_UNIT_ERROR",
+                        message_it=(
+                            f"Larghezza sezione molto grande ({section.width} mm): "
+                            "verificare che le unità siano corrette. "
+                            "RD 2229 usa sistema tecnico (cm), CalcInput usa mm."
+                        ),
+                    )
+                )
+
+        # Check reinforcement data for flessione checks
+        if "TA" in calc_input.limit_states_enabled:
+            if calc_input.As is None or calc_input.As == 0:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="As",
+                        code="MISSING_REINFORCEMENT_TA",
+                        message_it=(
+                            "Armatura tesa As non specificata - "
+                            "verifiche a flessione TA non eseguibili"
+                        ),
+                        norm_reference=NormReference(
+                            norm_code="RD2229",
+                            chapter="Art. 16",
+                            paragraph="Tensioni ammissibili",
+                            description_it="Verifica tensioni ammissibili richiede armatura definita",
+                        ),
+                    )
+                )
+
+            if calc_input.d is None or calc_input.d == 0:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="d",
+                        code="MISSING_EFFECTIVE_DEPTH_TA",
+                        message_it=(
+                            "Altezza utile d non specificata - "
+                            "verrà stimata come d ≈ 0.9h per verifiche TA"
+                        ),
+                    )
+                )
+
     return ValidationResult(issues=issues)

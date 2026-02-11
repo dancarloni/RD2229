@@ -30,7 +30,7 @@ def get_all_templates() -> list[VerificationTemplate]:
     """
     return [
         *get_ntc2018_templates(),
-        # Future: *get_rd2229_templates(),
+        *get_rd2229_templates(),
         # Future: *get_ntc2008_templates(),
         # Future: *get_ec2_templates(),
     ]
@@ -245,10 +245,187 @@ def get_ntc2018_templates() -> list[VerificationTemplate]:
 def get_rd2229_templates() -> list[VerificationTemplate]:
     """Get RD 2229/39 templates (Tensioni Ammissibili storiche).
 
-    TODO: Implementare templates TA secondo RD 2229/39.
+    Implementazione Session 5:
+    - 1 template COMPLETE (flessione TA)
+    - 3 templates PARTIAL (pressoflessione, taglio, minimi armatura)
+
+    Tutti con messaggi in italiano e TODOs chiari per parti mancanti.
     """
     return [
-        # TODO: Implementare templates per RD 2229/39
+        # Flessione TA (COMPLETE)
+        VerificationTemplate(
+            template_id="rd2229_ta_flessione_rett",
+            norm_code="RD2229",
+            norm_version="1939",
+            verification_type="flessione",
+            limit_state="TA",
+            description_it="Verifica a flessione metodo Tensioni Ammissibili - RD 2229/39",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Mx", "As", "d"],
+            optional_inputs=["My", "As_prime", "d_prime"],
+            output_metrics=[
+                "sigma_c_max_kg_cm2",
+                "sigma_s_max_kg_cm2",
+                "sigma_c_adm_kg_cm2",
+                "sigma_s_adm_kg_cm2",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="RD2229",
+                chapter="Art. 16",
+                paragraph="Tensioni ammissibili",
+                description_it="Tensioni ammissibili per calcestruzzo e acciaio",
+                notes_it=(
+                    "Implementazione completa con calcolo tensioni normali metodo TA. "
+                    "σ_c,adm = 0.5 × σ_c,28, σ_s,adm = 0.5 × σ_sn. "
+                    "Utilizza historical_ta.stress.compute_normal_stresses_ta() per calcolo completo."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="RD2229",
+                    chapter="Art. 14",
+                    paragraph="Coefficiente di omogeneizzazione",
+                    description_it="n = Es / Ec per sezioni omogeneizzate",
+                )
+            ],
+            function_path="src.methods.checks_rd2229.check_flessione_ta_rett",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={"implementation_status": "complete"},
+        ),
+        # Pressoflessione TA (PARTIAL)
+        VerificationTemplate(
+            template_id="rd2229_ta_pressoflessione_rett",
+            norm_code="RD2229",
+            norm_version="1939",
+            verification_type="pressoflessione",
+            limit_state="TA",
+            description_it="Verifica a pressoflessione metodo Tensioni Ammissibili - RD 2229/39",
+            check_category="resistenza",
+            required_inputs=["section", "material", "N", "Mx", "As", "d"],
+            optional_inputs=["My", "As_prime", "d_prime"],
+            output_metrics=[
+                "sigma_c_max_kg_cm2",
+                "sigma_s_max_kg_cm2",
+                "N_kg",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="RD2229",
+                chapter="Art. 16",
+                paragraph="Tensioni ammissibili - Pressoflessione",
+                description_it="Tensioni ammissibili per presso/tensioflessione",
+                notes_it=(
+                    "Implementazione MIGLIORATA: calcolo tensioni completo + riduzione snellezza. "
+                    "✓ IMPLEMENTATO: Riduzione σ_c,adm per sezioni snelle (Art. 16): "
+                    "σ_c,adm,rid = σ_c,adm × (1 - 0.03 × (25 - A_min)) per A_min < 25 cm. "
+                    "TODO: Controllo instabilità pilastri snelli (λ > 15) - richiede l₀. "
+                    "Riferimento normativo: RD 2229/39 Art. 16."
+                ),
+            ),
+            secondary_references=[],
+            function_path="src.methods.checks_rd2229.check_pressoflessione_ta_rett",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={
+                "implementation_status": "improved_partial",
+                "missing_features": ["instabilita_pilastri"],
+            },
+        ),
+        # Taglio TA (PARTIAL)
+        VerificationTemplate(
+            template_id="rd2229_ta_taglio_rett",
+            norm_code="RD2229",
+            norm_version="1939",
+            verification_type="taglio",
+            limit_state="TA",
+            description_it="Verifica a taglio metodo Tensioni Ammissibili - RD 2229/39",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Tx", "d"],
+            optional_inputs=["Ty", "staffe_passo", "staffe_diametro"],
+            output_metrics=[
+                "tau_kg_cm2",
+                "tau_c0_kg_cm2",
+                "tau_c1_kg_cm2",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="RD2229",
+                chapter="Art. 21",
+                paragraph="Tensioni tangenziali ammissibili",
+                description_it="Verifica a taglio",
+                notes_it=(
+                    "Implementazione PARZIALE: verifica tensione tangenziale base τ = V / (b·d). "
+                    "TODO: Formula completa secondo Art. 21 RD 2229/39. "
+                    "TODO: Calcolo contributo staffe metodo TA storico. "
+                    "TODO: Minimi armatura a taglio secondo RD 2229/39. "
+                    "τ_c0 = 0.06 × σ_c,28 (senza staffe), τ_c1 = 0.14 × σ_c,28 (con staffe)."
+                ),
+            ),
+            secondary_references=[],
+            function_path="src.methods.checks_rd2229.check_taglio_ta_rett",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={
+                "implementation_status": "partial",
+                "missing_features": [
+                    "formula_completa_art21",
+                    "contributo_staffe_ta",
+                    "minimi_armatura_taglio",
+                ],
+            },
+        ),
+        # Minimi armatura TA (PARTIAL)
+        VerificationTemplate(
+            template_id="rd2229_ta_minimi_armatura_long",
+            norm_code="RD2229",
+            norm_version="1939",
+            verification_type="minimi_armatura",
+            limit_state="TA",
+            description_it="Verifica minimi armatura longitudinale - RD 2229/39",
+            check_category="minimi_armatura",
+            required_inputs=["section", "material", "As"],
+            optional_inputs=["element_type"],  # "trave" or "pilastro"
+            output_metrics=[
+                "As_cm2",
+                "As_min_cm2",
+                "As_max_cm2",
+                "percentuale_armatura",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="RD2229",
+                chapter="Art. 16",
+                paragraph="Armature minime e massime",
+                description_it="Percentuali armatura longitudinale",
+                notes_it=(
+                    "Implementazione COMPLETA con compute_long_rebar_limits_ta(). "
+                    "Distinzione automatica travi (As,min = 0.15% A_sez) / "
+                    "pilastri (As,min = 0.30% A_sez). "
+                    "As,max = 6% A_sez per entrambi. Riferimento: Art. 16 RD 2229/39."
+                ),
+            ),
+            secondary_references=[],
+            function_path="src.methods.checks_rd2229.check_minimi_armatura_ta",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={
+                "implementation_status": "complete",
+            },
+        ),
     ]
 
 
