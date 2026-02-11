@@ -42,7 +42,7 @@ class AdjustedMaterialProperties:
     lc: str | None = None  # LC1, LC2, LC3
     fc: float | None = None  # Confidence Factor
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Compute design strengths from adjusted values."""
         if self.f_cd == 0.0:
             self.f_cd = 0.85 * self.f_ck_adjusted / self.gamma_c

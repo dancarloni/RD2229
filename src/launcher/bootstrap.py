@@ -7,7 +7,7 @@ import logging
 from importlib import import_module
 
 
-def configure_logging():
+def configure_logging() -> None:
     """Configure logging for the application."""
     logging.basicConfig(
         level=logging.DEBUG,
@@ -20,7 +20,7 @@ def configure_logging():
     logging.getLogger().addHandler(fh)
 
 
-def run_app():
+def run_app() -> None:
     """Main entry point for the application."""
     configure_logging()
     # Import and run the main app from apps.sections

@@ -69,11 +69,11 @@ def run_verifications_for_element(
             validation_result=validation_result,
             summary_metrics={
                 "status": "NON_VERIFICATO_PER_ERRORI_INPUT",
-                "num_errori_validazione": len(
-                    [i for i in validation_result.issues if i.severity == "error"]
+                "num_errori_validazione": float(
+                    len([i for i in validation_result.issues if i.severity == "error"])
                 ),
-                "num_warning_validazione": len(
-                    [i for i in validation_result.issues if i.severity == "warning"]
+                "num_warning_validazione": float(
+                    len([i for i in validation_result.issues if i.severity == "warning"])
                 ),
             },
         )
@@ -141,9 +141,9 @@ def run_verifications_for_element(
 
     summary_metrics = {
         "status": "OK" if global_ok else "NON_OK",
-        "num_verifiche_eseguite": len(per_template_results),
-        "num_verifiche_ok": sum(1 for r in per_template_results.values() if r.ok),
-        "num_verifiche_non_ok": sum(1 for r in per_template_results.values() if not r.ok),
+        "num_verifiche_eseguite": float(len(per_template_results)),
+        "num_verifiche_ok": float(sum(1 for r in per_template_results.values() if r.ok)),
+        "num_verifiche_non_ok": float(sum(1 for r in per_template_results.values() if not r.ok)),
     }
 
     if max_utilisation is not None:

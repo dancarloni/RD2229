@@ -7,7 +7,8 @@ All user-facing messages must be in Italian.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import dataclasses
+from dataclasses import dataclass
 from typing import Any
 
 
@@ -40,7 +41,7 @@ class ValidationIssue:
     code: str  # Machine-readable code (e.g., "NEGATIVE_D", "INVALID_LC")
     message_it: str  # Italian message for user
     norm_reference: NormReference | None = None  # If issue comes from norm requirement
-    context: dict[str, Any] = field(default_factory=dict)  # Additional context
+    context: dict[str, Any] = dataclasses.field(default_factory=dict)  # Additional context
 
 
 @dataclass
@@ -50,7 +51,7 @@ class ValidationResult:
     If has_errors is True, verification MUST NOT run.
     """
 
-    issues: list[ValidationIssue] = field(default_factory=list)
+    issues: list[ValidationIssue] = dataclasses.field(default_factory=list)
 
     @property
     def has_errors(self) -> bool:
@@ -76,18 +77,24 @@ class VerificationTemplate:
     limit_state: str = ""  # e.g., "SLU", "SLE", "TA"
     description_it: str = ""  # Italian description shown to user
     check_category: str = ""  # e.g., "resistenza", "minimi_armatura", "tensioni"
-    required_inputs: list[str] = field(default_factory=list)  # e.g., ["N", "Mx", "As", "d"]
-    optional_inputs: list[str] = field(default_factory=list)  # e.g., ["My", "Mz"]
-    output_metrics: list[str] = field(default_factory=list)  # e.g., ["M_Rd", "utilisazione"]
+    required_inputs: list[str] = dataclasses.field(
+        default_factory=list
+    )  # e.g., ["N", "Mx", "As", "d"]
+    optional_inputs: list[str] = dataclasses.field(default_factory=list)  # e.g., ["My", "Mz"]
+    output_metrics: list[str] = dataclasses.field(
+        default_factory=list
+    )  # e.g., ["M_Rd", "utilisazione"]
     primary_reference: NormReference | None = None
-    secondary_references: list[NormReference] = field(default_factory=list)
+    secondary_references: list[NormReference] = dataclasses.field(default_factory=list)
     function_path: str = ""  # e.g., "src.methods.verification.methods_slu.check_flessione_slu"
     can_batch: bool = True  # Can this check be batched for multiple elements?
     supports_real_time: bool = True  # Can run in real-time per-row?
     applicable_section_types: list[str] | None = None  # e.g., ["rectangular", "circular"]
     applicable_material_tags: list[str] | None = None  # e.g., ["concrete", "RC"]
     requires_existing_structure: bool = False  # True if check only for existing structures (LC/FC)
-    extra_params: dict[str, Any] = field(default_factory=dict)  # Template-specific params
+    extra_params: dict[str, Any] = dataclasses.field(
+        default_factory=dict
+    )  # Template-specific params
 
 
 @dataclass
@@ -100,9 +107,9 @@ class SingleCheckResult:
     template_id: str  # Which template was executed
     ok: bool  # True if check passed, False if failed
     utilisation: float | None = None  # Utilisation ratio (e.g., 0.85 = 85%)
-    details: dict[str, float | str] = field(default_factory=dict)  # Intermediate values
-    norm_references: list[NormReference] = field(default_factory=list)  # Norms used
-    messages_it: list[str] = field(default_factory=list)  # Italian messages for user
+    details: dict[str, float | str] = dataclasses.field(default_factory=dict)  # Intermediate values
+    norm_references: list[NormReference] = dataclasses.field(default_factory=list)  # Norms used
+    messages_it: list[str] = dataclasses.field(default_factory=list)  # Italian messages for user
     check_category: str | None = None  # e.g., "resistenza", "minimi_armatura"
     limit_state: str | None = None  # e.g., "SLU", "SLE"
 
@@ -130,7 +137,9 @@ class CalcInput:
 
     # Normative context
     norm_code: str = ""  # e.g., "NTC2018", "RD2229"
-    limit_states_enabled: list[str] = field(default_factory=list)  # e.g., ["SLU", "SLE"]
+    limit_states_enabled: list[str] = dataclasses.field(
+        default_factory=list
+    )  # e.g., ["SLU", "SLE"]
 
     # LC/FC for existing structures (optional)
     lc: str | None = None  # Livello di Conoscenza: "LC1", "LC2", "LC3"
@@ -157,7 +166,7 @@ class CalcInput:
     area_ferri_piegati: float | None = None  # Bent-up bars area [cm² or mm²]
 
     # Extra data (for circular rebar layouts, custom parameters, etc.)
-    extra: dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = dataclasses.field(default_factory=dict)
 
 
 @dataclass
@@ -174,10 +183,10 @@ class CalcOutput:
     element_name: str = ""
     norm_code: str = ""
     ok: bool = False  # Global ok/non-ok (all checks passed)
-    per_template_results: dict[str, SingleCheckResult] = field(
+    per_template_results: dict[str, SingleCheckResult] = dataclasses.field(
         default_factory=dict
     )  # template_id → result
     validation_result: ValidationResult | None = None
-    summary_metrics: dict[str, float | bool | str] = field(
+    summary_metrics: dict[str, float | bool | str] = dataclasses.field(
         default_factory=dict
     )  # e.g., {"status": "OK", "utilizzazione_massima": 0.85, "template_controllante": "ntc2018_slu_flessione"}
