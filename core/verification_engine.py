@@ -1,13 +1,18 @@
 # Compatibility shim mapping to src.core_calculus.verification_engine
+from __future__ import annotations
 from importlib import import_module as _im
 
-_mod = _im("src.core_calculus.verification_engine")
+try:
+    _mod = _im("src.core_calculus.core.verification_engine")
+except ModuleNotFoundError:
+    try:
+        _mod = _im("core_calculus.core.verification_engine")
+    except ModuleNotFoundError:
+        _mod = _im("src.core_calculus.core.verification_engine")
+
 for _name, _val in vars(_mod).items():
     if not _name.startswith("_"):
         globals()[_name] = _val
-
-
-from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Sequence

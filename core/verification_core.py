@@ -1,12 +1,20 @@
 # Compatibility shim mapping to src.core_calculus.verification_core
+from __future__ import annotations
 from importlib import import_module as _im
 
-_mod = _im("src.core_calculus.verification_core")
+try:
+    # Prefer the path used in project imports
+    _mod = _im("src.core_calculus.core.verification_core")
+except ModuleNotFoundError:
+    # Fallbacks to support different PYTHONPATH setups
+    try:
+        _mod = _im("core_calculus.core.verification_core")
+    except ModuleNotFoundError:
+        _mod = _im("src.core_calculus.core.verification_core")
+
 for _name, _val in vars(_mod).items():
     if not _name.startswith("_"):
         globals()[_name] = _val
-
-from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Dict, List, Sequence
