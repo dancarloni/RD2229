@@ -427,6 +427,93 @@ def get_rd2229_templates() -> list[VerificationTemplate]:
                 "implementation_status": "complete",
             },
         ),
+        # Pressoflessione deviata TA - Concrete (COMPLETE)
+        VerificationTemplate(
+            template_id="rd2229_ta_pressoflessione_deviata_concrete",
+            norm_code="RD2229",
+            norm_version="1939",
+            verification_type="pressoflessione_deviata",
+            limit_state="TA",
+            description_it="Verifica cls pressoflessione deviata N-Mx-My - RD 2229/39",
+            check_category="resistenza",
+            required_inputs=["section", "material"],
+            optional_inputs=["N", "Mx", "My"],
+            output_metrics=["sigma_c_max_kg_cm2", "sigma_c_adm_kg_cm2", "utilisazione"],
+            primary_reference=NormReference(
+                norm_code="RD2229",
+                chapter="Art. 18",
+                paragraph="Tensioni ammissibili calcestruzzo",
+                description_it="Carichi di sicurezza per flessione e compressione",
+                notes_it=(
+                    "Implementazione COMPLETA con sovrapposizione elastica (Art. 29). "
+                    "σ_c,max = N/A + |Mx|/Wx + |My|/Wy. "
+                    "Riduzione sezioni snelle (A_min < 25 cm) integrata. "
+                    "TODO: Instabilità λ > 15 (richiede l₀)."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="RD2229",
+                    chapter="Art. 29",
+                    paragraph="Metodo elastico",
+                    description_it="Sovrapposizione lineare effetti",
+                ),
+                NormReference(
+                    norm_code="RD2229",
+                    chapter="Art. 30",
+                    paragraph="Pilastri snelli",
+                    description_it="Verifica stabilità λ > 15 (OUT OF SCOPE)",
+                ),
+            ],
+            function_path="src.methods.checks_rd2229.check_pressoflessione_deviata_ta_concrete",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={"implementation_status": "complete"},
+        ),
+        # Pressoflessione deviata TA - Steel (PARTIAL)
+        VerificationTemplate(
+            template_id="rd2229_ta_pressoflessione_deviata_steel",
+            norm_code="RD2229",
+            norm_version="1939",
+            verification_type="pressoflessione_deviata",
+            limit_state="TA",
+            description_it="Verifica acciaio pressoflessione deviata N-Mx-My - RD 2229/39",
+            check_category="resistenza",
+            required_inputs=["section", "material"],
+            optional_inputs=["N", "Mx", "My", "As", "d"],
+            output_metrics=["sigma_s_max_kg_cm2", "sigma_s_adm_kg_cm2", "utilisazione"],
+            primary_reference=NormReference(
+                norm_code="RD2229",
+                chapter="Art. 19",
+                paragraph="Tensioni ammissibili acciaio",
+                description_it="Limiti tensioni acciaio in flessione",
+                notes_it=(
+                    "Implementazione PARZIALE: richiede W_sx, W_sy in calc_input.extra. "
+                    "TODO: Calcolo automatico moduli resistenza acciaio da geometria barre."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="RD2229",
+                    chapter="Art. 29",
+                    paragraph="Metodo elastico",
+                    description_it="Sovrapposizione lineare effetti",
+                ),
+            ],
+            function_path="src.methods.checks_rd2229.check_pressoflessione_deviata_ta_steel",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={
+                "implementation_status": "partial",
+                "missing_features": ["automatic_steel_moduli_calculation"],
+            },
+        ),
     ]
 
 

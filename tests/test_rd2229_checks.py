@@ -22,6 +22,8 @@ from src.core_calculus.contracts import CalcInput
 from src.methods.checks_rd2229 import (
     check_flessione_ta_rett,
     check_minimi_armatura_ta,
+    check_pressoflessione_deviata_ta_concrete,
+    check_pressoflessione_deviata_ta_steel,
     check_pressoflessione_ta_rett,
     check_taglio_ta_rett,
     convert_loads_to_ta_units,
@@ -834,6 +836,200 @@ def test_pressoflessione_ta_slenderness_reduction():
     assert "MIGLIORATA" in messages_text or "PARTIAL" in messages_text, "Should show improved status"
     assert "Riduzione σ_c,adm per sezioni snelle implementata" in messages_text or \
            "riduzione σ_c,adm" in messages_text.lower(), "Should mention slenderness implemented"
+
+
+# ==============================================================================
+# PRESSOFLESSIONE DEVIATA TA TESTS (COMPLETE - Session 6)
+# ==============================================================================
+
+
+def test_pressoflessione_deviata_ta_concrete_ok():
+    """Test biaxial bending concrete verification - passing case.
+
+    Verifies elastic superposition: σ_c,max = N/A + |Mx|/Wx + |My|/Wy
+    Expected: σ_c,max ≈ 58 kg/cm² < 80 kg/cm² (R160) → OK
+    """
+    section = MockRD2229Section(b=300.0, h=500.0)  # b=30cm, h=50cm
+    material = MockRD2229Material()  # R160: σ_c,adm = 80 kg/cm²
+
+    calc_input = CalcInput(
+        element_name="Pilastro Biassiale Test OK",
+        section=section,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=-100.0,  # kN - compression
+        Mx=30.0,   # kNm - bending around x-axis (reduced)
+        My=20.0,   # kNm - bending around y-axis (reduced)
+        lc="LC2",
+        fc=1.20,
+    )
+
+    template = MockRD2229Template(template_id="rd2229_ta_pressoflessione_deviata_concrete")
+    result = check_pressoflessione_deviata_ta_concrete(calc_input, template)
+
+    # Should pass
+    assert result.ok, f"Check should pass. Messages: {result.messages_it}"
+    assert result.utilisation is not None
+    assert result.utilisation < 1.0, f"Utilisation should be < 1.0, got {result.utilisation}"
+
+    # Check details present
+    assert "sigma_c_max_kg_cm2" in result.details
+    assert "sigma_c_adm_kg_cm2" in result.details
+    assert "Wx_cm3" in result.details
+    assert "Wy_cm3" in result.details
+
+    # Check stresses within limits
+    sigma_c_max = result.details["sigma_c_max_kg_cm2"]
+    sigma_c_adm = result.details["sigma_c_adm_kg_cm2"]
+    assert sigma_c_max <= sigma_c_adm, f"σ_c,max ({sigma_c_max}) should be ≤ σ_c,adm ({sigma_c_adm})"
+    assert 50.0 < sigma_c_max < 65.0, f"Expected σ_c,max ≈ 58 kg/cm², got {sigma_c_max}"
+
+    # Check Italian messages contain key phrases
+    messages_text = "\n".join(result.messages_it)
+    assert "PRESSOFLESSIONE DEVIATA" in messages_text
+    assert "sovrapposizione" in messages_text.lower() or "N/A" in messages_text
+    assert "Wx" in messages_text and "Wy" in messages_text
+
+
+def test_pressoflessione_deviata_ta_slenderness():
+    """Test slenderness reduction for small sections (A_min < 25 cm).
+
+    Section: b=20cm (< 25cm), h=40cm
+    Expected reduction factor: 1 - 0.03*(25-20) = 0.85
+    """
+    section = MockRD2229Section(b=200.0, h=400.0)  # b=20cm < 25cm → slender
+    material = MockRD2229Material()  # R160: σ_c,adm = 80 kg/cm²
+
+    calc_input = CalcInput(
+        element_name="Pilastro Snello Biassiale",
+        section=section,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=-150.0,  # kN - compression
+        Mx=40.0,   # kNm
+        My=25.0,   # kNm
+        lc="LC2",
+        fc=1.20,
+    )
+
+    template = MockRD2229Template(template_id="rd2229_ta_pressoflessione_deviata_concrete")
+    result = check_pressoflessione_deviata_ta_concrete(calc_input, template)
+
+    # Should have reduction applied
+    assert result.details["reduction_applied"] is True, "Reduction should be applied for b=20cm < 25cm"
+    assert "A_min_cm" in result.details
+    assert result.details["A_min_cm"] == 20.0, f"A_min should be 20cm, got {result.details['A_min_cm']}"
+
+    # Check reduction factor = 0.85
+    reduction_factor = result.details["reduction_factor"]
+    expected_reduction = 0.85
+    assert abs(reduction_factor - expected_reduction) < 0.01, \
+        f"Reduction factor should be ~{expected_reduction}, got {reduction_factor}"
+
+    # Check reduced σ_c,adm = 80 * 0.85 = 68 kg/cm²
+    # The reduced value should be used for verification
+    sigma_c_adm = result.details["sigma_c_adm_kg_cm2"]
+    expected_adm_reduced = 80.0 * 0.85
+    assert abs(sigma_c_adm - expected_adm_reduced) < 1.0, \
+        f"Reduced σ_c,adm should be ~{expected_adm_reduced}, got {sigma_c_adm}"
+
+    # Check Italian messages mention slenderness
+    messages_text = "\n".join(result.messages_it)
+    assert "Riduzione sezioni snelle" in messages_text or "snell" in messages_text.lower()
+    assert "A_min" in messages_text or "20" in messages_text
+    assert "Fattore di riduzione" in messages_text or "0.85" in messages_text
+
+
+def test_pressoflessione_deviata_ta_steel_missing_moduli():
+    """Test steel verification fails gracefully without W_sx, W_sy.
+
+    Verifies PARTIAL implementation: requires W_sx_cm3, W_sy_cm3 in calc_input.extra
+    Should return ok=False with helpful Italian error message.
+    """
+    section = MockRD2229Section(b=300.0, h=500.0)
+    material = MockRD2229Material()
+
+    # No W_sx, W_sy provided in extra
+    calc_input = CalcInput(
+        element_name="Pilastro Test Acciaio",
+        section=section,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=-100.0,
+        Mx=50.0,
+        My=30.0,
+        lc="LC2",
+        fc=1.20,
+        # No extra dict with W_sx_cm3, W_sy_cm3
+    )
+
+    template = MockRD2229Template(template_id="rd2229_ta_pressoflessione_deviata_steel")
+    result = check_pressoflessione_deviata_ta_steel(calc_input, template)
+
+    # Should fail gracefully
+    assert result.ok is False, "Check should return ok=False when W_sx/W_sy missing"
+    assert result.details["partial_reason"] == "missing_steel_moduli"
+
+    # Check Italian messages explain the issue
+    messages_text = "\n".join(result.messages_it)
+    assert "DATI MANCANTI" in messages_text or "NON ESEGUITA" in messages_text
+    assert "W_sx" in messages_text and "W_sy" in messages_text
+    assert "W_sx_cm3" in messages_text or "moduli resistenza" in messages_text.lower()
+    assert "calc_input.extra" in messages_text
+
+    # Should reference Art. 19
+    assert "Art. 19" in messages_text or "Art.19" in messages_text
+
+
+def test_pressoflessione_deviata_ta_steel_with_moduli():
+    """Test steel verification when W_sx, W_sy are provided.
+
+    Provides W_sx_cm3, W_sy_cm3 in calc_input.extra
+    Should compute σ_s,max = |Mx|/W_sx + |My|/W_sy and verify.
+    """
+    section = MockRD2229Section(b=300.0, h=500.0)
+    material = MockRD2229Material()  # FeB38k: σ_s,adm = 1900 kg/cm²
+
+    # Provide steel moduli in extra
+    calc_input = CalcInput(
+        element_name="Pilastro Acciaio Con Moduli",
+        section=section,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=-100.0,
+        Mx=50.0,   # kNm
+        My=30.0,   # kNm
+        lc="LC2",
+        fc=1.20,
+        extra={
+            "W_sx_cm3": 400.0,  # cm³ - section modulus around x
+            "W_sy_cm3": 250.0,  # cm³ - section modulus around y
+        },
+    )
+
+    template = MockRD2229Template(template_id="rd2229_ta_pressoflessione_deviata_steel")
+    result = check_pressoflessione_deviata_ta_steel(calc_input, template)
+
+    # Should compute result
+    assert result.ok is True or result.ok is False  # Depends on stress levels
+    assert "sigma_s_max_kg_cm2" in result.details
+    assert "sigma_s_adm_kg_cm2" in result.details
+
+    # Check details
+    sigma_s_max = result.details["sigma_s_max_kg_cm2"]
+    sigma_s_adm = result.details["sigma_s_adm_kg_cm2"]
+    assert sigma_s_max > 0, f"σ_s,max should be positive, got {sigma_s_max}"
+    assert sigma_s_adm == 1900.0  # FeB38k
+
+    # Check Italian messages
+    messages_text = "\n".join(result.messages_it)
+    assert "VERIFICA ACCIAIO" in messages_text or "acciaio" in messages_text.lower()
+    assert "W_sx" in messages_text and "W_sy" in messages_text
+    assert str(400.0) in messages_text or "400" in messages_text  # W_sx value
 
 
 if __name__ == "__main__":

@@ -9,11 +9,11 @@ Struttura:
 - Funzioni per costruzione material laws (ConcreteLawTA, SteelLawTA)
 - Funzioni di verifica: flessione TA, pressoflessione TA, taglio TA, minimi armatura
 
-Stato implementazione:
+Stato implementazione (dopo Session 6):
 - check_flessione_ta_rett: COMPLETE
-- check_pressoflessione_ta_rett: PARTIAL (con TODOs italiani)
-- check_taglio_ta_rett: PARTIAL (con TODOs italiani)
-- check_minimi_armatura_ta: PARTIAL (con TODOs italiani)
+- check_pressoflessione_ta_rett: IMPROVED PARTIAL (riduzione snellezza implementata)
+- check_taglio_ta_rett: PARTIAL+ (messaggi migliorati, formula conservativa)
+- check_minimi_armatura_ta: COMPLETE (distinzione travi/pilastri implementata)
 
 Tutti i messaggi utente sono in italiano.
 """
@@ -316,6 +316,105 @@ def get_rd2229_allowable_stresses(material: Any) -> AllowableStressesExtracted:
         sigma_s_allow=sigma_s_allow,
         sigma_c_med_allow=sigma_c_med_allow,
     )
+
+
+# ==============================================================================
+# BIAXIAL BENDING HELPERS (TA - RD 2229/39)
+# ==============================================================================
+
+
+def compute_section_moduli_rect(b_cm: float, h_cm: float) -> tuple[float, float]:
+    """Calcola moduli di resistenza Wx, Wy per sezione rettangolare.
+
+    Per sezione rettangolare (b × h):
+    - Wx = b × h² / 6  (modulo resistente attorno asse x - flessione My)
+    - Wy = h × b² / 6  (modulo resistente attorno asse y - flessione Mx)
+
+    Args:
+        b_cm: Larghezza sezione in cm
+        h_cm: Altezza sezione in cm
+
+    Returns:
+        Tupla (Wx_cm3, Wy_cm3) moduli di resistenza in cm³
+    """
+    Wx_cm3 = b_cm * h_cm**2 / 6.0
+    Wy_cm3 = h_cm * b_cm**2 / 6.0
+    return Wx_cm3, Wy_cm3
+
+
+def compute_sigma_concrete_biaxial_ta(
+    N_kg: float,
+    Mx_kg_cm: float,
+    My_kg_cm: float,
+    A_cm2: float,
+    Wx_cm3: float,
+    Wy_cm3: float,
+) -> float:
+    """Calcola tensione massima cls con pressoflessione deviata metodo TA.
+
+    Metodo elastico lineare con sovrapposizione effetti (RD 2229/39 Art. 29):
+    σ_c,max = N/A + |Mx|/Wx + |My|/Wy
+
+    Nota: Questa formula fornisce la tensione al bordo più compresso.
+    RD 2229 non prevede domini N-Mx-My; usa sovrapposizione elastica.
+
+    Args:
+        N_kg: Sforzo normale in kg (negativo = compressione)
+        Mx_kg_cm: Momento flettente attorno asse x in kg·cm
+        My_kg_cm: Momento flettente attorno asse y in kg·cm
+        A_cm2: Area sezione in cm²
+        Wx_cm3: Modulo resistente attorno x in cm³
+        Wy_cm3: Modulo resistente attorno y in cm³
+
+    Returns:
+        Tensione massima cls in kg/cm² (valore assoluto)
+    """
+    sigma_N = N_kg / A_cm2 if A_cm2 > 0 else 0.0
+    sigma_Mx = abs(Mx_kg_cm) / Wx_cm3 if Wx_cm3 > 0 else 0.0
+    sigma_My = abs(My_kg_cm) / Wy_cm3 if Wy_cm3 > 0 else 0.0
+
+    # Somma tensioni (worst case - angolo più compresso)
+    sigma_max = abs(sigma_N) + sigma_Mx + sigma_My
+    return sigma_max
+
+
+def apply_slenderness_reduction_ta(
+    sigma_c_adm: float, b_cm: float, h_cm: float
+) -> tuple[float, dict[str, Any]]:
+    """Applica riduzione per sezioni snelle (feature repository).
+
+    Riduzione già implementata in Session 6 per pressoflessione monoassiale.
+    Formula: σ_c,adm,rid = σ_c,adm × (1 - 0.03 × (25 - A_min))
+    per A_min < 25 cm, con fattore limitato in [0.4, 1.0].
+
+    Args:
+        sigma_c_adm: Tensione ammissibile cls base in kg/cm²
+        b_cm: Larghezza sezione in cm
+        h_cm: Altezza sezione in cm
+
+    Returns:
+        Tupla (sigma_c_adm_ridotta, details_dict) con:
+        - sigma_c_adm_ridotta: tensione ammissibile ridotta
+        - details_dict: {'A_min_cm', 'reduction_applied', 'factor'}
+    """
+    A_min_cm = min(b_cm, h_cm)
+    details = {
+        "A_min_cm": A_min_cm,
+        "reduction_applied": False,
+        "reduction_factor": 1.0,
+    }
+
+    if A_min_cm < 25.0:
+        # Formula da RD2229.jsoncode e Session 6
+        factor = 1.0 - 0.03 * (25.0 - A_min_cm)
+        factor = max(0.4, min(1.0, factor))  # Limita in [0.4, 1.0]
+
+        details["reduction_applied"] = True
+        details["reduction_factor"] = factor
+
+        return sigma_c_adm * factor, details
+
+    return sigma_c_adm, details
 
 
 # ==============================================================================
@@ -979,3 +1078,361 @@ def check_minimi_armatura_ta(
             check_category=template.check_category,
             limit_state=template.limit_state,
         )
+
+
+def check_pressoflessione_deviata_ta_concrete(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
+    """Verifica cls pressoflessione deviata TA - RD 2229/39 (COMPLETO).
+
+    Implementa sovrapposizione elastica per N-Mx-My secondo Art. 29 RD 2229/39:
+    σ_c,max = N/A + |Mx|/Wx + |My|/Wy
+
+    RD 2229/39 NON prevede domini N-Mx-My (metodo SLU);
+    usa metodo elastico lineare con sovrapposizione effetti.
+
+    IMPLEMENTAZIONE COMPLETA:
+    - Sovrapposizione elastica N, Mx, My ✓
+    - Riduzione sezioni snelle (A_min < 25 cm) ✓
+    - Verifica σ_c,max ≤ σ_c,adm (Art. 18) ✓
+    - Messaggi italiani completi ✓
+
+    FUORI SCOPO:
+    - Instabilità pilastri λ > 15 (richiede l₀)
+
+    Args:
+        calc_input: Dati input con section, material, N, Mx, My
+        template: Template della verifica
+
+    Returns:
+        SingleCheckResult con verifica completa
+    """
+    # 1. Validate inputs
+    if calc_input.section is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={},
+            messages_it=["Sezione non specificata"],
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+    if calc_input.material is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={},
+            messages_it=["Materiale non specificato"],
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+    # Almeno uno tra N, Mx, My deve essere presente e non zero
+    N_present = calc_input.N is not None and calc_input.N != 0
+    Mx_present = calc_input.Mx is not None and calc_input.Mx != 0
+    My_present = calc_input.My is not None and calc_input.My != 0
+
+    if not (N_present or Mx_present or My_present):
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=True,
+            utilisation=0.0,
+            details={},
+            messages_it=["Sollecitazioni nulle - verifica non applicabile"],
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+    try:
+        # 2. Extract geometry
+        section = calc_input.section
+        b_mm = section.width
+        h_mm = section.height
+        b_cm = b_mm / 10.0
+        h_cm = h_mm / 10.0
+        A_cm2 = b_cm * h_cm
+
+        # Compute section moduli
+        Wx_cm3, Wy_cm3 = compute_section_moduli_rect(b_cm, h_cm)
+
+        # 3. Convert loads (kN, kNm → kg, kg·cm)
+        ta_loads = convert_loads_to_ta_units(calc_input)
+        N_kg = ta_loads["N_kg"]
+        Mx_kg_cm = ta_loads["Mx_kg_cm"]
+        My_kg_cm = ta_loads["My_kg_cm"]
+
+        # 4. Get allowable stresses (Art. 18)
+        allowable = get_rd2229_allowable_stresses(calc_input.material)
+        sigma_c_adm_base = allowable.sigma_c_allow  # kg/cm²
+
+        # 5. Apply slenderness reduction if A_min < 25 cm
+        sigma_c_adm, slender_details = apply_slenderness_reduction_ta(
+            sigma_c_adm_base, b_cm, h_cm
+        )
+
+        # 6. Compute σ_c,max with elastic superposition (Art. 29)
+        sigma_c_max = compute_sigma_concrete_biaxial_ta(
+            N_kg, Mx_kg_cm, My_kg_cm, A_cm2, Wx_cm3, Wy_cm3
+        )
+
+        # 7. Verify
+        ok = sigma_c_max <= sigma_c_adm
+        utilisazione = sigma_c_max / sigma_c_adm if sigma_c_adm > 0 else None
+
+        # 8. Build Italian messages
+        messages_it = [
+            "=== VERIFICA CLS PRESSOFLESSIONE DEVIATA TA - RD 2229/39 ===",
+            "",
+            f"Sezione rettangolare: b = {b_cm:.1f} cm, h = {h_cm:.1f} cm",
+            f"Area: A = {A_cm2:.1f} cm²",
+            f"Moduli resistenza: Wx = {Wx_cm3:.1f} cm³, Wy = {Wy_cm3:.1f} cm³",
+            "",
+            "Sollecitazioni:",
+            f"  N = {calc_input.N:.1f} kN = {N_kg:.0f} kg" if N_present else "  N = 0 kN",
+            f"  Mx = {calc_input.Mx:.1f} kNm = {Mx_kg_cm:.0f} kg·cm" if Mx_present else "  Mx = 0 kNm",
+            f"  My = {calc_input.My:.1f} kNm = {My_kg_cm:.0f} kg·cm" if My_present else "  My = 0 kNm",
+            "",
+            f"Tensione ammissibile cls (Art. 18): σ_c,adm = {sigma_c_adm_base:.1f} kg/cm²",
+        ]
+
+        # Slenderness reduction info
+        if slender_details["reduction_applied"]:
+            messages_it.extend([
+                "",
+                "Riduzione sezioni snelle (feature repository):",
+                f"  A_min = min(b,h) = {slender_details['A_min_cm']:.1f} cm < 25 cm",
+                f"  Fattore riduzione = {slender_details['reduction_factor']:.3f}",
+                f"  σ_c,adm ridotta = {sigma_c_adm:.1f} kg/cm²",
+            ])
+        elif slender_details["A_min_cm"] >= 25.0:
+            messages_it.append(
+                f"Sezione non snella (A_min = {slender_details['A_min_cm']:.1f} cm ≥ 25 cm)"
+            )
+
+        # Stress calculation breakdown
+        sigma_N_component = abs(N_kg / A_cm2) if A_cm2 > 0 else 0.0
+        sigma_Mx_component = abs(Mx_kg_cm / Wx_cm3) if Wx_cm3 > 0 else 0.0
+        sigma_My_component = abs(My_kg_cm / Wy_cm3) if Wy_cm3 > 0 else 0.0
+
+        messages_it.extend([
+            "",
+            "Metodo elastico con sovrapposizione effetti (Art. 29):",
+            "  σ_c,max = N/A + |Mx|/Wx + |My|/Wy",
+            f"  σ_c,max = {sigma_N_component:.2f} + {sigma_Mx_component:.2f} + {sigma_My_component:.2f}",
+            f"  σ_c,max = {sigma_c_max:.2f} kg/cm²",
+            "",
+            f"Verifica: {sigma_c_max:.2f} ≤ {sigma_c_adm:.2f} → {'✓ OK' if ok else '✗ NON OK'}",
+            f"Utilizzazione: {utilisazione:.3f}",
+            "",
+            "Nota: RD 2229/39 non prevede domini N-Mx-My; usa sovrapposizione elastica.",
+        ])
+
+        # Warning if slender column (λ > 15)
+        if calc_input.extra and calc_input.extra.get("lambda"):
+            lambda_val = calc_input.extra["lambda"]
+            if lambda_val > 15:
+                messages_it.extend([
+                    "",
+                    f"⚠️ Pilastro snello: λ = {lambda_val:.1f} > 15",
+                    "   Necessaria verifica stabilità (Art. 30 RD 2229/39) - NON implementata.",
+                    "   BLOCCO: richiede l₀ (lunghezza libera inflessione).",
+                ])
+
+        # 9. Return result
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=ok,
+            utilisation=utilisazione,
+            details={
+                "sigma_c_max_kg_cm2": sigma_c_max,
+                "sigma_c_adm_kg_cm2": sigma_c_adm,
+                "sigma_c_adm_base_kg_cm2": sigma_c_adm_base,
+                "N_kg": N_kg,
+                "Mx_kg_cm": Mx_kg_cm,
+                "My_kg_cm": My_kg_cm,
+                "A_cm2": A_cm2,
+                "Wx_cm3": Wx_cm3,
+                "Wy_cm3": Wy_cm3,
+                "sigma_N_component": sigma_N_component,
+                "sigma_Mx_component": sigma_Mx_component,
+                "sigma_My_component": sigma_My_component,
+                **slender_details,
+            },
+            norm_references=[template.primary_reference] + template.secondary_references,
+            messages_it=messages_it,
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+    except Exception as e:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={"error": str(e)},
+            messages_it=[f"Errore nel calcolo: {str(e)}"],
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+
+def check_pressoflessione_deviata_ta_steel(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
+    """Verifica acciaio pressoflessione deviata TA - RD 2229/39 (PARZIALE).
+
+    Verifica tensioni acciaio per N-Mx-My con sovrapposizione elastica.
+
+    IMPLEMENTAZIONE PARZIALE:
+    - Richiede W_sx_cm3, W_sy_cm3 da calc_input.extra
+    - Se mancanti: restituisce NON VERIFICATO con messaggio chiaro
+
+    TODO:
+    - Calcolo automatico W_sx, W_sy da geometria armature
+    - Richiede: posizioni barre, bracci utili, sezione trasformata
+
+    Args:
+        calc_input: Dati input con Mx, My, extra.W_sx_cm3, extra.W_sy_cm3
+        template: Template della verifica
+
+    Returns:
+        SingleCheckResult (PARTIAL se mancano W_sx/W_sy)
+    """
+    # 1. Validate inputs
+    if calc_input.section is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={},
+            messages_it=["Sezione non specificata"],
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+    if calc_input.material is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={},
+            messages_it=["Materiale non specificato"],
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+    # 2. Check for W_sx_cm3, W_sy_cm3 in extra
+    W_sx_cm3 = None
+    W_sy_cm3 = None
+
+    if calc_input.extra:
+        W_sx_cm3 = calc_input.extra.get("W_sx_cm3")
+        W_sy_cm3 = calc_input.extra.get("W_sy_cm3")
+
+    if W_sx_cm3 is None or W_sy_cm3 is None:
+        # 3. Missing data → PARTIAL result with helpful message
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={"partial_reason": "missing_steel_moduli"},
+            messages_it=[
+                "=== VERIFICA ACCIAIO PRESSOFLESSIONE DEVIATA TA - RD 2229/39 ===",
+                "",
+                "⚠️ VERIFICA NON ESEGUITA - DATI MANCANTI",
+                "",
+                "Moduli resistenza acciaio W_sx, W_sy non disponibili.",
+                "",
+                "Per verifica completa fornire in calc_input.extra:",
+                "  - W_sx_cm3: modulo resistenza acciaio attorno asse x (cm³)",
+                "  - W_sy_cm3: modulo resistenza acciaio attorno asse y (cm³)",
+                "",
+                "Questi valori richiedono:",
+                "  - Geometria armature (posizioni barre, diametri)",
+                "  - Bracci utili delle armature tese",
+                "  - Sezione trasformata omogeneizzata (n = Es/Ec)",
+                "",
+                "Riferimento: Art. 19 RD 2229/39 (tensioni ammissibili acciaio).",
+                "",
+                "IMPLEMENTAZIONE PARZIALE - TODO: calcolo automatico moduli acciaio.",
+            ],
+            norm_references=[template.primary_reference] + template.secondary_references,
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+    try:
+        # 4. Convert loads
+        ta_loads = convert_loads_to_ta_units(calc_input)
+        Mx_kg_cm = ta_loads["Mx_kg_cm"]
+        My_kg_cm = ta_loads["My_kg_cm"]
+
+        # 5. Get σ_s,adm (Art. 19)
+        allowable = get_rd2229_allowable_stresses(calc_input.material)
+        sigma_s_adm = allowable.sigma_s_allow  # kg/cm²
+
+        # 6. Compute σ_s with elastic superposition
+        sigma_s_x = abs(Mx_kg_cm) / W_sx_cm3 if W_sx_cm3 > 0 else 0.0
+        sigma_s_y = abs(My_kg_cm) / W_sy_cm3 if W_sy_cm3 > 0 else 0.0
+        sigma_s_max = sigma_s_x + sigma_s_y
+
+        # 7. Verify
+        ok = sigma_s_max <= sigma_s_adm
+        utilisazione = sigma_s_max / sigma_s_adm if sigma_s_adm > 0 else None
+
+        # 8. Italian messages
+        messages_it = [
+            "=== VERIFICA ACCIAIO PRESSOFLESSIONE DEVIATA TA - RD 2229/39 ===",
+            "",
+            "Sollecitazioni:",
+            f"  Mx = {calc_input.Mx:.1f} kNm = {Mx_kg_cm:.0f} kg·cm",
+            f"  My = {calc_input.My:.1f} kNm = {My_kg_cm:.0f} kg·cm",
+            "",
+            "Moduli resistenza acciaio (da input):",
+            f"  W_sx = {W_sx_cm3:.1f} cm³",
+            f"  W_sy = {W_sy_cm3:.1f} cm³",
+            "",
+            f"Tensione ammissibile acciaio (Art. 19): σ_s,adm = {sigma_s_adm:.1f} kg/cm²",
+            "",
+            "Metodo elastico con sovrapposizione:",
+            "  σ_s,max = |Mx|/W_sx + |My|/W_sy",
+            f"  σ_s,max = {sigma_s_x:.2f} + {sigma_s_y:.2f} = {sigma_s_max:.2f} kg/cm²",
+            "",
+            f"Verifica: {sigma_s_max:.2f} ≤ {sigma_s_adm:.2f} → {'✓ OK' if ok else '✗ NON OK'}",
+            f"Utilizzazione: {utilisazione:.3f}",
+        ]
+
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=ok,
+            utilisation=utilisazione,
+            details={
+                "sigma_s_max_kg_cm2": sigma_s_max,
+                "sigma_s_adm_kg_cm2": sigma_s_adm,
+                "Mx_kg_cm": Mx_kg_cm,
+                "My_kg_cm": My_kg_cm,
+                "W_sx_cm3": W_sx_cm3,
+                "W_sy_cm3": W_sy_cm3,
+                "sigma_s_x_component": sigma_s_x,
+                "sigma_s_y_component": sigma_s_y,
+            },
+            norm_references=[template.primary_reference] + template.secondary_references,
+            messages_it=messages_it,
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
+    except Exception as e:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={"error": str(e)},
+            messages_it=[f"Errore nel calcolo: {str(e)}"],
+            check_category=template.check_category,
+            limit_state=template.limit_state,
+        )
+
