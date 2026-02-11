@@ -1,0 +1,10 @@
+{
+    "_comment": "Esempio STUB S2 dei parametri numerici della normativa NTC 2018. I valori sono placeholders e verranno sovrascritti da Copilot Plan.",
+    "gamma_c": 1.5,
+    "gamma_s": 1.15,
+    "psi_0": 0.7,
+    "psi_1": 0.5,
+    "psi_2": 0.3,
+    "E_cm": 300000.0,
+    "note": "Tutti i valori riportati sono da validare e aggiornare."
+}
