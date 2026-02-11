@@ -595,7 +595,7 @@ def check_pressoflessione_ta_rett(
                 "Riduzione per sezioni snelle (Art. 16 RD 2229/39):",
                 f"  A_min = min(b, h) = {A_min_cm:.1f} cm",
                 f"  Fattore di riduzione = {reduction_factor:.3f}",
-                f"  σ_c,adm ridotta applicata",
+                "  σ_c,adm ridotta applicata",
             ]
             # Aggiorna details con riduzione
             if "sigma_c_adm_kg_cm2" in result.details:
@@ -749,7 +749,7 @@ def check_taglio_ta_rett(
         ok = tau_kg_cm2 <= tau_adm
         utilisazione = tau_kg_cm2 / tau_adm
 
-        # 7. Messaggi italiani
+        # 7. Messaggi italiani (migliorati per chiarezza)
         messages_it = [
             "=== VERIFICA A TAGLIO METODO TA - RD 2229/39 ===",
             "",
@@ -759,23 +759,27 @@ def check_taglio_ta_rett(
             "Sollecitazione:",
             f"  V = {calc_input.Tx:.1f} kN = {V_kg:.0f} kg",
             "",
-            "Tensione tangenziale (formula base):",
+            "Formula semplificata (base):",
             f"  τ = V / (b × d) = {tau_kg_cm2:.2f} kg/cm²",
             "",
             f"Tensione tangenziale ammissibile ({'con' if has_staffe else 'senza'} staffe):",
             f"  τ_c,adm = {tau_adm:.2f} kg/cm²",
-            f"  (τ_c0 = {tau_c0:.2f} kg/cm², τ_c1 = {tau_c1:.2f} kg/cm²)",
+            "",
+            "Valori da RD2229.jsoncode:",
+            f"  τ_c0 = {tau_c0:.2f} kg/cm² (senza staffe - Art. 21)",
+            f"  τ_c1 = {tau_c1:.2f} kg/cm² (con staffe - Art. 21)",
             "",
             f"Verifica: {tau_kg_cm2:.2f} / {tau_adm:.2f} = {utilisazione:.3f} "
             f"{'✓ OK' if ok else '✗ NON OK'}",
             "",
             "⚠️ IMPLEMENTAZIONE PARZIALE:",
-            "   Formula base τ = V / (b×d) implementata",
+            "   Formula base τ = V/(b×d) implementata (verifica conservativa)",
+            "   Formula più precisa Art. 21 RD 2229/39 non disponibile (richiede ricerca storica)",
             "   Mancano:",
-            "   - Formula completa Art. 21 RD 2229/39",
-            "   - Calcolo contributo staffe metodo TA storico",
-            "   - Verifica biella compressa",
-            "   Consultare codice sorgente per dettagli (TODO comments)",
+            "   - Formula completa Art. 21 con effetti di N, M sul taglio",
+            "   - Calcolo contributo staffe (metodo TA storico)",
+            "   - Verifica biella compressa cls",
+            "   Nota: Verifica attuale è conservativa (sottostima resistenza)",
         ]
 
         return SingleCheckResult(

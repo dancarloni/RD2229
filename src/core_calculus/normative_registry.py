@@ -362,11 +362,12 @@ def get_rd2229_templates() -> list[VerificationTemplate]:
                 paragraph="Tensioni tangenziali ammissibili",
                 description_it="Verifica a taglio",
                 notes_it=(
-                    "Implementazione PARZIALE: verifica tensione tangenziale base τ = V / (b·d). "
-                    "TODO: Formula completa secondo Art. 21 RD 2229/39. "
+                    "Implementazione PARZIALE: formula base τ = V/(b·d) conservativa. "
+                    "τ_c0 = 0.06 × σ_c,28 (senza staffe), τ_c1 = 0.14 × σ_c,28 (con staffe) da RD2229.jsoncode. "
+                    "TODO: Formula completa Art. 21 (richiede ricerca storica su manuali RD 2229/Santarella). "
                     "TODO: Calcolo contributo staffe metodo TA storico. "
-                    "TODO: Minimi armatura a taglio secondo RD 2229/39. "
-                    "τ_c0 = 0.06 × σ_c,28 (senza staffe), τ_c1 = 0.14 × σ_c,28 (con staffe)."
+                    "TODO: Verifica biella compressa. "
+                    "Nota: Verifica attuale utilizzabile per valutazioni preliminari conservative."
                 ),
             ),
             secondary_references=[],

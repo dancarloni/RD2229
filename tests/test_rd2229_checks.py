@@ -709,5 +709,132 @@ def test_flessione_ta_handles_zero_moment():
     assert any("nullo" in msg.lower() for msg in result.messages_it)
 
 
+def test_minimi_armatura_ta_beam_vs_column():
+    """Test that beams and columns have different minimum reinforcement.
+
+    - Beams: As_min = 0.15% A_sez (from compute_long_rebar_limits_ta)
+    - Columns: As_min = 0.30% A_sez (from compute_long_rebar_limits_ta)
+    """
+    section = MockRD2229Section(b=300.0, h=500.0)  # A_sez = 1500 cm²
+    material = MockRD2229Material()
+    template = MockRD2229Template(template_id="rd2229_ta_minimi_armatura_long")
+
+    # Beam: As_min = 0.0015 * 1500 = 2.25 cm²
+    # Column: As_min = 0.003 * 1500 = 4.5 cm²
+    # Test with As = 3.0 cm² (between beam and column minima)
+
+    # Test as beam (no axial load → N = 0)
+    calc_input_beam = CalcInput(
+        element_name="Trave Test",
+        section=section,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=0.0,  # No compression → beam
+        As=3.0,  # Between beam min (2.25) and column min (4.5)
+    )
+
+    result_beam = check_minimi_armatura_ta(calc_input_beam, template)
+
+    # Should pass for beam (3.0 > 2.25)
+    assert result_beam.ok, "Beam with As=3.0 cm² should pass (min=2.25 cm²)"
+    assert "trave" in "\n".join(result_beam.messages_it).lower(), "Messages should mention 'trave'"
+    assert result_beam.details["element_type"] == "trave"
+    assert result_beam.details["is_beam"]
+    assert not result_beam.details["is_column"]
+
+    # Test as column (compression → N < -50 kN)
+    calc_input_column = CalcInput(
+        element_name="Pilastro Test",
+        section=section,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=-200.0,  # Compression → column
+        As=3.0,  # Same reinforcement
+    )
+
+    result_column = check_minimi_armatura_ta(calc_input_column, template)
+
+    # Should fail for column (3.0 < 4.5)
+    assert not result_column.ok, "Column with As=3.0 cm² should fail (min=4.5 cm²)"
+    assert "pilastro" in "\n".join(result_column.messages_it).lower(), "Messages should mention 'pilastro'"
+    assert result_column.details["element_type"] == "pilastro"
+    assert result_column.details["is_column"]
+    assert not result_column.details["is_beam"]
+
+    # Verify PARTIAL warning removed (should show "Implementazione completa")
+    messages_text = "\n".join(result_beam.messages_it)
+    assert "PARZIALE" not in messages_text, "Should not show PARTIAL warning"
+    assert "completa" in messages_text.lower(), "Should show 'completa'"
+
+
+def test_pressoflessione_ta_slenderness_reduction():
+    """Test that slenderness reduction is applied for thin sections.
+
+    Formula: sigma_c_adm_reduced = sigma_c_adm * (1 - 0.03 * (25 - A_min))
+    where A_min = min(b, h) in cm
+    """
+    material = MockRD2229Material()
+    template = MockRD2229Template(template_id="rd2229_ta_pressoflessione_rett")
+
+    # Test 1: Slender section (A_min < 25 cm)
+    section_slender = MockRD2229Section(b=200.0, h=500.0)  # b=20cm < 25cm
+    calc_input_slender = CalcInput(
+        element_name="Pilastro Snello",
+        section=section_slender,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=-300.0,  # Compression
+        Mx=80.0,
+        As=20.0,
+        d=45.0,
+    )
+
+    result_slender = check_pressoflessione_ta_rett(calc_input_slender, template)
+
+    # Should mention slenderness reduction
+    messages_text = "\n".join(result_slender.messages_it)
+    assert "Riduzione per sezioni snelle" in messages_text, "Should mention slenderness reduction"
+    assert "A_min" in messages_text, "Should show A_min value"
+    assert "Fattore di riduzione" in messages_text, "Should show reduction factor"
+
+    # Check details contain reduction info
+    assert "reduction_factor" in result_slender.details, "Should have reduction_factor in details"
+    assert "A_min_cm" in result_slender.details, "Should have A_min_cm in details"
+    assert result_slender.details["A_min_cm"] == 20.0, "A_min should be 20 cm"
+
+    # Expected reduction_factor = 1 - 0.03 * (25 - 20) = 1 - 0.15 = 0.85
+    expected_reduction = 0.85
+    actual_reduction = result_slender.details["reduction_factor"]
+    assert abs(actual_reduction - expected_reduction) < 0.01, f"Reduction factor should be ~{expected_reduction}, got {actual_reduction}"
+
+    # Test 2: Non-slender section (A_min ≥ 25 cm)
+    section_thick = MockRD2229Section(b=400.0, h=400.0)  # b=40cm > 25cm
+    calc_input_thick = CalcInput(
+        element_name="Pilastro Tozzo",
+        section=section_thick,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=-300.0,
+        Mx=80.0,
+        As=30.0,
+        d=36.0,
+    )
+
+    result_thick = check_pressoflessione_ta_rett(calc_input_thick, template)
+
+    messages_text_thick = "\n".join(result_thick.messages_it)
+    assert "non snella" in messages_text_thick or "riduzione non applicata" in messages_text_thick, \
+        "Should mention no reduction for thick section"
+
+    # Verify PARTIAL status improved to mention slenderness implementation
+    assert "MIGLIORATA" in messages_text or "PARTIAL" in messages_text, "Should show improved status"
+    assert "Riduzione σ_c,adm per sezioni snelle implementata" in messages_text or \
+           "riduzione σ_c,adm" in messages_text.lower(), "Should mention slenderness implemented"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
