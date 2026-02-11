@@ -1,0 +1,99 @@
+[
+  {
+    "code": "EN 1992-1-1",
+    "part": "Annex I",
+    "title": "Eurocode 2 – Design of concrete structures: Annex I – Assessment of existing structures",
+    "jurisdiction": "EU",
+    "status": "published",
+    "publication_date": "2023-11-22",
+    "binding": "informative",
+    "scope_existing": true,
+    "core_topics": [
+      "Material characterisation based on in-situ evidence",
+      "Allowance for uncertainty/dispersion in assessment",
+      "Use of tests and reasoned extrapolation when access is limited",
+      "Assessment logic distinct from new design"
+    ],
+    "lc_fc_applicability": "Not defined (handled by national documents); Eurocode 2 Annex I does not introduce LC/FC schema",
+    "interventions_classification": "Not covered (refer to national rules and EN 1990-2 for general principles)",
+    "notes": "Second-generation EC2 embeds an assessment framework in Annex I. The Annex is informative; use with EN 1990(-2) principles and National Annex.",
+    "evidence_links": [
+      "https://www.en-standard.eu/bs-en-1992-1-1-2023-eurocode-2-design-of-concrete-structures-general-rules-and-rules-for-buildings-bridges-and-civil-engineering-structures/",
+      "https://structurescentre.com/assessment-of-existing-concrete-structures-under-second-generation-eurocode-2/",
+      "https://scispace.com/pdf/contributions-of-the-future-eurocode-for-the-assessment-of-ekbcbedi.pdf"
+    ]
+  },
+  {
+    "code": "prEN 1990-2",
+    "part": "Part 2",
+    "title": "Eurocode – Basis of structural and geotechnical design – Part 2: Assessment of existing structures",
+    "jurisdiction": "EU",
+    "status": "draft",
+    "publication_date": "2024-03-01",
+    "binding": "normative (when adopted)",
+    "scope_existing": true,
+    "core_topics": [
+      "General provisions for assessment and interventions",
+      "Principles for actions in assessment (complements EN 1991)",
+      "To be used with prEN 1990-1; excludes design of new parts",
+      "Seismic assessment covered by EN 1998-3"
+    ],
+    "lc_fc_applicability": "Not introduced; refers to general reliability framework and national provisions",
+    "interventions_classification": "Provides principles (not detailed national categories)",
+    "notes": "Draft standard converting CEN/TS 17440 into a full EN. National adoption timelines vary.",
+    "evidence_links": [
+      "https://cdn.standards.iteh.ai/samples/78352/d17aba8284d8468c84e3fe884b959df1/oSIST-prEN-1990-2-2024.pdf",
+      "https://www.austrian-standards.at/en/shop/onorm-en-1990-2-2024-04-01~p3292751",
+      "https://eurocodes.jrc.ec.europa.eu/2nd-generation-evolution/new-technical-rules-existing-structures"
+    ]
+  },
+  {
+    "code": "NTC 2008",
+    "part": "Capitolo 8",
+    "title": "DM 14/01/2008 – Norme Tecniche per le Costruzioni – Capitolo 8 Costruzioni esistenti",
+    "jurisdiction": "IT",
+    "status": "replaced (by NTC 2018)",
+    "publication_date": "2008-02-04",
+    "binding": "normative",
+    "scope_existing": true,
+    "core_topics": [
+      "Definizioni e criteri generali per l’esistente",
+      "Valutazione della sicurezza agli SLU/SLE",
+      "Livelli di Conoscenza (LC1–LC3) e Fattori di Confidenza (FC)",
+      "Impostazione degli interventi su costruzioni esistenti"
+    ],
+    "lc_fc_applicability": "Introdotti (schema LC1–LC3 con FC associati, dettagliati poi nella Circolare 617/2009)",
+    "interventions_classification": "Riparazioni/interventi locali; miglioramento; adeguamento",
+    "notes": "Impianto nazionale che ha introdotto in modo sistematico LC/FC e la classificazione degli interventi sull’esistente.",
+    "evidence_links": [
+      "https://online.scuola.zanichelli.it/zavanellaprogettazione-files/Normativa/DM_14-01-2008/NTC_Capitolo_08.pdf",
+      "http://www.ca.archiworld.it/normativa/italia/NORME_TECNICHE/DM_14_01_2008.PDF",
+      "https://ediltecnico.it/edifici-esistenti-livelli-di-conoscenza-e-fattori-di-confidenza/"
+    ]
+  },
+  {
+    "code": "NTC 2018",
+    "part": "Capitolo 8 & Circolare 2019 (Cap. C8)",
+    "title": "DM 17/01/2018 – Norme Tecniche per le Costruzioni – Capitolo 8 Costruzioni esistenti + Circolare esplicativa",
+    "jurisdiction": "IT",
+    "status": "current",
+    "publication_date": "2018-02-20",
+    "binding": "normative",
+    "scope_existing": true,
+    "core_topics": [
+      "Criteri generali e definizione di costruzione esistente (§ 8.1–8.2)",
+      "Valutazione della sicurezza (§ 8.3)",
+      "Classificazione degli interventi: locale, miglioramento, adeguamento (§ 8.4)",
+      "Modello di riferimento, rilievo e prove; LC/FC (§ 8.5, C8.5.4)"
+    ],
+    "lc_fc_applicability": "Confermati LC1–LC3; FC tipici 1.35 / 1.20 / 1.00 come da Circolare C8.5.4",
+    "interventions_classification": "Riparazioni/rafforzamento locale; miglioramento; adeguamento (ordine dalla meno alla più impattante)",
+    "notes": "Maggiore attenzione a interventi locali e al rischio sismico; razionalizzazione LC/FC rispetto a NTC 2008.",
+    "evidence_links": [
+      "https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG",
+      "https://www.ingenio-web.it/articoli/circolare-ntc-2018-edifici-esistenti-il-capitolo-8-con-alcuni-commenti-tecnici/",
+      "https://www.it.weber/files/it/2025-02/Livelli%20di%20conoscenza%20e%20Fattori%20di%20confidenza.docx.pdf",
+      "http://ntc.archliving.it/2019/02/18/capitolo-8-costruzioni-esistenti/"
+    ]
+  }
+]

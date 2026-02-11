@@ -1,4 +1,4 @@
-"""Data models for section geometry and computed properties.
+"""Data models for section carbon_fiber_placeholder and computed properties.
 
 This module contains pure data classes and small helpers. No GUI dependencies.
 """
@@ -20,7 +20,9 @@ class SectionGeometry:
     meta: dict = field(default_factory=dict)
 
     @classmethod
-    def from_rectangle(cls, b: float, h: float, rotation_deg: float = 0.0, name: str = "") -> SectionGeometry:
+    def from_rectangle(
+        cls, b: float, h: float, rotation_deg: float = 0.0, name: str = ""
+    ) -> SectionGeometry:
         """Convenience constructor for axis-aligned rectangle centered at origin.
 
         Points are returned in CCW order.
@@ -28,7 +30,9 @@ class SectionGeometry:
         hw = b / 2.0
         hh = h / 2.0
         pts = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
-        return cls(exterior=pts, meta={"name": name, "rotation_deg": rotation_deg, "type": "rectangular"})
+        return cls(
+            exterior=pts, meta={"name": name, "rotation_deg": rotation_deg, "type": "rectangular"}
+        )
 
     def bounding_box(self) -> tuple[float, float, float, float]:
         """Return bbox (minx, miny, maxx, maxy) over exterior and holes."""

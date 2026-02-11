@@ -12,7 +12,7 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 
-from sections_app.services.debug_log_stream import get_log_buffer  # type: ignore[import]
+from apps.sections.services.debug_log_stream import get_log_buffer  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class DebugViewerWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc):
         super().__init__(master)
         self.title("Debug Viewer")
-        self.geometry("900x600")
+        self.carbon_fiber_placeholder("900x600")
         self._last_index = 0
         self._auto_scroll = tk.BooleanVar(value=True)
         self._filter_var = tk.StringVar(value="")

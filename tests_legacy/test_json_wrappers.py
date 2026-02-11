@@ -5,7 +5,7 @@ import os
 import tempfile
 import unittest
 
-from sections_app.services.repository import load_sections_from_json, save_sections_to_json
+from apps.sections.services.repository import load_sections_from_json, save_sections_to_json
 
 
 class TestJsonWrappers(unittest.TestCase):

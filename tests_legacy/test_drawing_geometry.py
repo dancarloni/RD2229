@@ -1,6 +1,6 @@
 import math
 
-from sections_app.services.calculations import compute_transform
+from apps.sections.services.calculations import compute_transform
 
 
 def test_compute_transform_scaling_and_offsets():

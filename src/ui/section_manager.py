@@ -5,16 +5,16 @@ import tkinter as tk
 from collections.abc import Callable
 from tkinter import filedialog, messagebox, ttk
 
-from sections_app.models.sections import CSV_HEADERS, Section  # type: ignore[import]
-from sections_app.services.event_bus import (
+from apps.sections.models.sections import CSV_HEADERS, Section  # type: ignore[import]
+from apps.sections.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_CLEARED,
     SECTIONS_DELETED,
     SECTIONS_UPDATED,
     EventBus,
 )
-from sections_app.services.notification import ask_confirm, notify_info
-from sections_app.services.repository import (  # type: ignore[import]
+from apps.sections.services.notification import ask_confirm, notify_info
+from apps.sections.services.repository import (  # type: ignore[import]
     CsvSectionSerializer,
     SectionRepository,
 )
@@ -371,21 +371,31 @@ class SectionManager(tk.Toplevel):
             total_col_width = sum(self.tree.column(col, option="width") for col in self.columns)
             margin = 40  # padx + scrollbar + buffer
             calculated_width = max(total_col_width + margin, 800)
-            self.geometry(f"{calculated_width}x550")
+            self.carbon_fiber_placeholder(f"{calculated_width}x550")
             logger.debug(f"Finestra dimensionata: {calculated_width}x550")
         except Exception as e:
             logger.debug(f"Larghezza dinamica fallita: {e}")
-            self.geometry("1600x550")
+            self.carbon_fiber_placeholder("1600x550")
 
         # Frame per i pulsanti di azione
         buttons_frame = tk.Frame(self)
         buttons_frame.pack(fill="x", padx=8, pady=(0, 8))
 
-        tk.Button(buttons_frame, text="Nuova sezione", command=self._new_section).pack(side="left", padx=4)
-        tk.Button(buttons_frame, text="Modifica", command=self._edit_section).pack(side="left", padx=4)
-        tk.Button(buttons_frame, text="Elimina", command=self._delete_section).pack(side="left", padx=4)
-        tk.Button(buttons_frame, text="Importa CSV", command=self._import_csv).pack(side="left", padx=4)
-        tk.Button(buttons_frame, text="Esporta CSV", command=self._export_csv).pack(side="left", padx=4)
+        tk.Button(buttons_frame, text="Nuova sezione", command=self._new_section).pack(
+            side="left", padx=4
+        )
+        tk.Button(buttons_frame, text="Modifica", command=self._edit_section).pack(
+            side="left", padx=4
+        )
+        tk.Button(buttons_frame, text="Elimina", command=self._delete_section).pack(
+            side="left", padx=4
+        )
+        tk.Button(buttons_frame, text="Importa CSV", command=self._import_csv).pack(
+            side="left", padx=4
+        )
+        tk.Button(buttons_frame, text="Esporta CSV", command=self._export_csv).pack(
+            side="left", padx=4
+        )
 
     def _on_heading_click(self, col: str) -> None:
         """Handler per il click su un intestazione: alterna ordinamento crescente/decrescente.
@@ -463,7 +473,7 @@ class SectionManager(tk.Toplevel):
 
         NOTA: NON chiude il Section Manager (a differenza del comportamento precedente).
         """
-        # Try multiple strategies to open/reset the geometry editor. Each helper
+        # Try multiple strategies to open/reset the carbon_fiber_placeholder editor. Each helper
         # encapsulates one approach and returns True when it handled the request.
         if self._try_reset_master_form():
             return
@@ -495,11 +505,17 @@ class SectionManager(tk.Toplevel):
 
     def _try_open_geometry_from_master(self) -> bool:
         try:
-            if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
+            if hasattr(self.master, "_open_geometry") and callable(
+                getattr(self.master, "_open_geometry")
+            ):
                 try:
                     self.master._open_geometry()
                     gw = getattr(self.master, "_geometry_window", None)
-                    if gw is not None and hasattr(gw, "reset_form") and callable(getattr(gw, "reset_form")):
+                    if (
+                        gw is not None
+                        and hasattr(gw, "reset_form")
+                        and callable(getattr(gw, "reset_form"))
+                    ):
                         try:
                             gw.reset_form()
                             try:
@@ -510,7 +526,9 @@ class SectionManager(tk.Toplevel):
                             logger.debug("Aperto Geometry per nuova sezione (manager resta aperto)")
                             return True
                         except Exception:
-                            logger.exception("Errore nel resettare la form di Geometry dopo apertura da ModuleSelector")
+                            logger.exception(
+                                "Errore nel resettare la form di Geometry dopo apertura da ModuleSelector"
+                            )
                 except Exception:
                     logger.exception("Errore aprendo Geometry dal master per nuova sezione")
         except Exception:
@@ -522,7 +540,9 @@ class SectionManager(tk.Toplevel):
             if not ans:
                 return
             try:
-                if hasattr(self.master, "_open_geometry") and callable(getattr(self.master, "_open_geometry")):
+                if hasattr(self.master, "_open_geometry") and callable(
+                    getattr(self.master, "_open_geometry")
+                ):
                     self.master._open_geometry()
                     gw = getattr(self.master, "_geometry_window", None)
                     if gw is not None and hasattr(gw, "reset_form"):
@@ -532,7 +552,9 @@ class SectionManager(tk.Toplevel):
                             gw.focus_force()
                         except Exception:
                             logger.exception("Errore nel resettare la form di Geometry (fallback)")
-                    logger.debug("Aperto Geometry per nuova sezione (fallback, manager resta aperto)")
+                    logger.debug(
+                        "Aperto Geometry per nuova sezione (fallback, manager resta aperto)"
+                    )
             except Exception:
                 logger.exception("Errore nel fallback per aprire l'editor per nuova sezione")
 

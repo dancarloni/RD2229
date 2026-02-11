@@ -9,8 +9,8 @@ from pathlib import Path
 # Aggiungi il root al path per importare i moduli
 sys.path.insert(0, str(Path(__file__).parent))
 
-from sections_app.models.sections import CircularSection, RectangularSection, TSection
-from sections_app.services.repository import SectionRepository
+from apps.sections.models.sections import CircularSection, RectangularSection, TSection
+from apps.sections.services.repository import SectionRepository
 
 
 def test_section_manager_data():
@@ -77,7 +77,7 @@ def test_section_manager_data():
 
     # Verifica CSV headers
     print("\n[4] Verifica CSV headers disponibili...")
-    from sections_app.models.sections import CSV_HEADERS
+    from apps.sections.models.sections import CSV_HEADERS
 
     print(f"  Totale colonne CSV: {len(CSV_HEADERS)}")
     print(f"  Colonne: {', '.join(CSV_HEADERS)}")
@@ -93,7 +93,7 @@ def test_treeview_columns():
     print("TEST: Configurazione colonne Treeview")
     print("=" * 70)
 
-    from sections_app.models.sections import CSV_HEADERS
+    from apps.sections.models.sections import CSV_HEADERS
 
     # Simula la configurazione delle colonne come nel SectionManager
     col_config = {

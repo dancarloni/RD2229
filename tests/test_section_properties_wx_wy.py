@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from sections_app.models.sections import (
+from apps.sections.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,
@@ -191,7 +191,9 @@ class TestLSectionProperties:
         assert self.p.principal_iy is not None
         assert self.p.principal_ix >= self.p.principal_iy
         # Invariant: I1 + I2 = Ix + Iy
-        assert (self.p.principal_ix + self.p.principal_iy) == pytest.approx(self.p.ix + self.p.iy, rel=1e-6)
+        assert (self.p.principal_ix + self.p.principal_iy) == pytest.approx(
+            self.p.ix + self.p.iy, rel=1e-6
+        )
 
     def test_wx_wy_positive(self):
         assert self.p.wx is not None and self.p.wx > 0

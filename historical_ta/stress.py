@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from .geometry import SectionGeometry, SectionProperties
+from .carbon_fiber_placeholder import SectionGeometry, SectionProperties
 from .materials import ConcreteLawTA, SteelLawTA, sigma_c, sigma_s
 
 # Mapping: VB CalcoloTensNormali (4.3), PointP (util to find zero-stress point) and SezioneParzializzata.
@@ -48,7 +48,11 @@ def _invert_3x3(m):
     a11, a12, a13 = m[0]
     a21, a22, a23 = m[1]
     a31, a32, a33 = m[2]
-    det = a11 * (a22 * a33 - a23 * a32) - a12 * (a21 * a33 - a23 * a31) + a13 * (a21 * a32 - a22 * a31)
+    det = (
+        a11 * (a22 * a33 - a23 * a32)
+        - a12 * (a21 * a33 - a23 * a31)
+        + a13 * (a21 * a32 - a22 * a31)
+    )
     if abs(det) < 1e-12:
         raise ValueError("Singular MM matrix: check section properties")
     inv = [[0.0] * 3 for _ in range(3)]
@@ -77,7 +81,7 @@ def compute_normal_stresses_ta(
     """Compute normal stresses using TA method (translation of CalcoloTensNormali 4.3).
 
     Units (consistent system used throughout):
-      - geometry: lengths [cm], areas [cm^2], inertias [cm^4]
+      - carbon_fiber_placeholder: lengths [cm], areas [cm^2], inertias [cm^4]
       - loads: Nx [kg], My, Mz [kg·m]
       - materials: Ec, Es [kg/cm^2], stresses [kg/cm^2]
 
@@ -122,7 +126,11 @@ def compute_normal_stresses_ta(
             y0, z0 = poly[i]
             y1, z1 = poly[(i + 1) % len(poly)]
             # triangle (centroid, v0, v1)
-            (0.5 * (y0 * z1 - y1 * z0) + 0.5 * (y1 * z_cent - y_cent * z1) + 0.5 * (y_cent * z0 - y0 * z_cent))
+            (
+                0.5 * (y0 * z1 - y1 * z0)
+                + 0.5 * (y1 * z_cent - y_cent * z1)
+                + 0.5 * (y_cent * z0 - y0 * z_cent)
+            )
             # for simplicity attribute the triangle area entirely to v0
             A_tri = abs(0.5 * (y0 * z1 - y1 * z0))
             Sy_tri = A_tri * z0
@@ -204,7 +212,10 @@ def compute_normal_stresses_ta(
             Sz_adj = section_props.Sz
             Iy_adj = section_props.Iy + section_props.area_equivalent * (section_props.yG**2)
             Iz_adj = section_props.Iz + section_props.area_equivalent * (section_props.zG**2)
-            Iyz_adj = section_props.Iyz + section_props.area_equivalent * section_props.yG * section_props.zG
+            Iyz_adj = (
+                section_props.Iyz
+                + section_props.area_equivalent * section_props.yG * section_props.zG
+            )
 
             for idx, s in enumerate(sigma_vertices):
                 if s > 0:
@@ -256,7 +267,9 @@ def compute_normal_stresses_ta(
         # No parzializzazione required or allowed
         sigma_c_pos = max(0.0, sigma_c_max)
         sigma_c_neg = min(0.0, sigma_c_min)
-        sigma_c_med = loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+        sigma_c_med = (
+            loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+        )
 
         sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
         return StressResult(
@@ -274,7 +287,9 @@ def compute_normal_stresses_ta(
     sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
     sigma_c_pos = max(0.0, sigma_c_max)
     sigma_c_neg = min(0.0, sigma_c_min)
-    sigma_c_med = loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+    sigma_c_med = (
+        loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+    )
     return StressResult(
         sigma_c_max=sigma_c_max,
         sigma_c_min=sigma_c_min,
@@ -289,6 +304,6 @@ def compute_normal_stresses_ta(
 
 # helper: compute polygon centroid and area and inertias, but return raw sums used earlier
 def _poly_aux(poly):
-    from .geometry import _polygon_area_centroid_inertia
+    from .carbon_fiber_placeholder import _polygon_area_centroid_inertia
 
     return _polygon_area_centroid_inertia(poly)

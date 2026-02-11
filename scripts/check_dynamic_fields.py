@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.main_window import MainWindow
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+from libs.app_module.ui.main_window import MainWindow
 
 repo = SectionRepository()
 serializer = CsvSectionSerializer()

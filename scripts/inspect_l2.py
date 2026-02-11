@@ -4,8 +4,8 @@ import sys
 ROOT = str(pathlib.Path(__file__).resolve().parents[1])
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
-from sections_app.models.sections import LSection
-from sections_app.section_calculations import (
+from apps.sections.models.sections import LSection
+from apps.sections.section_calculations import (
     compute_section_properties_from_section,
     section_to_geometry,
 )

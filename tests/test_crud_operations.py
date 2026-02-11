@@ -9,14 +9,14 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from sections_app.models.sections import RectangularSection
-from sections_app.services.event_bus import (
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_DELETED,
     SECTIONS_UPDATED,
     EventBus,
 )
-from sections_app.services.repository import GeometryRepository
+from apps.sections.services.repository import GeometryRepository
 
 
 @pytest.fixture

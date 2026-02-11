@@ -61,7 +61,9 @@ class CalculationCodeLoader:
         file_path = self.config_dir / f"{code_name}.jsoncode"
 
         if not file_path.exists():
-            raise FileNotFoundError(f"Configuration file not found for code '{code_name}': {file_path}")
+            raise FileNotFoundError(
+                f"Configuration file not found for code '{code_name}': {file_path}"
+            )
 
         try:
             with open(file_path, encoding="utf-8") as f:

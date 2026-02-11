@@ -9,9 +9,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.repository import SectionRepository
 from core_models.materials import MaterialRepository
-from sections_app.models.sections import RectangularSection
-from sections_app.services.repository import SectionRepository
 
 
 class TestRecoverySystem(unittest.TestCase):

@@ -1,8 +1,8 @@
 import tkinter as tk
 import unittest
 
-from sections_app.models.sections import RectangularSection
-from sections_app.services.repository import SectionRepository
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.repository import SectionRepository
 
 try:
     from core_models.materials import Material, MaterialRepository
@@ -46,7 +46,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_suggestions_popup_filters(self):
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         app = VerificationTableApp(top)
         # ensure there is at least one row and start editing the section cell
         item = list(app.tree.get_children())[0]
@@ -76,7 +76,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_rebar_calculator_applies_value(self):
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         # Ensure widgets rendered so bbox() works
@@ -108,7 +108,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_commit_not_performed_while_rebar_calculator_open(self):
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         top.update_idletasks()
@@ -139,7 +139,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_rebar_via_keypress_opens_and_applies(self):
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         top.update_idletasks()
@@ -180,7 +180,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_rebar_via_keypress_on_As_prime_opens_and_applies(self):
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         top.update_idletasks()
@@ -217,7 +217,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_material_suggestions_popup_filters(self):
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         app = VerificationTableApp(top)
         # ensure there is at least one row and start editing the material cell
         item = list(app.tree.get_children())[0]
@@ -250,7 +250,9 @@ class TestVerificationTableMore(unittest.TestCase):
             self.skipTest("MaterialRepository not available")
 
         tmprepo = (
-            MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, "__init__") else MaterialRepository()
+            MaterialRepository(json_file=":memory:")
+            if hasattr(MaterialRepository, "__init__")
+            else MaterialRepository()
         )
         # Add materials of different types
         m1 = Material(name="C120", type="concrete")
@@ -261,7 +263,7 @@ class TestVerificationTableMore(unittest.TestCase):
         tmprepo.add(m3)
 
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
         app = win.app
         top.update_idletasks()
@@ -283,7 +285,7 @@ class TestVerificationTableMore(unittest.TestCase):
     def test_historical_materials_are_suggested(self):
         """Verify historical materials (built-in library) appear in suggestions for concrete."""
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         # No material_repository provided - search should include historical library
         win = VerificationTableWindow(top, section_repository=None, material_repository=None)
         app = win.app
@@ -300,7 +302,9 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIsNotNone(app._suggest_list)
         items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
         # At least one historical R160 material should be suggested
-        self.assertTrue(any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}")
+        self.assertTrue(
+            any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}"
+        )
         # Suggestions should be concrete materials only - none of the items should indicate a steel-only label
         # (simple heuristic: ensure no 'Acciaio' in suggested names)
         self.assertFalse(any("Acciaio" in it for it in items))
@@ -315,7 +319,7 @@ class TestVerificationTableMore(unittest.TestCase):
         sec_repo.add_section(sec)
 
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         win = VerificationTableWindow(top, section_repository=sec_repo, material_repository=None)
         app = win.app
         top.update_idletasks()
@@ -341,7 +345,7 @@ class TestVerificationTableMore(unittest.TestCase):
 
     def test_material_steel_suggestions_popup_filters(self):
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         app = VerificationTableApp(top)
         # ensure there is at least one row and start editing the material steel cell
         item = list(app.tree.get_children())[0]
@@ -373,7 +377,7 @@ class TestVerificationTableMore(unittest.TestCase):
     def test_empty_query_shows_no_suggestions(self):
         """If the user types an empty query, no suggestions should appear."""
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         app = VerificationTableApp(top)
         item = list(app.tree.get_children())[0]
         top.update_idletasks()
@@ -398,14 +402,16 @@ class TestVerificationTableMore(unittest.TestCase):
             self.skipTest("MaterialRepository not available")
 
         tmprepo = (
-            MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, "__init__") else MaterialRepository()
+            MaterialRepository(json_file=":memory:")
+            if hasattr(MaterialRepository, "__init__")
+            else MaterialRepository()
         )
         # Add material that matches historical name
         m1 = Material(name="CLS R 160 (RD 2229/39)", type="concrete")
         tmprepo.add(m1)
 
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
         app = win.app
         top.update_idletasks()
@@ -431,13 +437,15 @@ class TestVerificationTableMore(unittest.TestCase):
             self.skipTest("MaterialRepository not available")
 
         tmprepo = (
-            MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, "__init__") else MaterialRepository()
+            MaterialRepository(json_file=":memory:")
+            if hasattr(MaterialRepository, "__init__")
+            else MaterialRepository()
         )
         m1 = Material(name="Concrete X", type="concrete", code="C160")
         tmprepo.add(m1)
 
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
         app = win.app
         top.update_idletasks()
@@ -462,7 +470,9 @@ class TestVerificationTableMore(unittest.TestCase):
             self.skipTest("MaterialRepository not available")
 
         tmprepo = (
-            MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, "__init__") else MaterialRepository()
+            MaterialRepository(json_file=":memory:")
+            if hasattr(MaterialRepository, "__init__")
+            else MaterialRepository()
         )
         m1 = Material(name="SomeSteel38", type="steel", code="S38")
         m2 = Material(name="SomeConcrete38", type="concrete", code="C38")
@@ -470,7 +480,7 @@ class TestVerificationTableMore(unittest.TestCase):
         tmprepo.add(m2)
 
         top = tk.Toplevel(self.root)
-        top.geometry("900x300")
+        top.carbon_fiber_placeholder("900x300")
         win = VerificationTableWindow(top, section_repository=None, material_repository=tmprepo)
         app = win.app
         top.update_idletasks()

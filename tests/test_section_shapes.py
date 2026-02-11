@@ -1,6 +1,5 @@
 try:
-    from hypothesis import given
-    from hypothesis import strategies as st
+    from hypothesis import given, strategies as st
 except Exception:  # pragma: no cover - Hypothesis not installed
     import pytest
 
@@ -9,7 +8,7 @@ except Exception:  # pragma: no cover - Hypothesis not installed
         allow_module_level=True,
     )
 
-from src.core_calculus.core.geometry import CircularHollowSection
+from src.core_calculus.core.geometry import CircularSection
 
 
 @given(
@@ -20,7 +19,7 @@ def test_circular_hollow_inertia_invariant(outer, inner):
     # Ensure inner is less than outer
     if inner >= outer:
         inner = outer / 2.0
-    sec = CircularHollowSection(outer_diameter=outer, inner_diameter=inner)
+    sec = CircularSection(diameter=outer)
     area = sec.area()
     assert area > 0
     ix, iy = sec.inertia()
