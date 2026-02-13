@@ -5,20 +5,21 @@ schema: v1
 mcpServers:
   - name: Filesystem (workspace)
     type: stdio
-    command: npx
+    command: npx.cmd
     args:
       - -y
       - "@modelcontextprotocol/server-filesystem"
       - "."
     env: {}
 
-
   - name: Fetch (web content)
     type: stdio
     command: "C:\\Users\\DanieleCarloni.AzureAD\\.local\\bin\\uvx.exe"
     args:
       - mcp-server-fetch
-
+      - --user-agent
+      - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
+    env: {}
 
   - name: Git (repo tools)
     type: stdio
@@ -29,7 +30,7 @@ mcpServers:
 
   - name: Memory (knowledge graph)
     type: stdio
-    command: npx
+    command: npx.cmd
     args:
       - -y
       - "@modelcontextprotocol/server-memory"

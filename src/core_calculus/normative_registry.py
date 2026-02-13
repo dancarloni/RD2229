@@ -31,6 +31,8 @@ def get_all_templates() -> list[VerificationTemplate]:
     return [
         *get_ntc2018_templates(),
         *get_rd2229_templates(),
+        *get_dm96_templates(),
+        *get_fire_templates(),
         # Future: *get_ntc2008_templates(),
         # Future: *get_ec2_templates(),
     ]
@@ -513,6 +515,713 @@ def get_rd2229_templates() -> list[VerificationTemplate]:
                 "implementation_status": "partial",
                 "missing_features": ["automatic_steel_moduli_calculation"],
             },
+        ),
+    ]
+
+
+def get_dm96_templates() -> list[VerificationTemplate]:
+    """Get DM 9/1/1996 templates (TA + SLU + SLE + c.a.p.).
+
+    DM 9/1/1996 consente sia il metodo TA (DM 14/02/1992) sia il metodo
+    agli Stati Limite (SLU/SLE) con gamma_c = 1.6 e gamma_s = 1.15.
+
+    Templates:
+    - 4 TA: flessione, pressoflessione, taglio, minimi armatura
+    - 4 SLU base: flessione, taglio, minimi armatura flessione, minimi armatura taglio
+    - 2 SLE: fessurazione, deformazioni
+    - 3 SLU aggiuntivi: torsione, punzonamento, instabilita
+    - 2 c.a.p. placeholder: tensioni TA, SLU precompressione
+    """
+    _dm96_ref_ta = NormReference(
+        norm_code="DM96",
+        chapter="DM 14/02/1992",
+        paragraph="Tensioni ammissibili",
+        description_it="Metodo delle tensioni ammissibili (DM 14/02/1992)",
+    )
+    _dm96_ref_slu = NormReference(
+        norm_code="DM96",
+        chapter="DM 9/1/1996",
+        paragraph="Stati Limite Ultimo",
+        description_it="Metodo agli stati limite ultimo (DM 9/1/1996)",
+    )
+    _dm96_ref_sle = NormReference(
+        norm_code="DM96",
+        chapter="DM 9/1/1996",
+        paragraph="Stati Limite Esercizio",
+        description_it="Metodo agli stati limite di esercizio (DM 9/1/1996)",
+    )
+    _dm96_ref_cap = NormReference(
+        norm_code="DM96",
+        chapter="DM 9/1/1996",
+        paragraph="Precompressione",
+        description_it="Verifiche cemento armato precompresso (DM 9/1/1996, DM 14/02/1992)",
+    )
+
+    return [
+        # =====================================================================
+        # TA - Tensioni Ammissibili (DM 14/02/1992)
+        # =====================================================================
+        VerificationTemplate(
+            template_id="dm96_ta_flessione_rett",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="flessione",
+            limit_state="TA",
+            description_it="Verifica a flessione semplice TA - DM 14/02/1992",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Mx", "As", "d"],
+            optional_inputs=["My", "As_prime", "d_prime"],
+            output_metrics=[
+                "sigma_c_max_kg_cm2",
+                "sigma_s_max_kg_cm2",
+                "sigma_c_adm_kg_cm2",
+                "sigma_s_adm_kg_cm2",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 14/02/1992",
+                paragraph="Tensioni ammissibili - Flessione",
+                description_it="Verifica a flessione semplice metodo TA",
+                notes_it=(
+                    "sigma_c_adm = 0.30 * Rck (DM 14/02/1992). "
+                    "Utilizza historical_ta per calcolo tensioni normali."
+                ),
+            ),
+            secondary_references=[_dm96_ref_ta],
+            function_path="src.methods.checks_dm96.check_flessione_ta_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={"implementation_status": "complete"},
+        ),
+        VerificationTemplate(
+            template_id="dm96_ta_pressoflessione_rett",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="pressoflessione",
+            limit_state="TA",
+            description_it="Verifica a pressoflessione TA - DM 14/02/1992",
+            check_category="resistenza",
+            required_inputs=["section", "material", "N", "Mx", "As", "d"],
+            optional_inputs=["My", "As_prime", "d_prime"],
+            output_metrics=[
+                "sigma_c_max_kg_cm2",
+                "sigma_s_max_kg_cm2",
+                "N_kg",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 14/02/1992",
+                paragraph="Tensioni ammissibili - Pressoflessione",
+                description_it="Verifica a pressoflessione metodo TA con riduzione snellezza",
+                notes_it=(
+                    "Include riduzione sigma_c_adm per sezioni snelle "
+                    "(dimensione minima < 25 cm)."
+                ),
+            ),
+            secondary_references=[_dm96_ref_ta],
+            function_path="src.methods.checks_dm96.check_pressoflessione_ta_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={"implementation_status": "complete"},
+        ),
+        VerificationTemplate(
+            template_id="dm96_ta_taglio_rett",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="taglio",
+            limit_state="TA",
+            description_it="Verifica a taglio TA - DM 14/02/1992",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Tx", "d"],
+            optional_inputs=["Ty", "staffe_passo", "staffe_diametro"],
+            output_metrics=[
+                "tau_kg_cm2",
+                "tau_c0_kg_cm2",
+                "tau_c1_kg_cm2",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 14/02/1992",
+                paragraph="Tensioni tangenziali ammissibili",
+                description_it="Verifica a taglio metodo TA",
+                notes_it=(
+                    "tau = V/(b*d), tau_c0 e tau_c1 da DM92.jsoncode. "
+                    "tau < tau_c0: nessuna armatura richiesta; "
+                    "tau_c0 < tau < tau_c1: staffe richieste; tau > tau_c1: NON verificato."
+                ),
+            ),
+            secondary_references=[_dm96_ref_ta],
+            function_path="src.methods.checks_dm96.check_taglio_ta_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={"implementation_status": "complete"},
+        ),
+        VerificationTemplate(
+            template_id="dm96_ta_minimi_armatura_long",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="minimi_armatura",
+            limit_state="TA",
+            description_it="Verifica minimi armatura longitudinale TA - DM 14/02/1992",
+            check_category="minimi_armatura",
+            required_inputs=["section", "material", "As"],
+            optional_inputs=["element_type"],
+            output_metrics=["As_cm2", "As_min_cm2", "As_max_cm2", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 14/02/1992",
+                paragraph="Armature minime e massime",
+                description_it="Percentuali armatura longitudinale",
+                notes_it=(
+                    "Travi: As,min = 0.15% A_sez; Pilastri: As,min = 0.30% A_sez. "
+                    "As,max = 6% A_sez."
+                ),
+            ),
+            secondary_references=[_dm96_ref_ta],
+            function_path="src.methods.checks_dm96.check_minimi_armatura_ta_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={"implementation_status": "complete"},
+        ),
+
+        # =====================================================================
+        # SLU - Stati Limite Ultimo (DM 9/1/1996) - gamma_c = 1.6
+        # =====================================================================
+        VerificationTemplate(
+            template_id="dm96_slu_flessione_rett",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="flessione",
+            limit_state="SLU",
+            description_it="Verifica a flessione semplice SLU - DM 9/1/1996",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Mx", "As", "d"],
+            optional_inputs=["My", "As_prime", "d_prime"],
+            output_metrics=[
+                "M_Ed_kNm",
+                "M_Rd_kNm",
+                "x_mm",
+                "x_over_d",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Verifica a flessione SLU",
+                description_it="Flessione semplice e composta SLU",
+                notes_it=(
+                    "Stress block rettangolare lambda=0.8, eta=1.0. "
+                    "gamma_c = 1.6 (DM96, default); gamma_s = 1.15. "
+                    "Limite x/d configurabile (default 0.45)."
+                ),
+            ),
+            secondary_references=[_dm96_ref_slu],
+            function_path="src.methods.checks_dm96.check_flessione_slu_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={
+                "implementation_status": "complete",
+                "gamma_c": 1.6,
+                "gamma_s": 1.15,
+                "lambda_factor": 0.8,
+                "x_d_limit": 0.45,
+            },
+        ),
+        VerificationTemplate(
+            template_id="dm96_slu_taglio",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="taglio",
+            limit_state="SLU",
+            description_it="Verifica a taglio SLU - DM 9/1/1996",
+            check_category="resistenza",
+            required_inputs=[
+                "section",
+                "material",
+                "Tx",
+                "staffe_passo",
+                "staffe_diametro",
+                "staffe_num_bracci",
+            ],
+            optional_inputs=["Ty", "N", "d"],
+            output_metrics=[
+                "V_Ed_kN",
+                "V_Rd_kN",
+                "V_Rd_s_kN",
+                "V_Rd_max_kN",
+                "theta_deg",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Verifica a taglio SLU",
+                description_it="Taglio con armature trasversali SLU",
+                notes_it=(
+                    "V_Rd = min(V_Rd,s, V_Rd,max). gamma_c = 1.6 (DM96). "
+                    "Angolo puntone theta configurabile (default 21.8 gradi)."
+                ),
+            ),
+            secondary_references=[_dm96_ref_slu],
+            function_path="src.methods.checks_dm96.check_taglio_slu_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={
+                "implementation_status": "complete",
+                "gamma_c": 1.6,
+                "gamma_s": 1.15,
+                "theta_deg": 21.8,
+            },
+        ),
+        VerificationTemplate(
+            template_id="dm96_slu_minimi_armatura_fless",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="minimi_armatura",
+            limit_state="SLU",
+            description_it="Verifica minimi armatura a flessione SLU - DM 9/1/1996",
+            check_category="minimi_armatura",
+            required_inputs=["section", "material", "As"],
+            optional_inputs=["d"],
+            output_metrics=["As_min_cm2", "As_effettiva_cm2", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Armature minime flessione",
+                description_it="Armatura longitudinale minima SLU",
+                notes_it="As,min = max(0.26*fctm/fyk*b*d, 0.0013*b*d).",
+            ),
+            secondary_references=[_dm96_ref_slu],
+            function_path="src.methods.checks_dm96.check_minimi_armatura_flessione_slu_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "complete"},
+        ),
+        VerificationTemplate(
+            template_id="dm96_slu_minimi_armatura_taglio",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="minimi_armatura",
+            limit_state="SLU",
+            description_it="Verifica minimi armatura a taglio SLU - DM 9/1/1996",
+            check_category="minimi_armatura",
+            required_inputs=["section", "material", "staffe_passo", "staffe_diametro"],
+            optional_inputs=["staffe_num_bracci"],
+            output_metrics=[
+                "Asw_over_s_actual_mm2_mm",
+                "Asw_min_over_s_mm2_mm",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Armature minime taglio",
+                description_it="Armatura trasversale minima SLU",
+                notes_it="Asw,min/s = 0.08*sqrt(fck)/fyk*b.",
+            ),
+            secondary_references=[_dm96_ref_slu],
+            function_path="src.methods.checks_dm96.check_minimi_armatura_taglio_slu_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={
+                "implementation_status": "complete",
+                "gamma_c": 1.6,
+                "gamma_s": 1.15,
+            },
+        ),
+
+        # =====================================================================
+        # SLE - Stati Limite Esercizio (DM 9/1/1996)
+        # =====================================================================
+        VerificationTemplate(
+            template_id="dm96_sle_fessurazione",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="fessurazione",
+            limit_state="SLE",
+            description_it="Verifica fessurazione SLE - DM 9/1/1996",
+            check_category="fessurazione",
+            required_inputs=["section", "material", "Mx", "As", "d"],
+            optional_inputs=["N", "As_prime"],
+            output_metrics=["w_k_mm", "w_amm_mm", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Stato limite di fessurazione",
+                description_it="Verifica ampiezza fessure SLE",
+                notes_it=(
+                    "Limite w_amm configurabile via extra_params (default 0.3 mm). "
+                    "TODO: formula completa EC2/DM96 per calcolo w_k."
+                ),
+            ),
+            secondary_references=[_dm96_ref_sle],
+            function_path="src.methods.checks_dm96.check_fessurazione_sle_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={
+                "implementation_status": "TODO",
+                "w_amm_mm": 0.3,
+            },
+        ),
+        VerificationTemplate(
+            template_id="dm96_sle_deformazioni",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="deformazioni",
+            limit_state="SLE",
+            description_it="Verifica deformazioni SLE - DM 9/1/1996",
+            check_category="deformazioni",
+            required_inputs=["section", "material"],
+            optional_inputs=["Mx", "N"],
+            output_metrics=["delta_mm", "delta_amm_mm", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Stato limite di deformazione",
+                description_it="Verifica frecce e deformazioni SLE",
+                notes_it=(
+                    "Limite L/250 configurabile via extra_params. "
+                    "Richiede span_mm e deflection_limit_ratio in CalcInput.extra. "
+                    "TODO: formula completa per calcolo freccia."
+                ),
+            ),
+            secondary_references=[_dm96_ref_sle],
+            function_path="src.methods.checks_dm96.check_deformazioni_sle_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={
+                "implementation_status": "TODO",
+                "deflection_limit_ratio": 250.0,
+            },
+        ),
+
+        # =====================================================================
+        # SLU aggiuntivi (DM 9/1/1996)
+        # =====================================================================
+        VerificationTemplate(
+            template_id="dm96_slu_torsione",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="torsione",
+            limit_state="SLU",
+            description_it="Verifica a torsione SLU - DM 9/1/1996",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Mz"],
+            optional_inputs=["Tx", "staffe_passo", "staffe_diametro"],
+            output_metrics=["T_Ed_kNm", "T_Rd_kNm", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Verifica a torsione SLU",
+                description_it="Torsione e interazione taglio-torsione",
+                notes_it="TODO: implementare formula completa torsione DM96.",
+            ),
+            secondary_references=[_dm96_ref_slu],
+            function_path="src.methods.checks_dm96.check_torsione_slu_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO", "gamma_c": 1.6},
+        ),
+        VerificationTemplate(
+            template_id="dm96_slu_punzonamento",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="punzonamento",
+            limit_state="SLU",
+            description_it="Verifica a punzonamento SLU - DM 9/1/1996",
+            check_category="resistenza",
+            required_inputs=["section", "material", "N"],
+            optional_inputs=["d"],
+            output_metrics=["v_Ed_MPa", "v_Rd_MPa", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Verifica a punzonamento SLU",
+                description_it="Punzonamento piastre e plinti",
+                notes_it="TODO: implementare perimetro critico e v_Rd,c.",
+            ),
+            secondary_references=[_dm96_ref_slu],
+            function_path="src.methods.checks_dm96.check_punzonamento_slu_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO", "gamma_c": 1.6},
+        ),
+        VerificationTemplate(
+            template_id="dm96_slu_instabilita",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="instabilita",
+            limit_state="SLU",
+            description_it="Verifica instabilita a compressione SLU - DM 9/1/1996",
+            check_category="resistenza",
+            required_inputs=["section", "material", "N"],
+            optional_inputs=["Mx", "My"],
+            output_metrics=["lambda_", "N_Ed_kN", "N_cr_kN", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="Verifica instabilita compressione",
+                description_it="Instabilita pilastri snelli",
+                notes_it=(
+                    "Calcolo snellezza lambda = l_0 / i_min. "
+                    "l_0 da CalcInput.extra['l_0_mm']. "
+                    "TODO: formula completa carico critico e amplificazione momento."
+                ),
+            ),
+            secondary_references=[_dm96_ref_slu],
+            function_path="src.methods.checks_dm96.check_instabilita_compressione_slu_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO", "gamma_c": 1.6},
+        ),
+
+        # =====================================================================
+        # C.A.P. - Precompressione (DM 9/1/1996 + DM 14/02/1992)
+        # =====================================================================
+        VerificationTemplate(
+            template_id="dm96_ta_prestress_stresses",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="prestress_stresses",
+            limit_state="TA",
+            description_it="Verifica tensioni c.a.p. metodo TA - DM 14/02/1992",
+            check_category="resistenza",
+            required_inputs=["section", "material"],
+            optional_inputs=["N", "Mx"],
+            output_metrics=["sigma_c_top", "sigma_c_bottom", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 14/02/1992",
+                paragraph="Tensioni ammissibili c.a.p.",
+                description_it="Verifica tensioni nel calcestruzzo e nell'acciaio da precompressione",
+                notes_it=(
+                    "TODO: richiede integrazione PrecompressionData in CalcInput. "
+                    "Placeholder funzionale."
+                ),
+            ),
+            secondary_references=[_dm96_ref_cap],
+            function_path="src.methods.checks_dm96.check_precompression_stresses_ta_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC", "prestressed"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO"},
+        ),
+        VerificationTemplate(
+            template_id="dm96_slu_prestress",
+            norm_code="DM96",
+            norm_version="1996",
+            verification_type="prestress_slu",
+            limit_state="SLU",
+            description_it="Verifica SLU c.a.p. - DM 9/1/1996",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Mx"],
+            optional_inputs=["N", "As"],
+            output_metrics=["M_Rd_kNm", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="DM96",
+                chapter="DM 9/1/1996",
+                paragraph="SLU c.a.p.",
+                description_it="Verifica a flessione SLU per sezioni precompresse",
+                notes_it=(
+                    "TODO: richiede integrazione PrecompressionData in CalcInput. "
+                    "Placeholder funzionale. gamma_c = 1.6."
+                ),
+            ),
+            secondary_references=[_dm96_ref_cap],
+            function_path="src.methods.checks_dm96.check_precompression_slu_dm96",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC", "prestressed"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO", "gamma_c": 1.6},
+        ),
+    ]
+
+
+def get_fire_templates() -> list[VerificationTemplate]:
+    """Get fire resistance templates (DM 9/3/2007, DM 16/2/2007).
+
+    4 template per verifiche incendio:
+    - Trave c.a.
+    - Pilastro c.a.
+    - Solaio c.a.
+    - Trave c.a.p. (gancio per futuro)
+
+    Tutti con norm_code="FIRE_DM2007" e limit_state="FIRE".
+    """
+    _fire_ref = NormReference(
+        norm_code="FIRE_DM2007",
+        chapter="DM 9/3/2007",
+        paragraph="Resistenza al fuoco",
+        description_it="Verifica di resistenza al fuoco secondo DM 9/3/2007 e DM 16/2/2007",
+    )
+
+    return [
+        VerificationTemplate(
+            template_id="dm_fire_trave_ca",
+            norm_code="FIRE_DM2007",
+            norm_version="2007",
+            verification_type="fire_resistance",
+            limit_state="FIRE",
+            description_it="Verifica resistenza al fuoco - Trave c.a.",
+            check_category="resistenza_fuoco",
+            required_inputs=["section", "material"],
+            optional_inputs=["d"],
+            output_metrics=["required_class", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="FIRE_DM2007",
+                chapter="DM 9/3/2007",
+                paragraph="Travi in c.a.",
+                description_it="Resistenza al fuoco travi c.a. (metodo tabellare/semplificato)",
+                notes_it=(
+                    "TODO: implementare tabelle DM 9/3/2007 per spessori minimi "
+                    "e copriferri in funzione di classe R e lati esposti."
+                ),
+            ),
+            secondary_references=[_fire_ref],
+            function_path="src.methods.checks_fire_dm96.check_fire_resistance_beam_rc",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO"},
+        ),
+        VerificationTemplate(
+            template_id="dm_fire_pilastro_ca",
+            norm_code="FIRE_DM2007",
+            norm_version="2007",
+            verification_type="fire_resistance",
+            limit_state="FIRE",
+            description_it="Verifica resistenza al fuoco - Pilastro c.a.",
+            check_category="resistenza_fuoco",
+            required_inputs=["section", "material"],
+            optional_inputs=["N", "d"],
+            output_metrics=["required_class", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="FIRE_DM2007",
+                chapter="DM 9/3/2007",
+                paragraph="Pilastri in c.a.",
+                description_it="Resistenza al fuoco pilastri c.a. (metodo tabellare)",
+                notes_it=(
+                    "TODO: implementare tabelle DM 9/3/2007 per dimensioni minime "
+                    "e copriferri in funzione di classe R."
+                ),
+            ),
+            secondary_references=[_fire_ref],
+            function_path="src.methods.checks_fire_dm96.check_fire_resistance_column_rc",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO"},
+        ),
+        VerificationTemplate(
+            template_id="dm_fire_solaio_ca",
+            norm_code="FIRE_DM2007",
+            norm_version="2007",
+            verification_type="fire_resistance",
+            limit_state="FIRE",
+            description_it="Verifica resistenza al fuoco - Solaio c.a.",
+            check_category="resistenza_fuoco",
+            required_inputs=["section", "material"],
+            optional_inputs=["d"],
+            output_metrics=["required_class", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="FIRE_DM2007",
+                chapter="DM 9/3/2007",
+                paragraph="Solai in c.a.",
+                description_it="Resistenza al fuoco solai c.a. (metodo tabellare)",
+                notes_it=(
+                    "TODO: implementare tabelle DM 9/3/2007 per spessore minimo "
+                    "e copriferro in funzione di classe R."
+                ),
+            ),
+            secondary_references=[_fire_ref],
+            function_path="src.methods.checks_fire_dm96.check_fire_resistance_slab_rc",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO"},
+        ),
+        VerificationTemplate(
+            template_id="dm_fire_trave_cap",
+            norm_code="FIRE_DM2007",
+            norm_version="2007",
+            verification_type="fire_resistance",
+            limit_state="FIRE",
+            description_it="Verifica resistenza al fuoco - Trave c.a.p.",
+            check_category="resistenza_fuoco",
+            required_inputs=["section", "material"],
+            optional_inputs=["d"],
+            output_metrics=["required_class", "utilizzazione"],
+            primary_reference=NormReference(
+                norm_code="FIRE_DM2007",
+                chapter="DM 9/3/2007",
+                paragraph="Elementi in c.a.p.",
+                description_it="Resistenza al fuoco elementi precompressi",
+                notes_it=(
+                    "GANCIO: richiede integrazione PrecompressionData. "
+                    "Temperature critiche acciaio da precompressione tipicamente "
+                    "350-400 gradi C (inferiori a 500 gradi C acciaio ordinario)."
+                ),
+            ),
+            secondary_references=[_fire_ref],
+            function_path="src.methods.checks_fire_dm96.check_fire_resistance_beam_cap",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC", "prestressed"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "TODO"},
         ),
     ]
 

@@ -360,7 +360,233 @@ def validate_calc_input(
                     )
                 )
 
-    # 9. RD2229-specific validation (Tensioni Ammissibili)
+    # 9. DM96-specific validation (TA + SLU + SLE)
+    if active_norm == "DM96":
+        # Material compatibility
+        if calc_input.material is not None:
+            material = calc_input.material
+            has_dm92_props = (
+                hasattr(material, "sigma_c_adm_kg_cm2")
+                or hasattr(material, "sigma_c_adm")
+                or hasattr(material, "Rck_kg_cm2")
+            )
+            has_modern_props = hasattr(material, "f_ck") or hasattr(material, "fck")
+            if not has_dm92_props and not has_modern_props:
+                issues.append(
+                    ValidationIssue(
+                        severity="error",
+                        field="material",
+                        code="MISSING_DM96_MATERIAL_PROPERTIES",
+                        message_it=(
+                            "Materiale non compatibile con DM 9/1/1996: "
+                            "deve avere sigma_c_adm_kg_cm2 / Rck_kg_cm2 (DM92) o fck (moderne)"
+                        ),
+                    )
+                )
+
+        # LC/FC warning for existing structures
+        if calc_input.lc is None or calc_input.fc is None:
+            issues.append(
+                ValidationIssue(
+                    severity="warning",
+                    field="lc",
+                    code="MISSING_LC_FC_DM96",
+                    message_it=(
+                        "DM 9/1/1996 spesso utilizzato per strutture esistenti: "
+                        "considerare di specificare LC e FC"
+                    ),
+                    norm_reference=NormReference(
+                        norm_code="NTC2018",
+                        chapter="8",
+                        paragraph="8.5.4",
+                        description_it="Livelli di conoscenza per strutture esistenti",
+                    ),
+                )
+            )
+
+        # Section check
+        if calc_input.section is not None:
+            section = calc_input.section
+            if hasattr(section, "width") and section.width > 10000:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="section.width",
+                        code="POSSIBLE_UNIT_ERROR",
+                        message_it=(
+                            f"Larghezza sezione molto grande ({section.width} mm): "
+                            "verificare le unita. CalcInput usa mm."
+                        ),
+                    )
+                )
+
+        # TA-specific checks
+        if calc_input.limit_states_enabled and "TA" in calc_input.limit_states_enabled:
+            if calc_input.As is None or calc_input.As == 0:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="As",
+                        code="MISSING_REINFORCEMENT_TA_DM96",
+                        message_it=(
+                            "Armatura tesa As non specificata - "
+                            "verifiche TA DM 14/02/1992 non eseguibili"
+                        ),
+                    )
+                )
+            if calc_input.d is None or calc_input.d == 0:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="d",
+                        code="MISSING_D_TA_DM96",
+                        message_it=(
+                            "Altezza utile d non specificata - "
+                            "verra stimata come d ~ 0.9h per verifiche TA"
+                        ),
+                    )
+                )
+
+        # SLU-specific checks
+        if calc_input.limit_states_enabled and "SLU" in calc_input.limit_states_enabled:
+            if calc_input.As is None or calc_input.As == 0:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="As",
+                        code="MISSING_REINFORCEMENT_SLU_DM96",
+                        message_it=(
+                            "Armatura tesa As non specificata - "
+                            "verifiche SLU DM 9/1/1996 non eseguibili"
+                        ),
+                    )
+                )
+            if calc_input.d is None or calc_input.d == 0:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="d",
+                        code="MISSING_D_SLU_DM96",
+                        message_it="Altezza utile d non specificata per SLU",
+                    )
+                )
+            # Stirrup data for shear
+            has_shear = (calc_input.Tx is not None and calc_input.Tx != 0) or (
+                calc_input.Ty is not None and calc_input.Ty != 0
+            )
+            if has_shear and (
+                calc_input.staffe_passo is None
+                or calc_input.staffe_passo == 0
+                or calc_input.staffe_diametro is None
+                or calc_input.staffe_diametro == 0
+            ):
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="staffe_passo",
+                        code="INCOMPLETE_STIRRUP_DATA_DM96",
+                        message_it=(
+                            "Forza di taglio presente ma dati staffe incompleti - "
+                            "verifiche a taglio SLU non eseguibili"
+                        ),
+                    )
+                )
+
+        # TODO: validazione PrecompressionData quando integrata in CalcInput
+
+    # 10. FIRE_DM2007-specific validation
+    if active_norm == "FIRE_DM2007" or (
+        calc_input.limit_states_enabled and "FIRE" in calc_input.limit_states_enabled
+    ):
+        # Check fire config presence
+        fire_cfg = calc_input.extra.get("fire_config", None)
+        has_fire_config = fire_cfg is not None
+        has_fire_class = False
+
+        if isinstance(fire_cfg, dict):
+            has_fire_class = bool(fire_cfg.get("required_fire_resistance_class"))
+            exposed = fire_cfg.get("exposed_sides")
+            if exposed is not None and (exposed < 1 or exposed > 4):
+                issues.append(
+                    ValidationIssue(
+                        severity="error",
+                        field="extra.fire_config.exposed_sides",
+                        code="INVALID_EXPOSED_SIDES",
+                        message_it=(
+                            f"Numero lati esposti al fuoco non valido: {exposed}. "
+                            "Valori ammessi: 1, 2, 3, 4."
+                        ),
+                    )
+                )
+        elif hasattr(fire_cfg, "required_fire_resistance_class"):
+            has_fire_class = bool(fire_cfg.required_fire_resistance_class)
+            if hasattr(fire_cfg, "exposed_sides"):
+                exposed = fire_cfg.exposed_sides
+                if exposed < 1 or exposed > 4:
+                    issues.append(
+                        ValidationIssue(
+                            severity="error",
+                            field="extra.fire_config.exposed_sides",
+                            code="INVALID_EXPOSED_SIDES",
+                            message_it=(
+                                f"Numero lati esposti al fuoco non valido: {exposed}. "
+                                "Valori ammessi: 1, 2, 3, 4."
+                            ),
+                        )
+                    )
+
+        if not has_fire_config:
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="extra.fire_config",
+                    code="MISSING_FIRE_CONFIG",
+                    message_it=(
+                        "Configurazione incendio (fire_config) non presente in CalcInput.extra. "
+                        "Impostare FireVerificationConfig con classe R richiesta."
+                    ),
+                    norm_reference=NormReference(
+                        norm_code="FIRE_DM2007",
+                        chapter="DM 9/3/2007",
+                        paragraph="Classificazione resistenza al fuoco",
+                        description_it="Classe di resistenza al fuoco richiesta",
+                    ),
+                )
+            )
+        elif not has_fire_class:
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="extra.fire_config.required_fire_resistance_class",
+                    code="MISSING_FIRE_CLASS",
+                    message_it=(
+                        "Classe di resistenza al fuoco richiesta non specificata. "
+                        "Impostare required_fire_resistance_class (es. 'R30', 'R60', 'R90', 'R120')."
+                    ),
+                    norm_reference=NormReference(
+                        norm_code="FIRE_DM2007",
+                        chapter="DM 16/2/2007",
+                        paragraph="Classi di resistenza al fuoco",
+                        description_it="Classificazione R30, R60, R90, R120",
+                    ),
+                )
+            )
+
+        # Section dimensions needed for fire checks
+        if calc_input.section is None:
+            issues.append(
+                ValidationIssue(
+                    severity="warning",
+                    field="section",
+                    code="MISSING_SECTION_FIRE",
+                    message_it=(
+                        "Sezione non specificata - necessaria per verifiche incendio "
+                        "(spessori minimi, copriferri)"
+                    ),
+                )
+            )
+
+    # 11. RD2229-specific validation (Tensioni Ammissibili)
     if active_norm == "RD2229":
         # Warn if LC/FC not specified (TA typically for existing structures)
         if calc_input.lc is None or calc_input.fc is None:
