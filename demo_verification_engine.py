@@ -167,7 +167,8 @@ print("  (Implementation in progress - full calculation coming soon)")
 print("\n" + "=" * 80)
 print("SUMMARY")
 print("=" * 80)
-print("""
+print(
+    """
 ✅ Verification Engine Implemented
   • TA, SLU, SLE calculation methods
   • Integration with .jsoncode configuration system
@@ -193,7 +194,8 @@ print("""
   • Integration with verification_table.py
   • Graphical results (neutral axis visualization)
   • Text export functionality
-""")
+"""
+)
 
 print("=" * 80)
 print("Run 'python demo_config_system.py' for .jsoncode system demonstration")

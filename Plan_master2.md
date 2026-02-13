@@ -1014,7 +1014,7 @@ B) JSON/CSV backing for NormReference
     - or any similar mapping structure.
 - The normative registry and verification templates MUST use these loaded references
   instead of duplicating normative text inside many modules.
-  
+
 Completeness of VerificationTemplate sets per norm
 - For each norm, the collection of VerificationTemplate instances MUST be sufficient
   to cover all the verification families that the software claims to support for
@@ -1042,7 +1042,7 @@ Completeness of VerificationTemplate sets per norm
     - leave that template absent and inform the user in Italian that the check is not
       yet available,
     - or provide a template marked as “partial” in its description_it and notes_it,
-      with clear TODOs in code.  
+      with clear TODOs in code.
 
 C) Integration with Normative Registry (NormRecord / NormPlugin)
 - Extend the normative registry data structures so that each norm record/plugin can
@@ -1957,7 +1957,7 @@ class CalibrationCase:
 
 def run_calibration_case(calc_input, expected_output, active_norm, tolerance):
     validation = validate_calc_input(calc_input, active_norm, [])
-    
+
     if validation.has_errors:
         return CalibrationResult(
             passed=False,
@@ -2653,7 +2653,7 @@ D) Adapters instead of duplication
   - refactor controllers to call these adapters,
   - progressively phase out manual reconstruction in GUI code.
 - Under no circumstances should new controller code introduce fresh duplication
-  of section/material parameter logic.  
+  of section/material parameter logic.
 
   ========================================
 FINAL INTEGRATION BLOCK — NON‑AMBIGUOUS RULES FOR CONTROLLERS,

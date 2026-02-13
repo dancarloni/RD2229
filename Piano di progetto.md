@@ -12,7 +12,7 @@ SCOPE
 INPUTS (replace placeholders)
 - Target module(s): <path/to/module.py>, <path/to/gui.py>
 - Feature/spec: <paste concise requirements here, including I/O>
-- Constraints: 
+- Constraints:
   * Keep lines ≤ 100 chars
   * Black/Ruff compliant
   * No network calls
@@ -79,8 +79,8 @@ CHECKLIST BEFORE OUTPUT
 
 
 ##
-voglio un prompt per richiedere il ripristino delle funzionalità dello workspace, visto che dopo un refactoring e un linting il software non si avvia più. 
-Una volta ricreato il verification module, voglio che tutto sia funzionante come già previsto. 
+voglio un prompt per richiedere il ripristino delle funzionalità dello workspace, visto che dopo un refactoring e un linting il software non si avvia più.
+Una volta ricreato il verification module, voglio che tutto sia funzionante come già previsto.
 senza eseguire modifiche al codice se non necessarie, verifica che i collegamenti funzionino, che i campi di selezione facciano riferimento ai repository e ai sistemi di selezione dei dati.
 di seguito riporto il funzionamento di alcuni moduli.
 
@@ -159,7 +159,7 @@ Confronto sintetico:
 - Eurocodici pongono forte enfasi sulla caratterizzazione dei materiali esistenti in opere in c.a. mediante prove dirette.
 - NTC 2008 e NTC 2018 introducono invece livelli di conoscenza e fattori di confidenza, assenti nell’EC2.
 
-le funzionalità di selezione e applicazione dei livelli di conoscenza  e fattori di confidenza deve essere disponibile per materiali esistenti. 
+le funzionalità di selezione e applicazione dei livelli di conoscenza  e fattori di confidenza deve essere disponibile per materiali esistenti.
 i materiali classificati come nuovi non devono consentire l'inserimento di livelli di conoscenza e fattori di confidenza.
 
 di seguito alcune informazioni utili e collegamenti che devi utilizzare
@@ -274,7 +274,7 @@ Una volta definiti tutti questi parametri, necessari per la descrizione completa
 
 per ogni elemento così inizializzato, deve essere eseguito il calcolo secondo la normativa selezionata e di seguito ai dati inseriti dall'utente il software deve calcolare: posizione dell'asse neutro rispetto il bordo superiore della sezione, coefficienti di sicurezza e tassi di utilizzo ai sensi della normativa selezionata e delle verifiche condotte (vedi sopra le verifiche).
 
-le verifiche di ciascun elemento strutturale inserito devono essere eseguite appena terminato l'inserimento dei dati per quell'elemento strutturale. 
+le verifiche di ciascun elemento strutturale inserito devono essere eseguite appena terminato l'inserimento dei dati per quell'elemento strutturale.
 
 ottimizza le funzioni di calcolo, di verifica per evitare calcoli in eccesso.
 Fai in modo che tutto sia modulare, i dati recuperati dinamicamente.

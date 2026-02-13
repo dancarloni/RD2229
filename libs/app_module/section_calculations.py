@@ -8,12 +8,7 @@ from __future__ import annotations
 import math
 from math import atan2, cos, degrees, radians, sin, sqrt
 
-from apps.sections.geometry_model import (
-    CoreData,
-    EllipseData,
-    SectionGeometry,
-    SectionProperties,
-)
+from apps.sections.geometry_model import CoreData, EllipseData, SectionGeometry, SectionProperties
 
 # Optional shapely support for robust carbon_fiber_placeholder operations
 try:

@@ -7,8 +7,6 @@ from typing import Any
 from apps.sections.services.notification import notify_info  # type: ignore[import]
 from apps.sections.services.notification_settings import (
     load_notification_settings,  # type: ignore[import]
-)
-from apps.sections.services.notification_settings import (
     save_notification_settings,  # type: ignore[import]
 )
 

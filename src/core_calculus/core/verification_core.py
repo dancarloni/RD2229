@@ -82,7 +82,7 @@ class MaterialProperties:
     # Homogenization
     n: float | None = None  # Es/Ec
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Calculate derived properties if not provided."""
         if self.fcd is None:
             self.fcd = self.fck  # Will be adjusted by safety factors
@@ -205,7 +205,7 @@ class VerificationResult:
     is_verified: bool = False
     messages: list[str] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize messages list."""
         if self.messages is None:
             self.messages = []

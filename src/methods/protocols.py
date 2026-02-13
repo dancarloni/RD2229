@@ -6,4 +6,5 @@ class VerificationMethod(Protocol):
 
     name: str
 
-    def compute(self, inputs: dict[str, Any]) -> dict[str, Any]: ...
+    def compute(self, inputs: dict[str, Any]) -> dict[str, Any]:
+        ...

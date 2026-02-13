@@ -48,6 +48,8 @@ try:
     from config.calculation_codes_loader import load_code as _load_code
     from config.historical_materials_loader import (
         get_concrete_properties as _get_concrete_properties,
+    )
+    from config.historical_materials_loader import (
         get_steel_properties as _get_steel_properties,
     )
 
@@ -295,10 +297,8 @@ class VerificationEngine:
                             )
                         else:
                             approx_notes.append(
-                                (
-                                    f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², "
-                                    f"fornita {loads.At:.3f} cm²"
-                                )
+                                f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², "
+                                f"fornita {loads.At:.3f} cm²"
                             )
                     elif At_req > 0:
                         approx_notes.append(

@@ -11,7 +11,11 @@
       "Bash(pip install:*)",
       "Bash(python -m pytest:*)",
       "Bash(python -m pip install:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(python -m app.main:*)",
+      "Bash(python:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff check:*)"
     ]
   }
 }

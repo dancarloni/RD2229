@@ -1,4 +1,22 @@
+"""Modulo per il comportamento semplificato delle fibre composite (FRC).
+
+Note:
+- Implementazione iniziale semplice: modello lineare troncato per la relazione stress-strain
+  delle fibre. Il comportamento preciso sarà aggiornato per raggiungere la parità numerica
+  con le formule VB in iterazioni successive.
+
+Small helper functions may accept unused arguments to preserve API parity with
+higher-level callers; suppress the corresponding pylint warning.
+
+"""
+
+from __future__ import annotations
+
 from typing import Any
+
+from core_models.materials import Material
+
+# pylint: disable=unused-argument
 
 
 def get_material_strength(material: Any) -> float:
@@ -14,24 +32,6 @@ def get_material_strength(material: Any) -> float:
         return float(val) if val is not None else 0.0
     except Exception:
         return 0.0
-
-
-"""Modulo per il comportamento semplificato delle fibre composite (FRC).
-
-Note:
-- Implementazione iniziale semplice: modello lineare troncato per la relazione stress-strain
-  delle fibre. Il comportamento preciso sarà aggiornato per raggiungere la parità numerica
-  con le formule VB in iterazioni successive.
-
-Small helper functions may accept unused arguments to preserve API parity with
-higher-level callers; suppress the corresponding pylint warning.
-
-"""
-
-# pylint: disable=unused-argument
-from __future__ import annotations
-
-from core_models.materials import Material
 
 
 def frc_stress(material: Material, strain: float) -> float:
@@ -73,7 +73,7 @@ def frc_stress(material: Material, strain: float) -> float:
 
 
 def apply_frc_to_section(
-    section, material: Material, strain_distribution
+    section: Any, material: Material, strain_distribution: Any
 ) -> tuple[float, float, float]:
     """Placeholder: applica il contributo FRC alla sezione e ritorna (N, My, Mz).
 
