@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import logging
 import math
-from dataclasses import dataclass
 from typing import Any
 
 from historical_ta.checks import (
@@ -44,8 +43,7 @@ from historical_ta.checks import (
     check_allowable_stresses_ta,
     compute_long_rebar_limits_ta,
 )
-from historical_ta.geometry import SectionGeometry, compute_section_properties
-from historical_ta.materials import ConcreteLawTA, SteelLawTA
+from historical_ta.geometry import compute_section_properties
 from historical_ta.stress import LoadState, compute_normal_stresses_ta
 from src.core_calculus.contracts import (
     CalcInput,
@@ -59,7 +57,6 @@ from src.methods.checks_rd2229 import (
     apply_slenderness_reduction_ta,
     build_concrete_law_ta,
     build_steel_law_ta,
-    compute_section_moduli_rect,
     convert_loads_to_ta_units,
     convert_section_to_ta_geometry,
 )
@@ -236,9 +233,7 @@ def check_flessione_ta_dm96(
 
         # Calcola tensioni (solo flessione, N=0)
         load_state = LoadState(Nx=0.0, My=loads["Mx_kg_cm"], Mz=loads["My_kg_cm"])
-        stresses = compute_normal_stresses_ta(
-            geom, props, load_state, concrete_law, steel_law
-        )
+        stresses = compute_normal_stresses_ta(geom, props, load_state, concrete_law, steel_law)
 
         # Tensioni ammissibili DM96
         adm = get_dm96_allowable_stresses(calc_input.material)
@@ -302,9 +297,7 @@ def check_flessione_ta_dm96(
 
     except Exception as e:
         logger.error(f"Errore in check_flessione_ta_dm96: {e}")
-        return _make_error_result(
-            template.template_id, f"Errore nel calcolo: {e}"
-        )
+        return _make_error_result(template.template_id, f"Errore nel calcolo: {e}")
 
 
 def check_pressoflessione_ta_dm96(
@@ -329,12 +322,8 @@ def check_pressoflessione_ta_dm96(
         steel_law = build_steel_law_ta(calc_input.material)
         props = compute_section_properties(geom)
 
-        load_state = LoadState(
-            Nx=loads["N_kg"], My=loads["Mx_kg_cm"], Mz=loads["My_kg_cm"]
-        )
-        stresses = compute_normal_stresses_ta(
-            geom, props, load_state, concrete_law, steel_law
-        )
+        load_state = LoadState(Nx=loads["N_kg"], My=loads["Mx_kg_cm"], Mz=loads["My_kg_cm"])
+        stresses = compute_normal_stresses_ta(geom, props, load_state, concrete_law, steel_law)
 
         adm = get_dm96_allowable_stresses(calc_input.material)
         if adm.sigma_c_allow <= 0:
@@ -378,9 +367,7 @@ def check_pressoflessione_ta_dm96(
                 f" -> {sigma_c_adm_rid:.1f} kg/cm2"
             )
         messages_it.append("")
-        messages_it.append(
-            f"Utilizzazione: {utilizzazione:.3f} {'OK' if check.ok else 'NON OK'}"
-        )
+        messages_it.append(f"Utilizzazione: {utilizzazione:.3f} {'OK' if check.ok else 'NON OK'}")
 
         return SingleCheckResult(
             template_id=template.template_id,
@@ -408,9 +395,7 @@ def check_pressoflessione_ta_dm96(
 
     except Exception as e:
         logger.error(f"Errore in check_pressoflessione_ta_dm96: {e}")
-        return _make_error_result(
-            template.template_id, f"Errore nel calcolo: {e}"
-        )
+        return _make_error_result(template.template_id, f"Errore nel calcolo: {e}")
 
 
 def check_taglio_ta_dm96(
@@ -480,7 +465,7 @@ def check_taglio_ta_dm96(
         f"Taglio: V = {V_kg:.0f} kg",
         f"tau = V/(b*d) = {tau_kg_cm2:.2f} kg/cm2",
         "",
-        f"Limiti DM 14/02/1992:",
+        "Limiti DM 14/02/1992:",
         f"  tau_c0 = {tau_c0:.1f} kg/cm2 (senza staffe)",
         f"  tau_c1 = {tau_c1:.1f} kg/cm2 (massimo con staffe)",
         f"  {stato}",
@@ -522,9 +507,7 @@ def check_minimi_armatura_ta_dm96(
     NormReference: DM 14/02/1992 Cap. 5 - Armature minime
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(
-            template.template_id, "Sezione o materiale non specificati"
-        )
+        return _make_error_result(template.template_id, "Sezione o materiale non specificati")
 
     section = calc_input.section
     b_cm = section.width / 10.0
@@ -620,9 +603,7 @@ def check_flessione_slu_dm96(
 
     section = calc_input.section
     if not (hasattr(section, "width") and hasattr(section, "height")):
-        return _make_error_result(
-            template.template_id, "Geometria sezione non disponibile", "SLU"
-        )
+        return _make_error_result(template.template_id, "Geometria sezione non disponibile", "SLU")
 
     b = section.width  # mm
     h = section.height  # mm
@@ -680,7 +661,11 @@ def check_flessione_slu_dm96(
         x = (As_mm2 * f_yd) / (lambda_factor * b * f_cd) if (lambda_factor * b * f_cd) > 0 else 0.0
         R_s_comp = 0.0
     else:
-        x_assumption = ((As_mm2 - As_prime_mm2) * f_yd) / (lambda_factor * b * f_cd) if (lambda_factor * b * f_cd) > 0 else 0.0
+        x_assumption = (
+            ((As_mm2 - As_prime_mm2) * f_yd) / (lambda_factor * b * f_cd)
+            if (lambda_factor * b * f_cd) > 0
+            else 0.0
+        )
         if x_assumption > d_prime_mm:
             x = x_assumption
             R_s_comp = As_prime_mm2 * f_yd
@@ -714,12 +699,14 @@ def check_flessione_slu_dm96(
     ]
     if x_limited:
         messages_it.append(f"  x/d = {x/d_mm:.3f} > {x_d_limit}: sezione sovra-armata")
-    messages_it.extend([
-        "",
-        f"M_Ed = {M_Ed:.2f} kNm",
-        f"M_Rd = {M_Rd_kNm:.2f} kNm",
-        f"Utilizzazione: {utilizzazione:.3f} {'OK' if ok else 'NON OK'}",
-    ])
+    messages_it.extend(
+        [
+            "",
+            f"M_Ed = {M_Ed:.2f} kNm",
+            f"M_Rd = {M_Rd_kNm:.2f} kNm",
+            f"Utilizzazione: {utilizzazione:.3f} {'OK' if ok else 'NON OK'}",
+        ]
+    )
 
     return SingleCheckResult(
         template_id=template.template_id,
@@ -905,7 +892,9 @@ def check_minimi_armatura_flessione_slu_dm96(
 
     f_ctm = getattr(material, "fctm", None)
     if f_ctm is None or f_ctm <= 0:
-        f_ctm = 0.30 * (f_ck ** (2.0 / 3.0)) if f_ck <= 50 else 2.12 * math.log(1 + (f_ck + 8) / 10.0)
+        f_ctm = (
+            0.30 * (f_ck ** (2.0 / 3.0)) if f_ck <= 50 else 2.12 * math.log(1 + (f_ck + 8) / 10.0)
+        )
 
     As = calc_input.As or 0.0
     As_mm2 = As * 100.0
@@ -977,9 +966,7 @@ def check_minimi_armatura_taglio_slu_dm96(
     staffe_num_bracci = calc_input.staffe_num_bracci or 2
 
     if not staffe_diametro or staffe_diametro <= 0 or not staffe_passo or staffe_passo <= 0:
-        return _make_error_result(
-            template.template_id, "Dati staffe mancanti o non validi", "SLU"
-        )
+        return _make_error_result(template.template_id, "Dati staffe mancanti o non validi", "SLU")
 
     s_mm = staffe_passo * 10.0
     A_sw = staffe_num_bracci * math.pi * (staffe_diametro**2) / 4.0

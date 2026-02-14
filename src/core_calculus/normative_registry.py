@@ -698,7 +698,6 @@ def get_dm96_templates() -> list[VerificationTemplate]:
             requires_existing_structure=True,
             extra_params={"implementation_status": "complete"},
         ),
-
         # =====================================================================
         # SLU - Stati Limite Ultimo (DM 9/1/1996) - gamma_c = 1.6
         # =====================================================================
@@ -856,7 +855,6 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 "gamma_s": 1.15,
             },
         ),
-
         # =====================================================================
         # SLE - Stati Limite Esercizio (DM 9/1/1996)
         # =====================================================================
@@ -927,7 +925,6 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 "deflection_limit_ratio": 250.0,
             },
         ),
-
         # =====================================================================
         # SLU aggiuntivi (DM 9/1/1996)
         # =====================================================================
@@ -1016,7 +1013,6 @@ def get_dm96_templates() -> list[VerificationTemplate]:
             requires_existing_structure=False,
             extra_params={"implementation_status": "TODO", "gamma_c": 1.6},
         ),
-
         # =====================================================================
         # C.A.P. - Precompressione (DM 9/1/1996 + DM 14/02/1992)
         # =====================================================================

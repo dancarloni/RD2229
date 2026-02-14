@@ -21,13 +21,11 @@ PrecompressionData (da definire col maintainer del core).
 
 from __future__ import annotations
 
-import dataclasses
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 
-class TendonType(str, Enum):
+class TendonType(StrEnum):
     """Tipo di cavo da precompressione.
 
     Attributi
@@ -40,7 +38,7 @@ class TendonType(str, Enum):
     NON_ADERENTE = "non_aderente"
 
 
-class PrestressStage(str, Enum):
+class PrestressStage(StrEnum):
     """Fase di analisi della precompressione.
 
     Attributi
@@ -103,7 +101,7 @@ class PrestressingTendon:
     friction_mu: float
     wobble_k_per_m: float
     anchor_slip_mm: float = 0.0
-    bonded_length_mm: Optional[float] = None
+    bonded_length_mm: float | None = None
     note: str = ""
 
 
@@ -154,7 +152,7 @@ class PrecompressionData:
     element_id: str
     tendons: list[PrestressingTendon] = field(default_factory=list)
     prestress_stage: PrestressStage = PrestressStage.ESERCIZIO
-    gamma_p: Optional[float] = None
+    gamma_p: float | None = None
     consider_losses: bool = True
     losses_model_id: str = "TODO"
     user_loss_parameters: dict = field(default_factory=dict)

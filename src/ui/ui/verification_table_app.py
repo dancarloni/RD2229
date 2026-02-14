@@ -43,11 +43,11 @@ COLUMNS: list[ColumnDef] = [
 # Note: Column "As" maps to VerificationInput.As_sup and "As_p" to VerificationInput.As_inf
 
 try:
-    from tools.materials_manager import list_materials as LIST_MATERIALS
+    from tools.materials_manager import list_materials as list_materials
 except (
     Exception
 ):  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
-    LIST_MATERIALS = None
+    list_materials = None
 
 
 class VerificationTableApp(tk.Frame):
@@ -1213,8 +1213,8 @@ class VerificationTableApp(tk.Frame):
         if material_names:
             return list(material_names)
         try:
-            if LIST_MATERIALS is not None:
-                materials = LIST_MATERIALS()  # type: ignore
+            if list_materials is not None:
+                materials = list_materials()  # type: ignore
                 # Convert dicts to strings if needed
                 if materials and isinstance(materials[0], dict):
                     return [str(m.get("name", m.get("id", str(m)))) for m in materials]  # type: ignore

@@ -4,8 +4,9 @@ import unittest
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 
 try:
-    from historical_materials import HistoricalMaterialLibrary
     from libs.app_module.ui.module_selector import ModuleSelectorWindow
+
+    from historical_materials import HistoricalMaterialLibrary
     from verification_table import VerificationTableWindow
 except Exception:  # pylint: disable=broad-exception-caught
     ModuleSelectorWindow = None

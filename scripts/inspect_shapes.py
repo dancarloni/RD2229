@@ -4,8 +4,16 @@ import sys
 ROOT = str(pathlib.Path(__file__).resolve().parents[1])
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
-from apps.sections.models.sections import CSection, LSection, RectangularHollowSection, VSection
-from apps.sections.section_calculations import _polygon_area_and_centroid, section_to_geometry
+from apps.sections.models.sections import (  # noqa: E402
+    CSection,
+    LSection,
+    RectangularHollowSection,
+    VSection,
+)
+from src.core_calculus.section_calculations import (  # noqa: E402
+    _polygon_area_and_centroid,
+    section_to_geometry,
+)
 
 cases = [
     (CSection, dict(name="csh", width=10.0, height=8.0, flange_thickness=1.0, web_thickness=1.0)),

@@ -1,6 +1,10 @@
-"""Data models for section carbon_fiber_placeholder and computed properties.
+"""Polygon-based section geometry models (canonical location).
 
-This module contains pure data classes and small helpers. No GUI dependencies.
+This module centralizes the polygon-style SectionGeometry / SectionProperties
+used across UI, section adapters and shapely-based calculations.
+
+Replaces previous copies under `apps.sections.geometry_model` and
+`libs.app_module.geometry_model`.
 """
 
 from __future__ import annotations
@@ -12,7 +16,14 @@ Point = tuple[float, float]  # (x, y) in model units (e.g. cm)
 
 @dataclass
 class SectionGeometry:
-    """Describe contours and holes in real-world units (cm/mm)."""
+    """Describe contours and holes in real-world units (cm/mm).
+
+    Attributes:
+        exterior: list[Point]  -- outer ring in CCW order
+        holes: list[list[Point]] -- optional holes (each ring CCW)
+        units: str -- units string (default: "cm")
+        meta: dict -- extra metadata
+    """
 
     exterior: list[Point]
     holes: list[list[Point]] = field(default_factory=list)
@@ -60,7 +71,7 @@ class EllipseData:
 
 @dataclass
 class SectionProperties:
-    """Computed geometric properties."""
+    """Computed geometric properties (polygon-based representation)."""
 
     area: float = 0.0
     Ix: float = 0.0

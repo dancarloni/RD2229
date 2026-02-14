@@ -592,9 +592,9 @@ def get_default_values_for_source(
         if material_type == "concrete":
             if fck > 0:
                 vals = _compute_ntc2018_concrete(fck)
-                vals[
-                    "calculation_notes"
-                ] = "TODO: Valori da NTC 2008 - VERIFICARE. Simili a NTC 2018."
+                vals["calculation_notes"] = (
+                    "TODO: Valori da NTC 2008 - VERIFICARE. Simili a NTC 2018."
+                )
                 result.update(vals)
         elif material_type in ("steel", "stirrup_steel"):
             if fyk > 0:
@@ -630,9 +630,9 @@ def get_default_values_for_source(
 
     else:
         # Fonte sconosciuta
-        result[
-            "calculation_notes"
-        ] = f"Fonte '{source_id}' non riconosciuta. Nessun calcolo automatico disponibile."
+        result["calculation_notes"] = (
+            f"Fonte '{source_id}' non riconosciuta. Nessun calcolo automatico disponibile."
+        )
 
     # Aggiungi avvertenza standard
     if result.get("calculation_notes"):

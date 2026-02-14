@@ -151,6 +151,13 @@ data/
 
 We use pre-commit hooks to ensure consistent formatting and basic checks before commits.
 
+Consolidation note: the polygon-based section geometry and the section graphics controller have been unified into canonical modules:
+
+- `src/core_calculus/core/geometry_model.py` (SectionGeometry / SectionProperties)
+- `apps/sections/section_graphics.py` (SectionViewTransform / SectionGraphicsController)
+
+See `docs/consolidation.md` and `docs/migration-quickstart.md` for migration details and examples.
+
 Install and enable the hooks locally with:
 
 ```bash

@@ -29,8 +29,7 @@ Tutti i messaggi utente sono in italiano.
 from __future__ import annotations
 
 import dataclasses
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from src.core_calculus.contracts import (
     CalcInput,
@@ -38,7 +37,6 @@ from src.core_calculus.contracts import (
     SingleCheckResult,
     VerificationTemplate,
 )
-
 
 # ==============================================================================
 # CONFIGURAZIONE INCENDIO
@@ -105,20 +103,26 @@ def _extract_fire_config(
     if isinstance(fire_cfg, FireVerificationConfig):
         return fire_cfg
     if isinstance(fire_cfg, dict):
-        return FireVerificationConfig(**{
-            k: v for k, v in fire_cfg.items()
-            if k in FireVerificationConfig.__dataclass_fields__
-        })
+        return FireVerificationConfig(
+            **{
+                k: v
+                for k, v in fire_cfg.items()
+                if k in FireVerificationConfig.__dataclass_fields__
+            }
+        )
 
     # Prova da template.extra_params
     fire_cfg = template.extra_params.get("fire_config", None)
     if isinstance(fire_cfg, FireVerificationConfig):
         return fire_cfg
     if isinstance(fire_cfg, dict):
-        return FireVerificationConfig(**{
-            k: v for k, v in fire_cfg.items()
-            if k in FireVerificationConfig.__dataclass_fields__
-        })
+        return FireVerificationConfig(
+            **{
+                k: v
+                for k, v in fire_cfg.items()
+                if k in FireVerificationConfig.__dataclass_fields__
+            }
+        )
 
     # Prova campi singoli da template.extra_params
     rfc = template.extra_params.get("required_fire_resistance_class", None)
@@ -196,12 +200,16 @@ def check_fire_resistance_beam_rc(
         b_info = f"Larghezza trave: b = {section.width/10:.1f} cm"
 
     messages_it = [
-        f"Verifica resistenza al fuoco: TRAVE C.A.",
+        "Verifica resistenza al fuoco: TRAVE C.A.",
         f"Classe richiesta: {fire_cfg.required_fire_resistance_class}",
         f"Lati esposti: {fire_cfg.exposed_sides}",
         f"Metodo: {fire_cfg.design_method}",
         f"Protezione: {fire_cfg.protection_type}"
-        + (f" ({fire_cfg.protection_thickness_mm} mm)" if fire_cfg.protection_thickness_mm > 0 else ""),
+        + (
+            f" ({fire_cfg.protection_thickness_mm} mm)"
+            if fire_cfg.protection_thickness_mm > 0
+            else ""
+        ),
         b_info,
         "",
         "TODO: implementazione metodo tabellare/semplificato.",
@@ -259,7 +267,7 @@ def check_fire_resistance_column_rc(
         dims_info = f"Sezione: {section.width/10:.1f} x {section.height/10:.1f} cm"
 
     messages_it = [
-        f"Verifica resistenza al fuoco: PILASTRO C.A.",
+        "Verifica resistenza al fuoco: PILASTRO C.A.",
         f"Classe richiesta: {fire_cfg.required_fire_resistance_class}",
         f"Lati esposti: {fire_cfg.exposed_sides}",
         f"Metodo: {fire_cfg.design_method}",
@@ -312,7 +320,7 @@ def check_fire_resistance_slab_rc(
         )
 
     messages_it = [
-        f"Verifica resistenza al fuoco: SOLAIO C.A.",
+        "Verifica resistenza al fuoco: SOLAIO C.A.",
         f"Classe richiesta: {fire_cfg.required_fire_resistance_class}",
         f"Lati esposti: {fire_cfg.exposed_sides}",
         f"Metodo: {fire_cfg.design_method}",

@@ -1,5 +1,5 @@
-from apps.sections.geometry_model import SectionGeometry
-from apps.sections.section_calculations import (
+from src.core_calculus.core.geometry_model import SectionGeometry
+from src.core_calculus.section_calculations import (
     _point_in_polygon,
     compute_core_of_inertia,
     compute_section_properties_from_geometry,

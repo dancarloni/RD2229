@@ -23,7 +23,6 @@ from src.methods.checks_fire_dm96 import (
     check_fire_resistance_slab_rc,
 )
 
-
 # ===========================================================================
 # Mock objects
 # ===========================================================================
@@ -265,7 +264,8 @@ def test_validation_fire_with_config():
 
     result = validate_calc_input(calc_input, "FIRE_DM2007")
     fire_errors = [
-        i for i in result.issues
+        i
+        for i in result.issues
         if i.severity == "error" and ("FIRE" in i.code or "fire" in i.code.lower())
     ]
     assert len(fire_errors) == 0, f"Non dovrebbero esserci errori fire: {fire_errors}"

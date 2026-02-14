@@ -300,7 +300,7 @@ class Section:
 
         Se l'attributo non esiste, il valore sarà None.
         """
-        dims = {k: None for k in DIMENSION_KEYS}
+        dims: dict[str, float | None] = {k: None for k in DIMENSION_KEYS}
         for k in dims:
             if hasattr(self, k):
                 dims[k] = getattr(self, k)
@@ -329,14 +329,14 @@ class Section:
         theta_rad = radians(self.rotation_angle_deg)
         return rotate_inertia(ix_local, iy_local, ixy_local, theta_rad)
 
-    def to_dict(self) -> dict[str, float | None]:
+    def to_dict(self) -> dict[str, str | float | None]:
         """Serializza la sezione in un dizionario completo (dimensioni + proprietà).
 
         Restituisce valori numerici (float) o None quando il valore non è applicabile.
         Non converte in stringhe: la serializzazione (CSV) si occupa della conversione.
         """
         # Base del dizionario
-        data: dict[str, float | None] = {}
+        data: dict[str, str | float | None] = {}
         data.update(
             {
                 "id": self.id,

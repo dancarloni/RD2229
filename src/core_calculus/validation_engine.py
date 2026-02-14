@@ -498,31 +498,16 @@ def validate_calc_input(
     if active_norm == "FIRE_DM2007" or (
         calc_input.limit_states_enabled and "FIRE" in calc_input.limit_states_enabled
     ):
-        # Check fire config presence
-        fire_cfg = calc_input.extra.get("fire_config", None)
-        has_fire_config = fire_cfg is not None
-        has_fire_class = False
+        if calc_input.extra is not None:
+            # Check fire config presence
+            fire_cfg = calc_input.extra.get("fire_config", None)
+            has_fire_config = fire_cfg is not None
+            has_fire_class = False
 
-        if isinstance(fire_cfg, dict):
-            has_fire_class = bool(fire_cfg.get("required_fire_resistance_class"))
-            exposed = fire_cfg.get("exposed_sides")
-            if exposed is not None and (exposed < 1 or exposed > 4):
-                issues.append(
-                    ValidationIssue(
-                        severity="error",
-                        field="extra.fire_config.exposed_sides",
-                        code="INVALID_EXPOSED_SIDES",
-                        message_it=(
-                            f"Numero lati esposti al fuoco non valido: {exposed}. "
-                            "Valori ammessi: 1, 2, 3, 4."
-                        ),
-                    )
-                )
-        elif hasattr(fire_cfg, "required_fire_resistance_class"):
-            has_fire_class = bool(fire_cfg.required_fire_resistance_class)
-            if hasattr(fire_cfg, "exposed_sides"):
-                exposed = fire_cfg.exposed_sides
-                if exposed < 1 or exposed > 4:
+            if isinstance(fire_cfg, dict):
+                has_fire_class = bool(fire_cfg.get("required_fire_resistance_class"))
+                exposed = fire_cfg.get("exposed_sides")
+                if exposed is not None and (exposed < 1 or exposed > 4):
                     issues.append(
                         ValidationIssue(
                             severity="error",
@@ -534,57 +519,73 @@ def validate_calc_input(
                             ),
                         )
                     )
+            elif hasattr(fire_cfg, "required_fire_resistance_class"):
+                has_fire_class = bool(fire_cfg.required_fire_resistance_class)
+                if hasattr(fire_cfg, "exposed_sides"):
+                    exposed = fire_cfg.exposed_sides
+                    if exposed < 1 or exposed > 4:
+                        issues.append(
+                            ValidationIssue(
+                                severity="error",
+                                field="extra.fire_config.exposed_sides",
+                                code="INVALID_EXPOSED_SIDES",
+                                message_it=(
+                                    f"Numero lati esposti al fuoco non valido: {exposed}. "
+                                    "Valori ammessi: 1, 2, 3, 4."
+                                ),
+                            )
+                        )
 
-        if not has_fire_config:
-            issues.append(
-                ValidationIssue(
-                    severity="error",
-                    field="extra.fire_config",
-                    code="MISSING_FIRE_CONFIG",
-                    message_it=(
-                        "Configurazione incendio (fire_config) non presente in CalcInput.extra. "
-                        "Impostare FireVerificationConfig con classe R richiesta."
-                    ),
-                    norm_reference=NormReference(
-                        norm_code="FIRE_DM2007",
-                        chapter="DM 9/3/2007",
-                        paragraph="Classificazione resistenza al fuoco",
-                        description_it="Classe di resistenza al fuoco richiesta",
-                    ),
+            if not has_fire_config:
+                issues.append(
+                    ValidationIssue(
+                        severity="error",
+                        field="extra.fire_config",
+                        code="MISSING_FIRE_CONFIG",
+                        message_it=(
+                            "Configurazione incendio (fire_config) non presente in CalcInput.extra. "
+                            "Impostare FireVerificationConfig con classe R richiesta."
+                        ),
+                        norm_reference=NormReference(
+                            norm_code="FIRE_DM2007",
+                            chapter="DM 9/3/2007",
+                            paragraph="Classificazione resistenza al fuoco",
+                            description_it="Classe di resistenza al fuoco richiesta",
+                        ),
+                    )
                 )
-            )
-        elif not has_fire_class:
-            issues.append(
-                ValidationIssue(
-                    severity="error",
-                    field="extra.fire_config.required_fire_resistance_class",
-                    code="MISSING_FIRE_CLASS",
-                    message_it=(
-                        "Classe di resistenza al fuoco richiesta non specificata. "
-                        "Impostare required_fire_resistance_class (es. 'R30', 'R60', 'R90', 'R120')."
-                    ),
-                    norm_reference=NormReference(
-                        norm_code="FIRE_DM2007",
-                        chapter="DM 16/2/2007",
-                        paragraph="Classi di resistenza al fuoco",
-                        description_it="Classificazione R30, R60, R90, R120",
-                    ),
+            elif not has_fire_class:
+                issues.append(
+                    ValidationIssue(
+                        severity="error",
+                        field="extra.fire_config.required_fire_resistance_class",
+                        code="MISSING_FIRE_CLASS",
+                        message_it=(
+                            "Classe di resistenza al fuoco richiesta non specificata. "
+                            "Impostare required_fire_resistance_class (es. 'R30', 'R60', 'R90', 'R120')."
+                        ),
+                        norm_reference=NormReference(
+                            norm_code="FIRE_DM2007",
+                            chapter="DM 16/2/2007",
+                            paragraph="Classi di resistenza al fuoco",
+                            description_it="Classificazione R30, R60, R90, R120",
+                        ),
+                    )
                 )
-            )
 
-        # Section dimensions needed for fire checks
-        if calc_input.section is None:
-            issues.append(
-                ValidationIssue(
-                    severity="warning",
-                    field="section",
-                    code="MISSING_SECTION_FIRE",
-                    message_it=(
-                        "Sezione non specificata - necessaria per verifiche incendio "
-                        "(spessori minimi, copriferri)"
-                    ),
+            # Section dimensions needed for fire checks
+            if calc_input.section is None:
+                issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        field="section",
+                        code="MISSING_SECTION_FIRE",
+                        message_it=(
+                            "Sezione non specificata - necessaria per verifiche incendio "
+                            "(spessori minimi, copriferri)"
+                        ),
+                    )
                 )
-            )
 
     # 11. RD2229-specific validation (Tensioni Ammissibili)
     if active_norm == "RD2229":

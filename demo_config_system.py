@@ -216,8 +216,7 @@ print(f"  NTC2018 C25/30: fck = 25 MPa ≈ {25 * conversion['MPa_to_kg_cm2']:.1f
 print("\n" + "=" * 80)
 print("SUMMARY")
 print("=" * 80)
-print(
-    """
+print("""
 ✅ Configuration system (.jsoncode) implemented
 ✅ Calculation codes: TA, SLU, SLE
 ✅ Historical materials: RD2229, DM92, NTC2008, NTC2018
@@ -231,8 +230,7 @@ For more information, see:
   - docs/CONFIG_JSONCODE_SYSTEM.md
   - IMPLEMENTATION_SUMMARY.md
   - tests/test_config_loaders.py
-"""
-)
+""")
 
 print("=" * 80)
 print("End of demonstration")

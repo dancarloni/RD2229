@@ -1,7 +1,7 @@
 import pytest
 
 from apps.sections.models.sections import RectangularSection, TSection
-from apps.sections.section_calculations import (
+from src.core_calculus.section_calculations import (
     compute_section_properties_from_geometry,
     section_to_geometry,
 )

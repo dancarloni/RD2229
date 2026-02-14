@@ -7,7 +7,7 @@ import json
 from collections.abc import Iterable
 from pathlib import Path
 
-from apps.sections.geometry_model import SectionGeometry
+from src.core_calculus.core.geometry_model import SectionGeometry
 
 
 def export_sections_to_csv(path: str, sections: Iterable[SectionGeometry]):

@@ -534,10 +534,47 @@ def check_flessione_ta_rett(
         )
 
         # 6. Calcola utilizzazione
+        # Conservative envelope (linear elastic superposition) — useful as a safety check
+        # Apply only to singly-reinforced sections (skip when compression reinforcement present)
+        sigma_c_env = 0.0
+        try:
+            if not getattr(calc_input, "As_prime", None):
+                b_cm = calc_input.section.width / 10.0
+                h_cm = calc_input.section.height / 10.0
+                Wx_cm3, Wy_cm3 = compute_section_moduli_rect(b_cm, h_cm)
+                sigma_c_env = compute_sigma_concrete_biaxial_ta(
+                    N_kg=ta_loads["N_kg"],
+                    Mx_kg_cm=ta_loads["Mx_kg_cm"],
+                    My_kg_cm=ta_loads["My_kg_cm"],
+                    A_cm2=ta_properties.area_equivalent if hasattr(ta_properties, "area_equivalent") else 0.0,
+                    Wx_cm3=Wx_cm3,
+                    Wy_cm3=Wy_cm3,
+                )
+        except Exception:
+            sigma_c_env = 0.0
+
         ok = check_result.ok
         util_c = abs(stress_result.sigma_c_max) / allowable.sigma_c_allow
         util_s = abs(stress_result.sigma_s_max) / allowable.sigma_s_allow
         utilisazione = max(util_c, util_s)
+
+        # consider envelope utilisation as well (conservative check)
+        try:
+            util_c_env = abs(sigma_c_env) / allowable.sigma_c_allow if allowable.sigma_c_allow else 0.0
+            if util_c_env > utilisazione:
+                utilisazione = util_c_env
+            # only treat large exceedances as decisive (allow small numeric/method differences)
+            if util_c_env > 1.05:
+                check_result.check_concrete = False
+                check_result.ok = False
+                check_result.messages.append(
+                    f"Conservative envelope exceeded: σ_c,env = {sigma_c_env:.1f} kg/cm²"
+                )
+        except Exception:
+            pass
+
+        # reflect any envelope-driven change in the overall pass/fail
+        ok = check_result.ok
 
         # 7. Costruisci messaggi italiani
         section = calc_input.section
@@ -692,7 +729,7 @@ def check_pressoflessione_ta_rett(
             # Aggiorna details con riduzione
             if "sigma_c_adm_kg_cm2" in result.details:
                 original_sigma_c_adm = result.details["sigma_c_adm_kg_cm2"]
-                reduced_sigma_c_adm = original_sigma_c_adm * reduction_factor
+                reduced_sigma_c_adm = float(original_sigma_c_adm) * reduction_factor
                 result.details["sigma_c_adm_ridotta_kg_cm2"] = reduced_sigma_c_adm
                 result.details["reduction_factor"] = reduction_factor
                 result.details["A_min_cm"] = A_min_cm

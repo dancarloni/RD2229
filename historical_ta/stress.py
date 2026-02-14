@@ -190,21 +190,27 @@ def compute_normal_stresses_ta(
         sigma_vertices = []
         for y, z in [(vc[6], vc[7]) for vc in vertex_contribs]:
             # strain at point (y,z) relative to section centroid
-            eps = e0 + k_y * (z - section_props.zG) + k_z * (y - section_props.yG)
+            if section_props.zG is not None and section_props.yG is not None:
+                eps = e0 + k_y * (z - section_props.zG) + k_z * (y - section_props.yG)
+            else:
+                eps = e0
             s = sigma_c(eps, concrete_law)
             sigma_vertices.append(s)
 
         # compute bar stresses
         sigma_bars = []
         for yb, zb, d in geom.bars:
-            epsb = e0 + k_y * (zb - section_props.zG) + k_z * (yb - section_props.yG)
+            if section_props.zG is not None and section_props.yG is not None:
+                epsb = e0 + k_y * (zb - section_props.zG) + k_z * (yb - section_props.yG)
+            else:
+                epsb = e0
             sigma_bars.append(sigma_s(epsb, steel_law))
 
-        sigma_c_max = max(sigma_vertices) if sigma_vertices else 0.0
-        sigma_c_min = min(sigma_vertices) if sigma_vertices else 0.0
+        sigma_c_max = max(s for s in sigma_vertices if s is not None) if any(s is not None for s in sigma_vertices) else 0.0
+        sigma_c_min = min(s for s in sigma_vertices if s is not None) if any(s is not None for s in sigma_vertices) else 0.0
 
         # If concrete tensile is not allowed, and tensile stresses exist, we must parzialize
-        if (not allow_concrete_tension) and any(s > 0 for s in sigma_vertices):
+        if (not allow_concrete_tension) and any(s is not None and s > 0 for s in sigma_vertices):
             # zero-out contributions from vertices with positive stress (approximate SezioneParzializzata)
             # Recompute raw sums by subtracting vertex contributions for tensile vertices
             A_adj = section_props.A_contrib
@@ -218,7 +224,7 @@ def compute_normal_stresses_ta(
             )
 
             for idx, s in enumerate(sigma_vertices):
-                if s > 0:
+                if s is not None and s > 0:
                     A_v, Sy_v, Sz_v, Iy_v, Iz_v, Iyz_v, y_v, z_v = vertex_contribs[idx]
                     A_adj -= A_v
                     Sy_adj -= Sy_v
@@ -284,11 +290,11 @@ def compute_normal_stresses_ta(
         )
 
     # fallback: return last computed
-    sigma_s_max = max(sigma_bars) if sigma_bars else 0.0
+    sigma_s_max = max(s for s in sigma_bars if s is not None) if any(s is not None for s in sigma_bars) else 0.0
     sigma_c_pos = max(0.0, sigma_c_max)
     sigma_c_neg = min(0.0, sigma_c_min)
     sigma_c_med = (
-        loads.Nx / section_props.area_equivalent if section_props.area_equivalent != 0 else 0.0
+        loads.Nx / section_props.area_equivalent if section_props.area_equivalent is not None and section_props.area_equivalent != 0 else 0.0
     )
     return StressResult(
         sigma_c_max=sigma_c_max,

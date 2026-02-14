@@ -17,10 +17,11 @@ Data: 2025
 import tempfile
 from pathlib import Path
 
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
+
 from apps.sections.models.sections import CircularSection, RectangularSection, TSection
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import Material, MaterialRepository
-from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
 
 def main():
