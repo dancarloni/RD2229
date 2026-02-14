@@ -21,12 +21,18 @@ controller.draw_all(geom, props)
 ```
 
 Testing
-- Use `FakeCanvas` in `tests/test_section_graphics_fake_canvas.py` for headless unit tests.
+- Use `FakeCanvas` in `tests/test_section_graphics_fake_canvas.py` and `tests/test_section_graphics_extra.py` for headless unit tests.
 - GUI integration tests can run conditionally (skip when Tk is unavailable).
+- New transform tests: `tests/test_section_graphics_transform.py` and `tests/test_section_graphics_transform_extra.py` (flip_y behavior and world_length_to_screen).
 
 Demo script
 - A small demo script is available at `scripts/run_section_graphics_demo.py`.
 - Run it with `python scripts/run_section_graphics_demo.py` (requires `tkinter`).
+
+Transform details
+- `SectionViewTransform` computes a uniform `scale` and translations `tx, ty` so that the world bounding box is centered and fit into the canvas with given margin.
+- `flip_y=True` (default) maps world +y upward to screen -y (Tk convention). Set `flip_y=False` to preserve mathematical +y upwards.
+- Use `world_length_to_screen(d)` for consistent length scaling (returns `abs(scale * d)`).
 
 Notes for contributors
 - Keep drawing logic independent from app state — controller expects `SectionGeometry` + `SectionProperties`.
