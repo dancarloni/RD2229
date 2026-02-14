@@ -24,6 +24,10 @@ Testing
 - Use `FakeCanvas` in `tests/test_section_graphics_fake_canvas.py` for headless unit tests.
 - GUI integration tests can run conditionally (skip when Tk is unavailable).
 
+Demo script
+- A small demo script is available at `scripts/run_section_graphics_demo.py`.
+- Run it with `python scripts/run_section_graphics_demo.py` (requires `tkinter`).
+
 Notes for contributors
 - Keep drawing logic independent from app state — controller expects `SectionGeometry` + `SectionProperties`.
 - When adding new draw helpers, add corresponding fake-canvas tests to validate canvas API calls.
