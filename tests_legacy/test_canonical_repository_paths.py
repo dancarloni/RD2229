@@ -29,9 +29,10 @@ class TestSectionRepositoryCanonicalPath:
 
     def test_default_json_file_points_to_canonical_path(self):
         """Verifica che DEFAULT_JSON_FILE punti a sec_repository/sec_repository.jsons."""
-        assert (
-            SECTIONS_DEFAULT.endswith("sec_repository/sec_repository.jsons")
-            or SECTIONS_DEFAULT.endswith(r"sec_repository\sec_repository.jsons")
+        assert SECTIONS_DEFAULT.endswith(
+            "sec_repository/sec_repository.jsons"
+        ) or SECTIONS_DEFAULT.endswith(
+            r"sec_repository\sec_repository.jsons"
         ), f"DEFAULT_JSON_FILE deve puntare a sec_repository/sec_repository.jsons, trovato: {SECTIONS_DEFAULT}"
 
     def test_section_repository_uses_canonical_path_by_default(self):
@@ -130,9 +131,10 @@ class TestMaterialsRepositoryCanonicalPath:
         """Verifica che materials_gui.py definisca MATERIALS_REPO_PATH."""
         from gui.materials_gui import MATERIALS_REPO_PATH
 
-        assert (
-            MATERIALS_REPO_PATH.endswith("mat_repository/Mat_repository.jsonm")
-            or MATERIALS_REPO_PATH.endswith(r"mat_repository\Mat_repository.jsonm")
+        assert MATERIALS_REPO_PATH.endswith(
+            "mat_repository/Mat_repository.jsonm"
+        ) or MATERIALS_REPO_PATH.endswith(
+            r"mat_repository\Mat_repository.jsonm"
         ), f"MATERIALS_REPO_PATH deve puntare a mat_repository/Mat_repository.jsonm, trovato: {MATERIALS_REPO_PATH}"
 
     def test_materials_repository_can_use_jsonm_extension(self, tmpdir):

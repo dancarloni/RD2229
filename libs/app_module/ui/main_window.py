@@ -22,12 +22,6 @@ from apps.sections.models.sections import (
     TSection,
     VSection,
 )
-
-# New separated modules
-from apps.sections.section_calculations import (
-    compute_section_properties_from_section,
-    section_to_geometry,
-)
 from apps.sections.section_graphics import SectionGraphicsController
 from apps.sections.services.calculations import CanvasTransform, compute_transform
 from libs.app_module.services.event_bus import SECTIONS_DELETED, EventBus
@@ -37,6 +31,12 @@ from libs.app_module.ui.historical_material_window import (
     HistoricalMaterialWindow,  # type: ignore[import]
 )
 from libs.app_module.ui.section_manager import SectionManager  # type: ignore[import]
+
+# New separated modules
+from src.core_calculus.section_calculations import (
+    compute_section_properties_from_section,
+    section_to_geometry,
+)
 
 logger: logging.Logger = logging.getLogger(__name__)
 

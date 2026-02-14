@@ -5,9 +5,6 @@ from enum import Enum
 from tkinter import messagebox, simpledialog, ttk
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle as MplCircle
-from matplotlib.patches import Rectangle as MplRectangle
-
 from core.carbon_fiber_placeholder import (
     CircularHollowSection,
     CircularSection,
@@ -21,6 +18,8 @@ from core.carbon_fiber_placeholder import (
     TSection,
 )
 from core.section_properties import compute_section_properties
+from matplotlib.patches import Circle as MplCircle
+from matplotlib.patches import Rectangle as MplRectangle
 
 
 class SectionType(Enum):

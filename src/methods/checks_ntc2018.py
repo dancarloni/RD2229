@@ -708,8 +708,8 @@ def check_minimi_armatura_taglio_slu(
         f_ck = adjusted_material.f_ck_adjusted
         f_yk = adjusted_material.f_yk_adjusted
     else:
-        f_ck = getattr(material, "f_ck", None)
-        f_yk = getattr(material, "f_yk", None)
+        f_ck: float | None = getattr(material, "f_ck", None)
+        f_yk: float | None = getattr(material, "f_yk", None)
 
     if f_ck is None or f_ck <= 0:
         return SingleCheckResult(

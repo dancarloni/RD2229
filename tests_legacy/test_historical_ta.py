@@ -1,6 +1,7 @@
 import unittest
 
 from historical_ta.carbon_fiber_placeholder import SectionGeometry, compute_section_properties
+
 from historical_ta.checks import AllowableStresses, check_allowable_stresses_ta
 from historical_ta.materials import ConcreteLawTA, SteelLawTA, sigma_c, sigma_s
 from historical_ta.stress import LoadState, StressResult, compute_normal_stresses_ta

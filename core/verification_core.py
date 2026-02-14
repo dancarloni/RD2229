@@ -17,10 +17,11 @@ for _name, _val in vars(_mod).items():
     if not _name.startswith("_"):
         globals()[_name] = _val
 
-import logging
-from collections.abc import Sequence
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+import logging  # noqa: E402
+from collections.abc import Sequence  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
+from dataclasses import field as dataclass_field  # noqa: E402
+from typing import TYPE_CHECKING, Any  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ class ValidationIssue:
     code: str
     message_it: str
     norm_reference: NormReference | None = None
-    context: dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = dataclass_field(default_factory=dict)
 
     def is_error(self) -> bool:
         """Return True se la severità è 'error' (case-insensitive)."""
@@ -76,7 +77,7 @@ class ValidationResult:
         issues: Lista di problemi (errori/avvertimenti/info).
     """
 
-    issues: list[ValidationIssue] = field(default_factory=list)
+    issues: list[ValidationIssue] = dataclass_field(default_factory=list)
 
     @property
     def has_errors(self) -> bool:
@@ -178,7 +179,6 @@ def _validate_geometry(
 
     section = getattr(calc_input, "section", None)
     d = getattr(calc_input, "d", None)
-    d_prime = getattr(calc_input, "d_prime", None)
 
     # Controllo su d con altezza sezione (se disponibili)
     if section is not None and d is not None:
@@ -285,7 +285,6 @@ def _validate_norm_compatibility(
 
     for tpl in templates:
         tpl_norm_code = getattr(tpl, "norm_code", None)
-        tpl_limit_state = getattr(tpl, "limit_state", None)
 
         # Se il template è associato a una normativa diversa da quella attiva
         if tpl_norm_code is not None and active_code is not None:

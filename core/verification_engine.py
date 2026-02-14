@@ -1,8 +1,12 @@
-# Compatibility shim mapping to src.core_calculus.verification_engine
 from __future__ import annotations
 
+import logging
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass, field
 from importlib import import_module as _im
+from typing import TYPE_CHECKING, Any
 
+# Compatibility shim mapping to src.core_calculus.verification_engine
 try:
     _mod = _im("src.core_calculus.core.verification_engine")
 except ModuleNotFoundError:
@@ -15,26 +19,22 @@ for _name, _val in vars(_mod).items():
     if not _name.startswith("_"):
         globals()[_name] = _val
 
-import logging
-from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
-
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     # NOTE: aggiorna questi import in base alla struttura reale del progetto.
-    from app.core.contracts import CalcInput  # noqa: F401
-    from app.core.norms.plugins import NormPlugin  # noqa: F401
-    from app.core.norms.references import NormReference  # noqa: F401
-    from app.core.norms.templates import VerificationTemplate  # noqa: F401
-    from app.core.validation import ValidationResult  # noqa: F401
+    from src.core_calculus.core.norms.plugins import NormPlugin  # noqa: F401
+    from src.core_calculus.core.norms.references import NormReference  # noqa: F401
+    from src.core_calculus.core.norms.templates import VerificationTemplate  # noqa: F401
+    from src.core_calculus.core.validation import ValidationResult  # noqa: F401
+
+    from .contracts import CalcInput  # noqa: F401
 else:
     CalcInput = Any  # type: ignore[assignment]
     NormPlugin = Any  # type: ignore[assignment]
-    VerificationTemplate = Any  # type: ignore[assignment]
-    ValidationResult = Any  # type: ignore[assignment]
     NormReference = Any  # type: ignore[assignment]
+    ValidationResult = Any  # type: ignore[assignment]
+    VerificationTemplate = Any  # type: ignore[assignment]
 
 
 # ======================================================================

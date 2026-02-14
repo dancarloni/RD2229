@@ -1,5 +1,5 @@
-from apps.sections.geometry_model import SectionGeometry
-from apps.sections.section_calculations import compute_section_properties_from_geometry
+from src.core_calculus.core.geometry_model import SectionGeometry
+from src.core_calculus.section_calculations import compute_section_properties_from_geometry
 
 
 def test_rotated_rectangle_centroid_invariant():

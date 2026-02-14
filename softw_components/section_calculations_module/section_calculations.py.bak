@@ -7,13 +7,12 @@ from __future__ import annotations
 
 import math
 from math import atan2, cos, degrees, radians, sin, sqrt
+from typing import cast
 
 from apps.sections.geometry_model import CoreData, EllipseData, SectionGeometry, SectionProperties
 
 # Optional shapely support for robust carbon_fiber_placeholder operations
 try:
-    from shapely.geometry import Polygon
-
     _HAS_SHAPELY = True
 except Exception:  # pragma: no cover - shapely optional
     _HAS_SHAPELY = False
@@ -183,7 +182,7 @@ def compute_inertia_ellipse(props: SectionProperties) -> EllipseData:
 
 # Convenience: convert Section (existing code model) to SectionGeometry
 # to reuse this calculations module with existing Section objects.
-from apps.sections.models.sections import Section
+from apps.sections.models.sections import Section  # noqa: E402
 
 
 def section_to_geometry(section: Section) -> SectionGeometry:
@@ -545,13 +544,12 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             cy = sum(p[1] for p in pts_all) / len(pts_all)
             pts_sorted = sorted(pts_all, key=lambda p: math.atan2(p[1] - cy, p[0] - cx))
             # remove nearly-duplicate consecutive points
-            unique_pts = []
+            unique_pts: list[tuple[float, float]] = []
             for x, y in pts_sorted:
                 if not unique_pts or (
                     abs(unique_pts[-1][0] - x) > 1e-9 or abs(unique_pts[-1][1] - y) > 1e-9
                 ):
-                    # clamp x to within [-half, half] to match expected bounding box
-                    # (legacy assumes centerline extents)
+                    # clamp x to within [-half, half] to match expected bounding box (legacy assumes centerline extents)
                     xc = max(min(x, half), -half)
                     yc = y
                     unique_pts.append((float(xc), float(yc)))
@@ -600,7 +598,7 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             cx = sum(p[0] for p in pts_all) / len(pts_all)
             cy = sum(p[1] for p in pts_all) / len(pts_all)
             pts_sorted = sorted(pts_all, key=lambda p: math.atan2(p[1] - cy, p[0] - cx))
-            unique_pts = []
+            unique_pts: list[tuple[float, float]] = []
             for x, y in pts_sorted:
                 if not unique_pts or (
                     abs(unique_pts[-1][0] - x) > 1e-9 or abs(unique_pts[-1][1] - y) > 1e-9
@@ -636,6 +634,7 @@ def compute_section_properties_from_geometry(
     # use shapely for area and centroid if available
     if _HAS_SHAPELY:
         try:
+            from shapely.geometry import Polygon
             ext = Polygon(geom.exterior, holes=geom.holes)
             area = float(ext.area)
             centroid = ext.centroid
@@ -883,8 +882,8 @@ def compute_section_properties_from_section(
 
         props.meta["kappa_y"] = float(kappa_y)
         props.meta["kappa_z"] = float(kappa_z)
-        props.meta["shear_area_y"] = float(A_y_ref * kappa_y) if A_y_ref is not None else None
-        props.meta["shear_area_z"] = float(A_z_ref * kappa_z) if A_z_ref is not None else None
+        props.meta["shear_area_y"] = cast(float, A_y_ref * kappa_y) if A_y_ref is not None else None
+        props.meta["shear_area_z"] = cast(float, A_z_ref * kappa_z) if A_z_ref is not None else None
     except Exception:  # nosec
         # be resilient: don't break the main pipeline if shear area computation fails
         pass

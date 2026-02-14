@@ -1,11 +1,11 @@
 import tkinter as tk
 
-from apps.sections.geometry_model import SectionGeometry
-from apps.sections.section_calculations import (
+from apps.sections.section_graphics import SectionGraphicsController
+from src.core_calculus.core.geometry_model import SectionGeometry
+from src.core_calculus.section_calculations import (
     compute_core_of_inertia,
     compute_section_properties_from_geometry,
 )
-from apps.sections.section_graphics import SectionGraphicsController
 
 
 def test_core_polygon_inside_and_smaller():

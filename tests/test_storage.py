@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from apps.sections.geometry_model import SectionGeometry
 from apps.sections.storage import export_sections_to_csv, import_sections_from_csv
+from src.core_calculus.core.geometry_model import SectionGeometry
 
 
 def test_export_import_roundtrip(tmp_path: Path):
