@@ -1,0 +1,12 @@
+{
+  "code": "NTC2018",
+  "title": "NTC 2018 - skeleton entry",
+  "description": "Skeleton configuration entry for NTC2018 calculation code. Fill normative parameters in TODO fields.",
+  "schemas": {
+    "secondary_elements": {
+      "version": "0.1",
+      "description": "Schema registry for secondary elements checks (skeleton)",
+      "notes": "TODO: populate with authoritative normative mappings (owner: standards team)"
+    }
+  }
+}
