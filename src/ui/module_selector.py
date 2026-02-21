@@ -140,6 +140,12 @@ class ModuleSelectorWindow(tk.Tk):
         ).pack(pady=(0, 4))
         tk.Button(
             params_frame, text="Parametri SLE", command=lambda: self._open_code_settings("SLE")
+        ).pack(pady=(0, 4))
+        # new button for hazard paste service
+        tk.Button(
+            params_frame,
+            text="Spettro NTC2018 (Paste)",
+            command=self._open_hazard_paste,
         ).pack(pady=(0, 8))
 
         # Sections Archive Module
@@ -272,6 +278,18 @@ class ModuleSelectorWindow(tk.Tk):
                     "libs.app_module.ui.notification_settings_window", fromlist=["*"]
                 ).NotificationSettingsWindow(None)
                 win.set_settings(win.get_settings())
+
+    def _open_hazard_paste(self) -> None:
+        """Open the hazard-paste panel."""
+        try:
+            from src.ui.ntc2018_hazard_paste_panel import HazardPasteWindow
+        except ImportError:
+            from tkinter import messagebox
+
+            messagebox.showerror("Errore", "Modulo hazard paste non disponibile")
+            return
+        HazardPasteWindow(self)
+
                 win.save()
             except Exception:
                 logger.exception("Failed to open Notification Settings window")

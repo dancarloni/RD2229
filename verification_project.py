@@ -1,9 +1,21 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Any
+
+# import type for annotation only (avoids circular import at runtime)
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.codes.ntc2018.spectrum_paste_service import Ntc2018HazardProfile, Ntc2018HazardRow
+
+
+@dataclass
+class SeismicInputs:
+    # use string wrapped union to avoid forward reference issues
+    ntc2018_hazard_profile: Optional["Ntc2018HazardProfile"] = None
+
 
 DEFAULT_FILE_TYPE = "RD_VerificaSezioni_Project"
 DEFAULT_MODULE = "VerificationTable"
@@ -15,6 +27,7 @@ class VerificationProject:
     materials: dict[str, dict[str, Any]] = field(default_factory=lambda: {"cls": {}, "steel": {}})
     sections: dict[str, dict[str, Any]] = field(default_factory=dict)
     elements: list[dict[str, Any]] = field(default_factory=list)
+    seismic_inputs: SeismicInputs = field(default_factory=SeismicInputs)
     path: str | None = None
     dirty: bool = False
     last_action_was_add_list: bool = False
@@ -61,6 +74,35 @@ class VerificationProject:
         # Elements
         self.elements = data.get("elements") or []
 
+        # seismic inputs may be absent in older files
+        seism = data.get("seismic_inputs")
+        if seism:
+            # lazily import models to avoid circular dependency
+            try:
+                from src.codes.ntc2018.spectrum_paste_service import (
+                    Ntc2018HazardProfile,
+                    Ntc2018HazardRow,
+                )
+            except ImportError:  # pragma: no cover
+                self.seismic_inputs = SeismicInputs()
+            else:
+                sip = SeismicInputs()
+                prof_data = seism.get("ntc2018_hazard_profile")
+                if prof_data:
+                    # build profile object and convert rows
+                    profile = Ntc2018HazardProfile(**{k: v for k, v in prof_data.items() if k != "parsed_rows"})
+                    rows_list = []
+                    for r in prof_data.get("parsed_rows", []):
+                        try:
+                            rows_list.append(Ntc2018HazardRow(**r))
+                        except Exception:
+                            pass
+                    profile.parsed_rows = rows_list
+                    sip.ntc2018_hazard_profile = profile
+                self.seismic_inputs = sip
+        else:
+            self.seismic_inputs = SeismicInputs()
+
         self.path = path
         self.dirty = False
         self.last_action_was_add_list = False
@@ -83,6 +125,10 @@ class VerificationProject:
             "sections": sections,
             "elements": self.elements,
         }
+        # include seismic inputs if present
+        if self.seismic_inputs is not None:
+            # asdict will recurse into dataclasses
+            data["seismic_inputs"] = asdict(self.seismic_inputs)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         self.path = path
