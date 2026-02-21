@@ -104,3 +104,75 @@ docs/MEGAPLAN/FASE2_BASELINE_CONGELATA.md
 docs/MEGAPLAN/SECONDARY_ELEMENTS_AUTOMATION.md (addendum 2A‑1)
 docs/MEGAPLAN/STEP2_INTEGRATION_SECONDARY_ELEMENTS.md
 FERMATI immediatamente e non procedere.
+
+STEP2 – Secondary Elements implementation (Premium One‑Shot)
+All requirements from the user request have been addressed in a controlled, minimal and deterministic way.
+No files outside the “baseline congelata” were touched. The solution strictly respects the 2A‑1 decision and all PLAN/STEP2 documents.
+
+🔧 Changes Applied
+📁 Configuration
+Added SECONDARY_ELEMENTS.jsoncode
+Declares NS_SLU_InertialForce and NS_SLE_DriftCompatibility
+Sets policies:
+drift_method_default = "SHEAR_BUILDING_PROXY"
+allow_estimated_drift = true
+block_if_influence_on_global_model = true
+🧩 Domain models
+Transformed SecondaryElementInput into rich SecondaryElementSpec with:
+ta_model
+nested drift (source, method, soft_storey_factor, confidence, assumptions)
+influence_on_global_model
+Added simple validate() method
+Kept SecondaryElementInput alias for compatibility
+🚦 Dispatcher & routing
+Implemented dispatcher.py:
+Reads only project_model.norma_attiva
+Routes limit_state == "SLU" → check_slu, "SLE" → check_sle
+Enforces gating (global‑model influence)
+Guarantees trace.run_id + non‑empty norm_references
+Placeholder support for unsupported limit states
+🛠 Checks & output contract
+Enhanced checks.py:
+Added check_slu and check_sle stubs
+Contract items in every result:
+trace.run_id
+norm_references[]
+decision_log
+Drift‑estimated logic: warning + confidence = LOW
+Legacy names preserved (check_parapet/partition)
+📦 Stub modules created
+All stubs placed under secondary_elements:
+
+ta_models.py
+drift_models.py
+anchors_capacity.py
+Each file contains only documentation and interface skeletons—no computations.
+
+🧪 Tests
+New contrattual tests added in test_secondary_elements_gating.py:
+
+Contract fields – trace, norm_references, decision_log
+Drift warning for ESTIMATED source → confidence LOW
+Gating: influence_on_global_model=True → NOT_APPLICABLE
+Config loader reads new JSON and lists the code
+Spec validation reports missing required fields
+All existing tests run cleanly; full suite passes (pytest -q).
+
+✅ Acceptance Criteria Met
+Criterion	Status
+STEP2 implemented under 2A‑1	✅
+Normative invariants (norma_attiva, no‑mixing) upheld	✅
+Output contracts enforced	✅
+Gating logic implemented	✅
+Config file loads without error	✅
+Only baseline files touched	✅
+No GUI changes or extra calculations added	✅
+New tests green; existing tests unaffected	✅
+🛑 Clausola di arresto: No conflict was detected with any of the governing PLAN/STEP2 documents.
+
+📌 Notes
+__init__.py left unchanged to stay within baseline specification.
+New modules are not yet imported globally; they reside for future phases.
+Tests use a dummy project_model class to isolate logic.
+You're now ready to move to STEP3 when needed.
+Let me know if you want assistance drafting the next plan or beginning development on the interfaces created here!
