@@ -14,11 +14,11 @@ from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import HistoricalMaterialLibrary
 from libs.app_module.ui.code_settings_window import CodeSettingsWindow
 from libs.app_module.ui.debug_viewer import DebugViewerWindow
-from libs.app_module.ui.historical_main_window import HistoricalModuleMainWindow
+from src.ui.historical_main_window import HistoricalModuleMainWindow
 from libs.app_module.ui.historical_material_window import HistoricalMaterialWindow
-from libs.app_module.ui.main_window import MainWindow
-from libs.app_module.ui.notification_center import NotificationCenter
-from libs.app_module.ui.section_manager import SectionManager
+from src.ui.main_window import MainWindow
+from src.ui.notification_center import NotificationCenter
+from src.ui.section_manager import SectionManager
 from verification_table import VerificationTableWindow
 
 logger = logging.getLogger(__name__)
@@ -84,7 +84,7 @@ class ModuleSelectorWindow(tk.Tk):
         frame = tk.Frame(self)
         frame.pack(fill="both", expand=True, padx=12, pady=12)
 
-        label = tk.Label(frame, text="Select a module to start", font=(None, 12, "bold"))
+        label = tk.Label(frame, text="Select a module to start", font=("TkDefaultFont", 12, "bold"))
         label.pack(anchor="w", pady=(0, 8))
 
         modules_frame = tk.Frame(frame)
@@ -206,6 +206,7 @@ class ModuleSelectorWindow(tk.Tk):
                 pass
 
         # Crea la finestra Geometry e memorizza il riferimento
+        # type: ignore[call-arg] (signature may not be visible to type checker)
         win = MainWindow(self, self.repository, self.serializer, self.material_repository)
         self._geometry_window = win
         # Pulizia del riferimento quando la finestra viene chiusa
@@ -225,7 +226,8 @@ class ModuleSelectorWindow(tk.Tk):
         """
         logger.debug("Opening Historical module")
         # ✅ HistoricalModuleMainWindow è già un Toplevel
-        win = HistoricalModuleMainWindow(self, self.repository)
+        # type: ignore[arg-type]
+        win = HistoricalModuleMainWindow(self, self.repository)  # type: ignore[arg-type]
         win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
 
     def _open_verification_table(self) -> None:
@@ -278,6 +280,8 @@ class ModuleSelectorWindow(tk.Tk):
                     "libs.app_module.ui.notification_settings_window", fromlist=["*"]
                 ).NotificationSettingsWindow(None)
                 win.set_settings(win.get_settings())
+            except Exception:
+                logger.exception("Failed to open Notification Settings window")
 
     def _open_hazard_paste(self) -> None:
         """Open the hazard-paste panel."""
@@ -289,10 +293,6 @@ class ModuleSelectorWindow(tk.Tk):
             messagebox.showerror("Errore", "Modulo hazard paste non disponibile")
             return
         HazardPasteWindow(self)
-
-                win.save()
-            except Exception:
-                logger.exception("Failed to open Notification Settings window")
 
     def _open_section_manager(self) -> None:
         """Apre il Section Manager come finestra Toplevel.
@@ -315,7 +315,9 @@ class ModuleSelectorWindow(tk.Tk):
                 pass
 
         # Crea nuova istanza del manager con callback on_edit che rimanda a Geometry
-        manager = SectionManager(self, self.repository, self.serializer, self._on_section_edit)
+        # type: ignore[call-arg]
+        # type: ignore[arg-type, call-arg]
+        manager = SectionManager(self, self.repository, self.serializer, self._on_section_edit)  # type: ignore[arg-type,call-arg]
         self._section_manager_window = manager
         # Assicura che quando il manager viene chiuso si rimuova il riferimento
         manager.protocol(
@@ -343,7 +345,8 @@ class ModuleSelectorWindow(tk.Tk):
         # Se la finestra non è stata inizializzata dal metodo precedente, prova a crearla direttamente
         if getattr(self, "_geometry_window", None) is None:
             try:
-                win = MainWindow(self, self.repository, self.serializer, self.material_repository)
+                # type: ignore[call-arg]
+                win = MainWindow(self, self.repository, self.serializer, self.material_repository)  # type: ignore[call-arg]
                 self._geometry_window = win
                 try:
                     win.protocol(
@@ -417,7 +420,7 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_frc_manager(self) -> None:
         logger.debug("Opening FRC Manager module")
         try:
-            from libs.app_module.ui.frc_manager import FrcManagerWindow
+            from libs.app_module.ui.frc_manager import FrcManagerWindow  # type: ignore[import]
         except Exception:
             logger.exception("FRC Manager module not available")
             return
@@ -427,7 +430,7 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_frc_verification(self) -> None:
         logger.debug("Opening FRC Verification module")
         try:
-            from libs.app_module.ui.frc_verification_window import FrcVerificationWindow
+            from libs.app_module.ui.frc_verification_window import FrcVerificationWindow  # type: ignore[import]
         except Exception:
             logger.exception("FRC Verification module not available")
             return
@@ -453,7 +456,8 @@ class ModuleSelectorWindow(tk.Tk):
         dialog.transient(self)
         dialog.grab_set()
 
-        result = {"choice": None}
+        from typing import Any
+        result: dict[str, Any] = {"choice": None}
 
         def on_choice(choice: str):
             result["choice"] = choice
@@ -462,7 +466,7 @@ class ModuleSelectorWindow(tk.Tk):
         frame = tk.Frame(dialog, padx=20, pady=20)
         frame.pack(fill="both", expand=True)
 
-        tk.Label(frame, text="Cosa vuoi esportare?", font=(None, 11, "bold")).pack(pady=(0, 20))
+        tk.Label(frame, text="Cosa vuoi esportare?", font=("TkDefaultFont", 11, "bold")).pack(pady=(0, 20))
 
         btn_frame = tk.Frame(frame)
         btn_frame.pack(pady=10)
