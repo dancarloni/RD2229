@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 # import type for annotation only (avoids circular import at runtime)
 from typing import TYPE_CHECKING
