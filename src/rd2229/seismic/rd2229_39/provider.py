@@ -9,12 +9,11 @@ TODO: integrare con registry/capabilities del progetto se/come presente.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
-from .models.inputs import FloorForcesRequest
-from .models.outputs import FloorForcesResult
 from .methods.ondulatory_mass_percent import compute_ondulatory_floor_forces
 from .methods.sussultory_factor import compute_sussultory_from_ondulatory
+from .models.inputs import FloorForcesRequest
+from .models.outputs import FloorForcesResult
 
 
 @dataclass(frozen=True)
@@ -29,7 +28,7 @@ class RD2229SeismicProvider:
 
     norm_code: str = "RD2229_39"
 
-    def __init__(self, config: Optional[RD2229ProviderConfig] = None):
+    def __init__(self, config: RD2229ProviderConfig | None = None):
         self.config = config or RD2229ProviderConfig()
 
     def compute_floor_forces(self, request: FloorForcesRequest) -> FloorForcesResult:

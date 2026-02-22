@@ -2,22 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
-
-from ..models.outputs import FloorForceComponent, TraceRecord
-
-
 from ..docs_ref.norm_refs import SUSSULTORY_REF
+from ..models.outputs import FloorForceComponent, TraceRecord
 
 METHOD_ID = "RD2229_39_SUSSULTORY_DERIVED_125"
 COMPONENT = "SUSSULTORY"
 
 
 def compute_sussultory_from_ondulatory(ondulatory: FloorForceComponent, factor: float = 1.25) -> FloorForceComponent:
-    forces: Dict[str, float] = {k: factor * v for k, v in ondulatory.forces_by_level.items()}
+    forces: dict[str, float] = {k: factor * v for k, v in ondulatory.forces_by_level.items()}
     base_shear = sum(forces.values())
 
-    assumptions: List[str] = [
+    assumptions: list[str] = [
         "Componente sussultoria derivata dall'ondulatorio (non calcolo indipendente)",
         f"factor={factor}",
     ]
