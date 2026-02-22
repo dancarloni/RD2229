@@ -86,10 +86,15 @@ skips = ["B101"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -q --strict-markers --disable-warnings"
-testpaths = ["tests", "tests_legacy"]
+# extra options from pytest.ini are merged here; keep -q and ignore legacy tests
+addopts = "-q --ignore=tests_legacy -ra --strict-markers --disable-warnings"
+# only run tests under `tests/`; legacy folder is excluded via addopts
+testpaths = ["tests"]
 pythonpath = ["."]
+# markers defined both in pytest.ini and earlier here; keep all to avoid missing names
 markers = [
+  "ui: mark tests as UI tests requiring tkinter",
+  "slow: mark tests as slow (skip in CI by default)",
   "gui: tests che richiedono ambiente grafico (usare xvfb in CI)",
 ]
 filterwarnings = [
