@@ -293,3 +293,23 @@ python scripts/run_materials_gui.py
 
 La GUI è pensata per prototipazione: se preferisci posso integrarla in una
 futura GUI principale del progetto o adattarla a framework diversi (Qt, web).
+
+---
+
+## STEP 3A — Consolidamento Normativo e Tracciabilità
+
+Questo step introduce le fondamenta architetturali per supportare **più normative** (NTC2018/EC8 e legacy come RD2229/39, DM92, DM96) con:
+- separazione **Norma / Metodo / Policy**;
+- risultati sempre accompagnati da **tracciabilità** (riferimenti, assunzioni, warning, limiti d'uso);
+- struttura modulare per le norme legacy, progettata per future riscritture senza impatti sul core.
+
+### Documentazione (STEP 3A)
+- `docs/STEP3A_MASTER.md`
+- `docs/ARCH_NORMATIVE_KERNEL.md`
+- `docs/NORMATIVE_CAPABILITIES.md`
+- `docs/LEGACY_CODES/RD2229_39/README.md`
+
+### Nota su RD2229/39
+La parte RD2229/39 è documentata come modulo isolato e altamente estendibile:
+- masse di piano (impalcato + 1/2 elementi verticali sopra/sotto);
+- componente **sussultoria** derivata (125% della ondulatoria), tracciata.
