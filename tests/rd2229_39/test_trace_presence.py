@@ -18,3 +18,5 @@ def test_trace_present_for_components():
     # normative references come from centralized constants
     assert ond_trace.norm_ref == [ONDULATORY_REF]
     assert sus_trace.norm_ref == [SUSSULTORY_REF]
+    # p information should appear in assumptions
+    assert any("p used" in a for a in ond_trace.assumptions)

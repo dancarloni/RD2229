@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Literal
 
 
 @dataclass(frozen=True)
@@ -34,9 +34,13 @@ class EdgeFloorsPolicySpec:
 
 @dataclass(frozen=True)
 class FloorForcesRequest:
-    floors: List[FloorMassBreakdown]
-    p: float
+    floors: list[FloorMassBreakdown]
+    p: float  # used only if p_mode == "MANUAL"
     g: float = 9.81
     mass_policy: MassAttributionPolicySpec = MassAttributionPolicySpec()
     edge_policy: EdgeFloorsPolicySpec = EdgeFloorsPolicySpec()
-    notes: Optional[str] = None
+    # seismic coefficient mode: default manual for backward compatibility
+    p_mode: Literal["MANUAL", "TABLE"] = "MANUAL"
+    p_table_path: str | None = None
+    p_table_key: str | None = None
+    notes: str | None = None

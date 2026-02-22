@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import List
-
 from ..models.inputs import FloorForcesRequest
 
 
-def validate_floor_forces_request(request: FloorForcesRequest) -> List[str]:
-    warnings: List[str] = []
+def validate_floor_forces_request(request: FloorForcesRequest) -> list[str]:
+    warnings: list[str] = []
 
-    if request.p <= 0:
+    # p is only required to be positive when operating in MANUAL mode;
+    # table mode will resolve p later via p_resolver.
+    if request.p_mode != "TABLE" and request.p <= 0:
         raise ValueError("p deve essere > 0")
     if request.g <= 0:
         raise ValueError("g deve essere > 0")
