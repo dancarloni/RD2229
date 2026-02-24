@@ -37,6 +37,8 @@ except ImportError:
 
 from src.ui.modern.features.registry import FeatureSpec, register
 
+# Numero massimo di metriche mostrate per elemento nella tabella risultati
+_MAX_DISPLAYED_METRICS = 4
 
 # ---------------------------------------------------------------------------
 # Project Info Feature
@@ -230,7 +232,7 @@ class _ResultsWidget(QWidget):  # type: ignore[misc]
             ok_text = "✅ OK" if elem.ok else "❌ NON OK"
             self._table.setItem(row, 1, QTableWidgetItem(ok_text))
             metrics_text = "; ".join(
-                f"{k}={v}" for k, v in list(elem.metrics.items())[:4]
+                f"{k}={v}" for k, v in list(elem.metrics.items())[:_MAX_DISPLAYED_METRICS]
             )
             self._table.setItem(row, 2, QTableWidgetItem(metrics_text))
 

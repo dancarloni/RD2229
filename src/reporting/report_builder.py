@@ -231,9 +231,9 @@ def _build_html(markdown_content: str, title: str) -> str:
     lines = markdown_content.splitlines()
     html_lines: list[str] = [
         "<!DOCTYPE html>",
-        "<html lang='it'>",
+        '<html lang="it">',
         "<head>",
-        f"  <meta charset='UTF-8'>",
+        '  <meta charset="UTF-8">',
         f"  <title>{_esc(title)}</title>",
         "  <style>",
         "    body { font-family: sans-serif; max-width: 900px; margin: 2em auto; padding: 0 1em; }",
@@ -249,12 +249,14 @@ def _build_html(markdown_content: str, title: str) -> str:
 
     in_code_block = False
     in_table = False
+    table_row_count = 0  # 0 = no rows yet; used to distinguish header from data rows
 
     def flush_table() -> None:
-        nonlocal in_table
+        nonlocal in_table, table_row_count
         if in_table:
             html_lines.append("</table>")
             in_table = False
+            table_row_count = 0
 
     for raw_line in lines:
         line = raw_line
@@ -278,13 +280,16 @@ def _build_html(markdown_content: str, title: str) -> str:
             if not in_table:
                 html_lines.append("<table>")
                 in_table = True
+                table_row_count = 0
             cells = [c.strip() for c in line.strip("|").split("|")]
             # Skip separator rows (|---|---|)
             if all(re.match(r"^[-: ]+$", c) for c in cells):
                 continue
-            tag = "th" if not any("<td>" in h for h in html_lines[-3:]) else "td"
+            # First non-separator row → header (<th>); subsequent rows → data (<td>)
+            tag = "th" if table_row_count == 0 else "td"
             row = "".join(f"<{tag}>{_esc(c)}</{tag}>" for c in cells)
             html_lines.append(f"  <tr>{row}</tr>")
+            table_row_count += 1
             continue
 
         flush_table()
