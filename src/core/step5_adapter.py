@@ -270,8 +270,8 @@ def _build_calc_input(
         material=material,
         norm_code=norm_code,
         limit_states_enabled=list(limit_states),
-        # Usa il Livello di Conoscenza da CodeSettings se presente, altrimenti LC3
-        lc=getattr(code_settings, "lc", None) or "LC3",
+        # Usa il Livello di Conoscenza da CodeSettings se presente
+        lc=getattr(code_settings, "lc", None),
         N=load.N,
         Mx=load.Mx,
         My=load.My,

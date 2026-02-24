@@ -137,7 +137,11 @@ def run_rc_fire_check(
             )
         # Usa la durata più conservativa ≥ required_min
         usable = sorted(
-            [(int(k.split("_")[0]), k) for k in available_keys if int(k.split("_")[0]) >= required_min]
+            [
+                (int(k.split("_")[0]), k)
+                for k in available_keys
+                if int(k.split("_")[0]) >= required_min
+            ]
         )
         if not usable:
             messages.append(
