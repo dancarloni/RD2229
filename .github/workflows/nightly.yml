@@ -24,6 +24,3 @@ jobs:
           mutmut results --report-html=mutmut-report
       - name: Upload report
         uses: actions/upload-artifact@v4
-        with:
-          name: mutmut-report
-          path: mutmut-report
