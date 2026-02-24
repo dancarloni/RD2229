@@ -114,6 +114,8 @@ def run_step5(
 
     norm_code = project.code_settings.norm_code or "RD2229"
     limit_states = project.code_settings.limit_states or ["TA"]
+    existing_structure = getattr(project.code_settings, "existing_structure", False)
+    lc = getattr(project.code_settings, "lc", None)
 
     # Ottieni i template per la normativa corrente
     templates = get_templates_for_norm(norm_code)
@@ -124,6 +126,46 @@ def run_step5(
         )
         trace.append(f"step5:skip(no_templates_for_{norm_code})")
         return element_results, warnings, trace
+
+    # Filtra template che richiedono struttura esistente / LC
+    filtered_templates = []
+    skipped_count = 0
+    for tmpl in templates:
+        t_id = getattr(tmpl, "id", repr(tmpl))
+        req_existing = getattr(tmpl, "requires_existing_structure", False)
+        if req_existing:
+            if not existing_structure:
+                if skipped_count == 0:
+                    warnings.append(
+                        "Uno o più template richiedono struttura esistente "
+                        "(code_settings.existing_structure=False); template saltati. "
+                        "Impostare code_settings.existing_structure=True per abilitarli."
+                    )
+                trace.append(f"step5:template:{t_id}:skip(requires_existing_structure)")
+                skipped_count += 1
+                continue
+            if lc is None:
+                if skipped_count == 0:
+                    warnings.append(
+                        "Uno o più template richiedono Livello di Conoscenza "
+                        "(code_settings.lc=None); template saltati. "
+                        "Impostare code_settings.lc a 'LC1', 'LC2' o 'LC3'."
+                    )
+                trace.append(f"step5:template:{t_id}:skip(lc_None)")
+                skipped_count += 1
+                continue
+        filtered_templates.append(tmpl)
+
+    if not filtered_templates:
+        warnings.append(
+            "Nessun template applicabile dopo il filtro existing_structure/LC; "
+            "step5 non produce risultati. "
+            "Verificare code_settings.existing_structure e code_settings.lc."
+        )
+        trace.append("step5:skip(no_applicable_templates)")
+        return element_results, warnings, trace
+
+    templates = filtered_templates
 
     # Indici rapidi per geometria e materiali
     geom_by_id = {g.id: g for g in project.geometry}
@@ -143,7 +185,7 @@ def run_step5(
             trace.append(f"step5:element:{elem_id}:skip(no_geom)")
             continue
 
-        calc_input = _build_calc_input(elem_id, load, geom, mat, norm_code, limit_states)
+        calc_input = _build_calc_input(elem_id, load, geom, mat, norm_code, limit_states, project.code_settings)
 
         try:
             calc_output = run_verifications_for_element(
@@ -197,6 +239,7 @@ def _build_calc_input(
     mat: MaterialEntry | None,
     norm_code: str,
     limit_states: list[str],
+    code_settings: Any = None,
 ) -> Any:
     """Costruisce un CalcInput dal modello di progetto."""
     from src.core_calculus.contracts import CalcInput
@@ -227,10 +270,8 @@ def _build_calc_input(
         material=material,
         norm_code=norm_code,
         limit_states_enabled=list(limit_states),
-        # RD2229 e DM96 verificano strutture esistenti: usa LC3 come default
-        # (livello di conoscenza massimo = più favorevole).
-        # TODO: aggiungere campo `lc` a CodeSettings o ProjectModel per personalizzare.
-        lc="LC3",
+        # Usa il Livello di Conoscenza da CodeSettings se presente, altrimenti LC3
+        lc=getattr(code_settings, "lc", None) or "LC3",
         N=load.N,
         Mx=load.Mx,
         My=load.My,
@@ -265,17 +306,17 @@ def _convert_output(elem_id: str, calc_output: Any) -> ElementResult:
     for check_result in calc_output.per_template_results.values():
         messages.extend(check_result.messages_it)
 
-    # Metriche riepilogative
+    # Metriche riepilogative – prefissate con "step5." per evitare collisioni
     metrics: dict[str, Any] = {
-        k: v for k, v in calc_output.summary_metrics.items()
+        f"step5.{k}": v for k, v in calc_output.summary_metrics.items()
     }
-    metrics["norm_code"] = calc_output.norm_code
+    metrics["step5.norm_code"] = calc_output.norm_code
 
     # Aggiunge metriche di dettaglio per ogni template
     for t_id, cr in calc_output.per_template_results.items():
         if cr.utilisation is not None:
-            metrics[f"{t_id}:utilisation"] = cr.utilisation
-        metrics[f"{t_id}:ok"] = cr.ok
+            metrics[f"step5.{t_id}:utilisation"] = cr.utilisation
+        metrics[f"step5.{t_id}:ok"] = cr.ok
 
     return ElementResult(
         element_id=elem_id,

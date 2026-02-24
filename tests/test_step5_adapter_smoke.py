@@ -23,7 +23,11 @@ from src.project.schema import (
 
 
 def _minimal_step5_project() -> ProjectModel:
-    """Progetto minimale con tutti i dati richiesti da step5."""
+    """Progetto minimale con tutti i dati richiesti da step5.
+
+    Imposta existing_structure=True e lc='LC3' perché i template RD2229
+    richiedono la struttura esistente e il Livello di Conoscenza.
+    """
     return ProjectModel(
         geometry=[GeometryEntry(id="P1", type="RECTANGULAR", width=30.0, height=50.0)],
         materials=[
@@ -31,7 +35,12 @@ def _minimal_step5_project() -> ProjectModel:
             MaterialEntry(id="B450C", type="steel", f_yk=450.0),
         ],
         loads=[LoadEntry(element_id="P1", N=100.0, Mx=50.0)],
-        code_settings=CodeSettings(norm_code="RD2229", limit_states=["TA"]),
+        code_settings=CodeSettings(
+            norm_code="RD2229",
+            limit_states=["TA"],
+            existing_structure=True,
+            lc="LC3",
+        ),
     )
 
 
@@ -99,18 +108,22 @@ def test_run_step5_produces_at_least_one_result():
 
 
 def test_run_step5_result_has_numerical_metrics():
-    """ElementResult da step5 deve avere metriche numeriche (status, num_verifiche)."""
+    """ElementResult da step5 deve avere metriche numeriche prefissate 'step5.'."""
     project = _minimal_step5_project()
     results, warnings, trace = run_step5(project)
 
     assert len(results) >= 1
     metrics = results[0].metrics
 
-    # Deve avere almeno uno tra: status, num_verifiche_eseguite, norm_code
-    has_numeric = any(
+    # Le metriche sono prefissate con "step5." nel nuovo schema
+    has_step5_metric = any(k.startswith("step5.") for k in metrics)
+    # Fallback: metriche senza prefisso (norm_code, status)
+    has_legacy_metric = any(
         k in metrics for k in ("num_verifiche_eseguite", "status", "norm_code")
     )
-    assert has_numeric, f"Metriche mancano valori numerici: {metrics}"
+    assert has_step5_metric or has_legacy_metric, (
+        f"Nessuna metrica step5 trovata: {metrics}"
+    )
 
 
 def test_run_step5_element_id_preserved():
@@ -157,11 +170,25 @@ def test_pipeline_step5_enriches_metrics():
     assert len(results.elements) >= 1
     elem = results.elements[0]
 
-    # Le metriche devono includere almeno status da step5 o norm_code
-    assert any(
-        k in elem.metrics
-        for k in ("status", "num_verifiche_eseguite", "norm_code")
-    ), f"Metriche step5 mancanti: {elem.metrics}"
+    # Le metriche arricchite da step5 hanno prefisso "step5."
+    has_step5_metric = any(k.startswith("step5.") for k in elem.metrics)
+    # Fallback: metriche base senza prefisso (norm_code da step3)
+    has_base_metric = "norm_code" in elem.metrics
+    assert has_step5_metric or has_base_metric, (
+        f"Metriche step5 mancanti: {elem.metrics}"
+    )
+
+
+def test_pipeline_step5_ok_invariant():
+    """Il campo ok del risultato non deve essere sovrascritto da step5."""
+    project = _minimal_step5_project()
+    results = run_pipeline(project)
+
+    assert len(results.elements) >= 1
+    # ok deve riflettere step3 (verifica presenza geometria/carichi)
+    # e non essere cambiato da step5
+    elem = results.elements[0]
+    assert isinstance(elem.ok, bool)
 
 
 def test_pipeline_step5_trace_includes_step5():

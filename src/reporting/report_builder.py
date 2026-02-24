@@ -99,6 +99,8 @@ def _compact_trace(trace: list[str]) -> list[str]:
         "step5:",
         "seismic:",
         "element:",
+        "fire:",
+        "wind:",
     )
     filtered = [
         t for t in trace
@@ -148,6 +150,9 @@ def _build_markdown(
     lines.append(f"- **Stati limite:** {', '.join(cs.limit_states)}")
     lines.append(f"- **Unità forza:** {cs.units_force}")
     lines.append(f"- **Unità lunghezza:** {cs.units_length}")
+    if getattr(cs, "existing_structure", False):
+        lc = getattr(cs, "lc", None) or "N/D"
+        lines.append(f"- **Struttura esistente:** Sì (LC: {lc})")
     lines.append("")
 
     # Riepilogo input
@@ -192,7 +197,93 @@ def _build_markdown(
         lines.append("```")
         lines.append("")
 
+    # Sezione Incendio
+    _append_fire_section(lines, project, results)
+
+    # Sezione Vento
+    _append_wind_section(lines, results)
+
     return "\n".join(lines)
+
+
+def _append_fire_section(
+    lines: list[str],
+    project: "ProjectModel",
+    results: "ResultsModel",
+) -> None:
+    """Aggiunge la sezione Incendio al report Markdown se fire.enabled."""
+    fire_cfg = getattr(project, "fire", None)
+    if fire_cfg is None or not getattr(fire_cfg, "enabled", False):
+        return
+
+    lines.append("## 🔥 Verifiche Incendio")
+    lines.append("")
+    lines.append(f"- **Scenario:** {fire_cfg.scenario}")
+    lines.append(f"- **Durata richiesta:** {fire_cfg.required_rating_minutes} min")
+    if fire_cfg.cover_mm_default is not None:
+        lines.append(f"- **Copriferro default:** {fire_cfg.cover_mm_default} mm")
+    if fire_cfg.exposure_sides_default is not None:
+        lines.append(f"- **Lati esposti default:** {fire_cfg.exposure_sides_default}")
+    lines.append("")
+
+    fire_data = results.extra.get("fire", [])
+    if not fire_data:
+        lines.append("_Nessun risultato incendio disponibile._")
+        lines.append("")
+        return
+
+    lines.append("| Elemento | Stato | Messaggi principali |")
+    lines.append("|----------|-------|---------------------|")
+    for item in fire_data:
+        elem_id = item.get("element_id", "-")
+        status = item.get("status", "UNKNOWN")
+        msgs = item.get("messages", [])
+        first_msg = msgs[0] if msgs else "-"
+        icon = {"OK": "✅", "KO": "❌", "NOT_VERIFIED": "⚠️", "SKIPPED": "⏭"}.get(status, "?")
+        lines.append(f"| {elem_id} | {icon} {status} | {first_msg} |")
+    lines.append("")
+
+
+def _append_wind_section(
+    lines: list[str],
+    results: "ResultsModel",
+) -> None:
+    """Aggiunge la sezione Vento al report Markdown se presente."""
+    wind_data = results.extra.get("wind")
+    if not wind_data:
+        return
+
+    lines.append("## 💨 Azioni del Vento")
+    lines.append("")
+    method = wind_data.get("method", "N/A")
+    v_b = wind_data.get("v_b_ms", "-")
+    q_b = wind_data.get("q_b_kN_m2", "-")
+    lines.append(f"- **Metodo:** {method}")
+    lines.append(f"- **Velocità base vb:** {v_b} m/s")
+    lines.append(f"- **Pressione cinetica base qb:** {q_b} kN/m²")
+    lines.append("")
+
+    profile = wind_data.get("velocity_profile", [])
+    if profile:
+        lines.append("**Profilo di velocità/pressione (punti selezionati):**")
+        lines.append("")
+        lines.append("| z [m] | v(z) [m/s] | q(z) [kN/m²] |")
+        lines.append("|-------|-----------|--------------|")
+        # Mostra max 8 punti
+        step = max(1, len(profile) // 8)
+        for pt in profile[::step]:
+            z = pt.get("z_m", "-")
+            v = pt.get("v_m_s", "-")
+            q = pt.get("q_kN_m2", "-")
+            lines.append(f"| {z} | {v} | {q} |")
+        lines.append("")
+
+    wind_warnings = wind_data.get("warnings", [])
+    if wind_warnings:
+        lines.append("**Note:**")
+        for w in wind_warnings:
+            lines.append(f"- {w}")
+        lines.append("")
 
 
 def _format_key_metrics(metrics: dict[str, Any]) -> str:
