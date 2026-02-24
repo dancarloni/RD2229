@@ -131,3 +131,6 @@ repos = [
 
 [tool.setuptools.packages.find]
 include = ["src*","src.*"]
+
+[project.scripts]
+rd2229-demo = "src.rd2229.cli:main"
