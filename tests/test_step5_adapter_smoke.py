@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 
 from src.core.pipeline import run_pipeline
-from src.core.results import ElementResult
+from src.core.results import ElementResult, ResultsModel
 from src.core.step5_adapter import can_run_step5, run_step5
 from src.project.schema import (
     CodeSettings,
@@ -178,5 +178,5 @@ def test_pipeline_no_crash_on_empty_project():
     project = _empty_project()
     results = run_pipeline(project)
 
-    assert isinstance(results, type(results))
+    assert isinstance(results, ResultsModel)
     assert results.ok is False

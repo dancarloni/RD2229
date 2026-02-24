@@ -228,8 +228,9 @@ def _build_calc_input(
         norm_code=norm_code,
         limit_states_enabled=list(limit_states),
         # RD2229 e DM96 verificano strutture esistenti: usa LC3 come default
-        # se il progetto non specifica il livello di conoscenza.
-        lc=load.description or "LC3",
+        # (livello di conoscenza massimo = più favorevole).
+        # TODO: aggiungere campo `lc` a CodeSettings o ProjectModel per personalizzare.
+        lc="LC3",
         N=load.N,
         Mx=load.Mx,
         My=load.My,
