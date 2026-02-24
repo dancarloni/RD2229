@@ -1,0 +1,187 @@
+# requirements.yaml – Requisiti di verifica per norma
+# Ogni requisito ha un ID univoco e descrive cosa deve essere verificato,
+# con clausola di riferimento, input richiesti e output atteso.
+# NOTA: Solo clausole e descrizioni sintetiche; nessun testo normativo esteso.
+
+requirements:
+
+  # === RD2229 ===
+
+  - id: rd2229.ta.flessione
+    source_id: RD2229
+    title: "Verifica a flessione – Tensioni ammissibili"
+    clause: "Art. 7"
+    description: "Verifica che la tensione massima di flessione nel c.a. sia ≤ tensione ammissibile."
+    inputs_required: [width, height, Mx, f_ck]
+    output_expected: "sigma_max ≤ sigma_amm"
+    element_types: [BEAM, COLUMN, SLAB]
+
+  - id: rd2229.ta.pressoflessione
+    source_id: RD2229
+    title: "Verifica a pressoflessione – Tensioni ammissibili"
+    clause: "Art. 7-8"
+    description: "Verifica combinazione sforzo normale e momento flettente."
+    inputs_required: [width, height, N, Mx, f_ck]
+    output_expected: "punto nel dominio di resistenza"
+    element_types: [COLUMN]
+
+  - id: rd2229.ta.taglio
+    source_id: RD2229
+    title: "Verifica a taglio – Tensioni ammissibili"
+    clause: "Art. 9"
+    description: "Verifica tensione tangenziale ≤ tau_amm."
+    inputs_required: [width, height, Tx]
+    output_expected: "tau ≤ tau_amm"
+    element_types: [BEAM, COLUMN]
+
+  - id: rd2229.ta.torsione
+    source_id: RD2229
+    title: "Verifica a torsione – Tensioni ammissibili"
+    clause: "Art. 10"
+    description: "Verifica torsione per elementi soggetti a momento torcente."
+    inputs_required: [width, height, Mz]
+    output_expected: "tau_tors ≤ tau_amm_tors"
+    element_types: [BEAM]
+
+  # === DM96 ===
+
+  - id: dm96.slu.flessione
+    source_id: DM96
+    title: "SLU – Verifica a flessione"
+    clause: "§2.3"
+    description: "Verifica allo stato limite ultimo di flessione con resistenza di calcolo."
+    inputs_required: [width, height, Mx, f_ck, f_yk]
+    output_expected: "M_ed ≤ M_rd"
+    element_types: [BEAM, SLAB]
+
+  - id: dm96.slu.pressoflessione
+    source_id: DM96
+    title: "SLU – Verifica a pressoflessione"
+    clause: "§2.4"
+    description: "Verifica SLU combinazione N + M."
+    inputs_required: [width, height, N, Mx, f_ck, f_yk]
+    output_expected: "Punto nel dominio N-M"
+    element_types: [COLUMN]
+
+  - id: dm96.slu.taglio
+    source_id: DM96
+    title: "SLU – Verifica a taglio"
+    clause: "§2.5"
+    description: "Verifica resistenza a taglio SLU."
+    inputs_required: [width, height, Tx, f_ck]
+    output_expected: "V_ed ≤ V_rd"
+    element_types: [BEAM, COLUMN]
+
+  # === NTC2018 ===
+
+  - id: ntc2018.slu.flessione
+    source_id: NTC2018
+    title: "SLU – Flessione (NTC2018)"
+    clause: "§4.1.2"
+    description: "Verifica SLU di flessione per sezioni in c.a. secondo NTC2018."
+    inputs_required: [width, height, Mx, f_ck, f_yk]
+    output_expected: "M_ed ≤ M_rd"
+    element_types: [BEAM, COLUMN, SLAB]
+
+  - id: ntc2018.slu.pressoflessione
+    source_id: NTC2018
+    title: "SLU – Pressoflessione (NTC2018)"
+    clause: "§4.1.2"
+    description: "Verifica SLU di pressoflessione."
+    inputs_required: [width, height, N, Mx, f_ck, f_yk]
+    output_expected: "Punto nel dominio N-M"
+    element_types: [COLUMN]
+
+  - id: ntc2018.sle.deformazione
+    source_id: NTC2018
+    title: "SLE – Deformazione (NTC2018)"
+    clause: "§4.1.4"
+    description: "Verifica SLE di deformazione: freccia ≤ limite."
+    inputs_required: [width, height, Mx, span_m]
+    output_expected: "delta ≤ delta_lim"
+    element_types: [BEAM, SLAB]
+
+  - id: ntc2018.sle.fessurazione
+    source_id: NTC2018
+    title: "SLE – Fessurazione (NTC2018)"
+    clause: "§4.1.4.2"
+    description: "Verifica SLE di fessurazione: apertura fenditura ≤ limite."
+    inputs_required: [width, height, Mx, f_ck, f_yk, cover_mm]
+    output_expected: "wk ≤ wk_lim"
+    element_types: [BEAM, COLUMN, SLAB]
+
+  - id: ntc2018.vento.velocita_riferimento
+    source_id: NTC2018
+    title: "Velocità di riferimento del vento (NTC2018 §3.3.2)"
+    clause: "§3.3.2"
+    description: "Calcolo velocità di riferimento vb in funzione di zona geografica e altitudine."
+    inputs_required: [zone, altitude_m]
+    output_expected: "vb [m/s]"
+    element_types: [BUILDING]
+
+  - id: ntc2018.vento.pressione_cinetica
+    source_id: NTC2018
+    title: "Pressione cinetica di riferimento (NTC2018 §3.3.3)"
+    clause: "§3.3.3"
+    description: "Calcolo pressione cinetica q = 0.5 * rho * v²."
+    inputs_required: [vb_ms]
+    output_expected: "q [kN/m²]"
+    element_types: [BUILDING]
+
+  - id: ntc2018.vento.profilo_velocita
+    source_id: NTC2018
+    title: "Profilo di velocità del vento (NTC2018 §3.3.4)"
+    clause: "§3.3.4"
+    description: "Calcolo vm(z) con profilo logaritmico in funzione della categoria di esposizione."
+    inputs_required: [z_m, vb_ms, terrain_category]
+    output_expected: "vm(z) [m/s], q(z) [kN/m²]"
+    element_types: [BUILDING]
+
+  - id: ntc2018.incendio.prestazioni
+    source_id: NTC2018
+    title: "Requisiti prestazionali antincendio (NTC2018 §3.6.1)"
+    clause: "§3.6.1"
+    description: "Verifica della resistenza al fuoco in funzione della classe di rischio."
+    inputs_required: [required_rating_minutes]
+    output_expected: "struttura soddisfa classe Rxx"
+    element_types: [BEAM, COLUMN, SLAB]
+
+  # === ISO 834 / Fire ===
+
+  - id: fire.curva_iso834
+    source_id: ISO834
+    title: "Curva di incendio standard ISO 834"
+    clause: "§1"
+    description: "Formula T(t) = 20 + 345*log10(8t+1) per la temperatura in funzione del tempo."
+    inputs_required: [t_min]
+    output_expected: "T [°C]"
+    element_types: [ANY]
+
+  - id: fire.rc.tabellare
+    source_id: EN1992_1_2
+    title: "Verifica RC al fuoco – metodo tabellare"
+    clause: "§5.6, Table 5.4/5.5"
+    description: "Verifica dimensioni minime e asse-distanza armatura per classe di resistenza."
+    inputs_required: [width_mm, cover_mm, exposure_sides, required_rating_minutes]
+    output_expected: "b ≥ b_min e a ≥ a_min per classe Rxx"
+    element_types: [BEAM, COLUMN, SLAB]
+
+  # === EN 1991-1-4 (Wind) ===
+
+  - id: en1991.vento.vm_z
+    source_id: EN1991_1_4
+    title: "Mean wind velocity vm(z) (EN 1991-1-4 §4.3)"
+    clause: "§4.3"
+    description: "vm(z) = cr(z)*c0(z)*vb with cr based on log profile."
+    inputs_required: [z_m, vb_ms, terrain_category]
+    output_expected: "vm(z) [m/s]"
+    element_types: [BUILDING]
+
+  - id: en1991.vento.peak_velocity_pressure
+    source_id: EN1991_1_4
+    title: "Peak velocity pressure qp(z) (EN 1991-1-4 §4.5)"
+    clause: "§4.5"
+    description: "qp(z) = [1 + 7*Iv(z)] * 0.5*rho*vm²(z)"
+    inputs_required: [z_m, vb_ms, terrain_category]
+    output_expected: "qp(z) [kN/m²]"
+    element_types: [BUILDING]
