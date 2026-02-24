@@ -1,5 +1,8 @@
+import pytest
 import tkinter as tk
 from pathlib import Path
+
+pytestmark = pytest.mark.gui
 
 from apps.sections.models.sections import RectangularSection
 from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository

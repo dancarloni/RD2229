@@ -9,6 +9,9 @@ from unittest.mock import patch
 
 import pytest
 
+pytestmark = pytest.mark.gui
+
+
 from apps.sections.ui.components.flow_wrap import FlowWrapFrame
 from libs.app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
 from ui.module_selector import ModuleSelectorWindow

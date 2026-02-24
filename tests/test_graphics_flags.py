@@ -2,6 +2,8 @@ import tkinter as tk
 
 import pytest
 
+pytestmark = pytest.mark.gui
+
 from apps.sections.section_graphics import SectionGraphicsController
 from src.core_calculus.core.geometry_model import SectionGeometry
 from src.core_calculus.section_calculations import compute_section_properties_from_geometry
