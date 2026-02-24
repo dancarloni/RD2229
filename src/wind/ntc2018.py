@@ -125,7 +125,7 @@ def compute_velocity_profile_ntc2018(
     for z in z_values:
         z_eff = max(z, z_min)
         cr = kr * math.log(z_eff / z0)
-        v_z = cr * v_ref_ms * site.orography_factor if hasattr(site, "orography_factor") else cr * v_ref_ms
+        v_z = cr * v_ref_ms * getattr(site, "orography_factor", 1.0)
         q_z = compute_kinetic_pressure(v_z)
         profile.append(WindProfilePoint(z_m=z, v_m_s=round(v_z, 3), q_kN_m2=round(q_z, 4)))
 
