@@ -1,5 +1,8 @@
+import pytest
 import tkinter as tk
 from pathlib import Path
+
+pytestmark = pytest.mark.gui
 
 from libs.app_module.ui.main_window import MainWindow
 

@@ -75,6 +75,41 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
     trace.append("pipeline:checks_done")
 
     # ------------------------------------------------------------------
+    # Step 5 – integrazione motore di calcolo reale (verification_service)
+    # Arricchisce le metriche con i valori numerici dal motore di verifica.
+    # Non sostituisce l'esito ok/non-ok del passo 3: lo integra.
+    # ------------------------------------------------------------------
+    step5_ok, step5_reasons = _can_run_step5(project)
+    if step5_ok:
+        step5_results, step5_warnings, step5_trace = _run_step5(project)
+        warnings.extend(step5_warnings)
+        trace.extend(step5_trace)
+        if step5_results:
+            # Merge metriche step5 nei risultati step3 (non sovrascrive ok)
+            step5_by_id = {r.element_id: r for r in step5_results}
+            merged: list[ElementResult] = []
+            for base in element_results:
+                s5 = step5_by_id.get(base.element_id)
+                if s5 is not None:
+                    merged_metrics = {**base.metrics, **s5.metrics}
+                    merged_messages = base.messages + [
+                        m for m in s5.messages if m not in base.messages
+                    ]
+                    merged.append(
+                        ElementResult(
+                            element_id=base.element_id,
+                            ok=base.ok,
+                            metrics=merged_metrics,
+                            messages=merged_messages,
+                        )
+                    )
+                else:
+                    merged.append(base)
+            element_results = merged
+    else:
+        trace.append(f"step5:skip({'; '.join(step5_reasons)})")
+
+    # ------------------------------------------------------------------
     # Step 4 – aggregazione
     # ------------------------------------------------------------------
     global_ok = bool(element_results) and all(r.ok for r in element_results)
@@ -204,3 +239,25 @@ def _run_element_check(
     trace.append(f"element:{elem_id}:ok={ok}")
 
     return ElementResult(element_id=elem_id, ok=ok, metrics=metrics, messages=messages)
+
+
+def _can_run_step5(project: "ProjectModel") -> tuple[bool, list[str]]:  # type: ignore[name-defined]
+    """Delega a step5_adapter.can_run_step5 gestendo ImportError."""
+    try:
+        from src.core.step5_adapter import can_run_step5
+
+        return can_run_step5(project)
+    except ImportError:
+        return False, ["src.core.step5_adapter non disponibile."]
+
+
+def _run_step5(
+    project: "ProjectModel",  # type: ignore[name-defined]
+) -> tuple[list[ElementResult], list[str], list[str]]:
+    """Delega a step5_adapter.run_step5 gestendo ImportError."""
+    try:
+        from src.core.step5_adapter import run_step5
+
+        return run_step5(project)
+    except ImportError:
+        return [], ["src.core.step5_adapter non disponibile."], ["step5:skip(import_error)"]
