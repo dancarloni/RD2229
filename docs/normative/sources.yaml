@@ -1,0 +1,99 @@
+# sources.yaml – Fonti normative utilizzate nel sistema RD2229
+# Ogni fonte ha un ID univoco usato nei CheckSpec e coverage_matrix.yaml
+# NOTA: Non copiare testi normativi estesi; solo citazioni e riferimenti.
+
+sources:
+
+  - id: RD2229
+    title: "R.D. 16 novembre 1939, n. 2229 – Norme per la esecuzione delle opere in conglomerato cementizio semplice od armato"
+    year: 1939
+    authority: "Ministero dei Lavori Pubblici"
+    country: IT
+    link: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1939-11-16;2229"
+    copyright_note: "Norma italiana di dominio pubblico (ante 1948)"
+    freely_available: true
+    notes: "Norma storica per strutture in c.a. con metodo delle tensioni ammissibili (TA)"
+
+  - id: DM92
+    title: "D.M. 14 febbraio 1992 – Norme tecniche per l'esecuzione delle opere in cemento armato normale e precompresso e per le strutture metalliche"
+    year: 1992
+    authority: "Ministero dei Lavori Pubblici"
+    country: IT
+    link: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:ministero.lavori.pubblici:decreto:1992-02-14"
+    copyright_note: "Norma italiana – consultare MIT per disponibilità testo ufficiale"
+    freely_available: false
+    notes: "TODO: verificare disponibilità testo completo"
+
+  - id: DM96
+    title: "D.M. 09 gennaio 1996 – Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato normale e precompresso e per le strutture metalliche"
+    year: 1996
+    authority: "Ministero dei Lavori Pubblici"
+    country: IT
+    link: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:ministero.lavori.pubblici:decreto:1996-01-09"
+    copyright_note: "Norma italiana – consultare MIT per disponibilità testo ufficiale"
+    freely_available: false
+    notes: "Norma precedente NTC2008; SLU/SLE per strutture in c.a."
+
+  - id: NTC2018
+    title: "D.M. 17 gennaio 2018 – Aggiornamento delle Norme Tecniche per le Costruzioni"
+    year: 2018
+    authority: "Ministero delle Infrastrutture e dei Trasporti"
+    country: IT
+    link: "https://www.mit.gov.it/normativa/decreto-ministeriale-17-gennaio-2018"
+    copyright_note: "Norma italiana – testo ufficiale disponibile su sito MIT"
+    freely_available: true
+    notes: "Norma vigente per le costruzioni. Include azioni sismiche (cap. 3.2), vento (§3.3), incendio (§3.6). Implementazioni incrementali in corso."
+
+  - id: ISO834
+    title: "ISO 834-1:1999 – Fire resistance tests – Elements of building construction – Part 1: General requirements"
+    year: 1999
+    authority: "ISO"
+    country: "International"
+    link: "https://www.iso.org/standard/24975.html"
+    copyright_note: "Standard ISO – soggetto a copyright ISO. Formula T(t) ampiamente citata in letteratura pubblica."
+    freely_available: false
+    notes: |
+      Formula standard fire: T(t) = 20 + 345*log10(8t+1) [°C]
+      Riportata in numerose fonti pubbliche incluso EN 1991-1-2 e NTC 2018.
+
+  - id: EN1992_1_2
+    title: "EN 1992-1-2:2004 – Design of concrete structures – Structural fire design"
+    year: 2004
+    authority: "CEN"
+    country: "EU"
+    link: "https://www.en-standard.eu/une-en-1992-1-2-2011/"
+    copyright_note: "Standard CEN – soggetto a copyright. Acquistare da ente di normazione nazionale."
+    freely_available: false
+    notes: "Tabelle dimensioni minime e asse-distanza armatura per classi di resistenza al fuoco R. Valori da inserire in data/fire/axis_distance_table.json"
+
+  - id: EN1991_1_4
+    title: "EN 1991-1-4:2005 – Eurocode 1: Actions on structures – Wind actions"
+    year: 2005
+    authority: "CEN"
+    country: "EU"
+    link: "https://www.en-standard.eu/une-en-1991-1-4-2007/"
+    copyright_note: "Standard CEN – soggetto a copyright."
+    freely_available: false
+    notes: |
+      Capitoli pubblicamente citati: §4 (wind velocity/pressure), Table 4.1 (terrain categories).
+      Formule derivate da principi di ingegneria del vento ampiamente documentate.
+
+  - id: CNR_DT207
+    title: "CNR-DT 207 R1/2018 – Istruzioni per la valutazione delle azioni e degli effetti del vento sulle costruzioni"
+    year: 2018
+    authority: "CNR (Consiglio Nazionale delle Ricerche)"
+    country: IT
+    link: "https://www.cnr.it/it/node/2891"
+    copyright_note: "Proprietà letteraria riservata CNR. Disponibile per consultazione/download su sito CNR."
+    freely_available: true
+    notes: "Linee guida tecniche per vento: turbolenza, risposta dinamica, coefficienti. Formulazione metodologica derivata da principi noti."
+
+  - id: NTC2018_CIRC
+    title: "Circolare 21 gennaio 2019, n. 7 – Istruzioni per l'applicazione dell'«Aggiornamento delle Norme Tecniche per le Costruzioni»"
+    year: 2019
+    authority: "Consiglio Superiore dei Lavori Pubblici"
+    country: IT
+    link: "https://www.mit.gov.it/normativa/circolare-21-gennaio-2019-n-7"
+    copyright_note: "Documento ministeriale italiano – disponibile su sito MIT"
+    freely_available: true
+    notes: "Circolare applicativa NTC2018"

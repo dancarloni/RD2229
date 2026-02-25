@@ -10,6 +10,12 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"
 
+[project.optional-dependencies]
+gui = ["PySide6>=6.6"]
+
+[project.scripts]
+structcalc = "src.ui.app:main"
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]
