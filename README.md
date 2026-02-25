@@ -398,6 +398,14 @@ register(MyFeature())
 ```python
 from src.core.pipeline import run_pipeline
 from src.reporting.report_builder import build_report
+
+## Nota sulla migrazione GUI
+
+Il progetto sta migrando la GUI da Tkinter a PySide6 (Qt). Il comando predefinito
+`rd2229` ora punta alla shell Qt minima. Il codice legacy Tkinter è confinato in
+`rd2229.ui_legacy` e può essere eseguito solo esplicitamente impostando
+`RD2229_LEGACY_UI=1`. Vedi `docs/MIGRATION_TKINTER_TO_QT.md` per istruzioni.
+
 from src.reporting.export import export_report_html, export_report_md
 
 results = run_pipeline(project)
