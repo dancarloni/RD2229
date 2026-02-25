@@ -1,9 +1,20 @@
 import builtins
 import importlib
 import sys
+from pathlib import Path
+import os
 
 
 def test_entrypoint_graceful_no_pyside(monkeypatch, capsys):
+    # ensure package import path: add src/ to sys.path if needed
+    try:
+        import rd2229  # noqa: F401
+    except ModuleNotFoundError:
+        root = Path(__file__).resolve().parents[2]
+        src_path = str(root / "src")
+        if os.path.isdir(src_path) and src_path not in sys.path:
+            sys.path.insert(0, src_path)
+
     # Import module (does not import PySide6 at top-level)
     mod = importlib.import_module("rd2229.ui_qt.app")
 
