@@ -74,7 +74,6 @@ class VerificationAction:
         raise NotImplementedError("Azione di verifica non implementata.")
 
 
-
 # ==========================================================
 # REPOSITORY DELLE AZIONI
 # ==========================================================
@@ -115,7 +114,6 @@ def list_actions() -> List[str]:
     Restituisce la lista di tutte le azioni disponibili.
     """
     return list(ACTION_REPOSITORY.keys())
-
 
 
 # ==========================================================

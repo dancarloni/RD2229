@@ -23,7 +23,8 @@ from app.verification.methods_ta import compute_ta_verification
 # Logger and deprecation warning emitted at import time
 logger = logging.getLogger(__name__)
 logger.warning(
-    "verification_table is deprecated; import from 'app' package (e.g., 'app.domain'/'app.verification'/'app.ui') instead."
+    "verification_table is deprecated; import from 'app' package "
+    "(e.g., 'app.domain'/'app.verification'/'app.ui') instead."
 )
 
 __all__: list[str] = [

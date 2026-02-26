@@ -1,5 +1,5 @@
 """
-Package initializer.
+Package initializer for code clauses.
 
-This module is part of the restructured architecture.
+This module contains YAML files with normative clauses.
 """

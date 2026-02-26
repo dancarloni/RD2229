@@ -61,7 +61,6 @@ def export_to_csv(data: Dict[str, Any], path: str) -> None:
         writer.writerow(["stub_element", "stub_action", True, "no data (stub)"])
 
 
-
 # ======================================================================
 # FINE FILE export_results.py
 # ======================================================================

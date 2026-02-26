@@ -74,12 +74,13 @@ def bootstrap_all() -> Dict[str, Any]:
     - Caricare materiali da legacy.
     - Caricare sezioni da legacy.
     - Inizializzare registry normative.
+    - Load base path from config/app.yml instead of hardcoding
     """
 
     materials = MaterialRepository()
     elements = ElementRepository()
 
-    # Boot normative — path fisso (stub)
+    # Boot normative — TODO: load path from config/app.yml
     bootstrap_codes("src/codes")
 
     return {
@@ -126,7 +127,6 @@ def run_cli() -> None:
 
 if __name__ == "__main__":
     run_cli()
-
 
 
 # ======================================================================

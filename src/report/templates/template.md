@@ -1,6 +1,6 @@
 # Report di Verifica — Template Markdown
 
-**ATTENZIONE:** questo file è uno STUB S2.
+**ATTENZIONE:** questo file è uno STUB S2.  
 Verrà usato come base da renderer_md.py per generare report reali.
 
 ---

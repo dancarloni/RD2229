@@ -50,7 +50,7 @@ print(f"  Homogenization: n = {material.n:.2f}")
 # Define loads (simple bending)
 loads = LoadCase(Mx=10000000.0)  # 10000 kg·m = 10^7 kg·cm
 print("\nLoads:")
-print(f"  Mx = {loads.Mx / 100000:.2f} kg·m")
+print(f"  Mx = {loads.Mx/100000:.2f} kg·m")
 
 # Get allowable stresses
 sigma_c_adm, sigma_s_adm = engine_ta.get_allowable_stresses(material)
@@ -147,12 +147,12 @@ loads_multiaxis = LoadCase(
 
 verif_type = loads_multiaxis.get_verification_type()
 print("\nLoads:")
-print(f"  N  = {loads_multiaxis.N / 1000:.1f} kN")
-print(f"  Mx = {loads_multiaxis.Mx / 100000:.1f} kN·m")
-print(f"  My = {loads_multiaxis.My / 100000:.1f} kN·m")
-print(f"  Mz = {loads_multiaxis.Mz / 100000:.1f} kN·m")
-print(f"  Tx = {loads_multiaxis.Tx / 1000:.1f} kN")
-print(f"  Ty = {loads_multiaxis.Ty / 1000:.1f} kN")
+print(f"  N  = {loads_multiaxis.N/1000:.1f} kN")
+print(f"  Mx = {loads_multiaxis.Mx/100000:.1f} kN·m")
+print(f"  My = {loads_multiaxis.My/100000:.1f} kN·m")
+print(f"  Mz = {loads_multiaxis.Mz/100000:.1f} kN·m")
+print(f"  Tx = {loads_multiaxis.Tx/1000:.1f} kN")
+print(f"  Ty = {loads_multiaxis.Ty/1000:.1f} kN")
 
 print(f"\nDetected verification type: {verif_type.value}")
 print("  (Implementation in progress - full calculation coming soon)")

@@ -120,7 +120,6 @@ def get_code(code_name: str) -> Optional[Dict[str, Any]]:
     return CODE_REGISTRY.get(code_name)
 
 
-
 # ======================================================================
 # FUNZIONE DI BOOT GENERALE (stub)
 # ======================================================================
@@ -147,7 +146,6 @@ def bootstrap_codes(base_path: str) -> None:
 
     # TODO: implementazione.
     pass
-
 
 
 # ======================================================================

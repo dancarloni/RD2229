@@ -53,7 +53,6 @@ def validate_material(material: Material) -> List[str]:
     return errors
 
 
-
 # ======================================================================
-# FINE FILE validation.py
+# FINE FILE
 # ======================================================================

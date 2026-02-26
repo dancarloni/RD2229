@@ -45,7 +45,6 @@ class PDFReportRenderer:
         raise NotImplementedError("PDF rendering non implementato (stub).")
 
 
-
 # ======================================================================
 # FINE FILE renderer_pdf.py
 # ======================================================================

@@ -1,5 +1,5 @@
 """
-Package initializer.
+Package initializer for code parameters.
 
-This module is part of the restructured architecture.
+This module contains JSON files with normative parameters.
 """

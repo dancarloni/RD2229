@@ -1,5 +1,5 @@
 """
-Package initializer.
+Package initializer for report templates.
 
-This module is part of the restructured architecture.
+This module contains HTML and MD templates for report generation.
 """

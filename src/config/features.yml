@@ -39,14 +39,6 @@ features:
   enable_pdf_reports: false     # PDF disabilitato finché non implementato
 
   # --------------------------------------------------------
-  # Azioni di verifica
+  # Debug e log
   # --------------------------------------------------------
-  enable_flexure_checks: true
-  enable_shear_checks: true
-  enable_combined_checks: false   # in attesa di implementazione
-
-  # --------------------------------------------------------
-  # Debug e logging
-  # --------------------------------------------------------
-  enable_verbose_logging: false
-  enable_calculation_steps: true   # salvare passaggi intermedi
+  enable_debug_messages: false
