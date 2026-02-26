@@ -365,6 +365,7 @@ class SectionManager(tk.Toplevel):
 
         # Tooltip per le celle
         self.tooltip = TreeviewTooltip(self.tree)
+        self.tree.bind("<Double-1>", self._on_tree_double_click)
 
         # OBIETTIVO 1: Calcola larghezza finestra sommando le colonne + margini
         try:
@@ -445,6 +446,11 @@ class SectionManager(tk.Toplevel):
 
     def _get_selected_section(self) -> Section | None:
         selected = self.tree.focus()
+        if not selected:
+            sel = self.tree.selection()
+            if sel:
+                selected = sel[0]
+
         if not selected:
             notify_info("Info", "Seleziona una sezione", source="section_manager")
             return None
@@ -548,7 +554,22 @@ class SectionManager(tk.Toplevel):
         if not section:
             return
         self.on_edit(section)
-        self.destroy()
+        try:
+            self.lift()
+            self.focus_force()
+        except Exception:
+            pass
+
+    def _on_tree_double_click(self, event: tk.Event) -> None:
+        item = self.tree.identify_row(event.y)
+        if not item:
+            return
+        try:
+            self.tree.focus(item)
+            self.tree.selection_set(item)
+        except Exception:
+            pass
+        self._edit_section()
 
     def _delete_section(self) -> None:
         section = self._get_selected_section()

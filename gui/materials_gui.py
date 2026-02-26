@@ -210,7 +210,7 @@ class MaterialEditor(simpledialog.Dialog):
                 self.ent_E.delete(0, tk.END)
                 self.ent_E.insert(0, f"{ec}")
                 self.var_E_defined.set(False)
-        except Exception:  # nosec
+        except Exception:
             pass
 
         self.preview_label.config(text="\n".join(txt_lines))

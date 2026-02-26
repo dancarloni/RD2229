@@ -18,7 +18,7 @@ class TestShearHelpButton(unittest.TestCase):
     def tearDown(self):
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_help_button_opens_info_dialog(self):
@@ -37,7 +37,7 @@ class TestShearHelpButton(unittest.TestCase):
                         break
                 if help_btn:
                     break
-            except Exception:  # nosec
+            except Exception:
                 continue
 
         self.assertIsNotNone(help_btn, "Help button '?' not found in MainWindow")

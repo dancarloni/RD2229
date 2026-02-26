@@ -57,7 +57,7 @@ class TestVerificationTableAutoUpdate(unittest.TestCase):
 
         try:
             shutil.rmtree(self.temp_dir)
-        except Exception:  # nosec
+        except Exception:
             pass
 
         # Clear EventBus

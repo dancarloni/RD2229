@@ -23,13 +23,7 @@ import logging
 import math
 from typing import Any
 
-# Use `Any` for these runtime types to avoid static import errors during type
-# checking in environments where `core.verification_core` isn't visible to
-# the type checker.
-LoadCase = Any
-MaterialProperties = Any
-ReinforcementLayer = Any
-SectionGeometry = Any
+from core.verification_core import LoadCase, MaterialProperties, ReinforcementLayer, SectionGeometry
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +139,7 @@ def _finalize_torsion(
         Mx_abs = abs(Mx_loc)
         if "Mtu" in results_loc and results_loc["Mtu"] > 0 and Mx_abs > results_loc["Mtu"]:
             ok_loc = False
-            messages_loc.append(f"Torsione SLU: Mx={Mx_abs:.3f} > Mtu={results_loc['Mtu']:.3f}")
+            messages_loc.append(f'Torsione SLU: Mx={Mx_abs:.3f} > Mtu={results_loc["Mtu"]:.3f}')
     results_loc["messages"] = messages_loc
     results_loc["ok"] = ok_loc
 

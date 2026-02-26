@@ -5,9 +5,10 @@ from unittest.mock import patch
 
 os.environ["DISPLAY"] = ":0"  # Set display for headless environments
 
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
+
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import MaterialRepository
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.module_selector import ModuleSelectorWindow
 
 
 class TestModuleSelectorMaterialButton(unittest.TestCase):
@@ -42,7 +43,9 @@ class TestModuleSelectorMaterialButton(unittest.TestCase):
                     return None
 
                 button = find_button(window)
-                self.assertIsNotNone(button, "Button 'Open Materials' not found in ModuleSelectorWindow")
+                self.assertIsNotNone(
+                    button, "Button 'Open Materials' not found in ModuleSelectorWindow"
+                )
             finally:
                 if window.winfo_exists():
                     window.destroy()

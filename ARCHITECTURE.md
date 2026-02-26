@@ -1,0 +1,214 @@
+# Engineering Verification Framework
+### Architettura modulare per verifiche strutturali
+
+Questo progetto implementa un **framework modulare per verifiche strutturali**, completamente ristrutturato secondo l'architettura definita nella OPZIONE A1.
+
+Tutti i moduli sono stati ricreati secondo standard professionali, con:
+
+- Separazione totale tra moduli
+- Nessun calcolo mescolato alla GUI
+- Repository per materiali, elementi, normative
+- Registry per sezioni e area a taglio
+- Resolver centralizzato degli input
+- Pipeline completa: repo → resolver → actions → report
+- Configurazione tramite file YAML
+- Stub S2 pronti per essere ampliati da Copilot Plan
+
+Il progetto include:
+
+```
+src/
+    legacy/               <-- vecchi moduli invariati
+    calc/
+    elements/
+    materials/
+    codes/
+    actions/
+    report/
+    config/
+    tools/
+    tests/
+```
+
+---
+
+## 1. Obiettivi del progetto
+
+- Implementare una struttura modulare, estensibile e professionale.
+- Permettere verifiche strutturali in modo scalabile.
+- Integrare normative (NTC2018, EC2, EC8) tramite registry.
+- Generare report HTML/MD (e PDF in futuro).
+- Permettere la creazione di strumenti CLI per automazione.
+
+---
+
+## 2. Filosofia del framework
+
+- **Tutto è un modulo**
+- **La GUI non contiene logica tecnica**
+- **Unità di misura fisse**:
+  - lunghezze → cm
+  - aree → cm²
+  - inerzie → cm⁴
+  - tensioni → kg/cm²
+  - densità → kg/m³
+
+- **Calcoli separati per dominio**:
+  - area a taglio → `calc/`
+  - materiali → `materials/`
+  - elementi → `elements/`
+  - normative → `codes/`
+  - verifiche → `actions/`
+  - report → `report/`
+  - CLI → `tools/`
+
+---
+
+## 3. Principi di sviluppo
+
+- Ogni modulo ha responsabilità singola.
+- Nessun accesso diretto ai file legacy.
+- Tutti i moduli moderni sono testati.
+- La struttura S2 permette a Copilot Plan di ampliare il codice in modo incrementale, senza conflitti.
+
+---
+
+## 4. Come avviare il progetto
+
+```bash
+python -m src.tools.verify_cli --config path/to/config.json
+```
+
+Oppure:
+
+```bash
+python src/tools/verify_cli.py
+```
+
+---
+
+## 5. Come contribuire allo sviluppo
+
+1. Implementare i TODO nei moduli S2.
+2. Aggiungere test corrispondenti.
+3. Seguire l'architettura esistente.
+4. Tenere la documentazione aggiornata.
+
+---
+
+## 6. Test automatici
+
+La suite dei test si trova in:
+
+```
+src/tests/
+```
+
+Esempio:
+
+```bash
+pytest src/tests
+```
+
+---
+
+## 7. Report generati
+
+I renderer producono:
+
+- HTML
+- Markdown
+- PDF (stub, verrà completato)
+
+---
+
+## 8. Configurazioni globali
+
+Le configurazioni si trovano in:
+
+```
+src/config/
+```
+
+- units.yml
+- numerics.yml
+- app.yml
+- features.yml
+
+---
+
+# NOTE DI MIGRAZIONE (OPZIONE A1)
+
+Queste note descrivono il processo seguito.
+
+## 1. Spostamento file legacy
+
+Tutti i file Python esistenti nel progetto originario sono stati spostati in:
+
+```
+src/legacy/
+```
+
+I file **non vanno modificati**.
+
+---
+
+## 2. Creazione architettura moderna
+
+Sono state create le seguenti directory:
+
+```
+calc/
+materials/
+elements/
+codes/
+actions/
+report/
+config/
+tools/
+tests/
+```
+
+Ognuna con `__init__.py`.
+
+---
+
+## 3. Creazione stub S2
+
+Tutti i file nuovi generati sono:
+
+- fortemente commentati
+- contengono docstring complete
+- includono TODO per facilitare l'uso di Copilot Plan
+
+---
+
+## 4. Import modernizzati
+
+Gli import sono ora in forma:
+
+```
+from src.xxx.yyy import Z
+```
+
+Le fasi di aggiornamento interne verranno gestite dal Plan Agent.
+
+---
+
+## 5. Continuità con file legacy
+
+Il sistema è pensato per:
+
+- NON rompere i vecchi moduli
+- poter migrare gradualmente la logica nel package moderno
+
+---
+
+## 6. Come completare l'implementazione
+
+Utilizza Copilot Plan:
+
+- Fornisci uno dei moduli
+- Segui i TODO
+- Esegui i test
+- Procedi incrementalmente

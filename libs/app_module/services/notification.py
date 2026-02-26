@@ -13,8 +13,8 @@ import time
 from collections.abc import Callable
 from typing import Any
 
-from sections_app.services.event_bus import EventBus, NOTIFICATION
-from sections_app.services.debug_log_stream import emit_to_in_memory_buffer
+from libs.app_module.services.debug_log_stream import emit_to_in_memory_buffer
+from libs.app_module.services.event_bus import NOTIFICATION, EventBus
 
 logger = logging.getLogger(__name__)
 
@@ -37,16 +37,49 @@ def _emit(payload: dict[str, Any]) -> None:
         logger.exception("Failed to emit notification log")
 
 
-def notify_info(title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None) -> None:
-    _emit({"level": "info", "title": title, "message": message, "source": source, "meta": meta, "timestamp": time.time()})
+def notify_info(
+    title: str, message: str, *, source: str | None = None, meta: dict | None = None
+) -> None:
+    _emit(
+        {
+            "level": "info",
+            "title": title,
+            "message": message,
+            "source": source,
+            "meta": meta,
+            "timestamp": time.time(),
+        }
+    )
 
 
-def notify_warning(title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None) -> None:
-    _emit({"level": "warning", "title": title, "message": message, "source": source, "meta": meta, "timestamp": time.time()})
+def notify_warning(
+    title: str, message: str, *, source: str | None = None, meta: dict | None = None
+) -> None:
+    _emit(
+        {
+            "level": "warning",
+            "title": title,
+            "message": message,
+            "source": source,
+            "meta": meta,
+            "timestamp": time.time(),
+        }
+    )
 
 
-def notify_error(title: str, message: str, *, source: Optional[str] = None, meta: Optional[dict] = None) -> None:
-    _emit({"level": "error", "title": title, "message": message, "source": source, "meta": meta, "timestamp": time.time()})
+def notify_error(
+    title: str, message: str, *, source: str | None = None, meta: dict | None = None
+) -> None:
+    _emit(
+        {
+            "level": "error",
+            "title": title,
+            "message": message,
+            "source": source,
+            "meta": meta,
+            "timestamp": time.time(),
+        }
+    )
 
 
 def ask_confirm(

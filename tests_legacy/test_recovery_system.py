@@ -29,7 +29,7 @@ class TestRecoverySystem(unittest.TestCase):
 
         try:
             shutil.rmtree(self.temp_dir)
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_section_loads_from_main_file_normally(self):

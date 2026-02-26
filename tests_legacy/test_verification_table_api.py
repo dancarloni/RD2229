@@ -22,7 +22,7 @@ class TestVerificationTableAPI(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_create_editor_for_cell_public_api_returns_widget(self):

@@ -51,7 +51,7 @@ class NotificationCenter:
         if self._subscribed:
             try:
                 EventBus().unsubscribe(NOTIFICATION, self._on_notification)
-            except Exception:  # nosec
+            except Exception:
                 pass
             self._subscribed = False
 
@@ -91,7 +91,7 @@ class NotificationCenter:
             logger.exception("Error handling notification")
 
     def _show_toast(self, payload: dict[str, Any]) -> None:
-        text = f"{payload.get('title', '')}: {payload.get('message', '')}"
+        text = f"{payload.get('title','')}: {payload.get('message','')}"
         logger.info("Notification toast: %s", text)
         if self.headless:
             return
@@ -148,5 +148,5 @@ class NotificationCenter:
         if self._win is not None and getattr(self._win, "winfo_exists", None) and self._win.winfo_exists():
             try:
                 self._win.destroy()
-            except Exception:  # nosec
+            except Exception:
                 pass

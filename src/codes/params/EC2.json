@@ -1,0 +1,8 @@
+{
+    "_comment": "Parametri numerici STUB S2 per Eurocodice 2.",
+    "gamma_c": 1.5,
+    "gamma_s": 1.15,
+    "psi_0": 0.7,
+    "E_cm": 310000.0,
+    "note": "Placeholder, valori da aggiornare."
+}

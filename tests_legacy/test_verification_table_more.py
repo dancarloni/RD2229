@@ -29,7 +29,7 @@ class TestVerificationTableMore(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_material_names_resolved_from_repository(self):
@@ -335,7 +335,7 @@ class TestVerificationTableMore(unittest.TestCase):
         app._on_entry_cancel(None)
         try:
             app.tree.delete(item)
-        except Exception:  # nosec
+        except Exception:
             pass
         win.destroy()
 
@@ -386,7 +386,7 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIsNone(app._suggest_list)
         try:
             app.tree.delete(item)
-        except Exception:  # nosec
+        except Exception:
             pass
         top.destroy()
 

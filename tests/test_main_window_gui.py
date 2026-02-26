@@ -26,7 +26,7 @@ def test_save_section_via_repository(tmp_path: Path):
     try:
         win.section_var.set("Rettangolare")
         win._create_inputs()
-    except Exception:  # nosec
+    except Exception:
         pass
     # populate width/height if inputs exist
     if "width" in win.inputs:
@@ -64,7 +64,7 @@ def test_show_graphic_creates_canvas_items():
     try:
         win.section_var.set("Rettangolare")
         win._create_inputs()
-    except Exception:  # nosec
+    except Exception:
         pass
     if "width" in win.inputs:
         win.inputs["width"].delete(0, tk.END)

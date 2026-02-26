@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class HistoricalMaterialsLoader:
 
         try:
             with open(file_path, encoding="utf-8") as f:
-                config = cast(dict[str, Any], json.load(f))
+                config = json.load(f)
 
             # Validate basic structure
             if "code_name" not in config:
@@ -95,7 +95,7 @@ class HistoricalMaterialsLoader:
 
         """
         config = self.load_material_source(source_name)
-        return cast(dict[str, dict[str, Any]], config.get("concrete_classes", {}))
+        return config.get("concrete_classes", {})
 
     def get_concrete_properties(self, source_name: str, concrete_class: str) -> dict[str, Any] | None:
         """Get properties for a specific concrete class.
@@ -122,7 +122,7 @@ class HistoricalMaterialsLoader:
 
         """
         config = self.load_material_source(source_name)
-        return cast(dict[str, dict[str, Any]], config.get("steel_types", {}))
+        return config.get("steel_types", {})
 
     def get_steel_properties(self, source_name: str, steel_type: str) -> dict[str, Any] | None:
         """Get properties for a specific steel type.
@@ -149,7 +149,7 @@ class HistoricalMaterialsLoader:
 
         """
         config = self.load_material_source(source_name)
-        return cast(dict[str, dict[str, Any]], config.get("cement_types", {}))
+        return config.get("cement_types", {})
 
     def get_calculation_formulas(self, source_name: str) -> dict[str, Any]:
         """Get calculation formulas for a specific material source.
@@ -162,7 +162,7 @@ class HistoricalMaterialsLoader:
 
         """
         config = self.load_material_source(source_name)
-        return cast(dict[str, Any], config.get("calculation_formulas", {}))
+        return config.get("calculation_formulas", {})
 
     def get_conversion_factors(self, source_name: str) -> dict[str, float]:
         """Get unit conversion factors for a specific material source.
@@ -175,7 +175,7 @@ class HistoricalMaterialsLoader:
 
         """
         config = self.load_material_source(source_name)
-        return cast(dict[str, float], config.get("conversion_factors", {}))
+        return config.get("conversion_factors", {})
 
     def list_available_sources(self) -> list[str]:
         """List all available material sources.

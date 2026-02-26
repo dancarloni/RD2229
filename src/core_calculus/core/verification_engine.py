@@ -149,7 +149,7 @@ class VerificationEngine:
                     coeffs = self.config.get("safety_coefficients", {})
                     gamma_c = coeffs.get("gamma_c", {}).get("value", 1.5)
                     gamma_s = coeffs.get("gamma_s", {}).get("value", 1.15)
-                except Exception:  # nosec
+                except Exception:
                     pass
 
             sigma_c_adm = 0.85 * material.fck / gamma_c
@@ -264,39 +264,21 @@ class VerificationEngine:
             )
             # Estimate torsion reinforcement requirement
             try:
-                # Import dynamically to support both the compatibility shim and
-                # the src-based module layout. Bind to a local name using
-                # importlib and getattr to avoid mypy attr-defined errors.
-                import importlib
+                from core.verification_core import estimate_required_torsion_reinforcement
 
-                estimate_required_torsion_reinforcement: Any = None
-                try:
-                    mod = importlib.import_module("core.verification_core")
-                    estimate_required_torsion_reinforcement = getattr(mod, "estimate_required_torsion_reinforcement", None)
-                except Exception:
-                    estimate_required_torsion_reinforcement = None
-                if estimate_required_torsion_reinforcement is None:
-                    try:
-                        mod2 = importlib.import_module("src.core_calculus.core.verification_core")
-                        estimate_required_torsion_reinforcement = getattr(
-                            mod2, "estimate_required_torsion_reinforcement", None
+                At_req = estimate_required_torsion_reinforcement(section, reinforcement_tensile, loads, material)
+                if loads.At and loads.At > 0 and At_req > 0:
+                    if loads.At < At_req:
+                        approx_notes.append(
+                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², " f"fornita {loads.At:.3f} cm²"
                         )
-                    except Exception:
-                        estimate_required_torsion_reinforcement = None
-
-                if estimate_required_torsion_reinforcement:
-                    At_req = estimate_required_torsion_reinforcement(section, reinforcement_tensile, loads, material)
-                    if loads.At and loads.At > 0 and At_req > 0:
-                        if loads.At < At_req:
-                            approx_notes.append(
-                                f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², fornita {loads.At:.3f} cm²"
-                            )
-                        else:
-                            approx_notes.append(
-                                f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², fornita {loads.At:.3f} cm²"
-                            )
-                    elif At_req > 0:
-                        approx_notes.append(f"Armatura torsione richiesta ≈ {At_req:.3f} cm² (nessun At fornita)")
+                    else:
+                        approx_notes.append(
+                            f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², "
+                            f"fornita {loads.At:.3f} cm²"
+                        )
+                elif At_req > 0:
+                    approx_notes.append(f"Armatura torsione richiesta ≈ {At_req:.3f} cm² " f"(nessun At fornita)")
             except Exception:
                 logger.exception("Errore stima armatura torsione")
 

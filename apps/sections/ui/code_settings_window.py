@@ -13,7 +13,11 @@ import logging
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
-from sections_app.services.notification import notify_info, notify_error, notify_warning, ask_confirm
+
+from apps.sections.services.notification import (
+    notify_error,  # type: ignore[import]
+    notify_info,  # type: ignore[import]
+)
 
 logger = logging.getLogger(__name__)
 

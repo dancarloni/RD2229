@@ -27,6 +27,8 @@ from sections_app.ui.module_selector_view import ModuleCardSpec, ModuleSelectorV
 from sections_app.ui.notification_center import NotificationCenter
 
 logger = logging.getLogger(__name__)
+# Massimo tentativi per riprovare a caricare una sezione in Geometry quando la finestra non è pronta
+MAX_EDIT_LOAD_RETRIES = 6
 
 
 class ModuleSelectorController:
@@ -128,7 +130,7 @@ class ModuleSelectorController:
                         import time
 
                         time.sleep(0.1)
-                except Exception:  # nosec
+                except Exception:
                     # If winfo_exists fails, we'll simply continue to cleanup
                     pass
             else:

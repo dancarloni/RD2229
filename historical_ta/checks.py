@@ -58,10 +58,11 @@ def compute_long_rebar_limits_ta(
     Nx: float,
     fyd: float,
     fctm: float,
-    geometry,
-    is_column: bool,
-    is_beam: bool,
-    zona_sismica: bool,
+    geometry=None,
+    is_column: bool = False,
+    is_beam: bool = True,
+    zona_sismica: bool = False,
+    carbon_fiber_placeholder=None,
 ) -> LongitudinalRebarLimits:
     # This implements a simplified version of LimitiArmaturaLong (VB):
     # - For columns (pilastri): Afmin = max(0.003 * Asez, ...), Afmax = 0.06 * Asez

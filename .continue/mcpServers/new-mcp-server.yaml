@@ -1,0 +1,63 @@
+name: Ingegneria MCP
+version: 0.0.1
+schema: v1
+
+mcpServers:
+  - name: Filesystem (workspace)
+    type: stdio
+    command: npx.cmd
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - "."
+    env: {}
+
+  - name: Fetch (web content)
+    type: stdio
+    command: "C:\\Users\\DanieleCarloni.AzureAD\\.local\\bin\\uvx.exe"
+    args:
+      - mcp-server-fetch
+      - --user-agent
+      - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
+    env: {}
+
+  - name: Git (repo tools)
+    type: stdio
+    command: "C:\\Users\\DanieleCarloni.AzureAD\\.local\\bin\\uvx.exe"
+    args:
+     - mcp-server-git
+
+
+  - name: Memory (knowledge graph)
+    type: stdio
+    command: npx.cmd
+    args:
+      - -y
+      - "@modelcontextprotocol/server-memory"
+    env: {}
+
+  - name: Sequential Thinking
+    type: stdio
+    command: cmd.exe
+    args:
+      - /c
+      - npx
+      - -y
+      - "@modelcontextprotocol/server-sequential-thinking"
+    env: {}
+ 
+  - name: Time / Timezones
+    type: stdio
+    command: "C:\\Users\\DanieleCarloni.AzureAD\\.local\\bin\\uvx.exe"
+    args:
+      - mcp-server-time
+
+  
+  - name: Browser (Playwright)
+    type: stdio
+    command: cmd.exe
+    args:
+      - /c
+      - npx
+      - -y
+      - "@playwright/mcp@latest"
