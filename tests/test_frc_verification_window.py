@@ -2,7 +2,6 @@ import unittest
 import tkinter as tk
 from unittest.mock import patch
 import os
-import sys
 if os.name != "nt" and "DISPLAY" not in os.environ:
     os.environ["DISPLAY"] = ":0"
 

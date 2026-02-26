@@ -259,7 +259,10 @@ class SectionRepository:
     def _maybe_seed(self) -> None:
         if not self._enable_seeding:
             return
-        if self._sections:
+        # Seed when there are no seeded sections, not just when the repo is empty.
+        # This ensures baseline seed examples are always present even in non-empty repos.
+        seeded = [s for s in self._sections.values() if self._is_seeded(s)]
+        if seeded:
             return
         self._ensure_seed_sections()
 

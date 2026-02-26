@@ -86,23 +86,23 @@ class VerificationInput:
     stirrup_diameter: float = 0.0
     stirrup_material: str = ""
     notes: str = ""
-    # Legacy Init vars to accept old keywords M and T in constructor
-    M_legacy: InitVar[Optional[float]] = None
-    T_legacy: InitVar[Optional[float]] = None
+    # Legacy InitVars to accept old keywords M and T in constructor
+    M: InitVar[Optional[float]] = None
+    T: InitVar[Optional[float]] = None
 
-    def __post_init__(self, M_legacy: Optional[float], T_legacy: Optional[float]) -> None:
+    def __post_init__(self, M: Optional[float], T: Optional[float]) -> None:
         # Map legacy init kwargs to new internal fields for backward compatibility
-        if M_legacy is not None:
+        if M is not None:
             try:
-                self.Mx = M_legacy
+                self.Mx = M
             except Exception:
                 # If Mx is a descriptor/property at class-level, force instance attribute
-                self.__dict__['Mx'] = M_legacy
-        if T_legacy is not None:
+                self.__dict__['Mx'] = M
+        if T is not None:
             try:
-                self.Ty = T_legacy
+                self.Ty = T
             except Exception:
-                self.__dict__['Ty'] = T_legacy
+                self.__dict__['Ty'] = T
 
         # Ensure numeric fields exist as instance attributes (avoid unexpected property objects)
         for field_name in ("Mx", "My", "Mz", "Tx", "Ty", "At", "As_sup", "As_inf"):
@@ -1378,8 +1378,8 @@ class VerificationTableApp(tk.Frame):
                     # needs an explicit event to open dropdowns on some platforms.
                     editor.event_generate("<FocusIn>")
                 except Exception:
+                    # Ignore errors generating synthetic FocusIn event; not all platforms support it.
                     pass
-            # Monkeypatch Combobox.set to record the last value set programmatically.
             # This helps tests that use cb.set('...') and expect the value to be
             # available synchronously at commit time.
             try:
@@ -1701,12 +1701,15 @@ class VerificationTableApp(tk.Frame):
                     try:
                         self.edit_entry.event_generate("<FocusIn>")
                     except Exception:
+                        # Ignore event generation errors; editor widget may not be ready.
                         pass
                     try:
                         self._update_suggestions()
                     except Exception:
+                        # Ignore suggestion update errors in deferred trigger.
                         pass
             except Exception:
+                # Ignore errors in late focus trigger; widget may have been destroyed.
                 pass
         self.after(50, _late_trigger)
         # As a pragmatic stability measure for tests and fast UI flows,
@@ -2036,6 +2039,7 @@ class VerificationTableApp(tk.Frame):
         try:
             self.edit_entry.update_idletasks()
         except Exception:
+            # Ignore errors updating idle tasks; widget may not be fully realized.
             pass
         try:
             w = self.edit_entry.winfo_width()
@@ -2046,6 +2050,7 @@ class VerificationTableApp(tk.Frame):
                 if self._suggest_box is not None:
                     self._suggest_box.withdraw()
             except Exception:
+                # Ignore errors withdrawing suggestion box; it may already be destroyed.
                 pass
             if not getattr(self, "_suggest_retry_scheduled", False):
                 self._suggest_retry_scheduled = True
@@ -2053,6 +2058,7 @@ class VerificationTableApp(tk.Frame):
                 try:
                     self._force_show_all_on_empty = True
                 except Exception:
+                    # Ignore attribute setting errors during retry scheduling.
                     pass
                 def _retry():
                     try:
@@ -2062,6 +2068,7 @@ class VerificationTableApp(tk.Frame):
                         try:
                             self._force_show_all_on_empty = False
                         except Exception:
+                            # Ignore errors resetting force-show flag after retry.
                             pass
                 self.after(10, _retry)
             return
@@ -2101,11 +2108,13 @@ class VerificationTableApp(tk.Frame):
         try:
             self.edit_entry.focus_set()
         except Exception:
+            # Ignore focus errors; editor may have been destroyed or replaced.
             pass
         try:
             # Make sure suggestion window is above but doesn't take focus
             self._suggest_box.lift(self)
         except Exception:
+            # Ignore lift errors; suggestion box may have been destroyed.
             pass
 
     def _commit_if_focus_outside(self) -> None:

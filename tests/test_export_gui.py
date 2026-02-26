@@ -61,8 +61,8 @@ class TestExportBackupGUI(unittest.TestCase):
         # Chiudi la finestra
         window.destroy()
 
-    def test_export_sections_json(self):
-        """Test: Export sezioni in JSON dalla GUI."""
+    def test_section_repository_export_backup(self):
+        """Test: SectionRepository.export_backup() crea il file corretto."""
         export_path = self.temp_path / "export_test.json"
         self.section_repo.export_backup(str(export_path))
         
@@ -73,7 +73,6 @@ class TestExportBackupGUI(unittest.TestCase):
         with export_path.open("r", encoding="utf-8") as f:
             data = json.load(f)
         self.assertEqual(len(data), 1)
-        
 
     def test_material_repository_export_backup(self):
         """Test: MaterialRepository.export_backup() funziona."""

@@ -2,7 +2,6 @@ import unittest
 import tkinter as tk
 from unittest.mock import MagicMock, patch
 import os
-import sys
 if os.name != "nt" and "DISPLAY" not in os.environ:
     os.environ["DISPLAY"] = ":0"  # Set display for headless environments on non-Windows
 
@@ -34,6 +33,8 @@ class TestModuleSelectorMaterialButton(unittest.TestCase):
             try:
                 tk._default_root = None
             except Exception:
+                # Ignore any errors while resetting Tk's default root in tests;
+                # window creation is retried below regardless of this cleanup.
                 pass
             return ModuleSelectorWindow(self.repo, self.serializer, self.material_repo)
 
