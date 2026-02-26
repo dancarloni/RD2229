@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: RD2229
+Version: 0.0.1
+Summary: RD2229 package (editable install for development)
+Requires-Dist: pandas
+Requires-Dist: matplotlib
