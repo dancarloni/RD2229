@@ -1,140 +1,21 @@
-<<<<<<< HEAD
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass, field, asdict
+from datetime import datetime
+from typing import Any, Optional
 
-
-DEFAULT_FILE_TYPE = "RD_VerificaSezioni_Project"
-DEFAULT_MODULE = "VerificationTable"
-DEFAULT_VERSION = 1
+# import type for annotation only (avoids circular import at runtime)
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.codes.ntc2018.spectrum_paste_service import Ntc2018HazardProfile, Ntc2018HazardRow
 
 
 @dataclass
-class VerificationProject:
-    materials: Dict[str, Dict[str, Any]] = field(default_factory=lambda: {"cls": {}, "steel": {}})
-    sections: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-    elements: List[Dict[str, Any]] = field(default_factory=list)
-    path: Optional[str] = None
-    dirty: bool = False
-    last_action_was_add_list: bool = False
-    created_at: Optional[str] = None
+class SeismicInputs:
+    # use string wrapped union to avoid forward reference issues
+    ntc2018_hazard_profile: Optional["Ntc2018HazardProfile"] = None
 
-    def new_project(self) -> None:
-        self.materials = {"cls": {}, "steel": {}}
-        self.sections = {}
-        self.elements = []
-        self.path = None
-        self.dirty = False
-        self.last_action_was_add_list = False
-        self.created_at = datetime.now(timezone.utc).isoformat()
-
-    def _validate_header(self, data: Dict[str, Any]) -> None:
-        if data.get("file_type") != DEFAULT_FILE_TYPE or data.get("module") != DEFAULT_MODULE:
-            raise ValueError("File non riconosciuto come progetto VerificationTable")
-
-    def load_from_file(self, path: str) -> None:
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        self._validate_header(data)
-        self.created_at = data.get("created_at") or datetime.now(timezone.utc).isoformat()
-
-        # Load materials
-        mats = data.get("materials") or {}
-        cls_list = mats.get("cls") or []
-        steel_list = mats.get("steel") or []
-        self.materials = {"cls": {}, "steel": {}}
-        for m in cls_list:
-            if m.get("id"):
-                self.materials["cls"][m["id"]] = m
-        for m in steel_list:
-            if m.get("id"):
-                self.materials["steel"][m["id"]] = m
-
-        # Sections
-        self.sections = {}
-        for s in data.get("sections") or []:
-            sid = s.get("id") or s.get("name")
-            if sid:
-                self.sections[sid] = s
-
-        # Elements
-        self.elements = data.get("elements") or []
-
-        self.path = path
-        self.dirty = False
-        self.last_action_was_add_list = False
-
-    def save_to_file(self, path: str) -> None:
-        header = {
-            "file_type": DEFAULT_FILE_TYPE,
-            "module": DEFAULT_MODULE,
-            "version": DEFAULT_VERSION,
-            "created_at": self.created_at or datetime.now(timezone.utc).isoformat(),
-        }
-        mats = {
-            "cls": list(self.materials.get("cls", {}).values()),
-            "steel": list(self.materials.get("steel", {}).values()),
-        }
-        sections = list(self.sections.values())
-        data = {
-            **header,
-            "materials": mats,
-            "sections": sections,
-            "elements": self.elements,
-        }
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        self.path = path
-        self.dirty = False
-        self.last_action_was_add_list = False
-
-    def add_elements_from_file(self, path: str) -> Tuple[int, int, int]:
-        """Carica un file .jsonp e unisce materiali/sezioni/elementi senza cancellare.
-
-        Returns tuple (new_materials, new_sections, new_elements_added)
-        """
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        self._validate_header(data)
-
-        new_mats = 0
-        mats = data.get("materials") or {}
-        for typ in ("cls", "steel"):
-            for m in (mats.get(typ) or []):
-                mid = m.get("id")
-                if mid and mid not in self.materials.get(typ, {}):
-                    self.materials.setdefault(typ, {})[mid] = m
-                    new_mats += 1
-
-        new_secs = 0
-        for s in data.get("sections") or []:
-            sid = s.get("id") or s.get("name")
-            if sid and sid not in self.sections:
-                self.sections[sid] = s
-                new_secs += 1
-
-        new_elems = 0
-        for e in data.get("elements") or []:
-            # avoid identical element ids
-            eid = e.get("id")
-            if eid and any(existing.get("id") == eid for existing in self.elements):
-                continue
-            self.elements.append(e)
-            new_elems += 1
-
-        self.dirty = True
-        self.last_action_was_add_list = True
-        return new_mats, new_secs, new_elems
-=======
-from __future__ import annotations
-
-import json
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any
 
 DEFAULT_FILE_TYPE = "RD_VerificaSezioni_Project"
 DEFAULT_MODULE = "VerificationTable"
@@ -146,6 +27,7 @@ class VerificationProject:
     materials: dict[str, dict[str, Any]] = field(default_factory=lambda: {"cls": {}, "steel": {}})
     sections: dict[str, dict[str, Any]] = field(default_factory=dict)
     elements: list[dict[str, Any]] = field(default_factory=list)
+    seismic_inputs: SeismicInputs = field(default_factory=SeismicInputs)
     path: str | None = None
     dirty: bool = False
     last_action_was_add_list: bool = False
@@ -192,6 +74,35 @@ class VerificationProject:
         # Elements
         self.elements = data.get("elements") or []
 
+        # seismic inputs may be absent in older files
+        seism = data.get("seismic_inputs")
+        if seism:
+            # lazily import models to avoid circular dependency
+            try:
+                from src.codes.ntc2018.spectrum_paste_service import (
+                    Ntc2018HazardProfile,
+                    Ntc2018HazardRow,
+                )
+            except ImportError:  # pragma: no cover
+                self.seismic_inputs = SeismicInputs()
+            else:
+                sip = SeismicInputs()
+                prof_data = seism.get("ntc2018_hazard_profile")
+                if prof_data:
+                    # build profile object and convert rows
+                    profile = Ntc2018HazardProfile(**{k: v for k, v in prof_data.items() if k != "parsed_rows"})
+                    rows_list = []
+                    for r in prof_data.get("parsed_rows", []):
+                        try:
+                            rows_list.append(Ntc2018HazardRow(**r))
+                        except Exception:
+                            pass
+                    profile.parsed_rows = rows_list
+                    sip.ntc2018_hazard_profile = profile
+                self.seismic_inputs = sip
+        else:
+            self.seismic_inputs = SeismicInputs()
+
         self.path = path
         self.dirty = False
         self.last_action_was_add_list = False
@@ -214,6 +125,10 @@ class VerificationProject:
             "sections": sections,
             "elements": self.elements,
         }
+        # include seismic inputs if present
+        if self.seismic_inputs is not None:
+            # asdict will recurse into dataclasses
+            data["seismic_inputs"] = asdict(self.seismic_inputs)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         self.path = path
@@ -257,4 +172,3 @@ class VerificationProject:
         self.dirty = True
         self.last_action_was_add_list = True
         return new_mats, new_secs, new_elems
->>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
