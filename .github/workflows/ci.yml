@@ -1,41 +1,68 @@
-name: CI – Test non-GUI
+name: CI
 
 on:
   push:
-    branches: ["main", "master", "develop"]
+    branches: [ main, '**' ]
   pull_request:
-    branches: ["main", "master", "develop"]
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      include_slow:
+        description: 'Run slow tests as well'
+        required: false
+        default: 'false'
 
 permissions:
   contents: read
 
 jobs:
   test:
-    name: Test Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         python-version: ['3.11', '3.12']
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies (no GUI)
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
-          pip install pytest pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run non-GUI tests
+      - name: Run tests (exclude slow)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          python -m pytest -m "not gui and not slow" -q --tb=short
+          pytest -q -m "not slow and not gui" --maxfail=1
 
-      - name: Run step5 and reporting tests explicitly
+  slow_tests:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.include_slow == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
         run: |
-          python -m pytest tests/test_step5_adapter_smoke.py tests/test_reporting_smoke.py tests/test_pipeline_smoke.py tests/test_project_roundtrip.py -v
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run slow tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pytest -q -m "slow and not gui" --maxfail=1
