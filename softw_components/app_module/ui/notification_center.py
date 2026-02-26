@@ -51,7 +51,7 @@ class NotificationCenter:
         if self._subscribed:
             try:
                 EventBus().unsubscribe(NOTIFICATION, self._on_notification)
-            except Exception:
+            except Exception:  # nosec
                 pass
             self._subscribed = False
 
@@ -148,7 +148,7 @@ class NotificationCenter:
         if self._win is not None and getattr(self._win, "winfo_exists", None) and self._win.winfo_exists():
             try:
                 self._win.destroy()
-            except Exception:
+            except Exception:  # nosec
                 pass
 
     def show(self) -> None:

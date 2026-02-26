@@ -315,12 +315,7 @@ class VerificationComparatorWindow(tk.Toplevel):
         pick_side_point: tuple[float, float] | None = None,
     ) -> list[tuple[float, float]]:
         # Build rectangle polygon
-<<<<<<< HEAD
-        eps = 1e-6
-        rect = [(-eps,-eps),(b + eps,-eps),(b + eps,h + eps),(-eps,h + eps)]
-=======
         rect: list[tuple[float, float]] = [(0.0, 0.0), (b, 0.0), (b, h), (0.0, h)]
->>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
         import math
 
         theta: float = math.radians(angle_deg)
