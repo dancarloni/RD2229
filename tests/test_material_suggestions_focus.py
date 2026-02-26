@@ -22,9 +22,8 @@ class TestMaterialSuggestionsFocus(unittest.TestCase):
         try:
             self.root.destroy()
         except Exception:
+            # Ignore Tkinter teardown errors; root may already be destroyed in headless environments.
             pass
-
-    def _suggestion_list_items(self, app):
         if app._suggest_list is None:
             return []
         return [app._suggest_list.get(i) for i in range(app._suggest_list.size())]

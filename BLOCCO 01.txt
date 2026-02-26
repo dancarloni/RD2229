@@ -23,7 +23,7 @@ Ricostruire completamente il progetto Python esistente riorganizzandolo in una n
 
 La GUI (se e quando sarà presente) NON deve contenere logica di calcolo.
 I calcoli vengono incapsulati nei moduli dedicati.
-Le unità di misura devono rispettare lo standard definito dall'utente:
+Le unità di misura devono rispettare lo standard definito dall'utente: 
 - lunghezze in cm
 - aree in cm^2
 - inerzie in cm^4

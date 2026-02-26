@@ -178,7 +178,7 @@ class ModuleSelectorWindow(tk.Tk):
                 self._geometry_window.focus_force()
                 logger.debug("Geometry window già aperta, portata in primo piano")
                 return
-            except Exception:  # nosec
+            except Exception:
                 pass
 
         # Crea la finestra Geometry e memorizza il riferimento
@@ -191,7 +191,7 @@ class ModuleSelectorWindow(tk.Tk):
                 lambda w=win: (setattr(self, "_geometry_window", None), w.destroy()),
             )
             win.bind("<Destroy>", lambda e, w=win: setattr(self, "_geometry_window", None))
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _open_historical(self) -> None:
@@ -268,7 +268,7 @@ class ModuleSelectorWindow(tk.Tk):
                 self._section_manager_window.focus_force()
                 logger.debug("Section Manager già aperto, portato in primo piano")
                 return
-            except Exception:  # nosec
+            except Exception:
                 pass
 
         # Crea nuova istanza del manager con callback on_edit che rimanda a Geometry
@@ -306,7 +306,7 @@ class ModuleSelectorWindow(tk.Tk):
                         lambda w=win: (setattr(self, "_geometry_window", None), w.destroy()),
                     )
                     win.bind("<Destroy>", lambda e, w=win: setattr(self, "_geometry_window", None))
-                except Exception:  # nosec
+                except Exception:
                     pass
             except Exception:
                 logger.exception("Fallback: impossibile creare Geometry window")
@@ -354,7 +354,7 @@ class ModuleSelectorWindow(tk.Tk):
             if self._material_editor_window is not None and self._material_editor_window.winfo_exists():
                 try:
                     self._material_editor_window.destroy()
-                except Exception:  # nosec
+                except Exception:
                     pass
             self._material_editor_window = None
 
@@ -363,7 +363,7 @@ class ModuleSelectorWindow(tk.Tk):
             self._material_editor_window.protocol("WM_DELETE_WINDOW", on_material_editor_close)
             # Inoltre, se la finestra viene distrutta in altro modo, assicurati di pulire il riferimento
             self._material_editor_window.bind("<Destroy>", lambda e: on_material_editor_close())
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _open_frc_manager(self) -> None:
@@ -497,9 +497,11 @@ class ModuleSelectorWindow(tk.Tk):
 
                 notify_info(
                     "Export completato",
-                    f"Backup esportati correttamente:\n• Sezioni: {sections_path}\n• Materiali: {materials_path}",
+                    f"Backup esportati correttamente:\n" f"• Sezioni: {sections_path}\n" f"• Materiali: {materials_path}",
                     source="module_selector",
                 )
         except Exception as e:
             logger.exception("Errore durante l'esportazione del backup")
-            notify_error("Errore", f"Errore durante l'esportazione:\n{str(e)}", source="module_selector")
+            notify_error(
+                "Errore", f"Errore durante l'esportazione:\n{str(e)}", source="module_selector"
+            )

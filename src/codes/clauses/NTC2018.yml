@@ -1,0 +1,33 @@
+# Esempio STUB S2 di clausole normative per NTC 2018
+# Il testo NON è normativo reale: è solo struttura per supportare
+# Copilot Plan nella generazione di report tecnici.
+
+general:
+  title: "Norme Tecniche per le Costruzioni 2018"
+  scope: "Regole generali per progettazione e verifica."
+
+materials:
+  concrete:
+    limit_states:
+      - id: "SLE"
+        desc: "Stato Limite di Esercizio."
+      - id: "SLU"
+        desc: "Stato Limite Ultimo."
+    remarks:
+      - "Questo testo è un placeholder e va sostituito."
+
+geometry:
+  section_limits:
+    min_height_cm: 20
+    min_width_cm: 20
+    note: "Placeholder."
+
+load_combinations:
+  ulc:
+    desc: "Combinazione allo Stato Limite Ultimo."
+    text: "Placeholder per descrizione combinazione ULC."
+
+verification:
+  flexure:
+    description: "Regole di verifica flessionale."
+    formula_ref: "TODO: inserire richiamo normativo reale."

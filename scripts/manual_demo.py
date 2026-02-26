@@ -92,15 +92,15 @@ def main():
     print("Cleaning up windows...")
     try:
         vt.destroy()
-    except Exception:  # nosec
+    except Exception:
         pass
     try:
         sel.destroy()
-    except Exception:  # nosec
+    except Exception:
         pass
     try:
         root.destroy()
-    except Exception:  # nosec
+    except Exception:
         pass
 
     print("Demo finished.")

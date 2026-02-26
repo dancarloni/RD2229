@@ -387,7 +387,7 @@ class VerificationTableApp(tk.Frame):
                 editor.insert(0, initial_text)
             try:
                 editor.selection_range(0, tk.END)
-            except Exception:  # nosec
+            except Exception:
                 pass
             editor.focus_set()
             # Monkeypatch Combobox.set to record the last value set programmatically.
@@ -400,11 +400,11 @@ class VerificationTableApp(tk.Frame):
                     orig_set(val)
                     try:
                         self._last_editor_value = editor.get()
-                    except Exception:  # nosec
+                    except Exception:
                         pass
 
                 editor.set = _set_and_record  # type: ignore
-            except Exception:  # nosec
+            except Exception:
                 pass
             return editor
         else:
@@ -430,18 +430,18 @@ class VerificationTableApp(tk.Frame):
                 editor.set(value or "")  # type: ignore
             else:
                 editor.insert(0, value)
-        except Exception:  # nosec
+        except Exception:
             pass
         if initial_text:
             try:
                 if hasattr(editor, "delete"):
                     editor.delete(0, tk.END)
                     editor.insert(0, initial_text)
-            except Exception:  # nosec
+            except Exception:
                 pass
         try:
             editor.select_range(0, tk.END)
-        except Exception:  # nosec
+        except Exception:
             pass
         editor.focus_set()
         # Bind common events
@@ -453,7 +453,7 @@ class VerificationTableApp(tk.Frame):
         def _record_key_event(_e=None) -> None:
             try:
                 self._last_editor_value = editor.get()
-            except Exception:  # nosec
+            except Exception:
                 pass
 
         editor.bind("<KeyRelease>", _record_key_event)
@@ -703,9 +703,9 @@ class VerificationTableApp(tk.Frame):
             if hasattr(self.edit_entry, "cget"):
                 try:
                     logger.debug("combobox values: %s", self.edit_entry.cget("values"))
-                except Exception:  # nosec
+                except Exception:
                     pass
-        except Exception:  # nosec
+        except Exception:
             pass
         self.tree.set(self.edit_item, self.edit_column, value)
         logger.debug("Tree value after set: %r", self.tree.set(self.edit_item, self.edit_column))
@@ -917,13 +917,13 @@ class VerificationTableApp(tk.Frame):
     def _set_status(self, text: str) -> None:
         try:
             self._status_var.set(text)
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _clear_status(self, delay_ms: int = 1000) -> None:
         try:
             self.after(delay_ms, lambda: self._status_var.set(""))
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _get_rows_from_tree(self):
@@ -1049,7 +1049,7 @@ class VerificationTableApp(tk.Frame):
         item_id, out = res_tuple
         try:
             self._apply_result_to_item(item_id, out)
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _focus_is_suggestion(self) -> bool:

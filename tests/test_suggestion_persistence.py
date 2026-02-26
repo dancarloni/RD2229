@@ -22,6 +22,7 @@ class TestSuggestionPersistence(unittest.TestCase):
         try:
             self.root.destroy()
         except Exception:
+            # Ignore Tkinter cleanup errors during teardown; root may already be destroyed.
             pass
 
     def test_suggestions_stay_open_until_selection(self):

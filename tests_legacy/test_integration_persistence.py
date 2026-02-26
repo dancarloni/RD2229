@@ -153,7 +153,7 @@ def test_large_dataset():
                 )
             repo1.add_section(section)
             if (i + 1) % 25 == 0:
-                print(f"  ✓ Aggiunte {i + 1}/100 sezioni")
+                print(f"  ✓ Aggiunte {i+1}/100 sezioni")
 
         assert len(repo1.get_all_sections()) == 100, "Sezioni non aggiunte"
         print("  ✓ Tutte 100 sezioni aggiunte e salvate")

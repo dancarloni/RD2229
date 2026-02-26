@@ -22,6 +22,7 @@ class TestSuggestionClickRealistic(unittest.TestCase):
         try:
             self.root.destroy()
         except Exception:
+            # Ignore errors during GUI cleanup; root may not exist if setUp was skipped.
             pass
 
     def test_clicking_suggestion_applies_and_commits(self):

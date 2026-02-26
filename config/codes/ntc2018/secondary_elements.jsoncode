@@ -1,0 +1,12 @@
+{
+  "id": "ntc2018.secondary_elements",
+  "title": "Secondary elements registry (skeleton)",
+  "entries": [
+    {
+      "element_type": "parapet",
+      "checks": ["bending_capacity", "anchor_capacity"],
+      "notes": "TODO: fill with normative check ids and parameter mappings"
+    }
+  ],
+  "TODO": "Populate with canonical check identifiers and parameter mappings"
+}

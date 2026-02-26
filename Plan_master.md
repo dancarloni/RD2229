@@ -34,7 +34,7 @@ Ricostruire completamente il progetto Python esistente riorganizzandolo in una n
 
 La GUI (se e quando sarà presente) NON deve contenere logica di calcolo.
 I calcoli vengono incapsulati nei moduli dedicati.
-Le unità di misura devono rispettare lo standard definito dall'utente:
+Le unità di misura devono rispettare lo standard definito dall'utente: 
 - lunghezze in cm
 - aree in cm^2
 - inerzie in cm^4
@@ -2139,7 +2139,7 @@ FILE: src/report/templates/template.md
 
 # Report di Verifica — Template Markdown
 
-**ATTENZIONE:** questo file è uno STUB S2.
+**ATTENZIONE:** questo file è uno STUB S2.  
 Verrà usato come base da renderer_md.py per generare report reali.
 
 ---
@@ -2900,21 +2900,21 @@ def test_add_and_get_element():
 FILE: README.md
 ============================================================
 
-# Engineering Verification Framework
+# Engineering Verification Framework  
 ### Architettura modulare per verifiche strutturali
 
 Questo progetto implementa un **framework modulare per verifiche strutturali**, completamente ristrutturato secondo l’architettura definita nella OPZIONE A1.
 
 Tutti i moduli sono stati ricreati secondo standard professionali, con:
 
-- Separazione totale tra moduli
-- Nessun calcolo mescolato alla GUI
-- Repository per materiali, elementi, normative
-- Registry per sezioni e area a taglio
-- Resolver centralizzato degli input
-- Pipeline completa: repo → resolver → actions → report
-- Configurazione tramite file YAML
-- Stub S2 pronti per essere ampliati da Copilot Plan
+- Separazione totale tra moduli  
+- Nessun calcolo mescolato alla GUI  
+- Repository per materiali, elementi, normative  
+- Registry per sezioni e area a taglio  
+- Resolver centralizzato degli input  
+- Pipeline completa: repo → resolver → actions → report  
+- Configurazione tramite file YAML  
+- Stub S2 pronti per essere ampliati da Copilot Plan  
 
 Il progetto include:
 
@@ -2936,42 +2936,42 @@ src/
 
 ## 1. Obiettivi del progetto
 
-- Implementare una struttura modulare, estensibile e professionale.
-- Permettere verifiche strutturali in modo scalabile.
-- Integrare normative (NTC2018, EC2, EC8) tramite registry.
-- Generare report HTML/MD (e PDF in futuro).
-- Permettere la creazione di strumenti CLI per automazione.
+- Implementare una struttura modulare, estensibile e professionale.  
+- Permettere verifiche strutturali in modo scalabile.  
+- Integrare normative (NTC2018, EC2, EC8) tramite registry.  
+- Generare report HTML/MD (e PDF in futuro).  
+- Permettere la creazione di strumenti CLI per automazione.  
 
 ---
 
 ## 2. Filosofia del framework
 
-- **Tutto è un modulo**
-- **La GUI non contiene logica tecnica**
+- **Tutto è un modulo**  
+- **La GUI non contiene logica tecnica**  
 - **Unità di misura fisse**:
-  - lunghezze → cm
-  - aree → cm²
-  - inerzie → cm⁴
-  - tensioni → kg/cm²
-  - densità → kg/m³
+  - lunghezze → cm  
+  - aree → cm²  
+  - inerzie → cm⁴  
+  - tensioni → kg/cm²  
+  - densità → kg/m³  
 
-- **Calcoli separati per dominio**:
-  - area a taglio → `calc/`
-  - materiali → `materials/`
-  - elementi → `elements/`
-  - normative → `codes/`
-  - verifiche → `actions/`
-  - report → `report/`
-  - CLI → `tools/`
+- **Calcoli separati per dominio**:  
+  - area a taglio → `calc/`  
+  - materiali → `materials/`  
+  - elementi → `elements/`  
+  - normative → `codes/`  
+  - verifiche → `actions/`  
+  - report → `report/`  
+  - CLI → `tools/`  
 
 ---
 
 ## 3. Principi di sviluppo
 
-- Ogni modulo ha responsabilità singola.
-- Nessun accesso diretto ai file legacy.
-- Tutti i moduli moderni sono testati.
-- La struttura S2 permette a Copilot Plan di ampliare il codice in modo incrementale, senza conflitti.
+- Ogni modulo ha responsabilità singola.  
+- Nessun accesso diretto ai file legacy.  
+- Tutti i moduli moderni sono testati.  
+- La struttura S2 permette a Copilot Plan di ampliare il codice in modo incrementale, senza conflitti.  
 
 ---
 
@@ -2991,10 +2991,10 @@ python src/tools/verify_cli.py
 
 ## 5. Come contribuire allo sviluppo
 
-1. Implementare i TODO nei moduli S2.
-2. Aggiungere test corrispondenti.
-3. Seguire l'architettura esistente.
-4. Tenere la documentazione aggiornata.
+1. Implementare i TODO nei moduli S2.  
+2. Aggiungere test corrispondenti.  
+3. Seguire l'architettura esistente.  
+4. Tenere la documentazione aggiornata.  
 
 ---
 
@@ -3018,8 +3018,8 @@ pytest src/tests
 
 I renderer producono:
 
-- HTML
-- Markdown
+- HTML  
+- Markdown  
 - PDF (stub, verrà completato)
 
 ---
@@ -3032,10 +3032,10 @@ Le configurazioni si trovano in:
 src/config/
 ```
 
-- units.yml
-- numerics.yml
-- app.yml
-- features.yml
+- units.yml  
+- numerics.yml  
+- app.yml  
+- features.yml  
 
 ---
 
@@ -3079,9 +3079,9 @@ Ognuna con `__init__.py`.
 
 Tutti i file nuovi generati sono:
 
-- fortemente commentati
-- contengono docstring complete
-- includono TODO per facilitare l’uso di Copilot Plan
+- fortemente commentati  
+- contengono docstring complete  
+- includono TODO per facilitare l’uso di Copilot Plan  
 
 ---
 
@@ -3101,8 +3101,8 @@ Le fasi di aggiornamento interne verranno gestite dal Plan Agent.
 
 Il sistema è pensato per:
 
-- NON rompere i vecchi moduli
-- poter migrare gradualmente la logica nel package moderno
+- NON rompere i vecchi moduli  
+- poter migrare gradualmente la logica nel package moderno  
 
 ---
 
@@ -3110,10 +3110,10 @@ Il sistema è pensato per:
 
 Utilizza Copilot Plan:
 
-- Fornisci uno dei moduli
-- Segui i TODO
-- Esegui i test
-- Procedi incrementalmente
+- Fornisci uno dei moduli  
+- Segui i TODO  
+- Esegui i test  
+- Procedi incrementalmente  
 
 ---
 
@@ -3121,23 +3121,23 @@ Utilizza Copilot Plan:
 
 ## Versione 0.1.0 — Ristrutturazione completa
 
-- Creazione package `/src/`
-- Creazione `legacy/` con file originali
+- Creazione package `/src/`  
+- Creazione `legacy/` con file originali  
 - Creazione package moderni:
-  - calc/
-  - materials/
-  - elements/
-  - codes/
-  - actions/
-  - report/
-  - config/
-  - tools/
-  - tests/
-- Generazione stub S2 completi
-- Creazione template HTML/MD
-- Creazione CLI e exporter
-- Configurazioni YAML per unità, app, features
-- Test minimi per tutti i moduli
+  - calc/  
+  - materials/  
+  - elements/  
+  - codes/  
+  - actions/  
+  - report/  
+  - config/  
+  - tools/  
+  - tests/  
+- Generazione stub S2 completi  
+- Creazione template HTML/MD  
+- Creazione CLI e exporter  
+- Configurazioni YAML per unità, app, features  
+- Test minimi per tutti i moduli  
 
 ---
 

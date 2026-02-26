@@ -20,7 +20,7 @@ class TestVerificationTableAutocompleteAndEvents(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_copy_and_change_material_with_suggestion(self):

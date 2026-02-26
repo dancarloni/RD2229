@@ -233,7 +233,7 @@ class TestModuleSelectorView:
             assert len(view.flow._children) == 3
             for i, card in enumerate(view.flow._children):
                 assert isinstance(card, tk.LabelFrame)
-                assert card.cget("text") == f"Module {i + 1}"
+                assert card.cget("text") == f"Module {i+1}"
         except Exception:
             pytest.skip("Tkinter not available")
         finally:

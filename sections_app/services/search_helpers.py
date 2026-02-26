@@ -108,7 +108,7 @@ def search_materials(
                         if name not in seen:
                             seen.add(name)
                             results.append(name)
-            except Exception:  # nosec
+            except Exception:
                 # If MaterialRepository is not available or fails, ignore and fall back
                 # to the names list below
                 pass
@@ -141,7 +141,7 @@ def search_materials(
                     if hist_name not in seen:
                         seen.add(hist_name)
                         results.append(hist_name)
-        except Exception:  # nosec
+        except Exception:
             # Historical library not available, ignore
             pass
 
@@ -168,7 +168,7 @@ def search_materials(
                     if hist_type == type_filter and hist_name not in seen:
                         seen.add(hist_name)
                         results.append(hist_name)
-            except Exception:  # nosec
+            except Exception:
                 pass
 
             # If no existing result appears to contain the numeric query, synthesize
@@ -201,7 +201,7 @@ def search_materials(
                     else:
                         filtered_results.append(r)
                 results = filtered_results
-        except Exception:  # nosec
+        except Exception:
             pass
 
         return results[:limit]

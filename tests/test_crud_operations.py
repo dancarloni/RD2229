@@ -118,10 +118,7 @@ class TestUpdateSection:
     def test_update_emits_event(self, repo):
         events = []
         bus = EventBus()
-
-        def handler(*a, **kw):
-            return events.append(kw)
-
+        handler = lambda *a, **kw: events.append(kw)
         bus.subscribe(SECTIONS_UPDATED, handler)
         try:
             sec = RectangularSection("original", 30, 50)
@@ -153,10 +150,7 @@ class TestDeleteSection:
     def test_delete_emits_event(self, repo):
         events = []
         bus = EventBus()
-
-        def handler(*a, **kw):
-            return events.append(kw)
-
+        handler = lambda *a, **kw: events.append(kw)
         bus.subscribe(SECTIONS_DELETED, handler)
         try:
             sec = RectangularSection("test", 30, 50)
