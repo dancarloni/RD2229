@@ -1,0 +1,336 @@
+############################################################
+# BLOCCO 8 / 12
+# PACKAGE: src/report/
+#
+# Contenuto:
+#   - renderer_md.py
+#   - renderer_html.py
+#   - renderer_pdf.py (stub)
+#   - templates/template.md
+#   - templates/template.html
+#
+# Tutti i file sono STUB S2:
+# - Docstring molto dettagliate
+# - Struttura pronta per Copilot Plan
+# - Nessuna implementazione reale del rendering complesso
+############################################################
+
+
+
+============================================================
+FILE: src/report/renderer_md.py
+============================================================
+
+"""
+renderer_md.py
+
+Renderer per generare report in formato **Markdown**.
+
+Funzioni del renderer:
+- Creare report sintetici o estesi sulle verifiche
+- Utilizzare i template MD del progetto (templates/template.md)
+- Inserire:
+    - dati dell’elemento
+    - risultati delle verifiche (ok, non ok, valori parziali)
+    - parametri normativi utilizzati
+    - informazioni geometriche (A_sx, A_sy, area, inerzia)
+- Essere integrato con la pipeline completa del motore di verifica
+
+Questo modulo è uno STUB S2:
+- Struttura completa
+- Docstring molto dettagliate
+- TODO diffusi per permettere a Copilot Plan di completare
+
+Unità di misura da rispettare (nessuna conversione):
+- tensioni: kg/cm^2
+- lunghezze: cm
+- inerzie: cm^4
+- aree: cm^2
+- densità: kg/m^3
+"""
+
+from typing import Dict, Any
+import datetime
+import os
+
+
+class MarkdownReportRenderer:
+    """
+    Renderer per output Markdown.
+
+    Metodo principale:
+        render(data: Dict[str, Any]) -> str
+
+    dove "data" contiene:
+        {
+            "elements": [...],
+            "results": [...],
+            "normative": {...},
+            "settings": {...}
+        }
+
+    TODO Copilot:
+    - Integrare lettura template dal file template.md
+    - Formattare tabelle
+    - Aggiungere sezioni opzionali
+    """
+
+    def __init__(self, template_path: str) -> None:
+        self.template_path = template_path
+
+    def render(self, data: Dict[str, Any]) -> str:
+        """
+        Restituisce una stringa Markdown del report.
+
+        TODO:
+        - Implementare sostituzione placeholder
+        - Generare sezioni dinamiche per elemento e verifiche
+        """
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        output = [
+            f"# Report di Verifica",
+            f"**Generato:** {now}",
+            "",
+            "## Sommario",
+            "- Report generato (stub, implementazione mancante).",
+            "",
+            "## Elementi",
+            "I dettagli degli elementi saranno inseriti qui.",
+            "",
+            "## Risultati",
+            "I risultati delle verifiche saranno inseriti qui.",
+            "",
+            "_(renderer_md.py è uno stub S2)_"
+        ]
+        return "\n".join(output)
+
+
+
+# ======================================================================
+# FINE FILE renderer_md.py
+# ======================================================================
+
+
+
+
+
+============================================================
+FILE: src/report/renderer_html.py
+============================================================
+
+"""
+renderer_html.py
+
+Renderer per generare report in formato **HTML**.
+
+Funzioni previste:
+- Caricare un template HTML (templates/template.html)
+- Inserire contenuti dinamici:
+    - intestazione
+    - dati elementi
+    - risultati verifiche
+- Generare sezioni tabulate
+- Supportare eventuali CSS inline o allegati
+- Integrare riferimenti normativi (da codes/)
+
+Questo è uno STUB S2:
+- Non esegue rendering reale
+- Struttura pronta per Copilot
+"""
+
+from typing import Dict, Any
+import datetime
+import os
+
+
+class HTMLReportRenderer:
+    """
+    Renderer HTML.
+
+    TODO:
+    - Aggiungere supporto CSS
+    - Integrare template engine semplice (string replace)
+    """
+
+    def __init__(self, template_path: str) -> None:
+        self.template_path = template_path
+
+    def render(self, data: Dict[str, Any]) -> str:
+        """
+        Restituisce una stringa HTML completa.
+
+        TODO:
+        - Leggere il file template.html
+        - Inserire tabelle dinamiche
+        - Formattare valori con unità
+        """
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Report di Verifica (stub)</title>
+</head>
+<body>
+    <h1>Report di Verifica</h1>
+    <p><strong>Generato:</strong> {now}</p>
+    <h2>Sommario</h2>
+    <p>Report HTML generato come stub S2.</p>
+    <h2>Elementi</h2>
+    <p>I dettagli degli elementi andranno qui.</p>
+    <h2>Risultati</h2>
+    <p>I risultati delle verifiche andranno qui.</p>
+</body>
+</html>
+"""
+        return html
+
+
+
+# ======================================================================
+# FINE FILE renderer_html.py
+# ======================================================================
+
+
+
+
+
+============================================================
+FILE: src/report/renderer_pdf.py
+============================================================
+
+"""
+renderer_pdf.py
+
+Renderer PDF (STUB).
+
+Questo modulo definisce l'interfaccia per esportare il report
+in formato PDF. L’implementazione reale può essere delegata a:
+
+- ReportLab (raccomandato)
+- WeasyPrint (HTML → PDF)
+- wkhtmltopdf (se disponibile)
+- altre soluzioni basate su template HTML
+
+Tuttavia:
+- Questo file NON deve implementare nulla ora.
+- Serve solo la struttura per future espansioni.
+
+STUB S2:
+- interfaccia render()
+- docstring dettagliata
+"""
+
+from typing import Dict, Any
+
+
+class PDFReportRenderer:
+    """
+    Interfaccia base per generare PDF.
+
+    TODO Copilot:
+    - Integrare un motore PDF
+    - Riallineare stile ai template HTML/MD
+    """
+
+    def __init__(self) -> None:
+        pass
+
+    def render(self, data: Dict[str, Any], output_path: str) -> None:
+        """
+        Genera un PDF in output_path.
+
+        TODO:
+        - Implementare tramite ReportLab o HTML→PDF
+        """
+        raise NotImplementedError("PDF rendering non implementato (stub).")
+
+
+
+# ======================================================================
+# FINE FILE renderer_pdf.py
+# ======================================================================
+
+
+
+
+
+============================================================
+FILE: src/report/templates/template.md
+============================================================
+
+# Report di Verifica — Template Markdown
+
+**ATTENZIONE:** questo file è uno STUB S2.
+Verrà usato come base da renderer_md.py per generare report reali.
+
+---
+
+## Intestazione
+
+- **Data generazione:** {{generation_date}}
+- **Normativa:** {{code_name}}
+- **Versione software:** {{software_version}}
+
+---
+
+## Elementi
+
+{{elements_table}}
+
+---
+
+## Risultati
+
+{{results_table}}
+
+---
+
+## Messaggi
+
+{{messages}}
+
+---
+
+_(File template.md, stub S2)_
+
+
+
+
+============================================================
+FILE: src/report/templates/template.html
+============================================================
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Report di Verifica — Template HTML</title>
+</head>
+
+<body>
+    <h1>Report di Verifica — Template HTML</h1>
+
+    <p><strong>Generato:</strong> {{generation_date}}</p>
+    <p><strong>Normativa:</strong> {{code_name}}</p>
+    <p><strong>Versione software:</strong> {{software_version}}</p>
+
+    <h2>Elementi</h2>
+    {{elements_table}}
+
+    <h2>Risultati</h2>
+    {{results_table}}
+
+    <h2>Messaggi</h2>
+    {{messages}}
+
+    <p><em>File template.html — STUB S2</em></p>
+</body>
+</html>
+
+
+
+############################################################
+# FINE BLOCCO 8 / 12
+############################################################

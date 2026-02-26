@@ -29,22 +29,22 @@
 ```python
 def run_app() -> None:
     configure_logging()
-    
+
     # NEW: Crea e carica i repository
     section_repository = SectionRepository()
     section_repository.load_from_file()  # Esplicito
-    
+
     material_repository = None
     if MaterialRepository is not None:
         material_repository = MaterialRepository()
         material_repository.load_from_file()  # Esplicito
-    
+
     serializer = CsvSectionSerializer()
-    
+
     # NEW: Passa material_repository a ModuleSelectorWindow
     selector = ModuleSelectorWindow(
-        section_repository, 
-        serializer, 
+        section_repository,
+        serializer,
         material_repository  # NEW PARAMETER
     )
     selector.mainloop()
@@ -65,7 +65,7 @@ def __init__(
     material_repository: Optional[MaterialRepository] = None,  # NEW PARAMETER
 ):
     super().__init__()
-    # ... 
+    # ...
     # NEW: Usa il material_repository passato, oppure creane uno
     self.material_repository: MaterialRepository = material_repository or MaterialRepository()
 ```
@@ -185,14 +185,14 @@ Date:   [timestamp]
 
     Aggiunta caricamento esplicito automatico dei repository all'avvio
     - Repository pre-caricati per VerificationTable
-    
+
     Files changed:
     - sections_app/app.py                    (+8 -1)
     - sections_app/ui/module_selector.py     (+5 -1)
     - test_auto_load_startup.py              (new)
     - test_startup_integration.py            (new)
     - CARICAMENTO_AUTOMATICO_STARTUP.md      (new)
-    
+
     Total: 5 files changed, 505 insertions
 ```
 
@@ -230,13 +230,13 @@ Date:   [timestamp]
 
 ## 📞 Contatto
 
-**Repository**: https://github.com/dancarloni/RD2229  
-**Branch**: main  
+**Repository**: https://github.com/dancarloni/RD2229
+**Branch**: main
 **Latest Commit**: bf6db3a
 
 ---
 
 **✅ IMPLEMENTAZIONE COMPLETATA E VERIFICATA**
 
-**Data Completamento**: $(date)  
+**Data Completamento**: $(date)
 **Status**: 🟢 ATTIVO IN PRODUZIONE

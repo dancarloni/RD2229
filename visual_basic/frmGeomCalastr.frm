@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmGeomCalastr 
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmGeomCalastr
    Caption         =   "RINFORZO A TAGLIO CON CAMICIE IN ACCIAIO - ANGOLARI E CALASTRELLI"
    ClientHeight    =   4515
    ClientLeft      =   96

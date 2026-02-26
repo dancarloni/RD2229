@@ -15,11 +15,10 @@ Unità e convenzioni storiche:
     e la normativa storica (RD 2229).
 - Sono comunque presenti funzioni di conversione verso/da MPa se necessario.
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass
 from enum import Enum
-from typing import Tuple
 
 # Conversione: 1 Kg/cm^2 = 0.0980665 MPa
 _KGCM2_TO_MPA = 0.0980665
@@ -128,12 +127,18 @@ def compute_sigma_c_all(
 
     # semplice
     semplice = compute_allowable_compressive_stress(
-        sigma_c28_kgcm2, cement_effective, SectionCondition.SEMPLICEMENTE_COMPRESA, controlled_quality
+        sigma_c28_kgcm2,
+        cement_effective,
+        SectionCondition.SEMPLICEMENTE_COMPRESA,
+        controlled_quality,
     )
 
     # inflessa / presso-inflessa
     inflessa = compute_allowable_compressive_stress(
-        sigma_c28_kgcm2, cement_effective, SectionCondition.INFLESSA_PRESSOINFLESSA, controlled_quality
+        sigma_c28_kgcm2,
+        cement_effective,
+        SectionCondition.INFLESSA_PRESSOINFLESSA,
+        controlled_quality,
     )
 
     return {
@@ -143,7 +148,7 @@ def compute_sigma_c_all(
     }
 
 
-def compute_allowable_shear(cement: CementType = CementType.NORMAL) -> Tuple[float, float]:
+def compute_allowable_shear(cement: CementType = CementType.NORMAL) -> tuple[float, float]:
     """Ritorna una tupla `(service_tau, max_tau)` in Kg/cm².
 
     - `service_tau`: carico di sicurezza al taglio. Valori storici:
@@ -227,4 +232,3 @@ __all__ = [
     "compute_allowable_compressive_stress",
     "compute_allowable_shear",
 ]
-

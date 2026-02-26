@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\historical_materials.py
+# hypothesis_version: 6.151.5
+
+[2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 14.0, 16.0, 35.0, 45.0, 50.0, 120.0, 160.0, 225.0, 1400.0, 1800.0, 2000.0, 2800.0, 3600.0, 4000.0, 200000.0, 250000.0, 300000.0, 330000.0, 2100000.0, ',', '.', '.tmp', ';', 'Acciaio Dolce', 'Acciaio Duro', 'Acciaio Semiduro', 'Code', 'Ec', 'Es', 'HistoricalMaterial', 'Name', 'Notes', 'RD2229_ACC_DOLCE', 'RD2229_ACC_DURO', 'RD2229_ACC_SEMIDURO', 'RD2229_CLS_120_LP', 'RD2229_CLS_120_N', 'RD2229_CLS_160_AL', 'RD2229_CLS_160_AR', 'RD2229_CLS_160_N', 'RD2229_CLS_225_AR', 'RD2229_STAFFA_DOLCE', 'Source', 'Type', 'acc', 'cls', 'code', 'concr', 'concrete', 'fcd', 'fck', 'fctm', 'fyd', 'fyk', 'gamma_c', 'gamma_s', 'id', 'n', 'name', 'notes', 'other', 'r', 'sigma_c', 'sigma_c28', 'sigma_s', 'sigma_sn', 'source', 'steel', 'stirrup_steel', 'tau_c0', 'tau_c1', 'tau_max', 'tau_service', 'type', 'utf-8', 'w']

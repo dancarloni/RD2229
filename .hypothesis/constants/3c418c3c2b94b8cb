@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\sections_app\models\sections.py
+# hypothesis_version: 6.151.5
+
+[0.0, 0.9, 1.0, 5.0, 6.0, 9.0, 10.0, 'A_y', 'A_z', 'CIRCULAR', 'CIRCULAR_HOLLOW', 'C_SECTION', 'I1', 'I2', 'INVERTED_T_SECTION', 'INVERTED_V_SECTION', 'I_SECTION', 'Ix', 'Ixy', 'Iy', 'L_SECTION', 'PI_SECTION', 'Qx', 'Qy', 'RECTANGULAR', 'RECTANGULAR_HOLLOW', 'T_SECTION', 'V_SECTION', 'area', 'centroid_x', 'centroid_y', 'core_x', 'core_y', 'diameter', 'dimensions', 'ellipse_a', 'ellipse_b', 'flange_thickness', 'flange_width', 'height', 'id', 'ix', 'ixy', 'iy', 'kappa_y', 'kappa_z', 'name', 'note', 'outer_diameter', 'principal_angle_deg', 'principal_ix', 'principal_iy', 'principal_rx', 'principal_ry', 'qx', 'qy', 'rotation_angle_deg', 'rx', 'ry', 'section_type', 'shear_area_y', 'shear_area_z', 'shear_factor_y', 'shear_factor_z', 't_horizontal', 't_vertical', 'thickness', 'web_height', 'web_thickness', 'width', 'x_G', 'y_G']

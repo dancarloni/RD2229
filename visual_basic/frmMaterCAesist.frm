@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmMaterCAesist 
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmMaterCAesist
    Caption         =   "INCAMICIATURA IN C.A. - ACCIAIO ESISTENTE"
    ClientHeight    =   3360
    ClientLeft      =   96

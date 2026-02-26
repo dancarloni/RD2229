@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import pi
-from typing import List, Tuple, Optional
 
 # This module corresponds to VB routines: DatiSezioneCA, CalcoloAreaMomStaticiMomInerziaSezReagente,
 # SezioneParzializzata (support functions) and CoordBaricentriTondini.
 # The functions here are pure and operate on provided data structures (no Excel interaction).
 
-Point = Tuple[float, float]  # (y, z)
-Bar = Tuple[float, float, float]  # (y, z, diameter)
+Point = tuple[float, float]  # (y, z)
+Bar = tuple[float, float, float]  # (y, z, diameter)
+
 
 @dataclass
 class SectionGeometry:
-    """Section geometry data.
+    """Section carbon_fiber_placeholder data.
 
     Units:
       - coordinates y,z: [cm]
@@ -21,10 +21,12 @@ class SectionGeometry:
       - bars: list of tuples (y [cm], z [cm], diameter [cm])
       - n_homog: float, Es/Ec (dimensionless)
     """
+
     # polygons: list of polygon rings (outer followed by holes if any); each polygon is list of (y,z)
-    polygons: List[List[Point]]
-    bars: List[Bar]
+    polygons: list[list[Point]]
+    bars: list[Bar]
     n_homog: float = 1.0  # n = Es/Ec (homogenization coefficient)
+
 
 @dataclass
 class SectionProperties:
@@ -36,9 +38,9 @@ class SectionProperties:
     Iz: float
     Iyz: float
     # internal raw values for transparency
-    A_contrib: Optional[float] = None
-    Sy: Optional[float] = None
-    Sz: Optional[float] = None
+    A_contrib: float | None = None
+    Sy: float | None = None
+    Sz: float | None = None
 
     """Units:
       - area_concrete, area_equivalent: [cm^2]
@@ -46,22 +48,8 @@ class SectionProperties:
       - Iy, Iz, Iyz: [cm^4]
     """
 
-@dataclass
-class SectionProperties:
-    area_concrete: float
-    area_equivalent: float
-    yG: float
-    zG: float
-    Iy: float
-    Iz: float
-    Iyz: float
-    # internal raw values for transparency
-    A_contrib: Optional[float] = None
-    Sy: Optional[float] = None
-    Sz: Optional[float] = None
 
-
-def _polygon_area_centroid_inertia(polygon: List[Point]):
+def _polygon_area_centroid_inertia(polygon: list[Point]):
     """Compute area, centroid (y,z) and second moments for a single polygon ring about origin.
 
     Uses standard polygon formulas. Returns (A, y_c, z_c, Iy, Iz, Iyz) where Iy is integral y^2 dA etc.
@@ -103,7 +91,7 @@ def _polygon_area_centroid_inertia(polygon: List[Point]):
 
 
 def compute_section_properties(geom: SectionGeometry) -> SectionProperties:
-    """Translate VB: DatiSezioneCA + CalcoloAreaMomStaticiMomInerziaSezReagente
+    """Translate VB: DatiSezioneCA + CalcoloAreaMomStaticiMomInerziaSezReagente.
 
     Given a `SectionGeometry` with polygon rings and bars, compute:
       - Asez (concrete area)
@@ -134,12 +122,12 @@ def compute_section_properties(geom: SectionGeometry) -> SectionProperties:
     # bars contributions (converted area = n * A_bar)
     Aft = 0.0
     for yb, zb, d in geom.bars:
-        Abar = pi * (d ** 2) / 4.0
+        Abar = pi * (d**2) / 4.0
         Aft += Abar
         Sy_pr += geom.n_homog * Abar * yb
         Sz_pr += geom.n_homog * Abar * zb
-        Iy_pr += geom.n_homog * Abar * (zb ** 2)
-        Iz_pr += geom.n_homog * Abar * (yb ** 2)
+        Iy_pr += geom.n_homog * Abar * (zb**2)
+        Iz_pr += geom.n_homog * Abar * (yb**2)
         Iyz_pr += geom.n_homog * Abar * (yb * zb)
 
     # Equivalent area
@@ -153,8 +141,8 @@ def compute_section_properties(geom: SectionGeometry) -> SectionProperties:
         zG = Sz_pr / Aci
 
     # Steiner: convert second moments from reference origin to axes through centroid G
-    Iy = Iy_pr - Aci * (yG ** 2)
-    Iz = Iz_pr - Aci * (zG ** 2)
+    Iy = Iy_pr - Aci * (yG**2)
+    Iz = Iz_pr - Aci * (zG**2)
     Iyz = Iyz_pr - Aci * yG * zG
 
     return SectionProperties(

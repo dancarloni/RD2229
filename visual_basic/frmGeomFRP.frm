@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmGeomFRP 
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmGeomFRP
    Caption         =   "GEOMETRIA COMPOSITO FRP"
    ClientHeight    =   8460.001
    ClientLeft      =   96

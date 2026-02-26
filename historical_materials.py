@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
-from enum import Enum
 import json
 import logging
+from dataclasses import asdict, dataclass
+from enum import StrEnum
 from pathlib import Path
-from typing import List, Optional
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
 
-class HistoricalMaterialType(str, Enum):
+class HistoricalMaterialType(StrEnum):
     CONCRETE = "concrete"
     STEEL = "steel"
     STIRRUP_STEEL = "stirrup_steel"
@@ -49,39 +48,40 @@ class HistoricalMaterial:
 
     Tutte le unità in kg/cm² (storico).
     """
+
     id: str
-    name: str                # es. "CLS R 160 (RD 2229/39)"
-    code: str                # es. "RD2229_R160"
-    source: str              # es. "RD 2229/39", "ReLUIS STIL", ecc.
+    name: str  # es. "CLS R 160 (RD 2229/39)"
+    code: str  # es. "RD2229_R160"
+    source: str  # es. "RD 2229/39", "ReLUIS STIL", ecc.
     type: HistoricalMaterialType
 
     # ============================================================
     # CALCESTRUZZO - Proprietà meccaniche [kg/cm²]
     # ============================================================
     # Notazione moderna | Alias storico RD 2229/39
-    fck: Optional[float] = None      # resistenza caratteristica = σ_c,28 (cubica 28 gg)
-    fcd: Optional[float] = None      # resistenza di calcolo = σ_c (tensione ammissibile)
-    fctm: Optional[float] = None     # trazione media [kg/cm²]
-    Ec: Optional[float] = None       # modulo elastico cls = E_c [kg/cm²]
+    fck: float | None = None  # resistenza caratteristica = σ_c,28 (cubica 28 gg)
+    fcd: float | None = None  # resistenza di calcolo = σ_c (tensione ammissibile)
+    fctm: float | None = None  # trazione media [kg/cm²]
+    Ec: float | None = None  # modulo elastico cls = E_c [kg/cm²]
 
     # Campi specifici RD 2229/39 per calcestruzzo
-    tau_c0: Optional[float] = None   # τ_c0: taglio di servizio [kg/cm²]
-    tau_c1: Optional[float] = None   # τ_c1: taglio massimo [kg/cm²]
-    n: Optional[float] = None        # coefficiente di omogeneizzazione (Es/Ec)
+    tau_c0: float | None = None  # τ_c0: taglio di servizio [kg/cm²]
+    tau_c1: float | None = None  # τ_c1: taglio massimo [kg/cm²]
+    n: float | None = None  # coefficiente di omogeneizzazione (Es/Ec)
 
     # ============================================================
     # ACCIAIO - Proprietà meccaniche [kg/cm²]
     # ============================================================
     # Notazione moderna | Alias storico RD 2229/39
-    fyk: Optional[float] = None      # snervamento = σ_sn (tensione di snervamento)
-    fyd: Optional[float] = None      # resistenza di calcolo = σ_s (tensione ammissibile)
-    Es: Optional[float] = None       # modulo acciaio = E_s [kg/cm²]
+    fyk: float | None = None  # snervamento = σ_sn (tensione di snervamento)
+    fyd: float | None = None  # resistenza di calcolo = σ_s (tensione ammissibile)
+    Es: float | None = None  # modulo acciaio = E_s [kg/cm²]
 
     # ============================================================
     # Coefficienti di sicurezza (rapporto resistenza/ammissibile)
     # ============================================================
-    gamma_c: Optional[float] = None  # cls: tipicamente ≈ 3 (fck/fcd)
-    gamma_s: Optional[float] = None  # acciaio: tipicamente = 2 (fyk/fyd)
+    gamma_c: float | None = None  # cls: tipicamente ≈ 3 (fck/fcd)
+    gamma_s: float | None = None  # acciaio: tipicamente = 2 (fyk/fyd)
 
     notes: str = ""
 
@@ -91,33 +91,33 @@ class HistoricalMaterial:
 
     # --- Calcestruzzo ---
     @property
-    def sigma_c28(self) -> Optional[float]:
+    def sigma_c28(self) -> float | None:
         """σ_c,28: Resistenza cubica a rottura a 28 giorni [kg/cm²] (alias di fck)."""
         return self.fck
 
     @property
-    def sigma_c(self) -> Optional[float]:
+    def sigma_c(self) -> float | None:
         """σ_c: Tensione ammissibile del calcestruzzo [kg/cm²] (alias di fcd)."""
         return self.fcd
 
     @property
-    def tau_service(self) -> Optional[float]:
+    def tau_service(self) -> float | None:
         """τ_c0: Tensione tangenziale di servizio [kg/cm²] (alias di tau_c0)."""
         return self.tau_c0
 
     @property
-    def tau_max(self) -> Optional[float]:
+    def tau_max(self) -> float | None:
         """τ_c1: Tensione tangenziale massima [kg/cm²] (alias di tau_c1)."""
         return self.tau_c1
 
     # --- Acciaio ---
     @property
-    def sigma_sn(self) -> Optional[float]:
+    def sigma_sn(self) -> float | None:
         """σ_sn: Tensione di snervamento acciaio [kg/cm²] (alias di fyk)."""
         return self.fyk
 
     @property
-    def sigma_s(self) -> Optional[float]:
+    def sigma_s(self) -> float | None:
         """σ_s: Tensione ammissibile dell'acciaio [kg/cm²] (alias di fyd)."""
         return self.fyd
 
@@ -131,13 +131,13 @@ class HistoricalMaterial:
         d["type"] = self.type.value if isinstance(self.type, HistoricalMaterialType) else self.type
         # Aggiungi alias storici per retrocompatibilità e chiarezza
         d["sigma_c28"] = self.sigma_c28  # alias fck
-        d["sigma_c"] = self.sigma_c      # alias fcd
-        d["sigma_sn"] = self.sigma_sn    # alias fyk
-        d["sigma_s"] = self.sigma_s      # alias fyd
+        d["sigma_c"] = self.sigma_c  # alias fcd
+        d["sigma_sn"] = self.sigma_sn  # alias fyk
+        d["sigma_s"] = self.sigma_s  # alias fyd
         return d
 
     @staticmethod
-    def from_dict(d: dict) -> "HistoricalMaterial":
+    def from_dict(d: dict) -> HistoricalMaterial:
         """Deserializza da dizionario, accettando sia notazione moderna che storica."""
         # Supporta sia notazione moderna (fck, fcd) che storica (sigma_c28, sigma_c)
         fck = d.get("fck") or d.get("sigma_c28")
@@ -175,7 +175,7 @@ class HistoricalMaterialLibrary:
 
     def __init__(self, path: str | Path | None = None):
         self._file_path = Path(path or "historical_materials.json")
-        self._materials: List[HistoricalMaterial] = []
+        self._materials: list[HistoricalMaterial] = []
         # Ensure a sensible default set of historical materials exists on first use
         # (populated with example values and TODO notes for the user to replace with
         # authoritative values from RD 2229/39 or external datasets like ReLUIS/STIL)
@@ -185,14 +185,13 @@ class HistoricalMaterialLibrary:
         # read into self._materials for immediate use by search functions.
         try:
             self.load_from_file()
-        except Exception:
+        except Exception:  # nosec
             # If loading fails, _ensure_default_materials will have created defaults
             # and save_to_file will have written them; ignore errors here.
             pass
 
     def _ensure_default_materials(self) -> None:
-        """
-        Populate the library with a small set of example historical materials
+        """Populate the library with a small set of example historical materials
         if the JSON file does not exist or is empty. The numeric values are
         illustrative; a developer or user should replace them with exact values
         from RD 2229/39 or other historical datasets.
@@ -206,12 +205,15 @@ class HistoricalMaterialLibrary:
                     return
             except Exception:
                 # If the file exists but is not readable/valid JSON, we'll overwrite it
-                logger.warning("Existing historical materials file %s unreadable: will recreate defaults", self._file_path)
+                logger.warning(
+                    "Existing historical materials file %s unreadable: will recreate defaults",
+                    self._file_path,
+                )
 
         # Materiali base secondo RD 2229/39 (Regio Decreto 16 novembre 1939)
         # Valori tratti direttamente dalla normativa storica
         # Unità: tutte le tensioni in kg/cm²
-        examples: List[HistoricalMaterial] = []
+        examples: list[HistoricalMaterial] = []
 
         # ============================================================
         # CALCESTRUZZI - RD 2229/39
@@ -226,15 +228,15 @@ class HistoricalMaterialLibrary:
                 name="CLS R120 Cemento Normale",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.CONCRETE,
-                fck=120.0,      # σ_c,28: resistenza cubica minima a 28 gg [kg/cm²]
-                fcd=35.0,       # σ_c: tensione ammissibile sez. sempl. compresse [kg/cm²]
-                fctm=None,      # non specificato nel RD
-                Ec=250000.0,    # E_c: modulo elastico convenzionale [kg/cm²]
-                tau_c0=4.0,     # τ_c0: taglio di servizio [kg/cm²]
-                tau_c1=14.0,    # τ_c1: taglio massimo [kg/cm²]
-                n=10.0,         # coefficiente di omogeneizzazione Es/Ec
-                gamma_c=3.0,    # rapporto σ_c28/σ_c ≈ 3
-                notes="Cemento Portland normale (idraulico, alto forno, pozzolanico)"
+                fck=120.0,  # σ_c,28: resistenza cubica minima a 28 gg [kg/cm²]
+                fcd=35.0,  # σ_c: tensione ammissibile sez. sempl. compresse [kg/cm²]
+                fctm=None,  # non specificato nel RD
+                Ec=250000.0,  # E_c: modulo elastico convenzionale [kg/cm²]
+                tau_c0=4.0,  # τ_c0: taglio di servizio [kg/cm²]
+                tau_c1=14.0,  # τ_c1: taglio massimo [kg/cm²]
+                n=10.0,  # coefficiente di omogeneizzazione Es/Ec
+                gamma_c=3.0,  # rapporto σ_c28/σ_c ≈ 3
+                notes="Cemento Portland normale (idraulico, alto forno, pozzolanico)",
             )
         )
 
@@ -246,15 +248,15 @@ class HistoricalMaterialLibrary:
                 name="CLS R160 Cemento Normale",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.CONCRETE,
-                fck=160.0,      # σ_c,28: resistenza cubica a 28 gg [kg/cm²]
-                fcd=35.0,       # σ_c: tensione ammissibile sez. sempl. compresse [kg/cm²]
+                fck=160.0,  # σ_c,28: resistenza cubica a 28 gg [kg/cm²]
+                fcd=35.0,  # σ_c: tensione ammissibile sez. sempl. compresse [kg/cm²]
                 fctm=None,
-                Ec=250000.0,    # E_c: modulo elastico convenzionale [kg/cm²]
-                tau_c0=4.0,     # τ_c0: taglio di servizio [kg/cm²]
-                tau_c1=14.0,    # τ_c1: taglio massimo [kg/cm²]
-                n=10.0,         # coefficiente di omogeneizzazione Es/Ec
+                Ec=250000.0,  # E_c: modulo elastico convenzionale [kg/cm²]
+                tau_c0=4.0,  # τ_c0: taglio di servizio [kg/cm²]
+                tau_c1=14.0,  # τ_c1: taglio massimo [kg/cm²]
+                n=10.0,  # coefficiente di omogeneizzazione Es/Ec
                 gamma_c=3.0,
-                notes="Cemento Portland normale R160. Richiesto per acciaio dolce σ_s=1400 kg/cm²"
+                notes="Cemento Portland normale R160. Richiesto per acciaio dolce σ_s=1400 kg/cm²",
             )
         )
 
@@ -266,15 +268,17 @@ class HistoricalMaterialLibrary:
                 name="CLS R160 Cemento Alta Resistenza",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.CONCRETE,
-                fck=160.0,      # σ_c,28: resistenza cubica minima a 28 gg [kg/cm²]
-                fcd=45.0,       # σ_c: tensione ammissibile sez. sempl. compresse [kg/cm²]
+                fck=160.0,  # σ_c,28: resistenza cubica minima a 28 gg [kg/cm²]
+                fcd=45.0,  # σ_c: tensione ammissibile sez. sempl. compresse [kg/cm²]
                 fctm=None,
-                Ec=300000.0,    # E_c: modulo elastico convenzionale [kg/cm²]
-                tau_c0=6.0,     # τ_c0: taglio di servizio [kg/cm²]
-                tau_c1=16.0,    # τ_c1: taglio massimo [kg/cm²]
-                n=8.0,          # coefficiente di omogeneizzazione Es/Ec
+                Ec=300000.0,  # E_c: modulo elastico convenzionale [kg/cm²]
+                tau_c0=6.0,  # τ_c0: taglio di servizio [kg/cm²]
+                tau_c1=16.0,  # τ_c1: taglio massimo [kg/cm²]
+                n=8.0,  # coefficiente di omogeneizzazione Es/Ec
                 gamma_c=3.0,
-                notes="Cemento ad alta resistenza. Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²"
+                notes=(
+                    "Cemento ad alta resistenza. Richiesto per acciaio semiduro σ_s=1600-1800 kg/cm²"
+                ),
             )
         )
 
@@ -286,15 +290,15 @@ class HistoricalMaterialLibrary:
                 name="CLS R225 Cemento Alta Resistenza",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.CONCRETE,
-                fck=225.0,      # σ_c,28: resistenza cubica a 28 gg [kg/cm²]
-                fcd=50.0,       # σ_c: tensione ammissibile sez. inflesse [kg/cm²]
+                fck=225.0,  # σ_c,28: resistenza cubica a 28 gg [kg/cm²]
+                fcd=50.0,  # σ_c: tensione ammissibile sez. inflesse [kg/cm²]
                 fctm=None,
-                Ec=300000.0,    # E_c: modulo elastico convenzionale [kg/cm²]
-                tau_c0=6.0,     # τ_c0: taglio di servizio [kg/cm²]
-                tau_c1=16.0,    # τ_c1: taglio massimo [kg/cm²]
-                n=8.0,          # coefficiente di omogeneizzazione Es/Ec
+                Ec=300000.0,  # E_c: modulo elastico convenzionale [kg/cm²]
+                tau_c0=6.0,  # τ_c0: taglio di servizio [kg/cm²]
+                tau_c1=16.0,  # τ_c1: taglio massimo [kg/cm²]
+                n=8.0,  # coefficiente di omogeneizzazione Es/Ec
                 gamma_c=3.0,
-                notes="Cemento ad alta resistenza R225. Richiesto per acciaio duro σ_s=2000 kg/cm²"
+                notes="Cemento ad alta resistenza R225. Richiesto per acciaio duro σ_s=2000 kg/cm²",
             )
         )
 
@@ -306,15 +310,15 @@ class HistoricalMaterialLibrary:
                 name="CLS R160 Cemento Alluminoso",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.CONCRETE,
-                fck=160.0,      # σ_c,28: resistenza cubica minima a 28 gg [kg/cm²]
-                fcd=45.0,       # σ_c: tensione ammissibile sez. sempl. compresse [kg/cm²]
+                fck=160.0,  # σ_c,28: resistenza cubica minima a 28 gg [kg/cm²]
+                fcd=45.0,  # σ_c: tensione ammissibile sez. sempl. compresse [kg/cm²]
                 fctm=None,
-                Ec=330000.0,    # E_c: modulo elastico convenzionale [kg/cm²]
-                tau_c0=6.0,     # τ_c0: taglio di servizio [kg/cm²]
-                tau_c1=16.0,    # τ_c1: taglio massimo [kg/cm²]
-                n=6.0,          # coefficiente di omogeneizzazione Es/Ec
+                Ec=330000.0,  # E_c: modulo elastico convenzionale [kg/cm²]
+                tau_c0=6.0,  # τ_c0: taglio di servizio [kg/cm²]
+                tau_c1=16.0,  # τ_c1: taglio massimo [kg/cm²]
+                n=6.0,  # coefficiente di omogeneizzazione Es/Ec
                 gamma_c=3.0,
-                notes="Cemento alluminoso. Rapida presa e alta resistenza iniziale"
+                notes="Cemento alluminoso. Rapida presa e alta resistenza iniziale",
             )
         )
 
@@ -326,15 +330,15 @@ class HistoricalMaterialLibrary:
                 name="CLS R120 Cemento Lenta Presa",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.CONCRETE,
-                fck=120.0,      # σ_c,28: resistenza cubica minima a 28 gg [kg/cm²]
-                fcd=35.0,       # σ_c: tensione ammissibile [kg/cm²]
+                fck=120.0,  # σ_c,28: resistenza cubica minima a 28 gg [kg/cm²]
+                fcd=35.0,  # σ_c: tensione ammissibile [kg/cm²]
                 fctm=None,
-                Ec=200000.0,    # E_c: modulo elastico convenzionale [kg/cm²]
-                tau_c0=6.0,     # τ_c0: taglio di servizio [kg/cm²]
-                tau_c1=16.0,    # τ_c1: taglio massimo [kg/cm²]
-                n=10.0,         # coefficiente di omogeneizzazione Es/Ec
+                Ec=200000.0,  # E_c: modulo elastico convenzionale [kg/cm²]
+                tau_c0=6.0,  # τ_c0: taglio di servizio [kg/cm²]
+                tau_c1=16.0,  # τ_c1: taglio massimo [kg/cm²]
+                n=10.0,  # coefficiente di omogeneizzazione Es/Ec
                 gamma_c=3.0,
-                notes="Cemento a lenta presa. Modulo ridotto E_c=200000 kg/cm²"
+                notes="Cemento a lenta presa. Modulo ridotto E_c=200000 kg/cm²",
             )
         )
 
@@ -350,12 +354,12 @@ class HistoricalMaterialLibrary:
                 name="Acciaio Dolce",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.STEEL,
-                fyk=2800.0,     # σ_sn: tensione di snervamento [kg/cm²]
-                fyd=1400.0,     # σ_s: tensione ammissibile a trazione [kg/cm²]
-                Es=2100000.0,   # E_s: modulo elastico acciaio [kg/cm²]
-                gamma_s=2.0,    # rapporto σ_sn/σ_s = 2
+                fyk=2800.0,  # σ_sn: tensione di snervamento [kg/cm²]
+                fyd=1400.0,  # σ_s: tensione ammissibile a trazione [kg/cm²]
+                Es=2100000.0,  # E_s: modulo elastico acciaio [kg/cm²]
+                gamma_s=2.0,  # rapporto σ_sn/σ_s = 2
                 notes="Acciaio dolce liscio. Richiede CLS con σ_c,28≥160 kg/cm². "
-                      "σ_s ≤ σ_sn/2 (non deve superare metà carico snervamento)"
+                "σ_s ≤ σ_sn/2 (non deve superare metà carico snervamento)",
             )
         )
 
@@ -367,12 +371,12 @@ class HistoricalMaterialLibrary:
                 name="Acciaio Semiduro",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.STEEL,
-                fyk=3600.0,     # σ_sn: tensione di snervamento tipica [kg/cm²]
-                fyd=1800.0,     # σ_s: tensione ammissibile (sez. rettangolari) [kg/cm²]
-                Es=2100000.0,   # E_s: modulo elastico acciaio [kg/cm²]
-                gamma_s=2.0,    # rapporto σ_sn/σ_s = 2
+                fyk=3600.0,  # σ_sn: tensione di snervamento tipica [kg/cm²]
+                fyd=1800.0,  # σ_s: tensione ammissibile (sez. rettangolari) [kg/cm²]
+                Es=2100000.0,  # E_s: modulo elastico acciaio [kg/cm²]
+                gamma_s=2.0,  # rapporto σ_sn/σ_s = 2
                 notes="Acciaio semiduro. Richiede CLS alta resistenza σ_c,28≥160 kg/cm². "
-                      "σ_s = 1600 kg/cm² (sez. T) o 1800 kg/cm² (sez. rett.)"
+                "σ_s = 1600 kg/cm² (sez. T) o 1800 kg/cm² (sez. rett.)",
             )
         )
 
@@ -384,12 +388,12 @@ class HistoricalMaterialLibrary:
                 name="Acciaio Duro",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.STEEL,
-                fyk=4000.0,     # σ_sn: tensione di snervamento tipica [kg/cm²]
-                fyd=2000.0,     # σ_s: tensione ammissibile massima [kg/cm²]
-                Es=2100000.0,   # E_s: modulo elastico acciaio [kg/cm²]
-                gamma_s=2.0,    # rapporto σ_sn/σ_s = 2
+                fyk=4000.0,  # σ_sn: tensione di snervamento tipica [kg/cm²]
+                fyd=2000.0,  # σ_s: tensione ammissibile massima [kg/cm²]
+                Es=2100000.0,  # E_s: modulo elastico acciaio [kg/cm²]
+                gamma_s=2.0,  # rapporto σ_sn/σ_s = 2
                 notes="Acciaio duro. Richiede CLS alta resistenza σ_c,28≥225 kg/cm². "
-                      "σ_s = 1800 kg/cm² (sez. T) o 2000 kg/cm² (sez. rett.)"
+                "σ_s = 1800 kg/cm² (sez. T) o 2000 kg/cm² (sez. rett.)",
             )
         )
 
@@ -405,11 +409,11 @@ class HistoricalMaterialLibrary:
                 name="Acciaio Dolce per Staffe",
                 source="RD 16/11/1939 n. 2229",
                 type=HistoricalMaterialType.STIRRUP_STEEL,
-                fyk=2800.0,     # σ_sn: tensione di snervamento [kg/cm²]
-                fyd=1400.0,     # σ_s: tensione ammissibile [kg/cm²]
-                Es=2100000.0,   # E_s: modulo elastico acciaio [kg/cm²]
-                gamma_s=2.0,    # rapporto σ_sn/σ_s = 2
-                notes="Acciaio dolce per staffe e legature. Tondo liscio φ6-φ10 tipici"
+                fyk=2800.0,  # σ_sn: tensione di snervamento [kg/cm²]
+                fyd=1400.0,  # σ_s: tensione ammissibile [kg/cm²]
+                Es=2100000.0,  # E_s: modulo elastico acciaio [kg/cm²]
+                gamma_s=2.0,  # rapporto σ_sn/σ_s = 2
+                notes="Acciaio dolce per staffe e legature. Tondo liscio φ6-φ10 tipici",
             )
         )
 
@@ -418,9 +422,14 @@ class HistoricalMaterialLibrary:
             self._materials.extend(examples)
             try:
                 self.save_to_file()
-                logger.info("Populated historical materials with default examples: %s", self._file_path)
+                logger.info(
+                    "Populated historical materials with default examples: %s", self._file_path
+                )
             except Exception:
-                logger.exception("Failed to save default historical materials to %s", self._file_path)
+                logger.exception(
+                    "Failed to save default historical materials to %s", self._file_path
+                )
+
     def load_from_file(self) -> None:
         self._materials.clear()
         if not self._file_path.exists():
@@ -431,7 +440,9 @@ class HistoricalMaterialLibrary:
             with self._file_path.open("r", encoding="utf-8") as f:
                 raw = json.load(f)
             if not isinstance(raw, list):
-                logger.warning("Historical materials file %s does not contain a list", self._file_path)
+                logger.warning(
+                    "Historical materials file %s does not contain a list", self._file_path
+                )
                 # Replace with defaults
                 self._ensure_default_materials()
                 return
@@ -451,7 +462,7 @@ class HistoricalMaterialLibrary:
 
     def save_to_file(self) -> None:
         try:
-            if self._file_path.parent.exists() is False and str(self._file_path.parent) != '.':
+            if self._file_path.parent.exists() is False and str(self._file_path.parent) != ".":
                 self._file_path.parent.mkdir(parents=True, exist_ok=True)
             tmp = self._file_path.with_suffix(self._file_path.suffix + ".tmp")
             with tmp.open("w", encoding="utf-8") as f:
@@ -460,7 +471,7 @@ class HistoricalMaterialLibrary:
         except Exception:
             logger.exception("Error saving historical materials to %s", self._file_path)
 
-    def get_all(self) -> List[HistoricalMaterial]:
+    def get_all(self) -> list[HistoricalMaterial]:
         return list(self._materials)
 
     def add(self, material: HistoricalMaterial) -> None:
@@ -471,15 +482,14 @@ class HistoricalMaterialLibrary:
         self._materials.append(material)
         self.save_to_file()
 
-    def find_by_code(self, code: str) -> Optional[HistoricalMaterial]:
+    def find_by_code(self, code: str) -> HistoricalMaterial | None:
         for m in self._materials:
             if m.code == code:
                 return m
         return None
 
     def import_from_csv(self, file_path: str | Path, delimiter: str = ";") -> int:
-        """
-        Importa materiali storici da un CSV.
+        """Importa materiali storici da un CSV.
         - Ogni riga -> un HistoricalMaterial.
         - Se esiste già un materiale con stesso 'code', aggiornalo.
         - Altrimenti aggiungilo.
@@ -516,7 +526,11 @@ class HistoricalMaterialLibrary:
 
                         type_raw = (row.get("type") or row.get("Type") or "").strip().lower()
                         try:
-                            mtype = HistoricalMaterialType(type_raw) if type_raw else HistoricalMaterialType.OTHER
+                            mtype = (
+                                HistoricalMaterialType(type_raw)
+                                if type_raw
+                                else HistoricalMaterialType.OTHER
+                            )
                         except Exception:
                             # tolerant mapping
                             if "concr" in type_raw or "cls" in type_raw:
@@ -526,14 +540,16 @@ class HistoricalMaterialLibrary:
                             else:
                                 mtype = HistoricalMaterialType.OTHER
 
-                        def _num(field: str):
-                            v = (row.get(field) or "").strip()
+                        def _num(field: str, row_data: dict, row_idx: int):
+                            v = (row_data.get(field) or "").strip()
                             if v == "":
                                 return None
                             try:
                                 return float(v.replace(",", "."))
                             except Exception:
-                                logger.warning("CSV row %s: invalid numeric for %s: %r", idx, field, v)
+                                logger.warning(
+                                    "CSV row %s: invalid numeric for %s: %r", row_idx, field, v
+                                )
                                 return None
 
                         hist = HistoricalMaterial(
@@ -542,15 +558,15 @@ class HistoricalMaterialLibrary:
                             name=name,
                             source=source,
                             type=mtype,
-                            fck=_num("fck"),
-                            fcd=_num("fcd"),
-                            fctm=_num("fctm"),
-                            Ec=_num("Ec"),
-                            fyk=_num("fyk"),
-                            fyd=_num("fyd"),
-                            Es=_num("Es"),
-                            gamma_c=_num("gamma_c"),
-                            gamma_s=_num("gamma_s"),
+                            fck=_num("fck", row, idx),
+                            fcd=_num("fcd", row, idx),
+                            fctm=_num("fctm", row, idx),
+                            Ec=_num("Ec", row, idx),
+                            fyk=_num("fyk", row, idx),
+                            fyd=_num("fyd", row, idx),
+                            Es=_num("Es", row, idx),
+                            gamma_c=_num("gamma_c", row, idx),
+                            gamma_s=_num("gamma_s", row, idx),
                             notes=(row.get("notes") or row.get("Notes") or "").strip(),
                         )
 

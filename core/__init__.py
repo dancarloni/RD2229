@@ -1,33 +1,7 @@
-"""Moduli core di calcolo."""
+# Compatibility shim: re-export core.* from src.core_calculus
+from importlib import import_module as _im
 
-from .materials import Concrete, Steel, Material
-from .geometry import (
-    SectionGeometry,
-    RectangularSection,
-    CircularSection,
-    TSection,
-    LSection,
-    ISection,
-)
-from .reinforcement import RebarLayer, Stirrups, SectionReinforcement
-from .section_properties import SectionProperties, compute_section_properties
-from .interpolation import linear_interpolate
-
-__all__ = [
-    "Material",
-    "Concrete",
-    "Steel",
-    "SectionGeometry",
-    "RectangularSection",
-    "CircularSection",
-    "TSection",
-    "LSection",
-    "ISection",
-    "RebarLayer",
-    "Stirrups",
-    "SectionReinforcement",
-    "SectionProperties",
-    "compute_section_properties",
-    "linear_interpolate",
-]
-
+_mod = _im("src.core_calculus.core")
+for _name, _val in vars(_mod).items():
+    if not _name.startswith("_"):
+        globals()[_name] = _val

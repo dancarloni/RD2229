@@ -1,0 +1,12 @@
+{
+  "name": "RD2229 Devcontainer",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "extensions": [
+    "ms-python.python",
+    "ms-vscode-remote.remote-containers"
+  ],
+  "postCreateCommand": "pip install -r requirements-dev.txt",
+  "settings": {
+    "python.defaultInterpreterPath": "/usr/local/bin/python"
+  }
+}

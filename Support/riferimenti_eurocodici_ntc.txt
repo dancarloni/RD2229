@@ -1,0 +1,39 @@
+RIFERIMENTI EUROCODICI E STRUTTURE ESISTENTI
+
+1. Assessment of Existing Concrete Structures Under Second‑Generation Eurocode 2
+https://structurescentre.com/assessment-of-existing-concrete-structures-under-second-generation-eurocode-2/
+
+2. New technical rules on existing structures – Eurocodes: Building the future (JRC)
+https://eurocodes.jrc.ec.europa.eu/2nd-generation-evolution/new-technical-rules-existing-structures
+
+3. 2nd Generation Eurocode 2 – Concrete Centre
+https://www.concretecentre.com/Structural-design/Eurocode-2-concrete/2nd-Generation-Eurocode-2.aspx
+
+4. Contributions of the Future Eurocode 2 for Assessment of Existing Concrete Structures (Hormigón y Acero)
+https://scispace.com/pdf/contributions-of-the-future-eurocode-for-the-assessment-of-ekbcbedi.pdf
+
+5. Provisions for assessment of existing structures in the second‑generation concrete Eurocode (IStructE)
+https://www.istructe.org/journal/volumes/volume-102-%282024%29/issue-4/ec2-assessment-of-existing-structures/
+
+6. Contributions of the Future Eurocode for the Assessment of Existing Concrete Structures (Academia.edu)
+https://www.academia.edu/128798578/Contributions_of_the_Future_Eurocode_for_the_Assessment_of_Existing_Concrete_Structures
+
+---
+CONFRONTO CON NTC 2008 E NTC 2018
+
+NTC 2008:
+- Impostazione tradizionale basata su livelli di conoscenza (LC1-2-3) e fattori di confidenza.
+- Approccio globale senza capitoli specifici dedicati esclusivamente alle strutture esistenti in c.a., ma con criteri generali per edifici esistenti.
+- Metodologia fortemente orientata al miglioramento sismico minimo richiesto.
+
+NTC 2018:
+- Aggiornamento e razionalizzazione dei livelli di conoscenza.
+- Maggiore attenzione alla caratterizzazione meccanica dei materiali esistenti tramite prove in-situ.
+- Processo valutativo più coerente con gli Eurocodici, pur mantenendo struttura normativa nazionale.
+- Introduzione di criteri più dettagliati per le verifiche locali e globali.
+
+Confronto sintetico:
+- Eurocodice 2 (Annex I) e prEN1990-2 introducono un approccio europeo specifico per l’esistente, più avanzato nella gestione dell’incertezza.
+- NTC 2018 mantiene l’impianto nazionale ma risulta più allineata alle logiche europee rispetto alla NTC 2008.
+- Eurocodici pongono forte enfasi sulla caratterizzazione dei materiali esistenti in opere in c.a. mediante prove dirette.
+- NTC 2008 e NTC 2018 introducono invece livelli di conoscenza e fattori di confidenza, assenti nell’EC2.

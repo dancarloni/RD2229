@@ -1,0 +1,218 @@
+############################################################
+# BLOCCO 2 / 12
+# STRUTTURA COMPLETA DELLA NUOVA ARCHITETTURA /src/
+# + NOTE DI MIGRAZIONE (A1)
+############################################################
+
+Questo blocco definisce:
+
+1. La nuova struttura del progetto secondo OPZIONE A1.
+2. Le linee guida di migrazione completa.
+3. L'albero delle cartelle così come dovrà comparire nella repo.
+4. I file __init__.py richiesti.
+5. Le note operative per Continue / Copilot Plan.
+
+============================================================
+SEZIONE 1 — STRUTTURA DELLA NUOVA ARCHITETTURA
+============================================================
+
+La ristrutturazione A1 prevede:
+
+- Creazione della cartella radice:
+        src/
+
+- Spostamento TOTALE degli script esistenti della root in:
+        src/legacy/
+
+- Introduzione dei nuovi package modulari:
+        src/softw_components/      (ex section_app)
+        src/calc/                  (calcoli e registry)
+        src/materials/             (materiali)
+        src/elements/              (elementi strutturali)
+        src/codes/                 (normative + parametri)
+        src/actions/               (azioni di verifica)
+        src/report/                (renderer e template)
+        src/config/                (yaml di configurazione)
+        src/tools/                 (CLI, export, utility)
+        src/tests/                 (test minimi)
+
+Tutti questi pacchetti saranno popolati nei blocchi successivi.
+
+============================================================
+SEZIONE 2 — ALBERO DIRECTORY COMPLETO
+============================================================
+
+Il progetto dovrà apparire così dopo la migrazione:
+
+src/
+    __init__.py
+    legacy/
+        __init__.py
+        # -> Qui verranno copiati TUTTI i file esistenti dalla root
+        #    originaria del progetto, SENZA ALCUNA MODIFICA.
+        #    Esempi:
+        #       verification_project.py
+        #       verification_items.py
+        #       historical_materials.py
+        #       materials_repository.py
+        #       quantities_registry.py
+        #       etc.
+    softw_components/
+        __init__.py
+        # -> Moduli estratti da section_app (ora deprecato)
+    calc/
+        __init__.py
+        shear_area_registry.py
+        section_registry.py
+    materials/
+        __init__.py
+        material_model.py
+        material_repo.py
+        validation.py
+    elements/
+        __init__.py
+        element_model.py
+        element_repo.py
+        resolve_inputs.py
+    codes/
+        __init__.py
+        code_registry.py
+        clauses/
+            __init__.py
+            # file YAML generati nei blocchi successivi
+        params/
+            __init__.py
+            # file JSON generati nei blocchi successivi
+    actions/
+        __init__.py
+        action_repo.py
+    report/
+        __init__.py
+        renderer_md.py
+        renderer_html.py
+        renderer_pdf.py
+        templates/
+            __init__.py
+            template.html
+            template.md
+    config/
+        __init__.py
+        units.yml
+        numerics.yml
+        app.yml
+        features.yml
+    tools/
+        __init__.py
+        verify_cli.py
+        export_results.py
+    tests/
+        __init__.py
+        test_shear_area.py
+        test_code_routing.py
+        test_resolve_inputs.py
+        test_reporting.py
+        test_material_repo.py
+        test_elements_repo.py
+
+
+============================================================
+SEZIONE 3 — LINEE GUIDA DI MIGRAZIONE (A1)
+============================================================
+
+1) CREA la directory:
+        src/
+
+2) CREA la directory:
+        src/legacy/
+
+3) SPOSTA TUTTI i file attuali del progetto (dalla root originaria)
+   dentro:
+        src/legacy/
+
+   Esempi tipici:
+        verification_project.py
+        verification_items.py
+        verification_items_repository.py
+        materials_repository.py
+        historical_materials.py
+        quantities_registry.py
+        sections.json
+        materials.json
+        requirements*.txt
+        qualsiasi altro .py o .json presente nella root
+
+   NB: NON modificare il contenuto dei file legacy.
+
+4) RIMUOVI cartelle di vecchi moduli come section_app
+   se presente, dopo aver verificato che tutto è migrato.
+
+5) CREA tutte le nuove cartelle:
+        softw_components/
+        calc/
+        materials/
+        elements/
+        codes/
+        actions/
+        report/
+        tools/
+        tests/
+        config/
+
+6) CREA i file __init__.py per ogni cartella.
+
+7) Aggiorna successivamente gli import (fase gestita dal piano Plan).
+
+============================================================
+SEZIONE 4 — FILE __init__.py MINIMI
+============================================================
+
+Tutti gli __init__.py saranno minimali, es.:
+
+------------------------------------------------------------
+File: src/__init__.py
+------------------------------------------------------------
+"""
+Root package of the restructured engineering verification framework.
+
+This folder contains:
+- the legacy code (in src/legacy/)
+- the new modular architecture
+"""
+
+------------------------------------------------------------
+File: src/legacy/__init__.py
+------------------------------------------------------------
+"""
+Legacy code — original project modules preserved unchanged.
+
+DO NOT EDIT FILES IN THIS FOLDER.
+"""
+
+------------------------------------------------------------
+TUTTI GLI ALTRI __init__.py:
+------------------------------------------------------------
+"""
+Package initializer.
+
+This module is part of the restructured architecture.
+"""
+
+
+============================================================
+SEZIONE 5 — NOTE OPERATIVE PER CONTINUE / COPILOT PLAN
+============================================================
+
+- Dopo l’inserimento del BLOCCO 2:
+    → il piano può creare fisicamente la struttura
+    → può spostare i file legacy
+    → può generare gli stub dei moduli nei blocchi successivi
+
+- La generazione del codice vero e proprio avverrà a partire dal BLOCCO 3.
+
+- Nessun file in legacy deve essere modificato.
+
+- Gli stub verranno forniti nei blocchi successivi, uno per categoria.
+
+============================================================
+FINE BLOCCO 2 / 12
+============================================================

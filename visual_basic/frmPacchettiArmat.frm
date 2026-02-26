@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmPacchettiArmat 
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmPacchettiArmat
    Caption         =   "Pacchetti di armatura presenti nella sezione"
    ClientHeight    =   3405
    ClientLeft      =   96

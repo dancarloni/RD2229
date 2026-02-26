@@ -13,7 +13,7 @@ try {
     $excel.Visible = $false
     $excel.DisplayAlerts = $false
     $excel.AutomationSecurity = 1  # msoAutomationSecurityLow
-    
+
     Write-Host "Apertura workbook tramite reflection..." -ForegroundColor Cyan
     # Usa reflection per bypassare problemi di localizzazione
     $bindingFlags = [System.Reflection.BindingFlags]::InvokeMethod
@@ -24,9 +24,9 @@ try {
         $excel.Workbooks,
         @($inputPath, 0, $false, 5, "", "", $false, 2, "", $true, $false, 0, $false, $false, 0)
     )
-    
+
     Write-Host "Workbook aperto: $($wb.Name)" -ForegroundColor Green
-    
+
     Write-Host "Importazione modulo VBA..." -ForegroundColor Cyan
     $vbComp = $wb.VBProject.VBComponents.GetType().InvokeMember(
         "Import",
@@ -35,10 +35,10 @@ try {
         $wb.VBProject.VBComponents,
         @($basPath)
     )
-    
+
     Write-Host "Salvataggio..." -ForegroundColor Cyan
     $wb.Save()
-    
+
     Write-Host "`nModulo VBA importato con successo nel file:" -ForegroundColor Green
     Write-Host $inputPath -ForegroundColor Green
 }
@@ -46,7 +46,7 @@ catch {
     Write-Host "`nErrore durante l'importazione:" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
     Write-Host $_.Exception.InnerException.Message -ForegroundColor Yellow
-    
+
     if ($_.Exception.Message -match "programmazione|programmatic") {
         Write-Host "`nATTENZIONE: Devi abilitare l'accesso al modello a oggetti di progetto VBA:" -ForegroundColor Yellow
         Write-Host "1. Apri Excel" -ForegroundColor Yellow
@@ -56,11 +56,11 @@ catch {
 }
 finally {
     Write-Host "Chiusura Excel..." -ForegroundColor Cyan
-    if ($wb) { 
+    if ($wb) {
         $wb.Close($true)
         [System.Runtime.Interopservices.Marshal]::ReleaseComObject($wb) | Out-Null
     }
-    if ($excel) { 
+    if ($excel) {
         $excel.Quit()
         [System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
     }

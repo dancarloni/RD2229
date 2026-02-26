@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\app\__init__.py
+# hypothesis_version: 6.151.5
+
+['app.domain.materials', 'app.domain.models', 'app.domain.sections', 'src.domain.materials', 'src.domain.models', 'src.domain.sections', 'src.methods.sle', 'src.methods.slu', 'src.methods.ta']

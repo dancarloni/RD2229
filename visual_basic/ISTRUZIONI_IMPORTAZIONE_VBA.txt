@@ -13,7 +13,7 @@ METODO 1: IMPORTAZIONE MANUALE (CONSIGLIATO)
 
 2. Premi ALT + F11 per aprire l'editor VBA
 
-3. Nel menu, vai su File -> Rimuovi modulo... 
+3. Nel menu, vai su File -> Rimuovi modulo...
    (se esiste già un modulo "RD2229_TA_TandC_Module", rimuovilo prima)
 
 4. Nel menu, vai su File -> Importa file...
@@ -55,7 +55,7 @@ Dopo l'importazione, verifica che il modulo sia presente:
 
 Le nuove funzioni aggiunte sono:
 - RecalcRigaSelezionata_BEAM
-- RecalcRigaSelezionata_COLUMN  
+- RecalcRigaSelezionata_COLUMN
 - ApplicaFormattazioneCondizionale_BEAM
 - InstallaScorciatoie
 

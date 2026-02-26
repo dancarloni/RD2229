@@ -1,0 +1,198 @@
+############################################################
+# BLOCCO 9 / 12
+# PACKAGE: src/config/
+#
+# Contenuto:
+#   - units.yml
+#   - numerics.yml
+#   - app.yml
+#   - features.yml
+#
+# Tutti file serie STUB S2 (commentati, pronti per estensioni).
+############################################################
+
+
+
+============================================================
+FILE: src/config/units.yml
+============================================================
+
+# ==========================================================
+# units.yml
+# ==========================================================
+# File di configurazione principale delle unità di misura.
+#
+# ATTENZIONE:
+# - Il progetto utilizza *solo* le unità richieste dall’utente.
+# - Nessuna conversione implicita deve essere fatta nei moduli.
+#
+# FORMATO:
+# - "unit": stringa descrittiva (ad uso GUI / report)
+# - "factor": eventuale fattore di conversione se in futuro
+#   volessi supportare unità alternative (non implementato ora).
+#
+# STUB S2 — pronto per essere esteso.
+# ==========================================================
+
+length:
+  base: "cm"
+  factor: 1.0      # cm → cm
+
+area:
+  base: "cm2"
+  factor: 1.0
+
+inertia:
+  base: "cm4"
+  factor: 1.0
+
+stress:
+  base: "kg/cm2"
+  factor: 1.0
+
+density:
+  base: "kg/m3"
+  factor: 1.0
+
+mass:
+  base: "kg"
+  factor: 1.0
+
+force:
+  base: "kg"
+  factor: 1.0
+
+# NOTE:
+#   In futuro si potrà estendere con:
+#     - kN, kN·m, MPa, etc.
+#   mantenendo cm e kg come base di calcolo.
+
+
+
+============================================================
+FILE: src/config/numerics.yml
+============================================================
+
+# ==========================================================
+# numerics.yml
+# ==========================================================
+# Configurazione per la parte numerica del software.
+#
+# CONTIENE:
+# - precisioni di arrotondamento
+# - tolleranze numeriche
+# - parametri utili ai calcoli interni
+#
+# STUB S2 — nessun valore definitivo
+# ==========================================================
+
+rounding:
+  default: 4            # decimali di default
+  stresses: 3           # tensioni
+  geometry: 3           # aree, inerzie
+
+tolerances:
+  zero: 1e-9            # tolleranza valore zero
+  equality: 1e-6        # tolleranza confronto valori
+
+options:
+  enable_debug: false   # debug numerico
+  verbose_calculation: false
+
+
+
+============================================================
+FILE: src/config/app.yml
+============================================================
+
+# ==========================================================
+# app.yml
+# ==========================================================
+# Configurazione generale dell'applicazione.
+#
+# CONTIENE:
+# - Nome software
+# - Versione
+# - Default normativa utilizzata
+# - Percorsi file
+# - Impostazioni globali
+#
+# STUB S2 — da estendere con Copilot Plan.
+# ==========================================================
+
+application:
+  name: "Engineering Verification Framework"
+  version: "0.1.0"
+  description: "Framework modulare per verifiche strutturali — Stub S2"
+
+defaults:
+  normative: "NTC2018"
+  report_format: "html"
+
+paths:
+  legacy: "src/legacy"
+  templates: "src/report/templates"
+
+logging:
+  level: "INFO"     # può essere DEBUG, INFO, WARNING, ERROR
+  file: "logs/app.log"
+
+ui:
+  enable_gui_warnings: true
+
+
+
+============================================================
+FILE: src/config/features.yml
+============================================================
+
+# ==========================================================
+# features.yml
+# ==========================================================
+# File di feature-flag del software.
+#
+# SERVE PER:
+# - Attivare/disattivare parti opzionali del programma
+# - Permettere sviluppo incrementale (strategie Plan)
+#
+# STUB S2 — da espandere.
+# ==========================================================
+
+features:
+
+  # --------------------------------------------------------
+  # Elementi e modellazione
+  # --------------------------------------------------------
+  enable_element_restrictions: true
+  enable_section_registry: true
+  enable_shear_area_fallback: true
+
+  # --------------------------------------------------------
+  # Materiali
+  # --------------------------------------------------------
+  enable_material_validation: true
+  enable_material_import_legacy: true
+
+  # --------------------------------------------------------
+  # Normative
+  # --------------------------------------------------------
+  enable_normative_bootstrap: true
+  enable_normative_overrides: false
+
+  # --------------------------------------------------------
+  # Report
+  # --------------------------------------------------------
+  enable_html_reports: true
+  enable_md_reports: true
+  enable_pdf_reports: false     # PDF disabilitato finché non implementato
+
+  # --------------------------------------------------------
+  # Debug e log
+  # --------------------------------------------------------
+  enable_debug_messages: false
+
+
+
+############################################################
+# FINE BLOCCO 9 / 12
+############################################################

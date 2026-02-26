@@ -17,8 +17,8 @@ Esempio:
 >>> compute_stress_concentrated(100e3, 0.02)
 5000000.0
 """
+
 from dataclasses import dataclass
-from typing import Union
 
 
 @dataclass
@@ -28,13 +28,14 @@ class PointLoad:
     Attributes:
         P: forza in Newton
         e: eccentricità in metri (opzionale)
+
     """
 
     P: float
     e: float = 0.0
 
 
-def compute_stress_concentrated(P: Union[int, float], area: Union[int, float]) -> float:
+def compute_stress_concentrated(P: int | float, area: int | float) -> float:
     """Calcola la tensione media dovuta a un carico concentrato.
 
     Parametri
@@ -49,4 +50,3 @@ def compute_stress_concentrated(P: Union[int, float], area: Union[int, float]) -
 
 
 __all__ = ["PointLoad", "compute_stress_concentrated"]
-

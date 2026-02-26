@@ -5,4 +5,3 @@ un corrispondente modulo di verifica in questo package.
 """
 
 __all__ = []
-

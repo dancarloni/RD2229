@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmGeomSezGenerica 
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmGeomSezGenerica
    Caption         =   "DEFINIZIONE SEZIONE GENERICA IN C.A."
    ClientHeight    =   7620
    ClientLeft      =   84

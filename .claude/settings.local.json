@@ -4,7 +4,18 @@
       "Bash(git checkout:*)",
       "Bash(python -m py_compile:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(python -c:*)",
+      "Bash(dir:*)",
+      "Read(//c/**)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(cd:*)",
+      "Bash(python -m app.main:*)",
+      "Bash(python:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff check:*)"
     ]
   }
 }
