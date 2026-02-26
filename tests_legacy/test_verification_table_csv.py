@@ -1,9 +1,9 @@
-import os
-import tempfile
-import tkinter as tk
 import unittest
+import tkinter as tk
+import tempfile
+import os
 
-from verification_table import VerificationInput, VerificationTableApp
+from verification_table import VerificationTableApp, VerificationInput
 
 
 class TestVerificationTableCSV(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestVerificationTableCSV(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def make_sample_rows(self):
@@ -28,8 +28,8 @@ class TestVerificationTableCSV(unittest.TestCase):
                 material_steel="S400",
                 n_homog=1.0,
                 N=10.0,
-                M=20.0,
-                T=0.0,
+                Mx=20.0,
+                Ty=0.0,
                 As_sup=1.2,
                 As_inf=0.6,
                 d_sup=5.0,
@@ -45,8 +45,8 @@ class TestVerificationTableCSV(unittest.TestCase):
                 material_steel="S500",
                 n_homog=0.8,
                 N=5.0,
-                M=10.0,
-                T=1.0,
+                Mx=10.0,
+                Ty=1.0,
                 As_sup=2.0,
                 As_inf=1.0,
                 d_sup=6.0,

@@ -1,0 +1,3 @@
+[console_scripts]
+rd2229 = rd2229.ui_qt.app:main
+rd2229-demo = rd2229.cli:main

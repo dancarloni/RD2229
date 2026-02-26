@@ -315,7 +315,8 @@ class VerificationComparatorWindow(tk.Toplevel):
         pick_side_point: tuple[float, float] | None = None,
     ) -> list[tuple[float, float]]:
         # Build rectangle polygon
-        rect: list[tuple[float, float]] = [(0.0, 0.0), (b, 0.0), (b, h), (0.0, h)]
+        eps = 1e-6
+        rect = [(-eps,-eps),(b + eps,-eps),(b + eps,h + eps),(-eps,h + eps)]
         import math
 
         theta: float = math.radians(angle_deg)
@@ -328,67 +329,15 @@ class VerificationComparatorWindow(tk.Toplevel):
         def cross(vx, vy, wx, wy):
             return vx * wy - vy * wx
 
-        sign: float = cross(v[0], v[1], pick_side_point[0] - p[0], pick_side_point[1] - p[1])
-        keep_positive: bool = sign >= 0
-        return VerificationComparatorWindow._clip_polygon_by_halfplane(rect, p, v, keep_positive=keep_positive)
-
-    def _present_summary(self, ta_res: Any, slu_res: Any, bas_tors: Any) -> None:
-        self.txt_results.delete("1.0", tk.END)
-
-        def _summary(res, label) -> str | Any:
-            if res is None:
-                return f"{label}: errore\n"
-            if isinstance(res, dict):
-                return f"{label}: {res.get('messages', [])} OK={res.get('ok')}\n"
-            # assume VerificationOutput-like
-            msgs: Any | list[Any] = getattr(res, "messaggi", []) or getattr(res, "messages", []) or []
-            details: str = (
-                f"{label}: esito={getattr(res, 'esito', '')} "
-                f"sigma_c_max={getattr(res, 'sigma_c_max', '')} "
-                f"asse_neutro_x={getattr(res, 'asse_neutro_x', getattr(res, 'asse_neutro', ''))} "
-                f"inclinazione={getattr(res, 'inclinazione_asse_neutro', '')}\n"
-            )
-            return details + (msgs[0] + "\n" if msgs else "")
-
-        self.txt_results.insert(tk.END, _summary(ta_res, "TA"))
-        self.txt_results.insert(tk.END, _summary(slu_res, "SLU"))
-        self.txt_results.insert(tk.END, _summary(bas_tors, ".bas (Torsione)"))
-
-        self.txt_results.insert(tk.END, "\nNumeric summary:\n")
-        self.summary_table.delete(*self.summary_table.get_children())
-
-    def _compute_all_methods(self, inp: VerificationInput, sec_repo, mat_repo) -> tuple[Any, Any, dict[str, Any]]:
-        ta_res = None
-        slu_res = None
-        try:
-            ta_res: VerificationOutput = compute_ta_verification(inp, sec_repo, mat_repo)
-        except Exception as exc:  # pylint: disable=broad-exception-caught
-            logger.exception("Errore calcolo TA: %s", exc)
-        try:
-            slu_res = compute_slu_verification(inp, sec_repo, mat_repo)
-        except Exception as exc:  # pylint: disable=broad-exception-caught
-            logger.exception("Errore calcolo SLU: %s", exc)
-        try:
-            engine: VerificationEngine = create_verification_engine((inp.verification_method or "TA").upper())
-            mat_props: MaterialProperties = engine.get_material_properties(
-                inp.material_concrete or "", inp.material_steel or "", material_source="RD2229"
-            )
-            bas_tors: dict[str, Any] = bas_torsion_verification(
-                section=SectionGeometry(*get_section_geometry(inp, sec_repo, unit="cm")),
-                reinforcement_tensile=ReinforcementLayer(area=inp.As_inf, distance=inp.d_inf),
-                reinforcement_compressed=ReinforcementLayer(area=inp.As_sup, distance=inp.d_sup),
-                material=mat_props,
-                loads=LoadCase(N=inp.N, Mx=inp.Mx, My=inp.My, Mz=inp.Mz, Tx=inp.Tx, Ty=inp.Ty, At=inp.At),
-                method=(inp.verification_method or "TA"),
-            )
-        except Exception as exc:  # pylint: disable=broad-exception-caught
-            logger.exception("Errore .bas adapter: %s", exc)
-            bas_tors = {"messages": [".bas adapter error"], "ok": False}
-        return ta_res, slu_res, bas_tors
-
-    def _draw_method_na(self, b: float, h: float, label: str, res: Any, metrics: dict[str, Any], color: str) -> None:
-        out = _na_point_and_angle(res, b, h)
-        if out is None:
+    def on_compare(self):
+        # Get selected row
+        item = self.verification_table_app.tree.focus()
+        if not item:
+            selection = self.verification_table_app.tree.selection()
+            if selection:
+                item = selection[0]
+        if not item:
+            notify_warning('Confronto', 'Seleziona una riga nella Verification Table')
             return
         p, ang = out
         e1, e2 = self._compute_na_endpoints(b, h, p, ang)
