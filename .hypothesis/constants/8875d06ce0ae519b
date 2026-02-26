@@ -1,0 +1,4 @@
+# file: C:\Users\danca\workspaces\RD2229\apps\sections\shear_factors.py
+# hypothesis_version: 6.151.9
+
+[1.0, 5.0, 6.0, 9.0, 10.0, 'CIRCULAR', 'CIRCULAR_HOLLOW', 'C_SECTION', 'INVERTED_T_SECTION', 'INVERTED_V_SECTION', 'I_SECTION', 'L_SECTION', 'PI_SECTION', 'RECTANGULAR', 'RECTANGULAR_HOLLOW', 'T_SECTION', 'V_SECTION']

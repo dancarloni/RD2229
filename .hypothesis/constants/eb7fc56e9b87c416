@@ -1,0 +1,4 @@
+# file: C:\Users\danca\workspaces\RD2229\apps\sections\io\csv_sections.py
+# hypothesis_version: 6.151.9
+
+['A_y', 'A_z', 'CIRCULAR', 'CIRCULAR_HOLLOW', 'C_SECTION', 'INVERTED_T_SECTION', 'INVERTED_V_SECTION', 'I_SECTION', 'L_SECTION', 'PI_SECTION', 'RECTANGULAR', 'RECTANGULAR_HOLLOW', 'T_SECTION', 'V_SECTION', 'area', 'diameter', 'flange_thickness', 'flange_width', 'height', 'id', 'kappa_y', 'kappa_z', 'name', 'note', 'outer_diameter', 'rotation_angle_deg', 'section_type', 't_horizontal', 't_vertical', 'thickness', 'utf-8', 'w', 'web_height', 'web_thickness', 'width']

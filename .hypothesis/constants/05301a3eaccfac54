@@ -1,0 +1,4 @@
+# file: C:\Users\danca\workspaces\RD2229\apps\sections\__init__.py
+# hypothesis_version: 6.151.9
+
+['config', 'domain', 'io', 'services']

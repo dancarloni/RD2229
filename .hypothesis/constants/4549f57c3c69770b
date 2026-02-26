@@ -1,0 +1,4 @@
+# file: C:\Users\danca\workspaces\RD2229\libs\app_module\services\notification_settings.py
+# hypothesis_version: 6.151.9
+
+['ask', 'confirm_default', 'data', 'errors_only', 'level', 'r', 'show_toasts', 'silent_sources', 'utf-8', 'w']

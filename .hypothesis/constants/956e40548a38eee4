@@ -1,0 +1,4 @@
+# file: c:\Users\danca\workspaces\RD2229\src\rd2229\seismic\rd2229_39\validators\rd2229_validators.py
+# hypothesis_version: 6.151.9
+
+['g deve essere > 0', 'm_cols_above', 'm_cols_below', 'm_floor', 'm_walls_above', 'm_walls_below', 'p deve essere > 0']

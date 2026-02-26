@@ -1,0 +1,4 @@
+# file: C:\Users\danca\workspaces\RD2229\src\core_calculus\section_calculations.py
+# hypothesis_version: 6.151.9
+
+[-2.0, 0.0, 1e-24, 1e-12, 1e-09, 1e-06, 0.005, 0.01, 0.02, 0.03, 0.05, 0.07, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0, 2.0, 3.0, 3.141592653589793, 4.0, 5.0, 6.0, 12.0, 24.0, 1024, 'CIRCULAR', 'CIRCULAR_HOLLOW', 'C_SECTION', 'INVERTED_T_SECTION', 'INVERTED_V_SECTION', 'I_SECTION', 'L_SECTION', 'MultiPolygon', 'Polygon', 'RECTANGULAR', 'RECTANGULAR_HOLLOW', 'T_SECTION', 'V_SECTION', 'area', 'circular', 'diameter', 'dimensions', 'flange_thickness', 'flange_width', 'height', 'inf', 'interiors', 'kappa_y', 'kappa_z', 'name', 'outer_diameter', 'shear_area', 'shear_area_y', 'shear_area_z', 'shear_factor', 'shear_factor_y', 'shear_factor_z', 't_horizontal', 't_vertical', 'thickness', 'type', 'web_height', 'web_thickness', 'width']

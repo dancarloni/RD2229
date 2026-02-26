@@ -1,0 +1,4 @@
+# file: C:\Users\danca\workspaces\RD2229\apps\sections\config\__init__.py
+# hypothesis_version: 6.151.9
+
+['CSV_HEADERS', 'DEFAULT_SHEAR_KAPPAS', 'DIMENSION_KEYS', 'SECTION_CLASS_MAP']

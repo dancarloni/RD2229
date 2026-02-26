@@ -1,0 +1,4 @@
+# file: C:\Users\danca\workspaces\RD2229\libs\app_module\services\notification.py
+# hypothesis_version: 6.151.9
+
+['confirm', 'done', 'error', 'info', 'level', 'message', 'meta', 'respond', 'source', 'timestamp', 'title', 'warning']
