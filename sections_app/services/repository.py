@@ -261,8 +261,7 @@ class SectionRepository:
             return
         # Seed when there are no seeded sections, not just when the repo is empty.
         # This ensures baseline seed examples are always present even in non-empty repos.
-        seeded = [s for s in self._sections.values() if self._is_seeded(s)]
-        if seeded:
+        if any(self._is_seeded(s) for s in self._sections.values()):
             return
         self._ensure_seed_sections()
 

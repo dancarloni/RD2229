@@ -20,6 +20,8 @@ def test_migrate_legacy_to_canonical(tmp_path, monkeypatch):
         canonical.unlink()
     # Run repo with working directory tmp_path (so Path('sections.json') resolves there)
     monkeypatch.chdir(tmp_path)
+    # Disable seeding so this test only verifies migration, not seed section behavior
+    monkeypatch.setenv("RD2229_DISABLE_SEED", "1")
     repo = SectionRepository()  # Should auto-migrate
     assert canonical.exists(), "Canonical file not created"
     assert (tmp_path / "sections.json.bak").exists(), "Backup of legacy not created"

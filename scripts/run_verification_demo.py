@@ -62,11 +62,11 @@ def main():
 
     # Add a few prefilled rows
     examples = [
-        VerificationInput(section_id="Rect 20x30", material_concrete="C120", material_steel="A500", n_homog=10.0, N=0.0, M=0.0, T=0.0,
+        VerificationInput(section_id="Rect 20x30", material_concrete="C120", material_steel="A500", n_homog=10.0, N=0.0, Mx=0.0, Ty=0.0,
                           As_sup=1.2, As_inf=2.4, d_sup=40.0, d_inf=45.0, stirrup_step=20.0, stirrup_diameter=8.0, stirrup_material="A500", notes="demo1"),
-        VerificationInput(section_id="Circ d25", material_concrete="C200", material_steel="A500", n_homog=15.0, N=1000.0, M=50.0, T=0.0,
+        VerificationInput(section_id="Circ d25", material_concrete="C200", material_steel="A500", n_homog=15.0, N=1000.0, Mx=50.0, Ty=0.0,
                           As_sup=0.0, As_inf=0.0, d_sup=30.0, d_inf=35.0, stirrup_step=15.0, stirrup_diameter=6.0, stirrup_material="A500", notes="demo2"),
-        VerificationInput(section_id="T 40x5x8x25", material_concrete="C120", material_steel="A500", n_homog=12.0, N=500.0, M=20.0, T=10.0,
+        VerificationInput(section_id="T 40x5x8x25", material_concrete="C120", material_steel="A500", n_homog=12.0, N=500.0, Mx=20.0, Ty=10.0,
                           As_sup=2.0, As_inf=2.0, d_sup=45.0, d_inf=45.0, stirrup_step=12.0, stirrup_diameter=8.0, stirrup_material="A500", notes="demo3"),
     ]
 

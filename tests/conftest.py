@@ -55,3 +55,51 @@ def pytest_configure(config):
         msgs = _check_repo_duplicates()
         if msgs:
             raise SystemExit("Repository anomalies detected:\n" + "\n".join(msgs))
+
+
+# ---------------------------------------------------------------------------
+# Tkinter-dependent test collection guard
+# ---------------------------------------------------------------------------
+# When ``tkinter`` is not available (e.g. CI without a display), test files
+# that import tkinter at module level – directly or transitively – would cause
+# collection errors that abort the entire test run.  We detect the situation
+# here and dynamically build ``collect_ignore`` so pytest can still collect
+# and run all non-GUI tests normally.
+
+try:
+    import tkinter  # noqa: F401
+    _TKINTER_AVAILABLE = True
+except ImportError:
+    _TKINTER_AVAILABLE = False
+
+if not _TKINTER_AVAILABLE:
+    import re as _re
+
+    _tests_dir = Path(__file__).parent
+    # Match direct tkinter imports AND imports of known tkinter-dependent modules
+    # (e.g. materials_repository, sections_app.ui.*, verification_table)
+    _tkinter_pattern = _re.compile(
+        r'^\s*('
+        r'import\s+tkinter|from\s+tkinter'
+        r'|import\s+tk\b|from\s+tk\b'
+        r'|(?:from|import)\s+materials_repository'
+        r'|from\s+sections_app\.ui'
+        r'|import\s+sections_app\.ui'
+        r'|(?:from|import)\s+verification_table'
+        r')',
+        _re.MULTILINE,
+    )
+
+    def _imports_tkinter_directly(path: Path) -> bool:
+        """Return True if the file imports tkinter (directly or via known wrappers)."""
+        try:
+            text = path.read_text(encoding='utf-8', errors='replace')
+            return bool(_tkinter_pattern.search(text))
+        except OSError:
+            return False
+
+    collect_ignore: list = [
+        str(p)
+        for p in sorted(_tests_dir.glob('test_*.py'))
+        if _imports_tkinter_directly(p)
+    ]
