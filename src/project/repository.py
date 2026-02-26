@@ -22,7 +22,6 @@ from typing import Any
 from src.project.schema import (
     CURRENT_SCHEMA_VERSION,
     CodeSettings,
-    FireSettings,
     GeometryEntry,
     LoadEntry,
     MaterialEntry,
@@ -56,45 +55,10 @@ def _migrate_none_to_1_0_0(data: dict[str, Any]) -> dict[str, Any]:
     return data
 
 
-def _migrate_1_0_0_to_1_1_0(data: dict[str, Any]) -> dict[str, Any]:
-    """Migra schema v1.0.0 a v1.1.0.
-
-    Aggiunge:
-    - code_settings.existing_structure (default False)
-    - code_settings.lc (default None)
-    - fire settings block
-    - geometry[].fire_selected (default False)
-    - geometry[].fire_override (default None)
-    """
-    data["schema_version"] = "1.1.0"
-
-    # CodeSettings: nuovi campi
-    cs = data.setdefault("code_settings", {})
-    cs.setdefault("existing_structure", False)
-    cs.setdefault("lc", None)
-
-    # FireSettings: nuovo blocco
-    data.setdefault("fire", {
-        "enabled": False,
-        "scenario": "ISO_834",
-        "required_rating_minutes": 60,
-        "cover_mm_default": None,
-        "exposure_sides_default": None,
-    })
-
-    # GeometryEntry: nuovi campi
-    for geom in data.get("geometry", []):
-        geom.setdefault("fire_selected", False)
-        geom.setdefault("fire_override", None)
-
-    logger.info("Migrazione applicata: 1.0.0 → 1.1.0")
-    return data
-
-
 # Mappatura: (versione_corrente) -> funzione di migrazione alla versione successiva
+# Aggiungere nuove coppie ("1.0.0", _migrate_1_0_0_to_1_1_0) quando necessario.
 _MIGRATIONS: list[tuple[str | None, Any]] = [
     (None, _migrate_none_to_1_0_0),
-    ("1.0.0", _migrate_1_0_0_to_1_1_0),
 ]
 
 
@@ -158,8 +122,6 @@ def _dict_to_project(data: dict[str, Any]) -> ProjectModel:
             type=g.get("type", ""),
             width=g.get("width", 0.0),
             height=g.get("height", 0.0),
-            fire_selected=g.get("fire_selected", False),
-            fire_override=g.get("fire_override"),
             extra=g.get("extra") or {},
         )
         for g in (data.get("geometry") or [])
@@ -206,17 +168,6 @@ def _dict_to_project(data: dict[str, Any]) -> ProjectModel:
         limit_states=cs_raw.get("limit_states") or ["TA"],
         units_force=cs_raw.get("units_force", "kN"),
         units_length=cs_raw.get("units_length", "cm"),
-        existing_structure=cs_raw.get("existing_structure", False),
-        lc=cs_raw.get("lc"),
-    )
-
-    fire_raw = data.get("fire") or {}
-    fire = FireSettings(
-        enabled=fire_raw.get("enabled", False),
-        scenario=fire_raw.get("scenario", "ISO_834"),
-        required_rating_minutes=fire_raw.get("required_rating_minutes", 60),
-        cover_mm_default=fire_raw.get("cover_mm_default"),
-        exposure_sides_default=fire_raw.get("exposure_sides_default"),
     )
 
     rr_raw = data.get("results_ref") or {}
@@ -235,7 +186,6 @@ def _dict_to_project(data: dict[str, Any]) -> ProjectModel:
         loads=loads,
         seismic_inputs=seismic_inputs,
         code_settings=code_settings,
-        fire=fire,
         results_ref=results_ref,
     )
 

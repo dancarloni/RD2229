@@ -15,7 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-CURRENT_SCHEMA_VERSION = "1.1.0"
+CURRENT_SCHEMA_VERSION = "1.0.0"
 
 
 @dataclass
@@ -42,10 +42,6 @@ class GeometryEntry:
     type: str = ""
     width: float = 0.0   # cm o mm (unità dipende da code_settings)
     height: float = 0.0
-    # Verifiche incendio: elemento selezionato per check al fuoco
-    fire_selected: bool = False
-    # Override parametri incendio per il singolo elemento (opzionale)
-    fire_override: dict[str, Any] | None = None
     extra: dict[str, Any] = field(default_factory=dict)
 
 
@@ -102,26 +98,6 @@ class CodeSettings:
     limit_states: list[str] = field(default_factory=lambda: ["TA"])
     units_force: str = "kN"             # "kN" | "kg"
     units_length: str = "cm"            # "cm" | "mm"
-    # Struttura esistente: se True la normativa può richiedere LC
-    existing_structure: bool = False
-    # Livello di Conoscenza: None | "LC1" | "LC2" | "LC3"
-    # Se None e normativa richiede LC, la verifica viene saltata con warning
-    lc: str | None = None
-
-
-@dataclass
-class FireSettings:
-    """Impostazioni per le verifiche di resistenza al fuoco (RC)."""
-
-    enabled: bool = False
-    # Scenario di incendio; MVP supporta solo ISO_834
-    scenario: str = "ISO_834"
-    # Durata richiesta [min]
-    required_rating_minutes: int = 60
-    # Copriferro di default [mm] (se None, letto da ogni elemento)
-    cover_mm_default: float | None = None
-    # Lati esposti di default (1-4); None = non impostato
-    exposure_sides_default: int | None = None
 
 
 @dataclass
@@ -161,5 +137,4 @@ class ProjectModel:
     loads: list[LoadEntry] = field(default_factory=list)
     seismic_inputs: SeismicInputs = field(default_factory=SeismicInputs)
     code_settings: CodeSettings = field(default_factory=CodeSettings)
-    fire: FireSettings = field(default_factory=FireSettings)
     results_ref: ResultsRef = field(default_factory=ResultsRef)
