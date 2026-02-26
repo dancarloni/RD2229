@@ -313,16 +313,17 @@ class MaterialRepository:
         if HAS_EVENT_BUS:
             EventBus().emit(MATERIALS_CLEARED)
 
-    def _load_json(self, path: Path) -> list:
-        """Legge un file JSON e ritorna il payload; su errore restituisce lista vuota."""
+    def _load_json(self, path: Path) -> list | None:
+        """Legge un file JSON e ritorna il payload; su errore restituisce None."""
         if not path.exists():
-            return []
+            logger.warning("File JSON non trovato: %s", path)
+            return None
         try:
             with path.open("r", encoding="utf-8") as f:
                 return json.load(f)
         except (OSError, json.JSONDecodeError) as exc:
             logger.warning("Impossibile leggere/parsare JSON da %s: %s", path, exc)
-            return []
+            return None
 
     def _populate_from_raw(self, raw_data: list, path: Path, *, backup: bool = False) -> None:
         for idx, item in enumerate(raw_data):

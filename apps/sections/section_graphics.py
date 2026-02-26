@@ -159,13 +159,13 @@ class SectionGraphicsController:
         self.canvas.create_polygon(coords, outline="orange", fill="", width=1, dash=(3, 3))
 
     def draw_dimensioning(self, carbon_fiber_placeholder: SectionGeometry):
-        if self.transform is None:
-            return
         """Draw both width (b) and height (h) dimensions outside the section with offsets.
 
         Horizontal dimension (b) is drawn below the section by a fixed pixel offset.
         Vertical dimension (h) is drawn to the right of the section by a fixed pixel offset.
         """
+        if self.transform is None:
+            return
         minx, miny, maxx, maxy = carbon_fiber_placeholder.bounding_box()
         sx0, sy0 = self.transform.world_to_screen(minx, miny)
         sx1, sy1 = self.transform.world_to_screen(maxx, miny)
