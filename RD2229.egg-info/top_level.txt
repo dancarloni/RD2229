@@ -1,7 +1,0 @@
-calculations
-core
-core_models
-historical_ta
-sections_app
-tools
-verifications

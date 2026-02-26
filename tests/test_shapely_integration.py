@@ -1,7 +1,7 @@
 import pytest
 
-from sections_app.geometry_model import SectionGeometry
-from sections_app.section_calculations import compute_section_properties_from_geometry
+from src.core_calculus.core.geometry_model import SectionGeometry
+from src.core_calculus.section_calculations import compute_section_properties_from_geometry
 
 
 def test_shapely_area_and_core():
