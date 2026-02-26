@@ -9,7 +9,7 @@ except Exception:  # pragma: no cover - Hypothesis not installed
         allow_module_level=True,
     )
 
-from src.core_calculus.core.geometry import CircularSection
+from src.core_calculus.core.geometry import CircularHollowSection
 
 
 @given(
@@ -20,7 +20,7 @@ def test_circular_hollow_inertia_invariant(outer, inner):
     # Ensure inner is less than outer
     if inner >= outer:
         inner = outer / 2.0
-    sec = CircularSection(diameter=outer)
+    sec = CircularHollowSection(outer_diameter=outer, inner_diameter=inner)
     area = sec.area()
     assert area > 0
     ix, iy = sec.inertia()

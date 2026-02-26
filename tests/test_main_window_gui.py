@@ -1,10 +1,7 @@
-import pytest
 import tkinter as tk
 from pathlib import Path
 
-pytestmark = pytest.mark.gui
-
-from libs.app_module.ui.main_window import MainWindow
+from sections_app.ui.main_window import MainWindow
 
 
 def test_save_section_via_repository(tmp_path: Path):
@@ -19,7 +16,7 @@ def test_save_section_via_repository(tmp_path: Path):
     json_file = str(tmp_path / "test_repo.jsons")
     Path(json_file).write_text("[]", encoding="utf-8")
 
-    from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository
+    from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
 
     repo = GeometryRepository(json_file=json_file, auto_migrate=False)
     serializer = CsvSectionSerializer()
@@ -29,7 +26,7 @@ def test_save_section_via_repository(tmp_path: Path):
     try:
         win.section_var.set("Rettangolare")
         win._create_inputs()
-    except Exception:  # nosec
+    except Exception:
         pass
     # populate width/height if inputs exist
     if "width" in win.inputs:
@@ -42,7 +39,7 @@ def test_save_section_via_repository(tmp_path: Path):
     win.name_entry.insert(0, "gui_saved_rect")
 
     # save through repository
-    from apps.sections.models.sections import RectangularSection
+    from sections_app.models.sections import RectangularSection
 
     sec = RectangularSection("gui_saved_rect", 10, 20)
     added = repo.add_section(sec)
@@ -67,7 +64,7 @@ def test_show_graphic_creates_canvas_items():
     try:
         win.section_var.set("Rettangolare")
         win._create_inputs()
-    except Exception:  # nosec
+    except Exception:
         pass
     if "width" in win.inputs:
         win.inputs["width"].delete(0, tk.END)

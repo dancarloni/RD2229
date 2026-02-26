@@ -2,10 +2,6 @@ site_name: RD2229 Docs
 site_description: Documentation for RD2229 structural verification project
 nav:
   - Home: index.md
-  - Reference:
-    - Geometry: geometry.md
-    - Section Calculations: section-calculations.md
-    - Graphics: graphics.md
   - Formulas: formulas.md
   - Validation: validation.md
   - Performance: perf.md

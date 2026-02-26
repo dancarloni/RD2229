@@ -14,7 +14,7 @@ import pytest
 sys.path.insert(0, ".")
 
 # Import del modulo da testare
-from apps.sections.services.area_calculations import (  # noqa: E402
+from sections_app.services.area_calculations import (  # noqa: E402
     SectionProperties,
     _area_c_section,
     _area_circular,

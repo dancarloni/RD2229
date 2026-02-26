@@ -1,6 +1,6 @@
 """Test rapido di tutte le tipologie di sezione."""
 
-from apps.sections.models.sections import (
+from sections_app.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,

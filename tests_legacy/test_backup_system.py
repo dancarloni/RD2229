@@ -8,9 +8,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from apps.sections.models.sections import RectangularSection
-from apps.sections.services.repository import SectionRepository
 from core_models.materials import Material, MaterialRepository
+from sections_app.models.sections import RectangularSection
+from sections_app.services.repository import SectionRepository
 
 
 class TestBackupSystem(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestBackupSystem(unittest.TestCase):
 
         try:
             shutil.rmtree(self.temp_dir)
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_section_backup_created_on_save(self):
@@ -50,9 +50,7 @@ class TestBackupSystem(unittest.TestCase):
         repo.add_section(rect2)
 
         # Ora il backup dovrebbe esistere
-        self.assertTrue(
-            backup_path.exists(), "Backup file dovrebbe esistere dopo il secondo salvataggio"
-        )
+        self.assertTrue(backup_path.exists(), "Backup file dovrebbe esistere dopo il secondo salvataggio")
 
         # Verifica che il backup contenga i dati della prima versione
         import json
@@ -82,9 +80,7 @@ class TestBackupSystem(unittest.TestCase):
         repo.add(mat2)
 
         # Ora il backup dovrebbe esistere
-        self.assertTrue(
-            backup_path.exists(), "Backup file dovrebbe esistere dopo il secondo salvataggio"
-        )
+        self.assertTrue(backup_path.exists(), "Backup file dovrebbe esistere dopo il secondo salvataggio")
 
         # Verifica che il backup contenga i dati della prima versione
         import json
@@ -106,9 +102,7 @@ class TestBackupSystem(unittest.TestCase):
 
         # Verifica che il file temporaneo non esista dopo il salvataggio
         tmp_path = Path(self.sections_file).with_suffix(".json.tmp")
-        self.assertFalse(
-            tmp_path.exists(), "File temporaneo non dovrebbe esistere dopo salvataggio riuscito"
-        )
+        self.assertFalse(tmp_path.exists(), "File temporaneo non dovrebbe esistere dopo salvataggio riuscito")
 
         # Verifica che il file principale esista
         self.assertTrue(Path(self.sections_file).exists())
@@ -123,9 +117,7 @@ class TestBackupSystem(unittest.TestCase):
 
         # Verifica che il file temporaneo non esista dopo il salvataggio
         tmp_path = Path(self.materials_file).with_suffix(".json.tmp")
-        self.assertFalse(
-            tmp_path.exists(), "File temporaneo non dovrebbe esistere dopo salvataggio riuscito"
-        )
+        self.assertFalse(tmp_path.exists(), "File temporaneo non dovrebbe esistere dopo salvataggio riuscito")
 
         # Verifica che il file principale esista
         self.assertTrue(Path(self.materials_file).exists())

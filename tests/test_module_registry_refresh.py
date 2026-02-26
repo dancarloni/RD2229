@@ -1,4 +1,4 @@
-from ui.module_selector import ModuleSelectorController
+from sections_app.ui.module_selector import ModuleSelectorController
 
 
 def test_refresh_modules():

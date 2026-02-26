@@ -7,8 +7,8 @@ Questo script mostra come le sezioni vengono salvate e ripristinate automaticame
 import os
 import sys
 
-from apps.sections.models.sections import CircularSection, LSection, RectangularSection, TSection
-from apps.sections.services.repository import SectionRepository
+from sections_app.models.sections import CircularSection, LSection, RectangularSection, TSection
+from sections_app.services.repository import SectionRepository
 
 
 def main():
@@ -49,9 +49,7 @@ def main():
             t_vertical=5,
             note="Angolare acciaio",
         ),
-        RectangularSection(
-            name="Trave 40x60", width=40, height=60, rotation_angle_deg=45, note="Rotata 45°"
-        ),
+        RectangularSection(name="Trave 40x60", width=40, height=60, rotation_angle_deg=45, note="Rotata 45°"),
     ]
 
     for i, section in enumerate(sections, 1):
@@ -70,9 +68,7 @@ def main():
         print(f"  Tipo: {pilastro.section_type}")
         print(f"  Dimensioni: {pilastro.width} x {pilastro.height}")
         print(f"  Area: {pilastro.properties.area:.2f}")
-        print(
-            f"  Baricentro: ({pilastro.properties.centroid_x:.2f}, {pilastro.properties.centroid_y:.2f})"
-        )
+        print(f"  Baricentro: ({pilastro.properties.centroid_x:.2f}, {pilastro.properties.centroid_y:.2f})")
         print("  Momenti d'inerzia:")
         print(f"    Ix: {pilastro.properties.ix:.2f}")
         print(f"    Iy: {pilastro.properties.iy:.2f}")
@@ -93,9 +89,7 @@ def main():
         print(f"  Area: {palo.properties.area:.2f}")
 
         # Modifica il palo
-        palo_modificato = CircularSection(
-            name="Palo d=60 (cavo)", diameter=60, note="Tubo acciaio cavo - sezione corretta"
-        )
+        palo_modificato = CircularSection(name="Palo d=60 (cavo)", diameter=60, note="Tubo acciaio cavo - sezione corretta")
         repo.update_section(palo.id, palo_modificato)
 
         print("\nSezione modificata e salvata:")

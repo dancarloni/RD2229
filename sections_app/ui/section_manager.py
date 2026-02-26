@@ -444,13 +444,7 @@ class SectionManager(tk.Toplevel):
         """Public API legacy: alias per refresh_sections()."""
         self.refresh_sections()
 
-    def _get_selected_section(self) -> Optional[Section]:
-        """Restituisce la sezione selezionata nel Treeview.
-
-        Nota: alcuni metodi/ambienti possono non impostare il "focus" sulla riga
-        selezionata; per questo usiamo come fallback anche `selection()`.
-        """
-        # Preferisci l'elemento in focus ma, se assente, usa la prima selezione
+    def _get_selected_section(self) -> Section | None:
         selected = self.tree.focus()
         if not selected:
             sel = self.tree.selection()

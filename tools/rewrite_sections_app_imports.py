@@ -2,16 +2,16 @@
 """
 rewrite_sections_app_imports.py
 
-Automatically rewrite imports that reference `apps.sections.*` inside
-`libs.app_module` to the actual module names present under `libs.app_module`.
+Automatically rewrite imports that reference `sections_app.*` inside
+`softw_components` to the actual module names present under `softw_components`.
 
 Usage:
-    python tools/rewrite_sections_app_imports.py [--dir libs.app_module] [--dry-run]
+    python tools/rewrite_sections_app_imports.py [--dir softw_components] [--dry-run]
 
 Behaviour:
 - Scans `--dir` for Python modules and builds a map of module names -> paths.
-- For each import/import-from that starts with `apps.sections` tries to find a
-  unique replacement module under `libs.app_module` whose module name endswith
+- For each import/import-from that starts with `sections_app` tries to find a
+  unique replacement module under `softw_components` whose module name endswith
   the same suffix. If found, replaces the import token with the new module name.
 - If multiple candidates exist, chooses the longest match (most specific).
 - Writes files in-place unless `--dry-run` is given.
@@ -61,14 +61,14 @@ def build_module_map(root: Path) -> dict[str, Path]:
 
 
 def find_replacement(module_map: dict[str, Path], original: str) -> str | None:
-    # original like 'apps.sections.services.repository' or 'apps.sections'
-    if not original.startswith("apps.sections"):
+    # original like 'sections_app.services.repository' or 'sections_app'
+    if not original.startswith("sections_app"):
         return None
-    if original == "apps.sections":
+    if original == "sections_app":
         # find candidate that matches top-level package content, prefer 'sections_app_module' if exists
         candidates = [m for m in module_map.keys() if m.endswith("__init__") or m.count(".") == 0]
     else:
-        suffix = original[len("apps.sections.") :]
+        suffix = original[len("sections_app.") :]
         candidates = [m for m in module_map.keys() if m.endswith(suffix)]
     if not candidates:
         return None
@@ -89,12 +89,8 @@ def rewrite_file(path: Path, mapping: dict[str, str]) -> tuple[bool, list[tuple[
         if n1:
             performed.append((orig, new))
         # import X
-        pattern_import = re.compile(
-            rf"(^|\n)(\s*import\s+.*)\b{re.escape(orig)}\b", flags=re.MULTILINE
-        )
-        new_text, n2 = pattern_import.subn(
-            lambda m: m.group(1) + m.group(2).replace(orig, new), new_text
-        )
+        pattern_import = re.compile(rf"(^|\n)(\s*import\s+.*)\b{re.escape(orig)}\b", flags=re.MULTILINE)
+        new_text, n2 = pattern_import.subn(lambda m: m.group(1) + m.group(2).replace(orig, new), new_text)
         if n2:
             performed.append((orig, new))
     if new_text != text:
@@ -105,7 +101,7 @@ def rewrite_file(path: Path, mapping: dict[str, str]) -> tuple[bool, list[tuple[
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--dir", default="libs.app_module")
+    p.add_argument("--dir", default="softw_components")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
     root = Path(args.dir)
@@ -123,7 +119,7 @@ def main():
         for mod, level, names in records:
             if not mod:
                 continue
-            if mod.startswith("apps.sections"):
+            if mod.startswith("sections_app"):
                 repl = find_replacement(module_map, mod)
                 if repl and repl != mod:
                     mapping[mod] = repl

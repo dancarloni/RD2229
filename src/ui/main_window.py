@@ -6,7 +6,8 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
-from apps.sections.models.sections import (
+from core_models.materials import MaterialRepository
+from sections_app.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,
@@ -21,14 +22,13 @@ from apps.sections.models.sections import (
     TSection,
     VSection,
 )
-from apps.sections.services.calculations import compute_transform
-from apps.sections.services.notification import notify_error, notify_info
-from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from core_models.materials import MaterialRepository
-from libs.app_module.ui.historical_material_window import (
+from sections_app.services.calculations import compute_transform
+from sections_app.services.notification import notify_error, notify_info
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.historical_material_window import (
     HistoricalMaterialWindow,  # type: ignore[import]
 )
-from libs.app_module.ui.section_manager import SectionManager  # type: ignore[import]
+from sections_app.ui.section_manager import SectionManager  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
@@ -316,7 +316,7 @@ class MainWindow(tk.Toplevel):
                     self._material_manager_window.focus_force()
                     logger.debug("Material Manager già aperto, portato in primo piano")
                     return
-            except Exception:  # nosec
+            except Exception:
                 pass
 
         # Crea libreria storica e apri finestra
@@ -342,11 +342,9 @@ class MainWindow(tk.Toplevel):
             )
             self._material_manager_window.bind(
                 "<Destroy>",
-                lambda e, w=self._material_manager_window: setattr(
-                    self, "_material_manager_window", None
-                ),
+                lambda e, w=self._material_manager_window: setattr(self, "_material_manager_window", None),
             )
-        except Exception:  # nosec
+        except Exception:
             pass
         logger.debug("Material Manager aperto")
 
@@ -381,9 +379,7 @@ class MainWindow(tk.Toplevel):
             self.section_var.trace("w", lambda *a: self._on_section_change())
 
         # Pulsante per applicare esplicitamente la tipologia (fallback UX)
-        self.apply_type_btn = tk.Button(
-            self.left_frame, text="Applica tipo", command=self._on_section_change, width=12
-        )
+        self.apply_type_btn = tk.Button(self.left_frame, text="Applica tipo", command=self._on_section_change, width=12)
         self.apply_type_btn.pack(anchor="w", pady=(0, 4))
 
         # Tooltip sulla combobox
@@ -410,15 +406,14 @@ class MainWindow(tk.Toplevel):
         # Campo per angolo di rotazione (comune a tutte le sezioni)
         rotation_frame = tk.Frame(self.left_frame)
         rotation_frame.pack(fill="x", pady=(0, 8))
-        tk.Label(rotation_frame, text="Angolo di rotazione θ (gradi):").pack(
-            side="left", padx=(0, 4)
-        )
+        tk.Label(rotation_frame, text="Angolo di rotazione θ (gradi):").pack(side="left", padx=(0, 4))
         self.rotation_entry = tk.Entry(rotation_frame, width=10)
         self.rotation_entry.pack(side="left")
         self.rotation_entry.insert(0, "0.0")
         self._create_tooltip(
             self.rotation_entry,
-            "Angolo di rotazione della sezione nel suo piano (gradi). Influenza i momenti d'inerzia globali e la grafica.",
+            "Angolo di rotazione della sezione nel suo piano (gradi). "
+            "Influenza i momenti d'inerzia globali e la grafica.",
         )
 
         # Campi per i fattori di forma a taglio (kappa_y, kappa_z)
@@ -448,7 +443,7 @@ class MainWindow(tk.Toplevel):
         # Inizializza le entry con i valori di default per la tipologia corrente
         try:
             self._set_default_kappa_entries()
-        except Exception:  # nosec
+        except Exception:
             pass
 
         self.buttons_frame = tk.Frame(self.left_frame)
@@ -560,7 +555,7 @@ class MainWindow(tk.Toplevel):
         # Assicura consistenza tra StringVar e combobox
         try:
             self.section_var.set(tipo_selezionato)
-        except Exception:  # nosec
+        except Exception:
             pass
 
         # Ricostruisce i campi di input per la nuova tipologia
@@ -604,7 +599,7 @@ class MainWindow(tk.Toplevel):
                 self.after_cancel(self._polling_id)
                 self._polling_id = None
                 logger.debug("Polling selezione ComboBox annullato")
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _on_close(self) -> None:
@@ -662,7 +657,7 @@ class MainWindow(tk.Toplevel):
         # Inizializza le entry dei fattori kappa con i valori di default per la tipologia
         try:
             self._set_default_kappa_entries()
-        except Exception:  # nosec
+        except Exception:
             pass
 
         logger.debug(f"Creati {len(self.inputs)} campi input")
@@ -691,7 +686,7 @@ class MainWindow(tk.Toplevel):
             self.kappa_y_entry.insert(0, f"{ky:.6g}")
             self.kappa_z_entry.delete(0, tk.END)
             self.kappa_z_entry.insert(0, f"{kz:.6g}")
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _show_shear_help(self) -> None:
@@ -728,9 +723,7 @@ class MainWindow(tk.Toplevel):
                 if value <= 0:
                     raise ValueError
             except ValueError:
-                notify_error(
-                    "Errore", f"{field} deve essere un numero positivo", source="main_window"
-                )
+                notify_error("Errore", f"{field} deve essere un numero positivo", source="main_window")
                 return None
             values[field] = value
 
@@ -739,9 +732,7 @@ class MainWindow(tk.Toplevel):
         try:
             rotation_angle_deg = float(rotation_raw) if rotation_raw else 0.0
         except ValueError:
-            notify_error(
-                "Errore", "Angolo di rotazione deve essere un numero", source="main_window"
-            )
+            notify_error("Errore", "Angolo di rotazione deve essere un numero", source="main_window")
             return None
 
         name = self.name_entry.get().strip() or self.section_var.get()
@@ -749,12 +740,8 @@ class MainWindow(tk.Toplevel):
 
         # Leggi i fattori di forma a taglio (kappa) se forniti dall'utente
         try:
-            k_y_raw = (
-                self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
-            )
-            k_z_raw = (
-                self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
-            )
+            k_y_raw = self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
+            k_z_raw = self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
             k_y = float(k_y_raw) if k_y_raw else None
             k_z = float(k_z_raw) if k_z_raw else None
             if k_y is not None and k_y <= 0:
@@ -766,9 +753,7 @@ class MainWindow(tk.Toplevel):
             if k_z is not None:
                 section.shear_factor_z = k_z
         except ValueError:
-            notify_error(
-                "Errore", "I fattori κ devono essere numeri positivi", source="main_window"
-            )
+            notify_error("Errore", "I fattori κ devono essere numeri positivi", source="main_window")
             return None
 
         return section
@@ -819,9 +804,7 @@ class MainWindow(tk.Toplevel):
         """Disegna la sezione sul canvas applicando la rotazione se presente."""
         self.canvas.delete("all")
         width, height = self._section_dimensions(section)
-        transform = compute_transform(
-            width, height, int(self.canvas["width"]), int(self.canvas["height"])
-        )
+        transform = compute_transform(width, height, int(self.canvas["width"]), int(self.canvas["height"]))
 
         # Disegna la sezione specifica con rotazione
         if isinstance(section, RectangularSection):
@@ -854,9 +837,7 @@ class MainWindow(tk.Toplevel):
             if getattr(self, "show_core_var", None) is None or self.show_core_var.get():
                 self._draw_core(section, transform)
 
-    def _rotate_point(
-        self, x: float, y: float, cx: float, cy: float, angle_deg: float
-    ) -> tuple[float, float]:
+    def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> tuple[float, float]:
         """Ruota un punto (x,y) attorno a (cx,cy) di angle_deg gradi."""
         from math import cos, radians, sin
 
@@ -944,9 +925,7 @@ class MainWindow(tk.Toplevel):
         cx, cy = transform.to_canvas(cx_sec, cy_sec, height)
         r_canvas = radius * transform.scale
 
-        self.canvas.create_oval(
-            cx - r_canvas, cy - r_canvas, cx + r_canvas, cy + r_canvas, outline="#1f77b4", width=2
-        )
+        self.canvas.create_oval(cx - r_canvas, cy - r_canvas, cx + r_canvas, cy + r_canvas, outline="#1f77b4", width=2)
 
     def _draw_t_section(self, section: TSection, transform) -> None:
         """Disegna sezione a T con rotazione."""
@@ -970,9 +949,7 @@ class MainWindow(tk.Toplevel):
             (web_x0, 0),
             (web_x0, height - section.flange_thickness),
         ]
-        self._draw_rotated_polygon(
-            all_points, section, transform, outline="#1f77b4", width=2, fill=""
-        )
+        self._draw_rotated_polygon(all_points, section, transform, outline="#1f77b4", width=2, fill="")
 
     def _draw_l_section(self, section: LSection, transform) -> None:
         """Disegna sezione ad L con rotazione."""
@@ -1230,9 +1207,7 @@ class MainWindow(tk.Toplevel):
                 self._update_editing_mode_label()
             except Exception as e:
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
-                notify_error(
-                    "Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window"
-                )
+                notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
                 return
 
         # Se il manager è aperto, ricarica la tabella
@@ -1258,9 +1233,7 @@ class MainWindow(tk.Toplevel):
                 return
 
         # Crea nuova istanza del manager
-        manager = SectionManager(
-            self, self.repository, self.serializer, self.load_section_into_form
-        )
+        manager = SectionManager(self, self.repository, self.serializer, self.load_section_into_form)
         self.section_manager = manager
         # Assicura che quando il manager viene chiuso si rimuova il riferimento
         manager.protocol("WM_DELETE_WINDOW", lambda m=manager: self._on_manager_close(m))
@@ -1310,7 +1283,7 @@ class MainWindow(tk.Toplevel):
                 self.kappa_z_entry.insert(0, str(section.shear_factor_z))
             else:
                 self._set_default_kappa_entries()
-        except Exception:  # nosec
+        except Exception:
             # Non blocchiamo il caricamento se il campo non esiste
             pass
 
@@ -1452,7 +1425,7 @@ class MainWindow(tk.Toplevel):
             # Crea finestra tooltip
             tooltip = tk.Toplevel(widget)
             tooltip.wm_overrideredirect(True)
-            tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
+            tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
 
             label = tk.Label(
                 tooltip,

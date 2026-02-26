@@ -136,7 +136,7 @@ class GeometryRepository:
                 and self._file_path.resolve() != Path(self.DEFAULT_JSON_FILE).resolve()
             ):
                 logger.warning(
-                    "File locale %s non ha prodotto sezioni valide; provo a caricare il canonical globale %s",
+                    "File locale %s non ha prodotto sezioni valide; " "provo a caricare il canonical globale %s",
                     self._file_path,
                     Path(self.DEFAULT_JSON_FILE),
                 )
@@ -280,7 +280,7 @@ class GeometryRepository:
 
     def _ensure_seed_sections(self) -> None:
         """Ensure at least 3 seeded sections for each section type."""
-        rng = random.Random(2229)  # nosec
+        rng = random.Random(2229)
         sections_by_type: dict[str, list[Section]] = {}
         for sec in self._sections.values():
             sections_by_type.setdefault(sec.section_type, []).append(sec)

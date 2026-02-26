@@ -1,4 +1,6 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:venv",
-    "python-envs.pythonProjects": []
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.pythonProjects": [],
+    "chat.agent.maxRequests": 50,
+    "markdown.validate.enabled": true
 }

@@ -390,7 +390,8 @@ class MainWindow(tk.Toplevel):
         self.rotation_entry.insert(0, "0.0")
         self._create_tooltip(
             self.rotation_entry,
-            "Angolo di rotazione della sezione nel suo piano (gradi). Influenza i momenti d'inerzia globali e la grafica.",
+            "Angolo di rotazione della sezione nel suo piano (gradi). "
+            "Influenza i momenti d'inerzia globali e la grafica.",
         )
 
         # Campi per i fattori di forma a taglio (kappa_y, kappa_z) e fattore unico k
@@ -411,11 +412,11 @@ class MainWindow(tk.Toplevel):
         help_btn.pack(side="left", padx=(8, 0))
         self._create_tooltip(
             self.kappa_y_entry,
-            "Fattore di forma a taglio κ_y (Timoshenko). Valore predefinito in base al tipo di sezione.",
+            "Fattore di forma a taglio κ_y (Timoshenko). " "Valore predefinito in base al tipo di sezione.",
         )
         self._create_tooltip(
             self.kappa_z_entry,
-            "Fattore di forma a taglio κ_z (Timoshenko). Valore predefinito in base al tipo di sezione.",
+            "Fattore di forma a taglio κ_z (Timoshenko). " "Valore predefinito in base al tipo di sezione.",
         )
         self._create_tooltip(
             self.shear_k_entry,
@@ -424,12 +425,12 @@ class MainWindow(tk.Toplevel):
         )
         self._create_tooltip(
             help_btn,
-            "Informazioni dettagliate sui valori predefiniti di κ e sulle assunzioni (clicca per aprire)",
+            "Informazioni dettagliate sui valori predefiniti di κ e sulle assunzioni " "(clicca per aprire)",
         )
         # Inizializza le entry con i valori di default per la tipologia corrente
         try:
             self._set_default_kappa_entries()
-        except Exception:  # type: ignore[reportGeneralTypeIssues]  # nosec
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         self.buttons_frame = tk.Frame(self.left_frame)
@@ -538,7 +539,7 @@ class MainWindow(tk.Toplevel):
         # Assicura consistenza tra StringVar e combobox
         try:
             self.section_var.set(tipo_selezionato)
-        except Exception:  # type: ignore[reportGeneralTypeIssues]  # nosec
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         # Ricostruisce i campi di input per la nuova tipologia
@@ -582,7 +583,7 @@ class MainWindow(tk.Toplevel):
                 self.after_cancel(self._polling_id)
                 self._polling_id = None
                 logger.debug("Polling selezione ComboBox annullato")
-        except Exception:  # type: ignore[reportGeneralTypeIssues]  # nosec
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
     def _on_section_deleted(self, *args, **kwargs) -> None:
@@ -607,7 +608,7 @@ class MainWindow(tk.Toplevel):
         try:
             if getattr(self, "_event_bus", None) is not None:
                 self._event_bus.unsubscribe(SECTIONS_DELETED, self._on_section_deleted)
-        except Exception:  # nosec
+        except Exception:
             pass
         self.destroy()
 
@@ -659,7 +660,7 @@ class MainWindow(tk.Toplevel):
         # Inizializza le entry dei fattori kappa con i valori di default per la tipologia
         try:
             self._set_default_kappa_entries()
-        except Exception:  # type: ignore[reportGeneralTypeIssues]  # nosec
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         logger.debug(f"Creati {len(self.inputs)} campi input")
@@ -697,7 +698,7 @@ class MainWindow(tk.Toplevel):
                 kdef = ky
             self.shear_k_entry.delete(0, tk.END)
             self.shear_k_entry.insert(0, f"{kdef:.6g}")
-        except Exception:  # type: ignore[reportGeneralTypeIssues]  # nosec
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
     def _show_shear_help(self) -> None:
@@ -825,7 +826,7 @@ class MainWindow(tk.Toplevel):
             # update saved listbox display to reflect any possible external changes
             try:
                 self._populate_saved_list()
-            except Exception:  # nosec
+            except Exception:
                 pass
 
     def show_graphic(self) -> None:
@@ -880,8 +881,8 @@ class MainWindow(tk.Toplevel):
         ix = _get(props, "Ix", "ix")
         iy = _get(props, "Iy", "iy")
         ixy = _get(props, "Ixy", "ixy")
-        _get(props, "qx", "qx")
-        _get(props, "qy", "qy")
+        qx = _get(props, "qx", "qx")
+        qy = _get(props, "qy", "qy")
         rx = _get(props, "r1", "rx")
         ry = _get(props, "r2", "ry")
         x_c = _get(props, "x_c", "centroid_x")
@@ -1305,13 +1306,13 @@ class MainWindow(tk.Toplevel):
             if added:
                 messagebox.showinfo(
                     "Salvataggio",
-                    f"Sezione '{section.name}' salvata correttamente nell'archivio.\nID: {section.id}",
+                    f"Sezione '{section.name}' salvata correttamente nell'archivio.\n" f"ID: {section.id}",
                 )
                 logger.debug("Sezione creata: %s", section.id)
             else:
                 notify_error(
                     "Errore salvataggio",
-                    f"Impossibile salvare la sezione '{section.name}': duplicata o errore nel calcolo proprietà.",
+                    f"Impossibile salvare la sezione '{section.name}': " "duplicata o errore nel calcolo proprietà.",
                     source="main_window",
                 )
         else:
@@ -1321,7 +1322,7 @@ class MainWindow(tk.Toplevel):
                 self.repository.update_section(self.editing_section_id, section)
                 messagebox.showinfo(
                     "Aggiornamento",
-                    f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\nID: {self.editing_section_id}",
+                    f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\n" f"ID: {self.editing_section_id}",
                 )
                 logger.debug("Sezione aggiornata: %s", self.editing_section_id)
                 self.editing_section_id = None
@@ -1405,7 +1406,7 @@ class MainWindow(tk.Toplevel):
             # Only reset to defaults if both are missing
             if ky is None and kz is None:
                 self._set_default_kappa_entries()
-        except Exception:  # type: ignore[reportGeneralTypeIssues]  # nosec
+        except Exception:  # type: ignore[reportGeneralTypeIssues]
             pass
 
         self.current_section = section
@@ -1478,7 +1479,7 @@ class MainWindow(tk.Toplevel):
         # Reset kappa entries to defaults for the current section type
         try:
             self._set_default_kappa_entries()
-        except Exception:  # nosec
+        except Exception:
             pass
         self.output_text.delete("1.0", tk.END)
         self.canvas.delete("all")
@@ -1492,7 +1493,7 @@ class MainWindow(tk.Toplevel):
         else:
             section_name: str = self.current_section.name if self.current_section else "(sconosciuto)"
             self.editing_mode_label.config(
-                text=f"Modalità: Modifica sezione '{section_name}'\nID: {self.editing_section_id[:8]}...",
+                text=f"Modalità: Modifica sezione '{section_name}'\n" f"ID: {self.editing_section_id[:8]}...",
                 fg="#cc6600",
             )
 

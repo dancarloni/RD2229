@@ -2,17 +2,17 @@
 """
 verify_softw_components.py
 
-Checks internal import dependencies for the `libs.app_module` directory.
+Checks internal import dependencies for the `softw_components` directory.
 
 Usage:
-    python tools/verify_softw_components.py [--dir libs.app_module]
+    python tools/verify_softw_components.py [--dir softw_components]
 
 This script parses Python files under the given directory, builds a map of local
 modules (dotted names -> file paths) and reports any import statements that
 refer to local modules that are missing in the directory.
 
 It does NOT attempt to import third-party packages or check installed deps;
-it only verifies local/module-level consistency inside `libs.app_module`.
+it only verifies local/module-level consistency inside `softw_components`.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def parse_imports(file_path: Path) -> list[ast.AST]:
 
 
 def resolve_relative(from_mod: str, level: int, module: str | None) -> str | None:
-    # from_mod: e.g. 'libs.app_module.ui.module_selector'
+    # from_mod: e.g. 'app_module.ui.module_selector'
     if level == 0:
         return module
     parts = from_mod.split(".") if from_mod else []
@@ -58,7 +58,7 @@ def resolve_relative(from_mod: str, level: int, module: str | None) -> str | Non
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--dir", default="libs.app_module")
+    p.add_argument("--dir", default="softw_components")
     args = p.parse_args()
     root = Path(args.dir)
     if not root.exists():

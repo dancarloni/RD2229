@@ -1,0 +1,4 @@
+# file: C:\Users\DanieleCarloni\RD2229\config\historical_materials_loader.py
+# hypothesis_version: 6.151.5
+
+['*.jsoncode', 'calculation_formulas', 'cement_types', 'code_name', 'concrete_classes', 'config', 'conversion_factors', 'historical_materials', 'r', 'steel_types', 'utf-8']

@@ -675,6 +675,7 @@ def compute_section_properties_from_geometry(geom: SectionGeometry, shear_factor
             from shapely.geometry import Polygon
 
             poly = Polygon(geom.exterior, holes=geom.holes)
+            core_poly = None
             candidates = []
             # try a few inward offsets and collect valid candidate polygons
             for frac in [0.01, 0.02, 0.03, 0.05, 0.07, 0.1, 0.15, 0.2]:
@@ -688,7 +689,7 @@ def compute_section_properties_from_geometry(geom: SectionGeometry, shear_factor
                 else:
                     try:
                         polys = [p for p in buf.geoms if getattr(p, "area", 0.0) > 0]
-                    except Exception:  # nosec
+                    except Exception:
                         continue
                 # score candidates by area * solidity (area / convex hull area)
                 for cand in polys:
@@ -719,7 +720,7 @@ def compute_section_properties_from_geometry(geom: SectionGeometry, shear_factor
                         # combined score: favor large, compact, and low-aspect candidates
                         score = cand_area * solidity * max(0.0, compactness) * max(1e-6, aspect_factor)
                         candidates.append((score, cand))
-                    except Exception:  # nosec
+                    except Exception:
                         continue
             if candidates:
                 # choose best scored candidate
@@ -851,7 +852,7 @@ def compute_section_properties_from_section(section: Section, shear_factor: floa
         props.meta["kappa_z"] = float(kappa_z)
         props.meta["shear_area_y"] = float(A_y_ref * kappa_y) if A_y_ref is not None else None
         props.meta["shear_area_z"] = float(A_z_ref * kappa_z) if A_z_ref is not None else None
-    except Exception:  # nosec
+    except Exception:
         # be resilient: don't break the main pipeline if shear area computation fails
         pass
 

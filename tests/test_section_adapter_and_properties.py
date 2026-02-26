@@ -1,7 +1,7 @@
 import pytest
 
-from apps.sections.models.sections import RectangularSection, TSection
-from src.core_calculus.section_calculations import (
+from sections_app.models.sections import RectangularSection, TSection
+from sections_app.section_calculations import (
     compute_section_properties_from_geometry,
     section_to_geometry,
 )
@@ -53,7 +53,7 @@ def test_T_adapter_bbox_and_area_consistency():
     assert pytest.approx(maxy, rel=1e-6) == wh + ft
 
     # polygon area matches computed area (use shapely if available, else compute shoelace)
-    pytest.importorskip("shapely")
+    shapely = pytest.importorskip("shapely")
     from shapely.geometry import Polygon as ShPolygon
 
     poly = ShPolygon(geom.exterior, holes=geom.holes)

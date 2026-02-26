@@ -196,7 +196,7 @@ def compute_shear_areas(section: Section) -> tuple[float, float]:
                         kappa_y = float(kdef[0])
                     if not kappa_z or kappa_z <= 0:
                         kappa_z = float(kdef[1])
-            except Exception:  # nosec
+            except Exception:
                 # Ignore and fallback
                 pass
 

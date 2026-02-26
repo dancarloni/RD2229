@@ -12,7 +12,7 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 
-from apps.sections.services.debug_log_stream import get_log_buffer  # type: ignore[import]
+from sections_app.services.debug_log_stream import get_log_buffer  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

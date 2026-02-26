@@ -14,8 +14,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from apps.sections.models.sections import CircularSection, RectangularSection
-from apps.sections.services.repository import SectionRepository
+from sections_app.models.sections import CircularSection, RectangularSection
+from sections_app.services.repository import SectionRepository
 
 
 class TestExportBackup(unittest.TestCase):

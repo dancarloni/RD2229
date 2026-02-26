@@ -1,4 +1,4 @@
-from modules.registry import ModuleRegistry
+from sections_app.modules.registry import ModuleRegistry
 
 
 def test_registry_discovers_modules():
@@ -6,8 +6,8 @@ def test_registry_discovers_modules():
     specs = registry.get_specs()
     assert isinstance(specs, list)
     keys = {s.key for s in specs}
-    # Expect at least the carbon_fiber_placeholder and debug modules that exist in the modules package
-    assert "carbon_fiber_placeholder" in keys
+    # Expect at least the geometry and debug modules that exist in the modules package
+    assert "geometry" in keys
     assert "debug" in keys
 
 
@@ -16,10 +16,10 @@ def test_ordering_from_config(tmp_path, monkeypatch):
 
     # create a temporary config that sets order
     cfg = {
-        "order": ["material", "carbon_fiber_placeholder"],
+        "order": ["material", "geometry"],
         "modules": {
             "material": {"enabled": True},
-            "carbon_fiber_placeholder": {"enabled": True},
+            "geometry": {"enabled": True},
         },
     }
     cfg_file = tmp_path / "modules_config.json"
@@ -27,7 +27,7 @@ def test_ordering_from_config(tmp_path, monkeypatch):
 
     import importlib
 
-    pkg = importlib.import_module("modules")
+    pkg = importlib.import_module("sections_app.modules")
     # monkeypatch the config path to point to tmp file
     monkeypatch.setattr(pkg, "__file__", str(cfg_file))
 

@@ -10,24 +10,18 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"
 
-[project.optional-dependencies]
-gui = ["PySide6>=6.6"]
-
-[project.scripts]
-structcalc = "src.ui.app:main"
-
 [tool.black]
-line-length = 100
+line-length = 125
 target-version = ["py311"]
 skip-string-normalization = false
 
 [tool.isort]
 profile = "black"
-line_length = 100
+line_length = 125
 combine_as_imports = true
 
 [tool.ruff]
-line-length = 100
+line-length = 125
 target-version = "py311"
 
 [tool.ruff.lint]
@@ -46,7 +40,7 @@ ignore = ["E203", "N803", "N806", "E501", "N815", "N802"]
 # Usi Black come formatter principale → lascia il formatter di Ruff disattivo (default)
 
 [tool.flake8]
-max-line-length = 100
+max-line-length = 125
 extend-ignore = ["E203", "W503"]
 exclude = [".venv", "build", "dist", ".git"]
 
@@ -83,24 +77,16 @@ warn_return_any = true
 strict = true
 show_error_codes = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
-# Exclude local duplicate module that collides with top-level package name
-# This avoids "Duplicate module named \"app\"" during local mypy runs.
-exclude = '(^|/)(softw_components/app_module/app\\.py)$'
 
 [tool.bandit]
 skips = ["B101"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-# extra options from pytest.ini are merged here; keep -q and ignore legacy tests
-addopts = "-q --ignore=tests_legacy -ra --strict-markers --disable-warnings"
-# only run tests under `tests/`; legacy folder is excluded via addopts
-testpaths = ["tests"]
-pythonpath = [".", "src"]
-# markers defined both in pytest.ini and earlier here; keep all to avoid missing names
+addopts = "-ra -q --strict-markers --disable-warnings"
+testpaths = ["tests", "tests_legacy"]
+pythonpath = ["."]
 markers = [
-  "ui: mark tests as UI tests requiring tkinter",
-  "slow: mark tests as slow (skip in CI by default)",
   "gui: tests che richiedono ambiente grafico (usare xvfb in CI)",
 ]
 filterwarnings = [
@@ -121,10 +107,10 @@ repos = [
         { id = "check-added-large-files" },
     ]},
     { repo = "https://github.com/psf/black", rev = "23.12.1", hooks = [
-      { id = "black", args = ["--line-length", "100"] },
+      { id = "black", args = ["--line-length", "125"] },
     ]},
     { repo = "https://github.com/pycqa/isort", rev = "5.13.2", hooks = [
-      { id = "isort", args = ["--profile", "black", "--line-length", "100"] },
+      { id = "isort", args = ["--profile", "black", "--line-length", "125"] },
     ]},
     { repo = "https://github.com/charliermarsh/ruff-pre-commit", rev = "v0.1.14", hooks = [
         { id = "ruff", args = ["--fix", "--show-fixes"] },
@@ -136,6 +122,4 @@ repos = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["src"]
-include = ["rd2229*"]
-
+include = ["src*","src.*"]

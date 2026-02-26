@@ -64,9 +64,7 @@ class RebarCalculatorWindow:
         tk.Label(frame, text="n barre", width=8, anchor="w").grid(row=0, column=1, sticky="w")
 
         for i, d in enumerate(DIAMETERS, start=1):
-            tk.Label(frame, text=f"Ø{d}", width=8, anchor="w").grid(
-                row=i, column=0, sticky="w", pady=2
-            )
+            tk.Label(frame, text=f"Ø{d}", width=8, anchor="w").grid(row=i, column=0, sticky="w", pady=2)
             var = tk.StringVar(value=str((initial_values or {}).get(d, "")))
             self._vars[d] = var
             ent = tk.Entry(frame, textvariable=var, width=8)
@@ -113,7 +111,7 @@ class RebarCalculatorWindow:
                 # Ignore errors in callback but log in parent if available
                 try:
                     logging.getLogger(__name__).exception("Error in rebar on_confirm callback")
-                except Exception:  # type: ignore[reportGeneralTypeIssues]  # nosec
+                except Exception:  # type: ignore[reportGeneralTypeIssues]
                     pass
         self._close()
 

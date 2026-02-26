@@ -35,7 +35,7 @@ class VerificationType(StrEnum):
 
 @dataclass
 class SectionGeometry:
-    """Cross-section carbon_fiber_placeholder parameters."""
+    """Cross-section geometry parameters."""
 
     width: float  # b [cm]
     height: float  # h [cm]
@@ -82,7 +82,7 @@ class MaterialProperties:
     # Homogenization
     n: float | None = None  # Es/Ec
 
-    def __post_init__(self) -> None:
+    def __post_init__(self):
         """Calculate derived properties if not provided."""
         if self.fcd is None:
             self.fcd = self.fck  # Will be adjusted by safety factors
@@ -205,7 +205,7 @@ class VerificationResult:
     is_verified: bool = False
     messages: list[str] | None = None
 
-    def __post_init__(self) -> None:
+    def __post_init__(self):
         """Initialize messages list."""
         if self.messages is None:
             self.messages = []
@@ -224,7 +224,7 @@ def calculate_neutral_axis_simple_bending(
     For rectangular section with double reinforcement.
 
     Args:
-        section: Section carbon_fiber_placeholder
+        section: Section geometry
         reinforcement_tensile: Tensile reinforcement (bottom)
         reinforcement_compressed: Compressed reinforcement (top)
         material: Material properties
@@ -396,7 +396,7 @@ def calculate_stresses_simple_bending(
     Based on formulas from PrincipCA_TA.bas.
 
     Args:
-        section: Section carbon_fiber_placeholder
+        section: Section geometry
         reinforcement_tensile: Tensile reinforcement
         reinforcement_compressed: Compressed reinforcement
         material: Material properties
@@ -447,12 +447,7 @@ def calculate_stresses_simple_bending(
         # ---- FRC contribution (MVP) ----
         sigma_frc_equiv = 0.0
         try:
-            if (
-                frc_material
-                and getattr(frc_material, "frc_enabled", False)
-                and frc_area
-                and I_homog > 0
-            ):
+            if frc_material and getattr(frc_material, "frc_enabled", False) and frc_area and I_homog > 0:
                 # Estimate curvature kappa = M / (Ec * I_homog)
                 Ec = material.Ec if material.Ec and material.Ec > 0 else 1.0
                 curvature = moment / (Ec * I_homog)
@@ -562,11 +557,7 @@ def estimate_required_torsion_reinforcement(
     d = reinforcement_tensile.distance
     z = 0.9 * d if d and d > 0 else 0.9 * (section.height / 2.0)
     # material.fyd may be in MPa; convert to kg/cm² if small magnitude suggests MPa
-    fyd = (
-        material.fyd
-        if (material and material.fyd is not None)
-        else (material.fyk if material else 380.0)
-    )
+    fyd = material.fyd if (material and material.fyd is not None) else (material.fyk if material else 380.0)
     # If fyd seems like MPa (e.g. < 2000), convert
     if fyd and fyd < 2000:
         fyd = fyd * 10.197

@@ -1,6 +1,6 @@
 import unittest
 
-from apps.sections.models.sections import LSection, create_section_from_dict
+from sections_app.models.sections import LSection, create_section_from_dict
 
 
 class TestLSectionParserCompatibility(unittest.TestCase):
