@@ -275,7 +275,8 @@ class VerificationResultRepository:
 
     def list_by_project(self, project_id: str) -> list[VerificationResult]:
         rows = self.conn.execute(
-            "SELECT * FROM verification_results WHERE project_id = ? ORDER BY created_at", (project_id,)
+            "SELECT * FROM verification_results WHERE project_id = ? ORDER BY created_at",
+            (project_id,),
         ).fetchall()
         items: list[VerificationResult] = []
         for row in rows:

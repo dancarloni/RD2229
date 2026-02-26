@@ -33,11 +33,14 @@ def is_spec_compatible(spec: ModuleSpec) -> tuple[bool, list[str]]:
         warnings.append("missing-engine-entrypoint")
     return (len(warnings) == 0, warnings)
 
+
 def register(name: str, fn: Callable) -> None:
     _REGISTRY[name] = fn
 
+
 def get(name: str) -> Callable | None:
     return _REGISTRY.get(name)
+
 
 def list_plugins() -> list[str]:
     return list(_REGISTRY.keys())

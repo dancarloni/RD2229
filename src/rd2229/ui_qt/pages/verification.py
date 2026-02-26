@@ -4,17 +4,17 @@ from __future__ import annotations
 
 try:
     from PySide6.QtWidgets import (
-        QWidget,
-        QVBoxLayout,
+        QComboBox,
+        QFormLayout,
+        QGroupBox,
+        QHBoxLayout,
         QLabel,
+        QLineEdit,
         QListWidget,
         QPushButton,
         QTextEdit,
-        QHBoxLayout,
-        QGroupBox,
-        QFormLayout,
-        QLineEdit,
-        QComboBox,
+        QVBoxLayout,
+        QWidget,
     )
 except Exception:  # pragma: no cover - optional dependency
     QWidget = object

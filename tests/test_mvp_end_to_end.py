@@ -7,15 +7,15 @@ def test_mvp_end_to_end_headless(tmp_path):
     config_path = tmp_path / "mvp.jsoncode"
     config_path.write_text(
         (
-            '{\n'
+            "{\n"
             '  "id": "MVP_PLACEHOLDER",\n'
             '  "version": "1.0.0",\n'
             '  "namespace": "NTC2018",\n'
             '  "payload": {\n'
             '    "threshold": 1000.0,\n'
             '    "norm_references": ["TODO:REF"]\n'
-            '  }\n'
-            '}\n'
+            "  }\n"
+            "}\n"
         ),
         encoding="utf-8",
     )

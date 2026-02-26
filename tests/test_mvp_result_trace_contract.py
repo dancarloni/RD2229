@@ -8,7 +8,7 @@ def test_mvp_results_have_trace_run_id_and_norm_references(tmp_path):
     config_path = tmp_path / "mvp.jsoncode"
     config_path.write_text(
         (
-            '{\n'
+            "{\n"
             '  "id": "MVP_PLACEHOLDER",\n'
             '  "version": "1.0.0",\n'
             '  "namespace": "NTC2018",\n'
@@ -17,8 +17,8 @@ def test_mvp_results_have_trace_run_id_and_norm_references(tmp_path):
             '    "threshold": 2000.0,\n'
             '    "provenance": {"threshold": "project_profile"},\n'
             '    "norm_references": ["TODO(NTC/EC/RD):REF"]\n'
-            '  }\n'
-            '}\n'
+            "  }\n"
+            "}\n"
         ),
         encoding="utf-8",
     )

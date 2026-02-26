@@ -11,7 +11,7 @@ def test_verification_service_runs_mvp_module_with_inputs(tmp_path):
 
     (config_dir / "MVP_PLACEHOLDER.jsoncode").write_text(
         (
-            '{\n'
+            "{\n"
             '  "id": "MVP_PLACEHOLDER",\n'
             '  "version": "1.0.0",\n'
             '  "namespace": "NTC2018",\n'
@@ -19,8 +19,8 @@ def test_verification_service_runs_mvp_module_with_inputs(tmp_path):
             '    "check_code": "MVP_REAL_MIN",\n'
             '    "threshold": 1000.0,\n'
             '    "norm_references": ["TODO(NTC/EC/RD):REF"]\n'
-            '  }\n'
-            '}\n'
+            "  }\n"
+            "}\n"
         ),
         encoding="utf-8",
     )

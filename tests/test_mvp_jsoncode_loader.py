@@ -7,7 +7,7 @@ def test_jsoncode_loader_reads_check_code_and_provenance(tmp_path):
     config_path = tmp_path / "ok.jsoncode"
     config_path.write_text(
         (
-            '{\n'
+            "{\n"
             '  "id": "MVP_PLACEHOLDER",\n'
             '  "version": "1.0.0",\n'
             '  "namespace": "NTC2018",\n'
@@ -16,8 +16,8 @@ def test_jsoncode_loader_reads_check_code_and_provenance(tmp_path):
             '    "threshold": 1500.0,\n'
             '    "provenance": {"threshold": "project_profile"},\n'
             '    "norm_references": ["TODO(NTC/EC/RD):REF"]\n'
-            '  }\n'
-            '}\n'
+            "  }\n"
+            "}\n"
         ),
         encoding="utf-8",
     )
@@ -31,15 +31,15 @@ def test_jsoncode_loader_rejects_invalid_threshold_type(tmp_path):
     config_path = tmp_path / "bad.jsoncode"
     config_path.write_text(
         (
-            '{\n'
+            "{\n"
             '  "id": "MVP_PLACEHOLDER",\n'
             '  "version": "1.0.0",\n'
             '  "namespace": "NTC2018",\n'
             '  "payload": {\n'
             '    "threshold": "bad",\n'
             '    "norm_references": ["TODO(NTC/EC/RD):REF"]\n'
-            '  }\n'
-            '}\n'
+            "  }\n"
+            "}\n"
         ),
         encoding="utf-8",
     )

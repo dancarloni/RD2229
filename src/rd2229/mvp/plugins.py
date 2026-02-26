@@ -10,9 +10,18 @@ def build_default_module_specs() -> list[plugin_registry.ModuleSpec]:
             name="Core Structural Checks",
             version="0.1.0",
             entrypoints={"engine": "rd2229.mvp.engine.PlaceholderVerificationEngine"},
-            capabilities={"checks": ["MVP_PLACEHOLDER", "MVP_REAL_MIN"], "norms": ["TODO(NTC/EC/RD)"]},
+            capabilities={
+                "checks": ["MVP_PLACEHOLDER", "MVP_REAL_MIN"],
+                "norms": ["TODO(NTC/EC/RD)"],
+            },
             data_contracts={
-                "result_trace": ["run_id", "norm_references", "method_id", "assumptions", "warnings"]
+                "result_trace": [
+                    "run_id",
+                    "norm_references",
+                    "method_id",
+                    "assumptions",
+                    "warnings",
+                ]
             },
         ),
         plugin_registry.ModuleSpec(

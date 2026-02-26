@@ -6,14 +6,14 @@ from pathlib import Path
 
 try:
     from PySide6.QtWidgets import (
-        QWidget,
-        QLabel,
-        QVBoxLayout,
-        QGroupBox,
-        QFormLayout,
-        QLineEdit,
         QComboBox,
+        QFormLayout,
+        QGroupBox,
+        QLabel,
+        QLineEdit,
         QPushButton,
+        QVBoxLayout,
+        QWidget,
     )
 except Exception:  # pragma: no cover - optional dependency
     QWidget = object

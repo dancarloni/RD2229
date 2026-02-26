@@ -4,7 +4,7 @@ from __future__ import annotations
 
 try:
     from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGroupBox
+    from PySide6.QtWidgets import QGroupBox, QLabel, QVBoxLayout, QWidget
 except Exception:  # pragma: no cover - optional dependency
     QWidget = object
 

@@ -7,7 +7,7 @@ def test_real_min_check_returns_fail_over_threshold(tmp_path):
     config_path = tmp_path / "real_min.jsoncode"
     config_path.write_text(
         (
-            '{\n'
+            "{\n"
             '  "id": "MVP_PLACEHOLDER",\n'
             '  "version": "1.0.0",\n'
             '  "namespace": "NTC2018",\n'
@@ -15,8 +15,8 @@ def test_real_min_check_returns_fail_over_threshold(tmp_path):
             '    "check_code": "MVP_REAL_MIN",\n'
             '    "threshold": 100.0,\n'
             '    "norm_references": ["TODO(NTC/EC/RD):REF"]\n'
-            '  }\n'
-            '}\n'
+            "  }\n"
+            "}\n"
         ),
         encoding="utf-8",
     )

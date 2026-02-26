@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-
 ResultStatus = Literal["OK", "WARN", "FAIL"]
 ElementRole = Literal["PRIMARY", "SECONDARY"]
 
