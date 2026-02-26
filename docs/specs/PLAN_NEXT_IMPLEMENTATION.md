@@ -11,12 +11,14 @@
 - Estensione plugin registry già introdotta con `ModuleSpec` mantenendo API esistenti (`register/get/list_plugins`).
 - Suite completa con 2 fail preesistenti: `tests/test_app_launch.py`, `tests/test_entrypoint_no_pyside.py`.
 
-## 2A. Stato esecuzione batch corrente
-- Stream A: completato (packaging/import/entrypoint hardening + test runtime verdi).
-- Stream D: completato a livello minimo (validazione `.jsoncode` estesa, provenance minima, compatibilità plugin).
-- Stream B: completato a livello minimo (`MVP_REAL_MIN`, trace contract rinforzato, fallback `MVP_PLACEHOLDER`).
-- Stream E2 (baseline): avviato con launcher operativo (catalogo moduli, input configurabili, selezioni, output run).
-- Regressione: suite completa verde (`510 passed`, `0 failed`).
+## 2A. Stato esecuzione batch corrente (aggiornato 2026-02-26)
+- Stream A: **COMPLETATO** (packaging/import/entrypoint hardening + test runtime verdi).
+- Stream D: **COMPLETATO** a livello minimo (validazione `.jsoncode` estesa, provenance minima, compatibilità plugin).
+- Stream B: **COMPLETATO** a livello minimo (`MVP_REAL_MIN`, trace contract rinforzato, fallback `MVP_PLACEHOLDER`).
+- Stream C: **IN CORSO** — macro bandiera selezionata (`CA_SLU::VerifResistCA_SLU_TensNorm`), scheda e golden test in implementazione.
+- Stream E1: **IN CORSO** — MVP report builder JSON con metadata audit.
+- Stream E2 (baseline): **AVVIATO** con launcher operativo (catalogo moduli, input configurabili, selezioni, output run).
+- Regressione: suite corrente verde (`479 passed`, `9 skipped`, `0 failed` in CI headless).
 
 ## 3. Stream A — Packaging / Import / Entrypoint
 

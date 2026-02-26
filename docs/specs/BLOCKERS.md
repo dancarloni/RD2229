@@ -34,6 +34,12 @@
   - Test verde in ambiente standard.
   - Validazione fallback confermata.
 
+## Aggiornamento batch 2026-02-26
+- Blocker 1/2: CHIUSI dal batch precedente.
+- Suite corrente: `479 passed`, `9 skipped`, `0 failed` (CI headless senza PySide6/Qt).
+- Nuovi blocker: nessuno introdotto.
+- Documenti di specifica aggiunti in `docs/specs/`: ARCH_BOUNDARIES_AND_DEPENDENCIES.md, MODULE_CONTRACTS.md, REPOSITORY_CONTRACTS.md, GUI_INTEGRATION_RULES.md, DEPRECATION_REGISTER.md, AGENT_EXECUTION_CONTEXT.md.
+
 ## Governance
 - Nessun workaround senza owner, scadenza e criterio di uscita.
 - Nessuna scorciatoia normativa per bypassare test.
