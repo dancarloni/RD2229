@@ -5,6 +5,7 @@ import logging
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Dict, List, Optional
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
@@ -28,17 +29,19 @@ except ImportError:
 class Material:
     name: str
     type: str  # e.g., 'concrete', 'steel'
-    code: str = ""  # ✅ NUOVO: codice del materiale (es. "C100", "A500") - permette ricerca per codice
-    properties: dict[str, float] = field(default_factory=dict)
+    code: str = (
+        ""  # ✅ NUOVO: codice del materiale (es. "C100", "A500") - permette ricerca per codice
+    )
+    properties: Dict[str, float] = field(default_factory=dict)
     # FRC (Fiber Reinforced Composite) optional parameters
     frc_enabled: bool = False
-    frc_fFts: float | None = None  # tensile strength (design) of fibers
-    frc_fFtu: float | None = None  # ultimate tensile strength of fibers
-    frc_eps_fu: float | None = None  # ultimate strain of fibers
-    frc_note: str | None = None  # free-text note or source
+    frc_fFts: Optional[float] = None  # tensile strength (design) of fibers
+    frc_fFtu: Optional[float] = None  # ultimate tensile strength of fibers
+    frc_eps_fu: Optional[float] = None  # ultimate strain of fibers
+    frc_note: Optional[str] = None  # free-text note or source
     id: str = field(default_factory=lambda: str(uuid4()))
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict:
         """Converte il Material a dizionario per JSON."""
         return {
             "id": self.id,
@@ -55,7 +58,7 @@ class Material:
         }
 
     @staticmethod
-    def from_dict(data: dict) -> Material:
+    def from_dict(data: Dict) -> Material:
         """Crea un Material da un dizionario JSON."""
         return Material(
             id=data.get("id", str(uuid4())),
@@ -76,31 +79,28 @@ class Material:
 try:
     from historical_materials import (
         HistoricalMaterial as _HistoricalMaterial_external,
-    )
-    from historical_materials import (
         HistoricalMaterialLibrary as _HistoricalMaterialLibrary_external,
     )
-
     HistoricalMaterial = _HistoricalMaterial_external
     HistoricalMaterialLibrary = _HistoricalMaterialLibrary_external
-except Exception:  # pylint: disable=broad-exception-caught
+except Exception:
     # Fallback definitions (should not normally be used)
     @dataclass
     class _HistoricalMaterial:
         code: str
         name: str
-        fck: float | None = None
-        fcd: float | None = None
-        fyk: float | None = None
-        fyd: float | None = None
-        Ec: float | None = None
-        Es: float | None = None
-        gamma_c: float | None = None
-        gamma_s: float | None = None
-        source: str | None = None
-        notes: str | None = None
+        fck: Optional[float] = None
+        fcd: Optional[float] = None
+        fyk: Optional[float] = None
+        fyd: Optional[float] = None
+        Ec: Optional[float] = None
+        Es: Optional[float] = None
+        gamma_c: Optional[float] = None
+        gamma_s: Optional[float] = None
+        source: Optional[str] = None
+        notes: Optional[str] = None
 
-        def to_dict(self) -> dict:
+        def to_dict(self) -> Dict:
             return {
                 "code": self.code,
                 "name": self.name,
@@ -117,7 +117,7 @@ except Exception:  # pylint: disable=broad-exception-caught
             }
 
         @staticmethod
-        def from_dict(d: dict) -> _HistoricalMaterial:
+        def from_dict(d: Dict) -> "_HistoricalMaterial":
             return _HistoricalMaterial(
                 code=d.get("code", ""),
                 name=d.get("name", ""),
@@ -136,7 +136,7 @@ except Exception:  # pylint: disable=broad-exception-caught
     class _HistoricalMaterialLibrary:
         def __init__(self, path: str | Path | None = None):
             self._file_path = Path(path or "historical_materials.json")
-            self._materials: list[_HistoricalMaterial] = []
+            self._materials: List[_HistoricalMaterial] = []
 
         def load_from_file(self) -> None:
             self._materials.clear()
@@ -146,7 +146,9 @@ except Exception:  # pylint: disable=broad-exception-caught
                 with self._file_path.open("r", encoding="utf-8") as f:
                     raw = json.load(f)
                 if not isinstance(raw, list):
-                    logger.warning("Historical materials file %s does not contain a list", self._file_path)
+                    logger.warning(
+                        "Historical materials file %s does not contain a list", self._file_path
+                    )
                     return
                 for idx, item in enumerate(raw):
                     try:
@@ -162,38 +164,32 @@ except Exception:  # pylint: disable=broad-exception-caught
                     self._file_path.parent.mkdir(parents=True, exist_ok=True)
                 tmp = self._file_path.with_suffix(self._file_path.suffix + ".tmp")
                 with tmp.open("w", encoding="utf-8") as f:
-                    json.dump([m.to_dict() for m in self._materials], f, indent=2, ensure_ascii=False)
+                    json.dump(
+                        [m.to_dict() for m in self._materials], f, indent=2, ensure_ascii=False
+                    )
                 tmp.replace(self._file_path)
             except Exception:
                 logger.exception("Error saving historical materials to %s", self._file_path)
 
-        def get_all(self) -> list[_HistoricalMaterial]:
+        def get_all(self) -> List[_HistoricalMaterial]:
             return list(self._materials)
 
-        def add(self, material: _HistoricalMaterial) -> None:
+        def add(self, material: "_HistoricalMaterial") -> None:
             existing = self.find_by_code(material.code)
             if existing:
                 self._materials = [m for m in self._materials if m.code != material.code]
             self._materials.append(material)
             self.save_to_file()
 
-        def find_by_code(self, code: str) -> _HistoricalMaterial | None:
+        def find_by_code(self, code: str) -> Optional["_HistoricalMaterial"]:
             for m in self._materials:
                 if m.code == code:
                     return m
             return None
 
-
-# Expose canonical names for runtime compatibility (use fallback only if needed)
-try:
-    HistoricalMaterial
-except NameError:
-    HistoricalMaterial = _HistoricalMaterial  # type: ignore
-
-try:
-    HistoricalMaterialLibrary
-except NameError:
-    HistoricalMaterialLibrary = _HistoricalMaterialLibrary  # type: ignore
+# Expose canonical names for runtime compatibility
+HistoricalMaterial = _HistoricalMaterial  # type: ignore
+HistoricalMaterialLibrary = _HistoricalMaterialLibrary  # type: ignore
 
 
 class MaterialRepository:
@@ -202,14 +198,16 @@ class MaterialRepository:
     DEFAULT_JSON_FILE = "materials.json"
 
     def __init__(self, json_file: str = DEFAULT_JSON_FILE) -> None:
-        self._materials: dict[str, Material] = {}
+        self._materials: Dict[str, Material] = {}
         self._json_file = json_file
         # Flag per repository in-memory (es. json_file=":memory:") usato nei test
         self._in_memory = json_file == ":memory:"
 
         # Percorsi per backup
         self._file_path = Path(json_file)
-        self._backup_path = self._file_path.with_name(f"{self._file_path.stem}_backup{self._file_path.suffix}")
+        self._backup_path = self._file_path.with_name(
+            f"{self._file_path.stem}_backup{self._file_path.suffix}"
+        )
 
         # Carica i materiali dal file JSON se esiste (se non siamo in-memory)
         if not self._in_memory:
@@ -224,17 +222,18 @@ class MaterialRepository:
         if HAS_EVENT_BUS:
             EventBus().emit(MATERIALS_ADDED, material_id=mat.id, material_name=mat.name)
 
-    def get_all(self) -> list[Material]:
+    def get_all(self) -> List[Material]:
         return list(self._materials.values())
 
-    def import_historical_material(self, hist: HistoricalMaterial) -> Material:
-        """Crea un oggetto Material a partire da un HistoricalMaterial senza
+    def import_historical_material(self, hist: "HistoricalMaterial") -> Material:
+        """
+        Crea un oggetto Material a partire da un HistoricalMaterial senza
         aggiungerlo automaticamente all'archivio.
 
         ✅ Mantiene il `code` dalla fonte storica per permettere ricerca
         per codice.
         """
-        props: dict[str, float] = {}
+        props: Dict[str, float] = {}
         keys = [
             "fck",
             "fcd",
@@ -255,20 +254,21 @@ class MaterialRepository:
             else ("steel" if getattr(hist, "fyk", None) is not None else "historical")
         )
         # ✅ Preserva il code dalla fonte storica
-        return Material(
+        mat = Material(
             name=hist.name,
             type=mat_type,
             code=getattr(hist, "code", ""),  # ✅ Usa code da HistoricalMaterial
             properties=props,
         )
+        return mat
 
-    def find_by_name(self, name: str) -> Material | None:
+    def find_by_name(self, name: str) -> Optional[Material]:
         for m in self._materials.values():
             if m.name == name:
                 return m
         return None
 
-    def find_by_id(self, material_id: str) -> Material | None:
+    def find_by_id(self, material_id: str) -> Optional[Material]:
         return self._materials.get(material_id)
 
     def update(self, material_id: str, updated_material: Material) -> None:
@@ -287,7 +287,9 @@ class MaterialRepository:
 
         # Emetti evento se disponibile
         if HAS_EVENT_BUS:
-            EventBus().emit(MATERIALS_UPDATED, material_id=material_id, material_name=updated_material.name)
+            EventBus().emit(
+                MATERIALS_UPDATED, material_id=material_id, material_name=updated_material.name
+            )
 
     def delete(self, material_id: str) -> None:
         """Elimina un materiale dal repository."""
@@ -300,7 +302,9 @@ class MaterialRepository:
 
             # Emetti evento se disponibile
             if HAS_EVENT_BUS:
-                EventBus().emit(MATERIALS_DELETED, material_id=material_id, material_name=material.name)
+                EventBus().emit(
+                    MATERIALS_DELETED, material_id=material_id, material_name=material.name
+                )
 
     def clear(self) -> None:
         """Elimina tutti i materiali."""
@@ -312,31 +316,6 @@ class MaterialRepository:
         # Emetti evento se disponibile
         if HAS_EVENT_BUS:
             EventBus().emit(MATERIALS_CLEARED)
-
-    def _load_json(self, path: Path) -> list:
-        """Legge un file JSON e ritorna il payload; su errore restituisce lista vuota."""
-        if not path.exists():
-            return []
-        try:
-            with path.open("r", encoding="utf-8") as f:
-                return json.load(f)
-        except (OSError, json.JSONDecodeError) as exc:
-            logger.warning("Impossibile leggere/parsare JSON da %s: %s", path, exc)
-            return []
-
-    def _populate_from_raw(self, raw_data: list, path: Path, *, backup: bool = False) -> None:
-        for idx, item in enumerate(raw_data):
-            try:
-                material = Material.from_dict(item)
-                self._materials[material.id] = material
-                logger.debug(
-                    "Materiale caricato%s: %s (%s)",
-                    " da backup" if backup else "",
-                    material.id,
-                    material.name,
-                )
-            except Exception as exc:
-                logger.exception("Errore caricamento materiale %d da %s: %s", idx, path, exc)
 
     def load_from_file(self) -> None:
         """Carica i materiali dal file principale, oppure dal backup se il principale è corrotto.
@@ -352,37 +331,68 @@ class MaterialRepository:
             return
         self._materials.clear()
 
-        if self._try_load_sources():
-            return
+        def _load(path: Path) -> list:
+            """Helper per caricare dati da un file JSON."""
+            if not path.exists():
+                return []
+            with path.open("r", encoding="utf-8") as f:
+                return json.load(f)
 
-        # If we arrive here both attempts failed: clear materials
+        # 1) Prova a leggere il file principale
+        try:
+            raw_data = _load(self._file_path)
+            if not isinstance(raw_data, list):
+                logger.warning("File JSON %s non contiene una lista", self._file_path)
+                raise ValueError("File JSON non contiene una lista")
+
+            # Carica i materiali
+            for idx, item in enumerate(raw_data):
+                try:
+                    material = Material.from_dict(item)
+                    self._materials[material.id] = material
+                    logger.debug("Materiale caricato: %s (%s)", material.id, material.name)
+                except Exception as e:
+                    logger.exception("Errore caricamento materiale %d dal JSON: %s", idx, e)
+
+            logger.info("Caricati %d materiali da %s", len(self._materials), self._file_path)
+            return
+        except Exception:
+            logger.exception("Errore nel caricamento di %s, provo il backup", self._file_path)
+
+        # 2) Se fallisce, prova il backup
+        try:
+            raw_data = _load(self._backup_path)
+            if not isinstance(raw_data, list):
+                logger.warning("File backup JSON %s non contiene una lista", self._backup_path)
+                raise ValueError("File backup JSON non contiene una lista")
+
+            # Carica i materiali dal backup
+            for idx, item in enumerate(raw_data):
+                try:
+                    material = Material.from_dict(item)
+                    self._materials[material.id] = material
+                    logger.debug(
+                        "Materiale caricato da backup: %s (%s)", material.id, material.name
+                    )
+                except Exception as e:
+                    logger.exception("Errore caricamento materiale %d dal backup: %s", idx, e)
+
+            logger.warning(
+                "Caricati %d materiali dal backup %s (file principale danneggiato)",
+                len(self._materials),
+                self._backup_path,
+            )
+            return
+        except Exception:
+            logger.exception("Errore anche nel caricamento del backup %s", self._backup_path)
+
+        # 3) Se tutto fallisce, archivio vuoto
         logger.warning(
             "Impossibile caricare archivio materiali da %s né da %s: inizializzo archivio vuoto",
             self._file_path,
             self._backup_path,
         )
         self._materials.clear()
-
-    def _try_load_sources(self) -> bool:
-        """Tentativo sequenziale di lettura: file principale poi backup.
-        Restituisce True se i materiali sono stati caricati con successo.
-        """
-        for path, is_backup in ((self._file_path, False), (self._backup_path, True)):
-            raw_data = self._load_json(path)
-            if not isinstance(raw_data, list):
-                logger.warning("File %s non contiene una lista o non è leggibile", path)
-                continue
-            self._populate_from_raw(raw_data, path, backup=is_backup)
-            if is_backup:
-                logger.warning(
-                    "Caricati %d materiali dal backup %s (file principale danneggiato)",
-                    len(self._materials),
-                    self._backup_path,
-                )
-            else:
-                logger.info("Caricati %d materiali da %s", len(self._materials), path)
-            return True
-        return False
 
     def save_to_file(self) -> None:
         """Salva tutti i materiali in un file JSON con backup automatico.
@@ -437,7 +447,8 @@ class MaterialRepository:
             logger.exception("Errore salvataggio file JSON %s: %s", self._json_file, e)
 
     def export_backup(self, destination: Path | str) -> None:
-        """Esporta l'archivio materiali nel percorso indicato.
+        """
+        Esporta l'archivio materiali nel percorso indicato.
         Non modifica il file principale né il backup interno.
         Se destination ha estensione .json, salva JSON.
 
@@ -449,7 +460,6 @@ class MaterialRepository:
         Raises:
             ValueError: Se la destinazione non è valida
             IOError: Se c'è un errore di scrittura del file
-
         """
         try:
             # Converti a Path
@@ -477,9 +487,13 @@ class MaterialRepository:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             logger.info("Esportati %d materiali in JSON: %s", len(materials), dest_path)
 
-        except OSError as e:
-            logger.exception("Errore I/O durante esportazione backup materiali in %s: %s", destination, e)
-            raise OSError(f"Impossibile esportare backup materiali in {destination}: {e}") from e
+        except (OSError, IOError) as e:
+            logger.exception(
+                "Errore I/O durante esportazione backup materiali in %s: %s", destination, e
+            )
+            raise IOError(f"Impossibile esportare backup materiali in {destination}: {e}") from e
         except Exception as e:
-            logger.exception("Errore durante esportazione backup materiali in %s: %s", destination, e)
+            logger.exception(
+                "Errore durante esportazione backup materiali in %s: %s", destination, e
+            )
             raise ValueError(f"Errore esportazione backup materiali: {e}") from e
