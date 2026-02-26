@@ -97,7 +97,7 @@ minversion = "7.0"
 addopts = "-q --ignore=tests_legacy -ra --strict-markers --disable-warnings"
 # only run tests under `tests/`; legacy folder is excluded via addopts
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "src"]
 # markers defined both in pytest.ini and earlier here; keep all to avoid missing names
 markers = [
   "ui: mark tests as UI tests requiring tkinter",
@@ -137,5 +137,6 @@ repos = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["src*","src.*"]
+where = ["src"]
+include = ["rd2229*"]
 

@@ -9,6 +9,10 @@ from __future__ import annotations
 import os
 import sys
 
+from rd2229.ui_qt.pages.home import HomePage
+from rd2229.ui_qt.pages.settings import SettingsPage
+from rd2229.ui_qt.pages.verification import VerificationPage
+
 
 def main() -> int:
     try:
@@ -31,7 +35,7 @@ def main() -> int:
     app = QtWidgets.QApplication([])
     window = QtWidgets.QMainWindow()
     window.setWindowTitle("rd2229")
-    window.resize(1000, 700)
+    window.resize(1180, 760)
 
     # Central area: left navigation + stacked pages on the right
     central = QtWidgets.QWidget()
@@ -45,26 +49,9 @@ def main() -> int:
     # Stacked pages
     stack = QtWidgets.QStackedWidget()
 
-    # Home page
-    home = QtWidgets.QWidget()
-    home_layout = QtWidgets.QVBoxLayout(home)
-    home_label = QtWidgets.QLabel("Welcome to rd2229 — Home")
-    home_label.setAlignment(Qt.AlignCenter)
-    home_layout.addWidget(home_label)
-
-    # Verification page
-    ver = QtWidgets.QWidget()
-    ver_layout = QtWidgets.QVBoxLayout(ver)
-    ver_label = QtWidgets.QLabel("Verification tools will appear here")
-    ver_label.setAlignment(Qt.AlignCenter)
-    ver_layout.addWidget(ver_label)
-
-    # Settings page
-    settings = QtWidgets.QWidget()
-    settings_layout = QtWidgets.QVBoxLayout(settings)
-    settings_label = QtWidgets.QLabel("Application settings")
-    settings_label.setAlignment(Qt.AlignCenter)
-    settings_layout.addWidget(settings_label)
+    home = HomePage()
+    ver = VerificationPage()
+    settings = SettingsPage()
 
     stack.addWidget(home)
     stack.addWidget(ver)
