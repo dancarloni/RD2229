@@ -46,7 +46,9 @@ def main() -> int:
                 print(proc.stdout)
             return 0
         # If output indicates unknown arg parsing, try the next variant
-        if "ignored explicit argument" in (proc.stderr or "") or "can't read file 'src=." in (proc.stderr or ""):
+        if "ignored explicit argument" in (proc.stderr or "") or "can't read file 'src=." in (
+            proc.stderr or ""
+        ):
             # try next variant
             continue
         # Otherwise, print whatever mypy returned and return the exit code

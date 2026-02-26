@@ -138,7 +138,7 @@ class TSection(CompositeSection):
     web_thickness: float
     web_height: float
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         bf = self.flange_width
         tf = self.flange_thickness
         tw = self.web_thickness
@@ -157,7 +157,7 @@ class LSection(CompositeSection):
     leg_y: float
     thickness: float
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         b = self.leg_x
         h = self.leg_y
         t = self.thickness
@@ -176,7 +176,7 @@ class ISection(CompositeSection):
     web_thickness: float
     web_height: float
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         bf = self.flange_width
         tf = self.flange_thickness
         tw = self.web_thickness
@@ -197,7 +197,7 @@ class InvertedTSection(CompositeSection):
     web_thickness: float
     web_height: float
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         bf = self.flange_width
         tf = self.flange_thickness
         tw = self.web_thickness
@@ -219,7 +219,7 @@ class PiSection(CompositeSection):
     leg_thickness: float
     leg_height: float
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         bf = self.width
         tf = self.top_thickness
         tw = self.leg_thickness

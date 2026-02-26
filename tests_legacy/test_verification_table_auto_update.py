@@ -8,10 +8,10 @@ import tempfile
 import tkinter as tk
 import unittest
 
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.event_bus import EventBus
+from apps.sections.services.repository import SectionRepository
 from core_models.materials import Material, MaterialRepository
-from sections_app.models.sections import RectangularSection
-from sections_app.services.event_bus import EventBus
-from sections_app.services.repository import SectionRepository
 from verification_table import VerificationTableWindow
 
 

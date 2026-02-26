@@ -5,8 +5,9 @@ from unittest.mock import patch
 
 os.environ["DISPLAY"] = ":0"
 
+from libs.app_module.ui.frc_verification_window import FrcVerificationWindow
+
 from core_models.materials import MaterialRepository
-from sections_app.ui.frc_verification_window import FrcVerificationWindow
 
 
 class TestFrcVerificationWindow(unittest.TestCase):

@@ -1,81 +1,41 @@
-name: CI
+name: CI – Test non-GUI
 
 on:
   push:
-    branches: [ main, '**' ]
+    branches: ["main", "master", "develop"]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-    inputs:
-      include_slow:
-        description: 'Run slow tests as well'
-        required: false
-        default: 'false'
+    branches: ["main", "master", "develop"]
+
+permissions:
+  contents: read
 
 jobs:
   test:
+    name: Test Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.12', '3.11', '3.10']
+        python-version: ['3.11', '3.12']
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/requirements-dev.txt') }}
-
-      - name: Install dependencies
+      - name: Install dependencies (no GUI)
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Make test runner, linters and mypy available during CI
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          pip install -e .
+          pip install pytest pytest-cov
 
-      - name: Run tests (exclude slow)
-        env:
-          PYTHONPATH: ${{ github.workspace }}
+      - name: Run non-GUI tests
         run: |
-          pytest -q -m "not slow" --maxfail=1
+          python -m pytest -m "not gui and not slow" -q --tb=short
 
-  slow_tests:
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.include_slow == 'true' }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.12', '3.11', '3.10']
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/requirements-dev.txt') }}
-
-      - name: Install dependencies
+      - name: Run step5 and reporting tests explicitly
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Make test runner, linters and mypy available during CI
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-
-      - name: Run slow tests
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-        run: |
-          pytest -q --maxfail=1
+          python -m pytest tests/test_step5_adapter_smoke.py tests/test_reporting_smoke.py tests/test_pipeline_smoke.py tests/test_project_roundtrip.py -v

@@ -16,7 +16,9 @@ from src.core_calculus.core.verification_engine import VerificationEngine
 class FrcVerificationWindow(tk.Toplevel):
     """Simple window to run a quick verification with an FRC material."""
 
-    def __init__(self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None) -> None:
+    def __init__(
+        self, master: tk.Misc, material_repository: MaterialRepository | None = None
+    ) -> None:
         super().__init__(master)
         self.title("FRC Quick Verification")
         self.geometry("600x420")

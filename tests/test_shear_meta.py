@@ -1,5 +1,5 @@
-from sections_app.models.sections import RectangularSection
-from sections_app.section_calculations import compute_section_properties_from_section
+from apps.sections.models.sections import RectangularSection
+from src.core_calculus.section_calculations import compute_section_properties_from_section
 
 
 def test_shear_meta_set():

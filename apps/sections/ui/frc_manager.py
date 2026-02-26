@@ -30,7 +30,9 @@ class FrcManagerWindow(tk.Toplevel):
         ("frc_note", "Note"),
     ]
 
-    def __init__(self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None) -> None:
+    def __init__(
+        self, master: tk.Misc, material_repository: MaterialRepository | None = None
+    ) -> None:
         super().__init__(master)
         self.title("FRC Manager")
         self.geometry("900x420")

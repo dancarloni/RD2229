@@ -7,8 +7,8 @@ import sys
 # Aggiungi il percorso del progetto
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sections_app.domain import CircularSection, RectangularSection
-from sections_app.io import create_section_from_dict
+from apps.sections.domain import CircularSection, RectangularSection
+from apps.sections.io import create_section_from_dict
 
 
 def test_rectangular_section():

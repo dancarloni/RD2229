@@ -175,7 +175,7 @@ class VerificationEngine:
         """Perform complete structural verification.
 
         Args:
-            section: Section geometry
+            section: Section carbon_fiber_placeholder
             reinforcement_tensile: Tensile reinforcement
             reinforcement_compressed: Compressed reinforcement
             material: Material properties
@@ -272,7 +272,9 @@ class VerificationEngine:
                 estimate_required_torsion_reinforcement: Any = None
                 try:
                     mod = importlib.import_module("core.verification_core")
-                    estimate_required_torsion_reinforcement = getattr(mod, "estimate_required_torsion_reinforcement", None)
+                    estimate_required_torsion_reinforcement = getattr(
+                        mod, "estimate_required_torsion_reinforcement", None
+                    )
                 except Exception:
                     estimate_required_torsion_reinforcement = None
                 if estimate_required_torsion_reinforcement is None:
@@ -285,7 +287,9 @@ class VerificationEngine:
                         estimate_required_torsion_reinforcement = None
 
                 if estimate_required_torsion_reinforcement:
-                    At_req = estimate_required_torsion_reinforcement(section, reinforcement_tensile, loads, material)
+                    At_req = estimate_required_torsion_reinforcement(
+                        section, reinforcement_tensile, loads, material
+                    )
                     if loads.At and loads.At > 0 and At_req > 0:
                         if loads.At < At_req:
                             approx_notes.append(
@@ -293,10 +297,13 @@ class VerificationEngine:
                             )
                         else:
                             approx_notes.append(
-                                f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², fornita {loads.At:.3f} cm²"
+                                f"Armatura torsione soddisfa la stima: richiesta {At_req:.3f} cm², "
+                                f"fornita {loads.At:.3f} cm²"
                             )
                     elif At_req > 0:
-                        approx_notes.append(f"Armatura torsione richiesta ≈ {At_req:.3f} cm² (nessun At fornita)")
+                        approx_notes.append(
+                            f"Armatura torsione richiesta ≈ {At_req:.3f} cm² (nessun At fornita)"
+                        )
             except Exception:
                 logger.exception("Errore stima armatura torsione")
 

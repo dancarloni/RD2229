@@ -1,0 +1,137 @@
+# coverage_matrix.yaml – Mappa requisiti ↔ check implementati
+# Formato: requirement_id → check_id (o TODO con note)
+# Stato: "IMPLEMENTED" | "PARTIAL" | "TODO"
+
+coverage:
+
+  # --- RD2229 ---
+  - requirement_id: rd2229.ta.flessione
+    check_id: rd2229.ta_flessione
+    status: IMPLEMENTED
+    notes: "Implementato in src/core_calculus/normative_registry.py"
+
+  - requirement_id: rd2229.ta.pressoflessione
+    check_id: rd2229.ta_pressoflessione
+    status: IMPLEMENTED
+    notes: "Implementato in src/core_calculus/normative_registry.py"
+
+  - requirement_id: rd2229.ta.taglio
+    check_id: rd2229.ta_taglio
+    status: IMPLEMENTED
+    notes: "Implementato in src/core_calculus/normative_registry.py"
+
+  - requirement_id: rd2229.ta.torsione
+    check_id: ~
+    status: TODO
+    notes: "Verifica torsione non ancora implementata"
+
+  # --- DM96 ---
+  - requirement_id: dm96.slu.flessione
+    check_id: dm96.slu_flessione
+    status: IMPLEMENTED
+    notes: "Implementato in src/methods/checks_dm96.py"
+
+  - requirement_id: dm96.slu.pressoflessione
+    check_id: dm96.slu_pressoflessione
+    status: IMPLEMENTED
+    notes: "Implementato in src/methods/checks_dm96.py"
+
+  - requirement_id: dm96.slu.taglio
+    check_id: ~
+    status: TODO
+    notes: "Verifica taglio SLU DM96 non ancora implementata"
+
+  # --- NTC2018 ---
+  - requirement_id: ntc2018.slu.flessione
+    check_id: ntc2018.slu_flessione
+    status: IMPLEMENTED
+    notes: "Implementato in src/codes/ntc2018/"
+
+  - requirement_id: ntc2018.slu.pressoflessione
+    check_id: ~
+    status: PARTIAL
+    notes: "Dominio N-M non completamente implementato per tutti i tipi sezione"
+
+  - requirement_id: ntc2018.sle.deformazione
+    check_id: ntc2018.sle_deformazione
+    status: TODO
+    notes: "Check definito in registry ma compute non implementato"
+
+  - requirement_id: ntc2018.sle.fessurazione
+    check_id: ntc2018.sle_fessurazione
+    status: TODO
+    notes: "Check definito in registry ma compute non implementato"
+
+  - requirement_id: ntc2018.vento.velocita_riferimento
+    check_id: wind.ntc2018.pressione_vento
+    status: IMPLEMENTED
+    notes: "Implementato in src/wind/ntc2018.py::compute_reference_wind_speed"
+
+  - requirement_id: ntc2018.vento.pressione_cinetica
+    check_id: wind.ntc2018.pressione_vento
+    status: IMPLEMENTED
+    notes: "Implementato in src/wind/ntc2018.py::compute_kinetic_pressure"
+
+  - requirement_id: ntc2018.vento.profilo_velocita
+    check_id: wind.ntc2018.pressione_vento
+    status: IMPLEMENTED
+    notes: "Implementato in src/wind/ntc2018.py::compute_velocity_profile_ntc2018"
+
+  - requirement_id: ntc2018.incendio.prestazioni
+    check_id: fire.rc_tabellare
+    status: IMPLEMENTED
+    notes: "Implementato in src/fire/rc_fire_check.py (MVP tabellare)"
+
+  # --- ISO 834 / Fire ---
+  - requirement_id: fire.curva_iso834
+    check_id: fire.rc_tabellare
+    status: IMPLEMENTED
+    notes: "Curva ISO 834 implementata in src/fire/curves.py::iso834_temperature"
+
+  - requirement_id: fire.rc.tabellare
+    check_id: fire.rc_tabellare
+    status: IMPLEMENTED
+    notes: "Implementato in src/fire/rc_fire_check.py; tabella dimensioni in data/fire/axis_distance_table.json (placeholder)"
+
+  # --- EN 1991-1-4 ---
+  - requirement_id: en1991.vento.vm_z
+    check_id: wind.en1991_1_4.wind_actions
+    status: IMPLEMENTED
+    notes: "Implementato in src/wind/ec1991_1_4.py::compute_mean_wind_velocity"
+
+  - requirement_id: en1991.vento.peak_velocity_pressure
+    check_id: wind.en1991_1_4.wind_actions
+    status: TODO
+    notes: "Pressione di picco qp(z) con Iv(z) non ancora implementata (solo vm)"
+
+# Riepilogo copertura (aggiornare manualmente o automaticamente da script)
+summary:
+  RD2229:
+    total: 4
+    implemented: 3
+    todo: 1
+    pct: 75
+  DM96:
+    total: 3
+    implemented: 2
+    todo: 1
+    pct: 67
+  NTC2018:
+    total: 7
+    implemented: 4
+    partial: 1
+    todo: 2
+    pct: 57
+  ISO834:
+    total: 1
+    implemented: 1
+    pct: 100
+  EN1992_1_2:
+    total: 1
+    implemented: 1
+    pct: 100
+  EN1991_1_4:
+    total: 2
+    implemented: 1
+    todo: 1
+    pct: 50

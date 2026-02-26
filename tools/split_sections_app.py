@@ -17,11 +17,13 @@ Description / configuration:
     2) build an internal dependency graph by parsing imports with `ast`,
     3) compute transitive dependencies for each configured root module,
     4) copy selected files into `--out/<module_folder>/...` preserving relative paths,
-    5) rewrite imports inside copied files so that references to copied modules become absolute imports prefixed by the module folder name (e.g. `frc_module.services.repository`),
+    5) rewrite imports inside copied files so that references to copied modules become absolute imports \
+        prefixed by the module folder name (e.g. `frc_module.services.repository`),
     6) include non-Python files (.json/.csv/.yml/.yaml) located in the same directories as selected .py files.
 
 Assumptions:
-- Package root directory is a simple folder (no installed package name); module names are derived from file paths relative to `--src`.
+- Package root directory is a simple folder (no installed package name); module names are derived \
+  from file paths relative to `--src`.
 - Non-Python support files are selected by extension and by being in directories of copied .py files.
 - The script rewrites only imports that resolve to modules included in the copied set.
 
@@ -249,7 +251,9 @@ def prepare_module_folder_name(root_path: Path) -> str:
         return root_path.stem + "_module"
 
 
-def build_rewrite_mapping(collected: set[Path], src_root: Path, module_folder: str) -> dict[str, str]:
+def build_rewrite_mapping(
+    collected: set[Path], src_root: Path, module_folder: str
+) -> dict[str, str]:
     """
     For each original module name (relative to src_root) in collected set, create mapping:
     original_module -> new_module_name prefixed with module_folder.
@@ -265,7 +269,9 @@ def build_rewrite_mapping(collected: set[Path], src_root: Path, module_folder: s
     return mapping
 
 
-def rewrite_imports_in_text(src_text: str, mapping: dict[str, str]) -> tuple[str, list[tuple[str, str]]]:
+def rewrite_imports_in_text(
+    src_text: str, mapping: dict[str, str]
+) -> tuple[str, list[tuple[str, str]]]:
     """
     Replace import and from-import module names present in mapping keys with mapping values.
     Returns new text and a list of (old, new) replacements performed.
@@ -282,7 +288,9 @@ def rewrite_imports_in_text(src_text: str, mapping: dict[str, str]) -> tuple[str
         new_mod = mapping[old_mod]
         # from-import pattern: from <old_mod> (possibly followed by .sub) - but we match exact module only
         # Use negative lookbehind to ensure it's a separate token
-        pattern_from = re.compile(rf"(^|\n)(\s*from\s+){re.escape(old_mod)}(\b)", flags=re.MULTILINE)
+        pattern_from = re.compile(
+            rf"(^|\n)(\s*from\s+){re.escape(old_mod)}(\b)", flags=re.MULTILINE
+        )
         new_text, n1 = pattern_from.subn(rf"\1\2{new_mod}\3", new_text)
         if n1:
             replacements.append((old_mod, new_mod))
@@ -300,7 +308,9 @@ def rewrite_imports_in_text(src_text: str, mapping: dict[str, str]) -> tuple[str
             return new_line
 
         pattern_import_line = re.compile(r"(^|\n)(\s*import\s+[^\n]+)", flags=re.MULTILINE)
-        new_text = pattern_import_line.sub(lambda m: m.group(1) + replace_in_import_line(m.group(2)), new_text)
+        new_text = pattern_import_line.sub(
+            lambda m: m.group(1) + replace_in_import_line(m.group(2)), new_text
+        )
 
     # Deduplicate replacements
     deduped = []
@@ -416,10 +426,16 @@ def run(args):
             if modname.startswith(src_root.name + "."):
                 modname = modname[len(src_root.name) + 1 :]
             root_path = module_map.get(modname)
-        module_folder = prepare_module_folder_name(root_path) if root_path else Path(root_ident).stem + "_module"
+        module_folder = (
+            prepare_module_folder_name(root_path)
+            if root_path
+            else Path(root_ident).stem + "_module"
+        )
         print(f"\nModule root '{root_ident}' -> folder '{module_folder}'")
         print(f" Found {len(collected_py)} python files and {len(support_files)} support files")
-        actions = copy_and_rewrite(collected_py, support_files, src_root, out_root, module_folder, dry_run)
+        actions = copy_and_rewrite(
+            collected_py, support_files, src_root, out_root, module_folder, dry_run
+        )
         for a in actions:
             print("  " + a)
 
@@ -428,15 +444,26 @@ def run(args):
 # Entry point
 # ---------------------
 def main():
-    parser = argparse.ArgumentParser(description="Split SECTIONS_APP into module-specific folders by dependency analysis.")
-    parser.add_argument("--src", default=DEFAULT_SRC, help="Source package directory (default: SECTIONS_APP)")
-    parser.add_argument("--out", default=DEFAULT_OUT, help="Output directory (default: SECTIONS_APP_REFACTORED)")
+    parser = argparse.ArgumentParser(
+        description="Split SECTIONS_APP into module-specific folders by dependency analysis."
+    )
+    parser.add_argument(
+        "--src", default=DEFAULT_SRC, help="Source package directory (default: SECTIONS_APP)"
+    )
+    parser.add_argument(
+        "--out", default=DEFAULT_OUT, help="Output directory (default: SECTIONS_APP_REFACTORED)"
+    )
     parser.add_argument(
         "--roots",
         default=None,
-        help=f"Comma-separated root modules (file paths relative to src or module names). Use '{DEFAULT_ROOTS_HEURISTIC}' to apply heuristic.",
+        help=(
+            f"Comma-separated root modules (file paths relative to src or module names). "
+            f"Use '{DEFAULT_ROOTS_HEURISTIC}' to apply heuristic."
+        ),
     )
-    parser.add_argument("--dry-run", action="store_true", help="Show planned actions without copying/writing files")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show planned actions without copying/writing files"
+    )
     parsed = parser.parse_args()
     run(parsed)
 

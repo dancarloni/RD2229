@@ -178,5 +178,41 @@
     "frc_fFtu": null,
     "frc_eps_fu": null,
     "frc_note": null
+  },
+  {
+    "id": "66f2cc3a-c7dd-469a-9d7b-549c6837c202",
+    "name": "A500",
+    "type": "steel",
+    "code": "",
+    "properties": {},
+    "frc_enabled": false,
+    "frc_fFts": null,
+    "frc_fFtu": null,
+    "frc_eps_fu": null,
+    "frc_note": null
+  },
+  {
+    "id": "2f2ca9cd-ec7c-4ce8-ba29-9507d0c24933",
+    "name": "C120",
+    "type": "concrete",
+    "code": "",
+    "properties": {},
+    "frc_enabled": false,
+    "frc_fFts": null,
+    "frc_fFtu": null,
+    "frc_eps_fu": null,
+    "frc_note": null
+  },
+  {
+    "id": "858bc041-14d1-4097-a759-9af2dbe6881e",
+    "name": "C200",
+    "type": "concrete",
+    "code": "",
+    "properties": {},
+    "frc_enabled": false,
+    "frc_fFts": null,
+    "frc_fFtu": null,
+    "frc_eps_fu": null,
+    "frc_note": null
   }
 ]

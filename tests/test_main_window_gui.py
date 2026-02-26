@@ -1,7 +1,10 @@
+import pytest
 import tkinter as tk
 from pathlib import Path
 
-from sections_app.ui.main_window import MainWindow
+pytestmark = pytest.mark.gui
+
+from libs.app_module.ui.main_window import MainWindow
 
 
 def test_save_section_via_repository(tmp_path: Path):
@@ -16,7 +19,7 @@ def test_save_section_via_repository(tmp_path: Path):
     json_file = str(tmp_path / "test_repo.jsons")
     Path(json_file).write_text("[]", encoding="utf-8")
 
-    from sections_app.services.repository import CsvSectionSerializer, GeometryRepository
+    from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository
 
     repo = GeometryRepository(json_file=json_file, auto_migrate=False)
     serializer = CsvSectionSerializer()
@@ -39,7 +42,7 @@ def test_save_section_via_repository(tmp_path: Path):
     win.name_entry.insert(0, "gui_saved_rect")
 
     # save through repository
-    from sections_app.models.sections import RectangularSection
+    from apps.sections.models.sections import RectangularSection
 
     sec = RectangularSection("gui_saved_rect", 10, 20)
     added = repo.add_section(sec)

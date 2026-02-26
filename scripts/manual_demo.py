@@ -8,12 +8,14 @@ import sys
 import tkinter as tk
 from pathlib import Path
 
-# Ensure project root is on sys.path so local packages (sections_app, core_models, etc.) can be imported
+# Ensure project root is on sys.path so local packages (apps.sections, core_models, etc.) can be imported
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger("manual_demo")
 
 
@@ -26,8 +28,9 @@ def main():
         return
 
     # Local imports that rely on project root being added to sys.path
-    from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-    from sections_app.ui.module_selector import ModuleSelectorWindow
+    from libs.app_module.ui.module_selector import ModuleSelectorWindow
+
+    from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
     from verification_table import VerificationTableWindow
 
     repo = SectionRepository()
@@ -74,7 +77,11 @@ def main():
     app._update_suggestions()
     vt.update_idletasks()
     vt.update()
-    concrete_items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())] if app._suggest_list else []
+    concrete_items = (
+        [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        if app._suggest_list
+        else []
+    )
     print("Concrete suggestions for '160':", concrete_items)
 
     # Test steel search '38'
@@ -85,7 +92,11 @@ def main():
     app._update_suggestions()
     vt.update_idletasks()
     vt.update()
-    steel_items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())] if app._suggest_list else []
+    steel_items = (
+        [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
+        if app._suggest_list
+        else []
+    )
     print("Steel suggestions for '38':", steel_items)
 
     # Clean up

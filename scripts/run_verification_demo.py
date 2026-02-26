@@ -5,8 +5,8 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 
-from sections_app.models.sections import CircularSection, RectangularSection, TSection
-from sections_app.services.repository import SectionRepository
+from apps.sections.models.sections import CircularSection, RectangularSection, TSection
+from apps.sections.services.repository import SectionRepository
 
 try:
     from core_models.materials import Material, MaterialRepository
@@ -20,7 +20,9 @@ from verification_table import VerificationInput, VerificationTableWindow
 def build_sample_sections(repo: SectionRepository) -> list[str]:
     rect = RectangularSection(name="Rect 20x30", width=20, height=30)
     circ = CircularSection(name="Circ d25", diameter=25)
-    t_sec = TSection(name="T 40x5x8x25", flange_width=40, flange_thickness=5, web_thickness=8, web_height=25)
+    t_sec = TSection(
+        name="T 40x5x8x25", flange_width=40, flange_thickness=5, web_thickness=8, web_height=25
+    )
     for s in (rect, circ, t_sec):
         s.compute_properties()
         repo.add_section(s)
@@ -58,7 +60,9 @@ def main():
 
     build_sample_sections(section_repo)
 
-    win = VerificationTableWindow(master=root, section_repository=section_repo, material_repository=material_repo)
+    win = VerificationTableWindow(
+        master=root, section_repository=section_repo, material_repository=material_repo
+    )
 
     # Add a few prefilled rows
     examples = [
@@ -68,8 +72,8 @@ def main():
             material_steel="A500",
             n_homog=10.0,
             N=0.0,
-            M=0.0,
-            T=0.0,
+            Mx=0.0,
+            Ty=0.0,
             As_sup=1.2,
             As_inf=2.4,
             d_sup=40.0,
@@ -85,8 +89,8 @@ def main():
             material_steel="A500",
             n_homog=15.0,
             N=1000.0,
-            M=50.0,
-            T=0.0,
+            Mx=50.0,
+            Ty=0.0,
             As_sup=0.0,
             As_inf=0.0,
             d_sup=30.0,
@@ -102,8 +106,8 @@ def main():
             material_steel="A500",
             n_homog=12.0,
             N=500.0,
-            M=20.0,
-            T=10.0,
+            Mx=20.0,
+            Ty=10.0,
             As_sup=2.0,
             As_inf=2.0,
             d_sup=45.0,

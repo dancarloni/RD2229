@@ -1,7 +1,7 @@
 import json
 
-from sections_app.models.sections import RectangularSection
-from sections_app.services.repository import SectionRepository
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.repository import SectionRepository
 
 
 def test_repository_save_includes_principal_fields(tmp_path):

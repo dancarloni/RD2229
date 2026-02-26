@@ -1,7 +1,7 @@
 import math
 
-from sections_app.models.sections import RectangularSection
-from sections_app.services.calculations import compute_principal_inertia
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.calculations import compute_principal_inertia
 
 
 def test_principal_inertia_rectangular():
