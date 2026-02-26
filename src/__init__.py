@@ -1,10 +1,13 @@
-"""Top-level package for the RD2229 project.
+"""
+Root package of the restructured engineering verification framework.
 
-This module avoids importing subpackages at import time to prevent circular
-imports during test collection. Import subpackages explicitly where needed
-(e.g., ``from src import core_calculus``).
+This folder contains:
+- the legacy code (in src/legacy/)
+- the new modular architecture
 """
 
-__all__ = ["core_calculus", "domain", "methods", "repositories", "ui", "utils"]
+__all__ = ["core_calculus", "domain", "methods", "repositories", "ui", "utils", 
+           "legacy", "calc", "materials", "elements", "codes", "actions", 
+           "report", "config", "tools"]
 
 __version__ = "0.1.0"
