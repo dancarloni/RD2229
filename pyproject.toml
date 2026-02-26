@@ -14,8 +14,7 @@ requires-python = ">=3.11"
 gui = ["PySide6>=6.6"]
 
 [project.scripts]
-rd2229 = "rd2229.ui_qt.app:main"
-rd2229-demo = "rd2229.cli:main"
+structcalc = "src.ui.app:main"
 
 [tool.black]
 line-length = 100

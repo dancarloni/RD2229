@@ -85,11 +85,27 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
         warnings.extend(step5_warnings)
         trace.extend(step5_trace)
         if step5_results:
+            # Merge metriche step5 nei risultati step3 (non sovrascrive ok)
             step5_by_id = {r.element_id: r for r in step5_results}
-            element_results = [
-                merge_element_results(base, step5_by_id.get(base.element_id))
-                for base in element_results
-            ]
+            merged: list[ElementResult] = []
+            for base in element_results:
+                s5 = step5_by_id.get(base.element_id)
+                if s5 is not None:
+                    merged_metrics = {**base.metrics, **s5.metrics}
+                    merged_messages = base.messages + [
+                        m for m in s5.messages if m not in base.messages
+                    ]
+                    merged.append(
+                        ElementResult(
+                            element_id=base.element_id,
+                            ok=base.ok,
+                            metrics=merged_metrics,
+                            messages=merged_messages,
+                        )
+                    )
+                else:
+                    merged.append(base)
+            element_results = merged
     else:
         trace.append(f"step5:skip({'; '.join(step5_reasons)})")
 
@@ -272,125 +288,3 @@ def _run_step5(
         return run_step5(project)
     except ImportError:
         return [], ["src.core.step5_adapter non disponibile."], ["step5:skip(import_error)"]
-
-
-def merge_element_results(
-    base: ElementResult,
-    step5: ElementResult | None,
-) -> ElementResult:
-    """Unisce i risultati step3 (base) con le metriche step5.
-
-    Regola: il campo ``ok`` viene sempre preservato dal *base* (step3).
-    Le metriche step5 vengono aggiunte con prefisso ``"step5."`` per evitare
-    collisioni con le metriche base.
-
-    Args:
-        base: Risultato dal passo 3 (verifica semplificata).
-        step5: Risultato dal passo 5 (motore di verifica reale), può essere None.
-
-    Returns:
-        ``ElementResult`` con metriche arricchite e ``ok`` invariato.
-    """
-    if step5 is None:
-        return base
-
-    prefixed_metrics = {
-        f"step5.{k}": v for k, v in step5.metrics.items()
-    }
-    merged_metrics = {**base.metrics, **prefixed_metrics}
-    merged_messages = base.messages + [
-        m for m in step5.messages if m not in base.messages
-    ]
-    return ElementResult(
-        element_id=base.element_id,
-        ok=base.ok,  # ok da step3, invariato
-        metrics=merged_metrics,
-        messages=merged_messages,
-    )
-
-
-def _run_fire_pipeline(
-    project: "ProjectModel",  # type: ignore[name-defined]
-) -> tuple[list[Any], list[str], list[str]]:
-    """Esegue la pipeline incendio per gli elementi selezionati.
-
-    Returns:
-        ``(fire_results, warnings, trace)``
-    """
-    warnings: list[str] = []
-    trace: list[str] = ["fire:start"]
-    results: list[Any] = []
-
-    try:
-        from src.fire.eligibility import evaluate_fire_eligibility
-        from src.fire.rc_fire_check import run_rc_fire_check
-    except ImportError as exc:
-        warnings.append(f"Modulo src.fire non disponibile: {exc}")
-        trace.append("fire:skip(import_error)")
-        return results, warnings, trace
-
-    fire_cfg = project.fire
-    selected = [g for g in project.geometry if g.fire_selected]
-    if not selected:
-        trace.append("fire:skip(no_elements_selected)")
-        return results, warnings, trace
-
-    for elem in selected:
-        eligible, reasons = evaluate_fire_eligibility(project, elem)
-        if not eligible:
-            msg = (
-                f"fire:elemento '{elem.id}' non eleggibile: "
-                + "; ".join(reasons)
-            )
-            warnings.append(msg)
-            trace.append(f"fire:{elem.id}:skipped(not_eligible)")
-            from src.fire.rc_fire_check import ElementResultFire
-            results.append(ElementResultFire(
-                element_id=elem.id,
-                status="SKIPPED",
-                metrics={},
-                messages=[msg] + [f"  – {r}" for r in reasons],
-            ))
-            continue
-
-        fire_result = run_rc_fire_check(project, elem)
-        results.append(fire_result)
-        trace.append(f"fire:{elem.id}:status={fire_result.status}")
-
-    trace.append(f"fire:done(results={len(results)})")
-    return results, warnings, trace
-
-
-def _run_wind_pipeline(
-    project: "ProjectModel",  # type: ignore[name-defined]
-) -> tuple[Any, list[str], list[str]]:
-    """Esegue la pipeline vento se i dati sono disponibili.
-
-    Returns:
-        ``(wind_result_dict_or_None, warnings, trace)``
-    """
-    warnings: list[str] = []
-    trace: list[str] = ["wind:start"]
-
-    try:
-        from src.wind.service import WindActionService
-    except ImportError as exc:
-        warnings.append(f"Modulo src.wind non disponibile: {exc}")
-        trace.append("wind:skip(import_error)")
-        return None, warnings, trace
-
-    wind_cfg = getattr(project, "wind", None)
-    if wind_cfg is None:
-        trace.append("wind:skip(no_config)")
-        return None, warnings, trace
-
-    try:
-        service = WindActionService()
-        wind_result = service.compute(wind_cfg)
-        trace.append(f"wind:done(method={getattr(wind_cfg, 'method', 'unknown')})")
-        import dataclasses
-        return dataclasses.asdict(wind_result) if dataclasses.is_dataclass(wind_result) else dict(wind_result), warnings, trace
-    except Exception as exc:
-        warnings.append(f"Errore pipeline vento: {exc}")
-        trace.append("wind:error")
-        return None, warnings, trace

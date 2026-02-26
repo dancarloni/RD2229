@@ -301,6 +301,6 @@ def test_calculation_service_export_report_html(tmp_path):
     path = str(tmp_path / "report.html")
     svc.export_report(project, results, path, fmt="html")
     assert os.path.exists(path)
-    with open(path, encoding="utf-8") as f:
+    with open(path) as f:
         content = f.read()
     assert "<html" in content.lower()
