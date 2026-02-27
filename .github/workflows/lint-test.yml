@@ -2,9 +2,9 @@ name: Lint and Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   lint-test:
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.12']
+        python-version: ["3.12"]
 
     steps:
       - uses: actions/checkout@v4
