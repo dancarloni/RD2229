@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.plugins import ActionSpec, PluginRegistry, PluginSpec
+from src.plugins import ActionSpec, ParamSpec, PluginRegistry, PluginSpec
 from src.plugins.base import BasePlugin
 
 
@@ -34,6 +34,15 @@ class RunPlugin(BasePlugin):
                     id="run_pipeline",
                     label="Esegui pipeline",
                     handler=self.execute,
+                    params=[
+                        ParamSpec(
+                            name="project",
+                            label="Project file",
+                            type="file",
+                            required=True,
+                            description="Path to the project JSON file.",
+                        )
+                    ],
                     description="Esegue run_pipeline(ProjectModel).",
                     icon="▶️",
                 )

@@ -58,9 +58,36 @@ def export_project(file: str, format: str = typer.Option("md", "--format")) -> N
     typer.echo(f"Report esportato: {target}")
 
 
-def main() -> int:
-    app()
+@app.command("info")
+def info() -> int:
+    """Print version information."""
+    ver = "v0.1.0"
+    typer.echo(ver)
     return 0
+
+
+def main() -> int:
+    """Run CLI and return integer exit code instead of exiting the process.
+
+    Tests call `src.cli.main()` and expect an integer return value; Typer
+    normally calls `sys.exit`. Use `standalone_mode=False` to prevent
+    sys.exit and return an int.
+    """
+    import sys
+
+    # Default to info when no args provided (legacy behaviour expected by tests)
+    if len(sys.argv) <= 1:
+        return info()
+
+    try:
+        # Run Typer in non-standalone mode so it raises exceptions instead of exiting
+        app(prog_name="rd2229", standalone_mode=False)
+        return 0
+    except SystemExit as exc:
+        # Typer may still raise SystemExit for usage errors; propagate as int
+        return int(getattr(exc, "code", 1) or 1)
+    except Exception:
+        return 1
 
 
 if __name__ == "__main__":

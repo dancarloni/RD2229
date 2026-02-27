@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from src.plugins import ActionSpec, PluginRegistry, PluginSpec
+from src.plugins import ActionSpec, ParamSpec, PluginRegistry, PluginSpec
 from src.plugins.base import BasePlugin
 
 
@@ -45,6 +45,22 @@ class ExportPlugin(BasePlugin):
                     id="export_report",
                     label="Esporta report",
                     handler=self.execute,
+                    params=[
+                        ParamSpec(
+                            name="project",
+                            label="Project file",
+                            type="file",
+                            required=True,
+                            description="Path to the project JSON file.",
+                        ),
+                        ParamSpec(
+                            name="output",
+                            label="Output directory",
+                            type="dir",
+                            required=True,
+                            description="Directory where the report will be written.",
+                        ),
+                    ],
                     description="Esporta report.md e report.html.",
                     icon="📄",
                 )

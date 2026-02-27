@@ -100,6 +100,8 @@ class ProjectModel(BaseModel):
         default_factory=lambda: ["validate", "seismic", "checks", "step5", "aggregate"]
     )
     plugins: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    # Wind configuration (may be populated with src.wind.service.WindConfig)
+    wind: Any = Field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return cast(dict[str, Any], self.model_dump(mode="json"))

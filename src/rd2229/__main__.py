@@ -5,11 +5,12 @@ This allows `python -m rd2229` to start the new Qt shell when available.
 
 from __future__ import annotations
 
-from .ui_qt import app
+from src.cli.entrypoint import main as cli_main
 
 
 def main():
-    return app.main()
+    """Package runner: invoke CLI main by default after GUI removal."""
+    return cli_main()
 
 
 if __name__ == "__main__":

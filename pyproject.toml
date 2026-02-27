@@ -22,10 +22,10 @@ dependencies = [
 gui = ["PyQt6>=6.4", "PyYAML>=6.0"]
 
 [project.scripts]
-# Default `rd2229` now launches the modern PyQt6 GUI entrypoint.
+# Default `rd2229` now launches the evolved Qt GUI entrypoint (`rd2229.ui_qt`).
 # Keep a dedicated CLI entry if needed in the future.
-rd2229 = "src.ui.modern.app:main"
-rd2229-gui = "src.ui.modern.app:main"
+rd2229 = "rd2229.ui_qt.app:main"
+rd2229-gui = "rd2229.ui_qt.app:main"
 rd2229-cli = "src.cli.entrypoint:main"
 
 [tool.black]

@@ -55,6 +55,7 @@ MPA_TO_KGCM2 = 10.197
 
 @dataclass
 class VerificationInput:
+    element_name: str = ""
     section_id: str = ""
     verification_method: str = "TA"
     material_concrete: str = ""
@@ -78,6 +79,57 @@ class VerificationInput:
     # Legacy Init vars to accept old keywords M and T in constructor
     M: InitVar[float | None] = None
     T: InitVar[float | None] = None
+
+    def __init__(
+        self,
+        element_name: str = "",
+        section_id: str = "",
+        verification_method: str = "TA",
+        material_concrete: str = "",
+        material_steel: str = "",
+        n_homog: float = 15.0,
+        N: float = 0.0,
+        Mx: float = 0.0,
+        My: float = 0.0,
+        Mz: float = 0.0,
+        Tx: float = 0.0,
+        Ty: float = 0.0,
+        As_sup: float = 0.0,
+        As_inf: float = 0.0,
+        At: float = 0.0,
+        d_sup: float = 0.0,
+        d_inf: float = 0.0,
+        stirrup_step: float = 0.0,
+        stirrup_diameter: float = 0.0,
+        stirrup_material: str = "",
+        notes: str = "",
+        M: float | None = None,
+        T: float | None = None,
+    ) -> None:
+        # Explicit initializer to ensure provided keywords are assigned
+        object.__setattr__(self, "element_name", element_name)
+        object.__setattr__(self, "section_id", section_id)
+        object.__setattr__(self, "verification_method", verification_method)
+        object.__setattr__(self, "material_concrete", material_concrete)
+        object.__setattr__(self, "material_steel", material_steel)
+        object.__setattr__(self, "n_homog", float(n_homog))
+        object.__setattr__(self, "N", float(N))
+        object.__setattr__(self, "Mx", float(Mx))
+        object.__setattr__(self, "My", float(My))
+        object.__setattr__(self, "Mz", float(Mz))
+        object.__setattr__(self, "Tx", float(Tx))
+        object.__setattr__(self, "Ty", float(Ty))
+        object.__setattr__(self, "As_sup", float(As_sup))
+        object.__setattr__(self, "As_inf", float(As_inf))
+        object.__setattr__(self, "At", float(At))
+        object.__setattr__(self, "d_sup", float(d_sup))
+        object.__setattr__(self, "d_inf", float(d_inf))
+        object.__setattr__(self, "stirrup_step", float(stirrup_step))
+        object.__setattr__(self, "stirrup_diameter", float(stirrup_diameter))
+        object.__setattr__(self, "stirrup_material", stirrup_material)
+        object.__setattr__(self, "notes", notes)
+        # Call post-init compatibility mapping
+        self.__post_init__(M, T)
 
     def __post_init__(self, M: float | None, T: float | None) -> None:
         # Map legacy init kwargs to new internal fields for backward compatibility
@@ -198,18 +250,41 @@ def get_section_geometry(
 ) -> tuple[float, float]:
     default_b, default_h = 30.0, 50.0
     if section_repository is None or not _input.section_id:
-        logger.warning("SectionRepository mancante o section_id vuoto; uso fallback %sx%s cm", default_b, default_h)
-        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+        logger.warning(
+            "SectionRepository mancante o section_id vuoto; uso fallback %sx%s cm",
+            default_b,
+            default_h,
+        )
+        return (
+            default_b * 10 if unit == "mm" else default_b,
+            default_h * 10 if unit == "mm" else default_h,
+        )
 
     section = _get_section_by_id_or_name(_input.section_id, section_repository)
     if section is None:
-        logger.warning("Sezione '%s' non trovata; uso fallback %sx%s cm", _input.section_id, default_b, default_h)
-        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+        logger.warning(
+            "Sezione '%s' non trovata; uso fallback %sx%s cm",
+            _input.section_id,
+            default_b,
+            default_h,
+        )
+        return (
+            default_b * 10 if unit == "mm" else default_b,
+            default_h * 10 if unit == "mm" else default_h,
+        )
 
     dims = _extract_section_dimensions_cm(section)
     if dims is None:
-        logger.warning("Sezione '%s' senza dimensioni; uso fallback %sx%s cm", _input.section_id, default_b, default_h)
-        return (default_b * 10 if unit == "mm" else default_b, default_h * 10 if unit == "mm" else default_h)
+        logger.warning(
+            "Sezione '%s' senza dimensioni; uso fallback %sx%s cm",
+            _input.section_id,
+            default_b,
+            default_h,
+        )
+        return (
+            default_b * 10 if unit == "mm" else default_b,
+            default_h * 10 if unit == "mm" else default_h,
+        )
 
     b_cm, h_cm = dims
     if unit == "mm":
@@ -255,7 +330,9 @@ def get_concrete_properties(
         if mat is not None:
             fck_mpa = _extract_material_property(mat, ["fck_MPa", "fck_mpa", "fck"])
     if fck_mpa is None:
-        logger.warning("Materiale cls '%s' non trovato; uso fck=%s MPa", _input.material_concrete, fallback_fck)
+        logger.warning(
+            "Materiale cls '%s' non trovato; uso fck=%s MPa", _input.material_concrete, fallback_fck
+        )
         fck_mpa = fallback_fck
     fck_kgcm2 = fck_mpa * MPA_TO_KGCM2
     # TODO: calibrare relazione tensione ammissibile cls per normativa specifica
@@ -275,7 +352,11 @@ def get_steel_properties(
         if mat is not None:
             fyk_mpa = _extract_material_property(mat, ["fyk_MPa", "fyk_mpa", "fyk"])
     if fyk_mpa is None:
-        logger.warning("Materiale acciaio '%s' non trovato; uso fyk=%s MPa", _input.material_steel, fallback_fyk)
+        logger.warning(
+            "Materiale acciaio '%s' non trovato; uso fyk=%s MPa",
+            _input.material_steel,
+            fallback_fyk,
+        )
         fyk_mpa = fallback_fyk
     fyk_kgcm2 = fyk_mpa * MPA_TO_KGCM2
     # TODO: calibrare tensione ammissibile acciaio per metodo TA
@@ -721,7 +802,9 @@ def compute_sle_verification(
             phi_eq = 12.0  # mm (diametro equivalente barre, ipotesi)
             rho_eff = As_inf / (B * 2.5 * d_inf)  # percentuale efficace
             sr_max = 3.4 * 4.0 + 0.425 * phi_eq / rho_eff if rho_eff > 0 else 300.0  # mm
-            eps_sm = max(sigma_s / (n * 200000), 0.6 * sigma_s / 200000)  # deformazione media (approx)
+            eps_sm = max(
+                sigma_s / (n * 200000), 0.6 * sigma_s / 200000
+            )  # deformazione media (approx)
             wk = sr_max * eps_sm / 1000  # mm (apertura fessura)
         else:
             wk = 0.0
@@ -1016,19 +1099,35 @@ class VerificationTableApp(tk.Frame):
 
         # Project file controls
         tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
-        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(
+            side="left", padx=(6, 0)
+        )
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
-        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(
+            side="left", padx=(6, 0)
+        )
         # Pulsanti per import/export CSV
-        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
-        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(
+            side="left", padx=(6, 0)
+        )
+        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(
+            side="left", padx=(6, 0)
+        )
         # Pulsante per calcolare tutte le righe
-        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(
+            side="left", padx=(6, 0)
+        )
         # Pulsante per salvare tutte le righe come VerificationItem nel repository
-        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(
+            side="left", padx=(6, 0)
+        )
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -1092,13 +1191,16 @@ class VerificationTableApp(tk.Frame):
                     {
                         m.name if hasattr(m, "name") else m.get("name")
                         for m in mats
-                        if (hasattr(m, "name") and m.name) or (isinstance(m, dict) and m.get("name"))
+                        if (hasattr(m, "name") and m.name)
+                        or (isinstance(m, dict) and m.get("name"))
                     }
                 )
             except Exception:
                 try:
                     # fallback to older API
-                    return sorted({m.get("name") for m in self.material_repository.list_materials()})
+                    return sorted(
+                        {m.get("name") for m in self.material_repository.list_materials()}
+                    )
                 except Exception:
                     logger.debug("Material repository present but could not be read")
         if list_materials is None:
@@ -1124,7 +1226,9 @@ class VerificationTableApp(tk.Frame):
         try:
             from sections_app.services.search_helpers import search_sections
 
-            return search_sections(self.section_repository, self.section_names, query, limit=self.search_limit)
+            return search_sections(
+                self.section_repository, self.section_names, query, limit=self.search_limit
+            )
         except Exception:
             logger.exception("Error searching sections via helper")
             # fallback: local name matching
@@ -1141,7 +1245,11 @@ class VerificationTableApp(tk.Frame):
             from sections_app.services.search_helpers import search_materials
 
             return search_materials(
-                self.material_repository, self.material_names, query, type_filter=type_filter, limit=self.search_limit
+                self.material_repository,
+                self.material_names,
+                query,
+                type_filter=type_filter,
+                limit=self.search_limit,
             )
         except Exception:
             logger.exception("Error searching materials via helper")
@@ -1183,7 +1291,12 @@ class VerificationTableApp(tk.Frame):
         return new_item
 
     def _create_editor_for_cell(
-        self, item: str, col: str, value: str, bbox: tuple[int, int, int, int], initial_text: str | None = None
+        self,
+        item: str,
+        col: str,
+        value: str,
+        bbox: tuple[int, int, int, int],
+        initial_text: str | None = None,
     ):
         """
         Crea e ritorna un widget editor posizionato sopra la cella indicata.
@@ -1441,10 +1554,14 @@ class VerificationTableApp(tk.Frame):
             return "break"
         if event.keysym in {"Left", "Right"}:
             delta = -1 if event.keysym == "Left" else 1
-            target_item, target_col = self._next_cell(item, self._last_col, delta_col=delta, delta_row=0)
+            target_item, target_col = self._next_cell(
+                item, self._last_col, delta_col=delta, delta_row=0
+            )
         else:
             delta = -1 if event.keysym == "Up" else 1
-            target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
+            target_item, target_col = self._next_cell(
+                item, self._last_col, delta_col=0, delta_row=delta
+            )
         self._last_col = target_col
         self._start_edit(target_item, target_col)
         return "break"
@@ -1500,7 +1617,9 @@ class VerificationTableApp(tk.Frame):
             self.current_column_index = None
 
         # Crea l'editor (Entry o Combobox) in modo centralizzato
-        self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
+        self.edit_entry = self._create_editor_for_cell(
+            item, col, value, (x, y, width, height), initial_text=initial_text
+        )
 
         # Se lo start è esplicito (programma o click), consentiamo alla prima
         # chiamata a `_update_suggestions` di mostrare l'elenco completo se
@@ -1518,7 +1637,9 @@ class VerificationTableApp(tk.Frame):
         value = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
         # Record debug info via logger (no direct stdout prints)
         try:
-            logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
+            logger.debug(
+                "Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value
+            )
             logger.debug("edit_entry type: %s", type(self.edit_entry))
             if hasattr(self.edit_entry, "cget"):
                 try:
@@ -1618,7 +1739,9 @@ class VerificationTableApp(tk.Frame):
         self._commit_edit()
 
         # Calcola la cella target (eventualmente creando una nuova riga copiando la corrente)
-        target_item, target_col, _created = self._compute_target_cell(current_item, current_col, delta_col, delta_row)
+        target_item, target_col, _created = self._compute_target_cell(
+            current_item, current_col, delta_col, delta_row
+        )
 
         # Apri l'editor sulla cella target
         self._start_edit(target_item, target_col)
@@ -1684,7 +1807,9 @@ class VerificationTableApp(tk.Frame):
                 # We only show the full suggestion list on empty query when the edit
                 # was explicitly opened (e.g. by clicking the cell). This avoids
                 # displaying suggestions when the user types and then deletes input.
-                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (self.edit_column in show_all_on_empty)
+                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (
+                    self.edit_column in show_all_on_empty
+                )
                 # reset flag regardless
                 self._force_show_all_on_empty = False
                 if not show_all_flag:
@@ -1820,7 +1945,9 @@ class VerificationTableApp(tk.Frame):
                 try:
                     mats = self.material_repository.get_all()
                     info["materials_count"] = len(mats)
-                    info["materials_sample"] = [m.name if hasattr(m, "name") else m.get("name") for m in mats[:10]]
+                    info["materials_sample"] = [
+                        m.name if hasattr(m, "name") else m.get("name") for m in mats[:10]
+                    ]
                 except Exception:
                     mats = self.material_repository.list_materials()
                     info["materials_count"] = len(mats)
@@ -1850,7 +1977,9 @@ class VerificationTableApp(tk.Frame):
         # Section suggestions can be a static list
         self.suggestions_map["section"] = self.section_names
         # Material suggestions remain callable to allow repository-backed search
-        self.suggestions_map["mat_concrete"] = lambda q: self._search_materials(q, type_filter="concrete")
+        self.suggestions_map["mat_concrete"] = lambda q: self._search_materials(
+            q, type_filter="concrete"
+        )
         self.suggestions_map["mat_steel"] = lambda q: self._search_materials(q, type_filter="steel")
         self.suggestions_map["stirrups_mat"] = lambda q: self._search_materials(q, type_filter=None)
 
@@ -1912,7 +2041,9 @@ class VerificationTableApp(tk.Frame):
             return
         try:
             imported, skipped, errors = self.import_csv(path, clear=True)
-            messagebox.showinfo("Importa CSV", f"Importate {imported} righe. Saltate {skipped} righe.")
+            messagebox.showinfo(
+                "Importa CSV", f"Importate {imported} righe. Saltate {skipped} righe."
+            )
         except Exception as e:
             logger.exception("Errore import CSV: %s", e)
             self._show_error("Importa CSV", [f"Errore durante l'importazione: {e}"])
@@ -1946,8 +2077,8 @@ class VerificationTableApp(tk.Frame):
             "mat_steel": "material_steel",
             "n": "n_homog",
             "N": "N",
-            "M": "M",
-            "T": "T",
+            "M": "Mx",
+            "T": "Ty",
             "As_p": "As_inf",
             "As": "As_sup",
             "d_p": "d_inf",
@@ -2013,7 +2144,9 @@ class VerificationTableApp(tk.Frame):
             return 0
         if VerificationItem is None:
             logger.error("Classe VerificationItem non disponibile; impossibile salvare")
-            messagebox.showerror("Salva elementi", "Impossibile salvare: classe VerificationItem non disponibile")
+            messagebox.showerror(
+                "Salva elementi", "Impossibile salvare: classe VerificationItem non disponibile"
+            )
             return 0
         try:
             rows = self.get_rows()
@@ -2021,7 +2154,9 @@ class VerificationTableApp(tk.Frame):
             self.verification_items_repository.clear()
             for idx, inp in enumerate(rows, start=1):
                 item_id = f"E{idx:03d}"
-                name = (inp.notes.strip() if getattr(inp, "notes", None) else "") or f"Elemento {idx}"
+                name = (
+                    inp.notes.strip() if getattr(inp, "notes", None) else ""
+                ) or f"Elemento {idx}"
                 item = VerificationItem(id=item_id, name=name, input=inp)
                 self.verification_items_repository.save(item)
             logger.info("Salvati %d elementi nel repository", len(rows))
@@ -2034,7 +2169,9 @@ class VerificationTableApp(tk.Frame):
     def _on_save_items(self) -> None:
         """Handler per il pulsante 'Salva elementi' nella toolbar."""
         if not self.verification_items_repository:
-            messagebox.showwarning("Salva elementi", "Nessun repository fornito per salvare gli elementi.")
+            messagebox.showwarning(
+                "Salva elementi", "Nessun repository fornito per salvare gli elementi."
+            )
             return
         saved = self.save_items_to_repository()
         messagebox.showinfo("Salva elementi", f"Elementi salvati: {saved}")
@@ -2064,7 +2201,8 @@ class VerificationTableApp(tk.Frame):
             stirrup_step=float(pick("passo_staffe", "stirrups_step", 0.0) or 0.0),
             stirrup_diameter=float(pick("stirrups_diam", "stirrups_diameter", 0.0) or 0.0),
             stirrup_material=pick("stirrups_mat", "stirrups_material", ""),
-            notes=pick("notes", "name", "") or "",
+            element_name=pick("name", "element", "element_name", "") or "",
+            notes=pick("notes", "note", "") or "",
         )
 
     def _on_load_project(self) -> None:
@@ -2210,7 +2348,9 @@ class VerificationTableApp(tk.Frame):
         if self.project.path and not self.project.last_action_was_add_list:
             save_path = self.project.path
         else:
-            save_path = filedialog.asksaveasfilename(defaultextension=".jsonp", filetypes=[("JSONP", "*.jsonp")])
+            save_path = filedialog.asksaveasfilename(
+                defaultextension=".jsonp", filetypes=[("JSONP", "*.jsonp")]
+            )
             if not save_path:
                 return
 
@@ -2236,13 +2376,19 @@ class VerificationTableApp(tk.Frame):
             messagebox.showerror("Crea progetto test", "Modulo progetto non disponibile")
             return
         if self.material_repository is None or self.section_repository is None:
-            messagebox.showerror("Crea progetto test", "Repository sezioni o materiali non disponibili")
+            messagebox.showerror(
+                "Crea progetto test", "Repository sezioni o materiali non disponibili"
+            )
             return
 
         # --- Recupero CLS con '160' nel nome o nel codice ---
         # Cerco in modo deterministico: ordino per nome e prendo il primo che contiene '160'.
-        concrete_candidates = [m for m in self.material_repository.get_all() if getattr(m, "type", "") == "concrete"]
-        concrete_candidates_sorted = sorted(concrete_candidates, key=lambda m: (m.name or "").lower())
+        concrete_candidates = [
+            m for m in self.material_repository.get_all() if getattr(m, "type", "") == "concrete"
+        ]
+        concrete_candidates_sorted = sorted(
+            concrete_candidates, key=lambda m: (m.name or "").lower()
+        )
         cls_mat = None
         for m in concrete_candidates_sorted:
             name_code = f"{(m.name or '')} {getattr(m, 'code', '')}".lower()
@@ -2251,12 +2397,15 @@ class VerificationTableApp(tk.Frame):
                 break
         if cls_mat is None:
             messagebox.showerror(
-                "Crea progetto test", "Nessun calcestruzzo con '160' nel nome trovato nella libreria materiali"
+                "Crea progetto test",
+                "Nessun calcestruzzo con '160' nel nome trovato nella libreria materiali",
             )
             return
 
         # --- Recupero acciaio 'ferro dolce' ---
-        steel_candidates = [m for m in self.material_repository.get_all() if getattr(m, "type", "") == "steel"]
+        steel_candidates = [
+            m for m in self.material_repository.get_all() if getattr(m, "type", "") == "steel"
+        ]
         steel_sorted = sorted(steel_candidates, key=lambda m: (m.name or "").lower())
         steel_mat = None
         for m in steel_sorted:
@@ -2266,12 +2415,17 @@ class VerificationTableApp(tk.Frame):
                 steel_mat = m
                 break
         if steel_mat is None:
-            messagebox.showerror("Crea progetto test", "Nessun acciaio 'ferro dolce' trovato nella libreria materiali")
+            messagebox.showerror(
+                "Crea progetto test",
+                "Nessun acciaio 'ferro dolce' trovato nella libreria materiali",
+            )
             return
 
         # --- Recupero sezione rettangolare dalla repository ---
         rects = [
-            s for s in self.section_repository.get_all_sections() if getattr(s, "section_type", "").upper() == "RECTANGULAR"
+            s
+            for s in self.section_repository.get_all_sections()
+            if getattr(s, "section_type", "").upper() == "RECTANGULAR"
         ]
         rects_sorted = sorted(rects, key=lambda s: (getattr(s, "name", "") or "").lower())
         if rects_sorted:
@@ -2279,7 +2433,9 @@ class VerificationTableApp(tk.Frame):
         else:
             # Se non esiste, creo una sezione rettangolare standard (30x50 cm)
             if RectangularSection is None:
-                messagebox.showerror("Crea progetto test", "Classe RectangularSection non disponibile")
+                messagebox.showerror(
+                    "Crea progetto test", "Classe RectangularSection non disponibile"
+                )
                 return
             section = RectangularSection(name="Test Rect 30x50", width=30.0, height=50.0)
 
@@ -2300,9 +2456,16 @@ class VerificationTableApp(tk.Frame):
         try:
             steel_dict = steel_mat.to_dict()
         except Exception:
-            steel_dict = {"id": getattr(steel_mat, "id", ""), "name": getattr(steel_mat, "name", "")}
-        self.project.materials.setdefault("cls", {})[cls_dict.get("id") or cls_dict.get("name")] = cls_dict
-        self.project.materials.setdefault("steel", {})[steel_dict.get("id") or steel_dict.get("name")] = steel_dict
+            steel_dict = {
+                "id": getattr(steel_mat, "id", ""),
+                "name": getattr(steel_mat, "name", ""),
+            }
+        self.project.materials.setdefault("cls", {})[
+            cls_dict.get("id") or cls_dict.get("name")
+        ] = cls_dict
+        self.project.materials.setdefault("steel", {})[
+            steel_dict.get("id") or steel_dict.get("name")
+        ] = steel_dict
 
         # Sezione: inserisco il dizionario della sezione
         try:
@@ -2402,7 +2565,12 @@ class VerificationTableApp(tk.Frame):
             for r in self.get_rows():
                 row = []
                 for k in keys:
-                    raw = getattr(r, self._col_to_attr(k))
+                    try:
+                        attr = self._col_to_attr(k)
+                    except KeyError:
+                        # Fallback for callers whose _col_to_attr raises KeyError
+                        attr = {"M": "Mx", "T": "Ty"}.get(k, k)
+                    raw = getattr(r, attr)
                     row.append(self._format_value_for_csv(raw))
                 writer.writerow(row)
 
@@ -2450,9 +2618,13 @@ class VerificationTableApp(tk.Frame):
             # una correzione semplice inserendo un placeholder None per la colonna
             # 'Metodo verifica' (index 1) in modo da non agganciare per posizione
             row_lengths = [len(r) for r in rows[1:]]
-            logger.info("Import CSV: header len=%d row lens sample=%s", len(header), row_lengths[:5])
+            logger.info(
+                "Import CSV: header len=%d row lens sample=%s", len(header), row_lengths[:5]
+            )
             if any(l == len(header) - 1 for l in row_lengths):
-                logger.info("Import CSV: righe con colonna mancante rilevate; applico correzione per 'Metodo verifica'")
+                logger.info(
+                    "Import CSV: righe con colonna mancante rilevate; applico correzione per 'Metodo verifica'"
+                )
                 # shift indices after the missing column
                 index_map = [0, None] + [i - 1 for i in range(2, len(header))]
                 logger.debug("Import CSV: index_map corretto: %s", index_map)
@@ -2461,23 +2633,51 @@ class VerificationTableApp(tk.Frame):
             if set(header) == set(expected_header) and len(header) == len(expected_header):
                 # per ogni expected header cerchiamo l'indice nel file
                 index_map = [header.index(h) for h in expected_header]
-                logger.info("Import CSV: header in ordine diverso, applicato mapping automatico: %s", index_map)
+                logger.info(
+                    "Import CSV: header in ordine diverso, applicato mapping automatico: %s",
+                    index_map,
+                )
             else:
                 # Supporta file CSV che contengono un sottoinsieme di colonne in ordine
                 # atteso (per compatibilità retroattiva). In questo caso creiamo una
                 # mappa con indici o None per colonne mancanti.
-                if set(header).issubset(set(expected_header)) and len(header) < len(expected_header):
+                if set(header).issubset(set(expected_header)) and len(header) < len(
+                    expected_header
+                ):
                     index_map = [header.index(h) if h in header else None for h in expected_header]
-                    logger.info("Import CSV: header incompleto, applicato mapping parziale: %s", index_map)
+                    logger.info(
+                        "Import CSV: header incompleto, applicato mapping parziale: %s", index_map
+                    )
                 else:
-                    logger.error("Import CSV: header non valido. Atteso: %s. Trovato: %s", expected_header, header)
+                    logger.error(
+                        "Import CSV: header non valido. Atteso: %s. Trovato: %s",
+                        expected_header,
+                        header,
+                    )
                     header_msg = "Intestazione CSV non corrisponde all'ordine atteso."
                     details = [f"Atteso: {expected_header}", f"Trovato: {rows[0]}"]
                     self._show_error("Importa CSV", details, header=header_msg)
                     return 0, max(0, len(rows) - 1), ["Header mismatch"]
 
         key_names = [c[0] for c in COLUMNS]
-        numeric_attrs = {"n_homog", "N", "M", "T", "As_sup", "As_inf", "d_sup", "d_inf", "stirrup_step", "stirrup_diameter"}
+        # Accept both legacy column keys (M/T) and modern attribute names (Mx/My/Mz/Tx/Ty)
+        numeric_attrs = {
+            "n_homog",
+            "N",
+            "M",
+            "T",
+            "Mx",
+            "My",
+            "Mz",
+            "Tx",
+            "Ty",
+            "As_sup",
+            "As_inf",
+            "d_sup",
+            "d_inf",
+            "stirrup_step",
+            "stirrup_diameter",
+        }
 
         models: list[VerificationInput] = []
         errors: list[str] = []
@@ -2503,7 +2703,10 @@ class VerificationTableApp(tk.Frame):
                 # idx is the index in the original row; use it directly instead of
                 # indexing into 'vals' which holds shifted values.
                 v = row[idx] if idx < len(row) else ""
-                attr = self._col_to_attr(k)
+                try:
+                    attr = self._col_to_attr(k)
+                except KeyError:
+                    attr = {"M": "Mx", "T": "Ty"}.get(k, k)
                 if attr in numeric_attrs:
                     s = str(v).strip()
                     if not s:
@@ -2577,7 +2780,9 @@ class VerificationTableApp(tk.Frame):
                 continue
 
             try:
-                result = compute_verification_result(model, self.section_repository, self.material_repository)
+                result = compute_verification_result(
+                    model, self.section_repository, self.material_repository
+                )
             except Exception as e:
                 logger.exception("Errore verifica riga %s: %s", row_idx + 1, e)
                 risultati.append(f"Riga {row_idx + 1}: ERRORE CALCOLO – {e}")
@@ -2585,7 +2790,10 @@ class VerificationTableApp(tk.Frame):
 
             # Formato: "Riga N [METODO]: esito=..., γ=..."
             metodo = model.verification_method or "?"
-            risultati.append(f"Riga {row_idx + 1} [{metodo}]: esito={result.esito}, " f"γ={result.coeff_sicurezza:.2f}")
+            risultati.append(
+                f"Riga {row_idx + 1} [{metodo}]: esito={result.esito}, "
+                f"γ={result.coeff_sicurezza:.2f}"
+            )
 
         # Mostra risultati in un messagebox
         msg = "\n".join(risultati)
@@ -2622,7 +2830,9 @@ class VerificationTableApp(tk.Frame):
         tk.Label(frame, text="n barre", width=8, anchor="w").grid(row=0, column=1, sticky="w")
 
         for i, d in enumerate(diameters, start=1):
-            tk.Label(frame, text=f"Ø{d}", width=8, anchor="w").grid(row=i, column=0, sticky="w", pady=2)
+            tk.Label(frame, text=f"Ø{d}", width=8, anchor="w").grid(
+                row=i, column=0, sticky="w", pady=2
+            )
             var = tk.StringVar(value="")
             self._rebar_vars[d] = var
             ent = tk.Entry(frame, textvariable=var, width=8)
@@ -2635,7 +2845,9 @@ class VerificationTableApp(tk.Frame):
         total_frame = tk.Frame(frame)
         total_frame.grid(row=len(diameters) + 1, column=0, columnspan=2, sticky="w", pady=(8, 4))
         tk.Label(total_frame, text="Area totale [cm²]:").pack(side="left")
-        tk.Label(total_frame, textvariable=self._rebar_total_var, width=10, anchor="w").pack(side="left")
+        tk.Label(total_frame, textvariable=self._rebar_total_var, width=10, anchor="w").pack(
+            side="left"
+        )
 
         btn_frame = tk.Frame(frame)
         btn_frame.grid(row=len(diameters) + 2, column=0, columnspan=2, sticky="e")
@@ -2751,7 +2963,9 @@ class VerificationTableWindow(tk.Toplevel):
         self._status_sections.pack(side="left", padx=8)
         self._status_materials = tk.Label(status, text="Materials: ?")
         self._status_materials.pack(side="left", padx=8)
-        tk.Button(status, text="Check sources", command=self._check_sources).pack(side="right", padx=8)
+        tk.Button(status, text="Check sources", command=self._check_sources).pack(
+            side="right", padx=8
+        )
 
         # Initialize status text
         self._update_status_labels()

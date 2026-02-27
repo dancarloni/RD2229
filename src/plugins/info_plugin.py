@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.plugins import ActionSpec, PluginRegistry, PluginSpec
+from src.plugins import ActionSpec, ParamSpec, PluginRegistry, PluginSpec
 from src.plugins.base import BasePlugin
 
 
@@ -37,6 +37,15 @@ class InfoPlugin(BasePlugin):
                     id="show_info",
                     label="Mostra info progetto",
                     handler=self.execute,
+                    params=[
+                        ParamSpec(
+                            name="project",
+                            label="Project file",
+                            type="file",
+                            required=False,
+                            description="Path to the project JSON file (optional).",
+                        )
+                    ],
                     description="Carica e mostra i metadati principali.",
                     icon="ℹ️",
                 )
