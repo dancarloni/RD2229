@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\historical_ta\__init__.py
-# hypothesis_version: 6.151.9
-
-['AllowableCheckResult', 'AllowableStresses', 'ConcreteLawTA', 'LoadState', 'SectionGeometry', 'SectionProperties', 'SteelLawTA', 'StressResult']

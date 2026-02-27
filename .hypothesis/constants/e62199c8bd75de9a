@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\apps\sections\domain\base.py
-# hypothesis_version: 6.151.9
-
-[0.0, 1e-10, 0.5, 1.0, 'A_y', 'A_z', 'I1', 'I2', 'Ix', 'Ixy', 'Iy', 'Qx', 'Qy', 'SectionProperties', 'area', 'core_x', 'core_y', 'ellipse_a', 'ellipse_b', 'id', 'kappa_y', 'kappa_z', 'name', 'note', 'principal_angle_deg', 'principal_rx', 'principal_ry', 'rotation_angle_deg', 'rx', 'ry', 'section_type', 'x_G', 'y_G']

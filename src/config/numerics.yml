@@ -1,0 +1,25 @@
+# ==========================================================
+# numerics.yml
+# ==========================================================
+# Configurazione per la parte numerica del software.
+#
+# CONTIENE:
+# - precisioni di arrotondamento
+# - tolleranze numeriche
+# - parametri utili ai calcoli interni
+#
+# STUB S2 — nessun valore definitivo
+# ==========================================================
+
+rounding:
+  default: 4            # decimali di default
+  stresses: 3           # tensioni
+  geometry: 3           # aree, inerzie
+
+tolerances:
+  zero: 1e-9            # tolleranza valore zero
+  equality: 1e-6        # tolleranza confronto valori
+
+options:
+  enable_debug: false   # debug numerico
+  verbose_calculation: false

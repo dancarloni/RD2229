@@ -1,0 +1,16 @@
+{
+  "id": "MVP_PLACEHOLDER",
+  "version": "1.0.0",
+  "namespace": "NTC2018",
+  "payload": {
+    "check_code": "MVP_REAL_MIN",
+    "threshold": 1000.0,
+    "provenance": {
+      "threshold": "default_norm",
+      "norm_references": "TODO(NTC/EC/RD)"
+    },
+    "norm_references": [
+      "TODO(NTC/EC/RD): NTC2018 riferimento puntuale da confermare"
+    ]
+  }
+}

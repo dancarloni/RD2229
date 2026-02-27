@@ -1,0 +1,34 @@
+# ==========================================================
+# app.yml
+# ==========================================================
+# Configurazione generale dell'applicazione.
+#
+# CONTIENE:
+# - Nome software
+# - Versione
+# - Default normativa utilizzata
+# - Percorsi file
+# - Impostazioni globali
+#
+# STUB S2 — da estendere con Copilot Plan.
+# ==========================================================
+
+application:
+  name: "Engineering Verification Framework"
+  version: "0.1.0"
+  description: "Framework modulare per verifiche strutturali — Stub S2"
+
+defaults:
+  normative: "NTC2018"
+  report_format: "html"
+
+paths:
+  legacy: "src/legacy"
+  templates: "src/report/templates"
+
+logging:
+  level: "INFO"     # può essere DEBUG, INFO, WARNING, ERROR
+  file: "logs/app.log"
+
+ui:
+  enable_gui_warnings: true

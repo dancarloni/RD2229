@@ -15,6 +15,7 @@ gui = ["PySide6>=6.6"]
 
 [project.scripts]
 structcalc = "src.ui.app:main"
+rd2229-demo = "src.rd2229.cli:main"
 
 [tool.black]
 line-length = 100
@@ -137,6 +138,3 @@ repos = [
 
 [tool.setuptools.packages.find]
 include = ["src*","src.*"]
-
-[project.scripts]
-rd2229-demo = "src.rd2229.cli:main"

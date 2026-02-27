@@ -1,0 +1,49 @@
+# ==========================================================
+# units.yml
+# ==========================================================
+# File di configurazione principale delle unità di misura.
+#
+# ATTENZIONE:
+# - Il progetto utilizza *solo* le unità richieste dall'utente.
+# - Nessuna conversione implicita deve essere fatta nei moduli.
+#
+# FORMATO:
+# - "unit": stringa descrittiva (ad uso GUI / report)
+# - "factor": eventuale fattore di conversione se in futuro
+#   volessi supportare unità alternative (non implementato ora).
+#
+# STUB S2 — pronto per essere esteso.
+# ==========================================================
+
+length:
+  base: "cm"
+  factor: 1.0      # cm → cm
+
+area:
+  base: "cm2"
+  factor: 1.0
+
+inertia:
+  base: "cm4"
+  factor: 1.0
+
+stress:
+  base: "kg/cm2"
+  factor: 1.0
+
+density:
+  base: "kg/m3"
+  factor: 1.0
+
+mass:
+  base: "kg"
+  factor: 1.0
+
+force:
+  base: "kg"
+  factor: 1.0
+
+# NOTE:
+#   In futuro si potrà estendere con:
+#     - kN, kN·m, MPa, etc.
+#   mantenendo cm e kg come base di calcolo.
