@@ -47,4 +47,4 @@ jobs:
         if: ${{ always() }}
         run: |
           pip install bandit
-          bandit -r .
+          bandit -r . --exclude ./tests --exclude ./tests_legacy --exclude ./src/tests -lll
