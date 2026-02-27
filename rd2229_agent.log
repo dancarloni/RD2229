@@ -139,3 +139,15 @@ End of log update.
    To https://github.com/dancarloni/RD2229.git
       05d5a5d..f9fb58d  main -> main
 
+   2026-02-27  UI param-prompt patch
+
+   14) Action: Modified `src/ui/modern/app.py` to prompt the user for action parameters
+      when a plugin action defines `params` (uses file/dir dialogs and text input)
+      Result: updated file saved in working tree.
+
+   15) Action: Created conservative PowerShell snippet `.vscode/pwsh_shell_integration_snippet.ps1`
+      and appended it to user's PowerShell profile (backup created).
+      Result: profile backed up and snippet appended.
+
+   Next: commit these changes and push to origin/main.
+
