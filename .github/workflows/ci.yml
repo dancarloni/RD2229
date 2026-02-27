@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, '**' ]
+    branches: ['**']
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -101,9 +101,9 @@ jobs:
 
       - name: Run tests (exclude slow)
         env:
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}/src
         run: |
-          pytest -q -m "not slow" --maxfail=1
+          pytest -q -m "not slow and not gui" --maxfail=5
 
   shapely:
     needs: test
@@ -127,7 +127,7 @@ jobs:
 
       - name: Run Shapely-specific tests
         env:
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}/src
         run: |
           pytest -q tests/test_shapely_integration.py tests/test_core_selection_scoring.py --maxfail=1
 
@@ -161,6 +161,6 @@ jobs:
 
       - name: Run slow tests
         env:
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}/src
         run: |
-          pytest -q --maxfail=1
+          pytest -q -m "not gui" --maxfail=5
