@@ -1,3 +1,28 @@
+2026-02-27  Registry inspection
+
+10) Action: Import `src.ui.modern.features.builtin_features` and list registered features
+      Result: import succeeded, but `registry.get_all()` returned 0 features.
+      Output:
+         Imported builtin_features: src.ui.modern.features.builtin_features
+         Number of registered features: 0
+
+Interpretation: builtin features module imported but it did not register features at import time (or registration requires additional bootstrap, config, or runtime conditions). Next steps: run the app bootstrap (app.main) or call the registry population routine used by the app (if available), and capture logs.
+
+Recorded by: agent
+
+2026-02-27  Plugin discovery run
+
+11) Action: Called `load_all_plugins(...)` using `config/app.yml` if present (defaults used).
+      Result: 3 plugins discovered via folder/entry-point discovery.
+      Plugins found:
+         - id: report_export, title: Report Export, category: reporting
+         - id: run_pipeline, title: Run Pipeline, category: calculation
+         - id: sample_info, title: Project Info, category: utility
+
+Interpretation: plugin discovery works and returns plugin specs; GUI should receive these specs during bootstrap and populate the sidebar if the PyQt6-based window is constructed.
+
+Recorded by: agent
+
 2026-02-27  Log of agent actions (automatic)
 
 1) Action: Located wrapper for `rd2229` in PATH
@@ -64,4 +89,29 @@ End of log update.
        git push origin main
 
     Result: (see appended command output after execution)
+
+   Command outputs:
+
+   $ git add -f rd2229_agent.log
+   rc=0
+   stdout:
+
+   stderr:
+
+   $ git commit -m chore: add agent log
+   rc=0
+   stdout:
+   [main f9fb58d] chore: add agent log
+    1 file changed, 67 insertions(+)
+    create mode 100644 rd2229_agent.log
+   stderr:
+
+   $ git push origin main
+   rc=0
+   stdout:
+
+   stderr:
+   To https://github.com/dancarloni/RD2229.git
+      05d5a5d..f9fb58d  main -> main
+
 
