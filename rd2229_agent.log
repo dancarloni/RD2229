@@ -23,6 +23,31 @@ Interpretation: plugin discovery works and returns plugin specs; GUI should rece
 
 Recorded by: agent
 
+2026-02-27  Headless bootstrap run
+
+12) Action: Run headless bootstrap (`RD2229_UI_TEST=1`) to force plugin discovery without starting event loop.
+   Command: `RD2229_UI_TEST=1 python -u -m src.ui.modern.app` (PYTHONPATH=src)
+   Result: process exited rc=0, no stderr captured in 15s timeout.
+   Note: absence of output likely means bootstrap succeeded quietly (no errors). Plugins discovered earlier are expected to be loaded.
+
+2026-02-27  GUI run (short)
+
+13) Action: Start full GUI for 6 seconds to capture startup logs (then terminate).
+      Command: `python -u -m src.ui.modern.app` (PYTHONPATH=src)
+      Result: process exited rc=1 after termination.
+      Captured stderr snippet:
+         Action handler error: _export() missing 2 required positional arguments: 'project' and 'output'
+         Traceback (most recent call last):
+            File "src/ui/modern/app.py", line 135, in _run_action
+               result = handler()
+         TypeError: _export() missing 2 required positional arguments: 'project' and 'output'
+
+Interpretation: GUI started and at least one plugin action was invoked during startup or plugin initialization which raised a TypeError in an action handler. This should be investigated in the plugin `report_export` (likely), which defines an `_export` action that expects parameters.
+
+Recorded by: agent
+
+
+
 2026-02-27  Log of agent actions (automatic)
 
 1) Action: Located wrapper for `rd2229` in PATH
