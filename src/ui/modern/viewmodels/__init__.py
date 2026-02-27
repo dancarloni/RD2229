@@ -3,6 +3,7 @@
 Provides `ProjectViewModel`, `RunViewModel`, `ResultsViewModel` with a
 small subset of the behavior used in tests.
 """
+
 from __future__ import annotations
 
 from typing import Any, Callable, List

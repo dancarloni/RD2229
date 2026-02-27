@@ -2,6 +2,7 @@
 
 Implements `run_module` returning a basic dict for known demo module ids.
 """
+
 from __future__ import annotations
 
 from typing import Any

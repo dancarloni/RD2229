@@ -3,8 +3,9 @@
 Exports a minimal `services`, `viewmodels` and `features` submodules
 so tests importing `src.ui.modern.*` continue to work.
 """
+
 from __future__ import annotations
 
-from .services import ProjectIOService, CalculationService
+from .services import CalculationService, ProjectIOService
 
 __all__ = ["ProjectIOService", "CalculationService"]

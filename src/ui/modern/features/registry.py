@@ -3,6 +3,7 @@
 Provides a minimal `FeatureSpec` and registry functions expected by
 tests that import `src.ui.modern.features.registry`.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,7 +19,9 @@ class FeatureSpec:
     enabled: bool = True
     tooltip: str = ""
 
-    def create_widget(self, parent: Any, *args: Any, **kwargs: Any) -> Any:  # pragma: no cover - shim
+    def create_widget(
+        self, parent: Any, *args: Any, **kwargs: Any
+    ) -> Any:  # pragma: no cover - shim
         raise NotImplementedError()
 
 

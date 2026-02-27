@@ -3,10 +3,11 @@
 This file ensures imports like `rd2229.ui_qt` resolve to the code
 located under `src/rd2229` without requiring installation.
 """
+
 from __future__ import annotations
 
-import os
 import importlib
+import os
 
 # Prepend the src/rd2229 path to this package's __path__ so submodules
 # can be resolved from the source tree.

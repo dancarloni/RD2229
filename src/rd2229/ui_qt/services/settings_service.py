@@ -3,6 +3,7 @@
 Provides `get_model()` returning an object with runtime defaults and
 `update_runtime_defaults()` to mutate them.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

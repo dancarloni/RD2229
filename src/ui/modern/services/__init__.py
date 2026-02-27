@@ -1,4 +1,5 @@
 """Minimal services shim for `src.ui.modern.services` expected by tests."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -33,8 +34,8 @@ class CalculationService:
         export_results(results, path)
 
     def export_report(self, project: Any, results: Any, path: str, fmt: str = "html") -> None:
-        from src.reporting.report_builder import build_report
         from src.reporting.export import export_report_html, export_report_md
+        from src.reporting.report_builder import build_report
 
         artifact = build_report(project, results)
         if fmt == "md":
