@@ -36,7 +36,13 @@ def load_plugins_from_folder(plugins_dir: Path) -> list[PluginSpec]:
             spec = _load_plugin_package(entry)
             if spec:
                 specs.append(spec)
-        except (ImportError, AttributeError, json.JSONDecodeError, TypeError, ValueError) as exc:  # plugin errors must not crash the app
+        except (
+            ImportError,
+            AttributeError,
+            json.JSONDecodeError,
+            TypeError,
+            ValueError,
+        ) as exc:  # plugin errors must not crash the app
             logger.warning("Failed to load plugin from %s: %s", entry, exc)
 
     return specs

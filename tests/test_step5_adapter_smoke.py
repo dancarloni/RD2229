@@ -8,8 +8,6 @@ Verifica che:
 
 from __future__ import annotations
 
-import pytest
-
 from src.core.pipeline import run_pipeline
 from src.core.results import ElementResult, ResultsModel
 from src.core.step5_adapter import can_run_step5, run_step5
@@ -118,12 +116,8 @@ def test_run_step5_result_has_numerical_metrics():
     # Le metriche sono prefissate con "step5." nel nuovo schema
     has_step5_metric = any(k.startswith("step5.") for k in metrics)
     # Fallback: metriche senza prefisso (norm_code, status)
-    has_legacy_metric = any(
-        k in metrics for k in ("num_verifiche_eseguite", "status", "norm_code")
-    )
-    assert has_step5_metric or has_legacy_metric, (
-        f"Nessuna metrica step5 trovata: {metrics}"
-    )
+    has_legacy_metric = any(k in metrics for k in ("num_verifiche_eseguite", "status", "norm_code"))
+    assert has_step5_metric or has_legacy_metric, f"Nessuna metrica step5 trovata: {metrics}"
 
 
 def test_run_step5_element_id_preserved():
@@ -174,9 +168,7 @@ def test_pipeline_step5_enriches_metrics():
     has_step5_metric = any(k.startswith("step5.") for k in elem.metrics)
     # Fallback: metriche base senza prefisso (norm_code da step3)
     has_base_metric = "norm_code" in elem.metrics
-    assert has_step5_metric or has_base_metric, (
-        f"Metriche step5 mancanti: {elem.metrics}"
-    )
+    assert has_step5_metric or has_base_metric, f"Metriche step5 mancanti: {elem.metrics}"
 
 
 def test_pipeline_step5_ok_invariant():

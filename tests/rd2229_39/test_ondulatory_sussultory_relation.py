@@ -1,5 +1,5 @@
-from src.rd2229.seismic.rd2229_39.provider import RD2229SeismicProvider
 from src.rd2229.seismic.rd2229_39.models.inputs import FloorForcesRequest, FloorMassBreakdown
+from src.rd2229.seismic.rd2229_39.provider import RD2229SeismicProvider
 
 
 def test_sussultory_is_125_percent_of_ondulatory():

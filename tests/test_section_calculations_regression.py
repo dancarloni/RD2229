@@ -1,4 +1,3 @@
-
 import pytest
 
 from src.core_calculus.core.geometry_model import SectionGeometry
@@ -14,8 +13,8 @@ def test_rectangle_inertia_matches_analytic():
     props = compute_section_properties_from_geometry(geom)
 
     # analytical formulas for rectangle about centroid
-    expected_Ix = b * h ** 3 / 12.0
-    expected_Iy = h * b ** 3 / 12.0
+    expected_Ix = b * h**3 / 12.0
+    expected_Iy = h * b**3 / 12.0
 
     assert props.area == pytest.approx(b * h, rel=1e-9)
     assert props.Ix == pytest.approx(expected_Ix, rel=1e-6)

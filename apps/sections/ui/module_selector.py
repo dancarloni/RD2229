@@ -15,8 +15,6 @@ from tkinter import Tk, filedialog
 
 from apps.sections.services.notification import notify_error, notify_info
 from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository
-from core_models.materials import MaterialRepository  # noqa: F401
-from historical_materials import HistoricalMaterialLibrary  # noqa: F401
 from apps.sections.ui.code_settings_window import CodeSettingsWindow
 from apps.sections.ui.debug_viewer import DebugViewerWindow  # noqa: F401
 from apps.sections.ui.historical_main_window import HistoricalModuleMainWindow  # noqa: F401
@@ -24,6 +22,8 @@ from apps.sections.ui.historical_material_window import HistoricalMaterialWindow
 from apps.sections.ui.main_window import MainWindow  # noqa: F401
 from apps.sections.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
 from apps.sections.ui.notification_center import NotificationCenter
+from core_models.materials import MaterialRepository  # noqa: F401
+from historical_materials import HistoricalMaterialLibrary  # noqa: F401
 from modules.registry import ModuleRegistry
 
 logger = logging.getLogger(__name__)
@@ -244,12 +244,8 @@ class ModuleSelectorWindow(Tk):
 
         tools_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Strumenti", menu=tools_menu)
-        tools_menu.add_command(
-            label="Impostazioni Codice", command=self.controller.open_code_settings
-        )
-        tools_menu.add_command(
-            label="Centro Notifiche", command=self.controller.open_notification_center
-        )
+        tools_menu.add_command(label="Impostazioni Codice", command=self.controller.open_code_settings)
+        tools_menu.add_command(label="Centro Notifiche", command=self.controller.open_notification_center)
         tools_menu.add_separator()
         tools_menu.add_command(label="Aggiorna Moduli", command=self._refresh_modules)
 

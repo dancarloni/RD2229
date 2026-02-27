@@ -79,9 +79,7 @@ class WindActionService:
             else:
                 logger.warning("Metodo vento '%s' non riconosciuto; uso NTC2018.", method)
                 results = self._run_ntc2018(config)
-                results.warnings.append(
-                    f"Metodo '{config.method}' non riconosciuto; usato NTC2018."
-                )
+                results.warnings.append(f"Metodo '{config.method}' non riconosciuto; usato NTC2018.")
 
             # Applica arricchimento CNR se richiesto
             if config.apply_cnr_dt207 and method not in ("CNR_DT207", "HYBRID"):
@@ -98,14 +96,17 @@ class WindActionService:
 
     def _run_ntc2018(self, config: WindConfig) -> WindResults:
         from src.wind.ntc2018 import run_ntc2018_wind
+
         return run_ntc2018_wind(config.site, config.building)
 
     def _run_en1991(self, config: WindConfig) -> WindResults:
         from src.wind.ec1991_1_4 import run_en1991_1_4_wind
+
         return run_en1991_1_4_wind(config.site, config.building)
 
     def _apply_cnr(self, results: WindResults, config: WindConfig) -> WindResults:
         from src.wind.cnr_dt207 import enrich_results_with_cnr_dt207
+
         # z0/z_min: prendi dai params terreno del metodo base
         z0 = config.site.extra.get("z0_m", 0.05)
         z_min = config.site.extra.get("z_min_m", 2.0)
@@ -128,6 +129,7 @@ class WindActionService:
         warnings.append("Metodo ibrido: envelope conservativo tra NTC2018 e EN1991-1-4.")
 
         import dataclasses
+
         result = dataclasses.replace(
             ntc,
             method="hybrid",

@@ -64,7 +64,9 @@ def test_draw_inertia_ellipse_and_core_rendered_on_canvas():
     assert found_ellipse
 
     # Expect a core polygon drawn with orange outline
-    found_core = any(kind == "polygon" and call_kwargs.get("outline") == "orange" for kind, _args, call_kwargs in canvas.calls)
+    found_core = any(
+        kind == "polygon" and call_kwargs.get("outline") == "orange" for kind, _args, call_kwargs in canvas.calls
+    )
     assert found_core
 
 

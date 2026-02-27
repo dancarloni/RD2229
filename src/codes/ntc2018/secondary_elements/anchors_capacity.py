@@ -3,10 +3,11 @@
 STEP2 only requires an interface for ETA‑first manual input.  No calculations
 are performed in this phase; the function simply echoes the provided capacity.
 """
-from typing import Any, Dict
+
+from typing import Any
 
 
-def get_anchor_capacity(spec: Dict[str, Any]) -> float:
+def get_anchor_capacity(spec: dict[str, Any]) -> float:
     """Return the declared anchor capacity from the input spec.
 
     Args:

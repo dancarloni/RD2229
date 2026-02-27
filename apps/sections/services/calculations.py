@@ -16,9 +16,7 @@ class RectangleElement:
 
 
 @lru_cache(maxsize=512)
-def rotate_inertia(
-    Ix: float, Iy: float, Ixy: float, theta_rad: float
-) -> tuple[float, float, float]:
+def rotate_inertia(Ix: float, Iy: float, Ixy: float, theta_rad: float) -> tuple[float, float, float]:
     """Ruota il tensore di inerzia di un angolo theta_rad (radianti) attorno al baricentro.
 
     Formule di rototrasformazione del tensore di inerzia:

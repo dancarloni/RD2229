@@ -14,8 +14,8 @@ TODO: Implementare calcolo risposta dinamica completo (fattore Cd)
 
 from __future__ import annotations
 
-import math
 import logging
+import math
 
 from src.wind.models import BuildingGeom, WindSite
 from src.wind.outputs import WindResults
@@ -94,13 +94,16 @@ def enrich_results_with_cnr_dt207(
     iv = compute_turbulence_intensity(z_ref, z0, z_min)
     kp = compute_peak_factor(iv)
 
-    extra = {**wind_results.extra, "cnr_dt207": {
-        "turbulence_intensity_at_h": round(iv, 4),
-        "peak_factor_kp": kp,
-        "z_ref_m": z_ref,
-        "note": "Valori calcolati con formula logaritmica standard; "
-                "verificare con parametri CNR-DT 207 R1/2018 per applicazione reale.",
-    }}
+    extra = {
+        **wind_results.extra,
+        "cnr_dt207": {
+            "turbulence_intensity_at_h": round(iv, 4),
+            "peak_factor_kp": kp,
+            "z_ref_m": z_ref,
+            "note": "Valori calcolati con formula logaritmica standard; "
+            "verificare con parametri CNR-DT 207 R1/2018 per applicazione reale.",
+        },
+    }
 
     warnings = list(wind_results.warnings)
     warnings.append(
@@ -109,4 +112,5 @@ def enrich_results_with_cnr_dt207(
     )
 
     import dataclasses
+
     return dataclasses.replace(wind_results, extra=extra, warnings=warnings)

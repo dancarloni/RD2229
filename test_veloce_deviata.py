@@ -32,9 +32,7 @@ print("TEST PRESSOFLESSIONE DEVIATA RD 2229/39")
 print("=" * 60)
 
 templates = get_rd2229_templates()
-template = next(
-    t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
-)
+template = next(t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete")
 
 section = MockSection(width=300.0, height=500.0)
 material = MockMaterial()

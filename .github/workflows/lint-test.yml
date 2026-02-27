@@ -25,13 +25,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-          pip install ruff black isort pytest
+          pip install ruff black pytest
 
       - name: Run ruff (checks)
         run: ruff check .
-
-      - name: Run isort (check)
-        run: isort --check-only --diff .
 
       - name: Run black (check)
         run: black --check --line-length 125 .

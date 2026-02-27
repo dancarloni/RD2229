@@ -24,15 +24,13 @@ UNITÀ DI MISURA:
     inerzie: cm^4
 """
 
-
-from typing import Dict, Any, Optional
-
+from typing import Any
 
 # ======================================================================
 # REGISTRY DELLE SEZIONI
 # ======================================================================
 
-SECTION_REGISTRY: Dict[str, Any] = {}
+SECTION_REGISTRY: dict[str, Any] = {}
 """
 Mappa:
 
@@ -61,7 +59,8 @@ TODO Copilot:
 # FUNZIONI DI REGISTRAZIONE E RECUPERO
 # ======================================================================
 
-def register_section(shape_id: str, metadata: Dict[str, Any]) -> None:
+
+def register_section(shape_id: str, metadata: dict[str, Any]) -> None:
     """
     Registra una sezione nel registry.
 
@@ -73,7 +72,7 @@ def register_section(shape_id: str, metadata: Dict[str, Any]) -> None:
     SECTION_REGISTRY[shape_id] = metadata
 
 
-def get_section_metadata(shape_id: str) -> Optional[Dict[str, Any]]:
+def get_section_metadata(shape_id: str) -> dict[str, Any] | None:
     """
     Restituisce il metadata associato alla sezione.
 
@@ -86,6 +85,7 @@ def get_section_metadata(shape_id: str) -> Optional[Dict[str, Any]]:
 # ======================================================================
 # FUNZIONE DI BOOTSTRAP (stub)
 # ======================================================================
+
 
 def load_sections_from_legacy() -> None:
     """

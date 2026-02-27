@@ -1,9 +1,5 @@
-from pathlib import Path
-import ast
-import pkgutil
-import importlib
 import sys
-import os
+from pathlib import Path
 
 
 def test_no_tkinter_imports():

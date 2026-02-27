@@ -57,9 +57,7 @@ def esempio_1_verifica_concrete_ok():
 
     # Recupera template dal registry
     templates = get_rd2229_templates()
-    template = next(
-        t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
-    )
+    template = next(t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete")
 
     # Prepara input
     section = MockSection(width=300.0, height=500.0)  # 30x50 cm
@@ -105,9 +103,7 @@ def esempio_2_verifica_sezione_snella():
     print("=" * 80)
 
     templates = get_rd2229_templates()
-    template = next(
-        t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
-    )
+    template = next(t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete")
 
     # Sezione snella: b = 20 cm < 25 cm
     section = MockSection(width=200.0, height=400.0)  # 20x40 cm
@@ -146,9 +142,7 @@ def esempio_3_verifica_steel_senza_moduli():
     print("=" * 80)
 
     templates = get_rd2229_templates()
-    template = next(
-        t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_steel"
-    )
+    template = next(t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_steel")
 
     section = MockSection(width=300.0, height=500.0)
     material = MockMaterial()
@@ -184,9 +178,7 @@ def esempio_4_verifica_steel_con_moduli():
     print("=" * 80)
 
     templates = get_rd2229_templates()
-    template = next(
-        t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_steel"
-    )
+    template = next(t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_steel")
 
     section = MockSection(width=300.0, height=500.0)
     material = MockMaterial()  # FeB38k: σ_s,adm = 1900 kg/cm²

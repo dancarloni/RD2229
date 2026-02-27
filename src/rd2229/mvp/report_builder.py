@@ -25,7 +25,6 @@ from typing import Any
 
 from .models import VerificationResult
 
-
 REPORT_SCHEMA_VERSION = "1.0.0"
 
 

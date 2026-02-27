@@ -4,10 +4,11 @@ These functions do not contain any normative calculations in STEP2; they
 serve only to establish the interface contract.  Real implementations will
 appear in later phases.
 """
-from typing import Any, Dict
+
+from typing import Any
 
 
-def estimate_ta(spec: Dict[str, Any]) -> float:
+def estimate_ta(spec: dict[str, Any]) -> float:
     """Estimate the fundamental period Ta for the element.
 
     Args:

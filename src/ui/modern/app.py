@@ -38,7 +38,7 @@ def _build_main_window(plugins: list[PluginSpec]) -> object:  # type: ignore[typ
     - Status bar with ready message.
     """
     from collections import defaultdict
-    from typing import Callable
+    from collections.abc import Callable
 
     from PyQt6.QtWidgets import (
         QHBoxLayout,
@@ -107,24 +107,18 @@ def _build_main_window(plugins: list[PluginSpec]) -> object:  # type: ignore[typ
                     # Placeholder page for this plugin
                     page = QWidget()
                     page_layout = QVBoxLayout(page)
-                    page_layout.addWidget(
-                        QLabel(f"<b>{plugin.title}</b><br/><i>{plugin.description}</i>")
-                    )
+                    page_layout.addWidget(QLabel(f"<b>{plugin.title}</b><br/><i>{plugin.description}</i>"))
                     self._stack.addWidget(page)
 
                     # Populate category menu from plugin actions
                     for action_spec in plugin.actions:
                         action_label = (
-                            f"{action_spec.icon}  {action_spec.label}".strip()
-                            if action_spec.icon
-                            else action_spec.label
+                            f"{action_spec.icon}  {action_spec.label}".strip() if action_spec.icon else action_spec.label
                         )
                         qt_action = cat_menu.addAction(action_label)
                         if action_spec.handler is not None:
                             _handler: Callable[..., object] = action_spec.handler
-                            qt_action.triggered.connect(
-                                lambda _checked=False, h=_handler: self._run_action(h)
-                            )
+                            qt_action.triggered.connect(lambda _checked=False, h=_handler: self._run_action(h))
 
             if self._plugins:
                 self._sidebar.setCurrentRow(0)
@@ -173,9 +167,9 @@ def main() -> int:
         return 0
 
     try:
-        import yaml  # type: ignore[import]
         from pathlib import Path
 
+        import yaml  # type: ignore[import]
         from PyQt6.QtWidgets import QApplication
 
         from src.plugins.loader import load_all_plugins

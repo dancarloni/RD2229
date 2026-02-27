@@ -12,8 +12,8 @@ TODO: Parametri National Annex italiani da inserire in data/wind/en1991_na_it.js
 
 from __future__ import annotations
 
-import math
 import logging
+import math
 
 from src.wind.models import BuildingGeom, WindSite
 from src.wind.outputs import WindProfilePoint, WindResults
@@ -23,9 +23,9 @@ logger = logging.getLogger(__name__)
 # Parametri terreno EN 1991-1-4 Table 4.1
 # Chiave: categoria → (z0 [m], z_min [m])
 _TERRAIN_PARAMS_EN: dict[str, tuple[float, float]] = {
-    "0": (0.003, 1.0),   # Sea, coastal
-    "I": (0.01, 1.0),    # Lake, flat plain
-    "II": (0.05, 2.0),   # Low vegetation, rural
+    "0": (0.003, 1.0),  # Sea, coastal
+    "I": (0.01, 1.0),  # Lake, flat plain
+    "II": (0.05, 2.0),  # Low vegetation, rural
     "III": (0.30, 5.0),  # Regular cover of vegetation, suburban
     "IV": (1.00, 10.0),  # Urban, industrial areas
 }
@@ -76,7 +76,7 @@ def compute_kinetic_pressure_en(v_ms: float) -> float:
 
     ρ = 1.25 kg/m³ (EN 1991-1-4 §4.5 Note 2).
     """
-    q_Pa = 0.5 * 1.25 * v_ms ** 2
+    q_Pa = 0.5 * 1.25 * v_ms**2
     return q_Pa / 1000.0
 
 

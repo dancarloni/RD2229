@@ -18,14 +18,14 @@ higher‑level verification services without introducing normative logic.
 from __future__ import annotations
 
 import uuid
-from typing import Any, Dict
+from typing import Any
 
 
-def _make_trace() -> Dict[str, str]:
+def _make_trace() -> dict[str, str]:
     return {"run_id": str(uuid.uuid4())}
 
 
-def _normalize_result(result: Dict[str, Any], base: Dict[str, Any]) -> Dict[str, Any]:
+def _normalize_result(result: dict[str, Any], base: dict[str, Any]) -> dict[str, Any]:
     """Ensure that required contract fields exist on the result."""
     if "trace" not in result:
         result["trace"] = base["trace"]
@@ -37,9 +37,7 @@ def _normalize_result(result: Dict[str, Any], base: Dict[str, Any]) -> Dict[str,
     return result
 
 
-def run(
-    inputs: Dict[str, Any], project_model: Any, limit_state: str
-) -> Dict[str, Any]:
+def run(inputs: dict[str, Any], project_model: Any, limit_state: str) -> dict[str, Any]:
     """Dispatch a verification request for a secondary element.
 
     Args:
@@ -58,10 +56,13 @@ def run(
 
     # gating: global model influence
     if inputs.get("influence_on_global_model"):
-        return _normalize_result({
-            "esito": "NOT_APPLICABLE",
-            "messages": ["Requires global analysis: influence_on_global_model=True"],
-        }, base)
+        return _normalize_result(
+            {
+                "esito": "NOT_APPLICABLE",
+                "messages": ["Requires global analysis: influence_on_global_model=True"],
+            },
+            base,
+        )
 
     # route to the appropriate check module
     if limit_state == "SLU":

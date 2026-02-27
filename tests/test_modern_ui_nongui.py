@@ -8,12 +8,9 @@ from __future__ import annotations
 import json
 import os
 
-import pytest
-
-from src.ui.modern.viewmodels import ProjectViewModel, ResultsViewModel, RunViewModel
-from src.ui.modern.services import CalculationService, ProjectIOService
 from src.ui.modern.features.registry import FeatureSpec, clear, get_all, register
-
+from src.ui.modern.services import CalculationService, ProjectIOService
+from src.ui.modern.viewmodels import ProjectViewModel, ResultsViewModel, RunViewModel
 
 # ---------------------------------------------------------------------------
 # ProjectViewModel
@@ -37,6 +34,7 @@ def test_project_vm_new_project():
 
 def test_project_vm_set_project_clears_dirty():
     from src.project.schema import ProjectModel
+
     vm = ProjectViewModel()
     vm.mark_dirty()
     vm.set_project(ProjectModel())
@@ -162,8 +160,13 @@ def test_results_vm_initial_state():
 def test_results_vm_set_results():
     from src.core.pipeline import run_pipeline
     from src.project.schema import (
-        CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
+        CodeSettings,
+        GeometryEntry,
+        LoadEntry,
+        MaterialEntry,
+        ProjectModel,
     )
+
     project = ProjectModel(
         geometry=[GeometryEntry(id="P1", type="RECTANGULAR", width=30.0, height=50.0)],
         materials=[MaterialEntry(id="C25", type="concrete", f_ck=25.0)],
@@ -181,6 +184,7 @@ def test_results_vm_set_results():
 
 def test_results_vm_clear():
     from src.core.results import ResultsModel
+
     vm = ResultsViewModel()
     vm.set_results(ResultsModel())
     vm.clear()
@@ -234,12 +238,14 @@ def test_project_io_service_new_project():
     svc = ProjectIOService()
     project = svc.new_project()
     from src.project.schema import ProjectModel
+
     assert isinstance(project, ProjectModel)
 
 
 def test_project_io_service_save_load(tmp_path):
     svc = ProjectIOService()
     from src.project.schema import ProjectInfo, ProjectModel
+
     project = ProjectModel(project_info=ProjectInfo(name="IO Test"))
 
     path = str(tmp_path / "test.json")
@@ -255,8 +261,13 @@ def test_project_io_service_save_load(tmp_path):
 
 def test_calculation_service_run():
     from src.project.schema import (
-        CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
+        CodeSettings,
+        GeometryEntry,
+        LoadEntry,
+        MaterialEntry,
+        ProjectModel,
     )
+
     svc = CalculationService()
     project = ProjectModel(
         geometry=[GeometryEntry(id="P1", type="RECTANGULAR", width=30.0, height=50.0)],
@@ -266,13 +277,19 @@ def test_calculation_service_run():
     )
     results = svc.run(project)
     from src.core.results import ResultsModel
+
     assert isinstance(results, ResultsModel)
 
 
 def test_calculation_service_export_results(tmp_path):
     from src.project.schema import (
-        CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
+        CodeSettings,
+        GeometryEntry,
+        LoadEntry,
+        MaterialEntry,
+        ProjectModel,
     )
+
     svc = CalculationService()
     project = ProjectModel(
         geometry=[GeometryEntry(id="P1", type="RECTANGULAR", width=30.0, height=50.0)],
@@ -288,8 +305,13 @@ def test_calculation_service_export_results(tmp_path):
 
 def test_calculation_service_export_report_html(tmp_path):
     from src.project.schema import (
-        CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
+        CodeSettings,
+        GeometryEntry,
+        LoadEntry,
+        MaterialEntry,
+        ProjectModel,
     )
+
     svc = CalculationService()
     project = ProjectModel(
         geometry=[GeometryEntry(id="P1", type="RECTANGULAR", width=30.0, height=50.0)],

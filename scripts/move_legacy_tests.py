@@ -5,7 +5,6 @@ This is non-destructive and only prints candidates that import `tkinter` or
 """
 
 import ast
-import os
 from pathlib import Path
 
 

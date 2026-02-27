@@ -27,16 +27,15 @@ STUB S2:
 - Struttura, docstring e TODO pronti per essere espansi dal Plan
 """
 
-from typing import Dict, Any
-from .element_repo import ElementRepository
+from typing import Any
+
 from ..materials.material_repo import MaterialRepository
+from .element_repo import ElementRepository
 
 
 def resolve_verification_inputs(
-    element_repo: ElementRepository,
-    material_repo: MaterialRepository,
-    user_config: Dict[str, Any]
-) -> Dict[str, Any]:
+    element_repo: ElementRepository, material_repo: MaterialRepository, user_config: dict[str, Any]
+) -> dict[str, Any]:
     """
     Risolve gli input dell'utente e costruisce una struttura completa
     per le verifiche.
@@ -64,7 +63,7 @@ def resolve_verification_inputs(
     - Aggiungere logging e gestione errori.
     - Integrare con config/app.yml.
     """
-    resolved: Dict[str, Any] = {
+    resolved: dict[str, Any] = {
         "elements": [],
         "materials": [],
         "settings": {},

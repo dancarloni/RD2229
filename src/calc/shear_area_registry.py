@@ -23,13 +23,13 @@ NOTE:
 - Continue / Copilot Plan aggiungerà la logica quando richiesto.
 """
 
-from typing import Callable, Dict, Tuple, Optional, Any
-
+from collections.abc import Callable
+from typing import Any
 
 # ======================================================================
 # TIPOLOGIE DI ALIAS
 # ======================================================================
-ShearAreaFunction = Callable[[Any], Tuple[float, float]]
+ShearAreaFunction = Callable[[Any], tuple[float, float]]
 """
 Funzione che accetta un oggetto sezione (Section)
 e restituisce una tupla:
@@ -73,7 +73,7 @@ TODO Copilot:
 # REGISTRY DELLE STRATEGIE DI CALCOLO
 # ======================================================================
 
-SHEAR_AREA_STRATEGIES: Dict[str, ShearAreaFunction] = {}
+SHEAR_AREA_STRATEGIES: dict[str, ShearAreaFunction] = {}
 """
 Mappa:
 
@@ -91,6 +91,7 @@ TODO Copilot:
 # ======================================================================
 # FUNZIONI DI UTILITÀ PER REGISTRAZIONE
 # ======================================================================
+
 
 def register_shear_area_strategy(shape_id: str, func: ShearAreaFunction) -> None:
     """
@@ -110,7 +111,8 @@ def register_shear_area_strategy(shape_id: str, func: ShearAreaFunction) -> None
 # STRATEGIE STANDARD (rettangolo & cerchio)
 # ======================================================================
 
-def _rectangular_shear_area(section: Any) -> Tuple[float, float]:
+
+def _rectangular_shear_area(section: Any) -> tuple[float, float]:
     """
     Calcolo A_sx e A_sy per una sezione rettangolare piena.
 
@@ -126,7 +128,7 @@ def _rectangular_shear_area(section: Any) -> Tuple[float, float]:
     return (As, As)
 
 
-def _circular_shear_area(section: Any) -> Tuple[float, float]:
+def _circular_shear_area(section: Any) -> tuple[float, float]:
     """
     Calcolo A_sx e A_sy per sezione circolare piena.
 
@@ -152,7 +154,8 @@ register_shear_area_strategy("circle", _circular_shear_area)
 # FUNZIONE GENERALE DI CALCOLO
 # ======================================================================
 
-def compute_shear_area(section: Any) -> Tuple[float, float]:
+
+def compute_shear_area(section: Any) -> tuple[float, float]:
     """
     Calcola (A_sx, A_sy) in cm^2 per una sezione arbitraria.
 
@@ -176,7 +179,7 @@ def compute_shear_area(section: Any) -> Tuple[float, float]:
     - Loggare strategia usata.
     - Integrare con config/numerics.yml se presente.
     """
-    shape_id: Optional[str] = getattr(section, "shape_id", None)
+    shape_id: str | None = getattr(section, "shape_id", None)
 
     if shape_id in SHEAR_AREA_STRATEGIES:
         func = SHEAR_AREA_STRATEGIES[shape_id]

@@ -11,8 +11,8 @@ class WindProfilePoint:
     """Punto del profilo di velocità/pressione a quota z."""
 
     z_m: float
-    v_m_s: float         # Velocità media [m/s]
-    q_kN_m2: float       # Pressione cinetica [kN/m²]
+    v_m_s: float  # Velocità media [m/s]
+    q_kN_m2: float  # Pressione cinetica [kN/m²]
 
 
 @dataclass
@@ -21,11 +21,11 @@ class PressureZoneResults:
 
     zone_id: str = ""
     description: str = ""
-    cpe: float = 0.0      # Coefficiente pressione esterna
-    cpi: float = 0.0      # Coefficiente pressione interna
+    cpe: float = 0.0  # Coefficiente pressione esterna
+    cpi: float = 0.0  # Coefficiente pressione interna
     we_kN_m2: float = 0.0  # Pressione esterna [kN/m²]
     wi_kN_m2: float = 0.0  # Pressione interna [kN/m²]
-    net_kN_m2: float = 0.0 # Pressione netta (we - wi) [kN/m²]
+    net_kN_m2: float = 0.0  # Pressione netta (we - wi) [kN/m²]
 
 
 @dataclass

@@ -15,16 +15,16 @@ Questo è uno STUB S2: struttura completa, TODO attivi, niente logica.
 
 """
 
-from typing import List
 from .material_model import Material
 
 
 class MaterialValidationError(Exception):
     """Errore di validazione dei materiali."""
+
     pass
 
 
-def validate_material(material: Material) -> List[str]:
+def validate_material(material: Material) -> list[str]:
     """
     Valida un materiale e restituisce la lista di errori riscontrati.
 
@@ -38,7 +38,7 @@ def validate_material(material: Material) -> List[str]:
     - Integrare controlli con normative tramite codes/code_registry.
 
     """
-    errors: List[str] = []
+    errors: list[str] = []
 
     # Esempi di controlli minimi da completare
     if material.density_kg_m3 <= 0:

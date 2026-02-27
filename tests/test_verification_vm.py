@@ -1,5 +1,5 @@
-from src.rd2229.viewmodels.verification_vm import VerificationViewModel
 from src.rd2229.verification_adapter import VerificationAdapter
+from src.rd2229.viewmodels.verification_vm import VerificationViewModel
 
 
 def test_verification_vm_and_adapter():
