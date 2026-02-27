@@ -100,9 +100,15 @@ class ModuleSelectorWindow(QMainWindow):
         file_menu.addAction("Esci", self.close)
 
         tools_menu = menubar.addMenu("&Strumenti")
-        tools_menu.addAction("Materials Editor", lambda: self.module_requested.emit("material_editor"))
-        tools_menu.addAction("Section Manager", lambda: self.module_requested.emit("section_manager"))
-        tools_menu.addAction("Pipeline Runner", lambda: self.module_requested.emit("pipeline_runner"))
+        tools_menu.addAction(
+            "Materials Editor", lambda: self.module_requested.emit("material_editor")
+        )
+        tools_menu.addAction(
+            "Section Manager", lambda: self.module_requested.emit("section_manager")
+        )
+        tools_menu.addAction(
+            "Pipeline Runner", lambda: self.module_requested.emit("pipeline_runner")
+        )
 
         help_menu = menubar.addMenu("&?")
         help_menu.addAction(

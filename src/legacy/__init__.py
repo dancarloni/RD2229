@@ -2,6 +2,7 @@
 
 Contains deprecated Tkinter-based modules kept for archival/compatibility.
 """
+
 from __future__ import annotations
 
 __all__ = []

@@ -21,6 +21,7 @@ class ProjectService(QObject):
     Manages the active ProjectModel instance.
     Broadcasts changes to UI components.
     """
+
     project_changed = Signal(object)
 
     def __init__(self):
@@ -45,6 +46,7 @@ class GUIServiceProvider:
     """
     Shared container for services (Project, Materials, Sections).
     """
+
     _instance = None
 
     def __new__(cls):
