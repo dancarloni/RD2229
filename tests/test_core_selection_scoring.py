@@ -2,8 +2,8 @@ from math import pi
 
 import pytest
 
-from sections_app.geometry_model import SectionGeometry
-from sections_app.section_calculations import compute_section_properties_from_geometry
+from src.core_calculus.core.geometry_model import SectionGeometry
+from src.core_calculus.section_calculations import compute_section_properties_from_geometry
 
 
 def test_core_selection_prefers_compact_candidate():

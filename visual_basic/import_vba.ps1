@@ -28,13 +28,13 @@ try {
     Write-Host "Workbook aperto: $($wb.Name)" -ForegroundColor Green
 
     Write-Host "Importazione modulo VBA..." -ForegroundColor Cyan
-    $wb.VBProject.VBComponents.GetType().InvokeMember(
+    $vbComp = $wb.VBProject.VBComponents.GetType().InvokeMember(
         "Import",
         $bindingFlags,
         $null,
         $wb.VBProject.VBComponents,
         @($basPath)
-    ) | Out-Null
+    )
 
     Write-Host "Salvataggio..." -ForegroundColor Cyan
     $wb.Save()

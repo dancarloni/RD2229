@@ -37,6 +37,7 @@ _TKINTER_DEPENDENT: list[str] = [
     "test_module_selector_integration.py",
     "test_module_selector_ui.py",
     "test_persistence_edit_cycle.py",
+    "test_plot_section.py",
     "test_rebar_calculator.py",
     "test_section_manager_selection.py",
     "test_shim_import.py",
@@ -49,8 +50,9 @@ _TKINTER_DEPENDENT: list[str] = [
     "test_verification_dispatcher.py",
     "test_verification_table_click_sequence.py",
     "test_verification_table_click_suggestions.py",
-    "test_plot_section.py",
-    "test_crud_operations.py",
+    # These tests require the rd2229 package installed with src/ as root package dir
+    "test_ui_qt_settings_service.py",
+    "test_ui_qt_verification_service.py",
 ]
 
 if not _TKINTER_AVAILABLE:

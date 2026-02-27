@@ -23,17 +23,25 @@ class AllowableCheckResult:
     messages: list[str]
 
 
-def check_allowable_stresses_ta(stresses: StressResult, limits: AllowableStresses) -> AllowableCheckResult:
+def check_allowable_stresses_ta(
+    stresses: StressResult, limits: AllowableStresses
+) -> AllowableCheckResult:
     messages = []
     check_concrete = abs(stresses.sigma_c_max) <= limits.sigma_c_allow
     if not check_concrete:
-        messages.append(f"Concrete stress exceed limit: |{stresses.sigma_c_max:.2f}| > {limits.sigma_c_allow:.2f}")
+        messages.append(
+            f"Concrete stress exceed limit: |{stresses.sigma_c_max:.2f}| > {limits.sigma_c_allow:.2f}"
+        )
     check_steel = abs(stresses.sigma_s_max) <= limits.sigma_s_allow
     if not check_steel:
-        messages.append(f"Steel stress exceed limit: |{stresses.sigma_s_max:.2f}| > {limits.sigma_s_allow:.2f}")
+        messages.append(
+            f"Steel stress exceed limit: |{stresses.sigma_s_max:.2f}| > {limits.sigma_s_allow:.2f}"
+        )
     check_mean = abs(stresses.sigma_c_med) <= limits.sigma_c_med_allow
     if not check_mean:
-        messages.append(f"Mean concrete stress exceed limit: |{stresses.sigma_c_med:.2f}| > {limits.sigma_c_med_allow:.2f}")
+        messages.append(
+            f"Mean concrete stress exceed limit: |{stresses.sigma_c_med:.2f}| > {limits.sigma_c_med_allow:.2f}"
+        )
 
     ok = check_concrete and check_steel and check_mean
     return AllowableCheckResult(
@@ -58,11 +66,10 @@ def compute_long_rebar_limits_ta(
     Nx: float,
     fyd: float,
     fctm: float,
-    geometry=None,
-    is_column: bool = False,
-    is_beam: bool = True,
-    zona_sismica: bool = False,
-    carbon_fiber_placeholder=None,
+    carbon_fiber_placeholder,
+    is_column: bool,
+    is_beam: bool,
+    zona_sismica: bool,
 ) -> LongitudinalRebarLimits:
     # This implements a simplified version of LimitiArmaturaLong (VB):
     # - For columns (pilastri): Afmin = max(0.003 * Asez, ...), Afmax = 0.06 * Asez

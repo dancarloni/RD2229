@@ -9,9 +9,12 @@ from unittest.mock import patch
 
 import pytest
 
-from sections_app.ui.components.flow_wrap import FlowWrapFrame
-from sections_app.ui.module_selector import ModuleSelectorWindow
-from sections_app.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
+pytestmark = pytest.mark.gui
+
+
+from apps.sections.ui.components.flow_wrap import FlowWrapFrame
+from libs.app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
+from ui.module_selector import ModuleSelectorWindow
 
 
 class TestFlowWrapFrame:
@@ -233,7 +236,7 @@ class TestModuleSelectorView:
             assert len(view.flow._children) == 3
             for i, card in enumerate(view.flow._children):
                 assert isinstance(card, tk.LabelFrame)
-                assert card.cget("text") == f"Module {i+1}"
+                assert card.cget("text") == f"Module {i + 1}"
         except Exception:
             pytest.skip("Tkinter not available")
         finally:
@@ -244,7 +247,7 @@ class TestModuleSelectorView:
 class TestModuleSelectorWindow:
     """Test per ModuleSelectorWindow con nuova implementazione."""
 
-    @patch("sections_app.ui.module_selector.NotificationCenter")
+    @patch("ui.module_selector.NotificationCenter")
     @patch("tkinter.Tk")
     def test_initialization_uses_view(self, mock_tk, mock_notification):
         """Test che ModuleSelectorWindow usi ModuleSelectorView."""
@@ -267,7 +270,7 @@ class TestModuleSelectorWindow:
             if "window" in locals():
                 window.destroy()
 
-    @patch("sections_app.ui.module_selector.NotificationCenter")
+    @patch("ui.module_selector.NotificationCenter")
     @patch("tkinter.Tk")
     def test_specs_creation(self, mock_tk, mock_notification):
         """Test che le specs siano create correttamente."""

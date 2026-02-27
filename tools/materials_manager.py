@@ -57,7 +57,7 @@ def _resolve_materials_path(config: dict | None = None) -> str:
                 with open(cfg_path, encoding="utf-8") as fh:
                     cfg = yaml.safe_load(fh) or {}
                     return cfg.get("materials_file", _DEFAULT_MATERIALS_PATH)
-        except Exception:
+        except Exception:  # nosec
             pass
     return _DEFAULT_MATERIALS_PATH
 
@@ -115,7 +115,7 @@ def ensure_derived_fields(material: dict) -> bool:
             elif material.get("E_defined") is None:
                 material["E_defined"] = True
                 dirty = True
-        except Exception:
+        except Exception:  # nosec
             pass
 
     # Conventional E from sigma_c28 and cement type
@@ -152,7 +152,7 @@ def load_materials(path: str | None = None) -> list[dict]:
         try:
             if _ensure_derived_fields(m):
                 dirty_any = True
-        except Exception:
+        except Exception:  # nosec
             pass
     if dirty_any:
         save_materials(mats, path)
@@ -230,7 +230,7 @@ def add_material(material: dict, path: str | None = None) -> None:
                         material["E_conventional"] = e_conv
                     except Exception:
                         material["E_conventional"] = None
-            except Exception:
+            except Exception:  # nosec
                 pass
 
     materials.append(material)
@@ -273,10 +273,12 @@ def update_material(name: str, updates: dict, path: str | None = None) -> None:
                         materials[i]["G_min"] = g_min
                         materials[i]["G_max"] = g_max
                         try:
-                            materials[i]["E_conventional"] = compute_ec_conventional(float(sigma_c28), cement)
+                            materials[i]["E_conventional"] = compute_ec_conventional(
+                                float(sigma_c28), cement
+                            )
                         except Exception:
                             materials[i]["E_conventional"] = None
-                    except Exception:
+                    except Exception:  # nosec
                         pass
             save_materials(materials, path)
             return

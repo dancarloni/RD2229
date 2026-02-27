@@ -22,7 +22,7 @@ class TestVerificationTableAPI(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_create_editor_for_cell_public_api_returns_widget(self):
@@ -46,7 +46,9 @@ class TestVerificationTableAPI(unittest.TestCase):
         first = items[0]
         # compute target for Tab from last column -> should create new row
         last_col = app.columns[-1]
-        target_item, target_col, created = app.compute_target_cell(first, last_col, delta_col=1, delta_row=0)
+        target_item, target_col, created = app.compute_target_cell(
+            first, last_col, delta_col=1, delta_row=0
+        )
         self.assertTrue(created)
         self.assertEqual(target_col, app.columns[0])
         # new item should exist in tree

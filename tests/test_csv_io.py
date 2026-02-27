@@ -94,7 +94,9 @@ def test_export_import_csv_roundtrip(tmp_path: Path):
 
     # Import into a fresh dummy and verify models are set
     dummy2 = Dummy([])
-    imported, skipped, errors = VerificationTableApp.import_csv(cast(VerificationTableApp, dummy2), str(path), clear=True)
+    imported, skipped, errors = VerificationTableApp.import_csv(
+        cast(VerificationTableApp, dummy2), str(path), clear=True
+    )
     assert imported == 2
     assert skipped == 0
     assert errors == []

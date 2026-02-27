@@ -1,6 +1,5 @@
 {
   "code": "NTC2018",
-  "code_name": "NTC2018",
   "title": "NTC 2018 - skeleton entry",
   "description": "Skeleton configuration entry for NTC2018 calculation code. Fill normative parameters in TODO fields.",
   "schemas": {

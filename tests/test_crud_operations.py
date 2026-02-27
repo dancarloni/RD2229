@@ -9,14 +9,14 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from sections_app.models.sections import RectangularSection
-from sections_app.services.event_bus import (
+from apps.sections.models.sections import RectangularSection
+from apps.sections.services.event_bus import (
     SECTIONS_ADDED,
     SECTIONS_DELETED,
     SECTIONS_UPDATED,
     EventBus,
 )
-from sections_app.services.repository import GeometryRepository
+from apps.sections.services.repository import GeometryRepository
 
 
 @pytest.fixture
@@ -118,7 +118,10 @@ class TestUpdateSection:
     def test_update_emits_event(self, repo):
         events = []
         bus = EventBus()
-        handler = lambda *a, **kw: events.append(kw)
+
+        def handler(*a, **kw):
+            return events.append(kw)
+
         bus.subscribe(SECTIONS_UPDATED, handler)
         try:
             sec = RectangularSection("original", 30, 50)
@@ -150,7 +153,10 @@ class TestDeleteSection:
     def test_delete_emits_event(self, repo):
         events = []
         bus = EventBus()
-        handler = lambda *a, **kw: events.append(kw)
+
+        def handler(*a, **kw):
+            return events.append(kw)
+
         bus.subscribe(SECTIONS_DELETED, handler)
         try:
             sec = RectangularSection("test", 30, 50)

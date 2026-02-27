@@ -49,10 +49,10 @@ class VerificationInput:
         # Ensure numeric fields exist as instance attributes (avoid unexpected property objects)
         for field_name in ("Mx", "My", "Mz", "Tx", "Ty", "At", "As_sup", "As_inf"):
             val = self.__dict__.get(field_name, None)
-            if not isinstance(val, (int, float)):
+            if not isinstance(val, int | float):
                 try:
                     candidate = getattr(self, field_name)
-                    if isinstance(candidate, (int, float)):
+                    if isinstance(candidate, int | float):
                         self.__dict__[field_name] = candidate
                     else:
                         self.__dict__[field_name] = 0.0
@@ -65,7 +65,7 @@ class VerificationInput:
         return self.Mx
 
     @M.setter
-    def M(self, value: float):
+    def M(self, value: float) -> None:
         self.Mx = value
 
     @property
@@ -73,7 +73,7 @@ class VerificationInput:
         return self.Ty
 
     @T.setter
-    def T(self, value: float):
+    def T(self, value: float) -> None:
         self.Ty = value
 
 
@@ -95,6 +95,6 @@ class VerificationOutput:
     esito: str = ""
     messaggi: list[str] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.messaggi is None:
             self.messaggi = []

@@ -7,18 +7,18 @@ from collections.abc import Callable
 from pathlib import Path
 from tkinter import filedialog
 
+from apps.sections.models.sections import Section
+from apps.sections.services.notification import notify_error, notify_info
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import MaterialRepository  # type: ignore[import]
 from historical_materials import HistoricalMaterialLibrary
-from sections_app.models.sections import Section
-from sections_app.services.notification import notify_error, notify_info
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.code_settings_window import CodeSettingsWindow
-from sections_app.ui.debug_viewer import DebugViewerWindow
-from sections_app.ui.historical_main_window import HistoricalModuleMainWindow
-from sections_app.ui.historical_material_window import HistoricalMaterialWindow
-from sections_app.ui.main_window import MainWindow
-from sections_app.ui.notification_center import NotificationCenter
-from sections_app.ui.section_manager import SectionManager
+from libs.app_module.ui.code_settings_window import CodeSettingsWindow
+from libs.app_module.ui.debug_viewer import DebugViewerWindow
+from src.ui.historical_main_window import HistoricalModuleMainWindow
+from libs.app_module.ui.historical_material_window import HistoricalMaterialWindow
+from src.ui.main_window import MainWindow
+from src.ui.notification_center import NotificationCenter
+from src.ui.section_manager import SectionManager
 from verification_table import VerificationTableWindow
 
 logger = logging.getLogger(__name__)
@@ -75,21 +75,23 @@ class ModuleSelectorWindow(tk.Tk):
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Esporta backup...", command=self._export_backup)
         file_menu.add_separator()
-        file_menu.add_command(label="Notification Settings...", command=self._open_notification_settings)
+        file_menu.add_command(
+            label="Notification Settings...", command=self._open_notification_settings
+        )
         file_menu.add_command(label="Esci", command=self.quit)
 
     def _build_ui(self) -> None:
         frame = tk.Frame(self)
         frame.pack(fill="both", expand=True, padx=12, pady=12)
 
-        label = tk.Label(frame, text="Select a module to start", font=(None, 12, "bold"))
+        label = tk.Label(frame, text="Select a module to start", font=("TkDefaultFont", 12, "bold"))
         label.pack(anchor="w", pady=(0, 8))
 
         modules_frame = tk.Frame(frame)
         modules_frame.pack(fill="both", expand=True)
 
         # Geometry Module (first, different padding)
-        geom_desc = "Compute and manage section geometry\n(areas, centroids, inertia, drawings, CSV archive)"
+        geom_desc = "Compute and manage section carbon_fiber_placeholder\n(areas, centroids, inertia, drawings, CSV archive)"
         geom_frame = tk.LabelFrame(modules_frame, text="Geometry module")
         geom_frame.pack(side="left", fill="both", expand=True, padx=(0, 6))
         tk.Label(geom_frame, text=geom_desc, justify="left", wraplength=220).pack(padx=8, pady=8)
@@ -106,7 +108,9 @@ class ModuleSelectorWindow(tk.Tk):
         )
 
         # Verification Table Module
-        verify_desc = "Rapid data entry for multiple verifications\n(tabular grid with autocomplete)"
+        verify_desc = (
+            "Rapid data entry for multiple verifications\n(tabular grid with autocomplete)"
+        )
         self._add_module_frame(
             modules_frame,
             "Verification Table",
@@ -116,7 +120,9 @@ class ModuleSelectorWindow(tk.Tk):
         )
 
         debug_desc = "Real-time debug log viewer\n(all modules, live updates)"
-        self._add_module_frame(modules_frame, "Debug Viewer", debug_desc, "Open Debug Viewer", self._open_debug_viewer)
+        self._add_module_frame(
+            modules_frame, "Debug Viewer", debug_desc, "Open Debug Viewer", self._open_debug_viewer
+        )
 
         params_frame = tk.LabelFrame(modules_frame, text="Parametri Normativa")
         params_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
@@ -126,9 +132,21 @@ class ModuleSelectorWindow(tk.Tk):
             justify="left",
             wraplength=220,
         ).pack(padx=8, pady=8)
-        tk.Button(params_frame, text="Parametri TA", command=lambda: self._open_code_settings("TA")).pack(pady=(0, 4))
-        tk.Button(params_frame, text="Parametri SLU", command=lambda: self._open_code_settings("SLU")).pack(pady=(0, 4))
-        tk.Button(params_frame, text="Parametri SLE", command=lambda: self._open_code_settings("SLE")).pack(pady=(0, 8))
+        tk.Button(
+            params_frame, text="Parametri TA", command=lambda: self._open_code_settings("TA")
+        ).pack(pady=(0, 4))
+        tk.Button(
+            params_frame, text="Parametri SLU", command=lambda: self._open_code_settings("SLU")
+        ).pack(pady=(0, 4))
+        tk.Button(
+            params_frame, text="Parametri SLE", command=lambda: self._open_code_settings("SLE")
+        ).pack(pady=(0, 4))
+        # new button for hazard paste service
+        tk.Button(
+            params_frame,
+            text="Spettro NTC2018 (Paste)",
+            command=self._open_hazard_paste,
+        ).pack(pady=(0, 8))
 
         # Sections Archive Module
         sections_desc = "Browse and manage archived sections (import/export, edit via Geometry)"
@@ -144,12 +162,18 @@ class ModuleSelectorWindow(tk.Tk):
         material_desc = "Manage and import historical materials\n(concrete, steel, and other material libraries)"
         material_frame = tk.LabelFrame(modules_frame, text="Materials Editor")
         material_frame.pack(side="left", fill="both", expand=True, padx=(6, 0))
-        tk.Label(material_frame, text=material_desc, justify="left", wraplength=220).pack(padx=8, pady=8)
-        tk.Button(material_frame, text="Open Materials", command=self._open_material_editor).pack(pady=(0, 8))
+        tk.Label(material_frame, text=material_desc, justify="left", wraplength=220).pack(
+            padx=8, pady=8
+        )
+        tk.Button(material_frame, text="Open Materials", command=self._open_material_editor).pack(
+            pady=(0, 8)
+        )
 
         # FRC Manager Module
         frc_desc = "Manage FRC materials (carbon/glass fibers) and properties"
-        self._add_module_frame(modules_frame, "FRC Manager", frc_desc, "Open FRC Manager", self._open_frc_manager)
+        self._add_module_frame(
+            modules_frame, "FRC Manager", frc_desc, "Open FRC Manager", self._open_frc_manager
+        )
 
         # FRC Verification (quick) Module
         frc_ver_desc = "Quick verification window to test FRC contributions on simple sections"
@@ -178,10 +202,11 @@ class ModuleSelectorWindow(tk.Tk):
                 self._geometry_window.focus_force()
                 logger.debug("Geometry window già aperta, portata in primo piano")
                 return
-            except Exception:
+            except Exception:  # nosec
                 pass
 
         # Crea la finestra Geometry e memorizza il riferimento
+        # type: ignore[call-arg] (signature may not be visible to type checker)
         win = MainWindow(self, self.repository, self.serializer, self.material_repository)
         self._geometry_window = win
         # Pulizia del riferimento quando la finestra viene chiusa
@@ -191,7 +216,7 @@ class ModuleSelectorWindow(tk.Tk):
                 lambda w=win: (setattr(self, "_geometry_window", None), w.destroy()),
             )
             win.bind("<Destroy>", lambda e, w=win: setattr(self, "_geometry_window", None))
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def _open_historical(self) -> None:
@@ -201,7 +226,8 @@ class ModuleSelectorWindow(tk.Tk):
         """
         logger.debug("Opening Historical module")
         # ✅ HistoricalModuleMainWindow è già un Toplevel
-        win = HistoricalModuleMainWindow(self, self.repository)
+        # type: ignore[arg-type]
+        win = HistoricalModuleMainWindow(self, self.repository)  # type: ignore[arg-type]
         win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
 
     def _open_verification_table(self) -> None:
@@ -232,24 +258,41 @@ class ModuleSelectorWindow(tk.Tk):
         )
 
     def _open_code_settings(self, code: str) -> None:
-        settings_path = Path(__file__).resolve().parents[2] / "config" / "calculation_codes" / f"{code.upper()}.jsoncode"
+        settings_path = (
+            Path(__file__).resolve().parents[2]
+            / "config"
+            / "calculation_codes"
+            / f"{code.upper()}.jsoncode"
+        )
         win = CodeSettingsWindow(self, code=code, settings_path=settings_path)
         win.protocol("WM_DELETE_WINDOW", lambda w=win: w.destroy())
 
     def _open_notification_settings(self) -> None:
         try:
-            win = __import__("sections_app.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(self)
+            win = __import__(
+                "libs.app_module.ui.notification_settings_window", fromlist=["*"]
+            ).NotificationSettingsWindow(self)
             win._win.protocol("WM_DELETE_WINDOW", lambda w=win: w._on_cancel())
         except Exception:
             # Try to open headless settings window if something fails
             try:
-                win = __import__("sections_app.ui.notification_settings_window", fromlist=["*"]).NotificationSettingsWindow(
-                    None
-                )
+                win = __import__(
+                    "libs.app_module.ui.notification_settings_window", fromlist=["*"]
+                ).NotificationSettingsWindow(None)
                 win.set_settings(win.get_settings())
-                win.save()
             except Exception:
                 logger.exception("Failed to open Notification Settings window")
+
+    def _open_hazard_paste(self) -> None:
+        """Open the hazard-paste panel."""
+        try:
+            from src.ui.ntc2018_hazard_paste_panel import HazardPasteWindow
+        except ImportError:
+            from tkinter import messagebox
+
+            messagebox.showerror("Errore", "Modulo hazard paste non disponibile")
+            return
+        HazardPasteWindow(self)
 
     def _open_section_manager(self) -> None:
         """Apre il Section Manager come finestra Toplevel.
@@ -268,18 +311,22 @@ class ModuleSelectorWindow(tk.Tk):
                 self._section_manager_window.focus_force()
                 logger.debug("Section Manager già aperto, portato in primo piano")
                 return
-            except Exception:
+            except Exception:  # nosec
                 pass
 
         # Crea nuova istanza del manager con callback on_edit che rimanda a Geometry
-        manager = SectionManager(self, self.repository, self.serializer, self._on_section_edit)
+        # type: ignore[call-arg]
+        # type: ignore[arg-type, call-arg]
+        manager = SectionManager(self, self.repository, self.serializer, self._on_section_edit)  # type: ignore[arg-type,call-arg]
         self._section_manager_window = manager
         # Assicura che quando il manager viene chiuso si rimuova il riferimento
         manager.protocol(
             "WM_DELETE_WINDOW",
             lambda m=manager: (setattr(self, "_section_manager_window", None), m.destroy()),
         )
-        manager.bind("<Destroy>", lambda e, m=manager: setattr(self, "_section_manager_window", None))
+        manager.bind(
+            "<Destroy>", lambda e, m=manager: setattr(self, "_section_manager_window", None)
+        )
         logger.debug("Section Manager aperto")
 
     def _on_section_edit(self, section: Section) -> None:
@@ -298,7 +345,8 @@ class ModuleSelectorWindow(tk.Tk):
         # Se la finestra non è stata inizializzata dal metodo precedente, prova a crearla direttamente
         if getattr(self, "_geometry_window", None) is None:
             try:
-                win = MainWindow(self, self.repository, self.serializer, self.material_repository)
+                # type: ignore[call-arg]
+                win = MainWindow(self, self.repository, self.serializer, self.material_repository)  # type: ignore[call-arg]
                 self._geometry_window = win
                 try:
                     win.protocol(
@@ -306,7 +354,7 @@ class ModuleSelectorWindow(tk.Tk):
                         lambda w=win: (setattr(self, "_geometry_window", None), w.destroy()),
                     )
                     win.bind("<Destroy>", lambda e, w=win: setattr(self, "_geometry_window", None))
-                except Exception:
+                except Exception:  # nosec
                     pass
             except Exception:
                 logger.exception("Fallback: impossibile creare Geometry window")
@@ -351,10 +399,13 @@ class ModuleSelectorWindow(tk.Tk):
         # Collega il callback di chiusura per pulire il riferimento e chiudere la finestra
         def on_material_editor_close():
             # Assicura che la finestra venga distrutta e il riferimento ripulito
-            if self._material_editor_window is not None and self._material_editor_window.winfo_exists():
+            if (
+                self._material_editor_window is not None
+                and self._material_editor_window.winfo_exists()
+            ):
                 try:
                     self._material_editor_window.destroy()
-                except Exception:
+                except Exception:  # nosec
                     pass
             self._material_editor_window = None
 
@@ -363,13 +414,13 @@ class ModuleSelectorWindow(tk.Tk):
             self._material_editor_window.protocol("WM_DELETE_WINDOW", on_material_editor_close)
             # Inoltre, se la finestra viene distrutta in altro modo, assicurati di pulire il riferimento
             self._material_editor_window.bind("<Destroy>", lambda e: on_material_editor_close())
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def _open_frc_manager(self) -> None:
         logger.debug("Opening FRC Manager module")
         try:
-            from sections_app.ui.frc_manager import FrcManagerWindow
+            from libs.app_module.ui.frc_manager import FrcManagerWindow  # type: ignore[import]
         except Exception:
             logger.exception("FRC Manager module not available")
             return
@@ -379,14 +430,16 @@ class ModuleSelectorWindow(tk.Tk):
     def _open_frc_verification(self) -> None:
         logger.debug("Opening FRC Verification module")
         try:
-            from sections_app.ui.frc_verification_window import FrcVerificationWindow
+            from libs.app_module.ui.frc_verification_window import FrcVerificationWindow  # type: ignore[import]
         except Exception:
             logger.exception("FRC Verification module not available")
             return
         win = FrcVerificationWindow(self, material_repository=self.material_repository)
         win.protocol("WM_DELETE_WINDOW", lambda: win.destroy())
 
-    def _add_module_frame(self, parent, title: str, description: str, button_text: str, command: Callable) -> tk.LabelFrame:
+    def _add_module_frame(
+        self, parent, title: str, description: str, button_text: str, command: Callable
+    ) -> tk.LabelFrame:
         """Helper per creare un LabelFrame di modulo con descrizione e bottone."""
         frm = tk.LabelFrame(parent, text=title)
         frm.pack(side="left", fill="both", expand=True, padx=(6, 6))
@@ -403,7 +456,8 @@ class ModuleSelectorWindow(tk.Tk):
         dialog.transient(self)
         dialog.grab_set()
 
-        result = {"choice": None}
+        from typing import Any
+        result: dict[str, Any] = {"choice": None}
 
         def on_choice(choice: str):
             result["choice"] = choice
@@ -412,16 +466,22 @@ class ModuleSelectorWindow(tk.Tk):
         frame = tk.Frame(dialog, padx=20, pady=20)
         frame.pack(fill="both", expand=True)
 
-        tk.Label(frame, text="Cosa vuoi esportare?", font=(None, 11, "bold")).pack(pady=(0, 20))
+        tk.Label(frame, text="Cosa vuoi esportare?", font=("TkDefaultFont", 11, "bold")).pack(pady=(0, 20))
 
         btn_frame = tk.Frame(frame)
         btn_frame.pack(pady=10)
 
-        tk.Button(btn_frame, text="Sezioni", width=15, command=lambda: on_choice("sezioni")).pack(pady=5)
+        tk.Button(btn_frame, text="Sezioni", width=15, command=lambda: on_choice("sezioni")).pack(
+            pady=5
+        )
 
-        tk.Button(btn_frame, text="Materiali", width=15, command=lambda: on_choice("materiali")).pack(pady=5)
+        tk.Button(
+            btn_frame, text="Materiali", width=15, command=lambda: on_choice("materiali")
+        ).pack(pady=5)
 
-        tk.Button(btn_frame, text="Entrambi", width=15, command=lambda: on_choice("entrambi")).pack(pady=5)
+        tk.Button(btn_frame, text="Entrambi", width=15, command=lambda: on_choice("entrambi")).pack(
+            pady=5
+        )
 
         tk.Button(btn_frame, text="Annulla", width=15, command=dialog.destroy).pack(pady=5)
 
@@ -497,7 +557,7 @@ class ModuleSelectorWindow(tk.Tk):
 
                 notify_info(
                     "Export completato",
-                    f"Backup esportati correttamente:\n" f"• Sezioni: {sections_path}\n" f"• Materiali: {materials_path}",
+                    f"Backup esportati correttamente:\n• Sezioni: {sections_path}\n• Materiali: {materials_path}",
                     source="module_selector",
                 )
         except Exception as e:

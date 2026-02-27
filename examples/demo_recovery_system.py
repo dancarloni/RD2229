@@ -14,8 +14,8 @@ import json
 import tempfile
 from pathlib import Path
 
+from apps.sections.services.repository import SectionRepository
 from core_models.materials import Material, MaterialRepository
-from sections_app.services.repository import SectionRepository
 
 
 def print_section(title: str):
@@ -151,7 +151,9 @@ def scenario_4_save_after_recovery():
         print(f"  - Materiali recuperati: {len(repo.get_all())}")
 
         # Aggiungi un nuovo materiale
-        new_concrete = Material(id="C30/37", name="Calcestruzzo C30/37", type="concrete", properties={"fck": 30.0})
+        new_concrete = Material(
+            id="C30/37", name="Calcestruzzo C30/37", type="concrete", properties={"fck": 30.0}
+        )
         repo.add(new_concrete)
 
         print(f"\n✓ Aggiunto nuovo materiale: {new_concrete.name}")

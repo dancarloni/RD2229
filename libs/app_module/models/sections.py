@@ -1588,6 +1588,13 @@ def create_section_from_dict(data: dict[str, str]) -> Section:
     note = (data.get("note") or "").strip()
     rotation_angle_deg = float(data.get("rotation_angle_deg") or 0)
 
+    def _pick_value(*keys: str) -> Optional[str]:
+        for key in keys:
+            value = data.get(key)
+            if value is not None and value != "":
+                return value
+        return None
+
     if section_type == "RECTANGULAR":
         width = float(data.get("width") or 0)
         height = float(data.get("height") or 0)

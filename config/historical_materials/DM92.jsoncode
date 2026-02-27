@@ -18,7 +18,12 @@
       "Ecm": 27000,
       "fctm": 1.6,
       "description": "Classe minima per strutture in c.a.",
-      "unit": "MPa"
+      "unit": "MPa",
+      "Rck_kg_cm2": 150,
+      "sigma_c_adm_kg_cm2": 45,
+      "tau_c0_kg_cm2": 4.4,
+      "tau_c1_kg_cm2": 14.0,
+      "n_homog": 8.9
     },
     "C16_20": {
       "name": "Calcestruzzo C16/20",
@@ -27,7 +32,12 @@
       "Ecm": 29000,
       "fctm": 1.9,
       "description": "Classe ordinaria per strutture non armate",
-      "unit": "MPa"
+      "unit": "MPa",
+      "Rck_kg_cm2": 200,
+      "sigma_c_adm_kg_cm2": 60,
+      "tau_c0_kg_cm2": 5.0,
+      "tau_c1_kg_cm2": 17.0,
+      "n_homog": 7.6
     },
     "C20_25": {
       "name": "Calcestruzzo C20/25",
@@ -36,7 +46,12 @@
       "Ecm": 30000,
       "fctm": 2.2,
       "description": "Classe comune per strutture ordinarie",
-      "unit": "MPa"
+      "unit": "MPa",
+      "Rck_kg_cm2": 250,
+      "sigma_c_adm_kg_cm2": 75,
+      "tau_c0_kg_cm2": 5.7,
+      "tau_c1_kg_cm2": 20.0,
+      "n_homog": 6.9
     },
     "C25_30": {
       "name": "Calcestruzzo C25/30",
@@ -45,7 +60,12 @@
       "Ecm": 31500,
       "fctm": 2.6,
       "description": "Classe medio-alta per strutture importanti",
-      "unit": "MPa"
+      "unit": "MPa",
+      "Rck_kg_cm2": 300,
+      "sigma_c_adm_kg_cm2": 90,
+      "tau_c0_kg_cm2": 6.4,
+      "tau_c1_kg_cm2": 23.0,
+      "n_homog": 6.4
     },
     "C28_35": {
       "name": "Calcestruzzo C28/35",
@@ -54,7 +74,12 @@
       "Ecm": 32500,
       "fctm": 2.8,
       "description": "Classe alta per strutture speciali",
-      "unit": "MPa"
+      "unit": "MPa",
+      "Rck_kg_cm2": 350,
+      "sigma_c_adm_kg_cm2": 105,
+      "tau_c0_kg_cm2": 7.0,
+      "tau_c1_kg_cm2": 25.0,
+      "n_homog": 6.0
     },
     "C30_37": {
       "name": "Calcestruzzo C30/37",
@@ -63,7 +88,12 @@
       "Ecm": 33000,
       "fctm": 2.9,
       "description": "Classe alta resistenza",
-      "unit": "MPa"
+      "unit": "MPa",
+      "Rck_kg_cm2": 375,
+      "sigma_c_adm_kg_cm2": 112,
+      "tau_c0_kg_cm2": 7.2,
+      "tau_c1_kg_cm2": 26.0,
+      "n_homog": 5.9
     },
     "C35_45": {
       "name": "Calcestruzzo C35/45",
@@ -72,7 +102,12 @@
       "Ecm": 34000,
       "fctm": 3.2,
       "description": "Classe alta resistenza per strutture speciali",
-      "unit": "MPa"
+      "unit": "MPa",
+      "Rck_kg_cm2": 450,
+      "sigma_c_adm_kg_cm2": 135,
+      "tau_c0_kg_cm2": 8.2,
+      "tau_c1_kg_cm2": 31.5,
+      "n_homog": 5.5
     },
     "C40_50": {
       "name": "Calcestruzzo C40/50",
@@ -81,7 +116,12 @@
       "Ecm": 35000,
       "fctm": 3.5,
       "description": "Classe molto alta resistenza",
-      "unit": "MPa"
+      "unit": "MPa",
+      "Rck_kg_cm2": 500,
+      "sigma_c_adm_kg_cm2": 150,
+      "tau_c0_kg_cm2": 8.8,
+      "tau_c1_kg_cm2": 35.0,
+      "n_homog": 5.3
     }
   },
   "steel_types": {
@@ -93,7 +133,9 @@
       "epsilon_uk": 0.07,
       "description": "Acciaio nervato ordinario",
       "bond": "aderenza_migliorata",
-      "unit": "MPa"
+      "unit": "MPa",
+      "sigma_sn_kg_cm2": 3800,
+      "sigma_s_adm_kg_cm2": 2550
     },
     "FeB44k": {
       "name": "Acciaio FeB 44k (ad aderenza migliorata)",
@@ -103,7 +145,9 @@
       "epsilon_uk": 0.07,
       "description": "Acciaio nervato alta resistenza",
       "bond": "aderenza_migliorata",
-      "unit": "MPa"
+      "unit": "MPa",
+      "sigma_sn_kg_cm2": 4400,
+      "sigma_s_adm_kg_cm2": 2600
     },
     "Feb38ks": {
       "name": "Acciaio Feb 38ks (saldabile)",
@@ -114,7 +158,9 @@
       "description": "Acciaio nervato saldabile",
       "bond": "aderenza_migliorata",
       "weldable": true,
-      "unit": "MPa"
+      "unit": "MPa",
+      "sigma_sn_kg_cm2": 3800,
+      "sigma_s_adm_kg_cm2": 2550
     },
     "Feb44ks": {
       "name": "Acciaio Feb 44ks (saldabile)",
@@ -125,7 +171,53 @@
       "description": "Acciaio nervato alta resistenza saldabile",
       "bond": "aderenza_migliorata",
       "weldable": true,
-      "unit": "MPa"
+      "unit": "MPa",
+      "sigma_sn_kg_cm2": 4400,
+      "sigma_s_adm_kg_cm2": 2600
+    }
+  },
+  "prestressing_steel_types": {
+    "_note": "Sezione predisposta per acciai da precompressione DM92/DM96. Valori da completare con riferimento normativo verificato.",
+    "trefolo_T15": {
+      "name": "Trefolo stabilizzato T15 (0.6 in, 140 mm²)",
+      "fpk": 1860,
+      "fp01k": 1670,
+      "Ep": 195000,
+      "area_nominal_mm2": 140,
+      "description": "Trefolo a 7 fili armonico stabilizzato",
+      "unit": "MPa",
+      "sigma_p_max_tesatura_note": "TODO: verificare limiti DM92/DM96 per tensione massima in tesatura",
+      "sigma_p_adm_esercizio_note": "TODO: verificare limiti DM92/DM96 per tensione ammissibile in esercizio"
+    },
+    "barra_liscia_precompressione": {
+      "name": "Barra liscia da precompressione φ26-φ36",
+      "fpk": 1030,
+      "fp01k": 835,
+      "Ep": 205000,
+      "description": "Barra liscia filettata per post-tensione",
+      "unit": "MPa",
+      "sigma_p_max_tesatura_note": "TODO: verificare limiti DM92/DM96",
+      "sigma_p_adm_esercizio_note": "TODO: verificare limiti DM92/DM96"
+    }
+  },
+  "ta_parameters": {
+    "description": "Parametri per il metodo delle Tensioni Ammissibili (DM 14/02/1992)",
+    "sigma_c_adm_formula": "sigma_c_adm = 0.30 * Rck (kg/cm²)",
+    "sigma_c_adm_reference": "DM 14/02/1992, Tabella tensioni ammissibili calcestruzzo",
+    "tau_c0_description": "Tensione tangenziale ammissibile senza armatura a taglio",
+    "tau_c1_description": "Tensione tangenziale massima ammissibile (con armatura a taglio)",
+    "tau_reference": "DM 14/02/1992, Tabella tensioni tangenziali ammissibili",
+    "n_homog_formula": "n = Es / Ec dove Ec = 550000 * Rck / (Rck + 200) [kg/cm²], Es = 2100000 kg/cm²",
+    "slenderness_reduction": {
+      "description": "Riduzione sigma_c_adm per sezioni snelle (dimensione minima < 25 cm)",
+      "formula": "sigma_c_adm_rid = sigma_c_adm * (1 - 0.03 * (25 - A_min_cm))",
+      "reference": "DM 14/02/1992, analogia con Art. 16 RD 2229/39"
+    },
+    "steel_adm_notes": {
+      "description": "Tensione ammissibile acciaio: sigma_s_adm ≈ 2/3 * sigma_sn, con limite max per aderenza migliorata",
+      "limit_aderenza_migliorata_kg_cm2": 2600,
+      "limit_aderenza_migliorata_MPa": 255,
+      "reference": "DM 14/02/1992"
     }
   },
   "calculation_method": {
@@ -138,7 +230,7 @@
     "safety_coefficients_SL": {
       "gamma_c": 1.6,
       "gamma_s": 1.15,
-      "description": "Coefficienti per metodo agli stati limite"
+      "description": "Coefficienti per metodo agli stati limite (DM 9/1/1996)"
     }
   },
   "formulas": {

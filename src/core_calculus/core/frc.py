@@ -10,10 +10,28 @@ higher-level callers; suppress the corresponding pylint warning.
 
 """
 
-# pylint: disable=unused-argument
 from __future__ import annotations
 
+from typing import Any
+
 from core_models.materials import Material
+
+# pylint: disable=unused-argument
+
+
+def get_material_strength(material: Any) -> float:
+    """Estrae la resistenza del materiale in modo robusto e ritorna un float.
+
+    Accetta sia oggetti mapping (dict-like) che oggetti con attributi.
+    """
+    try:
+        if hasattr(material, "get"):
+            val = material.get("fcd", 0.0)
+        else:
+            val = getattr(material, "fcd", 0.0)
+        return float(val) if val is not None else 0.0
+    except Exception:
+        return 0.0
 
 
 def frc_stress(material: Material, strain: float) -> float:
@@ -30,10 +48,19 @@ def frc_stress(material: Material, strain: float) -> float:
     """
     if not getattr(material, "frc_enabled", False):
         return 0.0
-    fFtu = getattr(material, "frc_fFtu", None)
-    eps_fu = getattr(material, "frc_eps_fu", None)
+    fFtu_raw = getattr(material, "frc_fFtu", None)
+    eps_fu_raw = getattr(material, "frc_eps_fu", None)
 
-    if fFtu is None or eps_fu is None or eps_fu == 0:
+    if fFtu_raw is None or eps_fu_raw is None:
+        return 0.0
+
+    try:
+        fFtu = float(fFtu_raw)
+        eps_fu = float(eps_fu_raw)
+    except Exception:
+        return 0.0
+
+    if eps_fu == 0:
         return 0.0
 
     # linear proportional up to eps_fu
@@ -45,7 +72,9 @@ def frc_stress(material: Material, strain: float) -> float:
     return sigma
 
 
-def apply_frc_to_section(section, material: Material, strain_distribution) -> tuple[float, float, float]:
+def apply_frc_to_section(
+    section: Any, material: Material, strain_distribution: Any
+) -> tuple[float, float, float]:
     """Placeholder: applica il contributo FRC alla sezione e ritorna (N, My, Mz).
 
     Implementazione completa verrà aggiunta nelle iterazioni successive.

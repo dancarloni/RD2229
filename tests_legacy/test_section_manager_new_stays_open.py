@@ -4,8 +4,8 @@ import tkinter as tk
 import unittest
 from unittest.mock import MagicMock, patch
 
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
-from sections_app.ui.section_manager import SectionManager
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+from libs.app_module.ui.section_manager import SectionManager
 
 
 class TestSectionManagerNewStaysOpen(unittest.TestCase):
@@ -31,12 +31,12 @@ class TestSectionManagerNewStaysOpen(unittest.TestCase):
         try:
             if hasattr(self, "manager") and self.manager.winfo_exists():
                 self.manager.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_new_section_non_chiude_manager(self):
@@ -57,7 +57,9 @@ class TestSectionManagerNewStaysOpen(unittest.TestCase):
         manager._new_section()
 
         # Verifica che il manager ESISTA ANCORA (non è stato chiuso)
-        self.assertTrue(manager.winfo_exists(), "Section Manager dovrebbe restare aperto dopo _new_section")
+        self.assertTrue(
+            manager.winfo_exists(), "Section Manager dovrebbe restare aperto dopo _new_section"
+        )
 
         # Verifica che reset_form sia stato chiamato
         manager.master.reset_form.assert_called_once()
@@ -111,12 +113,16 @@ class TestSectionManagerNewStaysOpen(unittest.TestCase):
                 callback(False)
             return lambda ans: None
 
-        with patch("sections_app.services.notification.ask_confirm", side_effect=_fake_ask_confirm):
+        with patch(
+            "apps.sections.services.notification.ask_confirm", side_effect=_fake_ask_confirm
+        ):
             # Chiama _new_section
             manager._new_section()
 
             # Verifica che il manager ESISTA ANCORA
-            self.assertTrue(manager.winfo_exists(), "Manager dovrebbe restare aperto anche senza azioni")
+            self.assertTrue(
+                manager.winfo_exists(), "Manager dovrebbe restare aperto anche senza azioni"
+            )
 
     def test_new_section_multiple_chiamate_non_chiudono_manager(self):
         """Verifica che chiamate multiple a _new_section mantengano il manager aperto."""

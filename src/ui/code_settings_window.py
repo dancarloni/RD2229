@@ -14,7 +14,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
-from sections_app.services.notification import (
+from apps.sections.services.notification import (
     notify_error,  # type: ignore[import]
     notify_info,  # type: ignore[import]
 )
@@ -66,10 +66,16 @@ class CodeSettingsWindow(tk.Toplevel):
     def _save(self) -> None:
         try:
             data = json.loads(self._text.get("1.0", tk.END))
-            self.settings_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-            notify_info("Salvataggio parametri", "Salvataggio completato", source="code_settings_window")
+            self.settings_path.write_text(
+                json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+            notify_info(
+                "Salvataggio parametri", "Salvataggio completato", source="code_settings_window"
+            )
         except json.JSONDecodeError as exc:
-            notify_error("Salvataggio parametri", f"JSON non valido: {exc}", source="code_settings_window")
+            notify_error(
+                "Salvataggio parametri", f"JSON non valido: {exc}", source="code_settings_window"
+            )
         except Exception as exc:
             logger.exception("Errore salvataggio %s", self.settings_path)
             notify_error(

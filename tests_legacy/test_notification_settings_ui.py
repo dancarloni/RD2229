@@ -1,4 +1,4 @@
-from sections_app.ui.notification_settings_window import NotificationSettingsWindow
+from libs.app_module.ui.notification_settings_window import NotificationSettingsWindow
 
 
 def test_ui_save_calls_save_notification_settings(monkeypatch, tmp_path):
@@ -7,7 +7,9 @@ def test_ui_save_calls_save_notification_settings(monkeypatch, tmp_path):
     def fake_save(settings, path=None):
         called["settings"] = settings
 
-    monkeypatch.setattr("sections_app.ui.notification_settings_window.save_notification_settings", fake_save)
+    monkeypatch.setattr(
+        "libs.app_module.ui.notification_settings_window.save_notification_settings", fake_save
+    )
     ns = NotificationSettingsWindow(master=None)
     # programmatically set settings
     ns.set_settings(
@@ -27,7 +29,7 @@ def test_ui_save_calls_save_notification_settings(monkeypatch, tmp_path):
 def test_center_honors_level_setting(monkeypatch):
     # Make NotificationCenter reload settings to a strict mode
     monkeypatch.setattr(
-        "sections_app.services.notification_settings.load_notification_settings",
+        "apps.sections.services.notification_settings.load_notification_settings",
         lambda: {
             "level": "errors_only",
             "show_toasts": True,
@@ -35,7 +37,7 @@ def test_center_honors_level_setting(monkeypatch):
             "confirm_default": "ask",
         },
     )
-    from sections_app.ui.notification_center import NotificationCenter
+    from libs.app_module.ui.notification_center import NotificationCenter
 
     center = NotificationCenter(master=None)
     payload_info = {"level": "info", "title": "Info", "message": "msg"}

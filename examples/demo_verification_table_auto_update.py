@@ -8,9 +8,9 @@ import tempfile
 import tkinter as tk
 from tkinter import messagebox
 
+from apps.sections.models.sections import CircularSection, RectangularSection
+from apps.sections.services.repository import SectionRepository
 from core_models.materials import Material, MaterialRepository
-from sections_app.models.sections import CircularSection, RectangularSection
-from sections_app.services.repository import SectionRepository
 from verification_table import VerificationTableWindow
 
 
@@ -172,15 +172,15 @@ class DemoControlPanel(tk.Tk):
         """Aggiunge una sezione random."""
         import random
 
-        w = random.randint(20, 50)
-        h = random.randint(25, 60)
+        w = random.randint(20, 50)  # nosec
+        h = random.randint(25, 60)  # nosec
 
-        if random.choice([True, False]):
+        if random.choice([True, False]):  # nosec
             # Rectangular
             section = RectangularSection(name=f"Rect {w}x{h}", width=w, height=h)
         else:
             # Circular
-            d = random.randint(20, 50)
+            d = random.randint(20, 50)  # nosec
             section = CircularSection(name=f"Circ d={d}", diameter=d)
 
         if self.section_repo.add_section(section):
@@ -199,8 +199,8 @@ class DemoControlPanel(tk.Tk):
         section = sections[0]
         import random
 
-        w = random.randint(20, 50)
-        h = random.randint(25, 60)
+        w = random.randint(20, 50)  # nosec
+        h = random.randint(25, 60)  # nosec
 
         updated = RectangularSection(name=f"{section.name} MODIFICATA", width=w, height=h)
         self.section_repo.update_section(section.id, updated)
@@ -225,13 +225,13 @@ class DemoControlPanel(tk.Tk):
         """Aggiunge un materiale random."""
         import random
 
-        if random.choice([True, False]):
+        if random.choice([True, False]):  # nosec
             # Concrete
-            fck = random.choice([20, 25, 30, 35, 40])
-            material = Material(name=f"C{fck}/{fck+5}", type="concrete", properties={"fck": fck})
+            fck = random.choice([20, 25, 30, 35, 40])  # nosec
+            material = Material(name=f"C{fck}/{fck + 5}", type="concrete", properties={"fck": fck})
         else:
             # Steel
-            fyk = random.choice([400, 450, 500])
+            fyk = random.choice([400, 450, 500])  # nosec
             material = Material(name=f"B{fyk}C", type="steel", properties={"fyk": fyk})
 
         self.material_repo.add(material)
@@ -294,7 +294,7 @@ class DemoControlPanel(tk.Tk):
 
         try:
             shutil.rmtree(self.temp_dir)
-        except Exception:
+        except Exception:  # nosec
             pass
         super().destroy()
 

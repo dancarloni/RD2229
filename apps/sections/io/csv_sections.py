@@ -56,6 +56,21 @@ def create_section_from_dict(data: dict[str, str]) -> Section:
             note=note,
         )
 
+    # Crea la sezione in base al tipo
+    if section_type == "RECTANGULAR":
+        width = float(data.get("width") or 0)
+        height = float(data.get("height") or 0)
+        _ensure_positive(width, "width")
+        _ensure_positive(height, "height")
+        dimensions = {"width": width, "height": height}
+        section = RectangularSection(
+            section_id=str(uuid4()),
+            name=name,
+            dimensions=dimensions,
+            rotation_angle_deg=rotation_angle_deg,
+            note=note,
+        )
+
     elif section_type == "CIRCULAR":
         diameter = float(data.get("diameter") or 0)
         _ensure_positive(diameter, "diameter")

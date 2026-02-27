@@ -41,6 +41,7 @@ class FlowWrapFrame(ttk.Frame):
             widget: Il widget da aggiungere
         """
         self._children.append(widget)
+        widget.master = self  # ensure parent
         widget.grid_propagate(False)
 
     def clear(self):

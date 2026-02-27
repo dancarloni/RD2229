@@ -30,6 +30,6 @@ for old, new in _app_map.items():
     # create a dummy module object mapping in sys.modules so `from app.domain import X` works
     try:
         _im(new)
-    except Exception:
+    except Exception:  # nosec
         # Ignore import errors here; tests will surface missing modules later
         pass

@@ -9,7 +9,7 @@ in local editable installs where the repo root appears on sys.path.
 
 from __future__ import annotations
 
-import subprocess
+import subprocess  # nosec
 import sys
 
 
@@ -40,13 +40,15 @@ def main() -> int:
     ]
 
     for cmd in cmd_variants:
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(cmd, capture_output=True, text=True)  # nosec
         if proc.returncode == 0:
             if proc.stdout:
                 print(proc.stdout)
             return 0
         # If output indicates unknown arg parsing, try the next variant
-        if "ignored explicit argument" in (proc.stderr or "") or "can't read file 'src=." in (proc.stderr or ""):
+        if "ignored explicit argument" in (proc.stderr or "") or "can't read file 'src=." in (
+            proc.stderr or ""
+        ):
             # try next variant
             continue
         # Otherwise, print whatever mypy returned and return the exit code

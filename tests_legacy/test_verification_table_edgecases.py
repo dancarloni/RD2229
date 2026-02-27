@@ -20,7 +20,7 @@ class TestVerificationTableEdgeCases(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:
+        except Exception:  # nosec
             pass
 
     def test_shift_tab_wraps_to_previous_row_last_column(self):

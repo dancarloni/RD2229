@@ -62,4 +62,3 @@ nul
 
 # Pre-commit cache (local)
 .pre-commit-cache/
-RD2229.egg-info/

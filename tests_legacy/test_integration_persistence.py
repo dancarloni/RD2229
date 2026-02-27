@@ -4,8 +4,8 @@
 import os
 import tempfile
 
-from sections_app.models.sections import CircularSection, RectangularSection, TSection
-from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from apps.sections.models.sections import CircularSection, RectangularSection, TSection
+from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 
 
 def test_integration_with_csv_serializer():
@@ -153,7 +153,7 @@ def test_large_dataset():
                 )
             repo1.add_section(section)
             if (i + 1) % 25 == 0:
-                print(f"  ✓ Aggiunte {i+1}/100 sezioni")
+                print(f"  ✓ Aggiunte {i + 1}/100 sezioni")
 
         assert len(repo1.get_all_sections()) == 100, "Sezioni non aggiunte"
         print("  ✓ Tutte 100 sezioni aggiunte e salvate")
@@ -173,7 +173,9 @@ def test_large_dataset():
             # Usa dimensioni uniche basate su i per evitare duplicati
             width = 100 + i * 10
             height = 200 + i * 10
-            modified = RectangularSection(name=f"{section.name}_modified", width=width, height=height)
+            modified = RectangularSection(
+                name=f"{section.name}_modified", width=width, height=height
+            )
             repo2.update_section(section.id, modified)
         print("  ✓ Modificate 10 sezioni e salvate")
 
@@ -183,7 +185,9 @@ def test_large_dataset():
         final = repo3.get_all_sections()
 
         modified_sections = [s for s in final if s.name.endswith("_modified")]
-        assert len(modified_sections) == 10, f"Modificate {len(modified_sections)} sezioni, attese 10"
+        assert (
+            len(modified_sections) == 10
+        ), f"Modificate {len(modified_sections)} sezioni, attese 10"
         print("  ✓ Verificate 10 sezioni modificate")
 
     print("\n✅ TEST DATASET GRANDE PASSATO\n")

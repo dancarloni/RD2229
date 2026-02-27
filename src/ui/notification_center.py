@@ -4,8 +4,8 @@ import logging
 import tkinter as tk
 from typing import Any
 
-from sections_app.services.event_bus import NOTIFICATION, EventBus
-from sections_app.services.notification_settings import load_notification_settings
+from apps.sections.services.event_bus import NOTIFICATION, EventBus
+from apps.sections.services.notification_settings import load_notification_settings
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,9 @@ class NotificationCenter:
             try:
                 self._create_window()
             except Exception:
-                logger.exception("Unable to create NotificationCenter window; switching to headless mode")
+                logger.exception(
+                    "Unable to create NotificationCenter window; switching to headless mode"
+                )
                 self.headless = True
 
     def _load_settings(self) -> None:
@@ -51,7 +53,7 @@ class NotificationCenter:
         if self._subscribed:
             try:
                 EventBus().unsubscribe(NOTIFICATION, self._on_notification)
-            except Exception:
+            except Exception:  # nosec
                 pass
             self._subscribed = False
 
@@ -91,7 +93,7 @@ class NotificationCenter:
             logger.exception("Error handling notification")
 
     def _show_toast(self, payload: dict[str, Any]) -> None:
-        text = f"{payload.get('title','')}: {payload.get('message','')}"
+        text = f"{payload.get('title', '')}: {payload.get('message', '')}"
         logger.info("Notification toast: %s", text)
         if self.headless:
             return
@@ -145,8 +147,12 @@ class NotificationCenter:
 
     def destroy(self) -> None:
         self._unsubscribe()
-        if self._win is not None and getattr(self._win, "winfo_exists", None) and self._win.winfo_exists():
+        if (
+            self._win is not None
+            and getattr(self._win, "winfo_exists", None)
+            and self._win.winfo_exists()
+        ):
             try:
                 self._win.destroy()
-            except Exception:
+            except Exception:  # nosec
                 pass
