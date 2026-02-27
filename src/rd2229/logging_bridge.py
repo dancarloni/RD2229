@@ -9,5 +9,6 @@ import logging
 
 logger = logging.getLogger("rd2229")
 
+
 def log_info(msg: str) -> None:
     logger.info(msg)

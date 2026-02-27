@@ -24,13 +24,13 @@ Aggiungere una nuova scheda::
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     pass
 
-_REGISTRY: list["FeatureSpec"] = []
+_REGISTRY: list[FeatureSpec] = []
 
 
 @dataclass

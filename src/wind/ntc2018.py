@@ -13,9 +13,8 @@ TODO: Caricare zona geografica e parametri da data/wind/ntc2018_wind_zones.json
 
 from __future__ import annotations
 
-import math
 import logging
-from typing import Any
+import math
 
 from src.wind.models import BuildingGeom, WindSite
 from src.wind.outputs import WindProfilePoint, WindResults
@@ -29,9 +28,9 @@ logger = logging.getLogger(__name__)
 # Chiave: categoria terreno → (z0 [m], z_min [m], kr)
 # ---------------------------------------------------------------------------
 _TERRAIN_PARAMS_NTC2018: dict[str, tuple[float, float, float]] = {
-    "I": (0.01, 2.0, 0.17),   # Mare aperto, laghi
+    "I": (0.01, 2.0, 0.17),  # Mare aperto, laghi
     "II": (0.05, 4.0, 0.19),  # Campagna con bassa vegetazione
-    "III": (0.10, 5.0, 0.20), # Zone suburbane, foreste
+    "III": (0.10, 5.0, 0.20),  # Zone suburbane, foreste
     "IV": (0.30, 8.0, 0.22),  # Zone urbane dense
     "V": (0.70, 12.0, 0.23),  # Aree urbane ad alta densità
 }
@@ -40,9 +39,9 @@ _DEFAULT_TERRAIN_CAT = "II"
 
 # Parametri velocità di riferimento NTC2018 §3.3.2 (placeholder)
 # TODO: Caricare da data/wind/ntc2018_wind_zones.json per zona geografica
-_VB0_DEFAULT_MS = 25.0   # [m/s] valore placeholder
-_A0_DEFAULT_M = 500.0    # [m] altitudine di inizio riduzione
-_KA_DEFAULT = 0.010      # [1/m] coefficiente riduzione altitudine
+_VB0_DEFAULT_MS = 25.0  # [m/s] valore placeholder
+_A0_DEFAULT_M = 500.0  # [m] altitudine di inizio riduzione
+_KA_DEFAULT = 0.010  # [1/m] coefficiente riduzione altitudine
 
 
 def compute_reference_wind_speed(site: WindSite) -> float:
@@ -88,7 +87,7 @@ def compute_kinetic_pressure(v_ms: float) -> float:
         Pressione cinetica [kN/m²].
     """
     rho = 1.25  # kg/m³
-    q_Pa = 0.5 * rho * v_ms ** 2
+    q_Pa = 0.5 * rho * v_ms**2
     return q_Pa / 1000.0  # kN/m²
 
 
@@ -115,7 +114,8 @@ def compute_velocity_profile_ntc2018(
     if params is None:
         logger.warning(
             "Categoria terreno '%s' non riconosciuta per NTC2018; uso '%s'.",
-            cat, _DEFAULT_TERRAIN_CAT,
+            cat,
+            _DEFAULT_TERRAIN_CAT,
         )
         params = _TERRAIN_PARAMS_NTC2018[_DEFAULT_TERRAIN_CAT]
 
@@ -166,9 +166,7 @@ def run_ntc2018_wind(
     if len(profile) > 1:
         for i in range(1, len(profile)):
             if profile[i].v_m_s < profile[i - 1].v_m_s * 0.99:
-                warnings.append(
-                    f"Profilo vento non monotono a z={profile[i].z_m} m."
-                )
+                warnings.append(f"Profilo vento non monotono a z={profile[i].z_m} m.")
                 break
 
     if site.extra.get("vb0_ms") is None:

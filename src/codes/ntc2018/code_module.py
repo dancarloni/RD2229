@@ -2,13 +2,13 @@
 Skeleton implementation of the CodeModule interface for NTC2018.
 Implements the CodeModule contract (SPEC only). No normative logic — TODOs where behaviour is required.
 """
-from typing import List, Dict
+
 
 class NTC2018CodeModule:
     """Contract-conforming skeleton for unit tests and integration wiring."""
 
     @staticmethod
-    def available_checks() -> List[Dict]:
+    def available_checks() -> list[dict]:
         return [
             {"id": "vrdc_no_stirrups", "short": "V_Rd,c (no stirrups) - skeleton"},
         ]
@@ -23,5 +23,5 @@ class NTC2018CodeModule:
             "value": None,
             "steps": [],
             "trace": {"run_id": "TODO:generate-run-id"},
-            "norm_references": ["TODO:reference"]
+            "norm_references": ["TODO:reference"],
         }

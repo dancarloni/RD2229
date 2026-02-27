@@ -502,6 +502,4 @@ class ModuleSelectorWindow(tk.Tk):
                 )
         except Exception as e:
             logger.exception("Errore durante l'esportazione del backup")
-            notify_error(
-                "Errore", f"Errore durante l'esportazione:\n{str(e)}", source="module_selector"
-            )
+            notify_error("Errore", f"Errore durante l'esportazione:\n{str(e)}", source="module_selector")

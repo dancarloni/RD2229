@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 try:
     from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, Slot
+
     _PYSIDE6_AVAILABLE = True
 except ImportError:
     _PYSIDE6_AVAILABLE = False
@@ -23,9 +24,9 @@ class WorkerSignals(QObject):  # type: ignore[misc]
     """
 
     if _PYSIDE6_AVAILABLE:
-        finished = Signal(object)   # ResultsModel
-        error = Signal(str)         # messaggio errore
-        progress = Signal(str)      # messaggio di avanzamento
+        finished = Signal(object)  # ResultsModel
+        error = Signal(str)  # messaggio errore
+        progress = Signal(str)  # messaggio di avanzamento
 
 
 class PipelineWorker(QRunnable):  # type: ignore[misc]

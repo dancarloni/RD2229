@@ -4,8 +4,8 @@ test_reporting.py
 Test minimi dei renderer Markdown e HTML.
 """
 
-from src.report.renderer_md import MarkdownReportRenderer
 from src.report.renderer_html import HTMLReportRenderer
+from src.report.renderer_md import MarkdownReportRenderer
 
 
 def test_md_renderer_basic():

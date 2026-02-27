@@ -51,7 +51,6 @@ def test_influence_on_global_model_gating():
     assert res.get("esito") == "NOT_APPLICABLE"
 
 
-
 def test_spec_validation_errors_for_missing_fields():
     from src.codes.ntc2018.secondary_elements.models import SecondaryElementSpec
 

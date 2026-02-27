@@ -3,6 +3,7 @@ Skeleton check orchestrators for secondary elements.
 Each function should return a VerificationResultItem-like dict (with trace.run_id and norm_references[]).
 """
 
+
 def check_parapet(inputs: dict) -> dict:
     return {"ok": False, "value": None, "steps": ["SKELETON"], "trace": {"run_id": "TODO"}, "norm_references": ["TODO"]}
 
@@ -14,10 +15,10 @@ def check_partition(inputs: dict) -> dict:
 # -------------------------------------------------------------------
 # STEP2 minimal implementations
 # -------------------------------------------------------------------
-from typing import Any, Dict
+from typing import Any
 
 
-def _base_contract() -> Dict[str, Any]:
+def _base_contract() -> dict[str, Any]:
     """Return a skeleton result containing mandatory fields."""
     return {
         "esito": "OK",
@@ -27,7 +28,7 @@ def _base_contract() -> Dict[str, Any]:
     }
 
 
-def check_slu(inputs: Dict[str, Any]) -> Dict[str, Any]:
+def check_slu(inputs: dict[str, Any]) -> dict[str, Any]:
     """Placeholder SLU inertial‑force check (NS_SLU_InertialForce)."""
     result = _base_contract()
     result.update({"ok": True, "utilisation": 0.0})
@@ -35,15 +36,13 @@ def check_slu(inputs: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
-def check_sle(inputs: Dict[str, Any]) -> Dict[str, Any]:
+def check_sle(inputs: dict[str, Any]) -> dict[str, Any]:
     """Placeholder SLE drift‑compatibility check (NS_SLE_DriftCompatibility)."""
     result = _base_contract()
     drift = inputs.get("drift") or {}
     src = drift.get("source")
     if src == "ESTIMATED":
-        result.setdefault("messages", []).append(
-            "Drift estimated; confidence forced to LOW"
-        )
+        result.setdefault("messages", []).append("Drift estimated; confidence forced to LOW")
         result["decision_log"].append("drift source=ESTIMATED, confidence=LOW")
         result["confidence"] = "LOW"
     else:

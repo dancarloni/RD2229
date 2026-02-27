@@ -1,10 +1,10 @@
-import unittest
 import tkinter as tk
+import unittest
 from unittest.mock import MagicMock, patch
 
-from sections_app.services.repository import SectionRepository, CsvSectionSerializer
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.module_selector import MAX_EDIT_LOAD_RETRIES, ModuleSelectorWindow
 from sections_app.ui.section_manager import SectionManager
-from sections_app.ui.module_selector import ModuleSelectorWindow, MAX_EDIT_LOAD_RETRIES
 
 
 class TestSectionManagerSelectionFallback(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestSectionManagerSelectionFallback(unittest.TestCase):
 
     def tearDown(self):
         try:
-            if hasattr(self, 'manager') and self.manager.winfo_exists():
+            if hasattr(self, "manager") and self.manager.winfo_exists():
                 self.manager.destroy()
         except Exception:
             pass
@@ -41,10 +41,10 @@ class TestSectionManagerSelectionFallback(unittest.TestCase):
         self.manager = manager
 
         # Inserisci una riga manualmente (iid = 'sec1')
-        manager.tree.insert('', 'end', iid='sec1', values=['test'])
+        manager.tree.insert("", "end", iid="sec1", values=["test"])
         # Assicura che selection sia impostata ma focus sia vuoto
-        manager.tree.selection_set('sec1')
-        manager.tree.focus('')  # rimuove il focus
+        manager.tree.selection_set("sec1")
+        manager.tree.focus("")  # rimuove il focus
 
         # Prepara repository.find_by_id
         mock_section = MagicMock()
@@ -71,20 +71,20 @@ class TestModuleSelectorEditRetries(unittest.TestCase):
 
     def tearDown(self):
         try:
-            if hasattr(self, 'window') and self.window.winfo_exists():
+            if hasattr(self, "window") and self.window.winfo_exists():
                 self.window.destroy()
         except Exception:
             pass
 
     def test_on_section_edit_limits_retries(self):
         # Patch MainWindow to return an object WITHOUT load_section_into_form
-        with patch('tkinter.Tk.mainloop'), patch('sections_app.ui.module_selector.MainWindow') as MockMain:
+        with patch("tkinter.Tk.mainloop"), patch("sections_app.ui.module_selector.MainWindow") as MockMain:
             MockMain.return_value = object()
             window = ModuleSelectorWindow(self.repo, self.serializer, self.material_repo)
             self.window = window
 
             section = MagicMock()
-            section.id = 'sec_x'
+            section.id = "sec_x"
 
             # Override after to call immediately (synchronous) so recursion happens in test
             calls = []
@@ -102,9 +102,9 @@ class TestModuleSelectorEditRetries(unittest.TestCase):
             self.assertEqual(len(calls), MAX_EDIT_LOAD_RETRIES)
 
             # The retry counter for the section should have been removed after reaching the cap
-            counts = getattr(window, '_section_edit_retry_counts', {})
+            counts = getattr(window, "_section_edit_retry_counts", {})
             self.assertNotIn(section.id, counts)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

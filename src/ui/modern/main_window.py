@@ -23,10 +23,10 @@ Aggiungere una nuova scheda::
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 try:
-    from PySide6.QtCore import QThreadPool, Qt
+    from PySide6.QtCore import Qt, QThreadPool
     from PySide6.QtWidgets import (
         QFileDialog,
         QLabel,
@@ -41,12 +41,14 @@ try:
         QVBoxLayout,
         QWidget,
     )
+
     _PYSIDE6_AVAILABLE = True
 except ImportError:
     _PYSIDE6_AVAILABLE = False
 
 
 if not _PYSIDE6_AVAILABLE:
+
     class ModernMainWindow:  # type: ignore[no-redef]
         def __init__(self, *a: Any, **kw: Any) -> None:
             pass
@@ -59,9 +61,7 @@ else:
     from src.ui.modern.workers import PipelineWorker
 
     APP_TITLE = "RD2229 – Verifiche Strutturali"
-    RECENT_SETTINGS_PATH = os.path.join(
-        os.path.expanduser("~"), ".rd2229", "recent_files.json"
-    )
+    RECENT_SETTINGS_PATH = os.path.join(os.path.expanduser("~"), ".rd2229", "recent_files.json")
 
     class ModernMainWindow(QMainWindow):  # type: ignore[no-redef]
         """Finestra principale della GUI moderna RD2229."""
@@ -179,8 +179,7 @@ else:
             else:
                 # Nessuna feature registrata: mostra placeholder
                 placeholder = _make_placeholder(
-                    self._nav, "Nessuna scheda registrata",
-                    "Aggiungi features tramite src.ui.modern.features.register()"
+                    self._nav, "Nessuna scheda registrata", "Aggiungi features tramite src.ui.modern.features.register()"
                 )
                 self._nav.add_feature("_default", "📋 Home", placeholder)
 
@@ -199,9 +198,7 @@ else:
         def _on_open(self) -> None:
             if not self._confirm_discard():
                 return
-            path, _ = QFileDialog.getOpenFileName(
-                self, "Apri progetto", "", "Progetti RD2229 (*.json);;Tutti (*)"
-            )
+            path, _ = QFileDialog.getOpenFileName(self, "Apri progetto", "", "Progetti RD2229 (*.json);;Tutti (*)")
             if path:
                 self._load_project(path)
 
@@ -212,9 +209,7 @@ else:
                 self._on_save_as()
 
         def _on_save_as(self) -> None:
-            path, _ = QFileDialog.getSaveFileName(
-                self, "Salva progetto come", "", "Progetti RD2229 (*.json)"
-            )
+            path, _ = QFileDialog.getSaveFileName(self, "Salva progetto come", "", "Progetti RD2229 (*.json)")
             if path:
                 self._save_project(path)
 
@@ -245,9 +240,7 @@ else:
             if not self._results_vm.has_results:
                 QMessageBox.information(self, "Export", "Nessun risultato disponibile.")
                 return
-            path, _ = QFileDialog.getSaveFileName(
-                self, "Esporta risultati JSON", "", "JSON (*.json)"
-            )
+            path, _ = QFileDialog.getSaveFileName(self, "Esporta risultati JSON", "", "JSON (*.json)")
             if path:
                 try:
                     self._calc.export_results(self._results_vm.results, path)
@@ -260,9 +253,7 @@ else:
                 QMessageBox.information(self, "Export", "Nessun risultato disponibile.")
                 return
             ext = "html" if fmt == "html" else "md"
-            path, _ = QFileDialog.getSaveFileName(
-                self, f"Esporta report {fmt.upper()}", "", f"{fmt.upper()} (*.{ext})"
-            )
+            path, _ = QFileDialog.getSaveFileName(self, f"Esporta report {fmt.upper()}", "", f"{fmt.upper()} (*.{ext})")
             if path:
                 try:
                     self._calc.export_report(
@@ -316,10 +307,12 @@ else:
             self._recent_menu.clear()
             for path in self._project_vm.recent_files:
                 a = self._recent_menu.addAction(os.path.basename(path))
+
                 # Capture path in closure
                 def _open(checked: bool = False, p: str = path) -> None:
                     if self._confirm_discard():
                         self._load_project(p)
+
                 a.triggered.connect(_open)
 
         def _refresh_status(self) -> None:

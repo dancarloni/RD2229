@@ -11,8 +11,6 @@ from __future__ import annotations
 import json
 import os
 
-import pytest
-
 from src.core.pipeline import run_pipeline
 from src.core.results import ResultsModel, export_results
 from src.project.schema import (

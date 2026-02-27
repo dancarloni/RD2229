@@ -12,9 +12,22 @@ imports during test collection. Import subpackages explicitly where needed
 """
 
 __all__ = [
-    "core_calculus", "domain", "methods", "repositories", "ui", "utils",
-    "calc", "materials", "elements", "codes", "actions", "report", 
-    "config", "tools", "tests", "legacy"
+    "core_calculus",
+    "domain",
+    "methods",
+    "repositories",
+    "ui",
+    "utils",
+    "calc",
+    "materials",
+    "elements",
+    "codes",
+    "actions",
+    "report",
+    "config",
+    "tools",
+    "tests",
+    "legacy",
 ]
 
 __version__ = "0.1.0"

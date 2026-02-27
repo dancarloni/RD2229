@@ -31,6 +31,7 @@ try:
         QVBoxLayout,
         QWidget,
     )
+
     _PYSIDE6_AVAILABLE = True
 except ImportError:
     _PYSIDE6_AVAILABLE = False
@@ -46,9 +47,7 @@ _MAX_DISPLAYED_METRICS = 4
 
 
 class _ProjectInfoWidget(QWidget):  # type: ignore[misc]
-    def __init__(
-        self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any
-    ) -> None:
+    def __init__(self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any) -> None:
         super().__init__(parent)
         self._vm = project_vm
         lay = QVBoxLayout(self)
@@ -107,9 +106,7 @@ class ProjectInfoFeature(FeatureSpec):
     icon = "📁"
     order = 10
 
-    def create_widget(
-        self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any
-    ) -> Any:
+    def create_widget(self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any) -> Any:
         if not _PYSIDE6_AVAILABLE:
             return None
         return _ProjectInfoWidget(parent, project_vm, run_vm, results_vm)
@@ -121,9 +118,7 @@ class ProjectInfoFeature(FeatureSpec):
 
 
 class _RunWidget(QWidget):  # type: ignore[misc]
-    def __init__(
-        self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any
-    ) -> None:
+    def __init__(self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any) -> None:
         super().__init__(parent)
         self._project_vm = project_vm
         self._run_vm = run_vm
@@ -153,6 +148,7 @@ class _RunWidget(QWidget):  # type: ignore[misc]
         # Delega al main window tramite menu / shortcut F5
         # Per ora lancia direttamente dalla service
         from src.ui.modern.services import CalculationService
+
         calc = CalculationService()
         self._run_vm.set_running(True)
         try:
@@ -171,9 +167,7 @@ class RunFeature(FeatureSpec):
     icon = "▶️"
     order = 40
 
-    def create_widget(
-        self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any
-    ) -> Any:
+    def create_widget(self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any) -> Any:
         if not _PYSIDE6_AVAILABLE:
             return None
         return _RunWidget(parent, project_vm, run_vm, results_vm)
@@ -185,9 +179,7 @@ class RunFeature(FeatureSpec):
 
 
 class _ResultsWidget(QWidget):  # type: ignore[misc]
-    def __init__(
-        self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any
-    ) -> None:
+    def __init__(self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any) -> None:
         super().__init__(parent)
         self._results_vm = results_vm
         self._project_vm = project_vm
@@ -231,9 +223,7 @@ class _ResultsWidget(QWidget):  # type: ignore[misc]
             self._table.setItem(row, 0, QTableWidgetItem(elem.element_id))
             ok_text = "✅ OK" if elem.ok else "❌ NON OK"
             self._table.setItem(row, 1, QTableWidgetItem(ok_text))
-            metrics_text = "; ".join(
-                f"{k}={v}" for k, v in list(elem.metrics.items())[:_MAX_DISPLAYED_METRICS]
-            )
+            metrics_text = "; ".join(f"{k}={v}" for k, v in list(elem.metrics.items())[:_MAX_DISPLAYED_METRICS])
             self._table.setItem(row, 2, QTableWidgetItem(metrics_text))
 
         # Warnings
@@ -246,9 +236,7 @@ class ResultsFeature(FeatureSpec):
     icon = "📊"
     order = 50
 
-    def create_widget(
-        self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any
-    ) -> Any:
+    def create_widget(self, parent: Any, project_vm: Any, run_vm: Any, results_vm: Any) -> Any:
         if not _PYSIDE6_AVAILABLE:
             return None
         return _ResultsWidget(parent, project_vm, run_vm, results_vm)
@@ -257,6 +245,7 @@ class ResultsFeature(FeatureSpec):
 # ---------------------------------------------------------------------------
 # Auto-register built-in features
 # ---------------------------------------------------------------------------
+
 
 def register_builtin_features() -> None:
     """Registra tutte le schede built-in nel registry globale."""

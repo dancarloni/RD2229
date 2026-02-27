@@ -40,7 +40,7 @@ class GeometryEntry:
 
     id: str = ""
     type: str = ""
-    width: float = 0.0   # cm o mm (unità dipende da code_settings)
+    width: float = 0.0  # cm o mm (unità dipende da code_settings)
     height: float = 0.0
     # Verifiche incendio: elemento selezionato per check al fuoco
     fire_selected: bool = False
@@ -59,8 +59,8 @@ class MaterialEntry:
     id: str = ""
     type: str = ""  # "concrete" | "steel"
     material_class: str = ""
-    f_ck: float | None = None   # MPa  (calcestruzzo)
-    f_yk: float | None = None   # MPa  (acciaio)
+    f_ck: float | None = None  # MPa  (calcestruzzo)
+    f_yk: float | None = None  # MPa  (acciaio)
     extra: dict[str, Any] = field(default_factory=dict)
 
 
@@ -69,12 +69,12 @@ class LoadEntry:
     """Singola combinazione di carico su un elemento."""
 
     element_id: str = ""
-    N: float | None = None    # kN
-    Mx: float | None = None   # kNm
-    My: float | None = None   # kNm
-    Mz: float | None = None   # kNm
-    Tx: float | None = None   # kN
-    Ty: float | None = None   # kN
+    N: float | None = None  # kN
+    Mx: float | None = None  # kNm
+    My: float | None = None  # kNm
+    Mz: float | None = None  # kNm
+    Tx: float | None = None  # kN
+    Ty: float | None = None  # kN
     description: str = ""
 
 
@@ -98,10 +98,10 @@ class SeismicInputs:
 class CodeSettings:
     """Impostazioni del codice normativo e unità di misura."""
 
-    norm_code: str = "RD2229"           # es. "RD2229" | "NTC2018"
+    norm_code: str = "RD2229"  # es. "RD2229" | "NTC2018"
     limit_states: list[str] = field(default_factory=lambda: ["TA"])
-    units_force: str = "kN"             # "kN" | "kg"
-    units_length: str = "cm"            # "cm" | "mm"
+    units_force: str = "kN"  # "kN" | "kg"
+    units_length: str = "cm"  # "cm" | "mm"
     # Struttura esistente: se True la normativa può richiedere LC
     existing_structure: bool = False
     # Livello di Conoscenza: None | "LC1" | "LC2" | "LC3"

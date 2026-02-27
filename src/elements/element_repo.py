@@ -17,10 +17,9 @@ STUB S2:
 - TODO per Copilot
 """
 
-from typing import Dict, Optional, List
-from .element_model import Element
-from ..materials.material_repo import MaterialRepository
 from ..calc.section_registry import get_section_metadata
+from ..materials.material_repo import MaterialRepository
+from .element_model import Element
 
 
 class ElementRepository:
@@ -40,7 +39,7 @@ class ElementRepository:
     """
 
     def __init__(self) -> None:
-        self._elements: Dict[str, Element] = {}
+        self._elements: dict[str, Element] = {}
 
     # --------------------------------------------------------------
 
@@ -55,7 +54,7 @@ class ElementRepository:
 
     # --------------------------------------------------------------
 
-    def get(self, element_id: str) -> Optional[Element]:
+    def get(self, element_id: str) -> Element | None:
         """
         Recupera un elemento.
         """
@@ -63,7 +62,7 @@ class ElementRepository:
 
     # --------------------------------------------------------------
 
-    def list_all(self) -> List[Element]:
+    def list_all(self) -> list[Element]:
         """
         Restituisce tutti gli elementi.
         """

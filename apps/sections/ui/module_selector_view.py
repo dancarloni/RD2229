@@ -42,9 +42,7 @@ class ModuleSelectorView(ttk.Frame):
         """
         super().__init__(master, padding=12)
         # Title
-        tk.Label(self, text="Select a module to start", font=(None, 12, "bold")).pack(
-            anchor="w", pady=(0, 8)
-        )
+        tk.Label(self, text="Select a module to start", font=(None, 12, "bold")).pack(anchor="w", pady=(0, 8))
         # Flow container
         self.flow = FlowWrapFrame(self)
         self.flow.pack(fill="both", expand=True)
@@ -67,14 +65,10 @@ class ModuleSelectorView(ttk.Frame):
         lf = tk.LabelFrame(self.flow, text=spec.title)
         # testo
         wrap = 250
-        tk.Label(lf, text=spec.description, justify="left", wraplength=wrap).pack(
-            padx=8, pady=8, anchor="w"
-        )
+        tk.Label(lf, text=spec.description, justify="left", wraplength=wrap).pack(padx=8, pady=8, anchor="w")
         # pulsanti
         if spec.button_text:
-            tk.Button(lf, text=spec.button_text, command=spec.callback).pack(
-                pady=(0, 8), anchor="w"
-            )
+            tk.Button(lf, text=spec.button_text, command=spec.callback).pack(pady=(0, 8), anchor="w")
         if spec.extra_buttons:
             for txt, cb in spec.extra_buttons:
                 tk.Button(lf, text=txt, command=cb).pack(pady=(0, 6), anchor="w")

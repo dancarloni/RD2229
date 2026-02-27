@@ -8,13 +8,12 @@ user-provided parameters.
 The public API follows the specification in
 `docs/MEGAPLAN/SPEC_NTC2018_HAZARD_PASTE.md`.
 """
+
 from __future__ import annotations
 
 import dataclasses
 import datetime
 import re
-from typing import List, Tuple, Optional
-
 
 # ---------------------------------------------------------------------------
 # Data models
@@ -36,12 +35,12 @@ class Ntc2018HazardProfile:
     class_of_use: str = ""
     vita_nominale_years: int = 0
     vr_years: int = 0
-    site_label: Optional[str] = None
+    site_label: str | None = None
     raw_paste: str = ""
-    parsed_rows: List[Ntc2018HazardRow] = dataclasses.field(default_factory=list)
+    parsed_rows: list[Ntc2018HazardRow] = dataclasses.field(default_factory=list)
     timestamp_import: str = ""
     quality: str = "OK"  # OK | WARNING | ERROR
-    messages: List[str] = dataclasses.field(default_factory=list)
+    messages: list[str] = dataclasses.field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -56,7 +55,7 @@ _LIMIT_LABELS = [
 ]
 
 
-def parse_edilus_ms_table(raw_paste: str) -> Tuple[List[Ntc2018HazardRow], List[str], str]:
+def parse_edilus_ms_table(raw_paste: str) -> tuple[list[Ntc2018HazardRow], list[str], str]:
     """Parse the raw text copied from EdiLus-MS.
 
     Returns:
@@ -72,8 +71,8 @@ def parse_edilus_ms_table(raw_paste: str) -> Tuple[List[Ntc2018HazardRow], List[
         if ln:
             lines.append(ln)
 
-    rows: List[Ntc2018HazardRow] = []
-    messages: List[str] = []
+    rows: list[Ntc2018HazardRow] = []
+    messages: list[str] = []
     quality = "OK"
     found_labels: set[str] = set()
 
@@ -91,9 +90,7 @@ def parse_edilus_ms_table(raw_paste: str) -> Tuple[List[Ntc2018HazardRow], List[
                     # do not add row
                 else:
                     if len(nums) > 4:
-                        messages.append(
-                            f"Riga '{lbl}' contiene {len(nums)} numeri, usati primi quattro"
-                        )
+                        messages.append(f"Riga '{lbl}' contiene {len(nums)} numeri, usati primi quattro")
                         if quality == "OK":
                             quality = "WARNING"
                     try:
@@ -132,7 +129,7 @@ def build_profile(
     class_of_use: str,
     vita_nominale_years: int,
     vr_years: int,
-    site_label: Optional[str],
+    site_label: str | None,
     raw_paste: str,
 ) -> Ntc2018HazardProfile:
     rows, messages, quality = parse_edilus_ms_table(raw_paste)
@@ -150,9 +147,7 @@ def build_profile(
     return profile
 
 
-def get_hazard_params(
-    profile: Ntc2018HazardProfile, limit_state_label: str
-) -> Optional[Tuple[float, float, float, float]]:
+def get_hazard_params(profile: Ntc2018HazardProfile, limit_state_label: str) -> tuple[float, float, float, float] | None:
     """Return parameters for a given limit state label.
 
     Matching is case-insensitive and ignores extra spaces.

@@ -28,12 +28,12 @@ Questo file è uno STUB S2:
 
 import argparse
 import json
-from typing import Dict, Any
+from typing import Any
 
+from ..codes.code_registry import bootstrap_codes
 from ..elements.element_repo import ElementRepository
-from ..materials.material_repo import MaterialRepository
-from ..codes.code_registry import bootstrap_codes, get_code
 from ..elements.resolve_inputs import resolve_verification_inputs
+from ..materials.material_repo import MaterialRepository
 from ..report.renderer_html import HTMLReportRenderer
 from ..report.renderer_md import MarkdownReportRenderer
 
@@ -54,7 +54,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_user_config(path: str) -> Dict[str, Any]:
+def load_user_config(path: str) -> dict[str, Any]:
     """
     Carica configurazione utente da file JSON/YAML.
 
@@ -62,11 +62,11 @@ def load_user_config(path: str) -> Dict[str, Any]:
     - Supportare YAML.
     - Validare dati.
     """
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def bootstrap_all() -> Dict[str, Any]:
+def bootstrap_all() -> dict[str, Any]:
     """
     Inizializza repository e normative.
 

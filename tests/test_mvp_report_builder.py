@@ -15,10 +15,6 @@ import re
 import pytest
 
 from src.rd2229.mvp.models import (
-    CheckRequest,
-    Combination,
-    Element,
-    LoadCase,
     TraceRecord,
     VerificationResult,
 )
@@ -32,10 +28,10 @@ from src.rd2229.mvp.report_builder import (
     validate_report_contract,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixture: VerificationResult minimo
 # ---------------------------------------------------------------------------
+
 
 def _make_result(
     status: str = "OK",
@@ -64,6 +60,7 @@ def _make_result(
 # Test: campi obbligatori presenti
 # ---------------------------------------------------------------------------
 
+
 def test_report_has_all_mandatory_fields():
     result = _make_result()
     report = build_report(result, plugin_versions={"core": "1.0.0"})
@@ -86,9 +83,7 @@ def test_report_has_all_mandatory_fields():
 def test_report_input_hash_is_sha256_hex():
     result = _make_result()
     report = build_report(result)
-    assert re.fullmatch(r"[0-9a-f]{64}", report.input_hash), (
-        f"input_hash non è SHA-256 hex: {report.input_hash}"
-    )
+    assert re.fullmatch(r"[0-9a-f]{64}", report.input_hash), f"input_hash non è SHA-256 hex: {report.input_hash}"
 
 
 def test_report_plugin_versions_default_empty():
@@ -101,6 +96,7 @@ def test_report_plugin_versions_default_empty():
 # Test: validate_report_contract
 # ---------------------------------------------------------------------------
 
+
 def test_validate_report_contract_ok():
     result = _make_result()
     report = build_report(result)
@@ -110,9 +106,7 @@ def test_validate_report_contract_ok():
 def test_validate_report_contract_fail_status():
     result = _make_result()
     report = build_report(result)
-    bad = ReportArtifact(
-        **{**report_to_dict(report), "status": "UNKNOWN"}
-    )
+    bad = ReportArtifact(**{**report_to_dict(report), "status": "UNKNOWN"})
     with pytest.raises(ValueError, match="status"):
         validate_report_contract(bad)
 
@@ -145,6 +139,7 @@ def test_validate_report_contract_fail_short_hash():
 # Test: serializzazione JSON
 # ---------------------------------------------------------------------------
 
+
 def test_report_to_json_is_valid_json():
     result = _make_result()
     report = build_report(result)
@@ -160,9 +155,19 @@ def test_report_to_dict_all_fields():
     report = build_report(result, plugin_versions={"fire_module": "0.1.0"})
     d = report_to_dict(report)
     for key in (
-        "run_id", "project_id", "result_id", "status", "method_id",
-        "norm_references", "norm_code", "value", "check_code",
-        "generated_at", "input_hash", "plugin_versions", "schema_version",
+        "run_id",
+        "project_id",
+        "result_id",
+        "status",
+        "method_id",
+        "norm_references",
+        "norm_code",
+        "value",
+        "check_code",
+        "generated_at",
+        "input_hash",
+        "plugin_versions",
+        "schema_version",
     ):
         assert key in d, f"Campo mancante nel dict: {key}"
 
@@ -170,6 +175,7 @@ def test_report_to_dict_all_fields():
 # ---------------------------------------------------------------------------
 # Test: export_report_json (scrittura atomica)
 # ---------------------------------------------------------------------------
+
 
 def test_export_report_json_file(tmp_path):
     result = _make_result()
@@ -195,6 +201,7 @@ def test_export_report_json_no_tmp_file_on_success(tmp_path):
 # ---------------------------------------------------------------------------
 # Test: hash deterministico (stesso input → stesso hash)
 # ---------------------------------------------------------------------------
+
 
 def test_input_hash_deterministic():
     result = _make_result()

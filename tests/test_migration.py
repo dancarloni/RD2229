@@ -7,11 +7,8 @@ schema_version) venga correttamente migrato alla versione corrente.
 from __future__ import annotations
 
 import json
-import tempfile
 
-import pytest
-
-from src.project.repository import load_project, migrate_dict, save_project
+from src.project.repository import load_project, migrate_dict
 from src.project.schema import CURRENT_SCHEMA_VERSION, ProjectModel
 
 

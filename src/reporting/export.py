@@ -10,9 +10,13 @@ Entrambe usano scrittura atomica (file .tmp → os.replace) per sicurezza.
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.reporting.report_builder import ReportArtifact
 
 
-def export_report_html(artifact: "ReportArtifact", path: str) -> None:  # type: ignore[name-defined]
+def export_report_html(artifact: ReportArtifact, path: str) -> None:
     """Esporta il report in formato HTML.
 
     Args:
@@ -32,7 +36,7 @@ def export_report_html(artifact: "ReportArtifact", path: str) -> None:  # type: 
     _atomic_write(path, artifact.html, encoding="utf-8")
 
 
-def export_report_md(artifact: "ReportArtifact", path: str) -> None:  # type: ignore[name-defined]
+def export_report_md(artifact: ReportArtifact, path: str) -> None:
     """Esporta il report in formato Markdown.
 
     Args:

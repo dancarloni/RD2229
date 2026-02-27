@@ -10,8 +10,6 @@ from __future__ import annotations
 
 import os
 
-import pytest
-
 from src.core.pipeline import run_pipeline
 from src.project.schema import (
     CodeSettings,

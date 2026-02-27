@@ -5,20 +5,22 @@ Separazione rigorosa: nessuna dipendenza da Qt/PySide6 in questo modulo.
 
 from __future__ import annotations
 
-import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from src.project.schema import ProjectModel
 
 
 class ProjectIOService:
     """Gestisce new/open/save/save-as del ProjectModel JSON."""
 
-    def new_project(self) -> "ProjectModel":  # type: ignore[name-defined]
+    def new_project(self) -> ProjectModel:
         """Crea e restituisce un ProjectModel vuoto."""
         from src.project.schema import ProjectModel
 
         return ProjectModel()
 
-    def open_project(self, path: str) -> "ProjectModel":  # type: ignore[name-defined]
+    def open_project(self, path: str) -> ProjectModel:
         """Carica un ProjectModel da file JSON con migrazione automatica.
 
         Args:

@@ -31,12 +31,12 @@ Questo è uno STUB S2:
 - Usa interfacce pronte per essere ampliate nei blocchi successivi.
 """
 
-from typing import Callable, Dict, List, Any
-
+from typing import Any
 
 # ==========================================================
 # TIPI E INTERFACCE
 # ==========================================================
+
 
 class VerificationAction:
     """
@@ -63,7 +63,7 @@ class VerificationAction:
     action_id: str = "undefined"
     description: str = "Verification Action (stub)."
 
-    def run(self, element: Any, normative: Dict[str, Any], settings: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, element: Any, normative: dict[str, Any], settings: dict[str, Any]) -> dict[str, Any]:
         """
         Esegue la verifica sull'elemento e restituisce un dizionario.
 
@@ -78,7 +78,7 @@ class VerificationAction:
 # REPOSITORY DELLE AZIONI
 # ==========================================================
 
-ACTION_REPOSITORY: Dict[str, VerificationAction] = {}
+ACTION_REPOSITORY: dict[str, VerificationAction] = {}
 """
 Mappa: action_id → istanza di VerificationAction
 
@@ -109,7 +109,7 @@ def get_action(action_id: str) -> VerificationAction:
     return ACTION_REPOSITORY[action_id]
 
 
-def list_actions() -> List[str]:
+def list_actions() -> list[str]:
     """
     Restituisce la lista di tutte le azioni disponibili.
     """
@@ -119,6 +119,7 @@ def list_actions() -> List[str]:
 # ==========================================================
 # ESEMPI DI AZIONI (STUB)
 # ==========================================================
+
 
 class FlexureCheck(VerificationAction):
     """
@@ -132,16 +133,17 @@ class FlexureCheck(VerificationAction):
     - Integrare normative: normative["params"], normative["clauses"].
     - Integrare sezione: element.section.
     """
+
     action_id = "flexure_check"
     description = "Verifica flessionale (stub, nessuna formula)."
 
-    def run(self, element: Any, normative: Dict[str, Any], settings: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, element: Any, normative: dict[str, Any], settings: dict[str, Any]) -> dict[str, Any]:
         # TODO: implementazione reale
         return {
             "action_id": self.action_id,
             "ok": True,
             "messages": ["Flexure check not implemented (stub)."],
-            "partials": {}
+            "partials": {},
         }
 
 
@@ -153,16 +155,12 @@ class ShearCheck(VerificationAction):
     - Integrare area a taglio: element.get_shear_area().
     - Inserire parametri normativi.
     """
+
     action_id = "shear_check"
     description = "Verifica taglio (stub, nessuna formula)."
 
-    def run(self, element: Any, normative: Dict[str, Any], settings: Dict[str, Any]) -> Dict[str, Any]:
-        return {
-            "action_id": self.action_id,
-            "ok": True,
-            "messages": ["Shear check not implemented (stub)."],
-            "partials": {}
-        }
+    def run(self, element: Any, normative: dict[str, Any], settings: dict[str, Any]) -> dict[str, Any]:
+        return {"action_id": self.action_id, "ok": True, "messages": ["Shear check not implemented (stub)."], "partials": {}}
 
 
 # ==========================================================

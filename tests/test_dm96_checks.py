@@ -145,9 +145,7 @@ def test_get_dm96_allowable_stresses_from_dm92():
     mat = MockDM96Material()
     result = get_dm96_allowable_stresses(mat)
     assert result.sigma_c_allow == 75.0, f"sigma_c_adm atteso 75, ottenuto {result.sigma_c_allow}"
-    assert (
-        result.sigma_s_allow == 2550.0
-    ), f"sigma_s_adm atteso 2550, ottenuto {result.sigma_s_allow}"
+    assert result.sigma_s_allow == 2550.0, f"sigma_s_adm atteso 2550, ottenuto {result.sigma_s_allow}"
 
 
 def test_get_dm96_allowable_stresses_from_fck():

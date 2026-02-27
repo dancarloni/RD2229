@@ -1,7 +1,6 @@
-import json
-
-from verification_project import VerificationProject
 from src.codes.ntc2018.spectrum_paste_service import build_profile
+from verification_project import VerificationProject
+
 
 def test_profile_roundtrip(tmp_path):
     proj = VerificationProject()

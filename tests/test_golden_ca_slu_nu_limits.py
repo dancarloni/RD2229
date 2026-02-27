@@ -28,13 +28,13 @@ from src.rd2229.mvp.vba_migration.ca_slu_nu_limits import (
 # ---------------------------------------------------------------------------
 # Dati golden baseline (scheda macro VBA_MACRO_SCHEDA_CA_SLU.md)
 # ---------------------------------------------------------------------------
-B_MM = 300.0       # mm
-H_MM = 500.0       # mm
-FCK = 25.0         # MPa  (C25/30)
-FYK = 450.0        # MPa  (B450C)
+B_MM = 300.0  # mm
+H_MM = 500.0  # mm
+FCK = 25.0  # MPa  (C25/30)
+FYK = 450.0  # MPa  (B450C)
 GAMMA_C = 1.5
 GAMMA_S = 1.15
-DIAM_BAR = 16.0    # mm  (φ16)
+DIAM_BAR = 16.0  # mm  (φ16)
 N_BARS = 4
 
 AFT_MM2 = bar_area_mm2(DIAM_BAR, N_BARS)  # 4 * π * 16² / 4
@@ -42,10 +42,10 @@ AFT_MM2 = bar_area_mm2(DIAM_BAR, N_BARS)  # 4 * π * 16² / 4
 TOLERANCE_REL = 0.005  # 0.5%
 
 # Valori attesi calcolati analiticamente
-_FCD = FCK / GAMMA_C                  # 16.667 MPa
-_FYD = FYK / GAMMA_S                  # 391.304 MPa
-_ASEZ = B_MM * H_MM                   # 150000 mm²
-_NU_MAX_N = AFT_MM2 * _FYD            # N
+_FCD = FCK / GAMMA_C  # 16.667 MPa
+_FYD = FYK / GAMMA_S  # 391.304 MPa
+_ASEZ = B_MM * H_MM  # 150000 mm²
+_NU_MAX_N = AFT_MM2 * _FYD  # N
 _NU_MIN_N = -(_FCD * _ASEZ + AFT_MM2 * _FYD)  # N
 
 
@@ -59,6 +59,7 @@ def _rel_err(computed: float, expected: float) -> float:
 # ---------------------------------------------------------------------------
 # Test: bar_area_mm2 helper
 # ---------------------------------------------------------------------------
+
 
 def test_bar_area_helper_4phi16():
     """4 barre φ16: area attesa = 4 * π * 256/4 = 804.25 mm²."""
@@ -76,6 +77,7 @@ def test_bar_area_single_phi12():
 # Test: validazione input
 # ---------------------------------------------------------------------------
 
+
 def test_invalid_section_dimensions():
     with pytest.raises(ValueError, match="dimensioni"):
         RectSectionInput(b_mm=0.0, h_mm=500.0, aft_mm2=800.0, fck_mpa=25.0, fyk_mpa=450.0)
@@ -90,43 +92,61 @@ def test_invalid_negative_area():
 # Test golden: Nu_max
 # ---------------------------------------------------------------------------
 
+
 def test_golden_nu_max():
     """Nu_max golden: 4φ16 B450C → ≈ 314.7 kN (tolleranza ≤ 0.5%)."""
     inp = RectSectionInput(
-        b_mm=B_MM, h_mm=H_MM, aft_mm2=AFT_MM2,
-        fck_mpa=FCK, fyk_mpa=FYK, gamma_c=GAMMA_C, gamma_s=GAMMA_S,
+        b_mm=B_MM,
+        h_mm=H_MM,
+        aft_mm2=AFT_MM2,
+        fck_mpa=FCK,
+        fyk_mpa=FYK,
+        gamma_c=GAMMA_C,
+        gamma_s=GAMMA_S,
     )
     result = compute_axial_capacity(inp)
-    assert _rel_err(result.nu_max_n, _NU_MAX_N) <= TOLERANCE_REL, (
-        f"Nu_max: calcolato={result.nu_max_kn:.2f} kN, atteso={_NU_MAX_N/1000:.2f} kN"
-    )
+    assert (
+        _rel_err(result.nu_max_n, _NU_MAX_N) <= TOLERANCE_REL
+    ), f"Nu_max: calcolato={result.nu_max_kn:.2f} kN, atteso={_NU_MAX_N/1000:.2f} kN"
 
 
 # ---------------------------------------------------------------------------
 # Test golden: Nu_min
 # ---------------------------------------------------------------------------
 
+
 def test_golden_nu_min():
     """Nu_min golden: C25/30 + 4φ16 B450C → ≈ -2814.7 kN (tolleranza ≤ 0.5%)."""
     inp = RectSectionInput(
-        b_mm=B_MM, h_mm=H_MM, aft_mm2=AFT_MM2,
-        fck_mpa=FCK, fyk_mpa=FYK, gamma_c=GAMMA_C, gamma_s=GAMMA_S,
+        b_mm=B_MM,
+        h_mm=H_MM,
+        aft_mm2=AFT_MM2,
+        fck_mpa=FCK,
+        fyk_mpa=FYK,
+        gamma_c=GAMMA_C,
+        gamma_s=GAMMA_S,
     )
     result = compute_axial_capacity(inp)
-    assert _rel_err(result.nu_min_n, _NU_MIN_N) <= TOLERANCE_REL, (
-        f"Nu_min: calcolato={result.nu_min_kn:.2f} kN, atteso={_NU_MIN_N/1000:.2f} kN"
-    )
+    assert (
+        _rel_err(result.nu_min_n, _NU_MIN_N) <= TOLERANCE_REL
+    ), f"Nu_min: calcolato={result.nu_min_kn:.2f} kN, atteso={_NU_MIN_N/1000:.2f} kN"
 
 
 # ---------------------------------------------------------------------------
 # Test: verifica assiale per Ned nel dominio
 # ---------------------------------------------------------------------------
 
+
 def test_check_axial_within_domain():
     """Ned = -800 kN → ok_axial True, eta ≈ 0.284."""
     inp = RectSectionInput(
-        b_mm=B_MM, h_mm=H_MM, aft_mm2=AFT_MM2,
-        fck_mpa=FCK, fyk_mpa=FYK, gamma_c=GAMMA_C, gamma_s=GAMMA_S,
+        b_mm=B_MM,
+        h_mm=H_MM,
+        aft_mm2=AFT_MM2,
+        fck_mpa=FCK,
+        fyk_mpa=FYK,
+        gamma_c=GAMMA_C,
+        gamma_s=GAMMA_S,
     )
     result = compute_axial_capacity(inp)
     ned_n = -800_000.0  # -800 kN in N
@@ -140,8 +160,13 @@ def test_check_axial_within_domain():
 def test_check_axial_outside_domain_compression():
     """Ned oltre Nu_min → ok_axial False."""
     inp = RectSectionInput(
-        b_mm=B_MM, h_mm=H_MM, aft_mm2=AFT_MM2,
-        fck_mpa=FCK, fyk_mpa=FYK, gamma_c=GAMMA_C, gamma_s=GAMMA_S,
+        b_mm=B_MM,
+        h_mm=H_MM,
+        aft_mm2=AFT_MM2,
+        fck_mpa=FCK,
+        fyk_mpa=FYK,
+        gamma_c=GAMMA_C,
+        gamma_s=GAMMA_S,
     )
     result = compute_axial_capacity(inp)
     ned_n = -5_000_000.0  # -5000 kN, molto oltre Nu_min
@@ -154,11 +179,17 @@ def test_check_axial_outside_domain_compression():
 # Test: proprietà AxialCapacityResult
 # ---------------------------------------------------------------------------
 
+
 def test_result_properties():
     """Verifica coerenza proprietà kN e parametri derivati."""
     inp = RectSectionInput(
-        b_mm=B_MM, h_mm=H_MM, aft_mm2=AFT_MM2,
-        fck_mpa=FCK, fyk_mpa=FYK, gamma_c=GAMMA_C, gamma_s=GAMMA_S,
+        b_mm=B_MM,
+        h_mm=H_MM,
+        aft_mm2=AFT_MM2,
+        fck_mpa=FCK,
+        fyk_mpa=FYK,
+        gamma_c=GAMMA_C,
+        gamma_s=GAMMA_S,
     )
     result: AxialCapacityResult = compute_axial_capacity(inp)
     # nu_max_kn = nu_max_n / 1000

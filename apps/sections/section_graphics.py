@@ -90,11 +90,7 @@ class SectionGraphicsController:
     def draw_principal_axes(self, props: SectionProperties):
         if self.transform is None or props.x_c is None or props.y_c is None or props.theta_p_deg is None:
             return
-        length = (
-            max(self.canvas.winfo_width(), self.canvas.winfo_height())
-            * 0.4
-            / (self.transform.scale or 1)
-        )
+        length = max(self.canvas.winfo_width(), self.canvas.winfo_height()) * 0.4 / (self.transform.scale or 1)
         theta = math.radians(props.theta_p_deg)
         cx, cy = props.x_c, props.y_c
         dx = math.cos(theta) * length
@@ -190,14 +186,19 @@ class SectionGraphicsController:
         )
 
     def draw_radii_of_gyration(self, props: SectionProperties):
-        if self.transform is None or not props.r1 or not props.r2 or props.x_c is None or props.y_c is None or props.theta_p_deg is None:
+        if (
+            self.transform is None
+            or not props.r1
+            or not props.r2
+            or props.x_c is None
+            or props.y_c is None
+            or props.theta_p_deg is None
+        ):
             return
         theta = math.radians(props.theta_p_deg)
         cx, cy = props.x_c, props.y_c
         sx0, sy0 = self.transform.world_to_screen(cx, cy)
-        sx1, sy1 = self.transform.world_to_screen(
-            cx + props.r1 * math.cos(theta), cy + props.r1 * math.sin(theta)
-        )
+        sx1, sy1 = self.transform.world_to_screen(cx + props.r1 * math.cos(theta), cy + props.r1 * math.sin(theta))
         self.canvas.create_line(sx0, sy0, sx1, sy1, fill="brown", width=2)
         self.canvas.create_oval(sx1 - 3, sy1 - 3, sx1 + 3, sy1 + 3, fill="brown")
 
@@ -210,9 +211,7 @@ class SectionGraphicsController:
     ):
         self.clear()
         bbox = carbon_fiber_placeholder.bounding_box()
-        transform = SectionViewTransform(
-            bbox, self.canvas.winfo_width(), self.canvas.winfo_height(), margin=20
-        )
+        transform = SectionViewTransform(bbox, self.canvas.winfo_width(), self.canvas.winfo_height(), margin=20)
         self.set_transform(transform)
         self.draw_section_contour(carbon_fiber_placeholder)
         self.draw_dimensioning(carbon_fiber_placeholder)

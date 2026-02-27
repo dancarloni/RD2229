@@ -74,13 +74,16 @@ def _migrate_1_0_0_to_1_1_0(data: dict[str, Any]) -> dict[str, Any]:
     cs.setdefault("lc", None)
 
     # FireSettings: nuovo blocco
-    data.setdefault("fire", {
-        "enabled": False,
-        "scenario": "ISO_834",
-        "required_rating_minutes": 60,
-        "cover_mm_default": None,
-        "exposure_sides_default": None,
-    })
+    data.setdefault(
+        "fire",
+        {
+            "enabled": False,
+            "scenario": "ISO_834",
+            "required_rating_minutes": 60,
+            "cover_mm_default": None,
+            "exposure_sides_default": None,
+        },
+    )
 
     # GeometryEntry: nuovi campi
     for geom in data.get("geometry", []):
@@ -122,8 +125,7 @@ def migrate_dict(data: dict[str, Any]) -> dict[str, Any]:
 
     if data.get("schema_version") != CURRENT_SCHEMA_VERSION:
         logger.warning(
-            "schema_version '%s' non corrisponde alla versione corrente '%s'; "
-            "alcuni campi potrebbero essere mancanti.",
+            "schema_version '%s' non corrisponde alla versione corrente '%s'; " "alcuni campi potrebbero essere mancanti.",
             data.get("schema_version"),
             CURRENT_SCHEMA_VERSION,
         )
@@ -140,6 +142,7 @@ def _dict_to_project(data: dict[str, Any]) -> ProjectModel:
 
     I campi mancanti vengono sostituiti con i valori di default del dataclass.
     """
+
     def _get(d: dict[str, Any], key: str, default: Any) -> Any:
         return d.get(key, default) if d else default
 

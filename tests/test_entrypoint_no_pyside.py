@@ -1,8 +1,8 @@
 import builtins
 import importlib
+import os
 import sys
 from pathlib import Path
-import os
 
 
 def test_entrypoint_graceful_no_pyside(monkeypatch, capsys):

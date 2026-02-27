@@ -1,10 +1,8 @@
-from pathlib import Path
-
-from src.rd2229.seismic.rd2229_39.provider import RD2229SeismicProvider
 from src.rd2229.seismic.rd2229_39.models.inputs import (
     FloorForcesRequest,
     FloorMassBreakdown,
 )
+from src.rd2229.seismic.rd2229_39.provider import RD2229SeismicProvider
 
 
 def test_p_resolved_from_table(tmp_path):

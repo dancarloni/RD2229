@@ -120,10 +120,10 @@ def compute_axial_capacity(inp: RectSectionInput) -> AxialCapacityResult:
     """
     fcd = inp.fck_mpa / inp.gamma_c  # [MPa]
     fyd = inp.fyk_mpa / inp.gamma_s  # [MPa]
-    asez = inp.b_mm * inp.h_mm       # [mm²]
+    asez = inp.b_mm * inp.h_mm  # [mm²]
 
-    nu_max = inp.aft_mm2 * fyd                    # [N]
-    nu_min = -(fcd * asez + inp.aft_mm2 * fyd)    # [N]
+    nu_max = inp.aft_mm2 * fyd  # [N]
+    nu_min = -(fcd * asez + inp.aft_mm2 * fyd)  # [N]
 
     return AxialCapacityResult(
         nu_max_n=nu_max,

@@ -53,7 +53,10 @@ def main() -> int:
 
             from src.core.pipeline import run_pipeline  # type: ignore[import]
             from src.project.repository import load_project  # type: ignore[import]
-            from src.reporting.export import export_report_html, export_report_md  # type: ignore[import]
+            from src.reporting.export import (  # type: ignore[import]
+                export_report_html,
+                export_report_md,
+            )
             from src.reporting.report_builder import build_report  # type: ignore[import]
 
             project = load_project(args.project)

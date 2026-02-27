@@ -1,16 +1,16 @@
 """Thin UI panel for pasting NTC2018 hazard parameters from EdiLus-MS."""
+
 from __future__ import annotations
 
 import tkinter as tk
-from tkinter import ttk, messagebox
-from typing import Optional
+from tkinter import messagebox, ttk
 
-from verification_project import VerificationProject
 from src.codes.ntc2018 import spectrum_paste_service as svc
+from verification_project import VerificationProject
 
 
 class HazardPasteWindow(tk.Toplevel):
-    def __init__(self, master: tk.Misc, project: Optional[VerificationProject] = None):
+    def __init__(self, master: tk.Misc, project: VerificationProject | None = None):
         super().__init__(master=master)
         self.title("Parametri sismici NTC2018 (Paste)")
         self.geometry("600x600")
@@ -85,8 +85,8 @@ class HazardPasteWindow(tk.Toplevel):
         self.preview.config(state="normal")
         self.preview.delete("1.0", "end")
         for r in rows:
-            self.preview.insert("end",
-                f"{r.limit_state_label}: Tr={r.tr_years}, ag/g={r.ag_g}, F0={r.f0}, Tc*={r.tc_star_s}\n"
+            self.preview.insert(
+                "end", f"{r.limit_state_label}: Tr={r.tr_years}, ag/g={r.ag_g}, F0={r.f0}, Tc*={r.tc_star_s}\n"
             )
         self.preview.config(state="disabled")
 

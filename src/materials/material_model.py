@@ -29,7 +29,6 @@ Questo file è uno STUB S2: contiene struttura e TODO ma non logica.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
 
 
 @dataclass
@@ -54,9 +53,9 @@ class Material:
     description: str
     family: str
     density_kg_m3: float
-    params: Dict[str, float] = field(default_factory=dict)
+    params: dict[str, float] = field(default_factory=dict)
 
-    def get_param(self, name: str) -> Optional[float]:
+    def get_param(self, name: str) -> float | None:
         """
         Restituisce un parametro del materiale, oppure None se mancante.
 

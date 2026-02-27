@@ -77,13 +77,9 @@ class VerificationTemplate:
     limit_state: str = ""  # e.g., "SLU", "SLE", "TA"
     description_it: str = ""  # Italian description shown to user
     check_category: str = ""  # e.g., "resistenza", "minimi_armatura", "tensioni"
-    required_inputs: list[str] = dataclasses.field(
-        default_factory=list
-    )  # e.g., ["N", "Mx", "As", "d"]
+    required_inputs: list[str] = dataclasses.field(default_factory=list)  # e.g., ["N", "Mx", "As", "d"]
     optional_inputs: list[str] = dataclasses.field(default_factory=list)  # e.g., ["My", "Mz"]
-    output_metrics: list[str] = dataclasses.field(
-        default_factory=list
-    )  # e.g., ["M_Rd", "utilisazione"]
+    output_metrics: list[str] = dataclasses.field(default_factory=list)  # e.g., ["M_Rd", "utilisazione"]
     primary_reference: NormReference | None = None
     secondary_references: list[NormReference] = dataclasses.field(default_factory=list)
     function_path: str = ""  # e.g., "src.methods.verification.methods_slu.check_flessione_slu"
@@ -92,9 +88,7 @@ class VerificationTemplate:
     applicable_section_types: list[str] | None = None  # e.g., ["rectangular", "circular"]
     applicable_material_tags: list[str] | None = None  # e.g., ["concrete", "RC"]
     requires_existing_structure: bool = False  # True if check only for existing structures (LC/FC)
-    extra_params: dict[str, Any] = dataclasses.field(
-        default_factory=dict
-    )  # Template-specific params
+    extra_params: dict[str, Any] = dataclasses.field(default_factory=dict)  # Template-specific params
 
 
 @dataclass
@@ -137,9 +131,7 @@ class CalcInput:
 
     # Normative context
     norm_code: str = ""  # e.g., "NTC2018", "RD2229"
-    limit_states_enabled: list[str] = dataclasses.field(
-        default_factory=list
-    )  # e.g., ["SLU", "SLE"]
+    limit_states_enabled: list[str] = dataclasses.field(default_factory=list)  # e.g., ["SLU", "SLE"]
 
     # LC/FC for existing structures (optional)
     lc: str | None = None  # Livello di Conoscenza: "LC1", "LC2", "LC3"
@@ -183,9 +175,7 @@ class CalcOutput:
     element_name: str = ""
     norm_code: str = ""
     ok: bool = False  # Global ok/non-ok (all checks passed)
-    per_template_results: dict[str, SingleCheckResult] = dataclasses.field(
-        default_factory=dict
-    )  # template_id → result
+    per_template_results: dict[str, SingleCheckResult] = dataclasses.field(default_factory=dict)  # template_id → result
     validation_result: ValidationResult | None = None
     summary_metrics: dict[str, float | bool | str] = dataclasses.field(
         default_factory=dict

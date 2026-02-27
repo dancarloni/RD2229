@@ -24,8 +24,8 @@ _SUPPORTED_SECTION_TYPES = {"RECTANGULAR", "RETTANGOLARE", "rectangular", "retta
 
 
 def evaluate_fire_eligibility(
-    project: "ProjectModel",
-    element: "GeometryEntry",
+    project: ProjectModel,
+    element: GeometryEntry,
 ) -> tuple[bool, list[str]]:
     """Valuta se *element* è eleggibile per la verifica al fuoco RC.
 
@@ -82,7 +82,7 @@ def evaluate_fire_eligibility(
     return (len(reasons) == 0, reasons)
 
 
-def _get_cover_mm(project: "ProjectModel", element: "GeometryEntry") -> float | None:
+def _get_cover_mm(project: ProjectModel, element: GeometryEntry) -> float | None:
     """Restituisce il copriferro [mm] per l'elemento (override o default progetto)."""
     if element.fire_override is not None:
         val = element.fire_override.get("cover_mm")
@@ -91,7 +91,7 @@ def _get_cover_mm(project: "ProjectModel", element: "GeometryEntry") -> float | 
     return project.fire.cover_mm_default
 
 
-def _get_exposure_sides(project: "ProjectModel", element: "GeometryEntry") -> int | None:
+def _get_exposure_sides(project: ProjectModel, element: GeometryEntry) -> int | None:
     """Restituisce i lati esposti per l'elemento (override o default progetto)."""
     if element.fire_override is not None:
         val = element.fire_override.get("exposure_sides")

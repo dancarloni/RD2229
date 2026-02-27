@@ -92,9 +92,7 @@ def apply_lc_fc_adjustments(
     f_yk_orig = float(material.f_yk)  # MPa
 
     if f_ck_orig <= 0 or f_yk_orig <= 0:
-        raise ValueError(
-            f"Material properties must be positive: f_ck={f_ck_orig}, f_yk={f_yk_orig}"
-        )
+        raise ValueError(f"Material properties must be positive: f_ck={f_ck_orig}, f_yk={f_yk_orig}")
 
     # Apply FC to reduce material strengths (more conservative for higher FC)
     # NTC 2018 § 8.5.4: f_m = f_m,mean / FC

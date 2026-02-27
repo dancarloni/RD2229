@@ -39,17 +39,17 @@ utili ai report e alla generazione di messaggi di verifica.
 
 """
 
-from typing import Dict, Any, Optional
 import json
-import yaml
 import os
+from typing import Any
 
+import yaml
 
 # ======================================================================
 # REGISTRY PER LE NORMATIVE DISPONIBILI
 # ======================================================================
 
-CODE_REGISTRY: Dict[str, Dict[str, Any]] = {}
+CODE_REGISTRY: dict[str, dict[str, Any]] = {}
 """
 Struttura prevista:
 
@@ -72,7 +72,8 @@ TODO Copilot:
 # FUNZIONI DI BOOTSTRAP
 # ======================================================================
 
-def load_code_params(name: str, path: str) -> Dict[str, Any]:
+
+def load_code_params(name: str, path: str) -> dict[str, Any]:
     """
     Carica i parametri normativi (JSON) per una data normativa.
 
@@ -80,11 +81,11 @@ def load_code_params(name: str, path: str) -> Dict[str, Any]:
     - Validare file esistente.
     - Gestire errori JSON.
     """
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def load_code_clauses(name: str, path: str) -> Dict[str, Any]:
+def load_code_clauses(name: str, path: str) -> dict[str, Any]:
     """
     Carica le clausole normative (YAML) per una normativa.
 
@@ -92,15 +93,11 @@ def load_code_clauses(name: str, path: str) -> Dict[str, Any]:
     - Validare file esistente.
     - Gestire errori YAML.
     """
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
-def register_code(
-    code_name: str,
-    params: Dict[str, Any],
-    clauses: Dict[str, Any]
-) -> None:
+def register_code(code_name: str, params: dict[str, Any], clauses: dict[str, Any]) -> None:
     """
     Registra una normativa nel registry.
 
@@ -113,7 +110,7 @@ def register_code(
     }
 
 
-def get_code(code_name: str) -> Optional[Dict[str, Any]]:
+def get_code(code_name: str) -> dict[str, Any] | None:
     """
     Recupera una normativa dal registry.
     """
@@ -123,6 +120,7 @@ def get_code(code_name: str) -> Optional[Dict[str, Any]]:
 # ======================================================================
 # FUNZIONE DI BOOT GENERALE (stub)
 # ======================================================================
+
 
 def bootstrap_codes(base_path: str) -> None:
     """
@@ -141,8 +139,8 @@ def bootstrap_codes(base_path: str) -> None:
     - Chiamare register_code() per ogni normativa.
     - Logging di caricamento.
     """
-    params_dir = os.path.join(base_path, "params")
-    clauses_dir = os.path.join(base_path, "clauses")
+    os.path.join(base_path, "params")
+    os.path.join(base_path, "clauses")
 
     # TODO: implementazione.
     pass

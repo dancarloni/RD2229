@@ -20,8 +20,9 @@ Utilizzo::
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +31,8 @@ logger = logging.getLogger(__name__)
 class NormRef:
     """Riferimento normativo a una clausola di una fonte."""
 
-    source_id: str    # ID da docs/normative/sources.yaml
-    clause: str       # es. "§3.3.1", "Table 5.4"
+    source_id: str  # ID da docs/normative/sources.yaml
+    clause: str  # es. "§3.3.1", "Table 5.4"
     description: str = ""
 
 
@@ -96,10 +97,7 @@ class CheckRegistry:
         Args:
             source_id: ID della fonte normativa (es. ``"RD2229"``, ``"NTC2018"``).
         """
-        return [
-            c for c in self._checks.values()
-            if any(ref.source_id == source_id for ref in c.norm_refs)
-        ]
+        return [c for c in self._checks.values() if any(ref.source_id == source_id for ref in c.norm_refs)]
 
     def coverage_for_norm(self, source_id: str) -> dict[str, Any]:
         """Calcola la copertura (percentuale check implementati) per una norma.
@@ -142,171 +140,214 @@ class CheckRegistry:
 # Check specs built-in (RD2229, DM96, NTC2018 seed)
 # ---------------------------------------------------------------------------
 
+
 def _build_default_registry() -> CheckRegistry:
     """Costruisce la registry di default con i check esistenti nel sistema."""
     reg = CheckRegistry()
 
     # --- RD2229 ---
-    reg.register(CheckSpec(
-        id="rd2229.ta_flessione",
-        title="Tensioni Ammissibili – Flessione (RD2229)",
-        norm_refs=[NormRef(
-            source_id="RD2229",
-            clause="Art. 7",
-            description="Verifica a flessione con metodo delle tensioni ammissibili",
-        )],
-        input_schema={"width": "float", "height": "float", "Mx": "float"},
-        tags=["RC", "TA", "flessione"],
-        # compute: delegato a normative_registry; marker implemented
-        compute=lambda _: {},
-    ))
+    reg.register(
+        CheckSpec(
+            id="rd2229.ta_flessione",
+            title="Tensioni Ammissibili – Flessione (RD2229)",
+            norm_refs=[
+                NormRef(
+                    source_id="RD2229",
+                    clause="Art. 7",
+                    description="Verifica a flessione con metodo delle tensioni ammissibili",
+                )
+            ],
+            input_schema={"width": "float", "height": "float", "Mx": "float"},
+            tags=["RC", "TA", "flessione"],
+            # compute: delegato a normative_registry; marker implemented
+            compute=lambda _: {},
+        )
+    )
 
-    reg.register(CheckSpec(
-        id="rd2229.ta_pressoflessione",
-        title="Tensioni Ammissibili – Pressoflessione (RD2229)",
-        norm_refs=[NormRef(
-            source_id="RD2229",
-            clause="Art. 7-8",
-            description="Verifica a pressoflessione con metodo delle tensioni ammissibili",
-        )],
-        input_schema={"width": "float", "height": "float", "N": "float", "Mx": "float"},
-        tags=["RC", "TA", "pressoflessione"],
-        compute=lambda _: {},
-    ))
+    reg.register(
+        CheckSpec(
+            id="rd2229.ta_pressoflessione",
+            title="Tensioni Ammissibili – Pressoflessione (RD2229)",
+            norm_refs=[
+                NormRef(
+                    source_id="RD2229",
+                    clause="Art. 7-8",
+                    description="Verifica a pressoflessione con metodo delle tensioni ammissibili",
+                )
+            ],
+            input_schema={"width": "float", "height": "float", "N": "float", "Mx": "float"},
+            tags=["RC", "TA", "pressoflessione"],
+            compute=lambda _: {},
+        )
+    )
 
-    reg.register(CheckSpec(
-        id="rd2229.ta_taglio",
-        title="Tensioni Ammissibili – Taglio (RD2229)",
-        norm_refs=[NormRef(
-            source_id="RD2229",
-            clause="Art. 9",
-            description="Verifica a taglio con metodo delle tensioni ammissibili",
-        )],
-        input_schema={"width": "float", "height": "float", "Tx": "float"},
-        tags=["RC", "TA", "taglio"],
-        compute=lambda _: {},
-    ))
+    reg.register(
+        CheckSpec(
+            id="rd2229.ta_taglio",
+            title="Tensioni Ammissibili – Taglio (RD2229)",
+            norm_refs=[
+                NormRef(
+                    source_id="RD2229",
+                    clause="Art. 9",
+                    description="Verifica a taglio con metodo delle tensioni ammissibili",
+                )
+            ],
+            input_schema={"width": "float", "height": "float", "Tx": "float"},
+            tags=["RC", "TA", "taglio"],
+            compute=lambda _: {},
+        )
+    )
 
     # --- DM 96 ---
-    reg.register(CheckSpec(
-        id="dm96.slu_flessione",
-        title="SLU – Flessione (DM 09/01/1996)",
-        norm_refs=[NormRef(
-            source_id="DM96",
-            clause="§2.3",
-            description="Verifica allo stato limite ultimo di flessione per sezioni RC",
-        )],
-        input_schema={"width": "float", "height": "float", "Mx": "float", "f_ck": "float"},
-        tags=["RC", "SLU", "flessione"],
-        compute=lambda _: {},
-    ))
+    reg.register(
+        CheckSpec(
+            id="dm96.slu_flessione",
+            title="SLU – Flessione (DM 09/01/1996)",
+            norm_refs=[
+                NormRef(
+                    source_id="DM96",
+                    clause="§2.3",
+                    description="Verifica allo stato limite ultimo di flessione per sezioni RC",
+                )
+            ],
+            input_schema={"width": "float", "height": "float", "Mx": "float", "f_ck": "float"},
+            tags=["RC", "SLU", "flessione"],
+            compute=lambda _: {},
+        )
+    )
 
-    reg.register(CheckSpec(
-        id="dm96.slu_pressoflessione",
-        title="SLU – Pressoflessione (DM 09/01/1996)",
-        norm_refs=[NormRef(
-            source_id="DM96",
-            clause="§2.4",
-            description="Verifica allo stato limite ultimo di pressoflessione",
-        )],
-        input_schema={"width": "float", "height": "float", "N": "float", "Mx": "float", "f_ck": "float"},
-        tags=["RC", "SLU", "pressoflessione"],
-        compute=lambda _: {},
-    ))
+    reg.register(
+        CheckSpec(
+            id="dm96.slu_pressoflessione",
+            title="SLU – Pressoflessione (DM 09/01/1996)",
+            norm_refs=[
+                NormRef(
+                    source_id="DM96",
+                    clause="§2.4",
+                    description="Verifica allo stato limite ultimo di pressoflessione",
+                )
+            ],
+            input_schema={"width": "float", "height": "float", "N": "float", "Mx": "float", "f_ck": "float"},
+            tags=["RC", "SLU", "pressoflessione"],
+            compute=lambda _: {},
+        )
+    )
 
     # --- NTC2018 ---
-    reg.register(CheckSpec(
-        id="ntc2018.slu_flessione",
-        title="SLU – Flessione (NTC 2018)",
-        norm_refs=[NormRef(
-            source_id="NTC2018",
-            clause="§4.1.2",
-            description="Verifica SLU di flessione per sezioni in c.a.",
-        )],
-        input_schema={"width": "float", "height": "float", "Mx": "float", "f_ck": "float", "f_yk": "float"},
-        tags=["RC", "SLU", "NTC2018", "flessione"],
-        compute=lambda _: {},
-    ))
+    reg.register(
+        CheckSpec(
+            id="ntc2018.slu_flessione",
+            title="SLU – Flessione (NTC 2018)",
+            norm_refs=[
+                NormRef(
+                    source_id="NTC2018",
+                    clause="§4.1.2",
+                    description="Verifica SLU di flessione per sezioni in c.a.",
+                )
+            ],
+            input_schema={"width": "float", "height": "float", "Mx": "float", "f_ck": "float", "f_yk": "float"},
+            tags=["RC", "SLU", "NTC2018", "flessione"],
+            compute=lambda _: {},
+        )
+    )
 
-    reg.register(CheckSpec(
-        id="ntc2018.sle_deformazione",
-        title="SLE – Deformazione (NTC 2018)",
-        norm_refs=[NormRef(
-            source_id="NTC2018",
-            clause="§4.1.4",
-            description="Verifica SLE di deformazione",
-        )],
-        input_schema={"width": "float", "height": "float", "Mx": "float"},
-        tags=["RC", "SLE", "NTC2018"],
-        compute=None,  # TODO: implementare
-    ))
+    reg.register(
+        CheckSpec(
+            id="ntc2018.sle_deformazione",
+            title="SLE – Deformazione (NTC 2018)",
+            norm_refs=[
+                NormRef(
+                    source_id="NTC2018",
+                    clause="§4.1.4",
+                    description="Verifica SLE di deformazione",
+                )
+            ],
+            input_schema={"width": "float", "height": "float", "Mx": "float"},
+            tags=["RC", "SLE", "NTC2018"],
+            compute=None,  # TODO: implementare
+        )
+    )
 
-    reg.register(CheckSpec(
-        id="ntc2018.sle_fessurazione",
-        title="SLE – Fessurazione (NTC 2018)",
-        norm_refs=[NormRef(
-            source_id="NTC2018",
-            clause="§4.1.4.2",
-            description="Verifica SLE di fessurazione",
-        )],
-        input_schema={"width": "float", "height": "float", "Mx": "float"},
-        tags=["RC", "SLE", "NTC2018"],
-        compute=None,  # TODO: implementare
-    ))
+    reg.register(
+        CheckSpec(
+            id="ntc2018.sle_fessurazione",
+            title="SLE – Fessurazione (NTC 2018)",
+            norm_refs=[
+                NormRef(
+                    source_id="NTC2018",
+                    clause="§4.1.4.2",
+                    description="Verifica SLE di fessurazione",
+                )
+            ],
+            input_schema={"width": "float", "height": "float", "Mx": "float"},
+            tags=["RC", "SLE", "NTC2018"],
+            compute=None,  # TODO: implementare
+        )
+    )
 
     # --- Fire ---
-    reg.register(CheckSpec(
-        id="fire.rc_tabellare",
-        title="Verifica RC al fuoco – metodo tabellare (ISO 834)",
-        norm_refs=[
-            NormRef(
-                source_id="ISO834",
-                clause="§1",
-                description="Curva di incendio standard ISO 834-1",
-            ),
-            NormRef(
-                source_id="NTC2018",
-                clause="§3.6.1",
-                description="Azioni di incendio – requisiti prestazionali",
-            ),
-        ],
-        input_schema={
-            "width": "float",
-            "height": "float",
-            "cover_mm": "float",
-            "exposure_sides": "int",
-            "required_rating_minutes": "int",
-        },
-        tags=["RC", "fire", "tabellare"],
-        compute=lambda _: {},
-    ))
+    reg.register(
+        CheckSpec(
+            id="fire.rc_tabellare",
+            title="Verifica RC al fuoco – metodo tabellare (ISO 834)",
+            norm_refs=[
+                NormRef(
+                    source_id="ISO834",
+                    clause="§1",
+                    description="Curva di incendio standard ISO 834-1",
+                ),
+                NormRef(
+                    source_id="NTC2018",
+                    clause="§3.6.1",
+                    description="Azioni di incendio – requisiti prestazionali",
+                ),
+            ],
+            input_schema={
+                "width": "float",
+                "height": "float",
+                "cover_mm": "float",
+                "exposure_sides": "int",
+                "required_rating_minutes": "int",
+            },
+            tags=["RC", "fire", "tabellare"],
+            compute=lambda _: {},
+        )
+    )
 
     # --- Wind (TODO) ---
-    reg.register(CheckSpec(
-        id="wind.ntc2018.pressione_vento",
-        title="Pressione del vento (NTC 2018 §3.3)",
-        norm_refs=[NormRef(
-            source_id="NTC2018",
-            clause="§3.3",
-            description="Azioni del vento: velocità di riferimento, pressione cinetica, coefficienti",
-        )],
-        input_schema={"altitudine_m": "float", "categoria_terreno": "str", "altezza_m": "float"},
-        tags=["wind", "NTC2018"],
-        compute=lambda _: {},
-    ))
+    reg.register(
+        CheckSpec(
+            id="wind.ntc2018.pressione_vento",
+            title="Pressione del vento (NTC 2018 §3.3)",
+            norm_refs=[
+                NormRef(
+                    source_id="NTC2018",
+                    clause="§3.3",
+                    description="Azioni del vento: velocità di riferimento, pressione cinetica, coefficienti",
+                )
+            ],
+            input_schema={"altitudine_m": "float", "categoria_terreno": "str", "altezza_m": "float"},
+            tags=["wind", "NTC2018"],
+            compute=lambda _: {},
+        )
+    )
 
-    reg.register(CheckSpec(
-        id="wind.en1991_1_4.wind_actions",
-        title="Wind actions (EN 1991-1-4)",
-        norm_refs=[NormRef(
-            source_id="EN1991_1_4",
-            clause="§4",
-            description="Wind velocity and velocity pressure",
-        )],
-        input_schema={"z": "float", "terrain_category": "str"},
-        tags=["wind", "EN1991"],
-        compute=None,  # TODO: implementare
-    ))
+    reg.register(
+        CheckSpec(
+            id="wind.en1991_1_4.wind_actions",
+            title="Wind actions (EN 1991-1-4)",
+            norm_refs=[
+                NormRef(
+                    source_id="EN1991_1_4",
+                    clause="§4",
+                    description="Wind velocity and velocity pressure",
+                )
+            ],
+            input_schema={"z": "float", "terrain_category": "str"},
+            tags=["wind", "EN1991"],
+            compute=None,  # TODO: implementare
+        )
+    )
 
     return reg
 

@@ -19,12 +19,12 @@ Questo file è STUB S2:
 - Nessuna implementazione reale
 """
 
-from typing import Dict, Any
-import json
 import csv
+import json
+from typing import Any
 
 
-def export_to_json(data: Dict[str, Any], path: str) -> None:
+def export_to_json(data: dict[str, Any], path: str) -> None:
     """
     Esporta i risultati in JSON.
 
@@ -36,7 +36,7 @@ def export_to_json(data: Dict[str, Any], path: str) -> None:
         json.dump(data, f, indent=2)
 
 
-def export_to_csv(data: Dict[str, Any], path: str) -> None:
+def export_to_csv(data: dict[str, Any], path: str) -> None:
     """
     Esporta i risultati in CSV.
 
