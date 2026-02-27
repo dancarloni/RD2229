@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSollecitazSLU 
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSollecitazSLU
    Caption         =   "CARATTERISTICHE DI SOLLECITAZIONE AGENTI SULLA SEZIONE"
    ClientHeight    =   5610
    ClientLeft      =   84
@@ -108,4 +108,3 @@ ElseIf FormSez = "Circolare piena o cava" Then
     txtTy.Enabled = False
 End If
 End Sub
-

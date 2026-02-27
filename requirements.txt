@@ -2,3 +2,4 @@
 # (Aggiungere librerie GUI in seguito: PyQt6, PySide6, ecc.)
 pandas
 matplotlib
+shapely

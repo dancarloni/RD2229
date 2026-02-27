@@ -1,0 +1,13 @@
+{
+  "code_name": "SECONDARY_ELEMENTS",
+  "description": "Configuration for secondary elements module (STEP2 minimal)",
+  "checks": [
+    "NS_SLU_InertialForce",
+    "NS_SLE_DriftCompatibility"
+  ],
+  "policy": {
+    "drift_method_default": "SHEAR_BUILDING_PROXY",
+    "allow_estimated_drift": true,
+    "block_if_influence_on_global_model": true
+  }
+}

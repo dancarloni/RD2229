@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\src\codes\ntc2018\spectrum_paste_service.py
-# hypothesis_version: 6.151.9
-
-['(?<=\\d),(?=\\d)', '.', 'Danno', 'EDILUS_MS', 'ERROR', 'OK', 'Operatività', 'Prevenzione Collasso', 'Salvaguardia Vita', 'WARNING', '[-+]?\\d+\\.?\\d*', '\\s+']

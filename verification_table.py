@@ -4,8 +4,7 @@ import math
 import logging
 import tkinter as tk
 from dataclasses import dataclass, InitVar
-from tkinter import ttk, filedialog
-from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
+from tkinter import messagebox, ttk, filedialog
 from typing import Dict, Iterable, List, Optional, Tuple
 import random
 
@@ -46,15 +45,6 @@ try:
 except Exception:
     VerificationProject = None
 
-try:
-    from core.verification_engine import create_verification_engine
-    from core.verification_core import SectionGeometry, ReinforcementLayer, LoadCase
-except Exception:  # pragma: no cover - optional engine
-    create_verification_engine = None  # type: ignore
-    SectionGeometry = None  # type: ignore
-    ReinforcementLayer = None  # type: ignore
-    LoadCase = None  # type: ignore
-
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +55,6 @@ MPA_TO_KGCM2 = 10.197
 
 @dataclass
 class VerificationInput:
-    element_name: str = ""
     section_id: str = ""
     verification_method: str = "TA"
     material_concrete: str = ""
@@ -86,23 +75,23 @@ class VerificationInput:
     stirrup_diameter: float = 0.0
     stirrup_material: str = ""
     notes: str = ""
-    # Legacy InitVars to accept old keywords M and T in constructor
-    M_legacy: InitVar[Optional[float]] = None
-    T_legacy: InitVar[Optional[float]] = None
+    # Legacy Init vars to accept old keywords M and T in constructor
+    M: InitVar[Optional[float]] = None
+    T: InitVar[Optional[float]] = None
 
-    def __post_init__(self, M_legacy: Optional[float], T_legacy: Optional[float]) -> None:
+    def __post_init__(self, M: Optional[float], T: Optional[float]) -> None:
         # Map legacy init kwargs to new internal fields for backward compatibility
-        if M_legacy is not None:
+        if M is not None:
             try:
-                self.Mx = M_legacy
+                self.Mx = M
             except Exception:
                 # If Mx is a descriptor/property at class-level, force instance attribute
-                self.__dict__['Mx'] = M_legacy
-        if T_legacy is not None:
+                self.__dict__['Mx'] = M
+        if T is not None:
             try:
-                self.Ty = T_legacy
+                self.Ty = T
             except Exception:
-                self.__dict__['Ty'] = T_legacy
+                self.__dict__['Ty'] = T
 
         # Ensure numeric fields exist as instance attributes (avoid unexpected property objects)
         for field_name in ("Mx", "My", "Mz", "Tx", "Ty", "At", "As_sup", "As_inf"):
@@ -295,74 +284,6 @@ def get_steel_properties(
     return fyk_mpa, fyk_kgcm2, sigma_fa
 
 
-def _compute_with_engine(
-    _input: VerificationInput,
-    section_repository: Optional["SectionRepository"],
-    material_repository: Optional["MaterialRepository"],
-) -> Optional[VerificationOutput]:
-    if create_verification_engine is None or SectionGeometry is None:
-        return None
-
-    try:
-        b_cm, h_cm = get_section_geometry(_input, section_repository, unit="cm")
-        fck_mpa, fck_kgcm2, _sigma_ca = get_concrete_properties(_input, material_repository)
-        fyk_mpa, fyk_kgcm2, _sigma_fa = get_steel_properties(_input, material_repository)
-
-        section = SectionGeometry(width=b_cm, height=h_cm)
-        d_top = _input.d_sup if _input.d_sup > 0 else 4.0
-        d_bottom = _input.d_inf if _input.d_inf > 0 else 4.0
-        reinforcement_compressed = ReinforcementLayer(area=_input.As_sup, distance=d_top)
-        reinforcement_tensile = ReinforcementLayer(area=_input.As_inf, distance=h_cm - d_bottom)
-
-        loads = LoadCase(
-            N=_input.N,
-            Mx=_input.Mx,
-            My=_input.My,
-            Mz=_input.Mz,
-            Tx=_input.Tx,
-            Ty=_input.Ty,
-            At=_input.At,
-        )
-
-        code = (_input.verification_method or "TA").upper()
-        engine = create_verification_engine(code)
-        material = engine.get_material_properties(
-            _input.material_concrete or "",
-            _input.material_steel or "",
-            material_source="RD2229" if code == "TA" else "NTC2018",
-        )
-        # Override with repository-derived strengths when available
-        if fck_kgcm2 > 0:
-            material.fck = fck_kgcm2
-        if fyk_kgcm2 > 0:
-            material.fyk = fyk_kgcm2
-
-        result = engine.perform_verification(
-            section=section,
-            reinforcement_tensile=reinforcement_tensile,
-            reinforcement_compressed=reinforcement_compressed,
-            material=material,
-            loads=loads,
-        )
-
-        return VerificationOutput(
-            sigma_c_max=result.stress_state.sigma_c_max,
-            sigma_c_min=result.stress_state.sigma_c_min,
-            sigma_s_max=result.stress_state.sigma_s_tensile,
-            asse_neutro=result.neutral_axis.x,
-            asse_neutro_x=result.neutral_axis.x,
-            asse_neutro_y=result.neutral_axis.y,
-            inclinazione_asse_neutro=result.neutral_axis.inclination,
-            deformazioni=f"x/h = {result.neutral_axis.depth_ratio(h_cm):.3f}",
-            coeff_sicurezza=max(result.utilization_concrete, result.utilization_steel),
-            esito="VERIFICATO" if result.is_verified else "NON VERIFICATO",
-            messaggi=result.messages,
-        )
-    except Exception:
-        logger.exception("Errore durante il calcolo via core engine")
-        return None
-
-
 def compute_ta_verification(
     _input: VerificationInput,
     section_repository: Optional["SectionRepository"] = None,
@@ -391,10 +312,9 @@ def compute_ta_verification(
         # 1. RECUPERO PARAMETRI DA INPUT
         # Sollecitazioni (convertire M in kg·cm)
         N = _input.N  # kg (>0 trazione, <0 compressione)
-        primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
-        M_kgm = primary_m  # kg·m
+        M_kgm = _input.M  # kg·m
         M = M_kgm * 100  # kg·cm (momento flettente)
-        T = _input.Ty  # kg (taglio, non usato per verifica a flessione)
+        T = _input.T  # kg (taglio, non usato per verifica a flessione)
 
         # Coefficiente omogeneizzazione
         n = _input.n_homog if _input.n_homog > 0 else 15.0  # default
@@ -504,7 +424,7 @@ def compute_ta_verification(
             f"  Armatura inferiore As = {As_inf:.2f} cm²",
             f"  Armatura superiore As' = {As_sup:.2f} cm²",
             f"  Coefficiente omogeneizzazione n = {n:.1f}",
-            f"  Sollecitazioni: N = {N:.0f} kg, Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
+            f"  Sollecitazioni: N = {N:.0f} kg, M = {M_kgm:.2f} kg·m ({M:.0f} kg·cm)",
             "",
             "TENSIONI AMMISSIBILI:",
             f"  Calcestruzzo σ_ca = {sigma_ca:.1f} Kg/cm²",
@@ -576,9 +496,8 @@ def compute_slu_verification(
         # Sollecitazioni (NTC usa kN e kNm, ma input è in kg e kg·m)
         # Conversione: 1 kg = 0.00980665 kN ≈ 0.01 kN (approssimazione)
         N_kg = _input.N  # kg
-        primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
-        M_kgm = primary_m  # kg·m
-        T_kg = _input.Ty  # kg
+        M_kgm = _input.M  # kg·m
+        T_kg = _input.T  # kg
 
         # Convertire in N e Nmm per calcoli interni (più comodo)
         N = N_kg * 9.80665  # N
@@ -668,7 +587,7 @@ def compute_slu_verification(
             f"  Dimensioni: B = {B/10:.1f} cm, H = {H/10:.1f} cm, d = {d/10:.1f} cm",
             f"  Armatura inferiore As = {As_inf/100:.2f} cm²",
             f"  Armatura superiore As' = {As_sup/100:.2f} cm²",
-            f"  Sollecitazioni: N = {N_kg:.0f} kg, Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
+            f"  Sollecitazioni: N = {N_kg:.0f} kg, M = {M_kgm:.2f} kg·m",
             "",
             "RESISTENZE MATERIALI:",
             f"  Calcestruzzo fck = {fck:.0f} MPa → fcd = {fcd:.1f} MPa ({fcd_kgcm2:.1f} Kg/cm²)",
@@ -737,8 +656,7 @@ def compute_sle_verification(
     try:
         # 1. RECUPERO PARAMETRI
         N_kg = _input.N  # kg
-        primary_m = _input.Mx if abs(_input.Mx) >= abs(_input.My) else _input.My
-        M_kgm = primary_m  # kg·m
+        M_kgm = _input.M  # kg·m
         M = M_kgm * 100  # kg·cm
 
         n = _input.n_homog if _input.n_homog > 0 else 15.0
@@ -834,7 +752,7 @@ def compute_sle_verification(
             f"  Dimensioni: B = {B:.1f} cm, H = {H:.1f} cm, d = {d:.1f} cm",
             f"  Armatura inferiore As = {As_inf:.2f} cm²",
             f"  Coeff. omogeneizzazione n = {n:.1f}",
-            f"  Sollecitazioni: Mx = {_input.Mx:.2f} kg·m, My = {_input.My:.2f} kg·m, Mz = {_input.Mz:.2f} kg·m",
+            f"  Sollecitazioni: M = {M_kgm:.2f} kg·m",
             "",
             "LIMITI TENSIONI SLE:",
             f"  Cls σ_c,lim = 0.6·fck = {sigma_c_lim:.1f} Kg/cm²",
@@ -916,11 +834,6 @@ def compute_verification_result(
     """
     method = (_input.verification_method or "").upper().strip()
 
-    if method in ("TA", "SLU", "SLE"):
-        engine_result = _compute_with_engine(_input, section_repository, material_repository)
-        if engine_result is not None:
-            return engine_result
-
     if method == "TA":
         return compute_ta_verification(_input, section_repository, material_repository)
     elif method == "SLU":
@@ -947,19 +860,14 @@ def compute_verification_result(
 
 
 COLUMNS: List[ColumnDef] = [
-    ("element", "Elemento", 160, "w"),
     ("section", "Sezione", 170, "w"),
     ("verif_method", "Metodo verifica", 120, "center"),
     ("mat_concrete", "Materiale cls", 140, "w"),
     ("mat_steel", "Materiale acciaio", 140, "w"),
     ("n", "Coeff. n", 75, "center"),
     ("N", "N [kg]", 80, "center"),
-    ("Mx", "Mx [kg·m]", 90, "center"),
-    ("My", "My [kg·m]", 90, "center"),
-    ("Mz", "Mz [kg·m]", 90, "center"),
-    ("Tx", "Tx [kg]", 80, "center"),
-    ("Ty", "Ty [kg]", 80, "center"),
-    ("At", "At [cm²]", 80, "center"),
+    ("M", "M [kg·m]", 90, "center"),
+    ("T", "T [kg]", 80, "center"),
     ("As_p", "As' [cm²]", 90, "center"),
     ("As", "As [cm²]", 90, "center"),
     ("d_p", "d' [cm]", 80, "center"),
@@ -1065,19 +973,14 @@ class VerificationTableApp(tk.Frame):
                 return 0.0
 
         return VerificationInput(
-            element_name=get("element"),
             section_id=get("section"),
             verification_method=get("verif_method"),
             material_concrete=get("mat_concrete"),
             material_steel=get("mat_steel"),
             n_homog=num("n"),
             N=num("N"),
-            Mx=num("Mx"),
-            My=num("My"),
-            Mz=num("Mz"),
-            Tx=num("Tx"),
-            Ty=num("Ty"),
-            At=num("At"),
+            M=num("M"),
+            T=num("T"),
             As_sup=num("As"),
             As_inf=num("As_p"),
             d_sup=num("d"),
@@ -1093,19 +996,14 @@ class VerificationTableApp(tk.Frame):
             raise IndexError("row_index out of range")
         item = items[row_index]
         values_map = {
-            "element": model.element_name,
             "section": model.section_id,
             "verif_method": model.verification_method,
             "mat_concrete": model.material_concrete,
             "mat_steel": model.material_steel,
             "n": model.n_homog,
             "N": model.N,
-            "Mx": model.Mx,
-            "My": model.My,
-            "Mz": model.Mz,
-            "Tx": model.Tx,
-            "Ty": model.Ty,
-            "At": model.At,
+            "M": model.M,
+            "T": model.T,
             "As": model.As_sup,
             "As_p": model.As_inf,
             "d": model.d_sup,
@@ -1129,7 +1027,6 @@ class VerificationTableApp(tk.Frame):
         tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6,0))
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
-        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(side="left", padx=(6,0))
         tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
         # Pulsanti per import/export CSV
         tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
@@ -1308,28 +1205,6 @@ class VerificationTableApp(tk.Frame):
                     editor.insert(0, initial_text)
                 editor.select_range(0, tk.END)
                 editor.focus_set()
-                # Show suggestions when the entry receives focus (fix race on click)
-                if col in {"section", "mat_concrete", "mat_steel", "stirrups_mat"}:
-                    def _focus_show_all(_e=None):
-                            try:
-                                # Mark that a real FocusIn event occurred.
-                                self._focus_in_seen = True
-                            except Exception:
-                                pass
-                            try:
-                                self._force_show_all_on_empty = True
-                            except Exception:
-                                pass
-                            try:
-                                self._update_suggestions()
-                            except Exception:
-                                pass
-                            try:
-                                # schedule a short retry to handle geometry races
-                                self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
-                            except Exception:
-                                pass
-                    editor.bind("<FocusIn>", _focus_show_all)
                 # Bind eventi comuni
                 editor.bind("<Return>", self._on_entry_commit_down)
                 editor.bind("<Shift-Return>", self._on_entry_commit_up)
@@ -1356,30 +1231,7 @@ class VerificationTableApp(tk.Frame):
             except Exception:
                 pass
             editor.focus_set()
-            # Show suggestions when the entry receives focus (fix race on click)
-            if col in {"section", "mat_concrete", "mat_steel", "stirrups_mat"}:
-                def _focus_show_all(_e=None):
-                    try:
-                        self._force_show_all_on_empty = True
-                    except Exception:
-                        pass
-                    try:
-                        self._update_suggestions()
-                    except Exception:
-                        pass
-                    try:
-                        # schedule a short retry to handle geometry races
-                        self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
-                    except Exception:
-                        pass
-                editor.bind("<FocusIn>", _focus_show_all)
-                try:
-                    # Trigger synthetic focus event for Combobox which sometimes
-                    # needs an explicit event to open dropdowns on some platforms.
-                    editor.event_generate("<FocusIn>")
-                except Exception:
-                    # Ignore errors generating synthetic FocusIn event; not all platforms support it.
-                    pass
+            # Monkeypatch Combobox.set to record the last value set programmatically.
             # This helps tests that use cb.set('...') and expect the value to be
             # available synchronously at commit time.
             try:
@@ -1402,25 +1254,6 @@ class VerificationTableApp(tk.Frame):
                 editor.insert(0, initial_text)
             editor.select_range(0, tk.END)
             editor.focus_set()
-            if col in {"section", "mat_concrete", "mat_steel", "stirrups_mat"}:
-                def _focus_show_all_entry(_e=None):
-                    try:
-                        self._focus_in_seen = True
-                    except Exception:
-                        pass
-                    try:
-                        self._force_show_all_on_empty = True
-                    except Exception:
-                        pass
-                    try:
-                        self._update_suggestions()
-                    except Exception:
-                        pass
-                    try:
-                        self.after(10, lambda: (setattr(self, "_force_show_all_on_empty", True), self._update_suggestions()))
-                    except Exception:
-                        pass
-                editor.bind("<FocusIn>", _focus_show_all_entry)
 
         # Bind eventi comuni
         editor.bind("<Return>", self._on_entry_commit_down)
@@ -1529,9 +1362,8 @@ class VerificationTableApp(tk.Frame):
             # Indica che la successiva chiamata a `_update_suggestions` può
             # mostrare l'elenco completo anche se l'entry è vuota.
             self._force_show_all_on_empty = True
-            # Start editing immediately (avoids idle timing races in tests/on Windows)
-            self._start_edit(item, col)
-            # Also schedule an additional short delayed update to handle geometry races
+            # Start editing and then show suggestions after a brief delay
+            self.after_idle(lambda: self._start_edit(item, col))
             self.after(10, self._update_suggestions)
 
     def _on_tree_double_click(self, event: tk.Event) -> None:
@@ -1657,71 +1489,13 @@ class VerificationTableApp(tk.Frame):
         # Crea l'editor (Entry o Combobox) in modo centralizzato
         self.edit_entry = self._create_editor_for_cell(item, col, value, (x, y, width, height), initial_text=initial_text)
 
-
-        # Schedule an immediate synthetic FocusIn which will set the force
-        # flag and trigger an update via the bound handler. This avoids
-        # synchronous show-all semantics that can confuse tests and user
-        # actions (e.g. immediate deletion after opening the editor).
-        try:
-            # Schedule a small check to set the show-all flag only if the
-            # editor actually has focus. This avoids setting the flag for
-            # programmatic edits where callers immediately mutate the entry
-            # (e.g. delete) and expect no suggestions to appear.
-            def _maybe_focus():
-                try:
-                    ed = getattr(self, 'edit_entry', None)
-                    if ed is None:
-                        return
-                    try:
-                        focused = (ed == ed.focus_get())
-                    except Exception:
-                        focused = False
-                    if focused:
-                        try:
-                            self._force_show_all_on_empty = True
-                        except Exception:
-                            pass
-                    try:
-                        ed.event_generate("<FocusIn>")
-                    except Exception:
-                        pass
-                except Exception:
-                    pass
-            self.after(1, _maybe_focus)
-        except Exception:
-            pass
-
-        # An additional slightly later attempt which triggers a synthetic
-        # FocusIn on the editor for widgets like ttk.Combobox that may need
-        # more time to settle on some platforms; also performs an extra
-        # suggestions update as a safety retry.
-        def _late_trigger():
-            try:
-                if getattr(self, 'edit_entry', None) is not None and self.edit_column in {"mat_concrete", "mat_steel", "stirrups_mat", "section"}:
-                    try:
-                        self.edit_entry.event_generate("<FocusIn>")
-                    except Exception:
-                        # Ignore event generation errors; editor widget may not be ready.
-                        pass
-                    try:
-                        self._update_suggestions()
-                    except Exception:
-                        # Ignore suggestion update errors in deferred trigger.
-                        pass
-            except Exception:
-                # Ignore errors in late focus trigger; widget may have been destroyed.
-                pass
-        self.after(50, _late_trigger)
-        # As a pragmatic stability measure for tests and fast UI flows,
-        # schedule a short suggestion update so that suggestion sources are
-        # populated even if event ordering varies across platforms.
-        try:
-            # Trigger an immediate update to populate suggestion sources
-            # so tests and fast UI flows can observe the list without
-            # depending on asynchronous FocusIn ordering.
-            self._update_suggestions()
-        except Exception:
-            pass
+        # Se lo start è esplicito (programma o click), consentiamo alla prima
+        # chiamata a `_update_suggestions` di mostrare l'elenco completo se
+        # l'entry è vuota. Questo viene resettato immediatamente dopo la chiamata
+        # per evitare effetti collaterali sulle successive modifiche.
+        self._force_show_all_on_empty = True
+        self._update_suggestions()
+        self._force_show_all_on_empty = False
 
     def _commit_edit(self) -> None:
         if self.edit_entry is None or self.edit_item is None or self.edit_column is None:
@@ -1881,14 +1655,6 @@ class VerificationTableApp(tk.Frame):
         if self.edit_entry is None or self.edit_column is None:
             return
         source = self.suggestions_map.get(self.edit_column)
-        # DEBUG: inspect source and current value
-        # Diagnostic logging is handled via the configured logger; avoid
-        # printing directly to stdout which can destabilize tests.
-        try:
-            logger.debug("_update_suggestions source for %s -> %s", self.edit_column, source)
-            logger.debug("current entry text -> %s", self.edit_entry.get())
-        except Exception:
-            logger.debug("_update_suggestions: could not read source or entry", exc_info=True)
         if not source:
             self._hide_suggestions()
             return
@@ -1905,65 +1671,18 @@ class VerificationTableApp(tk.Frame):
                 # We only show the full suggestion list on empty query when the edit
                 # was explicitly opened (e.g. by clicking the cell). This avoids
                 # displaying suggestions when the user types and then deletes input.
-                show_all_flag = (
-                    getattr(self, "_force_show_all_on_empty", False)
-                    and getattr(self, "_focus_in_seen", False)
-                    and (self.edit_column in show_all_on_empty)
-                )
-                logger.debug('show_all_flag=%s (force=%s focus_seen=%s)',
-                             show_all_flag,
-                             getattr(self, "_force_show_all_on_empty", False),
-                             getattr(self, "_focus_in_seen", False))
-                # reset flags regardless
-                try:
-                    self._force_show_all_on_empty = False
-                except Exception:
-                    pass
-                try:
-                    self._focus_in_seen = False
-                except Exception:
-                    pass
+                show_all_flag = getattr(self, "_force_show_all_on_empty", False) and (self.edit_column in show_all_on_empty)
+                # reset flag regardless
+                self._force_show_all_on_empty = False
                 if not show_all_flag:
-                    # Preserve old behavior: hide suggestions for empty query.
-                    # We only keep an existing populated list when we are handling
-                    # a geometry retry for a previous show-all request. Additionally
-                    # allow a short grace period immediately after a show-all
-                    # population to avoid races where a subsequent quick update
-                    # would hide the list prematurely.
-                    if getattr(self, "_suggest_retry_scheduled", False) and getattr(self, "_last_populated_show_all", False):
-                        if self._suggest_list is None or self._suggest_list.size() == 0:
-                            self._hide_suggestions()
-                            self._last_populated_show_all = False
-                            return
-                    else:
-                        # small grace window (50 ms)
-                        try:
-                            import time as _time
-                            last = getattr(self, "_last_populated_show_all_time", 0)
-                            if getattr(self, "_last_populated_show_all", False) and (_time.time() - last) < 0.05:
-                                # keep the populated list for this short window
-                                pass
-                            else:
-                                self._hide_suggestions()
-                                self._last_populated_show_all = False
-                                return
-                        except Exception:
-                            self._hide_suggestions()
-                            self._last_populated_show_all = False
-                            return
+                    # Preserve old behavior: hide suggestions for empty query
+                    self._hide_suggestions()
+                    return
                 # For the allowed columns when explicitly requested, request full list
                 if callable(source):
                     filtered = source("")
                 else:
                     filtered = list(source)
-                # Mark that we populated the list as a result of a show-all
-                # request so we can keep it briefly through geometry races.
-                self._last_populated_show_all = True
-                try:
-                    import time as _time
-                    self._last_populated_show_all_time = _time.time()
-                except Exception:
-                    pass
             else:
                 # Non-empty query: keep existing behavior
                 if callable(source):
@@ -1978,144 +1697,20 @@ class VerificationTableApp(tk.Frame):
             self._hide_suggestions()
             return
 
-        # Create the suggestion window and populate the list early so that
-        # focus handlers and tests can inspect the items even if the editor
-        # geometry is not yet realized. Keep the window withdrawn until we can
-        # reliably position it. This ensures tests that inspect the list don't
-        # race against platform geometry reporting.
         if self._suggest_box is None:
             self._ensure_suggestion_box()
 
         if self._suggest_list is None:
             return
-        # Populate the list early (kept withdrawn until we can place it)
         self._suggest_list.delete(0, tk.END)
         for s in filtered[: self.display_limit]:
             self._suggest_list.insert(tk.END, s)
         self._suggest_list.selection_clear(0, tk.END)
         self._suggest_list.selection_set(0)
-        try:
-            logger.debug('populated suggest_list with %d items', self._suggest_list.size())
-        except Exception:
-            logger.debug('populated suggest_list failed to report size', exc_info=True)
 
-        # Ensure the editor geometry is realized; on some platforms (Windows)
-        # the widget geometry can be zero immediately after creation which makes
-        # the suggestion Toplevel invisible. Try to force a geometry update first
-        # and otherwise schedule a short retry.
-        try:
-            self.edit_entry.update_idletasks()
-        except Exception:
-            pass
-        try:
-            w = self.edit_entry.winfo_width()
-        except Exception:
-            w = 0
-        if w <= 1:
-            if not getattr(self, "_suggest_retry_scheduled", False):
-                self._suggest_retry_scheduled = True
-                # Ensure the retry will show the full list if appropriate
-                try:
-                    self._force_show_all_on_empty = True
-                except Exception:
-                    pass
-                def _retry():
-                    try:
-                        setattr(self, "_suggest_retry_scheduled", False)
-                        self._update_suggestions()
-                    finally:
-                        try:
-                            self._force_show_all_on_empty = False
-                        except Exception:
-                            pass
-                self.after(10, _retry)
-            return
-
-        # Ensure the editor geometry is realized; on some platforms (Windows)
-        # the widget geometry can be zero immediately after creation which makes
-        # the suggestion Toplevel invisible. Try to force a geometry update first
-        # and otherwise schedule a short retry. If the geometry is not ready we
-        # keep the Toplevel withdrawn to avoid it appearing in the origin.
-        try:
-            self.edit_entry.update_idletasks()
-        except Exception:
-            # Ignore errors updating idle tasks; widget may not be fully realized.
-            pass
-        try:
-            w = self.edit_entry.winfo_width()
-        except Exception:
-            w = 0
-        if w <= 1:
-            try:
-                if self._suggest_box is not None:
-                    self._suggest_box.withdraw()
-            except Exception:
-                # Ignore errors withdrawing suggestion box; it may already be destroyed.
-                pass
-            if not getattr(self, "_suggest_retry_scheduled", False):
-                self._suggest_retry_scheduled = True
-                # Ensure the retry will show the full list if appropriate
-                try:
-                    self._force_show_all_on_empty = True
-                except Exception:
-                    # Ignore attribute setting errors during retry scheduling.
-                    pass
-                def _retry():
-                    try:
-                        setattr(self, "_suggest_retry_scheduled", False)
-                        self._update_suggestions()
-                    finally:
-                        try:
-                            self._force_show_all_on_empty = False
-                        except Exception:
-                            # Ignore errors resetting force-show flag after retry.
-                            pass
-                self.after(10, _retry)
-            return
-        # Re-check that suggestion box still exists (it may have been hidden by
-        # a focus/commit race on some platforms). If it's gone, bail out.
-        if self._suggest_box is None:
-            return
-        # Try to compute a stable position using the Treeview bbox when
-        # possible (more reliable in some window managers and in tests where
-        # the editor widget geometry hasn't fully settled yet).
-        try:
-            bbox = self.tree.bbox(self.edit_item or self.current_item_id, self.edit_column)
-            if bbox:
-                bx, by, bw, bh = bbox
-                x = self.tree.winfo_rootx() + bx
-                y = self.tree.winfo_rooty() + by + bh
-            else:
-                x = self.edit_entry.winfo_rootx()
-                y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
-        except Exception:
-            try:
-                x = self.edit_entry.winfo_rootx()
-                y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
-            except Exception:
-                x = 0
-                y = 0
-        try:
-            # Ensure the suggestion window is visible and placed correctly
-            self._suggest_box.deiconify()
-            self._suggest_box.geometry(f"{self.edit_entry.winfo_width()}x120+{x}+{y}")
-        except Exception:
-            # If geometry fails, hide suggestions to avoid leaving an inconsistent state
-            self._hide_suggestions()
-            return
-        # Keep focus on the entry so that the suggestion list doesn't cause
-        # the entry to lose focus and be committed immediately on some platforms.
-        try:
-            self.edit_entry.focus_set()
-        except Exception:
-            # Ignore focus errors; editor may have been destroyed or replaced.
-            pass
-        try:
-            # Make sure suggestion window is above but doesn't take focus
-            self._suggest_box.lift(self)
-        except Exception:
-            # Ignore lift errors; suggestion box may have been destroyed.
-            pass
+        x = self.edit_entry.winfo_rootx()
+        y = self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
+        self._suggest_box.geometry(f"{self.edit_entry.winfo_width()}x120+{x}+{y}")
 
     def _commit_if_focus_outside(self) -> None:
         if self.edit_entry is None:
@@ -2262,7 +1857,7 @@ class VerificationTableApp(tk.Frame):
             return
         try:
             self.export_csv(path)
-            notify_info("Esporta CSV", f"Esportato in {path}")
+            messagebox.showinfo("Esporta CSV", f"Esportato in {path}")
         except Exception as e:
             logger.exception("Errore esportazione CSV: %s", e)
             self._show_error("Esporta CSV", [f"Errore durante l'esportazione: {e}"])
@@ -2284,9 +1879,9 @@ class VerificationTableApp(tk.Frame):
         return "\n".join(parts)
 
     def _show_error(self, title: str, errors: List[str], header: Optional[str] = None) -> None:
-        """Emit a centralized error notification (non-blocking) and log it."""
+        """Mostra un messagebox.showerror usando il formato centralizzato."""
         text = self._format_errors_for_display(errors, header=header)
-        notify_error(title, text)
+        messagebox.showerror(title, text)
 
     def import_from_csv(self) -> None:
         """Apri dialog 'Apri file' e importa un CSV compatibile con `export_csv`.
@@ -2304,7 +1899,7 @@ class VerificationTableApp(tk.Frame):
             return
         try:
             imported, skipped, errors = self.import_csv(path, clear=True)
-            notify_info("Importa CSV", f"Importate {imported} righe. Saltate {skipped} righe.")
+            messagebox.showinfo("Importa CSV", f"Importate {imported} righe. Saltate {skipped} righe.")
         except Exception as e:
             logger.exception("Errore import CSV: %s", e)
             self._show_error("Importa CSV", [f"Errore durante l'importazione: {e}"])
@@ -2321,12 +1916,6 @@ class VerificationTableApp(tk.Frame):
         if self._suggest_box is not None:
             return
         self._suggest_box = tk.Toplevel(self)
-        # Keep the window hidden initially to avoid stealing focus or showing
-        # at the origin if its geometry is not yet computed.
-        try:
-            self._suggest_box.withdraw()
-        except Exception:
-            pass
         self._suggest_box.wm_overrideredirect(True)
         self._suggest_box.attributes("-topmost", True)
         self._suggest_list = tk.Listbox(self._suggest_box, height=6)
@@ -2338,19 +1927,14 @@ class VerificationTableApp(tk.Frame):
     def _col_to_attr(self, col: str) -> str:
         """Mappa la colonna (key) all'attributo del dataclass VerificationInput."""
         mapping = {
-            "element": "element_name",
             "section": "section_id",
             "verif_method": "verification_method",
             "mat_concrete": "material_concrete",
             "mat_steel": "material_steel",
             "n": "n_homog",
             "N": "N",
-            "Mx": "Mx",
-            "My": "My",
-            "Mz": "Mz",
-            "Tx": "Tx",
-            "Ty": "Ty",
-            "At": "At",
+            "M": "M",
+            "T": "T",
             "As_p": "As_inf",
             "As": "As_sup",
             "d_p": "d_inf",
@@ -2402,7 +1986,7 @@ class VerificationTableApp(tk.Frame):
             logger.info("Caricati %d elementi dal repository", len(items))
         except Exception as e:
             logger.exception("Errore in load_items_from_repository: %s", e)
-            notify_error("Caricamento elementi", f"Errore caricamento repository: {e}", source="verification_table")
+            messagebox.showerror("Caricamento elementi", f"Errore caricamento repository: {e}")
 
     def save_items_to_repository(self) -> int:
         """Salva tutte le righe correnti della tabella nel repository esterno.
@@ -2416,7 +2000,7 @@ class VerificationTableApp(tk.Frame):
             return 0
         if VerificationItem is None:
             logger.error("Classe VerificationItem non disponibile; impossibile salvare")
-            notify_error("Salva elementi", "Impossibile salvare: classe VerificationItem non disponibile", source="verification_table")
+            messagebox.showerror("Salva elementi", "Impossibile salvare: classe VerificationItem non disponibile")
             return 0
         try:
             rows = self.get_rows()
@@ -2424,34 +2008,23 @@ class VerificationTableApp(tk.Frame):
             self.verification_items_repository.clear()
             for idx, inp in enumerate(rows, start=1):
                 item_id = f"E{idx:03d}"
-                name = (inp.element_name.strip() if getattr(inp, "element_name", None) else "")
-                if not name:
-                    name = (inp.notes.strip() if getattr(inp, "notes", None) else "") or f"Elemento {idx}"
+                name = (inp.notes.strip() if getattr(inp, "notes", None) else "") or f"Elemento {idx}"
                 item = VerificationItem(id=item_id, name=name, input=inp)
                 self.verification_items_repository.save(item)
             logger.info("Salvati %d elementi nel repository", len(rows))
             return len(rows)
         except Exception as e:
             logger.exception("Errore in save_items_to_repository: %s", e)
-            notify_error("Salva elementi", f"Errore salvataggio repository: {e}", source="verification_table")
+            messagebox.showerror("Salva elementi", f"Errore salvataggio repository: {e}")
             return 0
 
     def _on_save_items(self) -> None:
         """Handler per il pulsante 'Salva elementi' nella toolbar."""
         if not self.verification_items_repository:
-            notify_warning("Salva elementi", "Nessun repository fornito per salvare gli elementi.", source="verification_table")
+            messagebox.showwarning("Salva elementi", "Nessun repository fornito per salvare gli elementi.")
             return
         saved = self.save_items_to_repository()
-        notify_info("Salva elementi", f"Elementi salvati: {saved}")
-
-    def _open_comparator(self) -> None:
-        """Open the Verification Comparator GUI for the currently focused row."""
-        try:
-            from sections_app.ui.verification_comparator import open_comparator_for_table
-            open_comparator_for_table(self)
-        except Exception as e:
-            logger.exception("Impossibile aprire la finestra di confronto: %s", e)
-            notify_error("Confronto metodi", f"Errore apertura confronto: {e}")
+        messagebox.showinfo("Salva elementi", f"Elementi salvati: {saved}")
 
     # --- Project file handlers (.jsonp) ---
     def _elem_dict_to_input(self, e: dict) -> VerificationInput:
@@ -2463,19 +2036,14 @@ class VerificationTableApp(tk.Frame):
             return default
 
         return VerificationInput(
-            element_name=pick("element_name", "name", "elemento", "element", "id"),
             section_id=pick("section_id", "section", "section_name"),
             verification_method=pick("method", "verification_method", "verif_method", "TA"),
             material_concrete=pick("cls_id", "mat_concrete", "material_concrete", ""),
             material_steel=pick("steel_id", "mat_steel", "material_steel", ""),
             n_homog=float(pick("coeff_n", "n", 15.0) or 15.0),
             N=float(pick("N", 0.0) or 0.0),
-            Mx=float(pick("Mx", "M", 0.0) or 0.0),
-            My=float(pick("My", 0.0) or 0.0),
-            Mz=float(pick("Mz", 0.0) or 0.0),
-            Tx=float(pick("Tx", 0.0) or 0.0),
-            Ty=float(pick("Ty", "T", 0.0) or 0.0),
-            At=float(pick("At", 0.0) or 0.0),
+            M=float(pick("M", 0.0) or 0.0),
+            T=float(pick("T", 0.0) or 0.0),
             As_sup=float(pick("As", "As_sup", "As_sup_cm", 0.0) or 0.0),
             As_inf=float(pick("As_p", "As_inf", "As_inf_cm", 0.0) or 0.0),
             d_sup=float(pick("d", "d_sup", 4.0) or 4.0),
@@ -2483,12 +2051,12 @@ class VerificationTableApp(tk.Frame):
             stirrup_step=float(pick("passo_staffe", "stirrups_step", 0.0) or 0.0),
             stirrup_diameter=float(pick("stirrups_diam", "stirrups_diameter", 0.0) or 0.0),
             stirrup_material=pick("stirrups_mat", "stirrups_material", ""),
-            notes=pick("notes", "") or "",
+            notes=pick("notes", "name", "") or "",
         )
 
     def _on_load_project(self) -> None:
         if self.project is None:
-            notify_error("Carica progetto", "Modulo progetto non disponibile", source="verification_table")
+            messagebox.showerror("Carica progetto", "Modulo progetto non disponibile")
             return
         path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
         if not path:
@@ -2496,11 +2064,11 @@ class VerificationTableApp(tk.Frame):
         try:
             self.project.load_from_file(path)
         except ValueError as e:
-            notify_error("Carica progetto", str(e), source="verification_table")
+            messagebox.showerror("Carica progetto", str(e))
             return
         except Exception as e:
             logger.exception("Errore caricamento progetto: %s", e)
-            notify_error("Carica progetto", f"Errore caricamento progetto: {e}", source="verification_table")
+            messagebox.showerror("Carica progetto", f"Errore caricamento progetto: {e}")
             return
 
         # Clear current table and populate
@@ -2525,11 +2093,11 @@ class VerificationTableApp(tk.Frame):
             self.section_names = sorted(set(self.section_names) | {n for n in new_sec_names if n})
 
         self.project.dirty = False
-        notify_info("Carica progetto", f"Progetto caricato: {path}", source="verification_table")
+        messagebox.showinfo("Carica progetto", f"Progetto caricato: {path}")
 
     def _on_add_list_elements(self) -> None:
         if self.project is None:
-            notify_error("Aggiungi lista di elementi", "Modulo progetto non disponibile", source="verification_table")
+            messagebox.showerror("Aggiungi lista di elementi", "Modulo progetto non disponibile")
             return
         path = filedialog.askopenfilename(filetypes=[("JSONP", "*.jsonp")])
         if not path:
@@ -2537,11 +2105,11 @@ class VerificationTableApp(tk.Frame):
         try:
             new_mats, new_secs, new_elems = self.project.add_elements_from_file(path)
         except ValueError as e:
-            notify_error("Aggiungi lista di elementi", str(e), source="verification_table")
+            messagebox.showerror("Aggiungi lista di elementi", str(e))
             return
         except Exception as e:
             logger.exception("Errore in add_elements_from_file: %s", e)
-            notify_error("Aggiungi lista di elementi", f"Errore apertura file: {e}", source="verification_table")
+            messagebox.showerror("Aggiungi lista di elementi", f"Errore apertura file: {e}")
             return
 
         # Load elements from file and append to table (do not clear existing)
@@ -2572,11 +2140,11 @@ class VerificationTableApp(tk.Frame):
                     self.section_names.append(sid)
             self.section_names = sorted(set(self.section_names))
 
-        notify_info("Aggiungi lista di elementi", f"Aggiunti elementi: {new_elems}; nuove sezioni: {new_secs}; nuovi materiali: {new_mats}", source="verification_table")
+        messagebox.showinfo("Aggiungi lista di elementi", f"Aggiunti elementi: {new_elems}; nuove sezioni: {new_secs}; nuovi materiali: {new_mats}")
 
     def _on_save_project(self) -> None:
         if self.project is None:
-            notify_error("Salva progetto", "Modulo progetto non disponibile", source="verification_table")
+            messagebox.showerror("Salva progetto", "Modulo progetto non disponibile")
             return
 
         # Collect current state from UI into project
@@ -2585,18 +2153,13 @@ class VerificationTableApp(tk.Frame):
         for idx, r in enumerate(rows, start=1):
             el = {
                 "id": f"E{idx:03d}",
-                "name": r.element_name,
                 "section_id": r.section_id,
                 "cls_id": r.material_concrete,
                 "steel_id": r.material_steel,
                 "method": r.verification_method,
                 "N": r.N,
-                "Mx": r.Mx,
-                "My": r.My,
-                "Mz": r.Mz,
-                "Tx": r.Tx,
-                "Ty": r.Ty,
-                "At": r.At,
+                "M": r.M,
+                "T": r.T,
                 "coeff_n": r.n_homog,
                 "As": r.As_sup,
                 "As_p": r.As_inf,
@@ -2636,10 +2199,10 @@ class VerificationTableApp(tk.Frame):
 
         try:
             self.project.save_to_file(save_path)
-            notify_info("Salva progetto", f"Progetto salvato: {save_path}", source="verification_table")
+            messagebox.showinfo("Salva progetto", f"Progetto salvato: {save_path}")
         except Exception as e:
             logger.exception("Errore salvataggio progetto: %s", e)
-            notify_error("Salva progetto", f"Errore salvataggio progetto: {e}", source="verification_table")
+            messagebox.showerror("Salva progetto", f"Errore salvataggio progetto: {e}")
 
     def create_test_project(self) -> None:
         """Crea un progetto di test usando sezioni/materiali esistenti.
@@ -2653,10 +2216,10 @@ class VerificationTableApp(tk.Frame):
         Nota: se non trova il cls con '160' o il materiale 'ferro dolce', mostra un errore e abortisce.
         """
         if self.project is None:
-            notify_error("Crea progetto test", "Modulo progetto non disponibile", source="verification_table")
+            messagebox.showerror("Crea progetto test", "Modulo progetto non disponibile")
             return
         if self.material_repository is None or self.section_repository is None:
-            notify_error("Crea progetto test", "Repository sezioni o materiali non disponibili", source="verification_table")
+            messagebox.showerror("Crea progetto test", "Repository sezioni o materiali non disponibili")
             return
 
         # --- Recupero CLS con '160' nel nome o nel codice ---
@@ -2670,7 +2233,7 @@ class VerificationTableApp(tk.Frame):
                 cls_mat = m
                 break
         if cls_mat is None:
-            notify_error("Crea progetto test", "Nessun calcestruzzo con '160' nel nome trovato nella libreria materiali", source="verification_table")
+            messagebox.showerror("Crea progetto test", "Nessun calcestruzzo con '160' nel nome trovato nella libreria materiali")
             return
 
         # --- Recupero acciaio 'ferro dolce' ---
@@ -2684,7 +2247,7 @@ class VerificationTableApp(tk.Frame):
                 steel_mat = m
                 break
         if steel_mat is None:
-            notify_error("Crea progetto test", "Nessun acciaio 'ferro dolce' trovato nella libreria materiali", source="verification_table")
+            messagebox.showerror("Crea progetto test", "Nessun acciaio 'ferro dolce' trovato nella libreria materiali")
             return
 
         # --- Recupero sezione rettangolare dalla repository ---
@@ -2695,18 +2258,14 @@ class VerificationTableApp(tk.Frame):
         else:
             # Se non esiste, creo una sezione rettangolare standard (30x50 cm)
             if RectangularSection is None:
-                notify_error("Crea progetto test", "Classe RectangularSection non disponibile", source="verification_table")
+                messagebox.showerror("Crea progetto test", "Classe RectangularSection non disponibile")
                 return
             section = RectangularSection(name="Test Rect 30x50", width=30.0, height=50.0)
 
         # --- Generazione sollecitazioni di prova in intervallo [-100, 100] ---
         N = round(random.uniform(-100.0, 100.0), 3)
-        Mx = round(random.uniform(-100.0, 100.0), 3)
-        My = round(random.uniform(-100.0, 100.0), 3)
-        Mz = round(random.uniform(-50.0, 50.0), 3)
-        Tx = round(random.uniform(-100.0, 100.0), 3)
-        Ty = round(random.uniform(-100.0, 100.0), 3)
-        At = round(random.uniform(0.0, 5.0), 3)
+        M = round(random.uniform(-100.0, 100.0), 3)
+        T = round(random.uniform(-100.0, 100.0), 3)
 
         # --- Inizializzo nuovo progetto vuoto e popolo materiali/sezioni/elemento ---
         self.project.new_project()
@@ -2735,18 +2294,13 @@ class VerificationTableApp(tk.Frame):
         # Elemento di prova
         elem = {
             "id": "E001",
-            "name": "Elemento test",
             "section_id": sec_dict.get('id') or sec_dict.get('name'),
             "cls_id": cls_dict.get('id') or cls_dict.get('name'),
             "steel_id": steel_dict.get('id') or steel_dict.get('name'),
             "method": "TA",
             "N": N,
-            "Mx": Mx,
-            "My": My,
-            "Mz": Mz,
-            "Tx": Tx,
-            "Ty": Ty,
-            "At": At,
+            "M": M,
+            "T": T,
             "coeff_n": 15.0,
             "As": 0.0,
             "As_p": 0.0,
@@ -2761,19 +2315,14 @@ class VerificationTableApp(tk.Frame):
             self.tree.delete(item)
 
         test_input = VerificationInput(
-            element_name=elem.get("name", ""),
             section_id=elem['section_id'],
             verification_method=elem['method'],
             material_concrete=elem['cls_id'],
             material_steel=elem['steel_id'],
             n_homog=float(elem.get('coeff_n', 15.0)),
             N=float(elem.get('N', 0.0)),
-            Mx=float(elem.get('Mx', 0.0)),
-            My=float(elem.get('My', 0.0)),
-            Mz=float(elem.get('Mz', 0.0)),
-            Tx=float(elem.get('Tx', 0.0)),
-            Ty=float(elem.get('Ty', 0.0)),
-            At=float(elem.get('At', 0.0)),
+            M=float(elem.get('M', 0.0)),
+            T=float(elem.get('T', 0.0)),
             As_sup=float(elem.get('As', 0.0)),
             As_inf=float(elem.get('As_p', 0.0)),
             d_sup=float(elem.get('d', 4.0)),
@@ -2781,7 +2330,7 @@ class VerificationTableApp(tk.Frame):
         )
         self.set_rows([test_input])
 
-        notify_info("Crea progetto test", f"Progetto di test creato con cls='{cls_dict.get('name')}' e acciaio='{steel_dict.get('name')}'", source="verification_table")
+        messagebox.showinfo("Crea progetto test", f"Progetto di test creato con cls='{cls_dict.get('name')}' e acciaio='{steel_dict.get('name')}'")
 
     def _format_value_for_csv(self, value: object) -> str:
         """Formatta un valore per il CSV: usa la virgola come separatore decimale
@@ -2858,24 +2407,6 @@ class VerificationTableApp(tk.Frame):
             return 0, 0, []
 
         expected_header = [c[1] for c in COLUMNS]
-        legacy_header = [
-            "Sezione",
-            "Metodo verifica",
-            "Materiale cls",
-            "Materiale acciaio",
-            "Coeff. n",
-            "N [kg]",
-            "M [kg·m]",
-            "T [kg]",
-            "As' [cm²]",
-            "As [cm²]",
-            "d' [cm]",
-            "d [cm]",
-            "Passo staffe [cm]",
-            "Diametro staffe [mm]",
-            "Materiale staffe",
-            "NOTE",
-        ]
         header = [h.strip() for h in rows[0]]
 
         # Prepariamo una mappa da index_file -> index_expected
@@ -2892,33 +2423,9 @@ class VerificationTableApp(tk.Frame):
             logger.info("Import CSV: header len=%d row lens sample=%s", len(header), row_lengths[:5])
             if any(l == len(header) - 1 for l in row_lengths):
                 logger.info("Import CSV: righe con colonna mancante rilevate; applico correzione per 'Metodo verifica'")
-                # shift indices after the missing column (keep Elemento and Sezione aligned)
-                missing_idx = expected_header.index("Metodo verifica")
-                index_map = []
-                for i in range(len(header)):
-                    if i == missing_idx:
-                        index_map.append(None)
-                    elif i < missing_idx:
-                        index_map.append(i)
-                    else:
-                        index_map.append(i - 1)
+                # shift indices after the missing column
+                index_map = [0, None] + [i - 1 for i in range(2, len(header))]
                 logger.debug("Import CSV: index_map corretto: %s", index_map)
-        elif header == expected_header[1:]:
-            # Legacy files without the first "Elemento" column
-            index_map = [None] + list(range(len(header)))
-            logger.info("Import CSV: header senza 'Elemento' rilevato, applicato mapping: %s", index_map)
-        elif header == legacy_header:
-            index_map = []
-            for h in expected_header:
-                if h == "Mx [kg·m]":
-                    index_map.append(header.index("M [kg·m]"))
-                elif h == "Ty [kg]":
-                    index_map.append(header.index("T [kg]"))
-                elif h in ("My [kg·m]", "Mz [kg·m]", "Tx [kg]", "At [cm²]"):
-                    index_map.append(None)
-                else:
-                    index_map.append(header.index(h) if h in header else None)
-            logger.info("Import CSV: header legacy rilevato, applicato mapping: %s", index_map)
         else:
             # Se il set delle intestazioni coincide, applichiamo mapping automatico
             if set(header) == set(expected_header) and len(header) == len(expected_header):
@@ -2940,22 +2447,7 @@ class VerificationTableApp(tk.Frame):
                     return 0, max(0, len(rows) - 1), ["Header mismatch"]
 
         key_names = [c[0] for c in COLUMNS]
-        numeric_attrs = {
-            "n_homog",
-            "N",
-            "Mx",
-            "My",
-            "Mz",
-            "Tx",
-            "Ty",
-            "At",
-            "As_sup",
-            "As_inf",
-            "d_sup",
-            "d_inf",
-            "stirrup_step",
-            "stirrup_diameter",
-        }
+        numeric_attrs = {"n_homog", "N", "M", "T", "As_sup", "As_inf", "d_sup", "d_inf", "stirrup_step", "stirrup_diameter"}
 
         models: List[VerificationInput] = []
         errors: List[str] = []
@@ -3042,7 +2534,7 @@ class VerificationTableApp(tk.Frame):
         """
         items = list(self.tree.get_children())
         if not items:
-            notify_info("Verifica", "Nessuna riga da verificare.", source="verification_table")
+            messagebox.showinfo("Verifica", "Nessuna riga da verificare.")
             return
 
         risultati = []
@@ -3068,9 +2560,9 @@ class VerificationTableApp(tk.Frame):
                 f"γ={result.coeff_sicurezza:.2f}"
             )
 
-        # Mostra risultati in un non-blocking notification
+        # Mostra risultati in un messagebox
         msg = "\n".join(risultati)
-        notify_info("Risultati verifiche", msg, source="verification_table")
+        messagebox.showinfo("Risultati verifiche", msg)
 
     def _open_rebar_calculator(self) -> None:
         if self.edit_entry is None or self.edit_column is None:
@@ -3313,8 +2805,14 @@ class VerificationTableWindow(tk.Toplevel):
         try:
             secs = self.app.section_names or []
             mats = self.app.material_names or []
-            self._status_sections.config(text=f"Sections: {len(secs)}")
-            self._status_materials.config(text=f"Materials: {len(mats)}")
+            # Evita di chiamare `config` su widget già distrutti (può succedere durante la chiusura)
+            if getattr(self, "_status_sections", None) and self._status_sections.winfo_exists():
+                self._status_sections.config(text=f"Sections: {len(secs)}")
+            if getattr(self, "_status_materials", None) and self._status_materials.winfo_exists():
+                self._status_materials.config(text=f"Materials: {len(mats)}")
+        except tk.TclError:
+            # Widget non esistente o stato Tk non disponibile - skip silenzioso
+            logger.debug("Status widgets no longer exist, skipping update")
         except Exception as e:
             logger.exception("Failed to update status labels: %s", e)
 
@@ -3324,7 +2822,7 @@ class VerificationTableWindow(tk.Toplevel):
             f"Sections: {info.get('sections_count')}\nSamples: {', '.join(info.get('sections_sample', []))}\n\n"
             f"Materials: {info.get('materials_count')}\nSamples: {', '.join(info.get('materials_sample', []))}"
         )
-        notify_info("Sources info", msg, source="verification_table")
+        messagebox.showinfo("Sources info", msg)
         # Refresh label text after checking
         self.app.refresh_sources()
         self._update_status_labels()

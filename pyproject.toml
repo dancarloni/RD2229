@@ -8,14 +8,14 @@ version = "0.1.0"
 description = "Structural engineering calculations including RD 2229/1939 methods"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 gui = ["PySide6>=6.6"]
 
 [project.scripts]
-structcalc = "src.ui.app:main"
-rd2229-demo = "src.rd2229.cli:main"
+rd2229 = "rd2229.ui_qt.app:main"
+rd2229-demo = "rd2229.cli:main"
 
 [tool.black]
 line-length = 100
@@ -85,16 +85,20 @@ strict = true
 show_error_codes = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 # Exclude local duplicate module that collides with top-level package name
-exclude = '(^|/)(softw_components/app_module/app\.py)$'
+# This avoids "Duplicate module named \"app\"" during local mypy runs.
+exclude = '(^|/)(softw_components/app_module/app\\.py)$'
 
 [tool.bandit]
 skips = ["B101"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
+# extra options from pytest.ini are merged here; keep -q and ignore legacy tests
 addopts = "-q --ignore=tests_legacy -ra --strict-markers --disable-warnings"
+# only run tests under `tests/`; legacy folder is excluded via addopts
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "src"]
+# markers defined both in pytest.ini and earlier here; keep all to avoid missing names
 markers = [
   "ui: mark tests as UI tests requiring tkinter",
   "slow: mark tests as slow (skip in CI by default)",
@@ -105,5 +109,34 @@ filterwarnings = [
   "ignore::PendingDeprecationWarning",
 ]
 
+[tool.pip-tools]
+generate-hashes = true
+annotate-index = true
+
+[tool.pre-commit]
+repos = [
+    { repo = "https://github.com/pre-commit/pre-commit-hooks", rev = "v4.5.0", hooks = [
+        { id = "trailing-whitespace" },
+        { id = "end-of-file-fixer" },
+        { id = "check-yaml" },
+        { id = "check-added-large-files" },
+    ]},
+    { repo = "https://github.com/psf/black", rev = "23.12.1", hooks = [
+      { id = "black", args = ["--line-length", "100"] },
+    ]},
+    { repo = "https://github.com/pycqa/isort", rev = "5.13.2", hooks = [
+      { id = "isort", args = ["--profile", "black", "--line-length", "100"] },
+    ]},
+    { repo = "https://github.com/charliermarsh/ruff-pre-commit", rev = "v0.1.14", hooks = [
+        { id = "ruff", args = ["--fix", "--show-fixes"] },
+        { id = "ruff-format" },
+    ]},
+    { repo = "https://github.com/pre-commit/mirrors-mypy", rev = "v1.8.0", hooks = [
+        { id = "mypy", args = ["--config-file", "pyproject.toml"] },
+    ]},
+]
+
 [tool.setuptools.packages.find]
-include = ["src*","src.*"]
+where = ["src"]
+include = ["rd2229*"]
+

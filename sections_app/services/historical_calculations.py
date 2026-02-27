@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from sections_app.models.sections import Section
 
@@ -21,4 +20,3 @@ def verify_flexure_allowable_stress(section: Section, N: float, Mx: float, My: f
         f"Inputs: N={N}, Mx={Mx}, My={My}\n"
         "Result: NOT IMPLEMENTED - see services/historical_calculations.py for TODOs\n"
     )
-

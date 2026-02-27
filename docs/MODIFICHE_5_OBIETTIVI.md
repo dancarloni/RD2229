@@ -1,6 +1,6 @@
 # Modifiche applicate al Section Manager e Main Window - 5 Obiettivi
 
-Data: 4 febbraio 2026  
+Data: 4 febbraio 2026
 File modificati:
 - `sections_app/ui/section_manager.py`
 - `sections_app/ui/main_window.py`
@@ -97,7 +97,7 @@ try:
             needs_recalc = True
     else:
         needs_recalc = True
-    
+
     if needs_recalc:
         section.compute_properties()
         logger.debug("Proprietà calcolate per sezione: %s", section.name)
@@ -139,7 +139,7 @@ except Exception as e:
 
 ## Test
 
-Eseguito: `python test_section_manager_ui.py`  
+Eseguito: `python test_section_manager_ui.py`
 Risultato: ✅ **PASS** - Tutte le verifiche passano
 
 ```

@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\libs\app_module\ui\notification_center.py
-# hypothesis_version: 6.151.9
-
-[1.0, 380, 3000, '#333', '420x240', 'Confirm', 'Error showing toast', 'No', 'Notifications', 'Yes', 'both', 'confirm', 'error', 'errors_only', 'info', 'left', 'level', 'message', 'respond', 'se', 'title', 'warning', 'warnings_and_errors', 'white', 'winfo_exists']

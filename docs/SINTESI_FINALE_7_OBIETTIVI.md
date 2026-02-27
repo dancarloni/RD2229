@@ -2,7 +2,7 @@
 
 ## Stato: COMPLETAMENTO 100%
 
-Data: 4 febbraio 2026  
+Data: 4 febbraio 2026
 File modificati:
 - `sections_app/ui/section_manager.py`
 - `sections_app/ui/main_window.py`

@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\apps\sections\domain\__init__.py
-# hypothesis_version: 6.151.9
-
-['CSection', 'CircularSection', 'ISection', 'InvertedTSection', 'InvertedVSection', 'LSection', 'PiSection', 'RectangularSection', 'Section', 'SectionProperties', 'TSection', 'VSection']

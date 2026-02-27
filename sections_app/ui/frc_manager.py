@@ -1,11 +1,18 @@
+"""Simple manager UI for FRC-enabled materials.
+
+This UI uses defensive exception handling to keep operations local and
+prevent crashes; suppress broad-exception diagnostics accordingly.
+"""
+
+# pylint: disable=broad-exception-caught
+
 from __future__ import annotations
 
 import logging
 import tkinter as tk
-from tkinter import messagebox, ttk, simpledialog
-from typing import Optional
+from tkinter import messagebox, simpledialog, ttk
 
-from core_models.materials import MaterialRepository, Material
+from core_models.materials import Material, MaterialRepository  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +30,7 @@ class FrcManagerWindow(tk.Toplevel):
         ("frc_note", "Note"),
     ]
 
-    def __init__(self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None) -> None:
+    def __init__(self, master: tk.Misc, material_repository: MaterialRepository | None = None) -> None:
         super().__init__(master)
         self.title("FRC Manager")
         self.geometry("900x420")
@@ -124,7 +131,7 @@ class FrcManagerWindow(tk.Toplevel):
 
 
 class _FrcEditDialog(simpledialog.Dialog):
-    def __init__(self, parent, title: str, material: Optional[Material] = None):
+    def __init__(self, parent, title: str, material: Material | None = None):
         self.material = material
         super().__init__(parent, title=title)
 

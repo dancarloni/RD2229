@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 
 from .stress import StressResult
 
 # Mapping: VB VerifResistCA_TA and LimitiArmaturaLong (partial)
+
 
 @dataclass
 class AllowableStresses:
@@ -20,7 +20,7 @@ class AllowableCheckResult:
     check_concrete: bool
     check_steel: bool
     check_mean: bool
-    messages: List[str]
+    messages: list[str]
 
 
 def check_allowable_stresses_ta(stresses: StressResult, limits: AllowableStresses) -> AllowableCheckResult:
@@ -36,7 +36,13 @@ def check_allowable_stresses_ta(stresses: StressResult, limits: AllowableStresse
         messages.append(f"Mean concrete stress exceed limit: |{stresses.sigma_c_med:.2f}| > {limits.sigma_c_med_allow:.2f}")
 
     ok = check_concrete and check_steel and check_mean
-    return AllowableCheckResult(ok=ok, check_concrete=check_concrete, check_steel=check_steel, check_mean=check_mean, messages=messages)
+    return AllowableCheckResult(
+        ok=ok,
+        check_concrete=check_concrete,
+        check_steel=check_steel,
+        check_mean=check_mean,
+        messages=messages,
+    )
 
 
 # Simplified implementation of compute_long_rebar_limits_ta (translates LimitiArmaturaLong partially)
@@ -47,7 +53,17 @@ class LongitudinalRebarLimits:
     Afmin_tension_zone: float | None = None
 
 
-def compute_long_rebar_limits_ta(section_area: float, Nx: float, fyd: float, fctm: float, geometry, is_column: bool, is_beam: bool, zona_sismica: bool) -> LongitudinalRebarLimits:
+def compute_long_rebar_limits_ta(
+    section_area: float,
+    Nx: float,
+    fyd: float,
+    fctm: float,
+    geometry=None,
+    is_column: bool = False,
+    is_beam: bool = True,
+    zona_sismica: bool = False,
+    carbon_fiber_placeholder=None,
+) -> LongitudinalRebarLimits:
     # This implements a simplified version of LimitiArmaturaLong (VB):
     # - For columns (pilastri): Afmin = max(0.003 * Asez, ...), Afmax = 0.06 * Asez
     # - For beams: smaller minima (0.0015 * Asez or 0.0025 depending on TA vs others)

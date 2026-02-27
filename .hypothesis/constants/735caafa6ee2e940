@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\apps\sections\services\event_bus.py
-# hypothesis_version: 6.151.9
-
-['EventBus', 'materials_added', 'materials_cleared', 'materials_deleted', 'materials_updated', 'notification', 'sections_added', 'sections_cleared', 'sections_deleted', 'sections_updated']

@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\libs\app_module\services\area_calculations.py
-# hypothesis_version: 6.151.9
-
-[0.0, 'CIRCULAR', 'CIRCULAR_HOLLOW', 'C_SECTION', 'INVERTED_T_SECTION', 'INVERTED_V_SECTION', 'I_SECTION', 'L_SECTION', 'PI_SECTION', 'RECTANGULAR', 'RECTANGULAR_HOLLOW', 'T_SECTION', 'V_SECTION', 'area', 'diameter', 'dimensions', 'flange_thickness', 'flange_width', 'height', 'outer_diameter', 'properties', 't_horizontal', 't_vertical', 'thickness', 'web_height', 'web_thickness', 'width']

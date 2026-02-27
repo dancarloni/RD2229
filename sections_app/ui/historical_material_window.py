@@ -1,5 +1,4 @@
-"""
-historical_material_window.py - Finestra per la gestione dei materiali storici.
+"""historical_material_window.py - Finestra per la gestione dei materiali storici.
 
 Visualizza i materiali con doppia notazione (moderna e storica RD 2229/39)
 e supporta il popolamento automatico dei valori in base alla fonte normativa.
@@ -12,32 +11,43 @@ calcoli reali di progettazione o verifica.
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
 import tkinter as tk
-from tkinter import ttk
-from sections_app.services.notification import notify_info, notify_warning, notify_error, ask_confirm
-from pathlib import Path
+from tkinter import messagebox, ttk
 
-from historical_materials import HistoricalMaterial, HistoricalMaterialLibrary, HistoricalMaterialType
-from core_models.materials import MaterialRepository
+from core_models.materials import MaterialRepository  # type: ignore[import]
+from historical_materials import (
+    HistoricalMaterial,
+    HistoricalMaterialLibrary,
+    HistoricalMaterialType,
+)
+from sections_app.services.notification import (
+    ask_confirm,
+    notify_error,
+    notify_info,
+    notify_warning,
+)
 
 # Import del modulo fonti normative
 try:
     from material_sources import (
-        get_source_library,
-        get_all_source_names,
-        get_source_by_name,
-        get_source_by_id,
-        get_default_values_for_source,
         MaterialSource,
-        MaterialSourceLibrary,
+        get_all_source_names,
+        get_default_values_for_source,
+        get_source_by_name,
+        get_source_library,
     )
+
     SOURCES_AVAILABLE = True
 except ImportError:
     SOURCES_AVAILABLE = False
     logging.warning("Modulo material_sources non disponibile. Funzionalità fonte limitata.")
 
 logger = logging.getLogger(__name__)
+
+# Pylint: legacy UI code that interacts with repositories and UI elements may
+# intentionally use broad exception handlers, protected member access, and some
+# API-compatible parameter names; disable the most frequent warnings here.
+# pylint: disable=broad-exception-caught, protected-access, unused-argument, redefined-outer-name, unnecessary-pass
 
 
 class HistoricalMaterialWindow(tk.Toplevel):
@@ -55,14 +65,14 @@ class HistoricalMaterialWindow(tk.Toplevel):
         ("type", "Tipo"),
         ("source", "Fonte"),
         # Calcestruzzo - doppia notazione
-        ("fck", "fck / σ_c,28"),       # resistenza cubica 28 gg
-        ("fcd", "fcd / σ_c"),          # tensione ammissibile
-        ("tau_c0", "τ_c0"),            # taglio servizio
-        ("tau_c1", "τ_c1"),            # taglio max
-        ("n", "n"),                     # coeff. omogeneizzazione
+        ("fck", "fck / σ_c,28"),  # resistenza cubica 28 gg
+        ("fcd", "fcd / σ_c"),  # tensione ammissibile
+        ("tau_c0", "τ_c0"),  # taglio servizio
+        ("tau_c1", "τ_c1"),  # taglio max
+        ("n", "n"),  # coeff. omogeneizzazione
         # Acciaio - doppia notazione
-        ("fyk", "fyk / σ_sn"),         # snervamento
-        ("fyd", "fyd / σ_s"),          # tensione ammissibile
+        ("fyk", "fyk / σ_sn"),  # snervamento
+        ("fyd", "fyd / σ_s"),  # tensione ammissibile
         # Moduli elastici
         ("Ec", "E_c"),
         ("Es", "E_s"),
@@ -72,7 +82,12 @@ class HistoricalMaterialWindow(tk.Toplevel):
         ("notes", "Note"),
     ]
 
-    def __init__(self, master: tk.Misc, library: HistoricalMaterialLibrary, material_repository: Optional[MaterialRepository] = None) -> None:
+    def __init__(
+        self,
+        master: tk.Misc,
+        library: HistoricalMaterialLibrary,
+        material_repository: MaterialRepository | None = None,
+    ) -> None:
         super().__init__(master)
         self.title("Archivio Materiali Storici - RD 2229/39")
         self.geometry("1200x520")
@@ -92,10 +107,22 @@ class HistoricalMaterialWindow(tk.Toplevel):
 
         # Larghezze personalizzate per colonna
         col_widths = {
-            "name": 160, "code": 130, "type": 70, "source": 120,
-            "fck": 80, "fcd": 70, "tau_c0": 50, "tau_c1": 50, "n": 40,
-            "fyk": 80, "fyd": 70, "Ec": 80, "Es": 80,
-            "gamma_c": 40, "gamma_s": 40, "notes": 200
+            "name": 160,
+            "code": 130,
+            "type": 70,
+            "source": 120,
+            "fck": 80,
+            "fcd": 70,
+            "tau_c0": 50,
+            "tau_c1": 50,
+            "n": 40,
+            "fyk": 80,
+            "fyd": 70,
+            "Ec": 80,
+            "Es": 80,
+            "gamma_c": 40,
+            "gamma_s": 40,
+            "notes": 200,
         }
         for key, label in self.COLUMNS:
             self.tree.heading(key, text=label)
@@ -118,7 +145,9 @@ class HistoricalMaterialWindow(tk.Toplevel):
         if SOURCES_AVAILABLE:
             tk.Button(btn_frame, text="Gestisci fonti...", command=self._on_manage_sources).pack(side="left", padx=4)
 
-        tk.Button(btn_frame, text="Importa in archivio materiali", command=self._on_import_selected).pack(side="right", padx=4)
+        tk.Button(btn_frame, text="Importa in archivio materiali", command=self._on_import_selected).pack(
+            side="right", padx=4
+        )
 
         # Bind double click to edit
         self.tree.bind("<Double-1>", lambda e: self._on_edit())
@@ -137,17 +166,17 @@ class HistoricalMaterialWindow(tk.Toplevel):
             values = [
                 hist.name,
                 hist.code,
-                getattr(hist, "type", "").value if hasattr(hist, "type") else str(getattr(hist, "type", "")),
+                (getattr(hist, "type", "").value if hasattr(hist, "type") else str(getattr(hist, "type", ""))),
                 hist.source or "",
                 # Calcestruzzo
-                str(hist.fck or ""),      # fck / σ_c,28
-                str(hist.fcd or ""),      # fcd / σ_c
-                str(hist.tau_c0 or ""),   # τ_c0 taglio servizio
-                str(hist.tau_c1 or ""),   # τ_c1 taglio max
-                str(hist.n or ""),        # n coeff. omogeneizzazione
+                str(hist.fck or ""),  # fck / σ_c,28
+                str(hist.fcd or ""),  # fcd / σ_c
+                str(hist.tau_c0 or ""),  # τ_c0 taglio servizio
+                str(hist.tau_c1 or ""),  # τ_c1 taglio max
+                str(hist.n or ""),  # n coeff. omogeneizzazione
                 # Acciaio
-                str(hist.fyk or ""),      # fyk / σ_sn
-                str(hist.fyd or ""),      # fyd / σ_s
+                str(hist.fyk or ""),  # fyk / σ_sn
+                str(hist.fyd or ""),  # fyd / σ_s
                 # Moduli elastici
                 str(hist.Ec or ""),
                 str(hist.Es or ""),
@@ -187,6 +216,7 @@ class HistoricalMaterialWindow(tk.Toplevel):
         if not sel:
             notify_warning("Elimina", "Seleziona una riga da eliminare", source="historical_material_window")
             return
+
         def _on_confirm_delete(ans: bool):
             if not ans:
                 return
@@ -200,15 +230,25 @@ class HistoricalMaterialWindow(tk.Toplevel):
                     self._refresh_table()
             except Exception:
                 logger.exception("Errore eliminazione materiale dopo conferma")
+
         try:
-            ask_confirm("Conferma", "Sei sicuro di voler eliminare la riga selezionata?", callback=_on_confirm_delete, source="historical_material_window")
+            ask_confirm(
+                "Conferma",
+                "Sei sicuro di voler eliminare la riga selezionata?",
+                callback=_on_confirm_delete,
+                source="historical_material_window",
+            )
         except Exception:
             logger.exception("Errore mostrando conferma eliminazione")
 
     def _on_import_selected(self) -> None:
         sel = self.tree.selection()
         if not sel:
-            notify_warning("Importa", "Seleziona uno o più materiali da importare", source="historical_material_window")
+            notify_warning(
+                "Importa",
+                "Seleziona uno o più materiali da importare",
+                source="historical_material_window",
+            )
             return
         if self.material_repository is None:
             notify_error("Importa", "Archivio materiali non disponibile", source="historical_material_window")
@@ -244,12 +284,12 @@ class _HistoricalEditDialog(tk.Toplevel):
     - Modifica manuale di tutti i parametri
     """
 
-    def __init__(self, master: tk.Misc, title: str = "", material: Optional[HistoricalMaterial] = None) -> None:
+    def __init__(self, master: tk.Misc, title: str = "", material: HistoricalMaterial | None = None) -> None:
         super().__init__(master)
         self.title(title)
         self.transient(master)
         self.grab_set()
-        self.result: Optional[HistoricalMaterial] = None
+        self.result: HistoricalMaterial | None = None
         self._is_new = material is None
         self._original_material = material
 
@@ -284,22 +324,13 @@ class _HistoricalEditDialog(tk.Toplevel):
         if SOURCES_AVAILABLE:
             # ComboBox con fonti predefinite
             source_names = get_all_source_names()
-            self.source_combo = ttk.Combobox(
-                source_frame,
-                textvariable=self.source_var,
-                values=source_names,
-                width=30
-            )
+            self.source_combo = ttk.Combobox(source_frame, textvariable=self.source_var, values=source_names, width=30)
             self.source_combo.pack(side="left")
             # Binding per popolamento automatico quando cambia la fonte
             self.source_combo.bind("<<ComboboxSelected>>", self._on_source_changed)
 
             # Pulsante per ricaricare valori dalla fonte
-            self.reload_btn = tk.Button(
-                source_frame,
-                text="Ricarica valori",
-                command=self._on_reload_from_source
-            )
+            self.reload_btn = tk.Button(source_frame, text="Ricarica valori", command=self._on_reload_from_source)
             self.reload_btn.pack(side="left", padx=(5, 0))
         else:
             # Fallback a Entry se il modulo fonti non è disponibile
@@ -313,7 +344,7 @@ class _HistoricalEditDialog(tk.Toplevel):
             frm,
             textvariable=self.type_var,
             values=[t.value for t in HistoricalMaterialType],
-            state="readonly"
+            state="readonly",
         )
         self.type_combo.grid(row=3, column=1, columnspan=2, sticky="w")
         # Binding per aggiornare i campi quando cambia il tipo
@@ -436,7 +467,7 @@ class _HistoricalEditDialog(tk.Toplevel):
 
         # Solo per materiali nuovi, popola automaticamente
         if self._is_new:
-            self._apply_source_values(source_name, ask_confirm=False)
+            self._apply_source_values(source_name, require_confirm=False)
         # Per materiali esistenti, non sovrascrivere automaticamente
         # L'utente può usare il pulsante "Ricarica valori"
 
@@ -464,13 +495,13 @@ class _HistoricalEditDialog(tk.Toplevel):
             f"Vuoi sovrascrivere i valori calcolabili con quelli predefiniti "
             f"della fonte '{source_name}'?\n\n"
             "I campi di input (fck, fyk) NON verranno modificati.\n"
-            "I campi calcolati (fcd, τ, n, E, γ) verranno aggiornati."
+            "I campi calcolati (fcd, τ, n, E, γ) verranno aggiornati.",
         ):
             return
 
-        self._apply_source_values(source_name, ask_confirm=False)
+        self._apply_source_values(source_name, require_confirm=False)
 
-    def _apply_source_values(self, source_name: str, ask_confirm: bool = True) -> None:
+    def _apply_source_values(self, source_name: str, require_confirm: bool = True) -> None:
         """Applica i valori predefiniti della fonte ai campi calcolabili.
 
         AVVERTENZA: I valori calcolati sono da considerarsi DI ESEMPIO.
@@ -478,7 +509,8 @@ class _HistoricalEditDialog(tk.Toplevel):
 
         Args:
             source_name: Nome della fonte normativa
-            ask_confirm: Se True, chiede conferma prima di sovrascrivere
+            require_confirm: Se True, chiede conferma prima di sovrascrivere
+
         """
         if not SOURCES_AVAILABLE:
             return
@@ -496,23 +528,15 @@ class _HistoricalEditDialog(tk.Toplevel):
 
         # Per calcestruzzo: fck (o sigma_c28)
         fck_val = self.num_fields.get("fck")
-        if fck_val:
-            txt = fck_val.get().strip().replace(",", ".")
-            if txt:
-                try:
-                    base_params["fck"] = float(txt)
-                except ValueError:
-                    pass
+        fck = self._parse_float_entry(fck_val)
+        if fck is not None:
+            base_params["fck"] = fck
 
         # Per acciaio: fyk (o sigma_sn)
         fyk_val = self.num_fields.get("fyk")
-        if fyk_val:
-            txt = fyk_val.get().strip().replace(",", ".")
-            if txt:
-                try:
-                    base_params["fyk"] = float(txt)
-                except ValueError:
-                    pass
+        fyk = self._parse_float_entry(fyk_val)
+        if fyk is not None:
+            base_params["fyk"] = fyk
 
         # Calcola valori predefiniti
         defaults = get_default_values_for_source(source.id, material_type, base_params)
@@ -530,15 +554,35 @@ class _HistoricalEditDialog(tk.Toplevel):
             "gamma_s": defaults.get("gamma_s"),
         }
 
-        for key, value in fields_to_update.items():
+        self._apply_calculated_fields(fields_to_update)
+
+        # Aggiungi note di calcolo
+        calc_notes = defaults.get("calculation_notes", "")
+        if calc_notes:
+            self._append_calc_notes(calc_notes)
+
+        logger.info("Applicati valori da fonte '%s' per materiale tipo '%s'", source_name, material_type)
+
+    def _parse_float_entry(self, ent: tk.Entry | None) -> float | None:
+        if ent is None:
+            return None
+        txt: str = ent.get().strip().replace(",", ".")
+        if not txt:
+            return None
+        try:
+            return float(txt)
+        except ValueError:
+            return None
+
+    def _apply_calculated_fields(self, fields: dict[str, object]) -> None:
+        for key, value in fields.items():
             if value is not None and key in self.num_fields:
                 ent = self.num_fields[key]
                 ent.delete(0, tk.END)
                 ent.insert(0, str(value))
 
-        # Aggiungi note di calcolo
-        calc_notes = defaults.get("calculation_notes", "")
-        if calc_notes:
+    def _append_calc_notes(self, calc_notes: str) -> None:
+        try:
             current_notes = self.notes_text.get("1.0", tk.END).strip()
             if current_notes:
                 # Aggiungi in coda se ci sono già note
@@ -546,8 +590,8 @@ class _HistoricalEditDialog(tk.Toplevel):
                     self.notes_text.insert(tk.END, f"\n\n{calc_notes}")
             else:
                 self.notes_text.insert("1.0", calc_notes)
-
-        logger.info("Applicati valori da fonte '%s' per materiale tipo '%s'", source_name, material_type)
+        except Exception:
+            logger.exception("Unable to append calculation notes")
 
     def _on_save(self) -> None:
         """Salva il materiale."""
@@ -605,6 +649,7 @@ class _HistoricalEditDialog(tk.Toplevel):
 # =============================================================================
 # FINESTRA GESTIONE FONTI NORMATIVE
 # =============================================================================
+
 
 class SourceManagerWindow(tk.Toplevel):
     """Finestra per gestire l'elenco delle fonti normative.
@@ -679,10 +724,9 @@ class SourceManagerWindow(tk.Toplevel):
         # Avviso
         warning_label = tk.Label(
             self,
-            text="NOTA: Le fonti predefinite non possono essere eliminate. "
-                 "È possibile aggiungere fonti personalizzate.",
+            text="NOTA: Le fonti predefinite non possono essere eliminate. " "È possibile aggiungere fonti personalizzate.",
             fg="gray",
-            font=("TkDefaultFont", 8)
+            font=("TkDefaultFont", 8),
         )
         warning_label.pack(pady=(0, 5))
 
@@ -747,10 +791,7 @@ class SourceManagerWindow(tk.Toplevel):
         if src is None:
             return
         if not src.is_user_defined:
-            messagebox.showwarning(
-                "Elimina",
-                f"La fonte '{src.name}' è predefinita e non può essere eliminata."
-            )
+            messagebox.showwarning("Elimina", f"La fonte '{src.name}' è predefinita e non può essere eliminata.")
             return
         if not messagebox.askyesno("Conferma", f"Eliminare la fonte '{src.name}'?"):
             return
@@ -761,12 +802,12 @@ class SourceManagerWindow(tk.Toplevel):
 class _SourceEditDialog(tk.Toplevel):
     """Dialog per aggiungere/modificare una fonte normativa."""
 
-    def __init__(self, master: tk.Misc, title: str = "", source: Optional[MaterialSource] = None) -> None:
+    def __init__(self, master: tk.Misc, title: str = "", source: MaterialSource | None = None) -> None:
         super().__init__(master)
         self.title(title)
         self.transient(master)
         self.grab_set()
-        self.result: Optional[MaterialSource] = None
+        self.result: MaterialSource | None = None
         self._original = source
 
         self._create_fields()
@@ -797,13 +838,14 @@ class _SourceEditDialog(tk.Toplevel):
 
         tk.Label(frm, text="Metodo di calcolo").grid(row=row, column=0, sticky="w")
         from material_sources import CalculationMethod
+
         self.method_var = tk.StringVar(value=CalculationMethod.TENSIONI_AMMISSIBILI.value)
         self.method_combo = ttk.Combobox(
             frm,
             textvariable=self.method_var,
             values=[m.value for m in CalculationMethod],
             state="readonly",
-            width=20
+            width=20,
         )
         self.method_combo.grid(row=row, column=1, sticky="w")
         row += 1
@@ -852,7 +894,7 @@ class _SourceEditDialog(tk.Toplevel):
             self.id_entry.config(state="disabled")
 
     def _on_save(self) -> None:
-        from material_sources import MaterialSource, CalculationMethod
+        from material_sources import CalculationMethod, MaterialSource
 
         source_id = self.id_entry.get().strip()
         name = self.name_entry.get().strip()

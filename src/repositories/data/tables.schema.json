@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "source": "RD 2229/1939, Santarella, Giangreco",
+    "units": "Definire per ogni tabella",
+    "notes": "Schema per digitalizzare coefficienti e abachi"
+  },
+  "tables": [
+    {
+      "id": "coeff_rigidezza_cemento",
+      "title": "Coefficiente di rigidezza",
+      "variables": ["rho", "sigma"],
+      "values": [
+        {"rho": 0.5, "sigma": 30, "value": 1.2}
+      ]
+    }
+  ]
+}

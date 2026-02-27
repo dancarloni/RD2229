@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\src\core_calculus\verification_service.py
-# hypothesis_version: 6.151.9
-
-['.', 'NON_OK', 'OK', 'concrete', 'error', 'num_verifiche_non_ok', 'num_verifiche_ok', 'rc', 'section_type', 'status', 'tags', 'type', 'warning', 'warning_validazione']

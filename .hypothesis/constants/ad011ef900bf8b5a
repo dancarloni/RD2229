@@ -1,4 +1,0 @@
-# file: C:\Users\danca\workspaces\RD2229\ui\module_selector.py
-# hypothesis_version: 6.151.9
-
-[0.1, '*.*', '*.csv', '800x600', 'Aggiorna Moduli', 'All files', 'CSV files', 'Carica Sezioni', 'Centro Notifiche', 'Debug Viewer', 'DebugViewerWindow', 'Errore', 'Errore avvio modulo', 'Errore caricamento', 'Esci', 'File', 'Geometry Module', 'Historical Module', 'Impostazioni Codice', 'Launch', 'MainWindow', 'Moduli aggiornati', 'NTC', 'Seleziona file CSV', 'Strumenti', 'both', 'class', 'code_settings.json', 'debug', 'description', 'historical', 'mainloop', 'module_selector', 'modules_config.json', 'name', 'section_repo', 'utf-8', 'winfo_exists']

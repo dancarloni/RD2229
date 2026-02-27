@@ -4,6 +4,85 @@
 
 Progetto per digitalizzare e rendere calcolabili i metodi storici (Regio Decreto 2229/1939, Santarella, Giangreco) con una GUI che riproduca i passaggi di progetto dell’epoca.
 
+## 🆕 Nuova Architettura Modulare (v0.1.0)
+
+Il progetto è stato **completamente ristrutturato** secondo un'architettura professionale e modulare. Tutti i file originali sono stati preservati in `src/legacy/` senza modifiche, mentre la nuova architettura si trova in moduli dedicati sotto `src/`.
+
+### Struttura Modulare
+
+```
+src/
+├── legacy/              # File originali preservati (NON MODIFICARE)
+├── calc/                # Calcoli (area a taglio, registry sezioni)
+├── materials/           # Modelli materiali, validazione, repository
+├── elements/            # Modelli elementi strutturali, risoluzione input
+├── codes/               # Registry normativo (NTC2018, EC2, ecc.)
+│   ├── params/          # Parametri numerici (JSON)
+│   └── clauses/         # Clausole normative (YAML)
+├── actions/             # Repository azioni di verifica
+├── report/              # Renderer report (MD, HTML, PDF)
+│   └── templates/       # Template report
+├── config/              # Configurazioni YAML (unità, numerici, app, features)
+├── tools/               # CLI e utility export
+└── tests/               # Test suite completa
+```
+
+### Principi Architetturali
+
+- **Separazione totale** tra logica e GUI
+- **Unità di misura fisse**: cm, cm², cm⁴, kg/cm², kg/m³ (nessuna conversione implicita)
+- **Moduli STUB S2**: tutti i moduli contengono docstring estese, TODO chiari, type hints completi
+- **Pipeline completa**: repository → resolver → actions → report
+- **Configurazione YAML**: tutte le impostazioni gestite tramite file config
+- **Test-driven**: ogni modulo ha test corrispondenti
+
+### Come Usare la Nuova Architettura
+
+#### Via CLI
+```bash
+python -m src.tools.verify_cli --config config/user_conf.yml --format html
+```
+
+#### Via Python
+```python
+from src.materials.material_repo import MaterialRepository
+from src.elements.element_repo import ElementRepository
+from src.codes.code_registry import bootstrap_codes
+
+# Inizializza repository
+materials = MaterialRepository()
+elements = ElementRepository()
+bootstrap_codes("src/codes")
+
+# Usa i moduli...
+```
+
+### Test
+```bash
+# Test dei nuovi moduli
+pytest src/tests/
+
+# Test completi del progetto
+pytest
+```
+
+### Migrazione Graduale
+
+I nuovi moduli sono **stub S2** pronti per essere ampliati con Copilot Plan:
+- Ogni file contiene TODO chiari per implementazioni future
+- La struttura è completa e pronta all'uso
+- I file legacy rimangono disponibili per retrocompatibilità
+- La migrazione può essere incrementale
+
+### Riferimenti
+
+- Vedi [CHANGELOG.md](CHANGELOG.md) per dettagli completi delle modifiche
+- Vedi `src/config/` per configurazioni disponibili
+- Vedi `src/tests/` per esempi d'uso
+
+---
+
+
 ## Obiettivo
 Creare un motore di calcolo che:
 - gestisca materiali, sezioni, armature e tabelle/abachi storici;
@@ -146,13 +225,36 @@ data/
 - Tutte le tabelle/coefficienti devono essere centralizzate in `data/` con schema JSON validabile
 
 ## Avvio rapido (solo logica)
-1. Creare un ambiente Python.
-2. Installare le dipendenze da [requirements.txt](requirements.txt).
-3. Usare i modelli in [src/rd2229](src/rd2229).
 
-## Note su dipendenze per test GUI
-- `pytest` e `matplotlib` sono richiesti per il test suite completo.
-- I test GUI richiedono Tk/Tcl installato e disponibile nel runtime Python.
+## Development
+
+We use pre-commit hooks to ensure consistent formatting and basic checks before commits.
+
+Install and enable the hooks locally with:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Run the checks locally with `pre-commit run --all-files` (useful before PRs).
+
+
+1. Creare un ambiente Python (consigliato: `.venv`).
+   - Windows (PowerShell): `python -m venv .venv ; .\.venv\Scripts\Activate.ps1`
+   - macOS/Linux: `python -m venv .venv ; source .venv/bin/activate`
+2. Installare le dipendenze di runtime: `pip install -r requirements.txt`.
+
+   **Opzionale:** per calcoli geometrici più robusti (area/centroid e core basati su buffer), installare `shapely`:
+
+   ```bash
+   pip install shapely
+   ```
+
+3. Installare le dipendenze di sviluppo e test: `pip install -r requirements-dev.txt` (contiene `pytest`, `flake8`, `mypy`).
+4. Abilitare i pre-commit hooks: `pip install pre-commit && pre-commit install`.
+5. Eseguire i test: `pytest -q`.
+6. Usare i modelli in [src/rd2229](src/rd2229).
 
 ## Demo: Verification Table (GUI)
 Per aprire la finestra "Verification Table" con alcuni casi di esempio (sezioni e materiali di test) usa lo script demo incluso:
@@ -263,4 +365,3 @@ python scripts/run_materials_gui.py
 
 La GUI è pensata per prototipazione: se preferisci posso integrarla in una
 futura GUI principale del progetto o adattarla a framework diversi (Qt, web).
-

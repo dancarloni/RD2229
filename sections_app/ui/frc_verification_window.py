@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 import tkinter as tk
-from tkinter import ttk, messagebox
-from typing import Optional
+from tkinter import messagebox, ttk
 
-from core.verification_engine import VerificationEngine
-from core.verification_core import SectionGeometry, ReinforcementLayer, MaterialProperties, LoadCase
-from core_models.materials import MaterialRepository, Material
+from core_models.materials import Material, MaterialRepository  # type: ignore[import]
+from src.core_calculus.core.verification_core import (
+    LoadCase,
+    MaterialProperties,
+    ReinforcementLayer,
+    SectionGeometry,
+)
+from src.core_calculus.core.verification_engine import VerificationEngine
 
 
 class FrcVerificationWindow(tk.Toplevel):
     """Simple window to run a quick verification with an FRC material."""
 
-    def __init__(self, master: tk.Misc, material_repository: Optional[MaterialRepository] = None) -> None:
+    def __init__(self, master: tk.Misc, material_repository: MaterialRepository | None = None) -> None:
         super().__init__(master)
         self.title("FRC Quick Verification")
         self.geometry("600x420")
@@ -73,11 +77,11 @@ class FrcVerificationWindow(tk.Toplevel):
         if self.material_repository:
             for m in self.material_repository.get_all():
                 names.append(f"{m.name} [{m.id[:6]}]")
-        self.frc_combo['values'] = names
+        self.frc_combo["values"] = names
         if names:
             self.frc_combo.set(names[0])
 
-    def _find_selected_material(self) -> Optional[Material]:
+    def _find_selected_material(self) -> Material | None:
         sel = self.frc_var.get()
         if not sel or sel == "(none)":
             return None

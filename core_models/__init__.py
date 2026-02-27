@@ -1,6 +1,6 @@
 """Core shared models (materials, loads, etc.)."""
-from .materials import Material, MaterialRepository
+
 from .loads import LoadCase, LoadRepository
+from .materials import Material, MaterialRepository
 
 __all__ = ["Material", "MaterialRepository", "LoadCase", "LoadRepository"]
-

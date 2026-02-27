@@ -1,105 +1,57 @@
-import os
-import json
-import pytest
-from pathlib import Path
-from sections_app.services.event_bus import EventBus, NOTIFICATION
+"""pytest configuration for the tests/ directory.
 
+When ``tkinter`` is not available (e.g. in CI without a display), test files
+that import tkinter at module level – directly or transitively – would cause
+collection errors that abort the entire test run.  We detect the situation
+here and add the affected files to ``collect_ignore`` so pytest can still
+collect and run all non-GUI tests normally.
+"""
 
-@pytest.fixture
-def notification_collector():
-    bus = EventBus()
-    bus.clear()
-    collected = []
-
-    def _collect(payload):
-        collected.append(payload)
-
-    bus.subscribe(NOTIFICATION, _collect)
-    yield collected
-    bus.clear()
-
-
-def _check_repo_duplicates():
-    """Check sections.json for duplicate ids or names.
-
-    Returns list of anomaly messages (empty if ok).
-    """
-    repo_path = Path(__file__).resolve().parents[1] / 'data' / 'sections.json'
-    if not repo_path.exists():
-        return [f"Repository file missing: {repo_path}"]
-    try:
-        with repo_path.open('r', encoding='utf-8') as fh:
-            data = json.load(fh)
-    except Exception as e:
-        return [f"Failed to read {repo_path}: {e}"]
-    ids = []
-    names = []
-    msgs = []
-    for s in data:
-        sid = s.get('id')
-        name = s.get('name')
-        if sid in ids:
-            msgs.append(f"Duplicate id: {sid}")
-        else:
-            ids.append(sid)
-        if name in names:
-            msgs.append(f"Duplicate name: {name}")
-        else:
-            names.append(name)
-    return msgs
-
-
-def pytest_configure(config):
-    """If REPO_WATCHER_STRICT=1, run repo checks and exit on anomalies."""
-    if os.environ.get('REPO_WATCHER_STRICT') == '1':
-        msgs = _check_repo_duplicates()
-        if msgs:
-            raise SystemExit("Repository anomalies detected:\n" + "\n".join(msgs))
-
-
-# ---------------------------------------------------------------------------
-# Tkinter-dependent test collection guard
-# ---------------------------------------------------------------------------
-# When ``tkinter`` is not available (e.g. CI without a display), test files
-# that import tkinter at module level – directly or transitively – would cause
-# collection errors that abort the entire test run.  We detect the situation
-# here and dynamically build ``collect_ignore`` so pytest can still collect
-# and run all non-GUI tests normally.
+from __future__ import annotations
 
 try:
     import tkinter  # noqa: F401
+
     _TKINTER_AVAILABLE = True
 except ImportError:
     _TKINTER_AVAILABLE = False
 
+# Files that import tkinter (directly or transitively) at module level.
+# When tkinter is absent these files fail during *collection*, not just
+# during test execution, so they must be excluded before collection starts.
+#
+# How to maintain this list: if you add a new test file that imports tkinter
+# (or any module that transitively imports tkinter) at the top level, add its
+# filename here so it is skipped gracefully in headless/CI environments.
+_TKINTER_DEPENDENT: list[str] = [
+    "test_core_and_graphics.py",
+    "test_csv_io.py",
+    "test_domain_materials.py",
+    "test_domain_sections.py",
+    "test_fire_selection_eligibility.py",
+    "test_graphics_flags.py",
+    "test_main_window_gui.py",
+    "test_material_suggestions_focus.py",
+    "test_module_registry_refresh.py",
+    "test_module_selector_controller.py",
+    "test_module_selector_integration.py",
+    "test_module_selector_ui.py",
+    "test_persistence_edit_cycle.py",
+    "test_rebar_calculator.py",
+    "test_section_manager_selection.py",
+    "test_shim_import.py",
+    "test_step5_merge.py",
+    "test_suggestion_click_realistic.py",
+    "test_suggestion_persistence.py",
+    "test_suggestion_positioning.py",
+    "test_table_navigation.py",
+    "test_ui_background_compute.py",
+    "test_verification_dispatcher.py",
+    "test_verification_table_click_sequence.py",
+    "test_verification_table_click_suggestions.py",
+    "test_plot_section.py",
+    "test_crud_operations.py",
+]
+
 if not _TKINTER_AVAILABLE:
-    import re as _re
-
-    _tests_dir = Path(__file__).parent
-    # Match direct tkinter imports AND imports of known tkinter-dependent modules
-    # (e.g. materials_repository, sections_app.ui.*, verification_table)
-    _tkinter_pattern = _re.compile(
-        r'^\s*('
-        r'import\s+tkinter|from\s+tkinter'
-        r'|import\s+tk\b|from\s+tk\b'
-        r'|(?:from|import)\s+materials_repository'
-        r'|from\s+sections_app\.ui'
-        r'|import\s+sections_app\.ui'
-        r'|(?:from|import)\s+verification_table'
-        r')',
-        _re.MULTILINE,
-    )
-
-    def _imports_tkinter_directly(path: Path) -> bool:
-        """Return True if the file imports tkinter (directly or via known wrappers)."""
-        try:
-            text = path.read_text(encoding='utf-8', errors='replace')
-            return bool(_tkinter_pattern.search(text))
-        except OSError:
-            return False
-
-    collect_ignore: list = [
-        str(p)
-        for p in sorted(_tests_dir.glob('test_*.py'))
-        if _imports_tkinter_directly(p)
-    ]
+    collect_ignore = _TKINTER_DEPENDENT

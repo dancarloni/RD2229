@@ -1,6 +1,6 @@
 # RIEPILOGO MODIFICHE: NUOVE SEZIONI E ROTAZIONE
 
-Data: 4 febbraio 2026  
+Data: 4 febbraio 2026
 Status: **✅ COMPLETATO AL 100%**
 
 ---
@@ -358,7 +358,7 @@ python -m unittest tests.test_new_sections -v
 
 #### Sezione ad L
 ```python
-LSection(name="L90x90x10", width=9.0, height=9.0, 
+LSection(name="L90x90x10", width=9.0, height=9.0,
          t_horizontal=1.0, t_vertical=1.0, rotation_angle_deg=45.0)
 ```
 
@@ -370,7 +370,7 @@ ISection(name="HEA200", flange_width=20.0, flange_thickness=1.0,
 
 #### Circolare cava
 ```python
-CircularHollowSection(name="Tubo", outer_diameter=10.0, 
+CircularHollowSection(name="Tubo", outer_diameter=10.0,
                       thickness=0.5, rotation_angle_deg=0.0)
 ```
 
