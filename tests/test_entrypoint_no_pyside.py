@@ -10,7 +10,7 @@ def test_entrypoint_graceful_no_pyside(monkeypatch, capsys):
     try:
         import rd2229  # noqa: F401
     except ModuleNotFoundError:
-        root = Path(__file__).resolve().parents[2]
+        root = Path(__file__).resolve().parents[1]
         src_path = str(root / "src")
         if os.path.isdir(src_path) and src_path not in sys.path:
             sys.path.insert(0, src_path)

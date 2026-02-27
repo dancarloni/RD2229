@@ -103,8 +103,8 @@ def load_plugins_from_entry_points() -> list[PluginSpec]:
         from importlib.metadata import entry_points
 
         eps = entry_points(group="rd2229.plugins")
-    except Exception as exc:  # ImportError or stdlib unavailability
-        logger.debug("entry_points lookup failed: %s", exc)
+    except (ImportError, AttributeError, TypeError) as exc:  # stdlib or API incompatibility
+        logger.warning("entry_points lookup failed: %s", exc)
         return specs
 
     for ep in eps:
