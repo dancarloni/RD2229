@@ -291,9 +291,7 @@ class GeometryRepository:
     def _maybe_seed(self) -> None:
         if not self._enable_seeding:
             return
-        # Seed when there are no seeded sections, not just when the repo is empty.
-        # This ensures baseline seed examples are always present even in non-empty repos.
-        if any(self._is_seeded(s) for s in self._sections.values()):
+        if self._sections:
             return
         self._ensure_seed_sections()
 
