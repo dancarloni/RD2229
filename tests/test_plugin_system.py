@@ -155,7 +155,8 @@ def test_sample_info_action_handler():
 
     plugins_dir = ROOT / "plugins"
     specs = load_plugins_from_folder(plugins_dir)
-    info_spec = next(s for s in specs if s.id == "sample_info")
+    info_spec = next((s for s in specs if s.id == "sample_info"), None)
+    assert info_spec is not None, "sample_info plugin not found"
 
     assert info_spec.actions
     action = info_spec.actions[0]

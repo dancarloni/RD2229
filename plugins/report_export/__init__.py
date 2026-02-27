@@ -7,15 +7,15 @@ from src.plugins import ActionSpec, ParamSpec, PluginRegistry, PluginSpec
 
 def _export(project: str, output: str) -> dict[str, object]:
     try:
-        from src.core.pipeline import run_pipeline  # type: ignore
-        from src.reporting.export import export_report  # type: ignore
-        from src.reporting.report_builder import build_report  # type: ignore
+        from src.core.pipeline import run_pipeline  # type: ignore[import]
+        from src.reporting.export import export_report  # type: ignore[import]
+        from src.reporting.report_builder import build_report  # type: ignore[import]
 
         result = run_pipeline(project)
         artifact = build_report(result)
         export_report(artifact, output)
         return {"ok": True, "output": output}
-    except Exception as exc:  # plugin errors must not crash the app
+    except (ImportError, FileNotFoundError, RuntimeError) as exc:  # plugin errors must not crash the app
         return {"ok": False, "error": str(exc)}
 
 

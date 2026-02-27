@@ -34,12 +34,12 @@ def main() -> int:
             print("Error: project file required for 'run' command", file=sys.stderr)
             return 1
         try:
-            from src.core.pipeline import run_pipeline  # type: ignore
+            from src.core.pipeline import run_pipeline  # type: ignore[import]
 
             result = run_pipeline(args.project)
             print(f"Pipeline complete: ok={result.ok}, elements={len(result.elements)}")
             return 0 if result.ok else 1
-        except Exception as exc:
+        except (ImportError, FileNotFoundError, RuntimeError) as exc:
             logger.error("Pipeline failed: %s", exc)
             return 1
     elif args.command == "export":
@@ -47,16 +47,16 @@ def main() -> int:
             print("Error: project file and output dir required for 'export'", file=sys.stderr)
             return 1
         try:
-            from src.core.pipeline import run_pipeline  # type: ignore
-            from src.reporting.export import export_report  # type: ignore
-            from src.reporting.report_builder import build_report  # type: ignore
+            from src.core.pipeline import run_pipeline  # type: ignore[import]
+            from src.reporting.export import export_report  # type: ignore[import]
+            from src.reporting.report_builder import build_report  # type: ignore[import]
 
             result = run_pipeline(args.project)
             artifact = build_report(result)
             export_report(artifact, args.output)
             print(f"Report exported to {args.output}")
             return 0
-        except Exception as exc:
+        except (ImportError, FileNotFoundError, RuntimeError) as exc:
             logger.error("Export failed: %s", exc)
             return 1
     return 0

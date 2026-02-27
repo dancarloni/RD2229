@@ -36,7 +36,7 @@ def load_plugins_from_folder(plugins_dir: Path) -> list[PluginSpec]:
             spec = _load_plugin_package(entry)
             if spec:
                 specs.append(spec)
-        except Exception as exc:  # plugin errors must not crash the app
+        except (ImportError, AttributeError, json.JSONDecodeError, TypeError, ValueError) as exc:  # plugin errors must not crash the app
             logger.warning("Failed to load plugin from %s: %s", entry, exc)
 
     return specs
@@ -104,7 +104,7 @@ def load_plugins_from_entry_points() -> list[PluginSpec]:
             tmp_registry = PluginRegistry()
             register_fn(tmp_registry)
             specs.extend(tmp_registry.list_plugins())
-        except Exception as exc:  # plugin errors must not crash the app
+        except (ImportError, AttributeError, TypeError, ValueError) as exc:  # plugin errors must not crash the app
             logger.warning("Failed to load entry_point plugin %s: %s", ep.name, exc)
 
     return specs
