@@ -1,4 +1,8 @@
-"""Entrypoint della GUI moderna RD2229 (PySide6).
+"""Entrypoint della GUI moderna RD2229 (PySide6) – DEPRECATED.
+
+.. deprecated::
+    Usa ``rd2229-gui`` (PyQt6) oppure ``src.ui.modern.app:main``.
+    Vedi ``legacy/README_LEGACY.md`` per i dettagli di migrazione.
 
 Avvio::
 
@@ -6,8 +10,6 @@ Avvio::
 
 Richiede PySide6::
 
-    pip install "rd2229[gui]"
-    # oppure
     pip install PySide6>=6.6
 
 Se PySide6 non è installato il modulo stampa un messaggio utile ed esce
@@ -17,14 +19,24 @@ con codice 1 senza crashare.
 from __future__ import annotations
 
 import sys
+import warnings
 
 
 def main() -> int:
-    """Funzione principale – avvia la GUI moderna.
+    """Funzione principale – avvia la GUI moderna (PySide6 legacy).
+
+    .. deprecated::
+        Use ``rd2229-gui`` (PyQt6) instead.
 
     Returns:
         Exit code (0 = successo, 1 = errore/PySide6 mancante).
     """
+    warnings.warn(
+        "src.ui.app:main is deprecated. Use 'rd2229-gui' (PyQt6) instead. "
+        "See legacy/README_LEGACY.md for migration details.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     try:
         from PySide6.QtWidgets import QApplication
     except ImportError:
@@ -40,6 +52,7 @@ def main() -> int:
 
     # Registra le schede built-in
     from src.ui.modern.features.builtin_features import register_builtin_features
+
     register_builtin_features()
 
     # Apri la finestra principale

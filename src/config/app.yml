@@ -30,5 +30,10 @@ logging:
   level: "INFO"     # può essere DEBUG, INFO, WARNING, ERROR
   file: "logs/app.log"
 
-ui:
+plugins:
+  discovery: "both"  # folder, entry_points, or both
+  folder: "plugins"
+
+gui:
+  theme: "default"
   enable_gui_warnings: true

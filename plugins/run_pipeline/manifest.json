@@ -1,0 +1,8 @@
+{
+  "id": "run_pipeline",
+  "title": "Run Pipeline",
+  "icon": "⚙️",
+  "category": "calculation",
+  "version": "0.1.0",
+  "actions": ["run"]
+}
