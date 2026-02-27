@@ -2,8 +2,8 @@ import tkinter as tk
 import unittest
 from unittest.mock import patch
 
-from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from libs.app_module.ui.main_window import MainWindow
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.main_window import MainWindow
 
 
 class TestShearHelpButton(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestShearHelpButton(unittest.TestCase):
     def tearDown(self):
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_help_button_opens_info_dialog(self):
@@ -37,13 +37,13 @@ class TestShearHelpButton(unittest.TestCase):
                         break
                 if help_btn:
                     break
-            except Exception:  # nosec
+            except Exception:
                 continue
 
         self.assertIsNotNone(help_btn, "Help button '?' not found in MainWindow")
 
         # Patch messagebox.showinfo and invoke the button
-        with patch("libs.app_module.ui.main_window.notify_info") as mock_info:
+        with patch("sections_app.ui.main_window.notify_info") as mock_info:
             help_btn.invoke()
             mock_info.assert_called_once()
             # the first arg is the title used in notify_info

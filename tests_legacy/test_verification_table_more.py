@@ -1,8 +1,8 @@
 import tkinter as tk
 import unittest
 
-from apps.sections.models.sections import RectangularSection
-from apps.sections.services.repository import SectionRepository
+from sections_app.models.sections import RectangularSection
+from sections_app.services.repository import SectionRepository
 
 try:
     from core_models.materials import Material, MaterialRepository
@@ -29,7 +29,7 @@ class TestVerificationTableMore(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_material_names_resolved_from_repository(self):
@@ -250,9 +250,7 @@ class TestVerificationTableMore(unittest.TestCase):
             self.skipTest("MaterialRepository not available")
 
         tmprepo = (
-            MaterialRepository(json_file=":memory:")
-            if hasattr(MaterialRepository, "__init__")
-            else MaterialRepository()
+            MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, "__init__") else MaterialRepository()
         )
         # Add materials of different types
         m1 = Material(name="C120", type="concrete")
@@ -302,9 +300,7 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIsNotNone(app._suggest_list)
         items = [app._suggest_list.get(i) for i in range(app._suggest_list.size())]
         # At least one historical R160 material should be suggested
-        self.assertTrue(
-            any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}"
-        )
+        self.assertTrue(any("R160" in it or "160" in it for it in items), f"Unexpected items: {items}")
         # Suggestions should be concrete materials only - none of the items should indicate a steel-only label
         # (simple heuristic: ensure no 'Acciaio' in suggested names)
         self.assertFalse(any("Acciaio" in it for it in items))
@@ -339,7 +335,7 @@ class TestVerificationTableMore(unittest.TestCase):
         app._on_entry_cancel(None)
         try:
             app.tree.delete(item)
-        except Exception:  # nosec
+        except Exception:
             pass
         win.destroy()
 
@@ -390,7 +386,7 @@ class TestVerificationTableMore(unittest.TestCase):
         self.assertIsNone(app._suggest_list)
         try:
             app.tree.delete(item)
-        except Exception:  # nosec
+        except Exception:
             pass
         top.destroy()
 
@@ -402,9 +398,7 @@ class TestVerificationTableMore(unittest.TestCase):
             self.skipTest("MaterialRepository not available")
 
         tmprepo = (
-            MaterialRepository(json_file=":memory:")
-            if hasattr(MaterialRepository, "__init__")
-            else MaterialRepository()
+            MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, "__init__") else MaterialRepository()
         )
         # Add material that matches historical name
         m1 = Material(name="CLS R 160 (RD 2229/39)", type="concrete")
@@ -437,9 +431,7 @@ class TestVerificationTableMore(unittest.TestCase):
             self.skipTest("MaterialRepository not available")
 
         tmprepo = (
-            MaterialRepository(json_file=":memory:")
-            if hasattr(MaterialRepository, "__init__")
-            else MaterialRepository()
+            MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, "__init__") else MaterialRepository()
         )
         m1 = Material(name="Concrete X", type="concrete", code="C160")
         tmprepo.add(m1)
@@ -470,9 +462,7 @@ class TestVerificationTableMore(unittest.TestCase):
             self.skipTest("MaterialRepository not available")
 
         tmprepo = (
-            MaterialRepository(json_file=":memory:")
-            if hasattr(MaterialRepository, "__init__")
-            else MaterialRepository()
+            MaterialRepository(json_file=":memory:") if hasattr(MaterialRepository, "__init__") else MaterialRepository()
         )
         m1 = Material(name="SomeSteel38", type="steel", code="S38")
         m2 = Material(name="SomeConcrete38", type="concrete", code="C38")

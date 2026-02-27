@@ -107,7 +107,7 @@ def _area_c_section(dims: dict[str, float]) -> tuple[float, float]:
 
 
 def _area_inverted_t_section(dims: dict[str, float]) -> tuple[float, float]:
-    # Same carbon_fiber_placeholder as T_SECTION (just flipped vertically), shear areas are the same
+    # Same geometry as T_SECTION (just flipped vertically), shear areas are the same
     return _area_t_section(dims)
 
 

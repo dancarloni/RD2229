@@ -20,7 +20,7 @@ class TestVerificationTableNavigation(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _values_for_item(self, app, item):

@@ -17,13 +17,13 @@ from apps.sections.services.notification import notify_error, notify_info
 from apps.sections.services.repository import CsvSectionSerializer, GeometryRepository
 from core_models.materials import MaterialRepository  # noqa: F401
 from historical_materials import HistoricalMaterialLibrary  # noqa: F401
-from libs.app_module.ui.code_settings_window import CodeSettingsWindow
-from libs.app_module.ui.debug_viewer import DebugViewerWindow  # noqa: F401
-from libs.app_module.ui.historical_main_window import HistoricalModuleMainWindow  # noqa: F401
-from libs.app_module.ui.historical_material_window import HistoricalMaterialWindow  # noqa: F401
-from libs.app_module.ui.main_window import MainWindow  # noqa: F401
-from libs.app_module.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
-from libs.app_module.ui.notification_center import NotificationCenter
+from apps.sections.ui.code_settings_window import CodeSettingsWindow
+from apps.sections.ui.debug_viewer import DebugViewerWindow  # noqa: F401
+from apps.sections.ui.historical_main_window import HistoricalModuleMainWindow  # noqa: F401
+from apps.sections.ui.historical_material_window import HistoricalMaterialWindow  # noqa: F401
+from apps.sections.ui.main_window import MainWindow  # noqa: F401
+from apps.sections.ui.module_selector_view import ModuleCardSpec, ModuleSelectorView
+from apps.sections.ui.notification_center import NotificationCenter
 from modules.registry import ModuleRegistry
 
 logger = logging.getLogger(__name__)
@@ -91,12 +91,18 @@ class ModuleSelectorController:
             with self.windows_lock:
                 self.open_windows.append(window)
 
-            # start the module in a separate thread to avoid blocking the selector UI
-            thread = threading.Thread(
-                target=self._run_window, args=(window, module_key), daemon=True
-            )
-            thread.start()
-            logger.info("Modulo '%s' avviato in background.", module_key)
+            # schedule the module startup on the Tkinter main thread
+            if master is not None and hasattr(master, "after"):
+                master.after(0, self._run_window, window, module_key)
+            else:
+                # Fallback: run directly, assuming we are on the main Tkinter thread
+                logger.warning(
+                    "Avvio modulo '%s' senza master.after (master=%r): potrebbe bloccare il thread.",
+                    module_key,
+                    master,
+                )
+                self._run_window(window, module_key)
+            logger.info("Modulo '%s' avviato sul thread principale Tkinter.", module_key)
         except Exception as e:
             logger.exception("Errore nell'avvio del modulo '%s': %s", module_key, e)
             notify_error(

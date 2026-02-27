@@ -1,4 +1,4 @@
-from core.carbon_fiber_placeholder import CircularSection, RectangularSection
+from core.geometry import CircularSection, RectangularSection
 from core.section_properties import compute_section_properties
 
 

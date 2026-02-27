@@ -1,5 +1,5 @@
-from apps.sections.services import search_helpers
 from materials_repository import MaterialsRepository
+from sections_app.services import search_helpers
 
 
 def sample_materials():

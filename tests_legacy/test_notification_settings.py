@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from apps.sections.services.notification_settings import (
+from sections_app.services.notification_settings import (
     load_notification_settings,
     save_notification_settings,
 )

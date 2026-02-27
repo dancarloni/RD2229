@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from apps.sections.services.event_bus import NOTIFICATION, EventBus
+from sections_app.services.event_bus import NOTIFICATION, EventBus
 
 
 @pytest.fixture

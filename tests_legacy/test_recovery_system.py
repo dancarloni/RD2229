@@ -9,9 +9,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from apps.sections.models.sections import RectangularSection
-from apps.sections.services.repository import SectionRepository
 from core_models.materials import MaterialRepository
+from sections_app.models.sections import RectangularSection
+from sections_app.services.repository import SectionRepository
 
 
 class TestRecoverySystem(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestRecoverySystem(unittest.TestCase):
 
         try:
             shutil.rmtree(self.temp_dir)
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_section_loads_from_main_file_normally(self):

@@ -15,7 +15,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
 }
 
 # Default path: project_root / data / notification_settings.json
-SETTINGS_PATH = Path(__file__).resolve().parents[2] / "data" / "notification_settings.json"
+SETTINGS_PATH = Path(__file__).resolve().parents[3] / "data" / "notification_settings.json"
 
 
 def _ensure_dir(path: Path) -> None:

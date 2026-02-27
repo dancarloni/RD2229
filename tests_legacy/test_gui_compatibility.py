@@ -5,8 +5,8 @@ import os
 import sys
 import tempfile
 
-from apps.sections.models.sections import CircularSection, RectangularSection
-from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.models.sections import CircularSection, RectangularSection
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
 
 
 def test_gui_compatibility():
@@ -15,7 +15,7 @@ def test_gui_compatibility():
     print("TEST: Compatibilità con codice GUI")
     print("=" * 70)
 
-    # Simula l'inizializzazione della GUI (come in apps.sections/app.py)
+    # Simula l'inizializzazione della GUI (come in sections_app/app.py)
     print("\n[1] Inizializzazione repository (come in GUI)...")
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -24,10 +24,8 @@ def test_gui_compatibility():
         os.chdir(tmpdir)
 
         try:
-            # Questo è il codice esatto da apps.sections/app.py
-            repository = SectionRepository(
-                "sections.json"
-            )  # Usa file sections.json nella cartella corrente
+            # Questo è il codice esatto da sections_app/app.py
+            repository = SectionRepository("sections.json")  # Usa file sections.json nella cartella corrente
             serializer = CsvSectionSerializer()
 
             print("  ✓ Repository inizializzato")
@@ -71,9 +69,7 @@ def test_gui_compatibility():
 
             # Modifica una sezione (simula click su "Modifica")
             print("\n[5] Modifica sezione (da GUI)...")
-            section1_modified = RectangularSection(
-                name="Test Rectangle Modified", width=35, height=45
-            )
+            section1_modified = RectangularSection(name="Test Rectangle Modified", width=35, height=45)
             repository2.update_section(loaded_sections[0].id, section1_modified)
             print("  ✓ Sezione modificata")
 

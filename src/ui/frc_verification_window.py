@@ -16,9 +16,7 @@ from src.core_calculus.core.verification_engine import VerificationEngine
 class FrcVerificationWindow(tk.Toplevel):
     """Simple window to run a quick verification with an FRC material."""
 
-    def __init__(
-        self, master: tk.Misc, material_repository: MaterialRepository | None = None
-    ) -> None:
+    def __init__(self, master: tk.Misc, material_repository: MaterialRepository | None = None) -> None:
         super().__init__(master)
         self.title("FRC Quick Verification")
         self.geometry("600x420")
@@ -40,7 +38,7 @@ class FrcVerificationWindow(tk.Toplevel):
         self.ent_area.insert(0, "0.5")
         self.ent_area.grid(row=1, column=1, sticky="w")
 
-        # Section carbon_fiber_placeholder
+        # Section geometry
         tk.Label(frm, text="Section width (b) cm:").grid(row=2, column=0, sticky="w")
         self.ent_b = tk.Entry(frm)
         self.ent_b.insert(0, "20.0")
@@ -66,12 +64,8 @@ class FrcVerificationWindow(tk.Toplevel):
         self.ent_M.insert(0, "1000.0")
         self.ent_M.grid(row=6, column=1, sticky="w")
 
-        tk.Button(frm, text="Load materials", command=self._load_materials).grid(
-            row=0, column=2, padx=8
-        )
-        tk.Button(frm, text="Run verification", command=self._run).grid(
-            row=7, column=1, pady=(10, 0)
-        )
+        tk.Button(frm, text="Load materials", command=self._load_materials).grid(row=0, column=2, padx=8)
+        tk.Button(frm, text="Run verification", command=self._run).grid(row=7, column=1, pady=(10, 0))
 
         self.output = tk.Text(self, height=10, width=80)
         self.output.pack(fill="both", padx=8, pady=8, expand=True)
@@ -120,9 +114,7 @@ class FrcVerificationWindow(tk.Toplevel):
         frc_mat = self._find_selected_material()
 
         engine = VerificationEngine(calculation_code="TA")
-        res = engine.perform_verification(
-            section, As_layer, As_p, material, loads, frc_material=frc_mat, frc_area=frc_area
-        )
+        res = engine.perform_verification(section, As_layer, As_p, material, loads, frc_material=frc_mat, frc_area=frc_area)
 
         self.output.delete("1.0", tk.END)
         self.output.insert(tk.END, f"Verification type: {res.verification_type}\n")

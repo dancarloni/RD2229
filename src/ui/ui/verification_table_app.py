@@ -43,11 +43,9 @@ COLUMNS: list[ColumnDef] = [
 # Note: Column "As" maps to VerificationInput.As_sup and "As_p" to VerificationInput.As_inf
 
 try:
-    from tools.materials_manager import list_materials as list_materials
-except (
-    Exception
-):  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
-    list_materials = None
+    from tools.materials_manager import list_materials as LIST_MATERIALS
+except Exception:  # pragma: no cover - fallback if import fails  # type: ignore[reportGeneralTypeIssues]
+    LIST_MATERIALS = None
 
 
 class VerificationTableApp(tk.Frame):
@@ -97,9 +95,7 @@ class VerificationTableApp(tk.Frame):
         self.search_limit = int(search_limit)
         self.display_limit = int(display_limit)
 
-        self.section_names: list[str] = self._resolve_section_names(
-            section_repository, section_names
-        )
+        self.section_names: list[str] = self._resolve_section_names(section_repository, section_names)
         self.material_names: list[str] | None = self._resolve_material_names(material_names)
 
         self.suggestions_map: dict[str, object] = {
@@ -284,38 +280,20 @@ class VerificationTableApp(tk.Frame):
         top.pack(fill="x", padx=8, pady=(8, 4))
 
         tk.Button(top, text="Salva progetto", command=self._on_save_project).pack(side="left")
-        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(
-            side="left", padx=(6, 0)
-        )
+        tk.Button(top, text="Carica progetto", command=self._on_load_project).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Aggiungi lista di elementi", command=self._on_add_list_elements).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Crea progetto test", command=self.create_test_project).pack(side="left", padx=(6, 0))
 
         tk.Button(top, text="Aggiungi riga", command=self._add_row).pack(side="left")
-        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(
-            side="left", padx=(6, 0)
-        )
-        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(
-            side="left", padx=(6, 0)
-        )
+        tk.Button(top, text="Confronta metodi", command=self._open_comparator).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Rimuovi riga", command=self._remove_selected_row).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Importa CSV", command=self._on_import_csv).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Esporta CSV", command=self._on_export_csv).pack(side="left", padx=(6, 0))
+        tk.Button(top, text="Calcola tutte le righe", command=self._on_compute_all).pack(side="left", padx=(6, 0))
         # Status label to show non-blocking progress messages
         self._status_var = tk.StringVar(value="")
         tk.Label(top, textvariable=self._status_var, anchor="w").pack(side="right")
-        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(
-            side="left", padx=(6, 0)
-        )
+        tk.Button(top, text="Salva elementi", command=self._on_save_items).pack(side="left", padx=(6, 0))
 
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
@@ -409,7 +387,7 @@ class VerificationTableApp(tk.Frame):
                 editor.insert(0, initial_text)
             try:
                 editor.selection_range(0, tk.END)
-            except Exception:  # nosec
+            except Exception:
                 pass
             editor.focus_set()
             # Monkeypatch Combobox.set to record the last value set programmatically.
@@ -422,11 +400,11 @@ class VerificationTableApp(tk.Frame):
                     orig_set(val)
                     try:
                         self._last_editor_value = editor.get()
-                    except Exception:  # nosec
+                    except Exception:
                         pass
 
                 editor.set = _set_and_record  # type: ignore
-            except Exception:  # nosec
+            except Exception:
                 pass
             return editor
         else:
@@ -452,18 +430,18 @@ class VerificationTableApp(tk.Frame):
                 editor.set(value or "")  # type: ignore
             else:
                 editor.insert(0, value)
-        except Exception:  # nosec
+        except Exception:
             pass
         if initial_text:
             try:
                 if hasattr(editor, "delete"):
                     editor.delete(0, tk.END)
                     editor.insert(0, initial_text)
-            except Exception:  # nosec
+            except Exception:
                 pass
         try:
             editor.select_range(0, tk.END)
-        except Exception:  # nosec
+        except Exception:
             pass
         editor.focus_set()
         # Bind common events
@@ -475,7 +453,7 @@ class VerificationTableApp(tk.Frame):
         def _record_key_event(_e=None) -> None:
             try:
                 self._last_editor_value = editor.get()
-            except Exception:  # nosec
+            except Exception:
                 pass
 
         editor.bind("<KeyRelease>", _record_key_event)
@@ -539,9 +517,7 @@ class VerificationTableApp(tk.Frame):
         return target_item, target_col, created
 
     # --- API pubbliche -------------------------------------------------
-    def create_editor_for_cell(
-        self, item: str, col: str, initial_text: str | None = None
-    ) -> ttk.Entry | ttk.Combobox:
+    def create_editor_for_cell(self, item: str, col: str, initial_text: str | None = None) -> ttk.Entry | ttk.Combobox:
         """API pubblica: crea un editor (Entry o Combobox) posizionato sopra la cella
         `item`/`col` e lo restituisce. Solleva ValueError se la cella non è visibile
         (bbox vuoto).
@@ -645,14 +621,10 @@ class VerificationTableApp(tk.Frame):
             return "break"
         if event.keysym in {"Left", "Right"}:
             delta: int = -1 if event.keysym == "Left" else 1
-            target_item, target_col = self._next_cell(
-                item, self._last_col, delta_col=delta, delta_row=0
-            )
+            target_item, target_col = self._next_cell(item, self._last_col, delta_col=delta, delta_row=0)
         else:
             delta: int = -1 if event.keysym == "Up" else 1
-            target_item, target_col = self._next_cell(
-                item, self._last_col, delta_col=0, delta_row=delta
-            )
+            target_item, target_col = self._next_cell(item, self._last_col, delta_col=0, delta_row=delta)
         self._last_col: str = target_col
         self._start_edit(target_item, target_col)
         return "break"
@@ -708,9 +680,7 @@ class VerificationTableApp(tk.Frame):
             self.current_column_index = None
 
         # Crea l'editor (Entry o Combobox) in modo centralizzato
-        self.edit_entry = self._create_editor_for_cell(
-            col, value, (x, y, width, height), initial_text=initial_text
-        )
+        self.edit_entry = self._create_editor_for_cell(col, value, (x, y, width, height), initial_text=initial_text)
 
         # Se lo start è esplicito (programma o click), consentiamo alla prima
         # chiamata a `_update_suggestions` di mostrare l'elenco completo se
@@ -728,16 +698,14 @@ class VerificationTableApp(tk.Frame):
         value: Any | str = getattr(self, "_last_editor_value", None) or self.edit_entry.get()
         # Record debug info via logger (no direct stdout prints)
         try:
-            logger.debug(
-                "Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value
-            )
+            logger.debug("Commit edit: item=%s column=%s value=%r", self.edit_item, self.edit_column, value)
             logger.debug("edit_entry type: %s", type(self.edit_entry))
             if hasattr(self.edit_entry, "cget"):
                 try:
                     logger.debug("combobox values: %s", self.edit_entry.cget("values"))
-                except Exception:  # nosec
+                except Exception:
                     pass
-        except Exception:  # nosec
+        except Exception:
             pass
         self.tree.set(self.edit_item, self.edit_column, value)
         logger.debug("Tree value after set: %r", self.tree.set(self.edit_item, self.edit_column))
@@ -828,9 +796,7 @@ class VerificationTableApp(tk.Frame):
         self._commit_edit()
 
         # Calcola la cella target (eventualmente creando una nuova riga copiando la corrente)
-        target_item, target_col, _created = self._compute_target_cell(
-            current_item, current_col, delta_col, delta_row
-        )
+        target_item, target_col, _created = self._compute_target_cell(current_item, current_col, delta_col, delta_row)
 
         # Apri l'editor sulla cella target
         self._start_edit(target_item, target_col)
@@ -951,13 +917,13 @@ class VerificationTableApp(tk.Frame):
     def _set_status(self, text: str) -> None:
         try:
             self._status_var.set(text)
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _clear_status(self, delay_ms: int = 1000) -> None:
         try:
             self.after(delay_ms, lambda: self._status_var.set(""))
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _get_rows_from_tree(self):
@@ -1009,9 +975,7 @@ class VerificationTableApp(tk.Frame):
                     "stirrup_diameter",
                 }:
                     try:
-                        kwargs[attr] = (
-                            float(str(value).replace(",", ".")) if str(value).strip() else 0.0
-                        )
+                        kwargs[attr] = float(str(value).replace(",", ".")) if str(value).strip() else 0.0
                     except Exception:
                         kwargs[attr] = 0.0
                 else:
@@ -1053,9 +1017,7 @@ class VerificationTableApp(tk.Frame):
         # Submit tasks
         if self._bg is not None:
             for it, row in zip(items, rows):
-                self._bg.submit(
-                    self._compute_for_pair, (it, row), callback=self._on_compute_done, tk_root=self
-                )
+                self._bg.submit(self._compute_for_pair, (it, row), callback=self._on_compute_done, tk_root=self)
             # clear status after a short period; individual callbacks can set messages
             self._clear_status(2000)
         else:
@@ -1087,7 +1049,7 @@ class VerificationTableApp(tk.Frame):
         item_id, out = res_tuple
         try:
             self._apply_result_to_item(item_id, out)
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def _focus_is_suggestion(self) -> bool:
@@ -1213,15 +1175,13 @@ class VerificationTableApp(tk.Frame):
         if material_names:
             return list(material_names)
         try:
-            if list_materials is not None:
-                materials = list_materials()  # type: ignore
+            if LIST_MATERIALS is not None:
+                materials = LIST_MATERIALS()  # type: ignore
                 # Convert dicts to strings if needed
                 if materials and isinstance(materials[0], dict):
                     return [str(m.get("name", m.get("id", str(m)))) for m in materials]  # type: ignore
                 return materials  # type: ignore
-            if self.material_repository is not None and hasattr(
-                self.material_repository, "get_all"
-            ):
+            if self.material_repository is not None and hasattr(self.material_repository, "get_all"):
                 mats = self.material_repository.get_all()
                 return [getattr(m, "name", getattr(m, "id", str(m))) for m in mats]
         except Exception:
@@ -1306,9 +1266,7 @@ class VerificationTableApp(tk.Frame):
     def create_test_project(self) -> None:
         # Small helper to create a sample row for manual testing
         item: str = self._add_row()
-        sample = VerificationInput(
-            element_name="E01", section_id="B200x30", verification_method="TA"
-        )
+        sample = VerificationInput(element_name="E01", section_id="B200x30", verification_method="TA")
         self.update_row_from_model(self.tree.index(item), sample)
 
     def _open_comparator(self) -> None:
@@ -1339,9 +1297,7 @@ class VerificationTableApp(tk.Frame):
         from tkinter import filedialog
 
         try:
-            path: str = filedialog.asksaveasfilename(
-                defaultextension=".csv", filetypes=[("CSV", "*.csv")]
-            )
+            path: str = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV", "*.csv")])
             if not path:
                 return
             self.export_csv(path, include_header=True)

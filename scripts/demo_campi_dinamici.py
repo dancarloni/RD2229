@@ -13,7 +13,7 @@ import sys
 # Aggiungi il path dei sorgenti
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from apps.sections.models.sections import CircularSection, RectangularSection, TSection
+from sections_app.models.sections import CircularSection, RectangularSection, TSection
 
 
 def test_rectangular_section():

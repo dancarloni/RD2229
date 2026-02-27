@@ -13,7 +13,7 @@ Bar = tuple[float, float, float]  # (y, z, diameter)
 
 @dataclass
 class SectionGeometry:
-    """Section carbon_fiber_placeholder data.
+    """Section geometry data.
 
     Units:
       - coordinates y,z: [cm]

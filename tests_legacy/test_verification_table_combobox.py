@@ -22,7 +22,7 @@ class TestVerificationTableCombobox(unittest.TestCase):
     def tearDown(self) -> None:
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_combobox_used_for_material_columns(self):

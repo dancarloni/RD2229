@@ -12,8 +12,8 @@ Data: 2025
 import tempfile
 from pathlib import Path
 
-from apps.sections.models.sections import CircularSection, RectangularSection, TSection
-from apps.sections.services.repository import SectionRepository
+from sections_app.models.sections import CircularSection, RectangularSection, TSection
+from sections_app.services.repository import SectionRepository
 
 
 def print_section(title: str):

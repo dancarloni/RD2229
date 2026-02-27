@@ -65,10 +65,6 @@ class GeometryRepository:
 
         # Se l'utente ha passato un path esplicito, lo usiamo così com'è
         self._explicit_json_file = json_file is not None
-        # Seeding policy: disable for explicit json_file unless forced by env
-        disable_seed_env = os.environ.get("RD2229_DISABLE_SEED", "").lower() in ("1", "true", "yes")
-        force_seed_env = os.environ.get("RD2229_FORCE_SEED", "").lower() in ("1", "true", "yes")
-        self._enable_seeding = (not disable_seed_env) and (force_seed_env or not self._explicit_json_file)
         if json_file is not None:
             self._json_file = json_file
             self._file_path = Path(json_file)
@@ -286,14 +282,7 @@ class GeometryRepository:
         EventBus().emit(SECTIONS_CLEARED)
 
     def _is_seeded(self, section: Section) -> bool:
-        return self._enable_seeding and bool(section.note) and SEED_TAG in section.note
-
-    def _maybe_seed(self) -> None:
-        if not self._enable_seeding:
-            return
-        if self._sections:
-            return
-        self._ensure_seed_sections()
+        return bool(section.note) and SEED_TAG in section.note
 
     def _ensure_seed_sections(self) -> None:
         """Ensure at least 3 seeded sections for each section type."""
@@ -523,7 +512,7 @@ class GeometryRepository:
                     logger.exception("Errore caricamento sezione %d dal JSON: %s", idx, e)
 
             logger.info("Caricate %d sezioni da %s", len(self._sections), self._file_path)
-            self._maybe_seed()
+            self._ensure_seed_sections()
             return
         except Exception:
             logger.exception("Errore nel caricamento di %s, provo il backup", self._file_path)
@@ -557,7 +546,7 @@ class GeometryRepository:
                 len(self._sections),
                 self._backup_path,
             )
-            self._maybe_seed()
+            self._ensure_seed_sections()
             return
         except Exception:
             logger.exception("Errore anche nel caricamento del backup %s", self._backup_path)
@@ -570,7 +559,7 @@ class GeometryRepository:
         )
         self._sections.clear()
         self._keys.clear()
-        self._maybe_seed()
+        self._ensure_seed_sections()
 
     def save_to_file(self) -> None:
         """Salva tutte le sezioni in un file JSON con backup automatico.

@@ -1,8 +1,8 @@
 import tkinter as tk
 import unittest
 
-from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
-from libs.app_module.ui.main_window import MainWindow
+from sections_app.services.repository import CsvSectionSerializer, SectionRepository
+from sections_app.ui.main_window import MainWindow
 
 
 class TestMainWindowMaterialButton(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestMainWindowMaterialButton(unittest.TestCase):
     def tearDown(self):
         try:
             self.root.destroy()
-        except Exception:  # nosec
+        except Exception:
             pass
 
     def test_editor_material_button_triggers_open_material_manager(self):
@@ -41,7 +41,7 @@ class TestMainWindowMaterialButton(unittest.TestCase):
                     child.invoke()
                     found = True
                     break
-            except Exception:  # nosec
+            except Exception:
                 continue
 
         self.assertTrue(found, "Editor materiali button not found in MainWindow")
