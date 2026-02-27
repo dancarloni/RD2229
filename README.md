@@ -12,6 +12,24 @@ Creare un motore di calcolo che:
 - mostri tutti gli step del calcolo (coefficiente, interpolazione, formula);
 - consenta una GUI grafica chiara e “storica”.
 
+## Architettura v0.1.0 (stato attuale)
+
+- Modello progetto validato in `src/project/schema.py` con `ProjectModel` (Pydantic).
+- Persistenza JSON/YAML con auto-detect estensione in `src/project/repository.py`.
+- Pipeline calcolo in `src/core/pipeline.py` con passi configurabili (`project.pipeline_steps`).
+- Reporting MD/HTML in `src/reporting/report_builder.py` + `src/reporting/export.py`.
+- Plugin di esempio in `src/plugins/` (`info`, `run`, `export`) con registry/discovery.
+- GUI registry moderno in `src/ui/modern/registry.py` e sidebar dinamica in `src/ui/modern/sidebar.py`.
+
+## Entry point CLI/GUI
+
+- CLI Typer: `python -m src.cli.entrypoint --help`
+  - comandi: `new`, `load`, `run`, `export`
+- GUI: `python -m src.gui.entrypoint`
+
+L’entrypoint installato `rd2229` punta a `src.cli.entrypoint:main`.
+L’entrypoint installato `rd2229-gui` punta a `src.gui.entrypoint:main`.
+
 ## Struttura del progetto
 
 - [src/rd2229](src/rd2229) — logica di calcolo e modelli

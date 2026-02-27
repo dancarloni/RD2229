@@ -1,0 +1,38 @@
+{
+    "order": [
+        "project_editor",
+        "section_manager",
+        "material_editor",
+        "code_settings",
+        "pipeline_runner",
+        "report_viewer",
+        "debug_viewer",
+        "notification_center"
+    ],
+    "modules": {
+        "project_editor": {
+            "enabled": true
+        },
+        "section_manager": {
+            "enabled": true
+        },
+        "material_editor": {
+            "enabled": true
+        },
+        "code_settings": {
+            "enabled": true
+        },
+        "pipeline_runner": {
+            "enabled": true
+        },
+        "report_viewer": {
+            "enabled": true
+        },
+        "debug_viewer": {
+            "enabled": true
+        },
+        "notification_center": {
+            "enabled": true
+        }
+    }
+}

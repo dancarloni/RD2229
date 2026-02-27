@@ -13,11 +13,12 @@ Migrazioni:
 
 from __future__ import annotations
 
-import dataclasses
 import json
 import logging
 import os
 from typing import Any
+
+import yaml  # type: ignore[import-untyped]
 
 from src.project.schema import (
     CURRENT_SCHEMA_VERSION,
@@ -125,11 +126,77 @@ def migrate_dict(data: dict[str, Any]) -> dict[str, Any]:
 
     if data.get("schema_version") != CURRENT_SCHEMA_VERSION:
         logger.warning(
-            "schema_version '%s' non corrisponde alla versione corrente '%s'; " "alcuni campi potrebbero essere mancanti.",
+            "schema_version '%s' non corrisponde alla versione corrente '%s'; "
+            "alcuni campi potrebbero essere mancanti.",
             data.get("schema_version"),
             CURRENT_SCHEMA_VERSION,
         )
     return data
+
+
+def _migrate_sections_elements_to_geometry_loads(data: dict[str, Any]) -> dict[str, Any]:
+    """Normalize legacy keys `sections` and `elements` into `geometry` and `loads`.
+
+    This transformation is non-destructive: the caller may save a backup of the
+    original file before applying. The function returns a new dict with
+    `geometry` and `loads` populated when possible.
+    """
+    migrated = dict(data)  # shallow copy
+
+    # Migrate `sections` -> `geometry`
+    sections = migrated.get("sections")
+    if sections and not migrated.get("geometry"):
+        geom_list: list[dict[str, Any]] = []
+        for s in sections:
+            if not isinstance(s, dict):
+                continue
+            # Apply sensible defaults for missing dimensions to allow checks
+            width = s.get("width") or 30.0
+            height = s.get("height") or 30.0
+            geom_list.append(
+                {
+                    "id": s.get("id", ""),
+                    "type": s.get("type", ""),
+                    "width": float(width),
+                    "height": float(height),
+                    "fire_selected": s.get("fire_selected", False),
+                    "fire_override": s.get("fire_override"),
+                    "extra": s.get("extra", {}) or {},
+                }
+            )
+        migrated["geometry"] = geom_list
+
+    # Migrate `elements` -> `loads`
+    elements = migrated.get("elements")
+    if elements and not migrated.get("loads"):
+        loads_list: list[dict[str, Any]] = []
+        for e in elements:
+            if not isinstance(e, dict):
+                continue
+            # Prefer linking load to the section id when present so geometry
+            # (migrated from `sections`) can be found by element lookups.
+            element_id = e.get("section_id") or e.get("id") or e.get("element_id") or ""
+            loads_list.append(
+                {
+                    "element_id": element_id,
+                    "N": e.get("N"),
+                    "Mx": e.get("Mx"),
+                    "My": e.get("My"),
+                    "Mz": e.get("Mz"),
+                    "Tx": e.get("Tx"),
+                    "Ty": e.get("Ty"),
+                    "description": e.get("name") or e.get("description") or "",
+                }
+            )
+        migrated["loads"] = loads_list
+
+    # Ensure code_settings.existing_structure=True to allow historical templates
+    cs = migrated.get("code_settings") or {}
+    cs.setdefault("existing_structure", True)
+    cs.setdefault("lc", "LC1")
+    migrated["code_settings"] = cs
+
+    return migrated
 
 
 # ---------------------------------------------------------------------------
@@ -168,6 +235,31 @@ def _dict_to_project(data: dict[str, Any]) -> ProjectModel:
         for g in (data.get("geometry") or [])
     ]
 
+    # Normalize legacy `materials` format: some older project files store materials
+    # as a dict like {"cls": [...], "steel": [...]} instead of a list.
+    materials_raw = data.get("materials") or []
+    if isinstance(materials_raw, dict):
+        materials_list: list[dict[str, Any]] = []
+        for mat_type, entries in materials_raw.items():
+            if not isinstance(entries, list):
+                continue
+            for item in entries:
+                if isinstance(item, dict):
+                    materials_list.append(
+                        {
+                            "id": item.get("id", ""),
+                            "type": mat_type,
+                            "material_class": item.get("name", ""),
+                            "f_ck": item.get("f_ck"),
+                            "f_yk": item.get("f_yk"),
+                            "extra": item.get("extra", {}),
+                        }
+                    )
+                else:
+                    materials_list.append({"id": str(item), "type": mat_type, "material_class": ""})
+    else:
+        materials_list = materials_raw
+
     materials = [
         MaterialEntry(
             id=m.get("id", ""),
@@ -177,7 +269,7 @@ def _dict_to_project(data: dict[str, Any]) -> ProjectModel:
             f_yk=m.get("f_yk"),
             extra=m.get("extra") or {},
         )
-        for m in (data.get("materials") or [])
+        for m in materials_list
     ]
 
     loads = [
@@ -249,7 +341,7 @@ def _dict_to_project(data: dict[str, Any]) -> ProjectModel:
 
 
 def load_project(path: str) -> ProjectModel:
-    """Carica un progetto da file JSON, applicando le migrazioni necessarie.
+    """Carica un progetto da file JSON/YAML applicando le migrazioni necessarie.
 
     Args:
         path: Percorso del file ``.json`` o ``.jsonp`` del progetto.
@@ -262,16 +354,39 @@ def load_project(path: str) -> ProjectModel:
         json.JSONDecodeError: Se il file non è JSON valido.
     """
     with open(path, encoding="utf-8") as f:
-        data: dict[str, Any] = json.load(f)
+        if path.lower().endswith((".yml", ".yaml")):
+            loaded = yaml.safe_load(f)
+            data = loaded if isinstance(loaded, dict) else {}
+        else:
+            data = json.load(f)
 
-    data = migrate_dict(data)
+    # Normalize legacy structural keys automatically. If migration applies,
+    # write a backup and an exported migrated file next to the original.
+    normalized = _migrate_sections_elements_to_geometry_loads(data)
+    if normalized is not data:
+        logger.info(
+            "Formato legacy rilevato: applicata normalizzazione sections/elements → geometry/loads"
+        )
+        try:
+            backup_path = path + ".backup"
+            with open(backup_path, "w", encoding="utf-8") as bf:
+                json.dump(data, bf, ensure_ascii=False, indent=2)
+            migrated_path = path + ".migrated.json"
+            with open(migrated_path, "w", encoding="utf-8") as mf:
+                json.dump(normalized, mf, ensure_ascii=False, indent=2)
+            logger.info(
+                "Backup salvato su '%s' e progetto migrato su '%s'", backup_path, migrated_path
+            )
+        except Exception as exc:  # pragma: no cover - IO problems are external
+            logger.warning("Impossibile scrivere backup/migrated file: %s", exc)
+    data = migrate_dict(normalized)
     project = _dict_to_project(data)
     logger.info("Progetto caricato da '%s' (schema_version=%s)", path, project.schema_version)
     return project
 
 
 def save_project(project: ProjectModel, path: str) -> None:
-    """Serializza un :class:`ProjectModel` su file JSON.
+    """Serializza un :class:`ProjectModel` su file JSON/YAML.
 
     Scrive atomicamente tramite file temporaneo per evitare file corrotti.
 
@@ -279,11 +394,14 @@ def save_project(project: ProjectModel, path: str) -> None:
         project: Modello da salvare.
         path: Percorso destinazione.
     """
-    data = dataclasses.asdict(project)
+    data = project.model_dump(mode="json")
     tmp_path = path + ".tmp"
     try:
         with open(tmp_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+            if path.lower().endswith((".yml", ".yaml")):
+                yaml.safe_dump(data, f, allow_unicode=True, sort_keys=False)
+            else:
+                json.dump(data, f, ensure_ascii=False, indent=2)
         os.replace(tmp_path, path)
     except Exception:
         if os.path.exists(tmp_path):

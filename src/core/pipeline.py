@@ -42,53 +42,72 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
     element_results: list[ElementResult] = []
 
     trace.append("pipeline:start")
+    configured_steps = set(getattr(project, "pipeline_steps", []) or [])
+    use_all_steps = not configured_steps
 
     # ------------------------------------------------------------------
     # Step 1 – validazione minimale del progetto
     # ------------------------------------------------------------------
-    if not project.code_settings.norm_code:
-        warnings.append("code_settings.norm_code non impostato; uso default 'RD2229'.")
+    if use_all_steps or "validate" in configured_steps:
+        if not project.code_settings.norm_code:
+            warnings.append("code_settings.norm_code non impostato; uso default 'RD2229'.")
 
-    if not project.loads:
-        warnings.append("Nessun carico definito nel progetto; pipeline produce risultati vuoti.")
+        if not project.loads:
+            warnings.append(
+                "Nessun carico definito nel progetto; pipeline produce risultati vuoti."
+            )
 
-    if not project.geometry:
-        warnings.append("Nessun elemento geometrico definito nel progetto.")
+        if not project.geometry:
+            warnings.append("Nessun elemento geometrico definito nel progetto.")
 
-    trace.append("pipeline:validation_done")
+        trace.append("pipeline:validation_done")
+    else:
+        trace.append("pipeline:validation_skipped")
 
     # ------------------------------------------------------------------
     # Step 2 – (soft) integrazione NTC2018 spectrum paste service
     # ------------------------------------------------------------------
-    _try_integrate_seismic(project, warnings, trace)
+    if use_all_steps or "seismic" in configured_steps:
+        _try_integrate_seismic(project, warnings, trace)
+    else:
+        trace.append("seismic:skip(configured)")
 
     # ------------------------------------------------------------------
     # Step 3 – calcolo verifiche per ogni carico
     # ------------------------------------------------------------------
     norm_code = project.code_settings.norm_code or "RD2229"
 
-    for load in project.loads:
-        elem_id = load.element_id or "(senza id)"
-        elem_result = _run_element_check(elem_id, load, project, norm_code, warnings, trace)
-        element_results.append(elem_result)
+    if use_all_steps or "checks" in configured_steps:
+        for load in project.loads:
+            elem_id = load.element_id or "(senza id)"
+            elem_result = _run_element_check(elem_id, load, project, norm_code, warnings, trace)
+            element_results.append(elem_result)
 
-    trace.append("pipeline:checks_done")
+        trace.append("pipeline:checks_done")
+    else:
+        trace.append("pipeline:checks_skipped")
 
     # ------------------------------------------------------------------
     # Step 5 – integrazione motore di calcolo reale (verification_service)
     # Arricchisce le metriche con i valori numerici dal motore di verifica.
     # Non sostituisce l'esito ok/non-ok del passo 3: lo integra.
     # ------------------------------------------------------------------
-    step5_ok, step5_reasons = _can_run_step5(project)
-    if step5_ok:
-        step5_results, step5_warnings, step5_trace = _run_step5(project)
-        warnings.extend(step5_warnings)
-        trace.extend(step5_trace)
-        if step5_results:
-            step5_by_id = {r.element_id: r for r in step5_results}
-            element_results = [merge_element_results(base, step5_by_id.get(base.element_id)) for base in element_results]
+    if use_all_steps or "step5" in configured_steps:
+        step5_ok, step5_reasons = _can_run_step5(project)
+        if step5_ok:
+            step5_results, step5_warnings, step5_trace = _run_step5(project)
+            warnings.extend(step5_warnings)
+            trace.extend(step5_trace)
+            if step5_results:
+                step5_by_id = {r.element_id: r for r in step5_results}
+                element_results = [
+                    merge_element_results(base, step5_by_id.get(base.element_id))
+                    for base in element_results
+                ]
+        else:
+            trace.append(f"step5:skip({'; '.join(step5_reasons)})")
     else:
-        trace.append(f"step5:skip({'; '.join(step5_reasons)})")
+        trace.append("step5:skip(configured)")
 
     # ------------------------------------------------------------------
     # Step 4 – aggregazione
@@ -125,7 +144,12 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
     )
     if fire_results:
         result.extra["fire"] = [
-            {"element_id": r.element_id, "status": r.status, "metrics": r.metrics, "messages": r.messages}
+            {
+                "element_id": r.element_id,
+                "status": r.status,
+                "metrics": r.metrics,
+                "messages": r.messages,
+            }
             for r in fire_results
         ]
     if wind_result is not None:
@@ -163,13 +187,19 @@ def _try_integrate_seismic(
             build_profile,
         )
     except ImportError:
-        warnings.append("Modulo src.codes.ntc2018.spectrum_paste_service non disponibile; " "dati sismici non elaborati.")
+        warnings.append(
+            "Modulo src.codes.ntc2018.spectrum_paste_service non disponibile; "
+            "dati sismici non elaborati."
+        )
         trace.append("seismic:skip(import_error)")
         return False
 
     raw_paste = si.hazard_profile.get("raw_paste", "")
     if not raw_paste:
-        warnings.append("seismic_inputs.hazard_profile.raw_paste mancante; " "impossibile costruire il profilo NTC2018.")
+        warnings.append(
+            "seismic_inputs.hazard_profile.raw_paste mancante; "
+            "impossibile costruire il profilo NTC2018."
+        )
         trace.append("seismic:skip(no_raw_paste)")
         return False
 
@@ -372,7 +402,11 @@ def _run_wind_pipeline(
         import dataclasses
 
         return (
-            dataclasses.asdict(wind_result) if dataclasses.is_dataclass(wind_result) else dict(wind_result),
+            (
+                dataclasses.asdict(wind_result)
+                if dataclasses.is_dataclass(wind_result)
+                else dict(wind_result)
+            ),
             warnings,
             trace,
         )

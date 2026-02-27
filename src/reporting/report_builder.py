@@ -125,6 +125,15 @@ def _build_markdown(
     lines.append(f"**Esito globale:** {'✅ OK' if results.ok else '❌ NON OK'}  ")
     lines.append("")
 
+    lines.append("## Indice")
+    lines.append("")
+    lines.append("- [Informazioni Progetto](#informazioni-progetto)")
+    lines.append("- [Impostazioni Normativa](#impostazioni-normativa)")
+    lines.append("- [Riepilogo Input](#riepilogo-input)")
+    lines.append("- [Risultati Verifiche](#risultati-verifiche)")
+    lines.append("- [Traccia Calcolo](#traccia-calcolo)")
+    lines.append("")
+
     # Informazioni progetto
     lines.append("## Informazioni Progetto")
     lines.append("")
@@ -413,7 +422,9 @@ def _build_html(markdown_content: str, title: str) -> str:
 
 def _esc(text: str) -> str:
     """HTML escape."""
-    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    return (
+        text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    )
 
 
 def _inline_md(text: str) -> str:

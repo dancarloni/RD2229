@@ -107,19 +107,25 @@ def _build_main_window(plugins: list[PluginSpec]) -> object:  # type: ignore[typ
                     # Placeholder page for this plugin
                     page = QWidget()
                     page_layout = QVBoxLayout(page)
-                    page_layout.addWidget(QLabel(f"<b>{plugin.title}</b><br/><i>{plugin.description}</i>"))
+                    page_layout.addWidget(
+                        QLabel(f"<b>{plugin.title}</b><br/><i>{plugin.description}</i>")
+                    )
                     self._stack.addWidget(page)
 
                     # Populate category menu from plugin actions
                     for action_spec in plugin.actions:
                         action_label = (
-                            f"{action_spec.icon}  {action_spec.label}".strip() if action_spec.icon else action_spec.label
+                            f"{action_spec.icon}  {action_spec.label}".strip()
+                            if action_spec.icon
+                            else action_spec.label
                         )
                         qt_action = cat_menu.addAction(action_label)
                         if action_spec.handler is not None:
                             _handler: Callable[..., object] = action_spec.handler
                             qt_action.triggered.connect(
-                                lambda _checked=False, h=_handler, s=action_spec: self._run_action_with_spec(h, s)
+                                lambda _checked=False, h=_handler, s=action_spec: self._run_action_with_spec(
+                                    h, s
+                                )
                             )
 
             if self._plugins:
@@ -155,13 +161,17 @@ def _build_main_window(plugins: list[PluginSpec]) -> object:  # type: ignore[typ
                     if ptype == "file":
                         path, _ = QFileDialog.getOpenFileName(self, label)
                         if not path and getattr(p, "required", False):
-                            QMessageBox.information(self, "Annullato", "Operazione annullata dall'utente.")
+                            QMessageBox.information(
+                                self, "Annullato", "Operazione annullata dall'utente."
+                            )
                             return
                         params.append(path)
                     elif ptype == "dir":
                         path = QFileDialog.getExistingDirectory(self, label)
                         if not path and getattr(p, "required", False):
-                            QMessageBox.information(self, "Annullato", "Operazione annullata dall'utente.")
+                            QMessageBox.information(
+                                self, "Annullato", "Operazione annullata dall'utente."
+                            )
                             return
                         params.append(path)
                     else:
@@ -170,7 +180,9 @@ def _build_main_window(plugins: list[PluginSpec]) -> object:  # type: ignore[typ
 
                         text, ok = QInputDialog.getText(self, label, label)
                         if not ok and getattr(p, "required", False):
-                            QMessageBox.information(self, "Annullato", "Operazione annullata dall'utente.")
+                            QMessageBox.information(
+                                self, "Annullato", "Operazione annullata dall'utente."
+                            )
                             return
                         params.append(str(text))
 

@@ -1,11 +1,22 @@
 {
-    "order": ["geometry", "historical", "material", "frc", "carbon_fiber_placeholder", "debug"],
-    "modules": {
-        "geometry": {"enabled": true},
-        "historical": {"enabled": true},
-        "material": {"enabled": true},
-        "frc": {"enabled": true},
-        "carbon_fiber_placeholder": {"enabled": true},
-        "debug": {"enabled": true}
-    }
+  "project_editor": {
+    "enabled": true,
+    "order": 0
+  },
+  "pipeline_runner": {
+    "enabled": true,
+    "order": 1
+  },
+  "report_viewer": {
+    "enabled": true,
+    "order": 2
+  },
+  "material_editor": {
+    "enabled": true,
+    "order": 3
+  },
+  "code_settings": {
+    "enabled": true,
+    "order": 4
+  }
 }

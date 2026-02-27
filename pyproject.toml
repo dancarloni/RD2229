@@ -7,15 +7,23 @@ name = "rd2229"
 version = "0.1.0"
 description = "Structural engineering calculations including RD 2229/1939 methods"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 requires-python = ">=3.11"
+
+# Sposta le dependencies sotto [project] come raccomandato
+dependencies = [
+  "pandas",
+  "matplotlib",
+  "PyYAML>=6.0",
+  "typer>=0.12.0"
+]
 
 [project.optional-dependencies]
 gui = ["PyQt6>=6.4", "PyYAML>=6.0"]
 
 [project.scripts]
-rd2229 = "src.cli:main"
-rd2229-gui = "src.ui.modern.app:main"
+rd2229 = "src.cli.entrypoint:main"
+rd2229-gui = "src.gui.entrypoint:main"
 structcalc = "src.ui.app:main"
 rd2229-demo = "src.rd2229.cli:main"
 

@@ -1,0 +1,425 @@
+{
+  "$defs": {
+    "CodeSettings": {
+      "properties": {
+        "norm_code": {
+          "default": "RD2229",
+          "title": "Norm Code",
+          "type": "string"
+        },
+        "limit_states": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limit States",
+          "type": "array"
+        },
+        "units_force": {
+          "default": "kN",
+          "title": "Units Force",
+          "type": "string"
+        },
+        "units_length": {
+          "default": "cm",
+          "title": "Units Length",
+          "type": "string"
+        },
+        "existing_structure": {
+          "default": false,
+          "title": "Existing Structure",
+          "type": "boolean"
+        },
+        "lc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lc"
+        }
+      },
+      "title": "CodeSettings",
+      "type": "object"
+    },
+    "FireSettings": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "scenario": {
+          "default": "ISO_834",
+          "title": "Scenario",
+          "type": "string"
+        },
+        "required_rating_minutes": {
+          "default": 60,
+          "title": "Required Rating Minutes",
+          "type": "integer"
+        },
+        "cover_mm_default": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cover Mm Default"
+        },
+        "exposure_sides_default": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exposure Sides Default"
+        }
+      },
+      "title": "FireSettings",
+      "type": "object"
+    },
+    "GeometryEntry": {
+      "properties": {
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "default": "",
+          "title": "Type",
+          "type": "string"
+        },
+        "width": {
+          "default": 0.0,
+          "title": "Width",
+          "type": "number"
+        },
+        "height": {
+          "default": 0.0,
+          "title": "Height",
+          "type": "number"
+        },
+        "fire_selected": {
+          "default": false,
+          "title": "Fire Selected",
+          "type": "boolean"
+        },
+        "fire_override": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fire Override"
+        },
+        "extra": {
+          "title": "Extra",
+          "type": "object"
+        }
+      },
+      "title": "GeometryEntry",
+      "type": "object"
+    },
+    "LoadEntry": {
+      "properties": {
+        "element_id": {
+          "default": "",
+          "title": "Element Id",
+          "type": "string"
+        },
+        "N": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N"
+        },
+        "Mx": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mx"
+        },
+        "My": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "My"
+        },
+        "Mz": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mz"
+        },
+        "Tx": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tx"
+        },
+        "Ty": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ty"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "title": "LoadEntry",
+      "type": "object"
+    },
+    "MaterialEntry": {
+      "properties": {
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "default": "",
+          "title": "Type",
+          "type": "string"
+        },
+        "material_class": {
+          "default": "",
+          "title": "Material Class",
+          "type": "string"
+        },
+        "f_ck": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "F Ck"
+        },
+        "f_yk": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "F Yk"
+        },
+        "extra": {
+          "title": "Extra",
+          "type": "object"
+        }
+      },
+      "title": "MaterialEntry",
+      "type": "object"
+    },
+    "ProjectInfo": {
+      "properties": {
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "author": {
+          "default": "",
+          "title": "Author",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "title": "ProjectInfo",
+      "type": "object"
+    },
+    "ResultsRef": {
+      "properties": {
+        "results_path": {
+          "default": "",
+          "title": "Results Path",
+          "type": "string"
+        },
+        "computed_at": {
+          "default": "",
+          "title": "Computed At",
+          "type": "string"
+        },
+        "schema_version_input": {
+          "default": "",
+          "title": "Schema Version Input",
+          "type": "string"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "title": "ResultsRef",
+      "type": "object"
+    },
+    "SeismicInputs": {
+      "properties": {
+        "class_of_use": {
+          "default": "",
+          "title": "Class Of Use",
+          "type": "string"
+        },
+        "vita_nominale_years": {
+          "default": 0,
+          "title": "Vita Nominale Years",
+          "type": "integer"
+        },
+        "vr_years": {
+          "default": 0,
+          "title": "Vr Years",
+          "type": "integer"
+        },
+        "site_label": {
+          "default": "",
+          "title": "Site Label",
+          "type": "string"
+        },
+        "hazard_profile": {
+          "title": "Hazard Profile",
+          "type": "object"
+        }
+      },
+      "title": "SeismicInputs",
+      "type": "object"
+    }
+  },
+  "description": "Validated project container used by pipeline, CLI and GUI.",
+  "properties": {
+    "schema_version": {
+      "default": "1.1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "project_info": {
+      "$ref": "#/$defs/ProjectInfo"
+    },
+    "geometry": {
+      "items": {
+        "$ref": "#/$defs/GeometryEntry"
+      },
+      "title": "Geometry",
+      "type": "array"
+    },
+    "materials": {
+      "items": {
+        "$ref": "#/$defs/MaterialEntry"
+      },
+      "title": "Materials",
+      "type": "array"
+    },
+    "loads": {
+      "items": {
+        "$ref": "#/$defs/LoadEntry"
+      },
+      "title": "Loads",
+      "type": "array"
+    },
+    "seismic_inputs": {
+      "$ref": "#/$defs/SeismicInputs"
+    },
+    "code_settings": {
+      "$ref": "#/$defs/CodeSettings"
+    },
+    "fire": {
+      "$ref": "#/$defs/FireSettings"
+    },
+    "results_ref": {
+      "$ref": "#/$defs/ResultsRef"
+    },
+    "pipeline_steps": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Pipeline Steps",
+      "type": "array"
+    },
+    "plugins": {
+      "additionalProperties": {
+        "type": "object"
+      },
+      "title": "Plugins",
+      "type": "object"
+    }
+  },
+  "title": "ProjectModel",
+  "type": "object"
+}

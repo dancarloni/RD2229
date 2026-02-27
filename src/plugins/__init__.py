@@ -15,7 +15,10 @@ __all__ = [
     "ActionSpec",
     "PluginSpec",
     "PluginRegistry",
+    "BasePlugin",
 ]
+
+from src.plugins.base import BasePlugin
 
 
 @dataclass
