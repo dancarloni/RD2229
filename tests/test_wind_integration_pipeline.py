@@ -6,12 +6,9 @@ quando è configurato un WindConfig nel progetto.
 
 from __future__ import annotations
 
-import dataclasses
-
 import pytest
 
 from src.core.pipeline import run_pipeline
-from src.core.results import ResultsModel
 from src.project.schema import (
     CodeSettings,
     GeometryEntry,
@@ -21,7 +18,6 @@ from src.project.schema import (
 )
 from src.wind.models import BuildingGeom, WindSite
 from src.wind.service import WindConfig
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -63,10 +59,7 @@ def test_pipeline_wind_in_extra():
     project = _project_with_wind()
     results = run_pipeline(project)
 
-    assert "wind" in results.extra, (
-        "Risultati vento mancanti in results.extra; "
-        f"extra keys: {list(results.extra.keys())}"
-    )
+    assert "wind" in results.extra, "Risultati vento mancanti in results.extra; " f"extra keys: {list(results.extra.keys())}"
 
 
 def test_pipeline_wind_has_profile():
@@ -131,6 +124,4 @@ def test_pipeline_wind_profile_monotonic():
     for i in range(1, len(profile)):
         v_prev = profile[i - 1].get("v_m_s", 0)
         v_curr = profile[i].get("v_m_s", 0)
-        assert v_curr >= v_prev * 0.95, (
-            f"Profilo non monotono: v[{i}]={v_curr} < v[{i-1}]={v_prev}"
-        )
+        assert v_curr >= v_prev * 0.95, f"Profilo non monotono: v[{i}]={v_curr} < v[{i-1}]={v_prev}"

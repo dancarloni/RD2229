@@ -1,5 +1,5 @@
-from src.rd2229.seismic.rd2229_39.provider import RD2229SeismicProvider, RD2229ProviderConfig
 from src.rd2229.seismic.rd2229_39.models.inputs import FloorForcesRequest, FloorMassBreakdown
+from src.rd2229.seismic.rd2229_39.provider import RD2229ProviderConfig, RD2229SeismicProvider
 
 
 def test_custom_sussultory_factor_affects_forces_and_trace():

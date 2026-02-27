@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from importlib import import_module
 
+
 def _load():
     return import_module("ui.module_selector")
 

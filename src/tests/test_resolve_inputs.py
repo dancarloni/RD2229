@@ -9,8 +9,8 @@ Controlliamo:
 - Che non sollevi errori
 """
 
-from src.elements.resolve_inputs import resolve_verification_inputs
 from src.elements.element_repo import ElementRepository
+from src.elements.resolve_inputs import resolve_verification_inputs
 from src.materials.material_repo import MaterialRepository
 
 

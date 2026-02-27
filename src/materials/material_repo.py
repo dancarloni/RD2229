@@ -19,7 +19,6 @@ Questo file è uno STUB S2:
 
 """
 
-from typing import Dict, Optional, List
 from .material_model import Material
 from .validation import validate_material
 
@@ -42,7 +41,7 @@ class MaterialRepository:
     """
 
     def __init__(self) -> None:
-        self._materials: Dict[str, Material] = {}
+        self._materials: dict[str, Material] = {}
 
     # ------------------------------------------------------------------
 
@@ -57,7 +56,7 @@ class MaterialRepository:
 
     # ------------------------------------------------------------------
 
-    def get(self, material_id: str) -> Optional[Material]:
+    def get(self, material_id: str) -> Material | None:
         """
         Restituisce il materiale richiesto.
 
@@ -69,7 +68,7 @@ class MaterialRepository:
 
     # ------------------------------------------------------------------
 
-    def list_all(self) -> List[Material]:
+    def list_all(self) -> list[Material]:
         """
         Restituisce tutti i materiali caricati.
         """
@@ -77,7 +76,7 @@ class MaterialRepository:
 
     # ------------------------------------------------------------------
 
-    def validate_all(self) -> Dict[str, List[str]]:
+    def validate_all(self) -> dict[str, list[str]]:
         """
         Valida tutti i materiali nel repository.
 
@@ -87,7 +86,7 @@ class MaterialRepository:
         TODO:
         - Logging per ogni materiale.
         """
-        results: Dict[str, List[str]] = {}
+        results: dict[str, list[str]] = {}
 
         for m in self._materials.values():
             errors = validate_material(m)

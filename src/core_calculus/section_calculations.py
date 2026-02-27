@@ -64,15 +64,11 @@ def compute_centroid(geom: SectionGeometry) -> tuple[float, float]:
     return weighted_x / total_area, weighted_y / total_area
 
 
-def compute_inertia(
-    geom: SectionGeometry, centroid: tuple[float, float]
-) -> tuple[float, float, float]:
+def compute_inertia(geom: SectionGeometry, centroid: tuple[float, float]) -> tuple[float, float, float]:
     """Compute Ix, Iy, Ixy about centroid, accounting for holes by subtraction."""
     cx, cy = centroid
 
-    def poly_inertia_about_centroid(
-        pts: list[tuple[float, float]], cx0: float, cy0: float
-    ) -> tuple[float, float, float]:
+    def poly_inertia_about_centroid(pts: list[tuple[float, float]], cx0: float, cy0: float) -> tuple[float, float, float]:
         Ix = 0.0
         Iy = 0.0
         Ixy = 0.0
@@ -204,9 +200,7 @@ def section_to_geometry(section: Section) -> SectionGeometry:
     if st == "RECTANGULAR" and hasattr(section, "width") and hasattr(section, "height"):
         b = float(getattr(section, "width"))
         h = float(getattr(section, "height"))
-        geom = SectionGeometry.from_rectangle(
-            b=b, h=h, rotation_deg=section.rotation_angle_deg, name=name
-        )
+        geom = SectionGeometry.from_rectangle(b=b, h=h, rotation_deg=section.rotation_angle_deg, name=name)
         # apply rotation to points if necessary
         if abs(section.rotation_angle_deg) > 1e-9:
             theta = radians(section.rotation_angle_deg)
@@ -437,9 +431,7 @@ def section_to_geometry(section: Section) -> SectionGeometry:
                 )
         outer = [(0.0, 0.0), (w, 0.0), (w, h), (0.0, h)]
         inner = [(t, t), (w - t, t), (w - t, h - t), (t, h - t)]
-        return SectionGeometry(
-            exterior=outer, holes=[inner], meta={"name": name, "type": "RECTANGULAR_HOLLOW"}
-        )
+        return SectionGeometry(exterior=outer, holes=[inner], meta={"name": name, "type": "RECTANGULAR_HOLLOW"})
 
     if st == "CIRCULAR_HOLLOW":
         od = float(getattr(section, "outer_diameter"))
@@ -447,17 +439,9 @@ def section_to_geometry(section: Section) -> SectionGeometry:
         r = od / 2.0
         ri = r - t
         steps = 1024
-        outer = [
-            (r * cos(2 * math.pi * i / steps), r * sin(2 * math.pi * i / steps))
-            for i in range(steps)
-        ]
-        inner = [
-            (ri * cos(2 * math.pi * i / steps), ri * sin(2 * math.pi * i / steps))
-            for i in range(steps)
-        ]
-        return SectionGeometry(
-            exterior=outer, holes=[inner], meta={"name": name, "type": "CIRCULAR_HOLLOW"}
-        )
+        outer = [(r * cos(2 * math.pi * i / steps), r * sin(2 * math.pi * i / steps)) for i in range(steps)]
+        inner = [(ri * cos(2 * math.pi * i / steps), ri * sin(2 * math.pi * i / steps)) for i in range(steps)]
+        return SectionGeometry(exterior=outer, holes=[inner], meta={"name": name, "type": "CIRCULAR_HOLLOW"})
 
     if st == "V_SECTION" or st == "INVERTED_V_SECTION":
         w = float(getattr(section, "width"))
@@ -552,9 +536,7 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             # remove nearly-duplicate consecutive points
             unique_pts: list[tuple[float, float]] = []
             for x, y in pts_sorted:
-                if not unique_pts or (
-                    abs(unique_pts[-1][0] - x) > 1e-9 or abs(unique_pts[-1][1] - y) > 1e-9
-                ):
+                if not unique_pts or (abs(unique_pts[-1][0] - x) > 1e-9 or abs(unique_pts[-1][1] - y) > 1e-9):
                     # clamp x to within [-half, half] to match expected bounding box (legacy assumes centerline extents)
                     xc = max(min(x, half), -half)
                     yc = y
@@ -566,9 +548,7 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             length = math.hypot(half, h)
             if length <= 0:
                 pts = [(-w / 2.0, h), (w / 2.0, h), (0.0, 0.0)]
-                return SectionGeometry(
-                    exterior=pts, meta={"name": name, "type": "INVERTED_V_SECTION"}
-                )
+                return SectionGeometry(exterior=pts, meta={"name": name, "type": "INVERTED_V_SECTION"})
             ux = half / length
             uy = h / length
             nx = -uy
@@ -606,29 +586,21 @@ def section_to_geometry(section: Section) -> SectionGeometry:
             pts_sorted = sorted(pts_all, key=lambda p: math.atan2(p[1] - cy, p[0] - cx))
             unique_pts = []
             for x, y in pts_sorted:
-                if not unique_pts or (
-                    abs(unique_pts[-1][0] - x) > 1e-9 or abs(unique_pts[-1][1] - y) > 1e-9
-                ):
+                if not unique_pts or (abs(unique_pts[-1][0] - x) > 1e-9 or abs(unique_pts[-1][1] - y) > 1e-9):
                     unique_pts.append((float(x), float(y)))
-            return SectionGeometry(
-                exterior=unique_pts, meta={"name": name, "type": "INVERTED_V_SECTION"}
-            )
+            return SectionGeometry(exterior=unique_pts, meta={"name": name, "type": "INVERTED_V_SECTION"})
 
     # Fallback: try to use dimensions dict if present
     dims = getattr(section, "dimensions", None) or {}
     if dims.get("width") and dims.get("height"):
         b = float(dims.get("width"))
         h = float(dims.get("height"))
-        return SectionGeometry.from_rectangle(
-            b=b, h=h, rotation_deg=section.rotation_angle_deg, name=name
-        )
+        return SectionGeometry.from_rectangle(b=b, h=h, rotation_deg=section.rotation_angle_deg, name=name)
     # last resort: tiny degenerate square
     return SectionGeometry.from_rectangle(1.0, 1.0, name=name)
 
 
-def compute_section_properties_from_geometry(
-    geom: SectionGeometry, shear_factor: float | None = None
-) -> SectionProperties:
+def compute_section_properties_from_geometry(geom: SectionGeometry, shear_factor: float | None = None) -> SectionProperties:
     """High-level pipeline returning SectionProperties from SectionGeometry.
 
     If shapely is available, use it for robust area and centroid calculations and for
@@ -641,6 +613,7 @@ def compute_section_properties_from_geometry(
     if _HAS_SHAPELY:
         try:
             from shapely.geometry import Polygon
+
             ext = Polygon(geom.exterior, holes=geom.holes)
             area = float(ext.area)
             centroid = ext.centroid
@@ -733,9 +706,7 @@ def compute_section_properties_from_geometry(
                         solidity = cand_area / (hull_area + 1e-12)
                         # compactness (isoperimetric ratio): 4*pi*A / P^2
                         perim = float(cand.length)
-                        compactness = (4.0 * 3.141592653589793 * cand_area) / (
-                            perim * perim + 1e-12
-                        )
+                        compactness = (4.0 * 3.141592653589793 * cand_area) / (perim * perim + 1e-12)
                         # aspect ratio estimate from hull bbox
                         hx0, hy0, hx1, hy1 = hull.bounds
                         dx = hx1 - hx0
@@ -746,16 +717,12 @@ def compute_section_properties_from_geometry(
                             aspect = float("inf")
                         else:
                             aspect = max_dim / (min_dim + 1e-12)
-                        aspect_factor = (
-                            1.0 / aspect if aspect > 0 and aspect != float("inf") else 0.0
-                        )
+                        aspect_factor = 1.0 / aspect if aspect > 0 and aspect != float("inf") else 0.0
                         # require a minimum area fraction of the original polygon
                         if cand_area < 0.005 * float(poly.area):
                             continue
                         # combined score: favor large, compact, and low-aspect candidates
-                        score = (
-                            cand_area * solidity * max(0.0, compactness) * max(1e-6, aspect_factor)
-                        )
+                        score = cand_area * solidity * max(0.0, compactness) * max(1e-6, aspect_factor)
                         candidates.append((score, cand))
                     except Exception:  # nosec
                         continue
@@ -774,7 +741,9 @@ def compute_section_properties_from_geometry(
                         from math import cos, pi, sin
 
                         def make_circle(cx: float, cy: float, r: float, steps: int = 16):
-                            return [(cx + r * cos(2 * pi * i / steps), cy + r * sin(2 * pi * i / steps)) for i in range(steps)]
+                            return [
+                                (cx + r * cos(2 * pi * i / steps), cy + r * sin(2 * pi * i / steps)) for i in range(steps)
+                            ]
 
                         circle = make_circle(rp.x, rp.y, radius)
                         # shrink until the circle is strictly within the polygon
@@ -817,9 +786,7 @@ def compute_section_properties_from_geometry(
     return props
 
 
-def _compute_properties_for_v_section(
-    section: Section, shear_factor: float | None = None
-) -> SectionProperties:
+def _compute_properties_for_v_section(section: Section, shear_factor: float | None = None) -> SectionProperties:
     """Return properties for V and inverted V sections using the legacy simplified model.
 
     This mirrors the legacy implementation in `apps.sections.models.sections.VSection._compute`
@@ -885,9 +852,7 @@ def _compute_properties_for_v_section(
     return props
 
 
-def compute_section_properties_from_section(
-    section: Section, shear_factor: float | None = None
-) -> SectionProperties:
+def compute_section_properties_from_section(section: Section, shear_factor: float | None = None) -> SectionProperties:
     """Top-level adapter: return SectionProperties for a Section instance.
 
     For certain section types where the legacy implementation uses simplified

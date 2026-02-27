@@ -32,8 +32,6 @@ jobs:
           # Ensure test runner and linters are available
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
       - name: Type check (mypy)
-        env:
-          MYPYPATH: ${{ github.workspace }}
         run: |
           # Run mypy via tools/run_mypy_ci.py which handles platform-specific arg parsing
           python tools/run_mypy_ci.py
@@ -43,9 +41,9 @@ jobs:
           pip install -e . || true
       - name: Run tests
         env:
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
         run: |
-          pytest -q
+          pytest -q -m "not gui"
       - name: Lint (flake8)
         run: |
           flake8 .

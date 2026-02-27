@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
 
-import pytest
-
+from src.project.repository import load_project, save_project
 from src.project.schema import (
     CodeSettings,
     GeometryEntry,
@@ -17,7 +15,6 @@ from src.project.schema import (
     ProjectModel,
     SeismicInputs,
 )
-from src.project.repository import load_project, save_project
 
 
 def _make_minimal_project() -> ProjectModel:

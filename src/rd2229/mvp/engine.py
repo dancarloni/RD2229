@@ -25,11 +25,7 @@ class PlaceholderVerificationEngine:
         axial = float(load_case.actions.get("N", 0.0))
         factor = float(combination.factors.get(load_case.id, 1.0))
         requested_check = request.check_code.strip() or config.check_code
-        active_check = (
-            requested_check
-            if requested_check in {"MVP_PLACEHOLDER", "MVP_REAL_MIN"}
-            else self.check_code
-        )
+        active_check = requested_check if requested_check in {"MVP_PLACEHOLDER", "MVP_REAL_MIN"} else self.check_code
 
         value, status = self._compute_result(
             check_code=active_check,
@@ -38,9 +34,7 @@ class PlaceholderVerificationEngine:
             threshold=threshold,
         )
         refs = self._norm_refs(config)
-        provenance_summary = ", ".join(
-            f"{key}:{value}" for key, value in sorted(config.provenance.items())
-        )
+        provenance_summary = ", ".join(f"{key}:{value}" for key, value in sorted(config.provenance.items()))
         trace = TraceRecord(
             run_id=uuid4().hex,
             norm_code=config.namespace,

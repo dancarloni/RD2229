@@ -18,9 +18,8 @@ Questo è uno STUB S2:
 - Struttura pronta per Copilot
 """
 
-from typing import Dict, Any
 import datetime
-import os
+from typing import Any
 
 
 class HTMLReportRenderer:
@@ -35,7 +34,7 @@ class HTMLReportRenderer:
     def __init__(self, template_path: str) -> None:
         self.template_path = template_path
 
-    def render(self, data: Dict[str, Any]) -> str:
+    def render(self, data: dict[str, Any]) -> str:
         """
         Restituisce una stringa HTML completa.
 

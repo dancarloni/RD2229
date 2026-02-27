@@ -36,7 +36,7 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
         warnings e traccia minimale.  Non solleva eccezioni per input
         incompleto: i problemi vengono registrati in ``warnings``.
     """
-    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    timestamp = datetime.datetime.now(datetime.UTC).isoformat()
     warnings: list[str] = []
     trace: list[str] = []
     element_results: list[ElementResult] = []
@@ -60,7 +60,7 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
     # ------------------------------------------------------------------
     # Step 2 – (soft) integrazione NTC2018 spectrum paste service
     # ------------------------------------------------------------------
-    seismic_ok = _try_integrate_seismic(project, warnings, trace)
+    _try_integrate_seismic(project, warnings, trace)
 
     # ------------------------------------------------------------------
     # Step 3 – calcolo verifiche per ogni carico
@@ -86,10 +86,7 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
         trace.extend(step5_trace)
         if step5_results:
             step5_by_id = {r.element_id: r for r in step5_results}
-            element_results = [
-                merge_element_results(base, step5_by_id.get(base.element_id))
-                for base in element_results
-            ]
+            element_results = [merge_element_results(base, step5_by_id.get(base.element_id)) for base in element_results]
     else:
         trace.append(f"step5:skip({'; '.join(step5_reasons)})")
 
@@ -128,8 +125,7 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
     )
     if fire_results:
         result.extra["fire"] = [
-            {"element_id": r.element_id, "status": r.status,
-             "metrics": r.metrics, "messages": r.messages}
+            {"element_id": r.element_id, "status": r.status, "metrics": r.metrics, "messages": r.messages}
             for r in fire_results
         ]
     if wind_result is not None:
@@ -167,19 +163,13 @@ def _try_integrate_seismic(
             build_profile,
         )
     except ImportError:
-        warnings.append(
-            "Modulo src.codes.ntc2018.spectrum_paste_service non disponibile; "
-            "dati sismici non elaborati."
-        )
+        warnings.append("Modulo src.codes.ntc2018.spectrum_paste_service non disponibile; " "dati sismici non elaborati.")
         trace.append("seismic:skip(import_error)")
         return False
 
     raw_paste = si.hazard_profile.get("raw_paste", "")
     if not raw_paste:
-        warnings.append(
-            "seismic_inputs.hazard_profile.raw_paste mancante; "
-            "impossibile costruire il profilo NTC2018."
-        )
+        warnings.append("seismic_inputs.hazard_profile.raw_paste mancante; " "impossibile costruire il profilo NTC2018.")
         trace.append("seismic:skip(no_raw_paste)")
         return False
 
@@ -192,9 +182,7 @@ def _try_integrate_seismic(
             raw_paste=raw_paste,
         )
         if profile.quality == "ERROR":
-            warnings.append(
-                f"Profilo sismico NTC2018 con errori: {'; '.join(profile.messages)}"
-            )
+            warnings.append(f"Profilo sismico NTC2018 con errori: {'; '.join(profile.messages)}")
             trace.append("seismic:done(quality=ERROR)")
         else:
             trace.append(f"seismic:done(quality={profile.quality})")
@@ -234,9 +222,7 @@ def _run_element_check(
         warnings.append(msg)
 
     # Almeno un'azione interna deve essere presente per una verifica significativa
-    has_loads = any(
-        v is not None for v in (load.N, load.Mx, load.My, load.Mz, load.Tx, load.Ty)
-    )
+    has_loads = any(v is not None for v in (load.N, load.Mx, load.My, load.Mz, load.Tx, load.Ty))
     if not has_loads:
         messages.append(f"Elemento '{elem_id}': nessuna azione interna definita.")
 
@@ -252,7 +238,7 @@ def _run_element_check(
     return ElementResult(element_id=elem_id, ok=ok, metrics=metrics, messages=messages)
 
 
-def _can_run_step5(project: "ProjectModel") -> tuple[bool, list[str]]:  # type: ignore[name-defined]
+def _can_run_step5(project: ProjectModel) -> tuple[bool, list[str]]:  # type: ignore[name-defined]
     """Delega a step5_adapter.can_run_step5 gestendo ImportError."""
     try:
         from src.core.step5_adapter import can_run_step5
@@ -263,7 +249,7 @@ def _can_run_step5(project: "ProjectModel") -> tuple[bool, list[str]]:  # type: 
 
 
 def _run_step5(
-    project: "ProjectModel",  # type: ignore[name-defined]
+    project: ProjectModel,  # type: ignore[name-defined]
 ) -> tuple[list[ElementResult], list[str], list[str]]:
     """Delega a step5_adapter.run_step5 gestendo ImportError."""
     try:
@@ -294,13 +280,9 @@ def merge_element_results(
     if step5 is None:
         return base
 
-    prefixed_metrics = {
-        f"step5.{k}": v for k, v in step5.metrics.items()
-    }
+    prefixed_metrics = {f"step5.{k}": v for k, v in step5.metrics.items()}
     merged_metrics = {**base.metrics, **prefixed_metrics}
-    merged_messages = base.messages + [
-        m for m in step5.messages if m not in base.messages
-    ]
+    merged_messages = base.messages + [m for m in step5.messages if m not in base.messages]
     return ElementResult(
         element_id=base.element_id,
         ok=base.ok,  # ok da step3, invariato
@@ -310,7 +292,7 @@ def merge_element_results(
 
 
 def _run_fire_pipeline(
-    project: "ProjectModel",  # type: ignore[name-defined]
+    project: ProjectModel,  # type: ignore[name-defined]
 ) -> tuple[list[Any], list[str], list[str]]:
     """Esegue la pipeline incendio per gli elementi selezionati.
 
@@ -329,7 +311,6 @@ def _run_fire_pipeline(
         trace.append("fire:skip(import_error)")
         return results, warnings, trace
 
-    fire_cfg = project.fire
     selected = [g for g in project.geometry if g.fire_selected]
     if not selected:
         trace.append("fire:skip(no_elements_selected)")
@@ -338,19 +319,19 @@ def _run_fire_pipeline(
     for elem in selected:
         eligible, reasons = evaluate_fire_eligibility(project, elem)
         if not eligible:
-            msg = (
-                f"fire:elemento '{elem.id}' non eleggibile: "
-                + "; ".join(reasons)
-            )
+            msg = f"fire:elemento '{elem.id}' non eleggibile: " + "; ".join(reasons)
             warnings.append(msg)
             trace.append(f"fire:{elem.id}:skipped(not_eligible)")
             from src.fire.rc_fire_check import ElementResultFire
-            results.append(ElementResultFire(
-                element_id=elem.id,
-                status="SKIPPED",
-                metrics={},
-                messages=[msg] + [f"  – {r}" for r in reasons],
-            ))
+
+            results.append(
+                ElementResultFire(
+                    element_id=elem.id,
+                    status="SKIPPED",
+                    metrics={},
+                    messages=[msg] + [f"  – {r}" for r in reasons],
+                )
+            )
             continue
 
         fire_result = run_rc_fire_check(project, elem)
@@ -362,7 +343,7 @@ def _run_fire_pipeline(
 
 
 def _run_wind_pipeline(
-    project: "ProjectModel",  # type: ignore[name-defined]
+    project: ProjectModel,  # type: ignore[name-defined]
 ) -> tuple[Any, list[str], list[str]]:
     """Esegue la pipeline vento se i dati sono disponibili.
 
@@ -389,7 +370,12 @@ def _run_wind_pipeline(
         wind_result = service.compute(wind_cfg)
         trace.append(f"wind:done(method={getattr(wind_cfg, 'method', 'unknown')})")
         import dataclasses
-        return dataclasses.asdict(wind_result) if dataclasses.is_dataclass(wind_result) else dict(wind_result), warnings, trace
+
+        return (
+            dataclasses.asdict(wind_result) if dataclasses.is_dataclass(wind_result) else dict(wind_result),
+            warnings,
+            trace,
+        )
     except Exception as exc:
         warnings.append(f"Errore pipeline vento: {exc}")
         trace.append("wind:error")

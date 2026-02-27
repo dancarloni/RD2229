@@ -9,7 +9,7 @@ Verifica che:
 - la funzione get_code funzioni correttamente
 """
 
-from src.codes.code_registry import register_code, get_code
+from src.codes.code_registry import get_code, register_code
 
 
 def test_register_and_get_code():

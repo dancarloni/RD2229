@@ -10,9 +10,7 @@ Il builder non dipende da GUI né da librerie di PDF:
 
 from __future__ import annotations
 
-import dataclasses
 import datetime
-import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -61,7 +59,7 @@ def build_report(
     Returns:
         :class:`ReportArtifact` con markdown e html generati.
     """
-    ts = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    ts = datetime.datetime.now(datetime.UTC).isoformat()
     report_title = title or project.project_info.name or "Rapporto RD2229"
     norm_code = project.code_settings.norm_code or "RD2229"
 
@@ -102,10 +100,7 @@ def _compact_trace(trace: list[str]) -> list[str]:
         "fire:",
         "wind:",
     )
-    filtered = [
-        t for t in trace
-        if any(t.startswith(p) for p in important_prefixes)
-    ]
+    filtered = [t for t in trace if any(t.startswith(p) for p in important_prefixes)]
     return filtered[:20]
 
 
@@ -208,8 +203,8 @@ def _build_markdown(
 
 def _append_fire_section(
     lines: list[str],
-    project: "ProjectModel",
-    results: "ResultsModel",
+    project: ProjectModel,
+    results: ResultsModel,
 ) -> None:
     """Aggiunge la sezione Incendio al report Markdown se fire.enabled."""
     fire_cfg = getattr(project, "fire", None)
@@ -246,7 +241,7 @@ def _append_fire_section(
 
 def _append_wind_section(
     lines: list[str],
-    results: "ResultsModel",
+    results: ResultsModel,
 ) -> None:
     """Aggiunge la sezione Vento al report Markdown se presente."""
     wind_data = results.extra.get("wind")
@@ -418,12 +413,7 @@ def _build_html(markdown_content: str, title: str) -> str:
 
 def _esc(text: str) -> str:
     """HTML escape."""
-    return (
-        text.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-    )
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
 def _inline_md(text: str) -> str:

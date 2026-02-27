@@ -44,9 +44,7 @@ class VerificationController:
         self.section_repository = section_repository
         self.material_repository = material_repository
         self.templates_registry = get_all_templates()
-        logger.info(
-            f"VerificationController initialized with {len(self.templates_registry)} templates"
-        )
+        logger.info(f"VerificationController initialized with {len(self.templates_registry)} templates")
 
     def verify_element_from_row_data(
         self,
@@ -113,9 +111,7 @@ class VerificationController:
                 calc_input = self._build_calc_input_from_row_data(row_data)
                 calc_inputs.append(calc_input)
             except Exception as e:
-                logger.error(
-                    f"Error building CalcInput for row {row_data.get('element', 'unknown')}: {e}"
-                )
+                logger.error(f"Error building CalcInput for row {row_data.get('element', 'unknown')}: {e}")
                 # Add error output
                 calc_inputs.append(
                     CalcInput(

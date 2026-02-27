@@ -22,7 +22,6 @@ from typing import Any
 
 from src.core.results import ElementResult
 from src.project.schema import (
-    CodeSettings,
     GeometryEntry,
     LoadEntry,
     MaterialEntry,
@@ -42,7 +41,7 @@ class _SectionShim:
     """Sezione minimale compatibile con i template di verifica."""
 
     section_type: str
-    width: float   # cm
+    width: float  # cm
     height: float  # cm
     extra: dict[str, Any]
 
@@ -52,8 +51,8 @@ class _MaterialShim:
     """Materiale minimale compatibile con i template di verifica."""
 
     tags: list[str]
-    f_ck: float | None = None   # MPa
-    f_yk: float | None = None   # MPa
+    f_ck: float | None = None  # MPa
+    f_yk: float | None = None  # MPa
     material_type: str = ""
     extra: dict[str, Any] | None = None
 
@@ -120,10 +119,7 @@ def run_step5(
     # Ottieni i template per la normativa corrente
     templates = get_templates_for_norm(norm_code)
     if not templates:
-        warnings.append(
-            f"Nessun template disponibile per la normativa '{norm_code}'; "
-            "step5 non produce risultati."
-        )
+        warnings.append(f"Nessun template disponibile per la normativa '{norm_code}'; " "step5 non produce risultati.")
         trace.append(f"step5:skip(no_templates_for_{norm_code})")
         return element_results, warnings, trace
 
@@ -225,9 +221,7 @@ def run_step5(
 # ---------------------------------------------------------------------------
 
 
-def _find_material(
-    materials: list[MaterialEntry], material_type: str
-) -> MaterialEntry | None:
+def _find_material(materials: list[MaterialEntry], material_type: str) -> MaterialEntry | None:
     """Restituisce il primo materiale del tipo specificato."""
     return next((m for m in materials if m.type == material_type), None)
 
@@ -307,9 +301,7 @@ def _convert_output(elem_id: str, calc_output: Any) -> ElementResult:
         messages.extend(check_result.messages_it)
 
     # Metriche riepilogative – prefissate con "step5." per evitare collisioni
-    metrics: dict[str, Any] = {
-        f"step5.{k}": v for k, v in calc_output.summary_metrics.items()
-    }
+    metrics: dict[str, Any] = {f"step5.{k}": v for k, v in calc_output.summary_metrics.items()}
     metrics["step5.norm_code"] = calc_output.norm_code
 
     # Aggiunge metriche di dettaglio per ogni template

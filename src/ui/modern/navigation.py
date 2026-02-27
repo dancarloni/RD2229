@@ -5,7 +5,7 @@ Richiede PySide6.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 try:
     from PySide6.QtCore import Qt
@@ -18,6 +18,7 @@ try:
         QStackedWidget,
         QWidget,
     )
+
     _PYSIDE6_AVAILABLE = True
 except ImportError:
     _PYSIDE6_AVAILABLE = False
@@ -29,8 +30,8 @@ if not _PYSIDE6_AVAILABLE:
         def __init__(self, *a: Any, **kw: Any) -> None:
             pass
 
-
 else:
+
     class NavigationPanel(QWidget):  # type: ignore[no-redef]
         """Sidebar + QStackedWidget per la navigazione tra le schede.
 

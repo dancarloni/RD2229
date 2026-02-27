@@ -1,10 +1,10 @@
-import unittest
-import tkinter as tk
-import sys
 import os
+import sys
+import tkinter as tk
+import unittest
 
 # Ensure project root is on sys.path so tests can import local modules under pytest
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from verification_table import VerificationTableApp
 
@@ -59,5 +59,5 @@ class TestVerificationTableClickSuggestions(unittest.TestCase):
         top.destroy()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

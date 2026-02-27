@@ -26,9 +26,7 @@ class SQLiteStore:
                 conn.execute(f"PRAGMA user_version = {LATEST_DB_SCHEMA_VERSION}")
                 conn.commit()
             elif current > LATEST_DB_SCHEMA_VERSION:
-                raise RuntimeError(
-                    f"Database schema {current} is newer than supported {LATEST_DB_SCHEMA_VERSION}"
-                )
+                raise RuntimeError(f"Database schema {current} is newer than supported {LATEST_DB_SCHEMA_VERSION}")
 
     @staticmethod
     def _schema_version(conn: sqlite3.Connection) -> int:
@@ -39,8 +37,7 @@ class SQLiteStore:
 
     @staticmethod
     def _migrate_0_to_1(conn: sqlite3.Connection) -> None:
-        conn.executescript(
-            """
+        conn.executescript("""
             CREATE TABLE IF NOT EXISTS meta (
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
@@ -120,8 +117,7 @@ class SQLiteStore:
                 FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 FOREIGN KEY(request_id) REFERENCES check_requests(id) ON DELETE CASCADE
             );
-            """
-        )
+            """)
         conn.execute(
             "INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)",
             ("schema_version", str(LATEST_DB_SCHEMA_VERSION)),

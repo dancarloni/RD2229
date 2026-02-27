@@ -1,6 +1,6 @@
-from src.rd2229.seismic.rd2229_39.provider import RD2229SeismicProvider
-from src.rd2229.seismic.rd2229_39.models.inputs import FloorForcesRequest, FloorMassBreakdown
 from src.rd2229.seismic.rd2229_39.docs_ref.norm_refs import ONDULATORY_REF, SUSSULTORY_REF
+from src.rd2229.seismic.rd2229_39.models.inputs import FloorForcesRequest, FloorMassBreakdown
+from src.rd2229.seismic.rd2229_39.provider import RD2229SeismicProvider
 
 
 def test_trace_present_for_components():

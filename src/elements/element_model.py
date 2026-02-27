@@ -40,9 +40,10 @@ UNITÀ DI MISURA:
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
-from ..materials.material_model import Material
+from typing import Any
+
 from ..calc.shear_area_registry import compute_shear_area
+from ..materials.material_model import Material
 
 
 @dataclass
@@ -66,14 +67,14 @@ class Element:
     element_id: str
     type: str
     length_cm: float
-    material: Optional[Material] = None
-    section: Optional[Dict[str, Any]] = None
-    additional_params: Dict[str, Any] = field(default_factory=dict)
+    material: Material | None = None
+    section: dict[str, Any] | None = None
+    additional_params: dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------------
     # GEOMETRIA SEZIONE
     # ------------------------------------------------------------
-    def get_section_area(self) -> Optional[float]:
+    def get_section_area(self) -> float | None:
         """
         Restituisce l'area della sezione in cm^2.
 
@@ -84,7 +85,7 @@ class Element:
             return self.section.get("area_cm2")
         return None
 
-    def get_inertia(self) -> Optional[Dict[str, float]]:
+    def get_inertia(self) -> dict[str, float] | None:
         """
         Restituisce la mappa delle inerzie, es.:
 
@@ -116,6 +117,7 @@ class Element:
 
         class _Sec:
             """Mini-adapter per compatibilità compute_shear_area."""
+
             def __init__(self, md):
                 self.shape_id = md.get("id")
                 self.area_cm2 = md.get("area_cm2")
@@ -127,7 +129,7 @@ class Element:
     # ------------------------------------------------------------
     # MATERIALI
     # ------------------------------------------------------------
-    def get_material_param(self, name: str) -> Optional[float]:
+    def get_material_param(self, name: str) -> float | None:
         """
         Recupera il parametro materiale (es. fck, fyk, E).
 
@@ -141,7 +143,7 @@ class Element:
     # ------------------------------------------------------------
     # SERIALIZZAZIONE
     # ------------------------------------------------------------
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Serializzazione base, pronta per JSON.
 

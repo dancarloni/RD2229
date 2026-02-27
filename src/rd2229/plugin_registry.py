@@ -5,11 +5,12 @@ Registers simple callables by name for later dynamic extension.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict
+from typing import Any
 
-_REGISTRY: Dict[str, Callable] = {}
-_SPEC_REGISTRY: Dict[str, "ModuleSpec"] = {}
+_REGISTRY: dict[str, Callable] = {}
+_SPEC_REGISTRY: dict[str, ModuleSpec] = {}
 
 
 @dataclass(frozen=True)

@@ -850,7 +850,7 @@ class MainWindow(tk.Toplevel):
             geom = section_to_geometry(section)
         except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore nel calcolo proprietà per grafica: %s", exc)
-            messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {exc}")
+            notify_error("Errore", f"Errore nel calcolo proprietà: {exc}", source="main_window")
             return
         self.current_section = section
         self._last_geom = geom
@@ -905,8 +905,8 @@ class MainWindow(tk.Toplevel):
         ix = _get(props, "Ix", "ix")
         iy = _get(props, "Iy", "iy")
         ixy = _get(props, "Ixy", "ixy")
-        qx = _get(props, "qx", "qx")
-        qy = _get(props, "qy", "qy")
+        _get(props, "qx", "qx")
+        _get(props, "qy", "qy")
         rx = _get(props, "r1", "rx")
         ry = _get(props, "r2", "ry")
         x_c = _get(props, "x_c", "centroid_x")
@@ -1349,9 +1349,9 @@ class MainWindow(tk.Toplevel):
                 logger.debug("Sezione aggiornata: %s", self.editing_section_id)
                 self.editing_section_id = None
                 self._update_editing_mode_label()
-            except Exception as e:
-                logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
-                notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
+            except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
+                logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, exc)
+                notify_error("Errore", f"Impossibile aggiornare la sezione: {exc}", source="main_window")
                 return
 
         # Se il manager è aperto, ricarica la tabella
@@ -1484,6 +1484,7 @@ class MainWindow(tk.Toplevel):
             notify_info(
                 "Backup completato",
                 f"Backup sezioni: {sections_path}",
+                source="main_window",
             )
         except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore esportazione backup completo: %s", exc)

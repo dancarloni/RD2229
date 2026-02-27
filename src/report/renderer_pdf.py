@@ -20,7 +20,7 @@ STUB S2:
 - docstring dettagliata
 """
 
-from typing import Dict, Any
+from typing import Any
 
 
 class PDFReportRenderer:
@@ -35,7 +35,7 @@ class PDFReportRenderer:
     def __init__(self) -> None:
         pass
 
-    def render(self, data: Dict[str, Any], output_path: str) -> None:
+    def render(self, data: dict[str, Any], output_path: str) -> None:
         """
         Genera un PDF in output_path.
 

@@ -13,11 +13,13 @@ STUB S2: test semplici, non completi.
 """
 
 import pytest
+
 from src.calc.shear_area_registry import compute_shear_area
 
 
 class DummyRectSection:
     """Sezione rettangolare dummy per test."""
+
     def __init__(self):
         self.shape_id = "rectangle"
         self.area_cm2 = 100.0
@@ -27,6 +29,7 @@ class DummyRectSection:
 
 class DummyUnknownSection:
     """Sezione sconosciuta → fallback."""
+
     def __init__(self):
         self.shape_id = "unknown"
         self.area_cm2 = 50.0

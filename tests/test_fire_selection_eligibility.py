@@ -12,11 +12,10 @@ from __future__ import annotations
 
 import pytest
 
-from src.fire.curves import iso834_temperature, iso834_profile
-from src.fire.eligibility import evaluate_fire_eligibility
-from src.fire.rc_fire_check import ElementResultFire, run_rc_fire_check
 from src.core.pipeline import run_pipeline
-from src.reporting.report_builder import build_report
+from src.fire.curves import iso834_profile, iso834_temperature
+from src.fire.eligibility import evaluate_fire_eligibility
+from src.fire.rc_fire_check import run_rc_fire_check
 from src.project.schema import (
     CodeSettings,
     FireSettings,
@@ -25,7 +24,7 @@ from src.project.schema import (
     MaterialEntry,
     ProjectModel,
 )
-
+from src.reporting.report_builder import build_report
 
 # ---------------------------------------------------------------------------
 # Fixture helpers

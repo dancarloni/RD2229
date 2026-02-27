@@ -1,20 +1,20 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Optional
 
 # import type for annotation only (avoids circular import at runtime)
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
 if TYPE_CHECKING:
-    from src.codes.ntc2018.spectrum_paste_service import Ntc2018HazardProfile, Ntc2018HazardRow
+    from src.codes.ntc2018.spectrum_paste_service import Ntc2018HazardProfile
 
 
 @dataclass
 class SeismicInputs:
     # use string wrapped union to avoid forward reference issues
-    ntc2018_hazard_profile: Optional["Ntc2018HazardProfile"] = None
+    ntc2018_hazard_profile: Ntc2018HazardProfile | None = None
 
 
 DEFAULT_FILE_TYPE = "RD_VerificaSezioni_Project"

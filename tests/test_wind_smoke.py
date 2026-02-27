@@ -11,6 +11,10 @@ from __future__ import annotations
 
 import pytest
 
+from src.wind.ec1991_1_4 import (
+    compute_mean_wind_velocity,
+    run_en1991_1_4_wind,
+)
 from src.wind.models import BuildingGeom, WindSite
 from src.wind.ntc2018 import (
     compute_kinetic_pressure,
@@ -18,13 +22,8 @@ from src.wind.ntc2018 import (
     compute_velocity_profile_ntc2018,
     run_ntc2018_wind,
 )
-from src.wind.ec1991_1_4 import (
-    compute_mean_wind_velocity,
-    run_en1991_1_4_wind,
-)
-from src.wind.service import WindActionService, WindConfig
 from src.wind.outputs import WindResults
-
+from src.wind.service import WindActionService, WindConfig
 
 # ---------------------------------------------------------------------------
 # Fixture helpers
@@ -87,8 +86,7 @@ def test_ntc2018_velocity_profile_monotonic():
     profile = compute_velocity_profile_ntc2018(site, 25.0, z_values)
     for i in range(1, len(profile)):
         assert profile[i].v_m_s >= profile[i - 1].v_m_s * 0.99, (
-            f"Non monotono: z={profile[i].z_m}, v={profile[i].v_m_s} "
-            f"< v_prev={profile[i-1].v_m_s}"
+            f"Non monotono: z={profile[i].z_m}, v={profile[i].v_m_s} " f"< v_prev={profile[i-1].v_m_s}"
         )
 
 

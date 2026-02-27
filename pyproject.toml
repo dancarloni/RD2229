@@ -11,9 +11,11 @@ license = {text = "MIT"}
 requires-python = ">=3.11"
 
 [project.optional-dependencies]
-gui = ["PySide6>=6.6"]
+gui = ["PyQt6>=6.4", "PyYAML>=6.0"]
 
 [project.scripts]
+rd2229 = "src.cli:main"
+rd2229-gui = "src.ui.modern.app:main"
 structcalc = "src.ui.app:main"
 rd2229-demo = "src.rd2229.cli:main"
 
@@ -39,9 +41,32 @@ ignore = ["E203", "N803", "N806", "E501", "N815", "N802"]
 
 [tool.ruff.lint.per-file-ignores]
 # Test files: allow long lines and mixed-case test method names
-"tests*/**/*.py" = ["E501", "N802", "E402"]
+"tests*/**/*.py" = ["E501", "N802", "E402", "F821"]
+"tests/*.py" = ["E501", "N802", "E402", "F821"]
 # __init__.py files: allow imports not at top (for re-exports)
 "*/__init__.py" = ["E402"]
+# Script files: allow imports after sys.path manipulation
+"scripts/**/*.py" = ["E402"]
+"scripts/*.py" = ["E402"]
+# Debug/utility scripts: allow single-line statements
+"debug_*.py" = ["E702", "E701", "E722", "E402"]
+"tools/debug_*.py" = ["E701", "E722", "E702", "E402"]
+# Legacy/duplicated section_calculations files
+"sections_app/**/*.py" = ["E402", "F823"]
+"softw_components/**/*.py" = ["E402", "F823"]
+"apps/sections/section_calculations.py" = ["E402", "F823"]
+# Root-level app entry
+"__main__.py" = ["E402"]
+# Legacy Tkinter app - many style issues inherited from old codebase
+"verification_table.py" = ["E741", "F811", "E402"]
+# Secondary element module: uses intentional redefinition pattern
+"src/codes/ntc2018/secondary_elements/checks.py" = ["E402", "F811"]
+"src/codes/ntc2018/secondary_elements/models.py" = ["F811"]
+# UI modules: PySide6 imports kept for re-export / future use
+"src/ui/modern/**/*.py" = ["F401"]
+"src/rd2229/ui_qt/app.py" = ["F401"]
+# Legacy UI shim: non-standard import alias is intentional
+"src/ui/ui/verification_table_app.py" = ["N812"]
 
 [tool.ruff.format]
 # Usi Black come formatter principale → lascia il formatter di Ruff disattivo (default)

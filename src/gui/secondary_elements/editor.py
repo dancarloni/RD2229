@@ -4,13 +4,12 @@ This file contains form->model bindings and UI helpers only; all normative compu
 Refer to `docs/MEGAPLAN/PLAN_GUI_SECONDARY_ELEMENTS.md` and `docs/MEGAPLAN/SPEC_SecondaryElementSpec.md` for field definitions and required traceability.
 """
 
-from typing import Dict
 
-def build_form_schema(element_type: str) -> Dict:
+def build_form_schema(element_type: str) -> dict:
     """Return a form schema (SKELETON)."""
     return {"element_type": element_type, "fields": ["width", "height", "material"]}
 
 
-def serialize_form(inputs: Dict) -> Dict:
+def serialize_form(inputs: dict) -> dict:
     """Sanitize/serialize user inputs for the engine. GUI must not apply normative conversions here."""
     return inputs

@@ -4,6 +4,7 @@ Skeleton checks for V_Rd,c (no stirrups) based on SPEC_... (SPEC only). Numeric 
 
 # TODO: implement algorithmic details in a later PR. This file contains identifiers and stubs only.
 
+
 def vrdc_no_stirrups(inputs: dict) -> dict:
     """SKELETON: compute (or validate) the V_Rd,c no‑stirrups check.
 
@@ -14,5 +15,5 @@ def vrdc_no_stirrups(inputs: dict) -> dict:
         "value": None,
         "steps": ["SKELETON — implementation pending"],
         "trace": {"run_id": "TODO"},
-        "norm_references": ["SPEC_RC_SLU_VRDc_NoStirrups.md"]
+        "norm_references": ["SPEC_RC_SLU_VRDc_NoStirrups.md"],
     }

@@ -13,9 +13,7 @@ def verify_flexure_allowable_stress(section: Section, N: float, Mx: float, My: f
     Al momento ritorna un testo che indica che questa è una funzione stub. In futuro questa funzione
     dovrà tradurre le routine dal codice .bas e restituire risultati strutturati.
     """
-    logger.debug(
-        "Running historical flexure check for section %s: N=%s, Mx=%s, My=%s", section.id, N, Mx, My
-    )
+    logger.debug("Running historical flexure check for section %s: N=%s, Mx=%s, My=%s", section.id, N, Mx, My)
     # TODO: implementare le formule storiche, traducendo i .bas e documentando le fonti.
     return (
         f"TODO: historical flexure verification for section {section.name}\n"
