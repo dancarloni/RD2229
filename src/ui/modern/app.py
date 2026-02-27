@@ -118,7 +118,9 @@ def _build_main_window(plugins: list[PluginSpec]) -> object:  # type: ignore[typ
                         qt_action = cat_menu.addAction(action_label)
                         if action_spec.handler is not None:
                             _handler: Callable[..., object] = action_spec.handler
-                            qt_action.triggered.connect(lambda _checked=False, h=_handler: self._run_action(h))
+                            qt_action.triggered.connect(
+                                lambda _checked=False, h=_handler, s=action_spec: self._run_action_with_spec(h, s)
+                            )
 
             if self._plugins:
                 self._sidebar.setCurrentRow(0)
@@ -133,6 +135,46 @@ def _build_main_window(plugins: list[PluginSpec]) -> object:  # type: ignore[typ
         def _run_action(self, handler: Callable[..., object]) -> None:
             try:
                 result = handler()
+                QMessageBox.information(self, "Risultato", str(result))
+            except Exception as exc:
+                logger.exception("Action handler error: %s", exc)
+                QMessageBox.critical(self, "Errore", str(exc))
+
+        def _run_action_with_spec(self, handler: Callable[..., object], spec: object) -> None:
+            """Run an action handler prompting for params declared in `spec`.
+
+            Supports basic ParamSpec types: 'file' and 'dir'.
+            """
+            from PyQt6.QtWidgets import QFileDialog
+
+            try:
+                params = []
+                for p in getattr(spec, "params", []) or []:
+                    ptype = getattr(p, "type", "")
+                    label = getattr(p, "label", p.name if hasattr(p, "name") else "Select")
+                    if ptype == "file":
+                        path, _ = QFileDialog.getOpenFileName(self, label)
+                        if not path and getattr(p, "required", False):
+                            QMessageBox.information(self, "Annullato", "Operazione annullata dall'utente.")
+                            return
+                        params.append(path)
+                    elif ptype == "dir":
+                        path = QFileDialog.getExistingDirectory(self, label)
+                        if not path and getattr(p, "required", False):
+                            QMessageBox.information(self, "Annullato", "Operazione annullata dall'utente.")
+                            return
+                        params.append(path)
+                    else:
+                        # Unknown param type: ask via a simple input dialog
+                        from PyQt6.QtWidgets import QInputDialog
+
+                        text, ok = QInputDialog.getText(self, label, label)
+                        if not ok and getattr(p, "required", False):
+                            QMessageBox.information(self, "Annullato", "Operazione annullata dall'utente.")
+                            return
+                        params.append(str(text))
+
+                result = handler(*params)
                 QMessageBox.information(self, "Risultato", str(result))
             except Exception as exc:
                 logger.exception("Action handler error: %s", exc)
