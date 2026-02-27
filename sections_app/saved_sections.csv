@@ -1,3 +1,0 @@
-name,type,units,exterior,holes,meta
-30x90,rectangular,cm,"[[-15.0, -45.0], [15.0, -45.0], [15.0, 45.0], [-15.0, 45.0]]",[],"{""name"": ""30x90"", ""rotation_deg"": 0.0, ""type"": ""rectangular""}"
-T test,T_SECTION,cm,"[[-10.0, 0], [10.0, 0], [10.0, 50.0], [30.0, 50.0], [30.0, 80.0], [-30.0, 80.0], [-30.0, 50.0], [-10.0, 50.0]]",[],"{""name"": ""T test"", ""type"": ""T_SECTION""}"
