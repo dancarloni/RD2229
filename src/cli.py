@@ -35,8 +35,10 @@ def main() -> int:
             return 1
         try:
             from src.core.pipeline import run_pipeline  # type: ignore[import]
+            from src.project.repository import load_project  # type: ignore[import]
 
-            result = run_pipeline(args.project)
+            project = load_project(args.project)
+            result = run_pipeline(project)
             print(f"Pipeline complete: ok={result.ok}, elements={len(result.elements)}")
             return 0 if result.ok else 1
         except (ImportError, FileNotFoundError, RuntimeError) as exc:
@@ -47,14 +49,21 @@ def main() -> int:
             print("Error: project file and output dir required for 'export'", file=sys.stderr)
             return 1
         try:
+            import pathlib
+
             from src.core.pipeline import run_pipeline  # type: ignore[import]
-            from src.reporting.export import export_report  # type: ignore[import]
+            from src.project.repository import load_project  # type: ignore[import]
+            from src.reporting.export import export_report_html, export_report_md  # type: ignore[import]
             from src.reporting.report_builder import build_report  # type: ignore[import]
 
-            result = run_pipeline(args.project)
-            artifact = build_report(result)
-            export_report(artifact, args.output)
-            print(f"Report exported to {args.output}")
+            project = load_project(args.project)
+            results = run_pipeline(project)
+            artifact = build_report(project, results)
+            output_dir = pathlib.Path(args.output)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            export_report_html(artifact, str(output_dir / "report.html"))
+            export_report_md(artifact, str(output_dir / "report.md"))
+            print(f"Report exported to {args.output}/report.{{html,md}}")
             return 0
         except (ImportError, FileNotFoundError, RuntimeError) as exc:
             logger.error("Export failed: %s", exc)

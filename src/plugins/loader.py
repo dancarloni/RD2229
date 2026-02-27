@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import importlib
-import importlib.util
 import json
 import logging
+import sys
 from pathlib import Path
 from typing import Any
 
-from src.plugins import ActionSpec, ParamSpec, PluginRegistry, PluginSpec
+from src.plugins import PluginRegistry, PluginSpec
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,11 @@ def load_plugins_from_folder(plugins_dir: Path) -> list[PluginSpec]:
 
 
 def _load_plugin_package(package_dir: Path) -> PluginSpec | None:
-    """Load a single plugin package directory and return its PluginSpec."""
+    """Load a single plugin package directory and return its PluginSpec.
+
+    Plugins are imported as real packages (parent dir added temporarily to
+    ``sys.path``) so that relative imports inside the plugin work correctly.
+    """
     # Read manifest.json if present
     manifest: dict[str, Any] = {}
     manifest_file = package_dir / "manifest.json"
@@ -51,15 +55,20 @@ def _load_plugin_package(package_dir: Path) -> PluginSpec | None:
         with manifest_file.open(encoding="utf-8") as fh:
             manifest = json.load(fh)
 
-    # Dynamically import the package
-    module_name = f"_rd2229_plugin_{package_dir.name}"
-    spec_obj = importlib.util.spec_from_file_location(
-        module_name, package_dir / "__init__.py"
-    )
-    if spec_obj is None or spec_obj.loader is None:
-        return None
-    module = importlib.util.module_from_spec(spec_obj)
-    spec_obj.loader.exec_module(module)  # type: ignore[union-attr]
+    # Import the plugin as a real package by temporarily adding its parent to sys.path
+    plugins_root = str(package_dir.parent)
+    added_to_path = plugins_root not in sys.path
+    if added_to_path:
+        sys.path.insert(0, plugins_root)
+    try:
+        package_name = package_dir.name
+        if package_name in sys.modules:
+            module = importlib.reload(sys.modules[package_name])
+        else:
+            module = importlib.import_module(package_name)
+    finally:
+        if added_to_path and plugins_root in sys.path:
+            sys.path.remove(plugins_root)
 
     register_fn = getattr(module, "register", None)
     if register_fn is None:

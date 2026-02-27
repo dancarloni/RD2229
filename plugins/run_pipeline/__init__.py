@@ -8,8 +8,10 @@ from src.plugins import ActionSpec, ParamSpec, PluginRegistry, PluginSpec
 def _run(project: str) -> dict[str, object]:
     try:
         from src.core.pipeline import run_pipeline  # type: ignore[import]
+        from src.project.repository import load_project  # type: ignore[import]
 
-        result = run_pipeline(project)
+        project_model = load_project(project)
+        result = run_pipeline(project_model)
         return {"ok": result.ok, "elements": len(result.elements)}
     except (ImportError, FileNotFoundError, RuntimeError) as exc:  # plugin errors must not crash the app
         return {"ok": False, "error": str(exc)}

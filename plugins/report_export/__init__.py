@@ -2,19 +2,37 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from src.plugins import ActionSpec, ParamSpec, PluginRegistry, PluginSpec
 
 
 def _export(project: str, output: str) -> dict[str, object]:
     try:
         from src.core.pipeline import run_pipeline  # type: ignore[import]
-        from src.reporting.export import export_report  # type: ignore[import]
+        from src.project.repository import load_project  # type: ignore[import]
+        from src.reporting.export import export_report_html, export_report_md  # type: ignore[import]
         from src.reporting.report_builder import build_report  # type: ignore[import]
 
-        result = run_pipeline(project)
-        artifact = build_report(result)
-        export_report(artifact, output)
-        return {"ok": True, "output": output}
+        project_path = Path(project)
+        output_dir = Path(output)
+
+        project_model = load_project(project)
+        results = run_pipeline(project_model)
+        artifact = build_report(project_model, results)
+
+        output_dir.mkdir(parents=True, exist_ok=True)
+        html_path = output_dir / "report.html"
+        md_path = output_dir / "report.md"
+
+        export_report_html(artifact, str(html_path))
+        export_report_md(artifact, str(md_path))
+
+        return {
+            "ok": True,
+            "html": str(html_path),
+            "markdown": str(md_path),
+        }
     except (ImportError, FileNotFoundError, RuntimeError) as exc:  # plugin errors must not crash the app
         return {"ok": False, "error": str(exc)}
 

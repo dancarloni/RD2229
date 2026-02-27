@@ -850,7 +850,7 @@ class MainWindow(tk.Toplevel):
             geom = section_to_geometry(section)
         except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore nel calcolo proprietà per grafica: %s", exc)
-            messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {exc}")
+            notify_error("Errore", f"Errore nel calcolo proprietà: {exc}", source="main_window")
             return
         self.current_section = section
         self._last_geom = geom

@@ -12,10 +12,6 @@ if str(ROOT) not in sys.path:
 
 def test_cli_help(capsys):
     """rd2229 --help should print usage and exit 0."""
-    import argparse
-
-    # Patch sys.argv and call main() with --help equivalent
-    # argparse raises SystemExit(0) on --help; catch it
     import importlib
 
     cli = importlib.import_module("src.cli")
