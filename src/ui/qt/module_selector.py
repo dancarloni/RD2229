@@ -1,33 +1,47 @@
-"""
-RD2229 Module Selector (PySide6 Implementation)
-Implements modern sidebar-based navigation and module management.
-"""
+"""RD2229 Module Selector (Qt6 implementation)."""
 
 import logging
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import (
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QListWidget,
-    QMainWindow,
-    QMessageBox,
-    QPushButton,
-    QScrollArea,
-    QSizePolicy,
-    QVBoxLayout,
-    QWidget,
-)
+try:
+    from PyQt6.QtCore import Qt, pyqtSignal as Signal
+    from PyQt6.QtWidgets import (
+        QFrame,
+        QHBoxLayout,
+        QLabel,
+        QListWidget,
+        QMainWindow,
+        QMessageBox,
+        QPushButton,
+        QScrollArea,
+        QSizePolicy,
+        QVBoxLayout,
+        QWidget,
+    )
+except ImportError:  # pragma: no cover - fallback for environments with PySide6 only
+    from PySide6.QtCore import Qt, Signal
+    from PySide6.QtWidgets import (
+        QFrame,
+        QHBoxLayout,
+        QLabel,
+        QListWidget,
+        QMainWindow,
+        QMessageBox,
+        QPushButton,
+        QScrollArea,
+        QSizePolicy,
+        QVBoxLayout,
+        QWidget,
+    )
+
+from typing import Any
+
+_ALIGN_RIGHT: Any = getattr(Qt.AlignmentFlag, "AlignRight", getattr(Qt, "AlignRight", 0))
 
 logger = logging.getLogger(__name__)
 
 
 class ModuleSelectorWindow(QMainWindow):
-    """
-    Acts as the main shell for the application. Manages the sidebar navigation
-    and discovery of modules via the registry.
-    """
+    """Main shell for module navigation and discovery."""
 
     module_requested = Signal(str)
 
@@ -47,7 +61,7 @@ class ModuleSelectorWindow(QMainWindow):
         # Left Sidebar
         self.sidebar_layout = QVBoxLayout()
         sidebar_frame = QFrame()
-        sidebar_frame.setFrameShape(QFrame.StyledPanel)
+        sidebar_frame.setFrameShape(QFrame.Shape.StyledPanel)
         sidebar_frame.setFixedWidth(210)
         sidebar_frame.setLayout(self.sidebar_layout)
 
@@ -67,7 +81,6 @@ class ModuleSelectorWindow(QMainWindow):
         self.scroll.setWidgetResizable(True)
         container = QWidget()
         self.flow_layout = QVBoxLayout(container)
-        # Improved spacing and margins to avoid visual overlap
         self.flow_layout.setSpacing(8)
         self.flow_layout.setContentsMargins(8, 8, 8, 8)
         self.scroll.setWidget(container)
@@ -79,7 +92,6 @@ class ModuleSelectorWindow(QMainWindow):
     def _create_menubar(self):
         menubar = self.menuBar()
 
-        # File Menu
         file_menu = menubar.addMenu("&Progetto")
         file_menu.addAction("Nuovo", lambda: self.module_requested.emit("project_editor"))
         file_menu.addAction("Apri", lambda: self.module_requested.emit("project_editor"))
@@ -87,19 +99,11 @@ class ModuleSelectorWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction("Esci", self.close)
 
-        # Tools Menu
         tools_menu = menubar.addMenu("&Strumenti")
-        tools_menu.addAction(
-            "Materials Editor", lambda: self.module_requested.emit("material_editor")
-        )
-        tools_menu.addAction(
-            "Section Manager", lambda: self.module_requested.emit("section_manager")
-        )
-        tools_menu.addAction(
-            "Pipeline Runner", lambda: self.module_requested.emit("pipeline_runner")
-        )
+        tools_menu.addAction("Materials Editor", lambda: self.module_requested.emit("material_editor"))
+        tools_menu.addAction("Section Manager", lambda: self.module_requested.emit("section_manager"))
+        tools_menu.addAction("Pipeline Runner", lambda: self.module_requested.emit("pipeline_runner"))
 
-        # Help Menu
         help_menu = menubar.addMenu("&?")
         help_menu.addAction(
             "Informazioni",
@@ -107,9 +111,7 @@ class ModuleSelectorWindow(QMainWindow):
         )
 
     def _refresh_modules(self):
-        """Populates cards based on the registry."""
         self.sidebar_list.clear()
-        # Clear container widgets
         while self.flow_layout.count():
             item = self.flow_layout.takeAt(0)
             if item.widget():
@@ -127,7 +129,6 @@ class ModuleSelectorWindow(QMainWindow):
                 continue
             self.sidebar_list.addItem(spec.name)
             self._add_module_card(key, spec)
-        # Force layout update to ensure correct sizing and repaint
         try:
             w = self.scroll.widget()
             if w:
@@ -140,13 +141,13 @@ class ModuleSelectorWindow(QMainWindow):
 
     def _add_module_card(self, key, spec):
         card = QFrame()
-        card.setFrameShape(QFrame.StyledPanel)
+        card.setFrameShape(QFrame.Shape.StyledPanel)
         card.setStyleSheet(
-            "QFrame { background-color: #f9f9f9; border: 1px solid #ccc; border-radius: 8px; margin: 4px; padding: 10px; }"
+            "QFrame { background-color: #f9f9f9; border: 1px solid #ccc; "
+            "border-radius: 8px; margin: 4px; padding: 10px; }"
         )
         layout = QVBoxLayout(card)
-        # Make cards expand horizontally but keep reasonable fixed height
-        card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         card.setMinimumHeight(80)
 
         title = QLabel(f"<b>{spec.name}</b>")
@@ -161,19 +162,18 @@ class ModuleSelectorWindow(QMainWindow):
 
         layout.addWidget(title)
         layout.addWidget(desc)
-        layout.addWidget(btn, 0, Qt.AlignRight)
+        layout.addWidget(btn, 0, _ALIGN_RIGHT)
 
         self.flow_layout.addWidget(card)
 
     def _on_sidebar_click(self, item):
-        # Placeholder for future behavior
         pass
 
 
 MODULE_SPEC = {
     "key": "module_selector",
     "name": "Module Selector",
-    "description": "Sidebar e selettore moduli dinamico (PySide6 Implementation)",
+    "description": "Sidebar e selettore moduli dinamico (Qt6)",
     "category": "core",
 }
 
@@ -189,7 +189,10 @@ def create_module(master=None, **context):
 if __name__ == "__main__":
     import sys
 
-    from PySide6.QtWidgets import QApplication
+    try:
+        from PyQt6.QtWidgets import QApplication
+    except ImportError:  # pragma: no cover
+        from PySide6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     window = ModuleSelectorWindow()

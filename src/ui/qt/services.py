@@ -2,21 +2,26 @@
 RD2229 UI Logic - Common GUI Services
 Provides singleton access to shared resources for all windows.
 """
+
 import logging
 
-from PySide6.QtCore import QObject, Signal
+try:
+    from PyQt6.QtCore import QObject, pyqtSignal as Signal
+except ImportError:  # pragma: no cover
+    from PySide6.QtCore import QObject, Signal
 
 from src.materials.material_repo import MaterialRepository
 from src.project.schema import ProjectModel
 
 logger = logging.getLogger(__name__)
 
+
 class ProjectService(QObject):
     """
     Manages the active ProjectModel instance.
     Broadcasts changes to UI components.
     """
-    project_changed = Signal(object) # Emit the new ProjectModel
+    project_changed = Signal(object)
 
     def __init__(self):
         super().__init__()
@@ -35,6 +40,7 @@ class ProjectService(QObject):
         name = getattr(project.project_info, "name", "Unnamed") if project.project_info else "None"
         logger.info("Project set to: %s", name)
 
+
 class GUIServiceProvider:
     """
     Shared container for services (Project, Materials, Sections).
@@ -47,9 +53,10 @@ class GUIServiceProvider:
             instance = super(GUIServiceProvider, cls).__new__(cls)
             instance.project_service = ProjectService()
             instance.material_repo = MaterialRepository()
-            instance.section_repo = None 
+            instance.section_repo = None
             cls._instance = instance
         return cls._instance
+
 
 def get_services() -> GUIServiceProvider:
     return GUIServiceProvider()

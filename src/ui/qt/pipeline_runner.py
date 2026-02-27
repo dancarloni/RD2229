@@ -1,8 +1,9 @@
-"""
-PipelineRunnerWindow (PySide6 MVVM stub)
-"""
+"""PipelineRunnerWindow (Qt6 MVVM stub)."""
 
-from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+try:
+    from PyQt6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+except ImportError:  # pragma: no cover
+    from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 
 class PipelineRunnerWindow(QWidget):
@@ -12,14 +13,14 @@ class PipelineRunnerWindow(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Pipeline Runner (work in progress)"))
         # Improve sizing and force initial repaint
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.update()
 
 
 MODULE_SPEC = {
     "key": "pipeline_runner",
     "name": "Pipeline Runner",
-    "description": "Avvia la pipeline, mostra barra di progresso e risultati (PySide6)",
+    "description": "Avvia la pipeline, mostra barra di progresso e risultati (Qt6)",
 }
 
 

@@ -1,8 +1,9 @@
-"""
-ProjectEditorWindow (PySide6 MVVM stub)
-"""
+"""ProjectEditorWindow (Qt6 MVVM stub)."""
 
-from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+try:
+    from PyQt6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+except ImportError:  # pragma: no cover
+    from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 
 class ProjectEditorWindow(QWidget):
@@ -12,14 +13,14 @@ class ProjectEditorWindow(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Project Editor (work in progress)"))
         # Improve sizing to avoid layout overlap
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.update()
 
 
 MODULE_SPEC = {
     "key": "project_editor",
     "name": "Project Editor",
-    "description": "GUI per creare/caricare/salvare ProjectModel (PySide6)",
+    "description": "GUI per creare/caricare/salvare ProjectModel (Qt6)",
 }
 
 

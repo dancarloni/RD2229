@@ -1,12 +1,11 @@
-"""
-DebugViewerWindow (PySide6 Implementation)
-Real-time log viewer and inspection tool.
-"""
+"""DebugViewerWindow (Qt6 implementation)."""
 
 import logging
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QLabel, QSizePolicy, QTextEdit, QVBoxLayout, QWidget
+try:
+    from PyQt6.QtWidgets import QLabel, QSizePolicy, QTextEdit, QVBoxLayout, QWidget
+except ImportError:  # pragma: no cover
+    from PySide6.QtWidgets import QLabel, QSizePolicy, QTextEdit, QVBoxLayout, QWidget
 
 logger = logging.getLogger(__name__)
 
@@ -19,14 +18,14 @@ class DebugViewerWindow(QWidget):
         self.log_area = QTextEdit()
         self.log_area.setReadOnly(True)
         layout.addWidget(self.log_area)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.update()
 
 
 MODULE_SPEC = {
     "key": "debug_viewer",
     "name": "Debug Viewer",
-    "description": "Strumento per visualizzare log e debug (PySide6)",
+    "description": "Strumento per visualizzare log e debug (Qt6)",
 }
 
 

@@ -1,8 +1,9 @@
-"""
-SectionManagerWindow (PySide6 MVVM stub)
-"""
+"""SectionManagerWindow (Qt6 MVVM stub)."""
 
-from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+try:
+    from PyQt6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+except ImportError:  # pragma: no cover
+    from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 
 class SectionManagerWindow(QWidget):
@@ -11,14 +12,14 @@ class SectionManagerWindow(QWidget):
         self.project_service = project_service
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Section Manager (work in progress)"))
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.update()
 
 
 MODULE_SPEC = {
     "key": "section_manager",
     "name": "Section Manager",
-    "description": "Gestione/import/rotazione sezioni CSV (PySide6)",
+    "description": "Gestione/import/rotazione sezioni CSV (Qt6)",
 }
 
 

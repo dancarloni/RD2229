@@ -1,12 +1,9 @@
-"""
-CodeSettingsDialog (PySide6 MVVM stub)
-"""
+"""CodeSettingsWindow (Qt6 MVVM stub)."""
 
-"""
-CodeSettingsWindow (PySide6 MVVM stub)
-"""
-
-from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+try:
+    from PyQt6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+except ImportError:  # pragma: no cover
+    from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 
 class CodeSettingsWindow(QWidget):
@@ -14,14 +11,14 @@ class CodeSettingsWindow(QWidget):
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Code Settings (work in progress)"))
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.update()
 
 
 MODULE_SPEC = {
     "key": "code_settings",
     "name": "Code Settings Dialog",
-    "description": "Dialog di configurazione codici (PySide6)",
+    "description": "Dialog di configurazione codici (Qt6)",
 }
 
 

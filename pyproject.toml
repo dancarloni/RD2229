@@ -71,7 +71,7 @@ ignore = ["E203", "N803", "N806", "E501", "N815", "N802"]
 # Secondary element module: uses intentional redefinition pattern
 "src/codes/ntc2018/secondary_elements/checks.py" = ["E402", "F811"]
 "src/codes/ntc2018/secondary_elements/models.py" = ["F811"]
-# UI modules: PySide6 imports kept for re-export / future use
+# UI modules: Qt imports kept for re-export / future use
 "src/ui/modern/**/*.py" = ["F401"]
 "src/rd2229/ui_qt/app.py" = ["F401"]
 # Legacy UI shim: non-standard import alias is intentional

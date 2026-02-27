@@ -1,13 +1,13 @@
-"""
-RD2229 Main GUI Entrypoint (PySide6 Implementation)
-Launches the Module Selector window and initializes core services.
+"""RD2229 main Qt GUI entrypoint.
+
+This entrypoint is Qt6-first on PyQt6 and falls back to PySide6 when
+PyQt6 is not available in the runtime environment.
 """
 
 import argparse
 import logging
+import os
 import sys
-
-from PySide6.QtWidgets import QApplication
 
 from modules.registry import ModuleRegistry
 from src.ui.qt.module_selector import ModuleSelectorWindow
@@ -18,11 +18,19 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(name)s] %(leveln
 logger = logging.getLogger("RD2229.GUI")
 
 
-def run_gui():
+def run_gui() -> int:
+    if os.environ.get("RD2229_UI_TEST") == "1":
+        return 0
+
+    try:
+        from PyQt6.QtWidgets import QApplication
+    except ImportError:  # pragma: no cover - fallback for environments with PySide6 only
+        from PySide6.QtWidgets import QApplication
+
     parser = argparse.ArgumentParser(description="RD2229 - Structural Engineering Tool GUI (Qt)")
     parser.add_argument("--project", help="Path to a ProjectModel (YAML/JSON) to load")
     parser.add_argument("--code", help="Calculation code override (TA, SLU, etc.)")
-    args = parser.parse_args()
+    args, _unknown = parser.parse_known_args()
 
     app = QApplication(sys.argv)
     app.setApplicationName("RD2229 Structural Tool")
@@ -63,8 +71,13 @@ def run_gui():
 
     selector.show()
     logger.info("GUI starting...")
-    sys.exit(app.exec())
+    return app.exec()
+
+
+def main() -> int:
+    """Console-script compatible entrypoint."""
+    return run_gui()
 
 
 if __name__ == "__main__":
-    run_gui()
+    raise SystemExit(main())

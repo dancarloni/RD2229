@@ -1,3 +1,10 @@
+"""Legacy Tkinter modules package.
+
+Contains deprecated Tkinter-based modules kept for archival/compatibility.
+"""
+from __future__ import annotations
+
+__all__ = []
 """
 Legacy code — original project modules preserved unchanged.
 

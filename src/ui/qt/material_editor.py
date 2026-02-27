@@ -1,8 +1,9 @@
-"""
-HistoricalMaterialEditorWindow (PySide6 MVVM stub)
-"""
+"""HistoricalMaterialEditorWindow (Qt6 MVVM stub)."""
 
-from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+try:
+    from PyQt6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+except ImportError:  # pragma: no cover
+    from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 
 class HistoricalMaterialEditorWindow(QWidget):
@@ -11,14 +12,14 @@ class HistoricalMaterialEditorWindow(QWidget):
         self.material_repository = material_repository
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Material Editor (work in progress)"))
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.update()
 
 
 MODULE_SPEC = {
     "key": "material_editor",
     "name": "Historical Material Editor",
-    "description": "Editor materiali storici (PySide6)",
+    "description": "Editor materiali storici (Qt6)",
 }
 
 
