@@ -1,0 +1,8 @@
+{
+  "id": "sample_info",
+  "title": "Project Info",
+  "icon": "ℹ️",
+  "category": "utility",
+  "version": "0.1.0",
+  "actions": ["show_info"]
+}

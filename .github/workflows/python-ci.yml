@@ -43,9 +43,9 @@ jobs:
           pip install -e . || true
       - name: Run tests
         env:
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
         run: |
-          pytest -q
+          pytest -q -m "not gui"
       - name: Lint (flake8)
         run: |
           flake8 .

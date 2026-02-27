@@ -1,0 +1,8 @@
+{
+  "id": "report_export",
+  "title": "Report Export",
+  "icon": "📄",
+  "category": "reporting",
+  "version": "0.1.0",
+  "actions": ["export"]
+}

@@ -845,19 +845,12 @@ class MainWindow(tk.Toplevel):
             return
         # Ensure we have properties and geometry
         try:
-<<<<<<< HEAD
-            section.compute_properties()
-        except Exception as e:
-            logger.exception("Errore nel calcolo proprietà: %s", e)
-            notify_error("Errore", f"Errore nel calcolo proprietà: {e}", source="main_window")
-=======
             shear_k = self._get_shear_factor_from_ui()
             props = compute_section_properties_from_section(section, shear_factor=shear_k)
             geom = section_to_geometry(section)
         except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore nel calcolo proprietà per grafica: %s", exc)
-            messagebox.showerror("Errore", f"Errore nel calcolo proprietà: {exc}")
->>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
+            notify_error("Errore", f"Errore nel calcolo proprietà: {exc}", source="main_window")
             return
         self.current_section = section
         self._last_geom = geom
@@ -1328,19 +1321,6 @@ class MainWindow(tk.Toplevel):
         if not section:
             return
 
-<<<<<<< HEAD
-        # OBIETTIVO 4: Calcola proprietà automaticamente se assenti o se parametri sono cambiati
-        try:
-            # Calcola sempre le proprietà per assicurare valori aggiornati (sempre chiamare compute_properties)
-            section.compute_properties()
-            logger.debug("Proprietà calcolate per sezione: %s", section.name)
-        except Exception as e:
-            logger.exception("Errore nel calcolo proprietà: %s", e)
-            notify_error("Errore", f"Errore nel calcolo proprietà: {e}", source="main_window")
-            return
-
-=======
->>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
         # OBIETTIVO 3: Modifica non crea nuova sezione, fa update della sezione esistente
         # NOTE: compute_properties() is called internally by repository.add_section()
         # and repository.update_section(), so we don't call it here to avoid double computation.
@@ -1348,7 +1328,6 @@ class MainWindow(tk.Toplevel):
             # Nuova sezione
             added: bool = self.repository.add_section(section)
             if added:
-<<<<<<< HEAD
                 notify_info(
                     "Salvataggio",
                     f"Sezione '{section.name}' salvata correttamente nell'archivio.\nID: {section.id}",
@@ -1357,47 +1336,22 @@ class MainWindow(tk.Toplevel):
                 logger.debug("Sezione creata: %s", section.id)
             else:
                 notify_info("Salvataggio", "Sezione duplicata: non salvata", source="main_window")
-=======
-                messagebox.showinfo(
-                    "Salvataggio",
-                    f"Sezione '{section.name}' salvata correttamente nell'archivio.\n" f"ID: {section.id}",
-                )
-                logger.debug("Sezione creata: %s", section.id)
-            else:
-                notify_error(
-                    "Errore salvataggio",
-                    f"Impossibile salvare la sezione '{section.name}': " "duplicata o errore nel calcolo proprietà.",
-                    source="main_window",
-                )
->>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
         else:
             # Modifica sezione esistente: aggiorna mantenendo lo stesso ID
             try:
                 section.id = self.editing_section_id  # Preserva ID originale
                 self.repository.update_section(self.editing_section_id, section)
-<<<<<<< HEAD
                 notify_info(
                     "Aggiornamento",
                     f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\nID: {self.editing_section_id}",
                     source="main_window",
-=======
-                messagebox.showinfo(
-                    "Aggiornamento",
-                    f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\n" f"ID: {self.editing_section_id}",
->>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
                 )
                 logger.debug("Sezione aggiornata: %s", self.editing_section_id)
                 self.editing_section_id = None
                 self._update_editing_mode_label()
-<<<<<<< HEAD
-            except Exception as e:
-                logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, e)
-                notify_error("Errore", f"Impossibile aggiornare la sezione: {e}", source="main_window")
-=======
             except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
                 logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, exc)
                 notify_error("Errore", f"Impossibile aggiornare la sezione: {exc}", source="main_window")
->>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
                 return
 
         # Se il manager è aperto, ricarica la tabella
@@ -1529,12 +1483,8 @@ class MainWindow(tk.Toplevel):
 
             notify_info(
                 "Backup completato",
-<<<<<<< HEAD
-                f"Backup sezioni: {sections_path}\nBackup materiali: {materials_path}",
-                source="main_window",
-=======
                 f"Backup sezioni: {sections_path}",
->>>>>>> 7d17959e67335d1598aebfe93ebc3ee7c638c805
+                source="main_window",
             )
         except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
             logger.exception("Errore esportazione backup completo: %s", exc)
