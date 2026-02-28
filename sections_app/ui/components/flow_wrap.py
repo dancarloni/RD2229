@@ -1,3 +1,22 @@
+from __future__ import annotations
+
+import importlib
+import warnings
+
+warnings.warn(
+    "sections_app.ui.components.flow_wrap is deprecated and moved to src.legacy.sections_app.ui.components.flow_wrap",
+    DeprecationWarning,
+)
+
+def _load_legacy():
+    return importlib.import_module("src.legacy.sections_app.ui.components.flow_wrap")
+
+def __getattr__(name: str):
+    return getattr(_load_legacy(), name)
+
+def __dir__():
+    return dir(_load_legacy())
+
 """Flow Wrap Frame Component.
 
 This module provides a responsive layout container that automatically
