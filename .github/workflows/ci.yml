@@ -15,6 +15,9 @@ jobs:
       matrix:
         python-version: ["3.12"]
 
+    env:
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,12 +32,12 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          pip install -e .
 
       - name: Lint, type-check, tests and security (minimal)
         run: |
-          # run linters, type-check and tests
           ruff check src tests
           python tools/run_mypy_ci.py
-          # execute only non-GUI tests; failures should block CI
           pytest -q
           bandit -r src/ --severity-level medium
+
