@@ -33,7 +33,8 @@ jobs:
       - name: Lint, type-check, tests and security (minimal)
         run: |
           # run linters, type-check and tests
-          ruff check src tests || true
-          python tools/run_mypy_ci.py || true
-          pytest -q -m "not gui" || true
-          bandit -r src/ --severity-level medium || true
+          ruff check src tests
+          python tools/run_mypy_ci.py
+          # execute only non-GUI tests; failures should block CI
+          pytest -q
+          bandit -r src/ --severity-level medium

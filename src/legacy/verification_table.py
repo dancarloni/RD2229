@@ -1,27 +1,29 @@
-"""Legacy re-export for verification table APIs.
+"""Compatibility shim for legacy import path.
 
-The active implementation is maintained in `verification_table`.
-This module remains only as compatibility import path under `src.legacy`.
+This module re-exports the legacy GUI app found in
+`src.legacy.ui.verification_table_app` so older imports of
+`src.legacy.verification_table` continue to work. Keep a thin shim to avoid
+syntax errors during test collection.
 """
 
-from __future__ import annotations
+from importlib import import_module
 
-from verification_table import (
-    VerificationInput,
-    VerificationOutput,
-    compute_ta_verification,
-    compute_verification_result,
-    get_concrete_properties,
-    get_section_geometry,
-    get_steel_properties,
-)
 
-__all__ = [
-    "VerificationInput",
-    "VerificationOutput",
-    "compute_ta_verification",
-    "compute_verification_result",
-    "get_concrete_properties",
-    "get_section_geometry",
-    "get_steel_properties",
-]
+def _load():
+    return import_module("src.legacy.ui.verification_table_app")
+
+
+_mod = None
+
+
+def __getattr__(name: str):
+    global _mod
+    if _mod is None:
+        _mod = _load()
+    return getattr(_mod, name)
+
+
+def __dir__():
+    if _mod is None:
+        return ["__name__"]
+    return [n for n in dir(_mod) if not n.startswith("_")]

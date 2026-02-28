@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -34,8 +35,9 @@ def test_no_tkinter_imports():
 
     bad = []
     for p in pkg_path.rglob("*.py"):
-        # skip legacy folder
-        if "ui_legacy" in str(p):
+        # skip any legacy folder (Tkinter UI lives under src/legacy)
+        sp = str(p).lower()
+        if os.sep + "legacy" + os.sep in sp:
             continue
         try:
             src = p.read_text(encoding="utf8")

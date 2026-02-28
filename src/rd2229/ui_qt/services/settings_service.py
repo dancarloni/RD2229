@@ -24,9 +24,27 @@ class SettingsModel:
             self.recent_projects = []
 
 
+import json
+import os
+
+
 class SettingsService:
     def __init__(self, workspace_root: str | None = None) -> None:  # pragma: no cover - shim
+        self._workspace_root = workspace_root
         self._model = SettingsModel()
+        if workspace_root is not None:
+            try:
+                path = os.path.join(workspace_root, "settings.json")
+                if os.path.exists(path):
+                    with open(path, encoding="utf-8") as fh:
+                        data = json.load(fh)
+                    # assign loaded values if present
+                    for key, val in data.items():
+                        if hasattr(self._model, key):
+                            setattr(self._model, key, val)
+            except Exception:
+                # ignore load errors; keep defaults
+                pass
 
     def get_model(self) -> SettingsModel:
         return self._model
@@ -45,6 +63,15 @@ class SettingsService:
         self._model.default_threshold = float(threshold)
         self._model.default_check_code = check_code.strip() or "MVP_REAL_MIN"
         self._model.default_db_name = db_name.strip() or "mvp_alpha.db"
+        # persist if we have a workspace
+        if self._workspace_root is not None:
+            try:
+                os.makedirs(self._workspace_root, exist_ok=True)
+                path = os.path.join(self._workspace_root, "settings.json")
+                with open(path, "w", encoding="utf-8") as fh:
+                    json.dump(self._model.__dict__, fh)
+            except Exception:
+                pass
         return self._model
 
 

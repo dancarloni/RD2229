@@ -149,3 +149,20 @@ class VerificationTableApp:
                 app.tree.set(item, "notes", text)
             except Exception:
                 pass
+
+
+# Backwards-compatible module-level exports expected by legacy shims
+COLUMNS = VerificationTableApp.COLUMNS
+
+
+# Minimal window class alias for code importing VerificationTableWindow
+class VerificationTableWindow(VerificationTableApp):
+    pass
+
+
+# Legacy-compatible COLUMNS structure: list of tuples (key, label, width, align)
+# Some legacy modules expect this exact shape; build it from the simple COLUMNS
+# list above so CSV and other utilities work without importing Tk-based code.
+LEGACY_COLUMNS = [(c, c.replace("_", " ").title(), 120, "w") for c in COLUMNS]
+# Export under the historical name
+COLUMNS = LEGACY_COLUMNS

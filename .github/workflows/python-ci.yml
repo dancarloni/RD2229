@@ -36,5 +36,6 @@ jobs:
           ruff check src tests
           python tools/run_mypy_ci.py
           pip install -e .
-          pytest -q -m "not gui"
+          # run the standard (non-GUI) test suite; legacy directories are ignored via pytest.ini
+          pytest -q
           flake8 .

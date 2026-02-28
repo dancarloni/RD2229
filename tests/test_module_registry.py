@@ -18,6 +18,7 @@ MODULES = [
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "modules", "modules_config.json")
 MODULES_PATH = os.path.join(os.path.dirname(__file__), "..", "modules")
 
+
 @pytest.mark.parametrize("mod_key", MODULES)
 def test_module_registered_and_launchable(mod_key):
     sys.path.insert(0, MODULES_PATH)
@@ -27,9 +28,10 @@ def test_module_registered_and_launchable(mod_key):
     # Should return a placeholder or real window without error
     win = mod.create_module(master=None)
     assert win is not None
-    if hasattr(win, "mainloop"):
-        win.mainloop()
+    # do not call mainloop; placeholder objects may implement it but we
+    # don't want to create or run real GUI windows during the test run
     sys.path.pop(0)
+
 
 def test_modules_config_json_complete():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
@@ -37,6 +39,3 @@ def test_modules_config_json_complete():
     for key in MODULES:
         assert key in config, f"{key} missing in modules_config.json"
         assert config[key]["enabled"] is True
-
-
-
