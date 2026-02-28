@@ -33,8 +33,8 @@ jobs:
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
       - name: checks
         run: |
-          ruff check src tests || true
-          python tools/run_mypy_ci.py || true
-          pip install -e . || true
-          pytest -q -m "not gui" || true
-          flake8 . || true
+          ruff check src tests
+          python tools/run_mypy_ci.py
+          pip install -e .
+          pytest -q -m "not gui"
+          flake8 .
