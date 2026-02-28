@@ -102,6 +102,14 @@ def _load_legacy() -> ModuleType:
 
 
 def __getattr__(name: str):
+    # internal attributes (usually starting with an underscore) belong to the
+    # shim itself.  Accessing them should *not* trigger a load of the legacy
+    # module, and it must be possible to monkeypatch them during tests.
+    if name.startswith("_"):
+        if name in globals():
+            return globals()[name]
+        # fall through; we will raise below if not found
+
     warnings.warn(
         "verification_table has moved to src.legacy.verification_table; "
         "importing through this shim is deprecated.",

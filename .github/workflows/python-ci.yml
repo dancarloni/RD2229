@@ -43,4 +43,3 @@ jobs:
           # run the standard (non-GUI) test suite; legacy directories are ignored via pytest.ini
           pytest -q
           flake8 .
-

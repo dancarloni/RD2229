@@ -10,16 +10,7 @@ from __future__ import annotations
 # Directories to ignore during normal collection.  Placing legacy UI tests
 # here keeps them available for manual execution while preventing failures
 # in headless CI environments.
-collect_ignore = ["legacy_tkinter", "legacy_qt"]
 
-from __future__ import annotations
-
-<<<<<<< HEAD
-# Directories to ignore during normal collection.  Placing legacy UI tests
-# here keeps them available for manual execution while preventing failures
-# in headless CI environments.
-collect_ignore = ["legacy_tkinter", "legacy_qt"]
-=======
 try:
     import tkinter  # noqa: F401
 
@@ -80,9 +71,9 @@ _PYTEST_QT_DEPENDENT: list[str] = [
     "test_regression_gui_cli.py",
 ]
 
-collect_ignore: list[str] = []
+# the base list always ignores the legacy directories
+collect_ignore: list[str] = ["legacy_tkinter", "legacy_qt"]
 if not _TKINTER_AVAILABLE:
     collect_ignore.extend(_TKINTER_DEPENDENT)
 if not _PYTEST_QT_AVAILABLE:
     collect_ignore.extend(_PYTEST_QT_DEPENDENT)
->>>>>>> 9b6b9c2 (D1-D4: Fix CI gating, CLI collision, logging bridge, test_cli_new)
