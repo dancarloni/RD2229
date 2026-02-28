@@ -16,6 +16,22 @@ try:
 except ImportError:
     _TKINTER_AVAILABLE = False
 
+try:
+    import PyQt6  # noqa: F401
+
+    _PYQT6_AVAILABLE = True
+except ImportError:
+    _PYQT6_AVAILABLE = False
+
+try:
+    import PySide6  # noqa: F401
+
+    _PYSIDE6_AVAILABLE = True
+except ImportError:
+    _PYSIDE6_AVAILABLE = False
+
+_QT_AVAILABLE = _PYQT6_AVAILABLE or _PYSIDE6_AVAILABLE
+
 # Files that import tkinter (directly or transitively) at module level.
 # When tkinter is absent these files fail during *collection*, not just
 # during test execution, so they must be excluded before collection starts.
@@ -55,5 +71,14 @@ _TKINTER_DEPENDENT: list[str] = [
     "test_ui_qt_verification_service.py",
 ]
 
+# Files that import PyQt6 or PySide6 (directly or transitively) at module level.
+# When neither Qt binding is installed these fail during *collection*.
+_QT_DEPENDENT: list[str] = [
+    "test_ui_qt_registry.py",
+]
+
 if not _TKINTER_AVAILABLE:
     collect_ignore = _TKINTER_DEPENDENT
+
+if not _QT_AVAILABLE:
+    collect_ignore = list(globals().get("collect_ignore", [])) + _QT_DEPENDENT
