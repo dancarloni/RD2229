@@ -43,4 +43,4 @@ jobs:
       - name: Type-check (mypy)
         if: always()
         continue-on-error: true
-        run: mypy .
+        run: python tools/run_mypy_ci.py
