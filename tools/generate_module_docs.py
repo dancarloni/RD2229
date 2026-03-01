@@ -199,7 +199,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    now_dt = datetime.datetime.now(tz=datetime.timezone.utc)
+    now_dt = datetime.datetime.now(tz=datetime.UTC)
     modules = _parse_module_index()
 
     if not modules:
