@@ -2,7 +2,6 @@ import importlib
 import json
 import os
 import sys
-import types
 
 import pytest
 
@@ -34,7 +33,7 @@ def test_module_registered_and_launchable(mod_key):
 
 
 def test_modules_config_json_complete():
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+    with open(CONFIG_PATH, encoding="utf-8") as f:
         config = json.load(f)
     for key in MODULES:
         assert key in config, f"{key} missing in modules_config.json"

@@ -8,13 +8,13 @@ helpers, result application) without depending on Tkinter.
 
 from __future__ import annotations
 
-from typing import Any, List, Tuple
+from typing import Any
 
 
 class VerificationTableApp:
     # Minimal column order expected by CSV routines. Tests use dummy objects
     # that map column keys to model attributes via `_col_to_attr`.
-    COLUMNS: List[str] = [
+    COLUMNS: list[str] = [
         "element",
         "section",
         "verif_method",
@@ -57,11 +57,11 @@ class VerificationTableApp:
                 fh.write(";".join(cols) + "\n")
 
     @staticmethod
-    def import_csv(app: Any, path: str, clear: bool = False) -> Tuple[int, int, List[str]]:
+    def import_csv(app: Any, path: str, clear: bool = False) -> tuple[int, int, list[str]]:
         imported = 0
         skipped = 0
-        errors: List[str] = []
-        models: List[Any] = []
+        errors: list[str] = []
+        models: list[Any] = []
         with open(path, encoding="utf-8") as fh:
             header = fh.readline().strip().split(";")
             for line in fh:
@@ -110,7 +110,7 @@ class VerificationTableApp:
 
     def _compute_target_cell(
         self, item: str, col: str, col_idx: int, row_delta: int
-    ) -> Tuple[str, str, bool]:
+    ) -> tuple[str, str, bool]:
         # Determine current row index
         order = list(self.tree.get_children())
         try:

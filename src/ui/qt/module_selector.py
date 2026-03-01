@@ -3,7 +3,8 @@
 import logging
 
 try:
-    from PyQt6.QtCore import Qt, pyqtSignal as Signal
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtCore import pyqtSignal as Signal
     from PyQt6.QtWidgets import (
         QFrame,
         QHBoxLayout,

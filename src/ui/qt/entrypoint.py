@@ -9,11 +9,11 @@ import os
 import sys
 
 from modules.registry import ModuleRegistry
-from src.ui.qt.module_selector import ModuleSelectorWindow
-from src.ui.qt.services import get_services
 
 # Setup logging via bridge
 from src.rd2229.logging_bridge import get_logger, setup_logging
+from src.ui.qt.module_selector import ModuleSelectorWindow
+from src.ui.qt.services import get_services
 
 setup_logging("DEBUG")
 logger = get_logger("gui")

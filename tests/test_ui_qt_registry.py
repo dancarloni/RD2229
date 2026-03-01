@@ -23,7 +23,7 @@ def test_registry_discovery(registry):
     """Checks for core modules in the registry."""
     specs = registry.get_specs()
     keys = [s.key for s in specs]
-    
+
     # Fundamental modules that must be present
     assert "project_editor" in keys
     assert "pipeline_runner" in keys
@@ -35,11 +35,11 @@ def test_registry_factories(registry, services):
     for spec in registry.get_specs():
         factory = registry.get_factory(spec.key)
         assert factory is not None, f"Module {spec.key} missing factory"
-        
+
         try:
             # We don't actually .show() or exec_(), just check instantiation
             window = factory(
-                master=None, 
+                master=None,
                 project_service=services.project_service,
                 registry=registry
             )
@@ -61,12 +61,12 @@ def test_project_model_propagation():
     mock_p = ProjectModel()
     if mock_p.project_info:
         mock_p.project_info.name = "Test Project"
-    
+
     received = []
     services.project_service.project_changed.connect(lambda p: received.append(p))
-    
+
     services.project_service.set_project(mock_p)
-    
+
     # We use >= because it's a singleton and other tests might have fired it
     assert len(received) >= 1
     assert received[-1] is mock_p

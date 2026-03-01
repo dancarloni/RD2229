@@ -7,7 +7,6 @@ captures screenshots for each module and logs exceptions.
 import logging
 import os
 import sys
-import time
 import traceback
 
 from PySide6.QtCore import Qt
