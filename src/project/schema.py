@@ -7,7 +7,7 @@ Uses Pydantic models for validation and JSON-Schema generation.
 from __future__ import annotations
 
 import json
-from typing import Any, cast
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -104,15 +104,15 @@ class ProjectModel(BaseModel):
     wind: Any = Field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        return cast(dict[str, Any], self.model_dump(mode="json"))
+        return self.model_dump(mode="json")
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ProjectModel":
-        return cast(ProjectModel, cls.model_validate(data))
+    def from_dict(cls, data: dict[str, Any]) -> ProjectModel:
+        return cls.model_validate(data)
 
     @classmethod
     def json_schema_dict(cls) -> dict[str, Any]:
-        return cast(dict[str, Any], cls.model_json_schema())
+        return cls.model_json_schema()
 
     @classmethod
     def export_schema(cls, path: str = "schema.json") -> None:

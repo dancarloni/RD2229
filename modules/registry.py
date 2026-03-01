@@ -35,7 +35,9 @@ class ModuleRegistry:
         self._factories: dict[str, Callable] = {}
         try:
             pkg = importlib.import_module(self.package)
-            self._config_path = Path(pkg.__file__).parent / "modules_config.json"
+            # pkg.__file__ may be None in some import contexts; coerce to str
+            self._config_path = Path(getattr(pkg, "__file__", ""))
+            self._config_path = self._config_path.parent / "modules_config.json"
         except Exception:  # pragma: no cover - defensive
             self._config_path = Path("modules_config.json")
         self._config = self._load_config()
@@ -71,8 +73,8 @@ class ModuleRegistry:
                     enabled = conf.get("enabled", True) if isinstance(conf, dict) else True
                     self._specs[key] = ModuleSpec(
                         key=key,
-                        name=spec.get("name", key),
-                        description=spec.get("description", ""),
+                        name=str(spec.get("name", key)),
+                        description=str(spec.get("description", "")),
                         icon=spec.get("icon"),
                         enabled=bool(enabled),
                     )

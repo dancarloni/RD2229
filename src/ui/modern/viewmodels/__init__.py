@@ -6,7 +6,8 @@ small subset of the behavior used in tests.
 
 from __future__ import annotations
 
-from typing import Any, Callable, List
+from collections.abc import Callable
+from typing import Any
 
 
 class ProjectViewModel:
@@ -18,13 +19,13 @@ class ProjectViewModel:
         self._project: ProjectModel = ProjectModel()
         self._path: str | None = None
         self._dirty: bool = False
-        self._recent: List[str] = []
-        self._callbacks: List[Callable[[], None]] = []
+        self._recent: list[str] = []
+        self._callbacks: list[Callable[[], None]] = []
         # Maximum number of recent files to keep
         self.MAX_RECENT = 10
 
     @property
-    def recent_files(self) -> List[str]:
+    def recent_files(self) -> list[str]:
         return list(self._recent)
 
     def _add_recent(self, path: str) -> None:
@@ -54,7 +55,7 @@ class ProjectViewModel:
             p = Path(settings_path)
             if not p.exists():
                 return
-            with open(settings_path, "r", encoding="utf-8") as f:
+            with open(settings_path, encoding="utf-8") as f:
                 data = json.load(f)
             files = list(data.get("recent_files", []))
             # filter missing
@@ -115,7 +116,7 @@ class RunViewModel:
         self._running = False
         self._status = "Pronto"
         self._error = None
-        self._callbacks: List[Callable[[], None]] = []
+        self._callbacks: list[Callable[[], None]] = []
 
     @property
     def running(self) -> bool:
@@ -161,7 +162,7 @@ class RunViewModel:
 class ResultsViewModel:
     def __init__(self) -> None:
         self._results = None
-        self._callbacks: List[Callable[[], None]] = []
+        self._callbacks: list[Callable[[], None]] = []
 
     @property
     def has_results(self) -> bool:
@@ -172,13 +173,13 @@ class ResultsViewModel:
         return self._results
 
     @property
-    def warnings(self) -> List[str]:
+    def warnings(self) -> list[str]:
         if self._results is None:
             return []
         return list(getattr(self._results, "warnings", []))
 
     @property
-    def elements(self) -> List[Any]:
+    def elements(self) -> list[Any]:
         if self._results is None:
             return []
         return list(getattr(self._results, "elements", []))

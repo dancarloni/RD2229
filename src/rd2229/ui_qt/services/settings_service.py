@@ -6,8 +6,9 @@ Provides `get_model()` returning an object with runtime defaults and
 
 from __future__ import annotations
 
+import json
+import os
 from dataclasses import dataclass
-from typing import Any
 
 
 @dataclass
@@ -22,10 +23,6 @@ class SettingsModel:
     def __post_init__(self) -> None:
         if self.recent_projects is None:
             self.recent_projects = []
-
-
-import json
-import os
 
 
 class SettingsService:

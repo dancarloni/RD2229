@@ -41,6 +41,8 @@ combine_as_imports = true
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# exclude deprecated legacy code and archived tests from linting
+exclude = ["src/legacy/**", "tests/legacy*", "tests/legacy/**"]
 
 [tool.ruff.lint]
 # Core: F (pyflakes), E/W (pycodestyle), I (isort), N (naming), UP (pyupgrade)
@@ -74,6 +76,8 @@ ignore = ["E203", "N803", "N806", "E501", "N815", "N802"]
 # UI modules: Qt imports kept for re-export / future use
 "src/ui/modern/**/*.py" = ["F401"]
 "src/rd2229/ui_qt/app.py" = ["F401"]
+# Qt package __init__ uses star-imports for convenience; ignore F403 here
+"src/ui/qt/__init__.py" = ["F403"]
 # Legacy UI shim: non-standard import alias is intentional
 "src/ui/ui/verification_table_app.py" = ["N812"]
 
@@ -83,7 +87,8 @@ ignore = ["E203", "N803", "N806", "E501", "N815", "N802"]
 [tool.flake8]
 max-line-length = 100
 extend-ignore = ["E203", "W503"]
-exclude = [".venv", "build", "dist", ".git"]
+# exclude legacy UI package and archived tests to keep quality gate focused
+exclude = [".venv", "build", "dist", ".git", "src/legacy", "tests/legacy*", "tests/legacy/**"]
 
 [tool.pylint.main]
 py-version = "3.11"
