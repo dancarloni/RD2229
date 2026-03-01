@@ -6,7 +6,8 @@ Provides singleton access to shared resources for all windows.
 import logging
 
 try:
-    from PyQt6.QtCore import QObject, pyqtSignal as Signal
+    from PyQt6.QtCore import QObject
+    from PyQt6.QtCore import pyqtSignal as Signal
 except ImportError:  # pragma: no cover
     from PySide6.QtCore import QObject, Signal
 
@@ -52,7 +53,7 @@ class GUIServiceProvider:
     def __new__(cls):
         if cls._instance is None:
             # Singleton pattern
-            instance = super(GUIServiceProvider, cls).__new__(cls)
+            instance = super().__new__(cls)
             instance.project_service = ProjectService()
             instance.material_repo = MaterialRepository()
             instance.section_repo = None

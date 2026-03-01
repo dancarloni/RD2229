@@ -40,26 +40,45 @@ def test_select_module_valid(controller):
 
 
 def test_select_module_invalid(controller):
+    # Patch both the public shim and the legacy module notify function to be
+    # robust against the shim/legacy split introduced during migration.
     with patch("sections_app.ui.module_selector.notify_error") as mock_notify:
-        controller.select_module("invalid")
-        mock_notify.assert_called_once_with(
-            title="Errore",
-            message="Modulo 'invalid' non trovato o non disponibile.",
-            source="module_selector",
-        )
+        with patch("src.legacy.sections_app.ui.module_selector.notify_error") as mock_notify_legacy:
+            controller.select_module("invalid")
+            # At least one of the targets should have been invoked with expected args
+            expected_kwargs = dict(
+                title="Errore",
+                message="Modulo 'invalid' non trovato o non disponibile.",
+                source="module_selector",
+            )
+            assert mock_notify.called or mock_notify_legacy.called
+            if mock_notify.called:
+                mock_notify.assert_called_once_with(**expected_kwargs)
+            if mock_notify_legacy.called:
+                mock_notify_legacy.assert_called_once_with(**expected_kwargs)
 
 
 def test_load_sections(controller, monkeypatch):
     # patch CSV import to return two dummy sections
     dummy_sec = MagicMock()
+    # patch both shim and legacy paths to make sure we intercept import
     monkeypatch.setattr(
         "sections_app.ui.module_selector.CsvSectionSerializer.import_from_csv",
+        lambda self, fp, **kw: [dummy_sec, dummy_sec],
+    )
+    monkeypatch.setattr(
+        "src.legacy.sections_app.ui.module_selector.CsvSectionSerializer.import_from_csv",
         lambda self, fp, **kw: [dummy_sec, dummy_sec],
     )
     # ensure GeometryRepository used inside load_sections is a mock so add_section calls are observable
     mock_repo = MagicMock()
     mock_repo.add_section = MagicMock(return_value=True)
-    monkeypatch.setattr("sections_app.ui.module_selector.GeometryRepository", lambda *a, **kw: mock_repo)
+    monkeypatch.setattr(
+        "sections_app.ui.module_selector.GeometryRepository", lambda *a, **kw: mock_repo
+    )
+    monkeypatch.setattr(
+        "src.legacy.sections_app.ui.module_selector.GeometryRepository", lambda *a, **kw: mock_repo
+    )
 
     controller.load_sections("test.csv")
     # repository should be created and add_section called twice

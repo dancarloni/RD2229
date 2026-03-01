@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from src.plugins import ActionSpec, ParamSpec, PluginRegistry, PluginSpec
 from src.plugins.base import BasePlugin
 

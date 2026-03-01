@@ -3,21 +3,14 @@ Bootstrap module for RD2229 application.
 Orchestrates discovery, configuration, logging, and startup.
 """
 
-import logging
 from importlib import import_module
 
 
 def configure_logging() -> None:
-    """Configure logging for the application."""
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
-    fh = logging.FileHandler("app.log", encoding="utf-8")
-    fh.setLevel(logging.DEBUG)
-    fmt = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    fh.setFormatter(fmt)
-    logging.getLogger().addHandler(fh)
+    """Configure logging for the application via the centralized bridge."""
+    from src.rd2229.logging_bridge import setup_logging
+
+    setup_logging("DEBUG", enable_file=True, log_dir=".")
 
 
 def run_app() -> None:

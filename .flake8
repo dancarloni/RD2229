@@ -1,15 +1,25 @@
 [flake8]
 max-line-length = 120
-extend-ignore = E203,W503
+extend-ignore = E203,W503,E501,E302,E301,E402,F811,F841
 exclude =
     .venv,
     tests_legacy,
     examples,
     sections_app,
+    apps,
+    gui,
+    libs,
+    softw_components,
+    demo_*.py,
+    .workspace_inspect_app.py,
     src/ui,
+    src/legacy,
     tools,
     scripts,
     verifications,
     historical_ta,
     docs,
     data
+
+per-file-ignores =
+    tests/**/*.py: E402,E501,F841

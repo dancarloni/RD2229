@@ -3,3 +3,4 @@
 pandas
 matplotlib
 shapely
+pydantic>=2.0,<3.0

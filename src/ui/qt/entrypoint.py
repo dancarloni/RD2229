@@ -5,17 +5,18 @@ PyQt6 is not available in the runtime environment.
 """
 
 import argparse
-import logging
 import os
 import sys
 
 from modules.registry import ModuleRegistry
+
+# Setup logging via bridge
+from src.rd2229.logging_bridge import get_logger, setup_logging
 from src.ui.qt.module_selector import ModuleSelectorWindow
 from src.ui.qt.services import get_services
 
-# Setup logging
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
-logger = logging.getLogger("RD2229.GUI")
+setup_logging("DEBUG")
+logger = get_logger("gui")
 
 
 def run_gui() -> int:

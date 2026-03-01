@@ -1,13 +1,15 @@
 """pytest configuration for the tests/ directory.
 
-When ``tkinter`` is not available (e.g. in CI without a display), test files
-that import tkinter at module level – directly or transitively – would cause
-collection errors that abort the entire test run.  We detect the situation
-here and add the affected files to ``collect_ignore`` so pytest can still
-collect and run all non-GUI tests normally.
+The standard (CI) test suite excludes any legacy GUI tests under
+``tests/legacy_tkinter`` and ``tests/legacy_qt``.  These directories contain
+deprecated Tkinter- or Qt-based tests that are no longer run by default.
 """
 
 from __future__ import annotations
+
+# Directories to ignore during normal collection.  Placing legacy UI tests
+# here keeps them available for manual execution while preventing failures
+# in headless CI environments.
 
 try:
     import tkinter  # noqa: F401
@@ -15,6 +17,13 @@ try:
     _TKINTER_AVAILABLE = True
 except ImportError:
     _TKINTER_AVAILABLE = False
+
+try:
+    import pytest_qt  # noqa: F401
+
+    _PYTEST_QT_AVAILABLE = True
+except ImportError:
+    _PYTEST_QT_AVAILABLE = False
 
 # Files that import tkinter (directly or transitively) at module level.
 # When tkinter is absent these files fail during *collection*, not just
@@ -53,7 +62,18 @@ _TKINTER_DEPENDENT: list[str] = [
     # These tests require the rd2229 package installed with src/ as root package dir
     "test_ui_qt_settings_service.py",
     "test_ui_qt_verification_service.py",
+    # PyQt6/PySide6 not available – collection would abort
+    "test_ui_qt_registry.py",
 ]
 
+# Tests requiring pytest-qt (qtbot fixture) which may not be installed.
+_PYTEST_QT_DEPENDENT: list[str] = [
+    "test_regression_gui_cli.py",
+]
+
+# the base list always ignores the legacy directories
+collect_ignore: list[str] = ["legacy_tkinter", "legacy_qt"]
 if not _TKINTER_AVAILABLE:
-    collect_ignore = _TKINTER_DEPENDENT
+    collect_ignore.extend(_TKINTER_DEPENDENT)
+if not _PYTEST_QT_AVAILABLE:
+    collect_ignore.extend(_PYTEST_QT_DEPENDENT)

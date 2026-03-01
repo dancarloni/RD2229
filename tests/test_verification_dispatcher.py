@@ -1,3 +1,4 @@
+import verification_table
 from verification_table import VerificationInput, VerificationOutput, compute_verification_result
 
 
@@ -11,7 +12,11 @@ def test_dispatcher_uses_engine_result(monkeypatch):
         asse_neutro=0.0,
     )
 
-    monkeypatch.setattr("verification_table._compute_with_engine", lambda *_: sentinel)
+    # monkeypatch the attribute directly on the imported module object rather
+    # than using a string path.  this avoids import-path resolution logic which
+    # previously triggered the shim's ``__getattr__`` and caused spurious
+    # AttributeErrors when tests ran in context with other imports.
+    monkeypatch.setattr(verification_table, "_compute_with_engine", lambda *_: sentinel)
 
     out = compute_verification_result(inp, None, None)
     assert out is sentinel
@@ -20,7 +25,7 @@ def test_dispatcher_uses_engine_result(monkeypatch):
 def test_dispatcher_falls_back_when_engine_none(monkeypatch):
     inp = VerificationInput(verification_method="TA")
 
-    monkeypatch.setattr("verification_table._compute_with_engine", lambda *_: None)
+    monkeypatch.setattr(verification_table, "_compute_with_engine", lambda *_: None)
 
     # ensure compute_ta_verification is invoked by checking for a valid VerificationOutput
     out = compute_verification_result(inp, None, None)

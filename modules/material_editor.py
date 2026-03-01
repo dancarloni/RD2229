@@ -14,12 +14,18 @@ class _Placeholder:
 
 
 def create_module(master=None, material_repo=None, **_):
+    # avoid creating a Tk root when called without a master (e.g. in tests)
+    if master is None:
+        return _Placeholder(master)
+
     try:
         # import lazily the real window if available
         from historical_materials import HistoricalMaterialLibrary
         from libs.app_module.ui.historical_material_window import HistoricalMaterialWindow
 
         library = HistoricalMaterialLibrary()
-        return HistoricalMaterialWindow(master=master, library=library, material_repository=material_repo)
+        return HistoricalMaterialWindow(
+            master=master, library=library, material_repository=material_repo
+        )
     except Exception:
         return _Placeholder(master)

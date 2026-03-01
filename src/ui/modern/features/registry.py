@@ -7,7 +7,7 @@ tests that import `src.ui.modern.features.registry`.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any
 
 
 @dataclass
@@ -25,7 +25,7 @@ class FeatureSpec:
         raise NotImplementedError()
 
 
-_REGISTRY: List[FeatureSpec] = []
+_REGISTRY: list[FeatureSpec] = []
 
 
 def register(spec: FeatureSpec) -> None:
@@ -35,7 +35,7 @@ def register(spec: FeatureSpec) -> None:
     _REGISTRY.sort(key=lambda s: s.order)
 
 
-def get_all() -> List[FeatureSpec]:
+def get_all() -> list[FeatureSpec]:
     return list(_REGISTRY)
 
 
