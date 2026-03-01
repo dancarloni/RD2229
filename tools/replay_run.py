@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 Replay a previous run: re-executes and compares manifest/output list, reports drift.
 - Reads snapshot and run_record
@@ -50,6 +51,67 @@ def main():
         for (op, os), (np, ns) in zip(orig_files, new_files):
             if (op, os) != (np, ns):
                 print(f"  {op}: {os} != {ns}")
+=======
+#!/usr/bin/env python3
+"""Replay a previous run and compare manifests for drift detection.
+
+Usage::
+
+    python tools/replay_run.py path/to/run_folder [--replay-dir DIR]
+
+Loads the snapshot from the run folder, re-executes, and compares the
+resulting manifest against the original.  Exits 0 if identical, 1 if drift
+is detected.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+
+from src.project.timeline import replay_run
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Replay a run and detect drift.")
+    parser.add_argument("run_dir", help="Path to the original run folder")
+    parser.add_argument(
+        "--replay-dir",
+        default=None,
+        help="Base directory for the replay folder (default: sibling of run_dir)",
+    )
+    args = parser.parse_args()
+
+    report = replay_run(args.run_dir, replay_base=args.replay_dir)
+
+    if report.identical:
+        print("REPLAY OK – manifests are identical.")
+        sys.exit(0)
+    else:
+        print("DRIFT DETECTED:", file=sys.stderr)
+        if report.missing_files:
+            print(f"  Missing files : {report.missing_files}", file=sys.stderr)
+        if report.extra_files:
+            print(f"  Extra files   : {report.extra_files}", file=sys.stderr)
+        if report.hash_mismatches:
+            print("  Hash mismatches:", file=sys.stderr)
+            for fname, diff in report.hash_mismatches.items():
+                print(f"    {fname}: {diff['original'][:12]}… → {diff['replayed'][:12]}…",
+                      file=sys.stderr)
+        if report.field_diffs:
+            print("  Field diffs:", file=sys.stderr)
+            for fname, diff in report.field_diffs.items():
+                print(f"    {fname}: {diff['original']} → {diff['replayed']}", file=sys.stderr)
+        # Also print JSON diff for machine consumption
+        print(json.dumps({
+            "identical": False,
+            "missing_files": report.missing_files,
+            "extra_files": report.extra_files,
+            "hash_mismatches": report.hash_mismatches,
+            "field_diffs": report.field_diffs,
+        }, indent=2))
+>>>>>>> 101a292 (feat: project IO + schema + timeline/replay MVP (sub-issue 01))
         sys.exit(1)
 
 

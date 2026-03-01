@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 Run a project.json deterministically, create run folder, snapshot, outputs, manifest.
 - Loads and validates project.json
@@ -196,6 +197,51 @@ def main():
         print("[run_project.py] Exception:", e, file=sys.stderr)
         traceback.print_exc()
         sys.exit(1)
+=======
+#!/usr/bin/env python3
+"""Run a project: create a run folder with snapshot, manifest, and outputs.
+
+Usage::
+
+    python tools/run_project.py path/to/project.json [--output-dir DIR]
+
+Creates ``<output-dir>/<run_id>/`` containing:
+* ``project.snapshot.json`` – frozen copy of the input
+* ``manifest.json`` – commit hash, python version, normative IDs, output hashes
+* ``output_<module>.json`` – deterministic output per pipeline step
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+
+from src.project.model import ProjectModel
+from src.project.repository import load_project
+from src.project.timeline import create_run
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Run a project and produce auditable artefacts.")
+    parser.add_argument("project", help="Path to project.json")
+    parser.add_argument(
+        "--output-dir",
+        default="projects",
+        help="Base directory for run folders (default: projects)",
+    )
+    args = parser.parse_args()
+
+    project: ProjectModel = load_project(args.project)
+    run_dir, record = create_run(project, args.output_dir)
+
+    print(f"Run created: {run_dir}")
+    print(f"  run_id         : {record.run_id}")
+    print(f"  commit_hash    : {record.commit_hash}")
+    print(f"  python_version : {record.python_version}")
+    print(f"  modules        : {record.modules_executed}")
+    print(f"  outputs        : {len(record.outputs)} file(s)")
+    sys.exit(0)
+>>>>>>> 101a292 (feat: project IO + schema + timeline/replay MVP (sub-issue 01))
 
 
 if __name__ == "__main__":
