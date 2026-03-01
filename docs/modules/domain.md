@@ -1,14 +1,30 @@
-# Modulo: `domain`
+# Documentazione Modulo: `domain`
 
-## 1. Scopo e ambito
+> **Generato automaticamente** da `tools/generate_module_docs.py` — 2026-03-01 00:52 UTC
+> Stub iniziale: compilare manualmente le sezioni TBD.
+> Non eliminare questo file; aggiornarlo incrementalmente.
+
+---
+
+## 1. Identificazione
+
+| Campo | Valore |
+|-------|--------|
+| **Nome modulo** | `domain` |
+| **Path** | `src/domain` |
+| **Tipo** | package |
+| **File .py rilevati** | 5 |
+| **Stato** | PARZIALE |
+| **Maintainer** | TBD |
+| **Ultima revisione** | 2026-03-01 |
+
+---
+
+## 2. Scopo
 
 Modelli di dominio: `VerificationInput`, funzioni di accesso alle proprietà di calcestruzzo/acciaio e alla geometria di sezione.
 
-## 2. Stato reale
-
-**PARZIALE**
-
-Motivazione oggettiva: `models.py`, `materials.py`, `sections.py` hanno logica reale. Tuttavia i test `tests/test_domain_materials.py` e `tests/test_domain_sections.py` importano da `verification_table` (root-level), NON da `src.domain`. Il modulo non è testato direttamente tramite il suo percorso di importazione.
+---
 
 ## 3. Evidenze
 
@@ -17,32 +33,51 @@ Motivazione oggettiva: `models.py`, `materials.py`, `sections.py` hanno logica r
 - `src/domain/domain/sections.py` — `get_section_geometry()` (96 righe)
 - I test `tests/test_domain_*.py` usano percorso root-level, non `src.domain`
 
-## 4. Input/parametri
+---
 
-- `get_concrete_properties(fck: float, norm_code: str) -> ConcreteProps`
-- `get_steel_properties(fyk: float) -> SteelProps`
-- `get_section_geometry(section_id: str) -> SectionGeometry`
+## 4. Input / Output
 
-## 5. Output
+| Direzione | Formato | Descrizione |
+|-----------|---------|-------------|
+| Input | `get_concrete_properties(fck: float, norm_code: str) -> ConcreteProps` | Proprietà calcestruzzo |
+| Input | `get_steel_properties(fyk: float) -> SteelProps` | Proprietà acciaio |
+| Input | `get_section_geometry(section_id: str) -> SectionGeometry` | Geometria sezione |
+| Output | Dataclass | Proprietà materiali e geometria sezione |
 
-- Dataclass di proprietà materiali e geometria sezione
+---
 
-## 6. Dipendenze
+## 5. Test correlati
+
+| File test | Copertura stimata | Note |
+|-----------|-------------------|------|
+| `tests/test_domain_materials.py` | TBD | — |
+| `tests/test_domain_sections.py` | TBD | — |
+
+---
+
+## 6. Fonti normative
+
+Nessuna trovata come stringa nel codice del modulo. TODO: aggiungere riferimenti se identificati.
+
+---
+
+## 7. Dipendenze interne
 
 - Repository materiali/sezioni (TBD — dipendenza esatta non verificata)
 
-## 7. Fonti normative collegate
+---
 
-Nessuna trovata come stringa nel codice del modulo.
-
-## 8. Gap/TODO/Limitazioni
+## 8. Gap / TODO / Limitazioni
 
 - Percorso di importazione `src.domain.domain.*` è confuso (cartella annidata)
 - Test non usano `src.domain` come percorso di import → rischio di disallineamento
 - Dipendenza da repository materiali non chiara
+
+---
 
 ## 9. Next steps
 
 - [ ] Verificare se `src/domain/domain/` è intenzionale o artefatto di migrazione
 - [ ] Riscrivere test `test_domain_*.py` per importare da `src.domain`
 - [ ] Documentare la dipendenza dal repository materiali
+- [ ] Compilare sezioni TBD

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Modulo: `fire`
 
 ## 1. Scopo e ambito
@@ -57,3 +58,86 @@ Clausole: §3.6.1 NTC2018 e §5.6/Table 5.4-5.5 EN 1992-1-2 appaiono come commen
 - [ ] Creare `data/fire/axis_distance_table.json` e caricarla in `rc_fire_check.py`
 - [ ] Aggiungere test golden per `run_rc_fire_check()` con classi R30/R60/R90/R120
 - [ ] Implementare curve incendio parametriche (EN 1991-1-2 Annex A)
+=======
+# Documentazione Modulo: `fire`
+
+> **Generato automaticamente** da `tools/generate_module_docs.py` — 2026-03-01 00:52 UTC
+> Stub iniziale: compilare manualmente le sezioni TBD.
+> Non eliminare questo file; aggiornarlo incrementalmente.
+
+---
+
+## 1. Identificazione
+
+| Campo | Valore |
+|-------|--------|
+| **Nome modulo** | `fire` |
+| **Path** | `src/fire` |
+| **Tipo** | package |
+| **File .py rilevati** | 4 |
+| **Stato** | PARZIALE |
+| **Maintainer** | TBD |
+| **Ultima revisione** | 2026-03-01 |
+
+---
+
+## 2. Scopo
+
+> Descrivere in 2-3 righe il *perché* esiste questo modulo e quale problema risolve.
+
+TBD
+
+---
+
+## 3. File / Classi / Funzioni principali
+
+> Elencare i simboli pubblici rilevanti. Non inventare: se non si conosce la firma esatta, annotare TBD.
+
+| File | Classe/Funzione | Descrizione |
+|------|-----------------|-------------|
+| TBD | TBD | TBD |
+
+---
+
+## 4. Input / Output
+
+| Direzione | Formato | Descrizione |
+|-----------|---------|-------------|
+| Input | TBD | TBD |
+| Output | TBD | TBD |
+
+---
+
+## 5. Test correlati
+
+| File test | Copertura stimata | Note |
+|-----------|-------------------|------|
+| `tests/test_fire_checks.py` | TBD | — |
+| `tests/test_fire_selection_eligibility.py` | TBD | — |
+
+---
+
+## 6. Fonti normative
+
+> Solo riferimenti a ID da `docs/NORMATIVE_SOURCES/sources.catalog.json`. NESSUN testo copiato.
+
+| ID fonte | Clausola/Articolo | Nota |
+|----------|-------------------|------|
+| TBD | TBD | — |
+
+---
+
+## 7. Dipendenze interne
+
+> Moduli `src/` da cui questo modulo dipende (import diretti).
+
+- TBD
+
+---
+
+## 8. Note e TODO
+
+- [ ] Compilare sezioni TBD
+- [ ] Verificare test correlati
+- [ ] Tracciare fonti normative di riferimento
+>>>>>>> d5ef881 (feat: audit/docs infrastructure - audit_repo, RTM, governance, normative catalog, module docs)
