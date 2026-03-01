@@ -5,7 +5,7 @@ from enum import Enum
 from tkinter import messagebox, simpledialog, ttk
 
 import matplotlib.pyplot as plt
-from core.geometry import (
+from src.core.geometry import (
     CircularHollowSection,
     CircularSection,
     InvertedTSection,
@@ -17,7 +17,7 @@ from core.geometry import (
     SectionGeometry,
     TSection,
 )
-from core.section_properties import compute_section_properties
+from src.core.section_properties import compute_section_properties
 from matplotlib.patches import Circle as MplCircle
 from matplotlib.patches import Rectangle as MplRectangle
 

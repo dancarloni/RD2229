@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NormativeSourcesCatalog",
+  "description": "Schema per il catalogo delle fonti normative RD2229. Metadati only – nessun testo normativo.",
+  "type": "object",
+  "required": ["sources"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "_generated": {"type": "string"},
+    "_note": {"type": "string"},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "authority", "year", "url_official"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID univoco usato nel codice e nella RTM"
+          },
+          "title": {
+            "type": "string",
+            "description": "Titolo completo della norma"
+          },
+          "authority": {
+            "type": "string",
+            "description": "Ente emittente"
+          },
+          "year": {
+            "type": ["integer", "null"],
+            "description": "Anno di pubblicazione/emissione"
+          },
+          "country": {
+            "type": ["string", "null"],
+            "description": "Paese (IT, EU, International, ecc.)"
+          },
+          "url_official": {
+            "type": ["string", "null"],
+            "description": "URL ufficiale o TBD"
+          },
+          "copyright_note": {
+            "type": ["string", "null"],
+            "description": "Nota su copyright/disponibilità"
+          },
+          "freely_available": {
+            "type": ["boolean", "null"],
+            "description": "Norma liberamente scaricabile?"
+          },
+          "local_copy": {
+            "type": ["object", "null"],
+            "description": "null se non presente nel repo; altrimenti {path, sha256}",
+            "properties": {
+              "path": {"type": "string"},
+              "sha256": {"type": "string"}
+            }
+          },
+          "repo_occurrences": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "File:riga dove la stringa ID appare nel codice"
+          },
+          "notes": {
+            "type": ["string", "null"],
+            "description": "Note libere (no testo normativo)"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": true
+}

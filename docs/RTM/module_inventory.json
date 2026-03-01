@@ -1,0 +1,760 @@
+{
+  "_generated": "2026-03-01T01:25:13.604368+00:00",
+  "_tool": "tools/rtm_build.py",
+  "_note": "Static analysis only. inferred_status is heuristic. See RTM_MASTER.md.",
+  "module_count": 27,
+  "modules": [
+    {
+      "name": "actions",
+      "path": "src/actions",
+      "py_file_count": 2,
+      "py_files": [
+        "src/actions/__init__.py",
+        "src/actions/action_repo.py"
+      ],
+      "stub_marker_count": 11,
+      "test_files": [],
+      "normative_refs": [],
+      "inferred_status": "INCOMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "calc",
+      "path": "src/calc",
+      "py_file_count": 3,
+      "py_files": [
+        "src/calc/__init__.py",
+        "src/calc/section_registry.py",
+        "src/calc/shear_area_registry.py"
+      ],
+      "stub_marker_count": 16,
+      "test_files": [
+        "src/tests/test_shear_area.py"
+      ],
+      "normative_refs": [],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "checks",
+      "path": "src/checks",
+      "py_file_count": 2,
+      "py_files": [
+        "src/checks/__init__.py",
+        "src/checks/registry.py"
+      ],
+      "stub_marker_count": 10,
+      "test_files": [],
+      "normative_refs": [
+        "DM 96",
+        "DM96",
+        "EN 1991",
+        "EN1991",
+        "ISO 834",
+        "ISO834",
+        "NTC 2018",
+        "NTC2018",
+        "RD2229"
+      ],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "cli",
+      "path": "src/cli",
+      "py_file_count": 2,
+      "py_files": [
+        "src/cli/__init__.py",
+        "src/cli/entrypoint.py"
+      ],
+      "stub_marker_count": 0,
+      "test_files": [],
+      "normative_refs": [
+        "RD2229"
+      ],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "codes",
+      "path": "src/codes",
+      "py_file_count": 15,
+      "py_files": [
+        "src/codes/__init__.py",
+        "src/codes/clauses/__init__.py",
+        "src/codes/code_registry.py",
+        "src/codes/ntc2018/__init__.py",
+        "src/codes/ntc2018/checks_vrdc.py",
+        "src/codes/ntc2018/code_module.py",
+        "src/codes/ntc2018/secondary_elements/__init__.py",
+        "src/codes/ntc2018/secondary_elements/anchors_capacity.py",
+        "src/codes/ntc2018/secondary_elements/checks.py",
+        "src/codes/ntc2018/secondary_elements/drift_models.py",
+        "src/codes/ntc2018/secondary_elements/models.py",
+        "src/codes/ntc2018/secondary_elements/storage_adapter.py",
+        "src/codes/ntc2018/secondary_elements/ta_models.py",
+        "src/codes/ntc2018/spectrum_paste_service.py",
+        "src/codes/params/__init__.py"
+      ],
+      "stub_marker_count": 31,
+      "test_files": [
+        "src/tests/test_code_routing.py",
+        "tests/codes/test_vrdc_no_stirrups.py",
+        "tests/test_ntc2018_hazard_paste_parser.py",
+        "tests/test_ntc2018_hazard_profile_persistence.py",
+        "tests/test_secondary_elements_gating.py"
+      ],
+      "normative_refs": [
+        "EC2",
+        "EC8",
+        "NTC2018"
+      ],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "config",
+      "path": "src/config",
+      "py_file_count": 1,
+      "py_files": [
+        "src/config/__init__.py"
+      ],
+      "stub_marker_count": 0,
+      "test_files": [
+        "tests/test_secondary_elements_gating.py"
+      ],
+      "normative_refs": [],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "core",
+      "path": "src/core",
+      "py_file_count": 6,
+      "py_files": [
+        "src/core/__init__.py",
+        "src/core/combinations/ntc2018_combinations.py",
+        "src/core/materials/ntc2018_adapter.py",
+        "src/core/pipeline.py",
+        "src/core/results.py",
+        "src/core/step5_adapter.py"
+      ],
+      "stub_marker_count": 4,
+      "test_files": [
+        "tests/test_fire_selection_eligibility.py",
+        "tests/test_modern_ui_nongui.py",
+        "tests/test_pipeline_smoke.py",
+        "tests/test_plot_section.py",
+        "tests/test_reporting_smoke.py",
+        "tests/test_step5_adapter_smoke.py",
+        "tests/test_step5_merge.py",
+        "tests/test_wind_integration_pipeline.py"
+      ],
+      "normative_refs": [
+        "NTC2018",
+        "RD2229"
+      ],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "core_calculus",
+      "path": "src/core_calculus",
+      "py_file_count": 21,
+      "py_files": [
+        "src/core_calculus/__init__.py",
+        "src/core_calculus/contracts.py",
+        "src/core_calculus/core/__init__.py",
+        "src/core_calculus/core/examples_sections.py",
+        "src/core_calculus/core/frc.py",
+        "src/core_calculus/core/geometry.py",
+        "src/core_calculus/core/geometry_model.py",
+        "src/core_calculus/core/interpolation.py",
+        "src/core_calculus/core/materials.py",
+        "src/core_calculus/core/reinforcement.py",
+        "src/core_calculus/core/section_properties.py",
+        "src/core_calculus/core/verification_bas_adapter.py",
+        "src/core_calculus/core/verification_core.py",
+        "src/core_calculus/core/verification_engine.py",
+        "src/core_calculus/geometry_cache.py",
+        "src/core_calculus/lc_fc_adjustments.py",
+        "src/core_calculus/normative_registry.py",
+        "src/core_calculus/section_calculations.py",
+        "src/core_calculus/validation_engine.py",
+        "src/core_calculus/verification_engine.py",
+        "src/core_calculus/verification_service.py"
+      ],
+      "stub_marker_count": 39,
+      "test_files": [
+        "tests/test_adapter_and_properties.py",
+        "tests/test_dm96_checks.py",
+        "tests/test_fire_checks.py",
+        "tests/test_geometry_cache.py",
+        "tests/test_geometry_model_extra.py",
+        "tests/test_lc_fc_adjustments.py",
+        "tests/test_materials_cache.py",
+        "tests/test_ntc2018_checks.py",
+        "tests/test_rd2229_checks.py",
+        "tests/test_rotation_invariants.py",
+        "tests/test_section_adapter_and_properties.py",
+        "tests/test_section_calculations_regression.py",
+        "tests/test_section_calculations_rotation.py",
+        "tests/test_section_graphics_extra.py",
+        "tests/test_section_graphics_fake_canvas.py",
+        "tests/test_section_shapes.py",
+        "tests/test_section_to_geometry_types.py",
+        "tests/test_shapely_integration.py",
+        "tests/test_shapely_integration_optional.py",
+        "tests/test_ta_method.py",
+        "tests/test_verification_pipeline.py"
+      ],
+      "normative_refs": [
+        "DM92",
+        "DM96",
+        "EC2",
+        "EN 1992",
+        "NTC 2018",
+        "NTC2018",
+        "RD 2229",
+        "RD2229"
+      ],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "domain",
+      "path": "src/domain",
+      "py_file_count": 5,
+      "py_files": [
+        "src/domain/__init__.py",
+        "src/domain/domain/__init__.py",
+        "src/domain/domain/materials.py",
+        "src/domain/domain/models.py",
+        "src/domain/domain/sections.py"
+      ],
+      "stub_marker_count": 0,
+      "test_files": [],
+      "normative_refs": [],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "elements",
+      "path": "src/elements",
+      "py_file_count": 4,
+      "py_files": [
+        "src/elements/__init__.py",
+        "src/elements/element_model.py",
+        "src/elements/element_repo.py",
+        "src/elements/resolve_inputs.py"
+      ],
+      "stub_marker_count": 19,
+      "test_files": [
+        "src/tests/test_elements_repo.py",
+        "src/tests/test_resolve_inputs.py"
+      ],
+      "normative_refs": [],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "fire",
+      "path": "src/fire",
+      "py_file_count": 4,
+      "py_files": [
+        "src/fire/__init__.py",
+        "src/fire/curves.py",
+        "src/fire/eligibility.py",
+        "src/fire/rc_fire_check.py"
+      ],
+      "stub_marker_count": 4,
+      "test_files": [
+        "tests/test_fire_selection_eligibility.py"
+      ],
+      "normative_refs": [
+        "EN 1991",
+        "EN 1992",
+        "Eurocodice",
+        "ISO 834",
+        "NTC 2018"
+      ],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "gui",
+      "path": "src/gui",
+      "py_file_count": 8,
+      "py_files": [
+        "src/gui/__init__.py",
+        "src/gui/entrypoint.py",
+        "src/gui/ntc2018_selector.py",
+        "src/gui/secondary_elements/editor.py",
+        "src/gui/secondary_elements/results_view.py",
+        "src/gui/secondary_elements/window.py",
+        "src/gui/widgets/norm_selector.py",
+        "src/gui/widgets/secondary_element_widgets.py"
+      ],
+      "stub_marker_count": 3,
+      "test_files": [
+        "tests/legacy_qt/test_norm_selector.py",
+        "tests/legacy_qt/test_secondary_editor.py",
+        "tests/test_plot_section.py"
+      ],
+      "normative_refs": [
+        "NTC2018",
+        "RD2229"
+      ],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "launcher",
+      "path": "src/launcher",
+      "py_file_count": 1,
+      "py_files": [
+        "src/launcher/bootstrap.py"
+      ],
+      "stub_marker_count": 0,
+      "test_files": [],
+      "normative_refs": [
+        "RD2229"
+      ],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "legacy",
+      "path": "src/legacy",
+      "py_file_count": 43,
+      "py_files": [
+        "src/legacy/__init__.py",
+        "src/legacy/__main__.py",
+        "src/legacy/analyze_sections_json.py",
+        "src/legacy/demo_config_system.py",
+        "src/legacy/demo_verification_engine.py",
+        "src/legacy/historical_materials.py",
+        "src/legacy/material_sources.py",
+        "src/legacy/materials_repository.py",
+        "src/legacy/quantities_registry.py",
+        "src/legacy/reorganize_sections_app.py",
+        "src/legacy/sections_app/ui/__init__.py",
+        "src/legacy/sections_app/ui/components/flow_wrap.py",
+        "src/legacy/sections_app/ui/debug_viewer.py",
+        "src/legacy/sections_app/ui/main_window.py",
+        "src/legacy/sections_app/ui/module_selector.py",
+        "src/legacy/sections_app/ui/module_selector_view.py",
+        "src/legacy/tools/debug_run_suggest.py",
+        "src/legacy/ui/__init__.py",
+        "src/legacy/ui/__main__.py",
+        "src/legacy/ui/app.py",
+        "src/legacy/ui/code_settings_window.py",
+        "src/legacy/ui/comparator.py",
+        "src/legacy/ui/csv_io.py",
+        "src/legacy/ui/debug_viewer.py",
+        "src/legacy/ui/frc_manager.py",
+        "src/legacy/ui/frc_verification_window.py",
+        "src/legacy/ui/historical_main_window.py",
+        "src/legacy/ui/historical_material_window.py",
+        "src/legacy/ui/main_window.py",
+        "src/legacy/ui/module_selector.py",
+        "src/legacy/ui/notification_center.py",
+        "src/legacy/ui/notification_settings_window.py",
+        "src/legacy/ui/ntc2018_hazard_paste_panel.py",
+        "src/legacy/ui/project_actions.py",
+        "src/legacy/ui/rebar_calculator.py",
+        "src/legacy/ui/section_manager.py",
+        "src/legacy/ui/suggestion_box.py",
+        "src/legacy/ui/verification_comparator.py",
+        "src/legacy/ui/verification_table_app.py",
+        "src/legacy/verification_items.py",
+        "src/legacy/verification_items_repository.py",
+        "src/legacy/verification_project.py",
+        "src/legacy/verification_table.py"
+      ],
+      "stub_marker_count": 15,
+      "test_files": [],
+      "normative_refs": [
+        "DM 96",
+        "DM92",
+        "DM96",
+        "EC2",
+        "NTC 2018",
+        "NTC2018",
+        "RD 2229",
+        "RD2229"
+      ],
+      "inferred_status": "INCOMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "materials",
+      "path": "src/materials",
+      "py_file_count": 4,
+      "py_files": [
+        "src/materials/__init__.py",
+        "src/materials/material_model.py",
+        "src/materials/material_repo.py",
+        "src/materials/validation.py"
+      ],
+      "stub_marker_count": 16,
+      "test_files": [
+        "src/tests/test_material_repo.py",
+        "src/tests/test_resolve_inputs.py"
+      ],
+      "normative_refs": [],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "methods",
+      "path": "src/methods",
+      "py_file_count": 15,
+      "py_files": [
+        "src/methods/__init__.py",
+        "src/methods/checks_dm96.py",
+        "src/methods/checks_fire_dm96.py",
+        "src/methods/checks_ntc2018.py",
+        "src/methods/checks_rd2229.py",
+        "src/methods/prestress_models.py",
+        "src/methods/protocols.py",
+        "src/methods/ta.py",
+        "src/methods/verification/__init__.py",
+        "src/methods/verification/dispatcher.py",
+        "src/methods/verification/engine_adapter.py",
+        "src/methods/verification/methods_sle.py",
+        "src/methods/verification/methods_slu.py",
+        "src/methods/verification/methods_ta.py",
+        "src/methods/verification/verification_controller.py"
+      ],
+      "stub_marker_count": 80,
+      "test_files": [
+        "tests/test_dm96_checks.py",
+        "tests/test_fire_checks.py",
+        "tests/test_golden_rd2229.py",
+        "tests/test_ntc2018_checks.py",
+        "tests/test_rd2229_checks.py",
+        "tests/test_ta_method.py"
+      ],
+      "normative_refs": [
+        "DM92",
+        "DM96",
+        "EC2",
+        "NTC 2018",
+        "NTC2018",
+        "RD 2229",
+        "RD2229"
+      ],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "plugins",
+      "path": "src/plugins",
+      "py_file_count": 6,
+      "py_files": [
+        "src/plugins/__init__.py",
+        "src/plugins/base.py",
+        "src/plugins/export_plugin.py",
+        "src/plugins/info_plugin.py",
+        "src/plugins/loader.py",
+        "src/plugins/run_plugin.py"
+      ],
+      "stub_marker_count": 2,
+      "test_files": [
+        "tests/test_plugin_system.py"
+      ],
+      "normative_refs": [
+        "RD2229"
+      ],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "project",
+      "path": "src/project",
+      "py_file_count": 3,
+      "py_files": [
+        "src/project/__init__.py",
+        "src/project/repository.py",
+        "src/project/schema.py"
+      ],
+      "stub_marker_count": 0,
+      "test_files": [
+        "tests/legacy_qt/test_ui_qt_registry.py",
+        "tests/test_fire_selection_eligibility.py",
+        "tests/test_migration.py",
+        "tests/test_modern_ui_nongui.py",
+        "tests/test_pipeline_smoke.py",
+        "tests/test_project_roundtrip.py",
+        "tests/test_reporting_smoke.py",
+        "tests/test_step5_adapter_smoke.py",
+        "tests/test_step5_merge.py",
+        "tests/test_wind_integration_pipeline.py"
+      ],
+      "normative_refs": [
+        "RD2229"
+      ],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "rd2229",
+      "path": "src/rd2229",
+      "py_file_count": 47,
+      "py_files": [
+        "src/rd2229/__main__.py",
+        "src/rd2229/cli.py",
+        "src/rd2229/logging_bridge.py",
+        "src/rd2229/mvp/__init__.py",
+        "src/rd2229/mvp/contracts.py",
+        "src/rd2229/mvp/engine.py",
+        "src/rd2229/mvp/jsoncode_loader.py",
+        "src/rd2229/mvp/models.py",
+        "src/rd2229/mvp/pipeline.py",
+        "src/rd2229/mvp/plugins.py",
+        "src/rd2229/mvp/report_builder.py",
+        "src/rd2229/mvp/repositories.py",
+        "src/rd2229/mvp/sqlite_store.py",
+        "src/rd2229/mvp/vba_migration/__init__.py",
+        "src/rd2229/mvp/vba_migration/ca_slu_nu_limits.py",
+        "src/rd2229/plugin_registry.py",
+        "src/rd2229/project_store.py",
+        "src/rd2229/seismic/__init__.py",
+        "src/rd2229/seismic/rd2229_39/__init__.py",
+        "src/rd2229/seismic/rd2229_39/docs_ref/__init__.py",
+        "src/rd2229/seismic/rd2229_39/docs_ref/norm_refs.py",
+        "src/rd2229/seismic/rd2229_39/methods/__init__.py",
+        "src/rd2229/seismic/rd2229_39/methods/ondulatory_mass_percent.py",
+        "src/rd2229/seismic/rd2229_39/methods/sussultory_factor.py",
+        "src/rd2229/seismic/rd2229_39/models/__init__.py",
+        "src/rd2229/seismic/rd2229_39/models/inputs.py",
+        "src/rd2229/seismic/rd2229_39/models/outputs.py",
+        "src/rd2229/seismic/rd2229_39/p_resolver.py",
+        "src/rd2229/seismic/rd2229_39/policies/__init__.py",
+        "src/rd2229/seismic/rd2229_39/policies/edge_floors_policy.py",
+        "src/rd2229/seismic/rd2229_39/policies/mass_attribution_policy.py",
+        "src/rd2229/seismic/rd2229_39/provider.py",
+        "src/rd2229/seismic/rd2229_39/validators/__init__.py",
+        "src/rd2229/seismic/rd2229_39/validators/rd2229_validators.py",
+        "src/rd2229/ui_legacy/__init__.py",
+        "src/rd2229/ui_legacy/historical_main_window.py",
+        "src/rd2229/ui_legacy/main_window.py",
+        "src/rd2229/ui_legacy/module_selector.py",
+        "src/rd2229/ui_legacy/notification_center.py",
+        "src/rd2229/ui_legacy/section_manager.py",
+        "src/rd2229/ui_qt/__init__.py",
+        "src/rd2229/ui_qt/app.py",
+        "src/rd2229/ui_qt/services/__init__.py",
+        "src/rd2229/ui_qt/services/settings_service.py",
+        "src/rd2229/ui_qt/services/verification_service.py",
+        "src/rd2229/verification_adapter.py",
+        "src/rd2229/viewmodels/verification_vm.py"
+      ],
+      "stub_marker_count": 13,
+      "test_files": [
+        "tests/rd2229_39/test_configurable_factor.py",
+        "tests/rd2229_39/test_ondulatory_sussultory_relation.py",
+        "tests/rd2229_39/test_p_from_table.py",
+        "tests/rd2229_39/test_trace_presence.py",
+        "tests/test_entrypoint_no_pyside.py",
+        "tests/test_golden_ca_slu_nu_limits.py",
+        "tests/test_logging_and_plugins.py",
+        "tests/test_mvp_domain_invariants.py",
+        "tests/test_mvp_end_to_end.py",
+        "tests/test_mvp_jsoncode_loader.py",
+        "tests/test_mvp_real_min_check.py",
+        "tests/test_mvp_report_builder.py",
+        "tests/test_mvp_result_trace_contract.py",
+        "tests/test_mvp_schema_migration.py",
+        "tests/test_mvp_sqlite_roundtrip.py",
+        "tests/test_no_tkinter_imports.py",
+        "tests/test_project_store.py",
+        "tests/test_ui_qt_settings_service.py",
+        "tests/test_ui_qt_verification_service.py",
+        "tests/test_verification_vm.py"
+      ],
+      "normative_refs": [
+        "EC2",
+        "EN1992",
+        "NTC2018",
+        "RD2229"
+      ],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "report",
+      "path": "src/report",
+      "py_file_count": 5,
+      "py_files": [
+        "src/report/__init__.py",
+        "src/report/renderer_html.py",
+        "src/report/renderer_md.py",
+        "src/report/renderer_pdf.py",
+        "src/report/templates/__init__.py"
+      ],
+      "stub_marker_count": 12,
+      "test_files": [
+        "src/tests/test_reporting.py"
+      ],
+      "normative_refs": [],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "reporting",
+      "path": "src/reporting",
+      "py_file_count": 3,
+      "py_files": [
+        "src/reporting/__init__.py",
+        "src/reporting/export.py",
+        "src/reporting/report_builder.py"
+      ],
+      "stub_marker_count": 0,
+      "test_files": [
+        "tests/test_fire_selection_eligibility.py",
+        "tests/test_reporting_smoke.py"
+      ],
+      "normative_refs": [
+        "RD2229"
+      ],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "repositories",
+      "path": "src/repositories",
+      "py_file_count": 1,
+      "py_files": [
+        "src/repositories/__init__.py"
+      ],
+      "stub_marker_count": 0,
+      "test_files": [],
+      "normative_refs": [],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "tests",
+      "path": "src/tests",
+      "py_file_count": 7,
+      "py_files": [
+        "src/tests/__init__.py",
+        "src/tests/test_code_routing.py",
+        "src/tests/test_elements_repo.py",
+        "src/tests/test_material_repo.py",
+        "src/tests/test_reporting.py",
+        "src/tests/test_resolve_inputs.py",
+        "src/tests/test_shear_area.py"
+      ],
+      "stub_marker_count": 1,
+      "test_files": [],
+      "normative_refs": [],
+      "inferred_status": "PARZIALE",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "tools",
+      "path": "src/tools",
+      "py_file_count": 3,
+      "py_files": [
+        "src/tools/__init__.py",
+        "src/tools/export_results.py",
+        "src/tools/verify_cli.py"
+      ],
+      "stub_marker_count": 12,
+      "test_files": [],
+      "normative_refs": [],
+      "inferred_status": "INCOMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "ui",
+      "path": "src/ui",
+      "py_file_count": 21,
+      "py_files": [
+        "src/ui/__init__.py",
+        "src/ui/modern/__init__.py",
+        "src/ui/modern/app.py",
+        "src/ui/modern/features/__init__.py",
+        "src/ui/modern/features/registry.py",
+        "src/ui/modern/services/__init__.py",
+        "src/ui/modern/viewmodels/__init__.py",
+        "src/ui/qt/__init__.py",
+        "src/ui/qt/code_settings.py",
+        "src/ui/qt/debug_viewer.py",
+        "src/ui/qt/entrypoint.py",
+        "src/ui/qt/material_editor.py",
+        "src/ui/qt/module_selector.py",
+        "src/ui/qt/notification_center.py",
+        "src/ui/qt/pipeline_runner.py",
+        "src/ui/qt/project_editor.py",
+        "src/ui/qt/report_viewer.py",
+        "src/ui/qt/section_manager.py",
+        "src/ui/qt/services.py",
+        "src/ui/ui/__init__.py",
+        "src/ui/ui/verification_table_app.py"
+      ],
+      "stub_marker_count": 3,
+      "test_files": [
+        "tests/legacy_qt/test_ui_qt_registry.py",
+        "tests/test_modern_ui_nongui.py",
+        "tests/test_table_navigation.py",
+        "tests/test_ui_background_compute.py"
+      ],
+      "normative_refs": [
+        "RD2229"
+      ],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "utils",
+      "path": "src/utils",
+      "py_file_count": 2,
+      "py_files": [
+        "src/utils/__init__.py",
+        "src/utils/background.py"
+      ],
+      "stub_marker_count": 0,
+      "test_files": [
+        "tests/test_background_executor.py"
+      ],
+      "normative_refs": [],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    },
+    {
+      "name": "wind",
+      "path": "src/wind",
+      "py_file_count": 7,
+      "py_files": [
+        "src/wind/__init__.py",
+        "src/wind/cnr_dt207.py",
+        "src/wind/ec1991_1_4.py",
+        "src/wind/models.py",
+        "src/wind/ntc2018.py",
+        "src/wind/outputs.py",
+        "src/wind/service.py"
+      ],
+      "stub_marker_count": 5,
+      "test_files": [
+        "tests/test_wind_integration_pipeline.py",
+        "tests/test_wind_smoke.py"
+      ],
+      "normative_refs": [
+        "CNR-DT 207",
+        "CNR_DT207",
+        "EN 1991",
+        "EN1991",
+        "Eurocode",
+        "Eurocodice",
+        "NTC 2018",
+        "NTC2018"
+      ],
+      "inferred_status": "COMPLETO",
+      "_note": "inferred_status is heuristic only – see RTM_MASTER.md for verified status"
+    }
+  ]
+}

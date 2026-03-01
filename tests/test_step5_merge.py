@@ -10,13 +10,7 @@ from __future__ import annotations
 
 from src.core.pipeline import merge_element_results, run_pipeline
 from src.core.results import ElementResult
-from src.project.schema import (
-    CodeSettings,
-    GeometryEntry,
-    LoadEntry,
-    MaterialEntry,
-    ProjectModel,
-)
+from src.project.schema import CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
 
 # ---------------------------------------------------------------------------
 # merge_element_results
@@ -143,11 +137,16 @@ def test_pipeline_step5_skipped_when_not_existing_structure():
     # La pipeline non deve crashare
     assert isinstance(results.ok, bool)
     # Deve esserci un warning sull'existing_structure
-    has_warning = any("existing_structure" in w or "struttura esistente" in w.lower() for w in results.warnings)
+    has_warning = any(
+        "existing_structure" in w or "struttura esistente" in w.lower() for w in results.warnings
+    )
     # O lo skip viene registrato nella traccia
-    has_trace = any("existing_structure" in t or "no_applicable_templates" in t for t in results.trace)
+    has_trace = any(
+        "existing_structure" in t or "no_applicable_templates" in t for t in results.trace
+    )
     assert has_warning or has_trace, (
-        f"Atteso warning/trace per existing_structure; " f"warnings={results.warnings}, trace={results.trace}"
+        f"Atteso warning/trace per existing_structure; "
+        f"warnings={results.warnings}, trace={results.trace}"
     )
 
 
@@ -157,7 +156,10 @@ def test_pipeline_step5_skipped_when_lc_none():
     results = run_pipeline(project)
 
     # Deve esserci un warning su lc=None
-    has_warning = any("lc" in w.lower() or "livello di conoscenza" in w.lower() or "LC" in w for w in results.warnings)
+    has_warning = any(
+        "lc" in w.lower() or "livello di conoscenza" in w.lower() or "LC" in w
+        for w in results.warnings
+    )
     has_trace = any("lc_None" in t or "no_applicable_templates" in t for t in results.trace)
     assert has_warning or has_trace, (
         f"Atteso warning/trace per lc=None; " f"warnings={results.warnings}, trace={results.trace}"

@@ -6,16 +6,11 @@ quando è configurato un WindConfig nel progetto.
 
 from __future__ import annotations
 
+# Third-party
 import pytest
 
 from src.core.pipeline import run_pipeline
-from src.project.schema import (
-    CodeSettings,
-    GeometryEntry,
-    LoadEntry,
-    MaterialEntry,
-    ProjectModel,
-)
+from src.project.schema import CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
 from src.wind.models import BuildingGeom, WindSite
 from src.wind.service import WindConfig
 
@@ -59,7 +54,9 @@ def test_pipeline_wind_in_extra():
     project = _project_with_wind()
     results = run_pipeline(project)
 
-    assert "wind" in results.extra, "Risultati vento mancanti in results.extra; " f"extra keys: {list(results.extra.keys())}"
+    assert "wind" in results.extra, (
+        "Risultati vento mancanti in results.extra; " f"extra keys: {list(results.extra.keys())}"
+    )
 
 
 def test_pipeline_wind_has_profile():

@@ -13,13 +13,7 @@ import os
 
 from src.core.pipeline import run_pipeline
 from src.core.results import ResultsModel, export_results
-from src.project.schema import (
-    CodeSettings,
-    GeometryEntry,
-    LoadEntry,
-    MaterialEntry,
-    ProjectModel,
-)
+from src.project.schema import CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
 
 
 def _minimal_project() -> ProjectModel:
