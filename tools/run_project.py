@@ -10,8 +10,9 @@ Run a project.json deterministically, create run folder, snapshot, outputs, mani
 import json
 import pathlib
 import platform
+import re
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 
 from src.project.repository import load_project
 from src.project.timeline import (
@@ -21,6 +22,55 @@ from src.project.timeline import (
     sha256_file,
     write_manifest,
 )
+
+
+def sanitize_id(val: str) -> str:
+    # Only allow alphanum, dash, underscore
+    return re.sub(r"[^a-zA-Z0-9_-]+", "_", val.strip()) if val else ""
+
+
+def get_project_id(project, input_path: pathlib.Path) -> str:
+    # Try to read raw project JSON from input_path to prefer persisted meta.id
+    try:
+        if input_path.exists():
+            with open(input_path, encoding="utf-8") as rf:
+                raw = json.load(rf)
+            if isinstance(raw, dict):
+                meta_raw = raw.get("meta") or raw.get("project_info")
+                if isinstance(meta_raw, dict):
+                    raw_id = meta_raw.get("id")
+                    if raw_id:
+                        return sanitize_id(str(raw_id))
+                    raw_name = meta_raw.get("name")
+                    if raw_name:
+                        return sanitize_id(str(raw_name))
+    except Exception:
+        # ignore errors reading raw file and fall back to project object
+        pass
+    # a) meta.id if present and non-empty (handle both Pydantic v2 and dict)
+    meta = None
+    if hasattr(project, "meta"):
+        meta = project.meta
+    elif isinstance(project, dict) and "meta" in project:
+        meta = project["meta"]
+    if meta is not None:
+        pid = getattr(meta, "id", None) if hasattr(meta, "id") else meta.get("id")
+        if pid is not None and str(pid).strip():
+            return sanitize_id(str(pid))
+        pname = getattr(meta, "name", None) if hasattr(meta, "name") else meta.get("name")
+        if pname is not None and str(pname).strip():
+            return sanitize_id(str(pname))
+    # b) project_info.id if present and non-empty
+    if hasattr(project, "project_info"):
+        pi = project.project_info
+        pi_id = getattr(pi, "id", None) if hasattr(pi, "id") else pi.get("id") if isinstance(pi, dict) else None
+        if pi_id is not None and str(pi_id).strip():
+            return sanitize_id(str(pi_id))
+    # c) input_path stem
+    if input_path and input_path.stem:
+        return sanitize_id(input_path.stem)
+    # d) fallback
+    return "unknown"
 
 
 def canonicalize_json(data):
@@ -34,65 +84,42 @@ def main():
             sys.exit(1)
         project_path = pathlib.Path(sys.argv[1])
         project = load_project(str(project_path))
-        # Support both new MVP ProjectModel and legacy ProjectModel
-        # Modern ProjectModel: always use meta.id if present
-        # Use meta.id if present, else project_info.id, else 'unknown'
-        if hasattr(project, "meta") and hasattr(project, "modules"):
-            print(f"[DEBUG] project.meta = {repr(project.meta)}")
-            print(f"[DEBUG] project.meta.id = {getattr(project.meta, 'id', None)}")
-            project_id = getattr(project.meta, "id", None)
-            if not project_id and hasattr(project, "project_info"):
-                project_id = getattr(project.project_info, "id", None)
-            if not project_id:
-                project_id = "unknown"
+        # Also read the raw input file to preserve original keys (meta/modules)
+        raw_project_data = {}
+        try:
+            with open(project_path, encoding="utf-8") as rf:
+                raw_project_data = json.load(rf)
+        except Exception:
+            raw_project_data = {}
+        project_id = get_project_id(project, project_path)
+        # Prefer modules from the original raw JSON when present (preserves new ProjectModel shape)
+        if hasattr(project, "modules"):
             modules = project.modules
-            normative_ids = getattr(getattr(project, "normative_profile", None), "source_ids", [])
-            commit_hash = getattr(project.meta, "commit_hash", "N/A")
-            snapshot_data = (
-                project.model_dump() if hasattr(project, "model_dump") else dict(project)
-            )
-        elif isinstance(project, dict) and "meta" in project and "modules" in project:
-            project_id = project["meta"].get("id", None)
-            if not project_id and "project_info" in project:
-                project_id = project["project_info"].get("id", None)
-            if not project_id:
-                project_id = "unknown"
+        elif raw_project_data and isinstance(raw_project_data, dict) and "modules" in raw_project_data:
+            modules = raw_project_data["modules"]
+        elif isinstance(project, dict) and "modules" in project:
             modules = project["modules"]
-            normative_ids = project.get("normative_profile", {}).get("source_ids", [])
-            commit_hash = project["meta"].get("commit_hash", "N/A")
-            snapshot_data = dict(project)
-        elif hasattr(project, "project_info") and hasattr(project, "modules"):
-            # legacy ProjectModel with project_info
-            project_info = project.project_info
-            project_id = getattr(project_info, "id", None) or (
-                project_info["id"]
-                if isinstance(project_info, dict) and "id" in project_info
-                else "unknown"
-            )
-            modules = project.modules
-            normative_profile = getattr(project, "normative_profile", None)
-            if normative_profile is not None:
-                normative_ids = getattr(normative_profile, "source_ids", None) or (
-                    normative_profile["source_ids"]
-                    if isinstance(normative_profile, dict) and "source_ids" in normative_profile
-                    else []
-                )
+        else:
+            modules = []
+        if raw_project_data and isinstance(raw_project_data, dict):
+            normative_ids = raw_project_data.get("normative_profile", {}).get("source_ids", [])
+            commit_hash = raw_project_data.get("meta", {}).get("commit_hash", "N/A")
+        else:
+            if hasattr(project, "normative_profile"):
+                normative_ids = getattr(project.normative_profile, "source_ids", [])
+            elif isinstance(project, dict) and "normative_profile" in project:
+                normative_ids = project["normative_profile"].get("source_ids", [])
             else:
                 normative_ids = []
-            commit_hash = getattr(getattr(project, "meta", {}), "commit_hash", "N/A")
-            snapshot_data = (
-                project.model_dump() if hasattr(project, "model_dump") else dict(project)
-            )
-        else:
-            # fallback: try to access id and modules as dict
-            project_id = getattr(project, "id", "unknown")
-            modules = getattr(project, "modules", [])
-            normative_ids = []
-            commit_hash = "N/A"
-            snapshot_data = (
-                project.model_dump() if hasattr(project, "model_dump") else dict(project)
-            )
-        now = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+            if hasattr(project, "meta"):
+                commit_hash = getattr(project.meta, "commit_hash", "N/A")
+            elif isinstance(project, dict) and "meta" in project:
+                commit_hash = project["meta"].get("commit_hash", "N/A")
+            else:
+                commit_hash = "N/A"
+        # Prefer the original raw project JSON for snapshot so replay sees same keys
+        snapshot_data = raw_project_data if raw_project_data else (project.model_dump() if hasattr(project, "model_dump") else dict(project))
+        now = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         run_id = f"run_{now}"
         # If the input project_path is in a temp dir (pytest), write output there
         if project_path.is_absolute() and any(

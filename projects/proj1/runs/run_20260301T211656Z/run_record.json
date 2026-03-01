@@ -1,0 +1,13 @@
+{
+  "commit_hash": "abc123",
+  "modules_executed": [
+    "mod1"
+  ],
+  "normative_ids": [
+    "RD2229"
+  ],
+  "project_id": "proj1",
+  "python_version": "3.14.2",
+  "run_id": "run_20260301T211656Z",
+  "timestamp_path": "20260301T211656Z"
+}
