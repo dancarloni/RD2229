@@ -1,14 +1,30 @@
-# Modulo: `gui`
+# Documentazione Modulo: `gui`
 
-## 1. Scopo e ambito
+> **Generato automaticamente** da `tools/generate_module_docs.py` — 2026-03-01 00:52 UTC
+> Stub iniziale: compilare manualmente le sezioni TBD.
+> Non eliminare questo file; aggiornarlo incrementalmente.
+
+---
+
+## 1. Identificazione
+
+| Campo | Valore |
+|-------|--------|
+| **Nome modulo** | `gui` |
+| **Path** | `src/gui` |
+| **Tipo** | package |
+| **File .py rilevati** | 8 |
+| **Stato** | PARZIALE |
+| **Maintainer** | TBD |
+| **Ultima revisione** | 2026-03-01 |
+
+---
+
+## 2. Scopo
 
 Layer GUI thin: entry point verso `src/ui/modern/app.main()`, selettore normativa NTC2018, stub per finestre elementi secondari e widget.
 
-## 2. Stato reale
-
-**INCOMPLETO**
-
-Motivazione oggettiva: `entrypoint.py` (13 righe) è un pass-through. `ntc2018_selector.py` (12 righe) ha una funzione reale. Tutti i file in `secondary_elements/` e `widgets/` sono quasi vuoti (8–15 righe, solo class skeleton). Non collegato come entry point autonomo.
+---
 
 ## 3. Evidenze
 
@@ -19,36 +35,55 @@ Motivazione oggettiva: `entrypoint.py` (13 righe) è un pass-through. `ntc2018_s
 - `src/gui/widgets/norm_selector.py` — ~7 righe, skeleton
 - Test: `tests/legacy_qt/test_norm_selector.py`, `tests/legacy_qt/test_secondary_editor.py`
 
-## 4. Input/parametri
+---
 
-- `list_available_codes() -> list[str]` — restituisce codici normativi disponibili
+## 4. Input / Output
 
-## 5. Output
+| Direzione | Formato | Descrizione |
+|-----------|---------|-------------|
+| Input | `list_available_codes() -> list[str]` | Restituisce codici normativi disponibili |
+| Output | `list[str]` | Lista codici (`["RD2229", "NTC2018", ...]`) |
 
-- `list[str]` — lista codici (`["RD2229", "NTC2018", ...]`)
+---
 
-## 6. Dipendenze
+## 5. Test correlati
 
-- `src/ui/modern/app` — `main()` (delegato)
-- `src/codes/ntc2018/secondary_elements/` — modelli elementi secondari
+| File test | Copertura stimata | Note |
+|-----------|-------------------|------|
+| `tests/legacy_qt/test_norm_selector.py` | TBD | — |
+| `tests/legacy_qt/test_secondary_editor.py` | TBD | — |
 
-## 7. Fonti normative collegate
+---
+
+## 6. Fonti normative
 
 | ID | Evidenza nel codice |
 |----|---------------------|
 | RD2229 | `src/gui/entrypoint.py` — docstring |
 | NTC2018 | `src/gui/ntc2018_selector.py` — codice listato |
 
-Clausole: TBD.
+Clausole: TODO
 
-## 8. Gap/TODO/Limitazioni
+---
+
+## 7. Dipendenze interne
+
+- `src/ui/modern/app` — `main()` (delegato)
+- `src/codes/ntc2018/secondary_elements/` — modelli elementi secondari
+
+---
+
+## 8. Gap / TODO / Limitazioni
 
 - Sub-package `secondary_elements/` quasi completamente non implementato
 - `entrypoint.py` è un thin proxy — nessuna logica GUI diretta
 - Widget in `widgets/` sono skeleton
+
+---
 
 ## 9. Next steps
 
 - [ ] Implementare `secondary_elements/editor.py` come finestra Qt funzionale
 - [ ] Collegare `gui/entrypoint.py` a un entry point autonomo se necessario
 - [ ] Aggiungere test headless per `secondary_elements/` widgets
+- [ ] Compilare sezioni TBD
