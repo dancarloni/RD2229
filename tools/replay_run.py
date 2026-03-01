@@ -97,8 +97,9 @@ def main() -> None:
         if report.hash_mismatches:
             print("  Hash mismatches:", file=sys.stderr)
             for fname, diff in report.hash_mismatches.items():
-                print(f"    {fname}: {diff['original'][:12]}… → {diff['replayed'][:12]}…",
-                      file=sys.stderr)
+                orig_short = diff["original"][:12]
+                replay_short = diff["replayed"][:12]
+                print(f"    {fname}: {orig_short}… → {replay_short}…", file=sys.stderr)
         if report.field_diffs:
             print("  Field diffs:", file=sys.stderr)
             for fname, diff in report.field_diffs.items():

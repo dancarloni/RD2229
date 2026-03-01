@@ -326,7 +326,8 @@ def compare_manifests(
                 "replayed": replay_outputs[key],
             }
 
-    # Compare top-level fields (except run_id and outputs which are already handled)
+    # run_id differs by design (replay appends '_replay');
+    # outputs are already compared above via hash_mismatches.
     skip_fields = {"run_id", "outputs"}
     for field_name in sorted(set(original) | set(replayed)):
         if field_name in skip_fields:
