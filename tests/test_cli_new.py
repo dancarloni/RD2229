@@ -1,6 +1,5 @@
 """Tests for the src.cli package entry point."""
 
-
 from __future__ import annotations
 
 import importlib

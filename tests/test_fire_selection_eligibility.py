@@ -8,7 +8,6 @@ Verifica:
 - Il report include sezione incendio quando fire.enabled=True
 """
 
-
 from __future__ import annotations
 
 import pytest

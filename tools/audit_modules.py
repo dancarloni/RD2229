@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import datetime
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,7 +41,7 @@ def _count_py(path: Path) -> int:
 
 def audit() -> str:
     """Return the Markdown audit report."""
-    now = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    now = datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%d %H:%M UTC")
     try:
         import subprocess
 

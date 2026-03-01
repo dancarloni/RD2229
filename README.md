@@ -11,6 +11,7 @@ python -c "import pydantic; print(pydantic.__version__)"
 ```
 
 Se il comando stampa una versione >=2,<3, l’ambiente è pronto.
+
 # RD2229
 
 [![CI](https://github.com/dancarloni/RD2229/actions/workflows/ci.yml/badge.svg)](https://github.com/dancarloni/RD2229/actions/workflows/ci.yml)
@@ -90,7 +91,6 @@ pytest tests_legacy        # legacy Tkinter tests (requires tkinter)
 ```
 
 The documentation in `CONTRIBUTING.md` has been updated accordingly.
-
 
 ## Struttura logica dei moduli
 

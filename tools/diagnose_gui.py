@@ -8,7 +8,6 @@ This script prints:
 """
 
 import os
-import sys
 
 print("CWD=", os.getcwd())
 print("PYTHONPATH=", os.environ.get("PYTHONPATH"))
