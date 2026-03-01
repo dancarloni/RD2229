@@ -2,7 +2,17 @@
 RD2229 UI Logic - Registry and Service Validation (PySide6)
 Ensures all Qt modules are correctly discovered and accessible.
 """
+import importlib.util
+
 import pytest
+
+# if neither PySide6 nor PyQt6 are available, skip the entire module; tests
+# footprint is Qt‑specific and CI runs headless without those bindings.
+if (
+    importlib.util.find_spec("PySide6") is None
+    and importlib.util.find_spec("PyQt6") is None
+):
+    pytest.skip("Qt bindings not installed; skipping Qt registry tests", allow_module_level=True)
 
 from modules.registry import ModuleRegistry
 from src.project.schema import ProjectModel
