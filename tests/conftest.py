@@ -63,7 +63,8 @@ _TKINTER_DEPENDENT: list[str] = [
     "test_ui_qt_settings_service.py",
     "test_ui_qt_verification_service.py",
     # PyQt6/PySide6 not available – collection would abort
-    "test_ui_qt_registry.py",
+    # (registry test has been moved to legacy_qt)
+    # "test_ui_qt_registry.py",
 ]
 
 # Tests requiring pytest-qt (qtbot fixture) which may not be installed.

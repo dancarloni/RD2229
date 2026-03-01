@@ -38,6 +38,47 @@ L’entrypoint installato `rd2229-gui` punta a `src.gui.entrypoint:main`.
   - [Shear form factors and assumptions](docs/SHEAR_FORM_FACTORS.md) — defaults and reference assumptions for κ and A_ref (used for Timoshenko shear areas)
 - [tests](tests) — test dei calcoli
 
+## Continuous Integration and Testing
+
+The project uses a headless CI workflow that runs on every push and pull
+request against `main`.  The **python-ci.yml** workflow is the sole gating
+pipeline; it performs the following steps in order:
+
+1. Install dependencies (including `requirements-dev.txt` and the package
+   itself via `pip install -e .`).
+2. Run `ruff check src tests`.
+3. Run `python tools/run_mypy_ci.py` for static typing.
+4. Reinstall editable package (required by some CI runners).
+5. Execute the standard test suite with `pytest -q`.
+   - `pytest.ini` is configured to **ignore `tests/legacy_tkinter` and
+     `tests/legacy_qt` directories** so that GUI tests do not run in the
+     headless CI environment.
+6. Run `flake8 .` (optional lint pass, mostly redundant with `ruff`).
+
+No step uses `continue-on-error` or other masking; failures block merge.
+
+### GUI and legacy tests
+
+Tests that require a display or third‑party GUI bindings have been moved to
+`tests/legacy_qt` or `tests_legacy` (Tkinter). These directories are **not
+collected by default**.  The standard CI suite remains lightweight and
+non‑GUI.
+
+A separate manual workflow (`.github/workflows/gui-tests.yml`) is provided
+for running Qt tests.  It can be triggered via the "Actions" tab and
+installs `pytest-qt` plus a real Qt binding (`PySide6`).  This job is
+opt‑in and does **not** block merges.
+
+To run GUI tests locally you can use:
+
+```bash
+pytest tests/legacy_qt     # Qt-specific tests (requires PySide6/PyQt6)
+pytest tests_legacy        # legacy Tkinter tests (requires tkinter)
+```
+
+The documentation in `CONTRIBUTING.md` has been updated accordingly.
+
+
 ## Struttura logica dei moduli
 
 ### 1. Moduli fondamentali (core)

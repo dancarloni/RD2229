@@ -1,0 +1,30 @@
+name: GUI Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  qt:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    env:
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          pip install -e .
+          pip install pytest-qt PySide6
+      - name: Run Qt tests
+        run: |
+          # only run the legacy Qt tests; this workflow is opt-in and not required for merging
+          pytest tests/legacy_qt -q
