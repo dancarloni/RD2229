@@ -1,3 +1,16 @@
+## Setup rapido ambiente (venv, dipendenze, verifica Pydantic)
+
+Per creare un ambiente locale riproducibile e verificare che Pydantic sia installato:
+
+```bash
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -U pip
+pip install -e .
+python -c "import pydantic; print(pydantic.__version__)"
+```
+
+Se il comando stampa una versione >=2,<3, l’ambiente è pronto.
 # RD2229
 
 [![CI](https://github.com/dancarloni/RD2229/actions/workflows/ci.yml/badge.svg)](https://github.com/dancarloni/RD2229/actions/workflows/ci.yml)
