@@ -8,6 +8,10 @@ Verifica che:
 
 from __future__ import annotations
 
+import pytest
+
+pytest.importorskip("pydantic")
+
 import os
 
 from src.core.pipeline import run_pipeline

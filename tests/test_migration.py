@@ -6,6 +6,10 @@ schema_version) venga correttamente migrato alla versione corrente.
 
 from __future__ import annotations
 
+import pytest
+
+pytest.importorskip("pydantic")
+
 import json
 
 from src.project.repository import load_project, migrate_dict

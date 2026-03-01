@@ -10,6 +10,8 @@ import os
 
 import pytest
 
+pytest.importorskip("pydantic")
+
 from src.ui.modern.features.registry import FeatureSpec, clear, get_all, register
 from src.ui.modern.services import CalculationService, ProjectIOService
 from src.ui.modern.viewmodels import ProjectViewModel, ResultsViewModel, RunViewModel

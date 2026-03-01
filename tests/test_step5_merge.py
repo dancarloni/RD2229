@@ -8,6 +8,10 @@ Verifica:
 
 from __future__ import annotations
 
+import pytest
+
+pytest.importorskip("pydantic")
+
 from src.core.pipeline import merge_element_results, run_pipeline
 from src.core.results import ElementResult
 from src.project.schema import (

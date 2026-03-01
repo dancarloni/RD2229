@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import pytest
 
+pytest.importorskip("pydantic")
+
 from src.core.pipeline import run_pipeline
 from src.project.schema import (
     CodeSettings,

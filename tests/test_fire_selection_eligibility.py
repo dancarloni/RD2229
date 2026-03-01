@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import pytest
 
+pytest.importorskip("pydantic")
+
 from src.core.pipeline import run_pipeline
 from src.fire.curves import iso834_profile, iso834_temperature
 from src.fire.eligibility import evaluate_fire_eligibility
