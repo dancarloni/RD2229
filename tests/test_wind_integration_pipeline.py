@@ -6,6 +6,9 @@ quando è configurato un WindConfig nel progetto.
 
 from __future__ import annotations
 
+# Third-party
+import pytest
+
 from src.core.pipeline import run_pipeline
 from src.project.schema import CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
 from src.wind.models import BuildingGeom, WindSite
