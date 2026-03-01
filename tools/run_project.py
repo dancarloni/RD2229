@@ -63,7 +63,11 @@ def get_project_id(project, input_path: pathlib.Path) -> str:
     # b) project_info.id if present and non-empty
     if hasattr(project, "project_info"):
         pi = project.project_info
-        pi_id = getattr(pi, "id", None) if hasattr(pi, "id") else pi.get("id") if isinstance(pi, dict) else None
+        pi_id = (
+            getattr(pi, "id", None)
+            if hasattr(pi, "id")
+            else pi.get("id") if isinstance(pi, dict) else None
+        )
         if pi_id is not None and str(pi_id).strip():
             return sanitize_id(str(pi_id))
     # c) input_path stem
@@ -95,7 +99,11 @@ def main():
         # Prefer modules from the original raw JSON when present (preserves new ProjectModel shape)
         if hasattr(project, "modules"):
             modules = project.modules
-        elif raw_project_data and isinstance(raw_project_data, dict) and "modules" in raw_project_data:
+        elif (
+            raw_project_data
+            and isinstance(raw_project_data, dict)
+            and "modules" in raw_project_data
+        ):
             modules = raw_project_data["modules"]
         elif isinstance(project, dict) and "modules" in project:
             modules = project["modules"]
@@ -118,7 +126,11 @@ def main():
             else:
                 commit_hash = "N/A"
         # Prefer the original raw project JSON for snapshot so replay sees same keys
-        snapshot_data = raw_project_data if raw_project_data else (project.model_dump() if hasattr(project, "model_dump") else dict(project))
+        snapshot_data = (
+            raw_project_data
+            if raw_project_data
+            else (project.model_dump() if hasattr(project, "model_dump") else dict(project))
+        )
         now = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         run_id = f"run_{now}"
         # If the input project_path is in a temp dir (pytest), write output there
