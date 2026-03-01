@@ -8,11 +8,10 @@ Verifica:
 - Il report include sezione incendio quando fire.enabled=True
 """
 
+
 from __future__ import annotations
 
 import pytest
-
-pytest.importorskip("pydantic")
 
 from src.core.pipeline import run_pipeline
 from src.fire.curves import iso834_profile, iso834_temperature
@@ -53,7 +52,9 @@ def _minimal_fire_project(
         ],
         materials=[MaterialEntry(id="C25", type="concrete", f_ck=25.0)],
         loads=[LoadEntry(element_id="P1", N=100.0, Mx=50.0)],
-        code_settings=CodeSettings(norm_code="RD2229", limit_states=["TA"], existing_structure=True, lc="LC3"),
+        code_settings=CodeSettings(
+            norm_code="RD2229", limit_states=["TA"], existing_structure=True, lc="LC3"
+        ),
         fire=FireSettings(
             enabled=fire_enabled,
             scenario="ISO_834",
@@ -232,7 +233,12 @@ def test_rc_fire_check_not_verified_no_cover():
         geometry=[GeometryEntry(id="P1", type="RECTANGULAR", width=30.0, height=50.0)],
         materials=[MaterialEntry(id="C25", type="concrete", f_ck=25.0)],
         loads=[],
-        fire=FireSettings(enabled=True, cover_mm_default=None, exposure_sides_default=3, required_rating_minutes=60),
+        fire=FireSettings(
+            enabled=True,
+            cover_mm_default=None,
+            exposure_sides_default=3,
+            required_rating_minutes=60,
+        ),
     )
     elem = GeometryEntry(id="P1", type="RECTANGULAR", width=30.0, height=50.0)
     result = run_rc_fire_check(project, elem)
@@ -271,7 +277,9 @@ def test_pipeline_fire_only_selected_elements():
     project = ProjectModel(
         geometry=[
             GeometryEntry(id="P1", type="RECTANGULAR", width=30.0, height=50.0, fire_selected=True),
-            GeometryEntry(id="P2", type="RECTANGULAR", width=30.0, height=50.0, fire_selected=False),
+            GeometryEntry(
+                id="P2", type="RECTANGULAR", width=30.0, height=50.0, fire_selected=False
+            ),
         ],
         materials=[MaterialEntry(id="C25", type="concrete", f_ck=25.0)],
         loads=[

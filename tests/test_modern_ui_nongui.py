@@ -3,14 +3,13 @@
 Verifica logica di stato senza richiedere un display.
 """
 
+
 from __future__ import annotations
 
 import json
 import os
 
 import pytest
-
-pytest.importorskip("pydantic")
 
 from src.ui.modern.features.registry import FeatureSpec, clear, get_all, register
 from src.ui.modern.services import CalculationService, ProjectIOService
@@ -81,7 +80,9 @@ def test_project_vm_on_change_callback():
     assert len(called) >= 1
 
 
-@pytest.mark.xfail(reason="ProjectViewModel.save_recent/load_recent not implemented yet", strict=True)
+@pytest.mark.xfail(
+    reason="ProjectViewModel.save_recent/load_recent not implemented yet", strict=True
+)
 def test_project_vm_save_load_recent(tmp_path):
     settings_path = str(tmp_path / "settings.json")
     vm = ProjectViewModel()

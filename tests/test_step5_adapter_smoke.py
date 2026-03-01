@@ -8,20 +8,10 @@ Verifica che:
 
 from __future__ import annotations
 
-import pytest
-
-pytest.importorskip("pydantic")
-
 from src.core.pipeline import run_pipeline
 from src.core.results import ElementResult, ResultsModel
 from src.core.step5_adapter import can_run_step5, run_step5
-from src.project.schema import (
-    CodeSettings,
-    GeometryEntry,
-    LoadEntry,
-    MaterialEntry,
-    ProjectModel,
-)
+from src.project.schema import CodeSettings, GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
 
 
 def _minimal_step5_project() -> ProjectModel:
