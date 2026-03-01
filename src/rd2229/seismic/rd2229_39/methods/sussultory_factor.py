@@ -9,7 +9,9 @@ METHOD_ID = "RD2229_39_SUSSULTORY_DERIVED_125"
 COMPONENT = "SUSSULTORY"
 
 
-def compute_sussultory_from_ondulatory(ondulatory: FloorForceComponent, factor: float = 1.25) -> FloorForceComponent:
+def compute_sussultory_from_ondulatory(
+    ondulatory: FloorForceComponent, factor: float = 1.25
+) -> FloorForceComponent:
     forces: dict[str, float] = {k: factor * v for k, v in ondulatory.forces_by_level.items()}
     base_shear = sum(forces.values())
 
@@ -29,4 +31,6 @@ def compute_sussultory_from_ondulatory(ondulatory: FloorForceComponent, factor: 
         factor=factor,
     )
 
-    return FloorForceComponent(component=COMPONENT, forces_by_level=forces, base_shear=base_shear, trace=trace)
+    return FloorForceComponent(
+        component=COMPONENT, forces_by_level=forces, base_shear=base_shear, trace=trace
+    )

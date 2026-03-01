@@ -69,8 +69,12 @@ def run_verifications_for_element(
             validation_result=validation_result,
             summary_metrics={
                 "status": "NON_VERIFICATO_PER_ERRORI_INPUT",
-                "num_errori_validazione": float(len([i for i in validation_result.issues if i.severity == "error"])),
-                "num_warning_validazione": float(len([i for i in validation_result.issues if i.severity == "warning"])),
+                "num_errori_validazione": float(
+                    len([i for i in validation_result.issues if i.severity == "error"])
+                ),
+                "num_warning_validazione": float(
+                    len([i for i in validation_result.issues if i.severity == "warning"])
+                ),
             },
         )
 
@@ -85,7 +89,9 @@ def run_verifications_for_element(
         requires_existing=calc_input.lc is not None,  # If LC is set, structure is existing
     )
 
-    logger.debug(f"Selected {len(selected_templates)} templates for element '{calc_input.element_name}'")
+    logger.debug(
+        f"Selected {len(selected_templates)} templates for element '{calc_input.element_name}'"
+    )
 
     # 4. Execute each template
     per_template_results: dict[str, SingleCheckResult] = {}
@@ -94,7 +100,8 @@ def run_verifications_for_element(
             check_result = _execute_template(template, calc_input)
             per_template_results[template.template_id] = check_result
             logger.debug(
-                f"Template '{template.template_id}': ok={check_result.ok}, " f"utilisation={check_result.utilisation}"
+                f"Template '{template.template_id}': ok={check_result.ok}, "
+                f"utilisation={check_result.utilisation}"
             )
         except Exception as e:
             logger.error(
@@ -247,7 +254,9 @@ def _select_templates(
 
         # Filter by section type (if template specifies applicable types)
         if template.applicable_section_types is not None:
-            if section_type is None or section_type not in [s.lower() for s in template.applicable_section_types]:
+            if section_type is None or section_type not in [
+                s.lower() for s in template.applicable_section_types
+            ]:
                 continue
 
         # Filter by material tags (if template specifies applicable tags)
@@ -289,11 +298,15 @@ def _execute_template(template: VerificationTemplate, calc_input: CalcInput) -> 
 
     module_path, _, function_name = function_path.rpartition(".")
     if not module_path or not function_name:
-        raise ValueError(f"Invalid function_path '{function_path}' for template '{template.template_id}'")
+        raise ValueError(
+            f"Invalid function_path '{function_path}' for template '{template.template_id}'"
+        )
 
     # Import module and get function
     module = import_module(module_path)
-    check_function: Callable[[CalcInput, VerificationTemplate], SingleCheckResult] = getattr(module, function_name)
+    check_function: Callable[[CalcInput, VerificationTemplate], SingleCheckResult] = getattr(
+        module, function_name
+    )
 
     # Execute function
     result = check_function(calc_input, template)

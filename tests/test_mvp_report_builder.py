@@ -83,7 +83,9 @@ def test_report_has_all_mandatory_fields():
 def test_report_input_hash_is_sha256_hex():
     result = _make_result()
     report = build_report(result)
-    assert re.fullmatch(r"[0-9a-f]{64}", report.input_hash), f"input_hash non è SHA-256 hex: {report.input_hash}"
+    assert re.fullmatch(r"[0-9a-f]{64}", report.input_hash), (
+        f"input_hash non è SHA-256 hex: {report.input_hash}"
+    )
 
 
 def test_report_plugin_versions_default_empty():

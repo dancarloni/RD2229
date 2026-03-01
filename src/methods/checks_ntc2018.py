@@ -27,7 +27,9 @@ from src.core_calculus.lc_fc_adjustments import AdjustedMaterialProperties, appl
 logger = logging.getLogger(__name__)
 
 
-def check_flessione_slu_rett(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_flessione_slu_rett(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a flessione semplice SLU per sezione rettangolare - NTC 2018.
 
     TODO: Implementazione PARZIALE - formula semplificata.
@@ -202,7 +204,7 @@ def check_flessione_slu_rett(calc_input: CalcInput, template: VerificationTempla
 
     # Messages
     messages_it = [
-        f"Sezione: {b/10:.1f} × {h/10:.1f} cm, d = {d:.1f} cm, d' = {d_prime:.1f} cm",
+        f"Sezione: {b / 10:.1f} × {h / 10:.1f} cm, d = {d:.1f} cm, d' = {d_prime:.1f} cm",
         f"Armatura tesa: As = {As:.2f} cm²",
         (
             f"Armatura compressa: As' = {As_prime:.2f} cm²"
@@ -212,12 +214,14 @@ def check_flessione_slu_rett(calc_input: CalcInput, template: VerificationTempla
         f"Materiali: C{f_ck:.0f}/{f_yk:.0f} (f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa)",
         "",
         "Calcolo asse neutro (NTC 2018 § 4.1.2.1.3.1):",
-        f"  x = {x:.1f} mm ({x/d_mm:.3f}·d)",
+        f"  x = {x:.1f} mm ({x / d_mm:.3f}·d)",
         f"  Braccio coppia z = {z_c:.1f} mm",
     ]
 
     if x_limited:
-        messages_it.append(f"  ⚠️ x/d = {x/d_mm:.3f} > 0.45: sezione sovra-armata, verificare duttilità")
+        messages_it.append(
+            f"  ⚠️ x/d = {x / d_mm:.3f} > 0.45: sezione sovra-armata, verificare duttilità"
+        )
 
     messages_it.extend(
         [
@@ -267,7 +271,9 @@ def check_flessione_slu_rett(calc_input: CalcInput, template: VerificationTempla
     )
 
 
-def check_minimi_armatura_flessione_slu(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_minimi_armatura_flessione_slu(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica minimi di armatura a flessione SLU - NTC 2018.
 
     Implementa la formula completa secondo NTC 2018 § 4.1.6.1.1:
@@ -376,8 +382,10 @@ def check_minimi_armatura_flessione_slu(calc_input: CalcInput, template: Verific
 
     # Italian messages
     messages_it = [
-        f"Sezione: {b/10:.1f} × {h/10:.1f} cm, d = {d:.1f} cm" + (" (stimato)" if d_estimated else ""),
-        f"Materiali: C{f_ck:.0f}/{f_yk:.0f} (f_ctm = {f_ctm:.2f} MPa" + (" calcolato)" if f_ctm_computed else ")"),
+        f"Sezione: {b / 10:.1f} × {h / 10:.1f} cm, d = {d:.1f} cm"
+        + (" (stimato)" if d_estimated else ""),
+        f"Materiali: C{f_ck:.0f}/{f_yk:.0f} (f_ctm = {f_ctm:.2f} MPa"
+        + (" calcolato)" if f_ctm_computed else ")"),
         f"Armatura presente: As = {As:.2f} cm²",
         "",
         "Formula NTC 2018 § 4.1.6.1.1:",
@@ -583,7 +591,8 @@ def check_taglio_slu(calc_input: CalcInput, template: VerificationTemplate) -> S
 
     # Italian messages
     messages_it = [
-        f"Sezione: {b/10:.1f} × {h/10:.1f} cm, d = {d:.1f} cm" + (" (stimato)" if d_estimated else ""),
+        f"Sezione: {b / 10:.1f} × {h / 10:.1f} cm, d = {d:.1f} cm"
+        + (" (stimato)" if d_estimated else ""),
         f"Materiali: C{f_ck:.0f}/{f_yk:.0f} (f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa)",
         f"Staffe: φ{phi_mm:.0f}/{staffe_passo:.0f}cm, {staffe_num_bracci} bracci",
         f"  Asw/s = {Asw_over_s:.4f} mm²/mm",
@@ -591,8 +600,8 @@ def check_taglio_slu(calc_input: CalcInput, template: VerificationTemplate) -> S
         "Calcolo V_Rd (NTC 2018 § 4.1.2.1.3.2):",
         f"  θ = {theta_deg:.1f}° (cotθ = {cot_theta:.2f})",
         f"  ν = 0.6*(1 - f_ck/250) = {nu:.3f}",
-        f"  V_Rd,s (resistenza staffe) = {V_Rd_s/1000:.1f} kN",
-        f"  V_Rd,max (puntoni compressi) = {V_Rd_max/1000:.1f} kN",
+        f"  V_Rd,s (resistenza staffe) = {V_Rd_s / 1000:.1f} kN",
+        f"  V_Rd,max (puntoni compressi) = {V_Rd_max / 1000:.1f} kN",
         f"  V_Rd = min(V_Rd,s, V_Rd,max) = {V_Rd_kN:.1f} kN (limitata da: {limiting_case})",
         "",
         f"Taglio agente: V_Ed = {V_Ed:.1f} kN",
@@ -731,7 +740,9 @@ def check_minimi_armatura_taglio_slu(
             ok=False,
             utilisation=None,
             details={},
-            messages_it=["Diametro staffe mancante o non valido - impossibile verificare minimi armatura taglio"],
+            messages_it=[
+                "Diametro staffe mancante o non valido - impossibile verificare minimi armatura taglio"
+            ],
         )
 
     if staffe_passo is None or staffe_passo <= 0:
@@ -740,7 +751,9 @@ def check_minimi_armatura_taglio_slu(
             ok=False,
             utilisation=None,
             details={},
-            messages_it=["Passo staffe mancante o non valido - impossibile verificare minimi armatura taglio"],
+            messages_it=[
+                "Passo staffe mancante o non valido - impossibile verificare minimi armatura taglio"
+            ],
         )
 
     if staffe_num_bracci is None or staffe_num_bracci < 0:
@@ -764,7 +777,7 @@ def check_minimi_armatura_taglio_slu(
 
     # Italian messages
     messages_it = [
-        f"Sezione: {b/10:.1f} × {h/10:.1f} cm",
+        f"Sezione: {b / 10:.1f} × {h / 10:.1f} cm",
         f"Materiali: C{f_ck:.0f}/{f_yk:.0f}",
         f"Staffe: φ{phi_mm:.0f}/{staffe_passo:.0f}cm, {staffe_num_bracci} bracci",
         f"  Asw/s effettivo = {Asw_over_s_actual:.4f} mm²/mm",
@@ -781,7 +794,9 @@ def check_minimi_armatura_taglio_slu(
 
     if not ok:
         messages_it.append("")
-        messages_it.append(f"⚠️ Armatura a taglio insufficiente: " f"serve Asw/s ≥ {Asw_min_over_s:.4f} mm²/mm")
+        messages_it.append(
+            f"⚠️ Armatura a taglio insufficiente: serve Asw/s ≥ {Asw_min_over_s:.4f} mm²/mm"
+        )
 
     return SingleCheckResult(
         template_id=template.template_id,

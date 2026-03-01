@@ -113,7 +113,11 @@ def validate_calc_input(
             )
         )
 
-    if calc_input.d is not None and calc_input.d_prime is not None and calc_input.d_prime >= calc_input.d:
+    if (
+        calc_input.d is not None
+        and calc_input.d_prime is not None
+        and calc_input.d_prime >= calc_input.d
+    ):
         issues.append(
             ValidationIssue(
                 severity="error",
@@ -329,7 +333,8 @@ def validate_calc_input(
                             field="staffe_passo",
                             code="INCOMPLETE_STIRRUP_DATA",
                             message_it=(
-                                "Forza di taglio presente ma dati staffe incompleti - " "verifiche a taglio non eseguibili"
+                                "Forza di taglio presente ma dati staffe incompleti - "
+                                "verifiche a taglio non eseguibili"
                             ),
                             norm_reference=NormReference(
                                 norm_code="NTC2018",
@@ -387,7 +392,8 @@ def validate_calc_input(
                     field="lc",
                     code="MISSING_LC_FC_DM96",
                     message_it=(
-                        "DM 9/1/1996 spesso utilizzato per strutture esistenti: " "considerare di specificare LC e FC"
+                        "DM 9/1/1996 spesso utilizzato per strutture esistenti: "
+                        "considerare di specificare LC e FC"
                     ),
                     norm_reference=NormReference(
                         norm_code="NTC2018",
@@ -408,7 +414,8 @@ def validate_calc_input(
                         field="section.width",
                         code="POSSIBLE_UNIT_ERROR",
                         message_it=(
-                            f"Larghezza sezione molto grande ({section.width} mm): " "verificare le unita. CalcInput usa mm."
+                            f"Larghezza sezione molto grande ({section.width} mm): "
+                            "verificare le unita. CalcInput usa mm."
                         ),
                     )
                 )
@@ -421,7 +428,10 @@ def validate_calc_input(
                         severity="warning",
                         field="As",
                         code="MISSING_REINFORCEMENT_TA_DM96",
-                        message_it=("Armatura tesa As non specificata - " "verifiche TA DM 14/02/1992 non eseguibili"),
+                        message_it=(
+                            "Armatura tesa As non specificata - "
+                            "verifiche TA DM 14/02/1992 non eseguibili"
+                        ),
                     )
                 )
             if calc_input.d is None or calc_input.d == 0:
@@ -430,7 +440,10 @@ def validate_calc_input(
                         severity="warning",
                         field="d",
                         code="MISSING_D_TA_DM96",
-                        message_it=("Altezza utile d non specificata - " "verra stimata come d ~ 0.9h per verifiche TA"),
+                        message_it=(
+                            "Altezza utile d non specificata - "
+                            "verra stimata come d ~ 0.9h per verifiche TA"
+                        ),
                     )
                 )
 
@@ -442,7 +455,10 @@ def validate_calc_input(
                         severity="warning",
                         field="As",
                         code="MISSING_REINFORCEMENT_SLU_DM96",
-                        message_it=("Armatura tesa As non specificata - " "verifiche SLU DM 9/1/1996 non eseguibili"),
+                        message_it=(
+                            "Armatura tesa As non specificata - "
+                            "verifiche SLU DM 9/1/1996 non eseguibili"
+                        ),
                     )
                 )
             if calc_input.d is None or calc_input.d == 0:
@@ -470,7 +486,8 @@ def validate_calc_input(
                         field="staffe_passo",
                         code="INCOMPLETE_STIRRUP_DATA_DM96",
                         message_it=(
-                            "Forza di taglio presente ma dati staffe incompleti - " "verifiche a taglio SLU non eseguibili"
+                            "Forza di taglio presente ma dati staffe incompleti - "
+                            "verifiche a taglio SLU non eseguibili"
                         ),
                     )
                 )
@@ -478,7 +495,9 @@ def validate_calc_input(
         # TODO: validazione PrecompressionData quando integrata in CalcInput
 
     # 10. FIRE_DM2007-specific validation
-    if active_norm == "FIRE_DM2007" or (calc_input.limit_states_enabled and "FIRE" in calc_input.limit_states_enabled):
+    if active_norm == "FIRE_DM2007" or (
+        calc_input.limit_states_enabled and "FIRE" in calc_input.limit_states_enabled
+    ):
         if calc_input.extra is not None:
             # Check fire config presence
             fire_cfg = calc_input.extra.get("fire_config", None)
@@ -495,7 +514,8 @@ def validate_calc_input(
                             field="extra.fire_config.exposed_sides",
                             code="INVALID_EXPOSED_SIDES",
                             message_it=(
-                                f"Numero lati esposti al fuoco non valido: {exposed}. " "Valori ammessi: 1, 2, 3, 4."
+                                f"Numero lati esposti al fuoco non valido: {exposed}. "
+                                "Valori ammessi: 1, 2, 3, 4."
                             ),
                         )
                     )
@@ -510,7 +530,8 @@ def validate_calc_input(
                                 field="extra.fire_config.exposed_sides",
                                 code="INVALID_EXPOSED_SIDES",
                                 message_it=(
-                                    f"Numero lati esposti al fuoco non valido: {exposed}. " "Valori ammessi: 1, 2, 3, 4."
+                                    f"Numero lati esposti al fuoco non valido: {exposed}. "
+                                    "Valori ammessi: 1, 2, 3, 4."
                                 ),
                             )
                         )
@@ -560,7 +581,8 @@ def validate_calc_input(
                         field="section",
                         code="MISSING_SECTION_FIRE",
                         message_it=(
-                            "Sezione non specificata - necessaria per verifiche incendio " "(spessori minimi, copriferri)"
+                            "Sezione non specificata - necessaria per verifiche incendio "
+                            "(spessori minimi, copriferri)"
                         ),
                     )
                 )
@@ -632,7 +654,10 @@ def validate_calc_input(
                         severity="warning",
                         field="As",
                         code="MISSING_REINFORCEMENT_TA",
-                        message_it=("Armatura tesa As non specificata - " "verifiche a flessione TA non eseguibili"),
+                        message_it=(
+                            "Armatura tesa As non specificata - "
+                            "verifiche a flessione TA non eseguibili"
+                        ),
                         norm_reference=NormReference(
                             norm_code="RD2229",
                             chapter="Art. 16",
@@ -648,7 +673,10 @@ def validate_calc_input(
                         severity="warning",
                         field="d",
                         code="MISSING_EFFECTIVE_DEPTH_TA",
-                        message_it=("Altezza utile d non specificata - " "verrà stimata come d ≈ 0.9h per verifiche TA"),
+                        message_it=(
+                            "Altezza utile d non specificata - "
+                            "verrà stimata come d ≈ 0.9h per verifiche TA"
+                        ),
                     )
                 )
 

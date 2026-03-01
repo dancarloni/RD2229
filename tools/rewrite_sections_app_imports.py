@@ -89,8 +89,12 @@ def rewrite_file(path: Path, mapping: dict[str, str]) -> tuple[bool, list[tuple[
         if n1:
             performed.append((orig, new))
         # import X
-        pattern_import = re.compile(rf"(^|\n)(\s*import\s+.*)\b{re.escape(orig)}\b", flags=re.MULTILINE)
-        new_text, n2 = pattern_import.subn(lambda m: m.group(1) + m.group(2).replace(orig, new), new_text)
+        pattern_import = re.compile(
+            rf"(^|\n)(\s*import\s+.*)\b{re.escape(orig)}\b", flags=re.MULTILINE
+        )
+        new_text, n2 = pattern_import.subn(
+            lambda m: m.group(1) + m.group(2).replace(orig, new), new_text
+        )
         if n2:
             performed.append((orig, new))
     if new_text != text:

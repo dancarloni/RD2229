@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "project.schema.json",
+  "title": "ProjectModel",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "created_at": {"type": "string"},
+        "updated_at": {"type": "string"},
+        "commit_hash": {"type": "string"},
+        "schema_version": {"type": "string"}
+      },
+      "required": ["id", "name", "created_at", "updated_at", "commit_hash", "schema_version"]
+    },
+    "normative_profile": {
+      "type": "object",
+      "properties": {
+        "source_ids": {"type": "array", "items": {"type": "string"}},
+        "clauses": {"type": "array", "items": {"type": "string"}}
+      },
+      "required": ["source_ids"]
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "enabled": {"type": "boolean"},
+          "params": {"type": "object"}
+        },
+        "required": ["name", "enabled", "params"]
+      }
+    },
+    "io_settings": {"type": "object"}
+  },
+  "required": ["meta", "normative_profile", "modules", "io_settings"]
+}

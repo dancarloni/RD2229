@@ -266,11 +266,14 @@ class VerificationEngine:
             try:
                 from core.verification_core import estimate_required_torsion_reinforcement
 
-                At_req = estimate_required_torsion_reinforcement(section, reinforcement_tensile, loads, material)
+                At_req = estimate_required_torsion_reinforcement(
+                    section, reinforcement_tensile, loads, material
+                )
                 if loads.At and loads.At > 0 and At_req > 0:
                     if loads.At < At_req:
                         approx_notes.append(
-                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², " f"fornita {loads.At:.3f} cm²"
+                            f"Armatura torsione insufficiente: richiesta {At_req:.3f} cm², "
+                            f"fornita {loads.At:.3f} cm²"
                         )
                     else:
                         approx_notes.append(
@@ -278,7 +281,9 @@ class VerificationEngine:
                             f"fornita {loads.At:.3f} cm²"
                         )
                 elif At_req > 0:
-                    approx_notes.append(f"Armatura torsione richiesta ≈ {At_req:.3f} cm² " f"(nessun At fornita)")
+                    approx_notes.append(
+                        f"Armatura torsione richiesta ≈ {At_req:.3f} cm² (nessun At fornita)"
+                    )
             except Exception:
                 logger.exception("Errore stima armatura torsione")
 

@@ -220,7 +220,9 @@ def get_ntc2018_templates() -> list[VerificationTemplate]:
                 chapter="4.1",
                 paragraph="4.1.6.1.1",
                 description_it="Armatura minima a taglio",
-                notes_it=("Implementazione completa formula NTC 2018: " "Asw,min/s = 0.08*√f_ck/f_yk*b."),
+                notes_it=(
+                    "Implementazione completa formula NTC 2018: Asw,min/s = 0.08*√f_ck/f_yk*b."
+                ),
             ),
             secondary_references=[],
             function_path="src.methods.checks_ntc2018.check_minimi_armatura_taglio_slu",
@@ -582,7 +584,8 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 paragraph="Tensioni ammissibili - Flessione",
                 description_it="Verifica a flessione semplice metodo TA",
                 notes_it=(
-                    "sigma_c_adm = 0.30 * Rck (DM 14/02/1992). " "Utilizza historical_ta per calcolo tensioni normali."
+                    "sigma_c_adm = 0.30 * Rck (DM 14/02/1992). "
+                    "Utilizza historical_ta per calcolo tensioni normali."
                 ),
             ),
             secondary_references=[_dm96_ref_ta],
@@ -615,7 +618,9 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 chapter="DM 14/02/1992",
                 paragraph="Tensioni ammissibili - Pressoflessione",
                 description_it="Verifica a pressoflessione metodo TA con riduzione snellezza",
-                notes_it=("Include riduzione sigma_c_adm per sezioni snelle " "(dimensione minima < 25 cm)."),
+                notes_it=(
+                    "Include riduzione sigma_c_adm per sezioni snelle (dimensione minima < 25 cm)."
+                ),
             ),
             secondary_references=[_dm96_ref_ta],
             function_path="src.methods.checks_dm96.check_pressoflessione_ta_dm96",
@@ -678,7 +683,10 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 chapter="DM 14/02/1992",
                 paragraph="Armature minime e massime",
                 description_it="Percentuali armatura longitudinale",
-                notes_it=("Travi: As,min = 0.15% A_sez; Pilastri: As,min = 0.30% A_sez. " "As,max = 6% A_sez."),
+                notes_it=(
+                    "Travi: As,min = 0.15% A_sez; Pilastri: As,min = 0.30% A_sez. "
+                    "As,max = 6% A_sez."
+                ),
             ),
             secondary_references=[_dm96_ref_ta],
             function_path="src.methods.checks_dm96.check_minimi_armatura_ta_dm96",
@@ -1023,7 +1031,10 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 chapter="DM 14/02/1992",
                 paragraph="Tensioni ammissibili c.a.p.",
                 description_it="Verifica tensioni nel calcestruzzo e nell'acciaio da precompressione",
-                notes_it=("TODO: richiede integrazione PrecompressionData in CalcInput. " "Placeholder funzionale."),
+                notes_it=(
+                    "TODO: richiede integrazione PrecompressionData in CalcInput. "
+                    "Placeholder funzionale."
+                ),
             ),
             secondary_references=[_dm96_ref_cap],
             function_path="src.methods.checks_dm96.check_precompression_stresses_ta_dm96",
@@ -1051,7 +1062,8 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 paragraph="SLU c.a.p.",
                 description_it="Verifica a flessione SLU per sezioni precompresse",
                 notes_it=(
-                    "TODO: richiede integrazione PrecompressionData in CalcInput. " "Placeholder funzionale. gamma_c = 1.6."
+                    "TODO: richiede integrazione PrecompressionData in CalcInput. "
+                    "Placeholder funzionale. gamma_c = 1.6."
                 ),
             ),
             secondary_references=[_dm96_ref_cap],
@@ -1132,7 +1144,8 @@ def get_fire_templates() -> list[VerificationTemplate]:
                 paragraph="Pilastri in c.a.",
                 description_it="Resistenza al fuoco pilastri c.a. (metodo tabellare)",
                 notes_it=(
-                    "TODO: implementare tabelle DM 9/3/2007 per dimensioni minime " "e copriferri in funzione di classe R."
+                    "TODO: implementare tabelle DM 9/3/2007 per dimensioni minime "
+                    "e copriferri in funzione di classe R."
                 ),
             ),
             secondary_references=[_fire_ref],
@@ -1161,7 +1174,8 @@ def get_fire_templates() -> list[VerificationTemplate]:
                 paragraph="Solai in c.a.",
                 description_it="Resistenza al fuoco solai c.a. (metodo tabellare)",
                 notes_it=(
-                    "TODO: implementare tabelle DM 9/3/2007 per spessore minimo " "e copriferro in funzione di classe R."
+                    "TODO: implementare tabelle DM 9/3/2007 per spessore minimo "
+                    "e copriferro in funzione di classe R."
                 ),
             ),
             secondary_references=[_fire_ref],

@@ -36,7 +36,9 @@ logger = logging.getLogger(__name__)
 # Chiave: (durata_min, lati_esposti) → {b_min_mm, a_min_mm}
 # TODO: sostituire con valori da data/fire/axis_distance_table.json
 # ---------------------------------------------------------------------------
-_AXIS_DISTANCE_TABLE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "fire", "axis_distance_table.json")
+_AXIS_DISTANCE_TABLE_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "..", "data", "fire", "axis_distance_table.json"
+)
 
 _AXIS_DISTANCE_PLACEHOLDER: dict[str, dict[str, float]] = {
     # Formato chiave: "{durata}_{lati}" (es. "60_3")
@@ -133,9 +135,17 @@ def run_rc_fire_check(
                 messages=messages,
             )
         # Usa la durata più conservativa ≥ required_min
-        usable = sorted([(int(k.split("_")[0]), k) for k in available_keys if int(k.split("_")[0]) >= required_min])
+        usable = sorted(
+            [
+                (int(k.split("_")[0]), k)
+                for k in available_keys
+                if int(k.split("_")[0]) >= required_min
+            ]
+        )
         if not usable:
-            messages.append(f"Durata {required_min} min supera valori tabellari disponibili per {exp_sides} lati.")
+            messages.append(
+                f"Durata {required_min} min supera valori tabellari disponibili per {exp_sides} lati."
+            )
             return ElementResultFire(
                 element_id=element.id,
                 status="NOT_VERIFIED",
@@ -143,7 +153,9 @@ def run_rc_fire_check(
                 messages=messages,
             )
         row = table[usable[0][1]]
-        messages.append(f"[INFO] Usata durata tabellare {usable[0][0]} min (richiesta: {required_min} min).")
+        messages.append(
+            f"[INFO] Usata durata tabellare {usable[0][0]} min (richiesta: {required_min} min)."
+        )
 
     b_min_mm: float = row.get("b_min_mm", 0.0)
     a_min_mm: float = row.get("a_min_mm", 0.0)
@@ -163,14 +175,23 @@ def run_rc_fire_check(
         ok_a = cover_mm >= a_min_mm
         metrics["ok_asse_distanza"] = ok_a
         if not ok_a:
-            messages.append(f"KO – copriferro {cover_mm:.1f} mm < a_min richiesta {a_min_mm:.1f} mm " f"(R{required_min}).")
+            messages.append(
+                f"KO – copriferro {cover_mm:.1f} mm < a_min richiesta {a_min_mm:.1f} mm "
+                f"(R{required_min})."
+            )
         else:
-            messages.append(f"OK – copriferro {cover_mm:.1f} mm ≥ a_min {a_min_mm:.1f} mm (R{required_min}).")
+            messages.append(
+                f"OK – copriferro {cover_mm:.1f} mm ≥ a_min {a_min_mm:.1f} mm (R{required_min})."
+            )
 
     if not ok_b:
-        messages.append(f"KO – larghezza {b_mm:.1f} mm < b_min richiesta {b_min_mm:.1f} mm (R{required_min}).")
+        messages.append(
+            f"KO – larghezza {b_mm:.1f} mm < b_min richiesta {b_min_mm:.1f} mm (R{required_min})."
+        )
     else:
-        messages.append(f"OK – larghezza {b_mm:.1f} mm ≥ b_min {b_min_mm:.1f} mm (R{required_min}).")
+        messages.append(
+            f"OK – larghezza {b_mm:.1f} mm ≥ b_min {b_min_mm:.1f} mm (R{required_min})."
+        )
 
     overall_ok = ok_b and (cover_mm is not None) and ok_a
     status = "OK" if overall_ok else "KO"

@@ -37,7 +37,9 @@ class FakeCanvas:
 def test_draw_all_uses_expected_canvas_methods():
     canvas = FakeCanvas(500, 400)
     geom = SectionGeometry.from_rectangle(10.0, 20.0, name="rect")
-    props = SectionProperties(x_c=0.0, y_c=0.0, theta_p_deg=0.0, ellipse=None, core=None, r1=0.0, r2=0.0)
+    props = SectionProperties(
+        x_c=0.0, y_c=0.0, theta_p_deg=0.0, ellipse=None, core=None, r1=0.0, r2=0.0
+    )
     controller = SectionGraphicsController(canvas)
 
     controller.draw_all(geom, props)

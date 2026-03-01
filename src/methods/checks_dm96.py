@@ -172,7 +172,9 @@ def _get_dm96_tau_limits(material: Any) -> tuple[float, float]:
     return (tau_c0, tau_c1)
 
 
-def _make_error_result(template_id: str, message: str, limit_state: str = "TA") -> SingleCheckResult:
+def _make_error_result(
+    template_id: str, message: str, limit_state: str = "TA"
+) -> SingleCheckResult:
     """Helper per creare un risultato di errore."""
     return SingleCheckResult(
         template_id=template_id,
@@ -189,7 +191,9 @@ def _make_error_result(template_id: str, message: str, limit_state: str = "TA") 
 # ==============================================================================
 
 
-def check_flessione_ta_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_flessione_ta_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a flessione metodo TA - DM 14/02/1992.
 
     Calcola le tensioni normali nella sezione soggetta a flessione semplice
@@ -261,8 +265,10 @@ def check_flessione_ta_dm96(calc_input: CalcInput, template: VerificationTemplat
             f"Momento: Mx = {calc_input.Mx or 0:.2f} kNm",
             "",
             "Tensioni calcolate (DM 14/02/1992 - metodo TA):",
-            f"  sigma_c,max = {abs(stresses.sigma_c_max):.1f} kg/cm2" f" (ammissibile: {adm.sigma_c_allow:.1f} kg/cm2)",
-            f"  sigma_s,max = {abs(stresses.sigma_s_max):.1f} kg/cm2" f" (ammissibile: {adm.sigma_s_allow:.1f} kg/cm2)",
+            f"  sigma_c,max = {abs(stresses.sigma_c_max):.1f} kg/cm2"
+            f" (ammissibile: {adm.sigma_c_allow:.1f} kg/cm2)",
+            f"  sigma_s,max = {abs(stresses.sigma_s_max):.1f} kg/cm2"
+            f" (ammissibile: {adm.sigma_s_allow:.1f} kg/cm2)",
             "",
             f"Utilizzazione: {utilizzazione:.3f} {'OK' if check.ok else 'NON OK'}",
         ]
@@ -294,7 +300,9 @@ def check_flessione_ta_dm96(calc_input: CalcInput, template: VerificationTemplat
         return _make_error_result(template.template_id, f"Errore nel calcolo: {e}")
 
 
-def check_pressoflessione_ta_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_pressoflessione_ta_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a pressoflessione metodo TA - DM 14/02/1992.
 
     Come check_flessione_ta_dm96 ma con sforzo normale N presente.
@@ -328,7 +336,9 @@ def check_pressoflessione_ta_dm96(calc_input: CalcInput, template: VerificationT
         section = calc_input.section
         b_cm = section.width / 10.0
         h_cm = section.height / 10.0
-        sigma_c_adm_rid, slenderness_details = apply_slenderness_reduction_ta(adm.sigma_c_allow, b_cm, h_cm)
+        sigma_c_adm_rid, slenderness_details = apply_slenderness_reduction_ta(
+            adm.sigma_c_allow, b_cm, h_cm
+        )
 
         limits = AllowableStresses(
             sigma_c_allow=sigma_c_adm_rid,
@@ -346,12 +356,15 @@ def check_pressoflessione_ta_dm96(calc_input: CalcInput, template: VerificationT
             f"N = {calc_input.N or 0:.2f} kN, Mx = {calc_input.Mx or 0:.2f} kNm",
             "",
             "Tensioni calcolate (DM 14/02/1992 - pressoflessione TA):",
-            f"  sigma_c,max = {abs(stresses.sigma_c_max):.1f} kg/cm2" f" (ammissibile: {sigma_c_adm_rid:.1f} kg/cm2)",
-            f"  sigma_s,max = {abs(stresses.sigma_s_max):.1f} kg/cm2" f" (ammissibile: {adm.sigma_s_allow:.1f} kg/cm2)",
+            f"  sigma_c,max = {abs(stresses.sigma_c_max):.1f} kg/cm2"
+            f" (ammissibile: {sigma_c_adm_rid:.1f} kg/cm2)",
+            f"  sigma_s,max = {abs(stresses.sigma_s_max):.1f} kg/cm2"
+            f" (ammissibile: {adm.sigma_s_allow:.1f} kg/cm2)",
         ]
         if slenderness_details.get("reduced", False):
             messages_it.append(
-                f"  Riduzione snellezza applicata: sigma_c_adm {adm.sigma_c_allow:.1f}" f" -> {sigma_c_adm_rid:.1f} kg/cm2"
+                f"  Riduzione snellezza applicata: sigma_c_adm {adm.sigma_c_allow:.1f}"
+                f" -> {sigma_c_adm_rid:.1f} kg/cm2"
             )
         messages_it.append("")
         messages_it.append(f"Utilizzazione: {utilizzazione:.3f} {'OK' if check.ok else 'NON OK'}")
@@ -385,7 +398,9 @@ def check_pressoflessione_ta_dm96(calc_input: CalcInput, template: VerificationT
         return _make_error_result(template.template_id, f"Errore nel calcolo: {e}")
 
 
-def check_taglio_ta_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_taglio_ta_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a taglio metodo TA - DM 14/02/1992.
 
     Calcola la tensione tangenziale tau = V / (b * d) e la confronta
@@ -481,7 +496,9 @@ def check_taglio_ta_dm96(calc_input: CalcInput, template: VerificationTemplate) 
     )
 
 
-def check_minimi_armatura_ta_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_minimi_armatura_ta_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica minimi armatura longitudinale - DM 14/02/1992.
 
     Utilizza compute_long_rebar_limits_ta con parametri DM96.
@@ -566,7 +583,9 @@ def check_minimi_armatura_ta_dm96(calc_input: CalcInput, template: VerificationT
 # ==============================================================================
 
 
-def check_flessione_slu_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_flessione_slu_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a flessione SLU - DM 9/1/1996.
 
     Stesso algoritmo di NTC2018 ma con gamma_c = 1.6 (vs 1.5).
@@ -578,7 +597,9 @@ def check_flessione_slu_dm96(calc_input: CalcInput, template: VerificationTempla
     NormReference: DM 9/1/1996 Cap. 3 - Verifica SLU flessione
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLU")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLU"
+        )
 
     section = calc_input.section
     if not (hasattr(section, "width") and hasattr(section, "height")):
@@ -591,7 +612,9 @@ def check_flessione_slu_dm96(calc_input: CalcInput, template: VerificationTempla
     f_ck_base = getattr(material, "f_ck", None)
     f_yk_base = getattr(material, "f_yk", None)
     if f_ck_base is None or f_yk_base is None:
-        return _make_error_result(template.template_id, "Proprieta materiale (f_ck, f_yk) non disponibili", "SLU")
+        return _make_error_result(
+            template.template_id, "Proprieta materiale (f_ck, f_yk) non disponibili", "SLU"
+        )
 
     # LC/FC per strutture esistenti
     if calc_input.lc is not None and calc_input.fc is not None:
@@ -639,7 +662,9 @@ def check_flessione_slu_dm96(calc_input: CalcInput, template: VerificationTempla
         R_s_comp = 0.0
     else:
         x_assumption = (
-            ((As_mm2 - As_prime_mm2) * f_yd) / (lambda_factor * b * f_cd) if (lambda_factor * b * f_cd) > 0 else 0.0
+            ((As_mm2 - As_prime_mm2) * f_yd) / (lambda_factor * b * f_cd)
+            if (lambda_factor * b * f_cd) > 0
+            else 0.0
         )
         if x_assumption > d_prime_mm:
             x = x_assumption
@@ -664,16 +689,16 @@ def check_flessione_slu_dm96(calc_input: CalcInput, template: VerificationTempla
     ok = utilizzazione <= 1.0 and not x_limited
 
     messages_it = [
-        f"Sezione: {b/10:.1f} x {h/10:.1f} cm, d = {d:.1f} cm",
+        f"Sezione: {b / 10:.1f} x {h / 10:.1f} cm, d = {d:.1f} cm",
         f"Materiali: f_ck={f_ck:.0f} MPa, f_yk={f_yk:.0f} MPa",
         f"DM96: gamma_c={gamma_c}, gamma_s={gamma_s}",
         f"  f_cd = 0.85*f_ck/gamma_c = {f_cd:.1f} MPa",
         f"  f_yd = f_yk/gamma_s = {f_yd:.0f} MPa",
         "",
-        f"Asse neutro: x = {x:.1f} mm (x/d = {x/d_mm:.3f})",
+        f"Asse neutro: x = {x:.1f} mm (x/d = {x / d_mm:.3f})",
     ]
     if x_limited:
-        messages_it.append(f"  x/d = {x/d_mm:.3f} > {x_d_limit}: sezione sovra-armata")
+        messages_it.append(f"  x/d = {x / d_mm:.3f} > {x_d_limit}: sezione sovra-armata")
     messages_it.extend(
         [
             "",
@@ -710,7 +735,9 @@ def check_flessione_slu_dm96(calc_input: CalcInput, template: VerificationTempla
     )
 
 
-def check_taglio_slu_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_taglio_slu_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a taglio SLU - DM 9/1/1996.
 
     Stesso algoritmo NTC2018 ma con gamma_c=1.6.
@@ -720,7 +747,9 @@ def check_taglio_slu_dm96(calc_input: CalcInput, template: VerificationTemplate)
     NormReference: DM 9/1/1996 Cap. 4 - Verifica SLU taglio
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLU")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLU"
+        )
 
     section = calc_input.section
     b = section.width  # mm
@@ -730,7 +759,9 @@ def check_taglio_slu_dm96(calc_input: CalcInput, template: VerificationTemplate)
     f_ck_base = getattr(material, "f_ck", None)
     f_yk_base = getattr(material, "f_yk", None)
     if f_ck_base is None or f_yk_base is None:
-        return _make_error_result(template.template_id, "Proprieta materiale non disponibili", "SLU")
+        return _make_error_result(
+            template.template_id, "Proprieta materiale non disponibili", "SLU"
+        )
 
     if calc_input.lc is not None and calc_input.fc is not None:
         try:
@@ -758,9 +789,13 @@ def check_taglio_slu_dm96(calc_input: CalcInput, template: VerificationTemplate)
     staffe_num_bracci = calc_input.staffe_num_bracci or 2
 
     if not staffe_diametro or staffe_diametro <= 0:
-        return _make_error_result(template.template_id, "Dati staffe mancanti: diametro non specificato", "SLU")
+        return _make_error_result(
+            template.template_id, "Dati staffe mancanti: diametro non specificato", "SLU"
+        )
     if not staffe_passo or staffe_passo <= 0:
-        return _make_error_result(template.template_id, "Dati staffe mancanti: passo non specificato", "SLU")
+        return _make_error_result(
+            template.template_id, "Dati staffe mancanti: passo non specificato", "SLU"
+        )
 
     s_mm = staffe_passo * 10.0
     A_sw = staffe_num_bracci * math.pi * (staffe_diametro**2) / 4.0
@@ -772,7 +807,9 @@ def check_taglio_slu_dm96(calc_input: CalcInput, template: VerificationTemplate)
     V_Ed_N = V_Ed * 1000.0
 
     if V_Ed <= 0:
-        return _make_error_result(template.template_id, "Taglio agente V_Ed non specificato o nullo", "SLU")
+        return _make_error_result(
+            template.template_id, "Taglio agente V_Ed non specificato o nullo", "SLU"
+        )
 
     theta_deg = template.extra_params.get("theta_deg", 21.8)
     theta_rad = theta_deg * math.pi / 180.0
@@ -789,11 +826,11 @@ def check_taglio_slu_dm96(calc_input: CalcInput, template: VerificationTemplate)
     utilizzazione = V_Ed_N / V_Rd if V_Rd > 0 else 999.0
 
     messages_it = [
-        f"Sezione: {b/10:.1f} x {h/10:.1f} cm, d = {d:.1f} cm",
+        f"Sezione: {b / 10:.1f} x {h / 10:.1f} cm, d = {d:.1f} cm",
         f"DM96 SLU: gamma_c={gamma_c}, f_cd={f_cd:.1f} MPa, f_yd={f_yd:.0f} MPa",
         f"Staffe: phi{staffe_diametro:.0f}/{staffe_passo:.0f}cm, {staffe_num_bracci} bracci",
         "",
-        f"V_Rd,s = {V_Rd_s/1000:.1f} kN, V_Rd,max = {V_Rd_max/1000:.1f} kN",
+        f"V_Rd,s = {V_Rd_s / 1000:.1f} kN, V_Rd,max = {V_Rd_max / 1000:.1f} kN",
         f"V_Rd = min(V_Rd,s, V_Rd,max) = {V_Rd_kN:.1f} kN",
         f"V_Ed = {V_Ed:.1f} kN",
         f"Utilizzazione: {utilizzazione:.3f} {'OK' if ok else 'NON OK'}",
@@ -824,7 +861,9 @@ def check_taglio_slu_dm96(calc_input: CalcInput, template: VerificationTemplate)
     )
 
 
-def check_minimi_armatura_flessione_slu_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_minimi_armatura_flessione_slu_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica minimi armatura flessione SLU - DM 9/1/1996.
 
     As,min = max(0.26 * f_ctm / f_yk * b * d, 0.0013 * b * d)
@@ -832,7 +871,9 @@ def check_minimi_armatura_flessione_slu_dm96(calc_input: CalcInput, template: Ve
     NormReference: DM 9/1/1996 Cap. 5 - Armature minime flessione
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLU")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLU"
+        )
 
     section = calc_input.section
     b = section.width
@@ -842,14 +883,18 @@ def check_minimi_armatura_flessione_slu_dm96(calc_input: CalcInput, template: Ve
     f_yk = getattr(material, "f_yk", None)
 
     if f_ck is None or f_yk is None:
-        return _make_error_result(template.template_id, "Proprieta materiale non disponibili", "SLU")
+        return _make_error_result(
+            template.template_id, "Proprieta materiale non disponibili", "SLU"
+        )
 
     d = calc_input.d or (0.9 * h / 10.0)
     d_mm = d * 10.0
 
     f_ctm = getattr(material, "fctm", None)
     if f_ctm is None or f_ctm <= 0:
-        f_ctm = 0.30 * (f_ck ** (2.0 / 3.0)) if f_ck <= 50 else 2.12 * math.log(1 + (f_ck + 8) / 10.0)
+        f_ctm = (
+            0.30 * (f_ck ** (2.0 / 3.0)) if f_ck <= 50 else 2.12 * math.log(1 + (f_ck + 8) / 10.0)
+        )
 
     As = calc_input.As or 0.0
     As_mm2 = As * 100.0
@@ -862,10 +907,10 @@ def check_minimi_armatura_flessione_slu_dm96(calc_input: CalcInput, template: Ve
     utilizzazione = As_min_mm2 / As_mm2 if As_mm2 > 0 else 999.0
 
     messages_it = [
-        f"Sezione: {b/10:.1f} x {h/10:.1f} cm, d = {d:.1f} cm",
+        f"Sezione: {b / 10:.1f} x {h / 10:.1f} cm, d = {d:.1f} cm",
         f"Materiali: f_ck={f_ck:.0f} MPa, f_yk={f_yk:.0f} MPa, f_ctm={f_ctm:.2f} MPa",
         f"As presente: {As:.2f} cm2",
-        f"As,min = max({As_min_1/100:.2f}, {As_min_2/100:.2f}) = {As_min_mm2/100:.2f} cm2",
+        f"As,min = max({As_min_1 / 100:.2f}, {As_min_2 / 100:.2f}) = {As_min_mm2 / 100:.2f} cm2",
         f"Utilizzazione: {utilizzazione:.3f} {'OK' if ok else 'NON OK'}",
     ]
 
@@ -891,7 +936,9 @@ def check_minimi_armatura_flessione_slu_dm96(calc_input: CalcInput, template: Ve
     )
 
 
-def check_minimi_armatura_taglio_slu_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_minimi_armatura_taglio_slu_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica minimi armatura taglio SLU - DM 9/1/1996.
 
     Asw,min/s = 0.08 * sqrt(f_ck) / f_yk * b
@@ -899,7 +946,9 @@ def check_minimi_armatura_taglio_slu_dm96(calc_input: CalcInput, template: Verif
     NormReference: DM 9/1/1996 Cap. 5 - Armature minime taglio
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLU")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLU"
+        )
 
     section = calc_input.section
     b = section.width
@@ -908,7 +957,9 @@ def check_minimi_armatura_taglio_slu_dm96(calc_input: CalcInput, template: Verif
     f_yk = getattr(material, "f_yk", None)
 
     if f_ck is None or f_yk is None:
-        return _make_error_result(template.template_id, "Proprieta materiale non disponibili", "SLU")
+        return _make_error_result(
+            template.template_id, "Proprieta materiale non disponibili", "SLU"
+        )
 
     staffe_diametro = calc_input.staffe_diametro
     staffe_passo = calc_input.staffe_passo
@@ -959,7 +1010,9 @@ def check_minimi_armatura_taglio_slu_dm96(calc_input: CalcInput, template: Verif
 # ==============================================================================
 
 
-def check_fessurazione_sle_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_fessurazione_sle_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica fessurazione SLE - DM 9/1/1996.
 
     Calcola l'ampiezza delle fessure w in funzione della tensione nell'acciaio,
@@ -978,7 +1031,9 @@ def check_fessurazione_sle_dm96(calc_input: CalcInput, template: VerificationTem
     Per ora implementazione semplificata.
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLE")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLE"
+        )
 
     # Parametri da template (NON hardcodati)
     w_amm = template.extra_params.get("w_amm_mm", None)
@@ -1035,7 +1090,9 @@ def check_fessurazione_sle_dm96(calc_input: CalcInput, template: VerificationTem
     )
 
 
-def check_deformazioni_sle_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_deformazioni_sle_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica deformazioni (frecce) SLE - DM 9/1/1996.
 
     Calcola frecce istantanee e a lungo termine, confronta con limiti
@@ -1052,7 +1109,9 @@ def check_deformazioni_sle_dm96(calc_input: CalcInput, template: VerificationTem
     TODO: implementazione completa calcolo frecce con I_eff, fluage, ritiro.
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLE")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLE"
+        )
 
     span_mm = template.extra_params.get("span_mm", None)
     if span_mm is None:
@@ -1123,7 +1182,9 @@ def check_deformazioni_sle_dm96(calc_input: CalcInput, template: VerificationTem
 # ==============================================================================
 
 
-def check_torsione_slu_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_torsione_slu_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a torsione SLU - DM 9/1/1996.
 
     Verifica torsione con modello a traliccio (thin-walled analogy).
@@ -1138,7 +1199,9 @@ def check_torsione_slu_dm96(calc_input: CalcInput, template: VerificationTemplat
     t_ef (spessore efficace), armature trasversali e longitudinali a torsione.
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLU")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLU"
+        )
 
     Mz = calc_input.Mz or 0.0
     if abs(Mz) < 1e-6:
@@ -1178,7 +1241,9 @@ def check_torsione_slu_dm96(calc_input: CalcInput, template: VerificationTemplat
     )
 
 
-def check_punzonamento_slu_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_punzonamento_slu_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica punzonamento SLU - DM 9/1/1996.
 
     Verifica resistenza a punzonamento per piastre/solai.
@@ -1195,7 +1260,9 @@ def check_punzonamento_slu_dm96(calc_input: CalcInput, template: VerificationTem
     percentuale armatura rho_l, coefficiente k.
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLU")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLU"
+        )
 
     messages_it = [
         "TODO: implementazione completa verifica punzonamento SLU DM96.",
@@ -1222,7 +1289,9 @@ def check_punzonamento_slu_dm96(calc_input: CalcInput, template: VerificationTem
     )
 
 
-def check_instabilita_compressione_slu_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_instabilita_compressione_slu_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica instabilita/snellezza per elementi compressi - DM 9/1/1996.
 
     Verifica di instabilita per pilastri compressi snelli.
@@ -1240,7 +1309,9 @@ def check_instabilita_compressione_slu_dm96(calc_input: CalcInput, template: Ver
     raggio di inerzia i, condizioni di vincolo.
     """
     if calc_input.section is None or calc_input.material is None:
-        return _make_error_result(template.template_id, "Sezione o materiale non specificati", "SLU")
+        return _make_error_result(
+            template.template_id, "Sezione o materiale non specificati", "SLU"
+        )
 
     l_0 = template.extra_params.get("l_0_mm", None)
     if l_0 is None:
@@ -1254,7 +1325,7 @@ def check_instabilita_compressione_slu_dm96(calc_input: CalcInput, template: Ver
     if l_0 is not None and l_0 > 0:
         lam = l_0 / i_min
         messages_it = [
-            f"Sezione: {b/10:.1f} x {h/10:.1f} cm",
+            f"Sezione: {b / 10:.1f} x {h / 10:.1f} cm",
             f"Lunghezza libera: l_0 = {l_0:.0f} mm",
             f"Raggio inerzia minimo: i_min = {i_min:.1f} mm",
             f"Snellezza: lambda = {lam:.1f}",
@@ -1266,7 +1337,7 @@ def check_instabilita_compressione_slu_dm96(calc_input: CalcInput, template: Ver
         details = {"lambda": lam, "l_0_mm": l_0, "i_min_mm": i_min}
     else:
         messages_it = [
-            f"Sezione: {b/10:.1f} x {h/10:.1f} cm",
+            f"Sezione: {b / 10:.1f} x {h / 10:.1f} cm",
             "Lunghezza libera l_0 non specificata.",
             "Impostare l_0_mm nel template o CalcInput.extra.",
             "TODO: implementazione completa verifica instabilita DM96.",
@@ -1392,7 +1463,9 @@ def estimate_prestress_losses_dm96(
     }
 
 
-def check_precompression_stresses_ta_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_precompression_stresses_ta_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica tensioni ammissibili c.a.p. metodo TA - DM 14/02/1992.
 
     Verifica che le tensioni nel calcestruzzo e nell'acciaio da precompressione
@@ -1440,7 +1513,9 @@ def check_precompression_stresses_ta_dm96(calc_input: CalcInput, template: Verif
     )
 
 
-def check_precompression_slu_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_precompression_slu_dm96(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica SLU per elementi precompressi - DM 9/1/1996.
 
     Verifica a flessione/pressoflessione SLU con contributo dei cavi

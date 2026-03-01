@@ -395,10 +395,14 @@ def save_project(project: ProjectModel, path: str) -> None:
         path: Percorso destinazione.
     """
     data = project.model_dump(mode="json")
-    tmp_path = path + ".tmp"
+    from pathlib import Path
+
+    path_obj = Path(path) if not isinstance(path, Path) else path
+    tmp_path = path_obj.with_suffix(path_obj.suffix + ".tmp")
     try:
         with open(tmp_path, "w", encoding="utf-8") as f:
-            if path.lower().endswith((".yml", ".yaml")):
+            path_str = str(path)
+            if path_str.lower().endswith((".yml", ".yaml")):
                 yaml.safe_dump(data, f, allow_unicode=True, sort_keys=False)
             else:
                 json.dump(data, f, ensure_ascii=False, indent=2)
@@ -407,4 +411,8 @@ def save_project(project: ProjectModel, path: str) -> None:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
         raise
-    logger.info("Progetto salvato su '%s' (schema_version=%s)", path, project.schema_version)
+    logger.info(
+        "Progetto salvato su '%s' (schema_version=%s)",
+        path,
+        getattr(getattr(project, "meta", project), "schema_version", "N/A"),
+    )

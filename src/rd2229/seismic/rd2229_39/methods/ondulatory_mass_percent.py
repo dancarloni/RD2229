@@ -51,4 +51,6 @@ def compute_ondulatory_floor_forces(request: FloorForcesRequest) -> FloorForceCo
         warnings=warnings,
     )
 
-    return FloorForceComponent(component=COMPONENT, forces_by_level=forces, base_shear=base_shear, trace=trace)
+    return FloorForceComponent(
+        component=COMPONENT, forces_by_level=forces, base_shear=base_shear, trace=trace
+    )

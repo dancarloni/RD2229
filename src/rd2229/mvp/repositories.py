@@ -83,7 +83,9 @@ class MaterialRepository:
         self.conn.commit()
 
     def list_by_project(self, project_id: str) -> list[Material]:
-        rows = self.conn.execute("SELECT * FROM materials WHERE project_id = ? ORDER BY id", (project_id,)).fetchall()
+        rows = self.conn.execute(
+            "SELECT * FROM materials WHERE project_id = ? ORDER BY id", (project_id,)
+        ).fetchall()
         return [
             Material(
                 id=r["id"],
@@ -111,7 +113,9 @@ class SectionRepository:
         self.conn.commit()
 
     def list_by_project(self, project_id: str) -> list[Section]:
-        rows = self.conn.execute("SELECT * FROM sections WHERE project_id = ? ORDER BY id", (project_id,)).fetchall()
+        rows = self.conn.execute(
+            "SELECT * FROM sections WHERE project_id = ? ORDER BY id", (project_id,)
+        ).fetchall()
         return [
             Section(
                 id=r["id"],
@@ -210,7 +214,9 @@ class CombinationRepository:
         self.conn.commit()
 
     def get(self, combination_id: str) -> Combination | None:
-        row = self.conn.execute("SELECT * FROM combinations WHERE id = ?", (combination_id,)).fetchone()
+        row = self.conn.execute(
+            "SELECT * FROM combinations WHERE id = ?", (combination_id,)
+        ).fetchone()
         if row is None:
             return None
         return Combination(

@@ -1,50 +1,48 @@
-# Schema I/O — RD2229
+# PROJECT I/O + SCHEMA + TIMELINE/REPLAY (MVP)
 
-Descrizione delle strutture dati di input e output della pipeline di calcolo.
-Tutte le informazioni sono derivate meccanicamente dal codice sorgente.
+## project.json struttura minima
 
-> **Auditato al commit corrente — generato manualmente. Aggiornare con `tools/audit_modules.py`.**
+```
+{
+  "meta": {
+    "id": "proj1",
+    "name": "Test Project",
+    "created_at": "2026-03-01T00:00:00Z",
+    "updated_at": "2026-03-01T00:00:00Z",
+    "commit_hash": "abc123",
+    "schema_version": "1.0.0"
+  },
+  "normative_profile": {
+    "source_ids": ["RD2229"],
+    "clauses": ["§4.2.1"]
+  },
+  "modules": [
+    {"name": "mod1", "enabled": true, "params": {}}
+  ],
+  "io_settings": {}
+}
+```
 
-## Input: `ProjectModel` (`src/project/schema.py`)
+## Comandi
 
-Modello Pydantic che definisce il progetto strutturale.
-Versione schema corrente: **1.1.0** (costante `CURRENT_SCHEMA_VERSION`).
+- Validazione: `python tools/validate_project.py <project.json>`
+- Run deterministico: `python tools/run_project.py <project.json>`
+- Replay/confronto: `python tools/replay_run.py <run_dir>`
 
-| Classe | Campi principali | Note |
-|--------|-----------------|------|
-| `ProjectInfo` | `name`, `description`, `author`, `created_at`, `updated_at` | Metadati progetto |
-| `GeometryEntry` | `id`, `type`, `width`, `height`, `fire_selected`, `extra` | Geometria elemento |
-| `MaterialEntry` | `id`, `type`, `material_class`, `f_ck`, `f_yk`, `extra` | Materiale |
-| `LoadEntry` | `element_id`, `N`, `Mx`, `My`, `Mz`, `Tx`, `Ty` | Carichi su elemento |
-| `SeismicInputs` | `class_of_use`, `vita_nominale_years`, `hazard_profile` | Input sismici |
-| `CodeSettings` | `norm_code`, `limit_states` | Impostazioni normativa |
-| `ProjectModel` | `schema_version`, `project_info`, `geometry[]`, `materials[]`, `loads[]`, `code_settings`, `seismic` | Modello radice |
+## Esempio di run folder
 
-JSON Schema generato: `src/project/schema.json`.
+```
+projects/proj1/runs/run_20260301T120000Z/
+  project.snapshot.json
+  output_mod1.json
+  manifest.json
+  run_record.json
+```
 
-## Output: `ResultsModel` (`src/core/results.py`)
+## Output deterministico
+- Nessun timestamp variabile nei file confrontati (solo in path)
+- Manifest: elenco file + sha256
 
-Dataclass che contiene i risultati della pipeline.
-
-| Classe | Campi principali | Note |
-|--------|-----------------|------|
-| `ElementResult` | `element_id`, `ok`, `metrics`, `messages` | Risultato per elemento |
-| `ResultsModel` | `ok`, `elements[]`, `warnings[]`, `trace[]`, `timestamp`, `schema_version_input` | Risultato globale |
-
-## Pipeline
-
-| Funzione | Modulo | Descrizione |
-|----------|--------|-------------|
-| `load_project(path)` | `src/project/repository.py` | Carica `ProjectModel` da file JSON |
-| `save_project(model, path)` | `src/project/repository.py` | Salva `ProjectModel` su file JSON |
-| `run_pipeline(project)` | `src/core/pipeline.py` | Esegue la pipeline → `ResultsModel` |
-| `build_report(project, results)` | `src/reporting/report_builder.py` | Genera `ReportArtifact` |
-| `export_report_html(artifact, path)` | `src/reporting/export.py` | Esporta report HTML |
-| `export_report_md(artifact, path)` | `src/reporting/export.py` | Esporta report Markdown |
-
-## Limitazioni note
-
-- La colonna "Note" nella matrice moduli è tutta "TBD" — richiede review manuale.
-- Non esistono test end-to-end che verifichino il round-trip completo
-  `load → pipeline → report → export` con dati reali (il file
-  `examples/project_example.json` non è presente nel repository).
+## Note
+- Placeholder output per moduli senza executor: `{ "status": "TBD", "normative_ids": [...] }`
+- Replay segnala drift se sha256 non corrisponde

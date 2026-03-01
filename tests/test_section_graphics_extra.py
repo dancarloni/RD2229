@@ -65,7 +65,8 @@ def test_draw_inertia_ellipse_and_core_rendered_on_canvas():
 
     # Expect a core polygon drawn with orange outline
     found_core = any(
-        kind == "polygon" and call_kwargs.get("outline") == "orange" for kind, _args, call_kwargs in canvas.calls
+        kind == "polygon" and call_kwargs.get("outline") == "orange"
+        for kind, _args, call_kwargs in canvas.calls
     )
     assert found_core
 
@@ -95,7 +96,9 @@ def test_principal_axes_and_labels_and_radii_drawn():
 
     # principal axes lines: look for lines with blue and green fills
     has_blue = any(kind == "line" and kw.get("fill") == "blue" for kind, _args, kw in canvas.calls)
-    has_green = any(kind == "line" and kw.get("fill") == "green" for kind, _args, kw in canvas.calls)
+    has_green = any(
+        kind == "line" and kw.get("fill") == "green" for kind, _args, kw in canvas.calls
+    )
     assert has_blue and has_green
 
     # axis labels 'x' and 'y' should appear as create_text calls

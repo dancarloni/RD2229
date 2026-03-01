@@ -12,7 +12,10 @@ def test_principal_moments_and_radii_invariant_under_rotation():
 
     angle_deg = 37.0
     th = math.radians(angle_deg)
-    pts = [(x * math.cos(th) - y * math.sin(th), x * math.sin(th) + y * math.cos(th)) for x, y in geom.exterior]
+    pts = [
+        (x * math.cos(th) - y * math.sin(th), x * math.sin(th) + y * math.cos(th))
+        for x, y in geom.exterior
+    ]
     geom_rot = SectionGeometry(exterior=pts, meta=geom.meta)
     props1 = compute_section_properties_from_geometry(geom_rot)
 
