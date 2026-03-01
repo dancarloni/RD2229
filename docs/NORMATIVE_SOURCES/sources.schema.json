@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/dancarloni/RD2229/docs/NORMATIVE_SOURCES/sources.schema.json",
+  "title": "NormativeSourceEntry",
+  "description": "Schema per i metadati di una fonte normativa nel catalogo RD2229. NESSUN testo normativo viene copiato: solo metadati, link ufficiali e riferimenti.",
+  "type": "object",
+  "required": ["id", "title", "authority", "year", "url", "license_notes", "availability"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Identificatore univoco della fonte (es. NTC2018, DM96, EN1992_1_2). Usato come chiave di riferimento nel codice.",
+      "pattern": "^[A-Z][A-Z0-9_]{1,31}$"
+    },
+    "title": {
+      "type": "string",
+      "description": "Titolo ufficiale completo della norma/documento."
+    },
+    "authority": {
+      "type": "string",
+      "description": "Ente/organizzazione che ha emesso la norma."
+    },
+    "year": {
+      "type": "integer",
+      "description": "Anno di pubblicazione o ultima versione ufficiale.",
+      "minimum": 1900,
+      "maximum": 2100
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL ufficiale del documento (pagina dell'ente emittente o portale normativo). Solo link, nessun testo copiato."
+    },
+    "license_notes": {
+      "type": "string",
+      "description": "Note su copyright, licenza e disponibilità legale del testo."
+    },
+    "availability": {
+      "type": "string",
+      "enum": ["free", "restricted", "unknown"],
+      "description": "Disponibilità pubblica del testo: free = liberamente scaricabile, restricted = a pagamento o su richiesta, unknown = non verificato."
+    },
+    "supersedes": {
+      "type": ["string", "null"],
+      "description": "ID della norma che questa fonte sostituisce (se applicabile).",
+      "default": null
+    },
+    "superseded_by": {
+      "type": ["string", "null"],
+      "description": "ID della norma che ha sostituito questa fonte (se applicabile).",
+      "default": null
+    },
+    "country": {
+      "type": "string",
+      "description": "Codice paese ISO 3166-1 alpha-2 o 'EU' o 'International'.",
+      "examples": ["IT", "EU", "International"]
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Tag tematici (es. ['cemento_armato', 'TA', 'SLU']).",
+      "default": []
+    },
+    "notes": {
+      "type": "string",
+      "description": "Note operative (senza copiare testo normativo).",
+      "default": ""
+    },
+    "local_copy": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Path relativo alla root del repo del file locale (se lecitamente detenuto)."
+            },
+            "sha256": {
+              "type": "string",
+              "description": "Hash SHA-256 del file locale per verifica integrità.",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      ],
+      "description": "Riferimento a copia locale del documento (null se non disponibile o non lecito).",
+      "default": null
+    }
+  }
+}
