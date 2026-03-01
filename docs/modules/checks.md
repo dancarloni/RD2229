@@ -20,70 +20,62 @@
 
 ---
 
-## 2. Scopo e ambito
+## 2. Scopo
 
-Registro centralizzato di specifiche di verifica (`CheckSpec`) per tutte le normative supportate. Ogni `CheckSpec` associa un ID verificabile a una norma, dei tag, e un callable `compute` (attualmente `None` per tutte le voci built-in).
+> Descrivere in 2-3 righe il *perché* esiste questo modulo e quale problema risolve.
 
----
-
-## 3. Stato reale
-
-**PARZIALE**
-
-Motivazione oggettiva: `src/checks/registry.py` (~350 righe) ha infrastruttura reale (`CheckRegistry`, `CheckSpec`, `NormRef`) con metodi implementati (`register`, `get`, `filter_by_tags`, `coverage_for_norm`). Le ~20 voci seed built-in hanno `compute=None` (TODO) — nessun calcolo effettivo è cablato. Nessun test trovato.
+TBD
 
 ---
 
-## 4. Evidenze
+## 3. File / Classi / Funzioni principali
 
-- `src/checks/registry.py` — `CheckRegistry` con metodi reali; voci seed build-in con `compute=None`
-- Riferimenti normativi: RD2229 (flessione/pressoflessione/taglio TA), DM96 (SLU), NTC2018 (SLU/SLE/vento) — come stringhe ID nelle voci
-- Nessun test trovato in `tests/` o `src/tests/`
+> Elencare i simboli pubblici rilevanti. Non inventare: se non si conosce la firma esatta, annotare TBD.
 
----
-
-## 5. Input/parametri
-
-- `register(spec: CheckSpec)` — registra una specifica
-- `get(check_id: str) -> CheckSpec` — recupera per ID
-- `coverage_for_norm(norm_id: str) -> list[CheckSpec]` — filtra per norma
+| File | Classe/Funzione | Descrizione |
+|------|-----------------|-------------|
+| TBD | TBD | TBD |
 
 ---
 
-## 6. Output
+## 4. Input / Output
 
-- `CheckSpec` dataclass: `id`, `norm_id`, `tags`, `compute` (callable | None)
-
----
-
-## 7. Dipendenze
-
-- `src/checks/__init__.py` re-esporta `CheckRegistry`, `CheckSpec`, `NormRef`, `get_registry`, `reset_registry`
+| Direzione | Formato | Descrizione |
+|-----------|---------|-------------|
+| Input | TBD | TBD |
+| Output | TBD | TBD |
 
 ---
 
-## 8. Fonti normative collegate
+## 5. Test correlati
 
-| ID | Evidenza nel codice |
-|----|---------------------|
-| RD2229 | `src/checks/registry.py` — voci seed con `norm_id="RD2229"` |
-| DM96 | `src/checks/registry.py` — voci seed con `norm_id="DM96"` |
-| NTC2018 | `src/checks/registry.py` — voci seed con `norm_id="NTC2018"` |
-
-Clausole specifiche: TBD (non compaiono come stringhe nel codice).
+| File test | Copertura stimata | Note |
+|-----------|-------------------|------|
+| `tests/test_dm96_checks.py` | TBD | — |
+| `tests/test_fire_checks.py` | TBD | — |
 
 ---
 
-## 9. Gap/TODO/Limitazioni
+## 6. Fonti normative
 
-- Tutti i `compute` callable sono `None` — nessun calcolo eseguibile
-- Nessun test di integrazione o smoke
-- Non usato dal pipeline principale (`src/core/pipeline.py` non importa `src.checks`)
+> Solo riferimenti a ID da `docs/NORMATIVE_SOURCES/sources.catalog.json`. NESSUN testo copiato.
+
+| ID fonte | Clausola/Articolo | Nota |
+|----------|-------------------|------|
+| TBD | TBD | — |
 
 ---
 
-## 10. Next steps
+## 7. Dipendenze interne
 
-- [ ] Collegare `compute` callable alle funzioni in `src/methods/checks_*.py`
-- [ ] Aggiungere test che verifichino almeno un check end-to-end
-- [ ] Integrare `get_registry()` nel dispatcher `src/methods/verification/dispatcher.py`
+> Moduli `src/` da cui questo modulo dipende (import diretti).
+
+- TBD
+
+---
+
+## 8. Note e TODO
+
+- [ ] Compilare sezioni TBD
+- [ ] Verificare test correlati
+- [ ] Tracciare fonti normative di riferimento

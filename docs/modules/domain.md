@@ -22,16 +22,19 @@
 
 ## 2. Scopo
 
-Modelli di dominio: `VerificationInput`, funzioni di accesso alle proprietà di calcestruzzo/acciaio e alla geometria di sezione.
+> Descrivere in 2-3 righe il *perché* esiste questo modulo e quale problema risolve.
+
+TBD
 
 ---
 
-## 3. Evidenze
+## 3. File / Classi / Funzioni principali
 
-- `src/domain/domain/models.py` — `VerificationInput` dataclass (100 righe)
-- `src/domain/domain/materials.py` — `get_concrete_properties()`, `get_steel_properties()` (77 righe)
-- `src/domain/domain/sections.py` — `get_section_geometry()` (96 righe)
-- I test `tests/test_domain_*.py` usano percorso root-level, non `src.domain`
+> Elencare i simboli pubblici rilevanti. Non inventare: se non si conosce la firma esatta, annotare TBD.
+
+| File | Classe/Funzione | Descrizione |
+|------|-----------------|-------------|
+| TBD | TBD | TBD |
 
 ---
 
@@ -39,10 +42,8 @@ Modelli di dominio: `VerificationInput`, funzioni di accesso alle proprietà di 
 
 | Direzione | Formato | Descrizione |
 |-----------|---------|-------------|
-| Input | `get_concrete_properties(fck: float, norm_code: str) -> ConcreteProps` | Proprietà calcestruzzo |
-| Input | `get_steel_properties(fyk: float) -> SteelProps` | Proprietà acciaio |
-| Input | `get_section_geometry(section_id: str) -> SectionGeometry` | Geometria sezione |
-| Output | Dataclass | Proprietà materiali e geometria sezione |
+| Input | TBD | TBD |
+| Output | TBD | TBD |
 
 ---
 
@@ -57,27 +58,24 @@ Modelli di dominio: `VerificationInput`, funzioni di accesso alle proprietà di 
 
 ## 6. Fonti normative
 
-Nessuna trovata come stringa nel codice del modulo. TODO: aggiungere riferimenti se identificati.
+> Solo riferimenti a ID da `docs/NORMATIVE_SOURCES/sources.catalog.json`. NESSUN testo copiato.
+
+| ID fonte | Clausola/Articolo | Nota |
+|----------|-------------------|------|
+| TBD | TBD | — |
 
 ---
 
 ## 7. Dipendenze interne
 
-- Repository materiali/sezioni (TBD — dipendenza esatta non verificata)
+> Moduli `src/` da cui questo modulo dipende (import diretti).
+
+- TBD
 
 ---
 
-## 8. Gap / TODO / Limitazioni
+## 8. Note e TODO
 
-- Percorso di importazione `src.domain.domain.*` è confuso (cartella annidata)
-- Test non usano `src.domain` come percorso di import → rischio di disallineamento
-- Dipendenza da repository materiali non chiara
-
----
-
-## 9. Next steps
-
-- [ ] Verificare se `src/domain/domain/` è intenzionale o artefatto di migrazione
-- [ ] Riscrivere test `test_domain_*.py` per importare da `src.domain`
-- [ ] Documentare la dipendenza dal repository materiali
 - [ ] Compilare sezioni TBD
+- [ ] Verificare test correlati
+- [ ] Tracciare fonti normative di riferimento

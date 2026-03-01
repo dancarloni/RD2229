@@ -40,7 +40,8 @@ def _parse_module_index() -> list[dict]:
     """Parse MODULE_INDEX.md and return list of module dicts."""
     if not MODULE_INDEX.exists():
         raise FileNotFoundError(
-            f"MODULE_INDEX not found: {MODULE_INDEX}\nRun `python tools/audit_repo.py` first."
+            f"MODULE_INDEX not found: {MODULE_INDEX}\n"
+            "Run `python tools/audit_repo.py` first."
         )
     modules = []
     for line in MODULE_INDEX.read_text(encoding="utf-8").splitlines():
@@ -90,7 +91,9 @@ def _render_stub(module: dict, now_dt: datetime.datetime) -> str:
 
     # Build test table rows
     if test_files:
-        test_rows = "\n".join(f"| `{tf}` | TBD | — |" for tf in test_files)
+        test_rows = "\n".join(
+            f"| `{tf}` | TBD | — |" for tf in test_files
+        )
     else:
         test_rows = "| — | — | Nessun test rilevato meccanicamente. |"
 
@@ -196,7 +199,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    now_dt = datetime.datetime.now(tz=datetime.UTC)
+    now_dt = datetime.datetime.now(tz=datetime.timezone.utc)
     modules = _parse_module_index()
 
     if not modules:
