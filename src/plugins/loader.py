@@ -119,7 +119,12 @@ def load_plugins_from_entry_points() -> list[PluginSpec]:
             tmp_registry = PluginRegistry()
             register_fn(tmp_registry)
             specs.extend(tmp_registry.list_plugins())
-        except (ImportError, AttributeError, TypeError, ValueError) as exc:  # plugin errors must not crash the app
+        except (
+            ImportError,
+            AttributeError,
+            TypeError,
+            ValueError,
+        ) as exc:  # plugin errors must not crash the app
             logger.warning("Failed to load entry_point plugin %s: %s", ep.name, exc)
 
     return specs

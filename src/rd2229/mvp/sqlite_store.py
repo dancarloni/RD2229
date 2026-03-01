@@ -26,7 +26,9 @@ class SQLiteStore:
                 conn.execute(f"PRAGMA user_version = {LATEST_DB_SCHEMA_VERSION}")
                 conn.commit()
             elif current > LATEST_DB_SCHEMA_VERSION:
-                raise RuntimeError(f"Database schema {current} is newer than supported {LATEST_DB_SCHEMA_VERSION}")
+                raise RuntimeError(
+                    f"Database schema {current} is newer than supported {LATEST_DB_SCHEMA_VERSION}"
+                )
 
     @staticmethod
     def _schema_version(conn: sqlite3.Connection) -> int:

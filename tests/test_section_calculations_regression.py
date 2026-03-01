@@ -75,4 +75,6 @@ def test_principal_moments_invariant_sum():
     geom = SectionGeometry.from_rectangle(12.0, 8.0)
     props = compute_section_properties_from_geometry(geom)
     # invariant: I1 + I2 == Ix + Iy
-    assert pytest.approx(props.I1 + props.I2, rel=1e-9) == pytest.approx(props.Ix + props.Iy, rel=1e-9)
+    assert pytest.approx(props.I1 + props.I2, rel=1e-9) == pytest.approx(
+        props.Ix + props.Iy, rel=1e-9
+    )

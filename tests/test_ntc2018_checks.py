@@ -361,7 +361,9 @@ def test_minimi_armatura_taglio_ok():
     )
 
     templates = get_ntc2018_templates()
-    template_min_shear = [t for t in templates if t.template_id == "ntc2018_slu_minimi_armatura_taglio"][0]
+    template_min_shear = [
+        t for t in templates if t.template_id == "ntc2018_slu_minimi_armatura_taglio"
+    ][0]
 
     result = check_minimi_armatura_taglio_slu(calc_input, template_min_shear)
 
@@ -387,7 +389,9 @@ def test_minimi_armatura_taglio_non_ok():
     )
 
     templates = get_ntc2018_templates()
-    template_min_shear = [t for t in templates if t.template_id == "ntc2018_slu_minimi_armatura_taglio"][0]
+    template_min_shear = [
+        t for t in templates if t.template_id == "ntc2018_slu_minimi_armatura_taglio"
+    ][0]
 
     result = check_minimi_armatura_taglio_slu(calc_input, template_min_shear)
 

@@ -90,7 +90,9 @@ def parse_edilus_ms_table(raw_paste: str) -> tuple[list[Ntc2018HazardRow], list[
                     # do not add row
                 else:
                     if len(nums) > 4:
-                        messages.append(f"Riga '{lbl}' contiene {len(nums)} numeri, usati primi quattro")
+                        messages.append(
+                            f"Riga '{lbl}' contiene {len(nums)} numeri, usati primi quattro"
+                        )
                         if quality == "OK":
                             quality = "WARNING"
                     try:
@@ -147,7 +149,9 @@ def build_profile(
     return profile
 
 
-def get_hazard_params(profile: Ntc2018HazardProfile, limit_state_label: str) -> tuple[float, float, float, float] | None:
+def get_hazard_params(
+    profile: Ntc2018HazardProfile, limit_state_label: str
+) -> tuple[float, float, float, float] | None:
     """Return parameters for a given limit state label.
 
     Matching is case-insensitive and ignores extra spaces.

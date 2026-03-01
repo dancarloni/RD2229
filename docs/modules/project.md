@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Modulo: `project`
 
 ## 1. Scopo e ambito
@@ -15,22 +14,26 @@ Motivazione oggettiva: `schema.py` (120 righe) ha modelli Pydantic completi con 
 
 - `src/project/schema.py` — `ProjectModel`, `ProjectInfo`, `GeometryEntry`, `MaterialEntry`, `LoadEntry`, `SeismicInputs`, `CodeSettings`, `WindInputs`, `FireInputs`, `PipelineSteps`
 - `src/project/repository.py` — `load_project(path)`, `save_project(model, path)`, `migrate_dict()`
-- `src/project/repository.py:248-267` — logica migrazione versione
-- Test: `tests/test_project_roundtrip.py`, `tests/test_migration.py`, `tests/test_pipeline_smoke.py` (+7)
+- `src/project/model.py` — `ProjectMeta`, `NormativeProfileRef`, `ModuleConfig`, `ProjectModel` (wrapper MVP)
+- `src/project/timeline.py` — `RunRecord`, `OutputManifest`, `sha256_file`, `write_manifest`
+- Test: `tests/test_project_roundtrip.py`, `tests/test_project_schema_validation.py`, `tests/test_timeline_manifest_hashing.py`, `tests/test_run_replay_idempotent.py`
 
 ## 4. Input/parametri
 
 - `load_project(path: str | Path) -> ProjectModel` — legge JSON/JSONP
 - `save_project(model: ProjectModel, path: str | Path)` — scrive JSON
+- CLI tools: `tools/validate_project.py`, `tools/run_project.py`, `tools/replay_run.py`
 
 ## 5. Output
 
 - `ProjectModel` — modello Pydantic completo
 - File JSON su disco
+- Run folder: `projects/<project_id>/runs/<run_id>/` con snapshot, manifest, outputs
 
 ## 6. Dipendenze
 
 - Pydantic ≥ 2.0 (dipendenza non sempre installata in CI — vedere KNOWN LIMITATIONS)
+- jsonschema (per validazione CLI)
 
 ## 7. Fonti normative collegate
 
@@ -52,86 +55,19 @@ Clausole: TBD.
 - [ ] Documentare ogni campo di `ProjectModel` con tipo, default e significato strutturale
 - [ ] Aggiungere migrazione verso versione 1.2.0 quando necessario
 - [ ] Risolvere dipendenza Pydantic in CI (issue debito tecnico separata)
-=======
-# Documentazione Modulo: `project`
-
-> **Generato automaticamente** da `tools/generate_module_docs.py` — 2026-03-01 00:52 UTC
-> Stub iniziale: compilare manualmente le sezioni TBD.
-> Non eliminare questo file; aggiornarlo incrementalmente.
 
 ---
 
-## 1. Identificazione
+## I/O, CLI tools, test paths
 
-| Campo | Valore |
-|-------|--------|
-| **Nome modulo** | `project` |
-| **Path** | `src/project` |
-| **Tipo** | package |
-| **File .py rilevati** | 3 |
-| **Stato** | PARZIALE |
-| **Maintainer** | TBD |
-| **Ultima revisione** | 2026-03-01 |
+- Struttura minima e comandi: vedi `docs/SCHEMA_IO.md`
+- CLI tools: `tools/validate_project.py`, `tools/run_project.py`, `tools/replay_run.py`
+- Test: `tests/test_project_schema_validation.py`, `tests/test_project_roundtrip.py`, `tests/test_timeline_manifest_hashing.py`, `tests/test_run_replay_idempotent.py`
 
 ---
 
-## 2. Scopo
+## Evidenza file/line
 
-> Descrivere in 2-3 righe il *perché* esiste questo modulo e quale problema risolve.
-
-TBD
-
----
-
-## 3. File / Classi / Funzioni principali
-
-> Elencare i simboli pubblici rilevanti. Non inventare: se non si conosce la firma esatta, annotare TBD.
-
-| File | Classe/Funzione | Descrizione |
-|------|-----------------|-------------|
-| TBD | TBD | TBD |
-
----
-
-## 4. Input / Output
-
-| Direzione | Formato | Descrizione |
-|-----------|---------|-------------|
-| Input | TBD | TBD |
-| Output | TBD | TBD |
-
----
-
-## 5. Test correlati
-
-| File test | Copertura stimata | Note |
-|-----------|-------------------|------|
-| `tests/test_project_roundtrip.py` | TBD | — |
-| `tests/test_project_store.py` | TBD | — |
-
----
-
-## 6. Fonti normative
-
-> Solo riferimenti a ID da `docs/NORMATIVE_SOURCES/sources.catalog.json`. NESSUN testo copiato.
-
-| ID fonte | Clausola/Articolo | Nota |
-|----------|-------------------|------|
-| TBD | TBD | — |
-
----
-
-## 7. Dipendenze interne
-
-> Moduli `src/` da cui questo modulo dipende (import diretti).
-
-- TBD
-
----
-
-## 8. Note e TODO
-
-- [ ] Compilare sezioni TBD
-- [ ] Verificare test correlati
-- [ ] Tracciare fonti normative di riferimento
->>>>>>> d5ef881 (feat: audit/docs infrastructure - audit_repo, RTM, governance, normative catalog, module docs)
+- `src/project/model.py`, `src/project/timeline.py`, `tools/validate_project.py`, `tools/run_project.py`, `tools/replay_run.py`
+- `schemas/project.schema.json` (deterministico)
+- Vedi anche: `docs/SCHEMA_IO.md` per esempi e struttura file

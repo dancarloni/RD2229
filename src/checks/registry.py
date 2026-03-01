@@ -97,7 +97,11 @@ class CheckRegistry:
         Args:
             source_id: ID della fonte normativa (es. ``"RD2229"``, ``"NTC2018"``).
         """
-        return [c for c in self._checks.values() if any(ref.source_id == source_id for ref in c.norm_refs)]
+        return [
+            c
+            for c in self._checks.values()
+            if any(ref.source_id == source_id for ref in c.norm_refs)
+        ]
 
     def coverage_for_norm(self, source_id: str) -> dict[str, Any]:
         """Calcola la copertura (percentuale check implementati) per una norma.
@@ -227,7 +231,13 @@ def _build_default_registry() -> CheckRegistry:
                     description="Verifica allo stato limite ultimo di pressoflessione",
                 )
             ],
-            input_schema={"width": "float", "height": "float", "N": "float", "Mx": "float", "f_ck": "float"},
+            input_schema={
+                "width": "float",
+                "height": "float",
+                "N": "float",
+                "Mx": "float",
+                "f_ck": "float",
+            },
             tags=["RC", "SLU", "pressoflessione"],
             compute=lambda _: {},
         )
@@ -245,7 +255,13 @@ def _build_default_registry() -> CheckRegistry:
                     description="Verifica SLU di flessione per sezioni in c.a.",
                 )
             ],
-            input_schema={"width": "float", "height": "float", "Mx": "float", "f_ck": "float", "f_yk": "float"},
+            input_schema={
+                "width": "float",
+                "height": "float",
+                "Mx": "float",
+                "f_ck": "float",
+                "f_yk": "float",
+            },
             tags=["RC", "SLU", "NTC2018", "flessione"],
             compute=lambda _: {},
         )
@@ -326,7 +342,11 @@ def _build_default_registry() -> CheckRegistry:
                     description="Azioni del vento: velocità di riferimento, pressione cinetica, coefficienti",
                 )
             ],
-            input_schema={"altitudine_m": "float", "categoria_terreno": "str", "altezza_m": "float"},
+            input_schema={
+                "altitudine_m": "float",
+                "categoria_terreno": "str",
+                "altezza_m": "float",
+            },
             tags=["wind", "NTC2018"],
             compute=lambda _: {},
         )

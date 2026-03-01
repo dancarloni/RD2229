@@ -63,7 +63,9 @@ class VerificationAction:
     action_id: str = "undefined"
     description: str = "Verification Action (stub)."
 
-    def run(self, element: Any, normative: dict[str, Any], settings: dict[str, Any]) -> dict[str, Any]:
+    def run(
+        self, element: Any, normative: dict[str, Any], settings: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Esegue la verifica sull'elemento e restituisce un dizionario.
 
@@ -137,7 +139,9 @@ class FlexureCheck(VerificationAction):
     action_id = "flexure_check"
     description = "Verifica flessionale (stub, nessuna formula)."
 
-    def run(self, element: Any, normative: dict[str, Any], settings: dict[str, Any]) -> dict[str, Any]:
+    def run(
+        self, element: Any, normative: dict[str, Any], settings: dict[str, Any]
+    ) -> dict[str, Any]:
         # TODO: implementazione reale
         return {
             "action_id": self.action_id,
@@ -159,8 +163,15 @@ class ShearCheck(VerificationAction):
     action_id = "shear_check"
     description = "Verifica taglio (stub, nessuna formula)."
 
-    def run(self, element: Any, normative: dict[str, Any], settings: dict[str, Any]) -> dict[str, Any]:
-        return {"action_id": self.action_id, "ok": True, "messages": ["Shear check not implemented (stub)."], "partials": {}}
+    def run(
+        self, element: Any, normative: dict[str, Any], settings: dict[str, Any]
+    ) -> dict[str, Any]:
+        return {
+            "action_id": self.action_id,
+            "ok": True,
+            "messages": ["Shear check not implemented (stub)."],
+            "partials": {},
+        }
 
 
 # ==========================================================

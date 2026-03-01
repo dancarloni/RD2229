@@ -273,7 +273,9 @@ def update_material(name: str, updates: dict, path: str | None = None) -> None:
                         materials[i]["G_min"] = g_min
                         materials[i]["G_max"] = g_max
                         try:
-                            materials[i]["E_conventional"] = compute_ec_conventional(float(sigma_c28), cement)
+                            materials[i]["E_conventional"] = compute_ec_conventional(
+                                float(sigma_c28), cement
+                            )
                         except Exception:
                             materials[i]["E_conventional"] = None
                     except Exception:

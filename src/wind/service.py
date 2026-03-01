@@ -79,7 +79,9 @@ class WindActionService:
             else:
                 logger.warning("Metodo vento '%s' non riconosciuto; uso NTC2018.", method)
                 results = self._run_ntc2018(config)
-                results.warnings.append(f"Metodo '{config.method}' non riconosciuto; usato NTC2018.")
+                results.warnings.append(
+                    f"Metodo '{config.method}' non riconosciuto; usato NTC2018."
+                )
 
             # Applica arricchimento CNR se richiesto
             if config.apply_cnr_dt207 and method not in ("CNR_DT207", "HYBRID"):
@@ -110,7 +112,9 @@ class WindActionService:
         # z0/z_min: prendi dai params terreno del metodo base
         z0 = config.site.extra.get("z0_m", 0.05)
         z_min = config.site.extra.get("z_min_m", 2.0)
-        return enrich_results_with_cnr_dt207(results, config.site, config.building, z0=z0, z_min=z_min)
+        return enrich_results_with_cnr_dt207(
+            results, config.site, config.building, z0=z0, z_min=z_min
+        )
 
     def _run_hybrid(self, config: WindConfig) -> WindResults:
         """Metodo ibrido: NTC2018 + EN1991-1-4 + CNR (envelope conservativo)."""
