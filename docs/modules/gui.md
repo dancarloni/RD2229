@@ -22,18 +22,19 @@
 
 ## 2. Scopo
 
-Layer GUI thin: entry point verso `src/ui/modern/app.main()`, selettore normativa NTC2018, stub per finestre elementi secondari e widget.
+> Descrivere in 2-3 righe il *perché* esiste questo modulo e quale problema risolve.
+
+TBD
 
 ---
 
-## 3. Evidenze
+## 3. File / Classi / Funzioni principali
 
-- `src/gui/entrypoint.py` — delega a `src.ui.modern.app.main()`
-- `src/gui/ntc2018_selector.py` — `list_available_codes()` reale
-- `src/gui/secondary_elements/editor.py` — ~15 righe, classe skeleton
-- `src/gui/secondary_elements/results_view.py` — ~10 righe, classe skeleton
-- `src/gui/widgets/norm_selector.py` — ~7 righe, skeleton
-- Test: `tests/legacy_qt/test_norm_selector.py`, `tests/legacy_qt/test_secondary_editor.py`
+> Elencare i simboli pubblici rilevanti. Non inventare: se non si conosce la firma esatta, annotare TBD.
+
+| File | Classe/Funzione | Descrizione |
+|------|-----------------|-------------|
+| TBD | TBD | TBD |
 
 ---
 
@@ -41,8 +42,8 @@ Layer GUI thin: entry point verso `src/ui/modern/app.main()`, selettore normativ
 
 | Direzione | Formato | Descrizione |
 |-----------|---------|-------------|
-| Input | `list_available_codes() -> list[str]` | Restituisce codici normativi disponibili |
-| Output | `list[str]` | Lista codici (`["RD2229", "NTC2018", ...]`) |
+| Input | TBD | TBD |
+| Output | TBD | TBD |
 
 ---
 
@@ -50,40 +51,31 @@ Layer GUI thin: entry point verso `src/ui/modern/app.main()`, selettore normativ
 
 | File test | Copertura stimata | Note |
 |-----------|-------------------|------|
-| `tests/legacy_qt/test_norm_selector.py` | TBD | — |
-| `tests/legacy_qt/test_secondary_editor.py` | TBD | — |
+| `tests/integration/test_gui_verification_flow.py` | TBD | — |
+| `tests/test_modern_ui_nongui.py` | TBD | — |
 
 ---
 
 ## 6. Fonti normative
 
-| ID | Evidenza nel codice |
-|----|---------------------|
-| RD2229 | `src/gui/entrypoint.py` — docstring |
-| NTC2018 | `src/gui/ntc2018_selector.py` — codice listato |
+> Solo riferimenti a ID da `docs/NORMATIVE_SOURCES/sources.catalog.json`. NESSUN testo copiato.
 
-Clausole: TODO
+| ID fonte | Clausola/Articolo | Nota |
+|----------|-------------------|------|
+| TBD | TBD | — |
 
 ---
 
 ## 7. Dipendenze interne
 
-- `src/ui/modern/app` — `main()` (delegato)
-- `src/codes/ntc2018/secondary_elements/` — modelli elementi secondari
+> Moduli `src/` da cui questo modulo dipende (import diretti).
+
+- TBD
 
 ---
 
-## 8. Gap / TODO / Limitazioni
+## 8. Note e TODO
 
-- Sub-package `secondary_elements/` quasi completamente non implementato
-- `entrypoint.py` è un thin proxy — nessuna logica GUI diretta
-- Widget in `widgets/` sono skeleton
-
----
-
-## 9. Next steps
-
-- [ ] Implementare `secondary_elements/editor.py` come finestra Qt funzionale
-- [ ] Collegare `gui/entrypoint.py` a un entry point autonomo se necessario
-- [ ] Aggiungere test headless per `secondary_elements/` widgets
 - [ ] Compilare sezioni TBD
+- [ ] Verificare test correlati
+- [ ] Tracciare fonti normative di riferimento

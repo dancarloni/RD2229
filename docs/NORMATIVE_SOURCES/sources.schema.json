@@ -1,18 +1,10 @@
 {
-  "$id": "https://github.com/dancarloni/RD2229/docs/NORMATIVE_SOURCES/sources.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/dancarloni/RD2229/docs/NORMATIVE_SOURCES/sources.schema.json",
   "title": "NormativeSourceEntry",
   "description": "Schema per i metadati di una fonte normativa nel catalogo RD2229. NESSUN testo normativo viene copiato: solo metadati, link ufficiali e riferimenti.",
   "type": "object",
-  "required": [
-    "id",
-    "title",
-    "authority",
-    "year",
-    "url",
-    "license_notes",
-    "availability"
-  ],
+  "required": ["id", "title", "authority", "year", "url", "license_notes", "availability"],
   "additionalProperties": false,
   "properties": {
     "id": {
@@ -45,43 +37,27 @@
     },
     "availability": {
       "type": "string",
-      "enum": [
-        "free",
-        "restricted",
-        "unknown"
-      ],
+      "enum": ["free", "restricted", "unknown"],
       "description": "Disponibilità pubblica del testo: free = liberamente scaricabile, restricted = a pagamento o su richiesta, unknown = non verificato."
     },
     "supersedes": {
-      "type": [
-        "string",
-        "null"
-      ],
+      "type": ["string", "null"],
       "description": "ID della norma che questa fonte sostituisce (se applicabile).",
       "default": null
     },
     "superseded_by": {
-      "type": [
-        "string",
-        "null"
-      ],
+      "type": ["string", "null"],
       "description": "ID della norma che ha sostituito questa fonte (se applicabile).",
       "default": null
     },
     "country": {
       "type": "string",
       "description": "Codice paese ISO 3166-1 alpha-2 o 'EU' o 'International'.",
-      "examples": [
-        "IT",
-        "EU",
-        "International"
-      ]
+      "examples": ["IT", "EU", "International"]
     },
     "tags": {
       "type": "array",
-      "items": {
-        "type": "string"
-      },
+      "items": {"type": "string"},
       "description": "Tag tematici (es. ['cemento_armato', 'TA', 'SLU']).",
       "default": []
     },
@@ -92,15 +68,10 @@
     },
     "local_copy": {
       "oneOf": [
-        {
-          "type": "null"
-        },
+        {"type": "null"},
         {
           "type": "object",
-          "required": [
-            "path",
-            "sha256"
-          ],
+          "required": ["path", "sha256"],
           "additionalProperties": false,
           "properties": {
             "path": {

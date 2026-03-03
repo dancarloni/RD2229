@@ -22,16 +22,19 @@
 
 ## 2. Scopo
 
-Modello elemento strutturale (`Element`) e repository (`ElementRepository`). Funzione `resolve_verification_inputs()` per risolvere riferimenti sezione/materiale per gli elementi.
+> Descrivere in 2-3 righe il *perché* esiste questo modulo e quale problema risolve.
+
+TBD
 
 ---
 
-## 3. Evidenze
+## 3. File / Classi / Funzioni principali
 
-- `src/elements/element_repo.py` — "STUB S2"; tutti metodi TODO
-- `src/elements/element_model.py` — "STUB S2"; `Element` dataclass con metodi TODO
-- `src/elements/resolve_inputs.py` — logica parziale (itera elementi, delega a repository stub)
-- Test: `src/tests/test_elements_repo.py`, `src/tests/test_resolve_inputs.py` (marcati STUB S2)
+> Elencare i simboli pubblici rilevanti. Non inventare: se non si conosce la firma esatta, annotare TBD.
+
+| File | Classe/Funzione | Descrizione |
+|------|-----------------|-------------|
+| TBD | TBD | TBD |
 
 ---
 
@@ -39,10 +42,8 @@ Modello elemento strutturale (`Element`) e repository (`ElementRepository`). Fun
 
 | Direzione | Formato | Descrizione |
 |-----------|---------|-------------|
-| Input | `Element` dataclass | `element_id`, `element_type`, `section_id`, `material_id`, `loads` |
-| Input | `resolve_verification_inputs(elements, mat_repo, sec_repo) -> List[VerificationInput]` | Risoluzione riferimenti |
-| Output | `Element` objects | Dal repository |
-| Output | `List[VerificationInput]` | Da `resolve_inputs` |
+| Input | TBD | TBD |
+| Output | TBD | TBD |
 
 ---
 
@@ -50,36 +51,31 @@ Modello elemento strutturale (`Element`) e repository (`ElementRepository`). Fun
 
 | File test | Copertura stimata | Note |
 |-----------|-------------------|------|
-| `src/tests/test_elements_repo.py` | TBD | — |
-| `src/tests/test_resolve_inputs.py` | TBD | — |
+| `tests/codes/test_secondary_elements_cantilever.py` | TBD | — |
+| `tests/codes/test_secondary_elements_chimney.py` | TBD | — |
 
 ---
 
 ## 6. Fonti normative
 
-Nessuna trovata nel codice del modulo. TODO: aggiungere riferimenti se identificati.
+> Solo riferimenti a ID da `docs/NORMATIVE_SOURCES/sources.catalog.json`. NESSUN testo copiato.
+
+| ID fonte | Clausola/Articolo | Nota |
+|----------|-------------------|------|
+| TBD | TBD | — |
 
 ---
 
 ## 7. Dipendenze interne
 
-- `src/materials/material_repo` — `MaterialRepository` (anch'esso STUB)
-- `src/calc/shear_area_registry` — `compute_shear_area()`
-- Importato da `src/tools/verify_cli.py`
+> Moduli `src/` da cui questo modulo dipende (import diretti).
+
+- TBD
 
 ---
 
-## 8. Gap / TODO / Limitazioni
+## 8. Note e TODO
 
-- Repository completamente non funzionale
-- `resolve_inputs` delega a stub — non produce output reale
-- Test verificano solo che le classi esistano (smoke STUB)
-
----
-
-## 9. Next steps
-
-- [ ] Implementare `ElementRepository` con storage in-memory o JSON
-- [ ] Collegare `resolve_verification_inputs()` a repository funzionanti
-- [ ] Aggiungere test di integrazione con dati reali
 - [ ] Compilare sezioni TBD
+- [ ] Verificare test correlati
+- [ ] Tracciare fonti normative di riferimento

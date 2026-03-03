@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-
-# Modulo: `utils`
-
-## 1. Scopo e ambito
-
-Utilities generali: `BackgroundExecutor` — wrapper ThreadPoolExecutor con callback scheduling per Tkinter.
-
-## 2. Stato reale
-
-**COMPLETO**
-
-Motivazione oggettiva: `background.py` (76 righe) ha `BackgroundExecutor` con implementazione completa di `submit()`, `shutdown()`, callback scheduling via `widget.after()`. Test presenti.
-
-## 3. Evidenze
-
-- `src/utils/background.py` — `BackgroundExecutor` (76 righe); metodi `submit()`, `shutdown()` completi
-- Test: `tests/test_background_executor.py` — importa e testa `BackgroundExecutor`
-
 # Documentazione Modulo: `utils`
 
 > **Generato automaticamente** da `tools/generate_module_docs.py` — 2026-03-01 00:52 UTC
@@ -33,68 +14,67 @@ Motivazione oggettiva: `background.py` (76 righe) ha `BackgroundExecutor` con im
 | **Path** | `src/utils` |
 | **Tipo** | package |
 | **File .py rilevati** | 2 |
-| **Stato** | COMPLETO |
+| **Stato** | INCOMPLETO |
 | **Maintainer** | TBD |
 | **Ultima revisione** | 2026-03-01 |
 
 ---
 
-## 2. Scopo e ambito
+## 2. Scopo
 
-Utilities generali: `BackgroundExecutor` — wrapper ThreadPoolExecutor con callback scheduling per Tkinter.
+> Descrivere in 2-3 righe il *perché* esiste questo modulo e quale problema risolve.
 
----
-
-## 3. Stato reale
-
-**COMPLETO**
-
-Motivazione oggettiva: `background.py` (76 righe) ha `BackgroundExecutor` con implementazione completa di `submit()`, `shutdown()`, callback scheduling via `widget.after()`. Test presenti.
+TBD
 
 ---
 
-## 4. Evidenze
+## 3. File / Classi / Funzioni principali
 
-- `src/utils/background.py` — `BackgroundExecutor` (76 righe); metodi `submit()`, `shutdown()` completi
-- Test: `tests/test_background_executor.py` — importa e testa `BackgroundExecutor`
+> Elencare i simboli pubblici rilevanti. Non inventare: se non si conosce la firma esatta, annotare TBD.
 
----
-
-## 5. Input/parametri
-
-- `BackgroundExecutor(widget, max_workers: int = 2)`
-- `submit(fn: Callable, *args, callback: Callable | None = None)`
+| File | Classe/Funzione | Descrizione |
+|------|-----------------|-------------|
+| TBD | TBD | TBD |
 
 ---
 
-## 6. Output
+## 4. Input / Output
 
-- `None` — esecuzione asincrona; risultato consegnato tramite callback
-
----
-
-## 7. Dipendenze
-
-- `concurrent.futures.ThreadPoolExecutor` (stdlib)
-- Tkinter `widget.after()` per callback scheduling
+| Direzione | Formato | Descrizione |
+|-----------|---------|-------------|
+| Input | TBD | TBD |
+| Output | TBD | TBD |
 
 ---
 
-## 8. Fonti normative collegate
+## 5. Test correlati
 
-Nessuna.
-
----
-
-## 9. Gap/TODO/Limitazioni
-
-- Dipende da Tkinter per scheduling callback — non usabile senza widget Tkinter
-- Nessun equivalente per Qt (UI moderna usa approccio diverso)
-
----
-
-## 10. Next steps
-
-- [ ] Considerare astrazione `BackgroundExecutor` che funzioni sia con Tkinter che con Qt
-- [ ] Aggiungere test per caso `shutdown()` con task in corso
+| File test | Copertura stimata | Note |
 |-----------|-------------------|------|
+| — | — | Nessun test rilevato meccanicamente. |
+
+---
+
+## 6. Fonti normative
+
+> Solo riferimenti a ID da `docs/NORMATIVE_SOURCES/sources.catalog.json`. NESSUN testo copiato.
+
+| ID fonte | Clausola/Articolo | Nota |
+|----------|-------------------|------|
+| TBD | TBD | — |
+
+---
+
+## 7. Dipendenze interne
+
+> Moduli `src/` da cui questo modulo dipende (import diretti).
+
+- TBD
+
+---
+
+## 8. Note e TODO
+
+- [ ] Compilare sezioni TBD
+- [ ] Verificare test correlati
+- [ ] Tracciare fonti normative di riferimento

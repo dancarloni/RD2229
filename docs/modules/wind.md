@@ -20,75 +20,62 @@
 
 ---
 
-## 2. Scopo e ambito
+## 2. Scopo
 
-Calcolo delle azioni del vento per tre framework normativi: NTC2018 §3.3, EN 1991-1-4:2005 (Eurocodice 1), CNR-DT 207 R1/2018. Orchestrato da `WindActionService`. Integrato nel pipeline principale.
+> Descrivere in 2-3 righe il *perché* esiste questo modulo e quale problema risolve.
 
----
-
-## 3. Stato reale
-
-**PARZIALE**
-
-Motivazione oggettiva: Logica reale per tutti e tre i framework. Però parametri geografici zona (vb,0 per NTC2018) sono placeholder (TODO: caricare da JSON). Il fattore di risposta dinamica Cd (CNR-DT 207) non è implementato. Test presenti.
+TBD
 
 ---
 
-## 4. Evidenze
+## 3. File / Classi / Funzioni principali
 
-- `src/wind/ntc2018.py:1-3` — "NTC2018 wind – calcolo azioni del vento secondo NTC 2018 §3.3"
-- `src/wind/ntc2018.py:40` — `_ZONE_PARAMS_NTC2018` placeholder (TODO: da tabella)
-- `src/wind/ec1991_1_4.py:3` — "Riferimento: EN 1991-1-4:2005"
-- `src/wind/cnr_dt207.py:1-3` — "CNR-DT 207 R1/2018"; Cd: TODO
-- `src/wind/service.py` — `WindActionService.compute()` reale
-- Test: `tests/test_wind_smoke.py`, `tests/test_wind_integration_pipeline.py`
-- Chiamato da: `src/core/pipeline.py` step vento
+> Elencare i simboli pubblici rilevanti. Non inventare: se non si conosce la firma esatta, annotare TBD.
+
+| File | Classe/Funzione | Descrizione |
+|------|-----------------|-------------|
+| TBD | TBD | TBD |
 
 ---
 
-## 5. Input/parametri
+## 4. Input / Output
 
-- `WindConfig(method: str, site: WindSite, building: BuildingGeom, apply_cnr_dt207: bool)`
-- `WindSite(zone: str, altitude: float, terrain_category: str)`
-- `BuildingGeom(height: float, width: float, depth: float)`
-
----
-
-## 6. Output
-
-- `WindActionResults` — `pressure_q: float`, `velocity_vb: float`, `method: str`, `warnings: list`
+| Direzione | Formato | Descrizione |
+|-----------|---------|-------------|
+| Input | TBD | TBD |
+| Output | TBD | TBD |
 
 ---
 
-## 7. Dipendenze
+## 5. Test correlati
 
-- `src/core/pipeline.py` — chiama `WindActionService.compute()`
-- `src/project/schema.py` — `WindInputs`
-
----
-
-## 8. Fonti normative collegate
-
-| ID | Evidenza nel codice |
-|----|---------------------|
-| NTC2018 | `src/wind/ntc2018.py:1-3` — "NTC 2018 §3.3.2, §3.3.4"; `src/wind/models.py:3` |
-| EN1991_1_4 | `src/wind/ec1991_1_4.py:3` — "EN 1991-1-4:2005" |
-| CNR_DT207 | `src/wind/cnr_dt207.py:1-3` — "CNR-DT 207 R1/2018"; `src/wind/service.py:26` |
-
-Clausole: §3.3.2 e §3.3.4 compaiono come stringhe in `ntc2018.py`.
+| File test | Copertura stimata | Note |
+|-----------|-------------------|------|
+| `tests/test_wind_integration_pipeline.py` | TBD | — |
+| `tests/test_wind_smoke.py` | TBD | — |
 
 ---
 
-## 9. Gap/TODO/Limitazioni
+## 6. Fonti normative
 
-- Parametri zona NTC2018 (vb,0 per zone 1–9): placeholder, non da tabella reale
-- Cd (CNR-DT 207): non implementato — risposta dinamica non disponibile
-- EN 1991-1-4: valori NA (National Annex) non configurati
+> Solo riferimenti a ID da `docs/NORMATIVE_SOURCES/sources.catalog.json`. NESSUN testo copiato.
+
+| ID fonte | Clausola/Articolo | Nota |
+|----------|-------------------|------|
+| TBD | TBD | — |
 
 ---
 
-## 10. Next steps
+## 7. Dipendenze interne
 
-- [ ] Creare `data/wind/ntc2018_zones.json` e caricare in `ntc2018.py`
-- [ ] Implementare Cd (fattore risposta dinamica) in `cnr_dt207.py`
-- [ ] Aggiungere test golden con zona e altitudine reali (es. zona 4, h=50m)
+> Moduli `src/` da cui questo modulo dipende (import diretti).
+
+- TBD
+
+---
+
+## 8. Note e TODO
+
+- [ ] Compilare sezioni TBD
+- [ ] Verificare test correlati
+- [ ] Tracciare fonti normative di riferimento
