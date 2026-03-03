@@ -7,6 +7,7 @@ Usage::
 
 Exits 0 if identical, 1 if drift detected.
 """
+
 from __future__ import annotations
 
 import argparse

@@ -605,7 +605,10 @@ def filter_init_file(
                                 # in a file that exists
                                 target_py = init_dir / (name + ".py")
                                 target_pkg = init_dir / name / "__init__.py"
-                                if target_py in available_source_files or target_pkg in available_source_files:
+                                if (
+                                    target_py in available_source_files
+                                    or target_pkg in available_source_files
+                                ):
                                     remaining.append(name)
                                 else:
                                     # The name might be a class/function re-exported from
@@ -666,9 +669,9 @@ def run_reorganization(
     print(f"\n{prefix}Processing {len(modules)} root module(s): {', '.join(modules)}")
 
     for mod in modules:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"  Module: {mod}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         # Collect transitive dependencies
         try:
@@ -700,7 +703,9 @@ def run_reorganization(
             shutil.rmtree(mod_out)
 
         # Copy files
-        py_mappings, res_mappings = copy_module_tree(root, out_root, mod, file_set, resource_set, dry_run)
+        py_mappings, res_mappings = copy_module_tree(
+            root, out_root, mod, file_set, resource_set, dry_run
+        )
 
         # Rewrite imports in copied files
         print("\n  Import rewrites:")
@@ -730,7 +735,7 @@ def run_reorganization(
                     for ch in changes:
                         print(f"    {rel}: {ch}")
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"{prefix}Done. Output in: {out_root}")
 
 

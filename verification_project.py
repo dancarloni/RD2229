@@ -90,7 +90,9 @@ class VerificationProject:
                 prof_data = seism.get("ntc2018_hazard_profile")
                 if prof_data:
                     # build profile object and convert rows
-                    profile = Ntc2018HazardProfile(**{k: v for k, v in prof_data.items() if k != "parsed_rows"})
+                    profile = Ntc2018HazardProfile(
+                        **{k: v for k, v in prof_data.items() if k != "parsed_rows"}
+                    )
                     rows_list = []
                     for r in prof_data.get("parsed_rows", []):
                         try:

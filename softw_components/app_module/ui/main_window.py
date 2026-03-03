@@ -357,7 +357,9 @@ class MainWindow(tk.Toplevel):
             self.section_var.trace("w", lambda *a: self._on_section_change())
 
         # Pulsante per applicare esplicitamente la tipologia (fallback UX)
-        self.apply_type_btn = tk.Button(self.left_frame, text="Applica tipo", command=self._on_section_change, width=12)
+        self.apply_type_btn = tk.Button(
+            self.left_frame, text="Applica tipo", command=self._on_section_change, width=12
+        )
         self.apply_type_btn.pack(anchor="w", pady=(0, 4))
 
         # Tooltip sulla combobox
@@ -384,7 +386,9 @@ class MainWindow(tk.Toplevel):
         # Campo per angolo di rotazione (comune a tutte le sezioni)
         rotation_frame = tk.Frame(self.left_frame)
         rotation_frame.pack(fill="x", pady=(0, 8))
-        tk.Label(rotation_frame, text="Angolo di rotazione θ (gradi):").pack(side="left", padx=(0, 4))
+        tk.Label(rotation_frame, text="Angolo di rotazione θ (gradi):").pack(
+            side="left", padx=(0, 4)
+        )
         self.rotation_entry = tk.Entry(rotation_frame, width=10)
         self.rotation_entry.pack(side="left")
         self.rotation_entry.insert(0, "0.0")
@@ -412,11 +416,13 @@ class MainWindow(tk.Toplevel):
         help_btn.pack(side="left", padx=(8, 0))
         self._create_tooltip(
             self.kappa_y_entry,
-            "Fattore di forma a taglio κ_y (Timoshenko). " "Valore predefinito in base al tipo di sezione.",
+            "Fattore di forma a taglio κ_y (Timoshenko). "
+            "Valore predefinito in base al tipo di sezione.",
         )
         self._create_tooltip(
             self.kappa_z_entry,
-            "Fattore di forma a taglio κ_z (Timoshenko). " "Valore predefinito in base al tipo di sezione.",
+            "Fattore di forma a taglio κ_z (Timoshenko). "
+            "Valore predefinito in base al tipo di sezione.",
         )
         self._create_tooltip(
             self.shear_k_entry,
@@ -425,7 +431,8 @@ class MainWindow(tk.Toplevel):
         )
         self._create_tooltip(
             help_btn,
-            "Informazioni dettagliate sui valori predefiniti di κ e sulle assunzioni " "(clicca per aprire)",
+            "Informazioni dettagliate sui valori predefiniti di κ e sulle assunzioni "
+            "(clicca per aprire)",
         )
         # Inizializza le entry con i valori di default per la tipologia corrente
         try:
@@ -773,7 +780,9 @@ class MainWindow(tk.Toplevel):
                 if value <= 0:
                     raise ValueError
             except ValueError:
-                notify_error("Errore", f"{field} deve essere un numero positivo", source="main_window")
+                notify_error(
+                    "Errore", f"{field} deve essere un numero positivo", source="main_window"
+                )
                 return None
             values[field] = value
         return values
@@ -783,13 +792,19 @@ class MainWindow(tk.Toplevel):
         try:
             return float(rotation_raw) if rotation_raw else 0.0
         except ValueError:
-            notify_error("Errore", "Angolo di rotazione deve essere un numero", source="main_window")
+            notify_error(
+                "Errore", "Angolo di rotazione deve essere un numero", source="main_window"
+            )
             return None
 
     def _parse_and_apply_kappa(self, section: Section) -> bool:
         try:
-            k_y_raw: str = self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
-            k_z_raw: str = self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
+            k_y_raw: str = (
+                self.kappa_y_entry.get().strip() if getattr(self, "kappa_y_entry", None) else ""
+            )
+            k_z_raw: str = (
+                self.kappa_z_entry.get().strip() if getattr(self, "kappa_z_entry", None) else ""
+            )
             k_y: float | None = float(k_y_raw) if k_y_raw else None
             k_z: float | None = float(k_z_raw) if k_z_raw else None
             if k_y is not None and k_y <= 0:
@@ -802,7 +817,9 @@ class MainWindow(tk.Toplevel):
                 section.shear_factor_z = k_z
             return True
         except ValueError:
-            notify_error("Errore", "I fattori κ devono essere numeri positivi", source="main_window")
+            notify_error(
+                "Errore", "I fattori κ devono essere numeri positivi", source="main_window"
+            )
             return False
 
     def calculate_properties(self) -> None:
@@ -855,8 +872,12 @@ class MainWindow(tk.Toplevel):
             self.graphics_controller.draw_all(
                 geom,
                 props,
-                show_core=(getattr(self, "show_core_var", None) is None or self.show_core_var.get()),
-                show_ellipse=(getattr(self, "show_ellipse_var", None) is None or self.show_ellipse_var.get()),
+                show_core=(
+                    getattr(self, "show_core_var", None) is None or self.show_core_var.get()
+                ),
+                show_ellipse=(
+                    getattr(self, "show_ellipse_var", None) is None or self.show_ellipse_var.get()
+                ),
             )
         else:
             # fallback to older drawer
@@ -936,7 +957,9 @@ class MainWindow(tk.Toplevel):
         """Disegna la sezione sul canvas applicando la rotazione se presente."""
         self.canvas.delete("all")
         width, height = self._section_dimensions(section)
-        transform: CanvasTransform = compute_transform(width, height, int(self.canvas["width"]), int(self.canvas["height"]))
+        transform: CanvasTransform = compute_transform(
+            width, height, int(self.canvas["width"]), int(self.canvas["height"])
+        )
 
         # Disegna la sezione specifica con rotazione using a dispatch map to reduce branching
         draw_map = {
@@ -965,7 +988,9 @@ class MainWindow(tk.Toplevel):
             if getattr(self, "show_core_var", None) is None or self.show_core_var.get():
                 self._draw_core(section, transform)
 
-    def _rotate_point(self, x: float, y: float, cx: float, cy: float, angle_deg: float) -> tuple[float, float]:
+    def _rotate_point(
+        self, x: float, y: float, cx: float, cy: float, angle_deg: float
+    ) -> tuple[float, float]:
         """Ruota un punto (x,y) attorno a (cx,cy) di angle_deg gradi."""
         from math import cos, radians, sin
 
@@ -1051,7 +1076,9 @@ class MainWindow(tk.Toplevel):
         cx, cy = transform.to_canvas(cx_sec, cy_sec, height)
         r_canvas = radius * transform.scale
 
-        self.canvas.create_oval(cx - r_canvas, cy - r_canvas, cx + r_canvas, cy + r_canvas, outline="#1f77b4", width=2)
+        self.canvas.create_oval(
+            cx - r_canvas, cy - r_canvas, cx + r_canvas, cy + r_canvas, outline="#1f77b4", width=2
+        )
 
     def _draw_t_section(self, section: TSection, transform) -> None:
         """Disegna sezione a T con rotazione."""
@@ -1075,7 +1102,9 @@ class MainWindow(tk.Toplevel):
             (web_x0, 0),
             (web_x0, height - section.flange_thickness),
         ]
-        self._draw_rotated_polygon(all_points, section, transform, outline="#1f77b4", width=2, fill="")
+        self._draw_rotated_polygon(
+            all_points, section, transform, outline="#1f77b4", width=2, fill=""
+        )
 
     def _draw_l_section(self, section: LSection, transform) -> None:
         """Disegna sezione ad L con rotazione."""
@@ -1306,13 +1335,15 @@ class MainWindow(tk.Toplevel):
             if added:
                 messagebox.showinfo(
                     "Salvataggio",
-                    f"Sezione '{section.name}' salvata correttamente nell'archivio.\n" f"ID: {section.id}",
+                    f"Sezione '{section.name}' salvata correttamente nell'archivio.\n"
+                    f"ID: {section.id}",
                 )
                 logger.debug("Sezione creata: %s", section.id)
             else:
                 notify_error(
                     "Errore salvataggio",
-                    f"Impossibile salvare la sezione '{section.name}': " "duplicata o errore nel calcolo proprietà.",
+                    f"Impossibile salvare la sezione '{section.name}': "
+                    "duplicata o errore nel calcolo proprietà.",
                     source="main_window",
                 )
         else:
@@ -1322,14 +1353,19 @@ class MainWindow(tk.Toplevel):
                 self.repository.update_section(self.editing_section_id, section)
                 messagebox.showinfo(
                     "Aggiornamento",
-                    f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\n" f"ID: {self.editing_section_id}",
+                    f"Sezione '{section.name}' aggiornata correttamente nell'archivio.\n"
+                    f"ID: {self.editing_section_id}",
                 )
                 logger.debug("Sezione aggiornata: %s", self.editing_section_id)
                 self.editing_section_id = None
                 self._update_editing_mode_label()
             except Exception as exc:  # type: ignore[reportGeneralTypeIssues]
-                logger.exception("Errore aggiornamento sezione %s: %s", self.editing_section_id, exc)
-                notify_error("Errore", f"Impossibile aggiornare la sezione: {exc}", source="main_window")
+                logger.exception(
+                    "Errore aggiornamento sezione %s: %s", self.editing_section_id, exc
+                )
+                notify_error(
+                    "Errore", f"Impossibile aggiornare la sezione: {exc}", source="main_window"
+                )
                 return
 
         # Se il manager è aperto, ricarica la tabella
@@ -1355,7 +1391,9 @@ class MainWindow(tk.Toplevel):
                 return
 
         # Crea nuova istanza del manager
-        manager = SectionManager(self, self.repository, self.serializer, self.load_section_into_form)
+        manager = SectionManager(
+            self, self.repository, self.serializer, self.load_section_into_form
+        )
         self.section_manager = manager
         # Assicura che quando il manager viene chiuso si rimuova il riferimento
         manager.protocol("WM_DELETE_WINDOW", lambda m=manager: self._on_manager_close(m))
@@ -1491,9 +1529,12 @@ class MainWindow(tk.Toplevel):
         if self.editing_section_id is None:
             self.editing_mode_label.config(text="Modalità: Nuova sezione", fg="#0066cc")
         else:
-            section_name: str = self.current_section.name if self.current_section else "(sconosciuto)"
+            section_name: str = (
+                self.current_section.name if self.current_section else "(sconosciuto)"
+            )
             self.editing_mode_label.config(
-                text=f"Modalità: Modifica sezione '{section_name}'\n" f"ID: {self.editing_section_id[:8]}...",
+                text=f"Modalità: Modifica sezione '{section_name}'\n"
+                f"ID: {self.editing_section_id[:8]}...",
                 fg="#cc6600",
             )
 

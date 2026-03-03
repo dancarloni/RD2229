@@ -13,7 +13,11 @@ def _run(project: str) -> dict[str, object]:
         project_model = load_project(project)
         result = run_pipeline(project_model)
         return {"ok": result.ok, "elements": len(result.elements)}
-    except (ImportError, FileNotFoundError, RuntimeError) as exc:  # plugin errors must not crash the app
+    except (
+        ImportError,
+        FileNotFoundError,
+        RuntimeError,
+    ) as exc:  # plugin errors must not crash the app
         return {"ok": False, "error": str(exc)}
 
 

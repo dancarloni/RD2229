@@ -1,0 +1,32 @@
+{
+  "summary": "Bulk verification demo - 3 elements",
+  "elements": [
+    {
+      "element_name": "Trave T1 - Piano 2",
+      "element_role": "PRIMARY",
+      "profile_used": "PROFILE_PRIMARY_FULL",
+      "expected_ok": true,
+      "norm_code": "NTC2018",
+      "checks_count": 2,
+      "has_references": true
+    },
+    {
+      "element_name": "Muro M1 - Tamponamento",
+      "element_role": "SECONDARY",
+      "profile_used": "PROFILE_SECONDARY_STABILITY",
+      "expected_ok": true,
+      "norm_code": "NTC2018",
+      "checks_count": 2,
+      "has_references": true
+    },
+    {
+      "element_name": "Elemento X - Indeterminato",
+      "element_role": "UNDETERMINED",
+      "profile_used": "PROFILE_PRIMARY_FULL",
+      "expected_ok": true,
+      "norm_code": "NTC2018",
+      "checks_count": 2,
+      "has_references": true
+    }
+  ]
+}

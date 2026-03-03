@@ -107,7 +107,10 @@ class TestSuggestionPositioning(unittest.TestCase):
         # suggestion list exists and contains items.
         if x == 0 and y == 0:
             self.assertIsNotNone(app._suggest_list)
-            self.assertTrue(app._suggest_list.size() > 0, f"Suggestion box positioned at origin and list empty: {geom}")
+            self.assertTrue(
+                app._suggest_list.size() > 0,
+                f"Suggestion box positioned at origin and list empty: {geom}",
+            )
         else:
             self.assertFalse(x == 0 and y == 0, f"Suggestion box positioned at origin: {geom}")
 

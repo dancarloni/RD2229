@@ -25,7 +25,9 @@ def test_gui_compatibility():
 
         try:
             # Questo è il codice esatto da sections_app/app.py
-            repository = SectionRepository("sections.json")  # Usa file sections.json nella cartella corrente
+            repository = SectionRepository(
+                "sections.json"
+            )  # Usa file sections.json nella cartella corrente
             serializer = CsvSectionSerializer()
 
             print("  ✓ Repository inizializzato")
@@ -69,7 +71,9 @@ def test_gui_compatibility():
 
             # Modifica una sezione (simula click su "Modifica")
             print("\n[5] Modifica sezione (da GUI)...")
-            section1_modified = RectangularSection(name="Test Rectangle Modified", width=35, height=45)
+            section1_modified = RectangularSection(
+                name="Test Rectangle Modified", width=35, height=45
+            )
             repository2.update_section(loaded_sections[0].id, section1_modified)
             print("  ✓ Sezione modificata")
 

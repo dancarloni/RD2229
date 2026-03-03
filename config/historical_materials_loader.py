@@ -61,7 +61,9 @@ class HistoricalMaterialsLoader:
         file_path = self.config_dir / f"{source_name}.jsoncode"
 
         if not file_path.exists():
-            raise FileNotFoundError(f"Material source configuration not found for '{source_name}': {file_path}")
+            raise FileNotFoundError(
+                f"Material source configuration not found for '{source_name}': {file_path}"
+            )
 
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -97,7 +99,9 @@ class HistoricalMaterialsLoader:
         config = self.load_material_source(source_name)
         return config.get("concrete_classes", {})
 
-    def get_concrete_properties(self, source_name: str, concrete_class: str) -> dict[str, Any] | None:
+    def get_concrete_properties(
+        self, source_name: str, concrete_class: str
+    ) -> dict[str, Any] | None:
         """Get properties for a specific concrete class.
 
         Args:

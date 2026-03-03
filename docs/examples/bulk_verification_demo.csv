@@ -1,0 +1,4 @@
+element_name,element_type,norm_code,b_mm,h_mm,fck_MPa,fyk_MPa,Mx_kNm,Tx_kN,As_mm2,d_mm
+Trave T1 - Piano 2,beam,NTC2018,300,500,25.0,450.0,80.0,40.0,600.0,460.0
+Muro M1 - Tamponamento,wall,NTC2018,200,3000,20.0,450.0,5.0,10.0,200.0,2960.0
+Elemento X - Indeterminato,custom_component,NTC2018,250,400,30.0,450.0,30.0,15.0,400.0,360.0

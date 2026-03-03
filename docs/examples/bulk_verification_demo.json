@@ -1,0 +1,35 @@
+[
+  {
+    "element_name": "Trave T1 - Piano 2",
+    "element_type": "beam",
+    "norm_code": "NTC2018",
+    "section": {"b_mm": 300, "h_mm": 500},
+    "material": {"fck_MPa": 25.0, "fyk_MPa": 450.0},
+    "Mx_kNm": 80.0,
+    "Tx_kN": 40.0,
+    "As_mm2": 600.0,
+    "d_mm": 460.0
+  },
+  {
+    "element_name": "Muro M1 - Tamponamento",
+    "element_type": "wall",
+    "norm_code": "NTC2018",
+    "section": {"b_mm": 200, "h_mm": 3000},
+    "material": {"fck_MPa": 20.0, "fyk_MPa": 450.0},
+    "Mx_kNm": 5.0,
+    "Tx_kN": 10.0,
+    "As_mm2": 200.0,
+    "d_mm": 2960.0
+  },
+  {
+    "element_name": "Elemento X - Indeterminato",
+    "element_type": "custom_component",
+    "norm_code": "NTC2018",
+    "section": {"b_mm": 250, "h_mm": 400},
+    "material": {"fck_MPa": 30.0, "fyk_MPa": 450.0},
+    "Mx_kNm": 30.0,
+    "Tx_kN": 15.0,
+    "As_mm2": 400.0,
+    "d_mm": 360.0
+  }
+]

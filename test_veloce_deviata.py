@@ -32,7 +32,9 @@ print("TEST PRESSOFLESSIONE DEVIATA RD 2229/39")
 print("=" * 60)
 
 templates = get_rd2229_templates()
-template = next(t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete")
+template = next(
+    t for t in templates if t.template_id == "rd2229_ta_pressoflessione_deviata_concrete"
+)
 
 section = MockSection(width=300.0, height=500.0)
 material = MockMaterial()
@@ -53,7 +55,7 @@ result = check_pressoflessione_deviata_ta_concrete(calc_input, template)
 print(f"\nRisultato: {'OK' if result.ok else 'NON OK'}")
 print(f"Utilizzazione: {result.utilisation:.1%}")
 print("\nDettagli tecnici:")
-print(f"  Sezione: {section.width/10:.0f}x{section.height/10:.0f} cm")
+print(f"  Sezione: {section.width / 10:.0f}x{section.height / 10:.0f} cm")
 print(f"  N  = {calc_input.N:.1f} kN")
 print(f"  Mx = {calc_input.Mx:.1f} kNm")
 print(f"  My = {calc_input.My:.1f} kNm")

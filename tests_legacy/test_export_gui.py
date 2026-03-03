@@ -10,11 +10,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from libs.app_module.ui.module_selector import ModuleSelectorWindow
-
 from apps.sections.models.sections import RectangularSection
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import Material, MaterialRepository
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
 
 class TestExportBackupGUI(unittest.TestCase):
@@ -39,7 +38,9 @@ class TestExportBackupGUI(unittest.TestCase):
         self.section_repo.add_section(rect)
 
         self.material_repo = MaterialRepository(json_file=str(self.temp_path / "materials.json"))
-        mat = Material(id="MAT-001", name="Test Material", type="concrete", properties={"fck": 25.0})
+        mat = Material(
+            id="MAT-001", name="Test Material", type="concrete", properties={"fck": 25.0}
+        )
         self.material_repo.add(mat)
 
         self.serializer = CsvSectionSerializer()

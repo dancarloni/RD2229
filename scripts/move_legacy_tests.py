@@ -21,7 +21,9 @@ def find_legacy_tests(root: Path) -> list[Path]:
                             candidates.append(p)
                             raise StopIteration
                 if isinstance(node, ast.ImportFrom):
-                    if (node.module or "").startswith("tkinter") or (node.module or "").startswith("ui"):
+                    if (node.module or "").startswith("tkinter") or (node.module or "").startswith(
+                        "ui"
+                    ):
                         candidates.append(p)
                         raise StopIteration
         except StopIteration:

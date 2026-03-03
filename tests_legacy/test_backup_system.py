@@ -50,7 +50,9 @@ class TestBackupSystem(unittest.TestCase):
         repo.add_section(rect2)
 
         # Ora il backup dovrebbe esistere
-        self.assertTrue(backup_path.exists(), "Backup file dovrebbe esistere dopo il secondo salvataggio")
+        self.assertTrue(
+            backup_path.exists(), "Backup file dovrebbe esistere dopo il secondo salvataggio"
+        )
 
         # Verifica che il backup contenga i dati della prima versione
         import json
@@ -80,7 +82,9 @@ class TestBackupSystem(unittest.TestCase):
         repo.add(mat2)
 
         # Ora il backup dovrebbe esistere
-        self.assertTrue(backup_path.exists(), "Backup file dovrebbe esistere dopo il secondo salvataggio")
+        self.assertTrue(
+            backup_path.exists(), "Backup file dovrebbe esistere dopo il secondo salvataggio"
+        )
 
         # Verifica che il backup contenga i dati della prima versione
         import json
@@ -102,7 +106,9 @@ class TestBackupSystem(unittest.TestCase):
 
         # Verifica che il file temporaneo non esista dopo il salvataggio
         tmp_path = Path(self.sections_file).with_suffix(".json.tmp")
-        self.assertFalse(tmp_path.exists(), "File temporaneo non dovrebbe esistere dopo salvataggio riuscito")
+        self.assertFalse(
+            tmp_path.exists(), "File temporaneo non dovrebbe esistere dopo salvataggio riuscito"
+        )
 
         # Verifica che il file principale esista
         self.assertTrue(Path(self.sections_file).exists())
@@ -117,7 +123,9 @@ class TestBackupSystem(unittest.TestCase):
 
         # Verifica che il file temporaneo non esista dopo il salvataggio
         tmp_path = Path(self.materials_file).with_suffix(".json.tmp")
-        self.assertFalse(tmp_path.exists(), "File temporaneo non dovrebbe esistere dopo salvataggio riuscito")
+        self.assertFalse(
+            tmp_path.exists(), "File temporaneo non dovrebbe esistere dopo salvataggio riuscito"
+        )
 
         # Verifica che il file principale esista
         self.assertTrue(Path(self.materials_file).exists())

@@ -20,6 +20,8 @@ def create_module(master=None, material_repo=None, **_):
         from sections_app.ui.historical_material_window import HistoricalMaterialWindow
 
         library = HistoricalMaterialLibrary()
-        return HistoricalMaterialWindow(master=master, library=library, material_repository=material_repo)
+        return HistoricalMaterialWindow(
+            master=master, library=library, material_repository=material_repo
+        )
     except Exception:
         return _Placeholder(master)

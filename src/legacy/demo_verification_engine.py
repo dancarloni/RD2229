@@ -41,7 +41,9 @@ print(f"\nTensile reinforcement: As = {rebar_bottom.area} cm² @ d = {rebar_bott
 print(f"Compressed reinforcement: As' = {rebar_top.area} cm² @ d' = {rebar_top.distance} cm")
 
 # Get material properties from .jsoncode
-material = engine_ta.get_material_properties(concrete_class="R160", steel_type="FeB38k", material_source="RD2229")
+material = engine_ta.get_material_properties(
+    concrete_class="R160", steel_type="FeB38k", material_source="RD2229"
+)
 print("\nMaterials (RD2229):")
 print(f"  Concrete R160: σ_c,28 = {material.fck} kg/cm², E_c = {material.Ec:.0f} kg/cm²")
 print(f"  Steel FeB38k: σ_sn = {material.fyk} kg/cm², E_s = {material.Es:.0f} kg/cm²")
@@ -100,7 +102,9 @@ print("=" * 80)
 engine_slu = create_verification_engine("SLU")
 
 # Get modern material properties
-material_ntc = engine_slu.get_material_properties(concrete_class="C25_30", steel_type="B450C", material_source="NTC2018")
+material_ntc = engine_slu.get_material_properties(
+    concrete_class="C25_30", steel_type="B450C", material_source="NTC2018"
+)
 print("\nMaterials (NTC2018):")
 print(f"  Concrete C25/30: fck = {material_ntc.fck} MPa, Ecm = {material_ntc.Ec:.0f} MPa")
 print(f"  Steel B450C: fyk = {material_ntc.fyk} MPa, Es = {material_ntc.Es:.0f} MPa")
@@ -163,7 +167,8 @@ print("  (Implementation in progress - full calculation coming soon)")
 print("\n" + "=" * 80)
 print("SUMMARY")
 print("=" * 80)
-print("""
+print(
+    """
 ✅ Verification Engine Implemented
   • TA, SLU, SLE calculation methods
   • Integration with .jsoncode configuration system
@@ -189,7 +194,8 @@ print("""
   • Integration with verification_table.py
   • Graphical results (neutral axis visualization)
   • Text export functionality
-""")
+"""
+)
 
 print("=" * 80)
 print("Run 'python demo_config_system.py' for .jsoncode system demonstration")

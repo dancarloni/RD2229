@@ -9,6 +9,7 @@ Exit codes:
     0 -- valid
     1 -- invalid (prints errors to stderr)
 """
+
 from __future__ import annotations
 
 import json
