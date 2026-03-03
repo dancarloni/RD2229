@@ -9,7 +9,7 @@ import shutil
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from pydantic import BaseModel, Field
 
@@ -152,7 +152,7 @@ class DriftReport:
 
 def load_manifest(run_dir: str) -> dict[str, Any]:
     with open(os.path.join(run_dir, "manifest.json"), encoding="utf-8") as fh:
-        return json.load(fh)
+        return cast(dict[str, Any], json.load(fh))
 
 
 def replay_run(run_dir: str, replay_base: str | None = None) -> DriftReport:
