@@ -100,27 +100,28 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def _norm_dir(norm_id: str) -> Path:
-    return _NORME_DIR / norm_id
+def _norm_dir(norm_id: str, norme_dir: Path | None = None) -> Path:
+    base = norme_dir if norme_dir is not None else _NORME_DIR
+    return base / norm_id
 
 
-def _metadata_path(norm_id: str) -> Path:
-    return _norm_dir(norm_id) / "metadata.json"
+def _metadata_path(norm_id: str, norme_dir: Path | None = None) -> Path:
+    return _norm_dir(norm_id, norme_dir) / "metadata.json"
 
 
-def _extracts_dir(norm_id: str) -> Path:
-    return _norm_dir(norm_id) / "extracts"
+def _extracts_dir(norm_id: str, norme_dir: Path | None = None) -> Path:
+    return _norm_dir(norm_id, norme_dir) / "extracts"
 
 
-def load_metadata(norm_id: str) -> dict:
-    mp = _metadata_path(norm_id)
+def load_metadata(norm_id: str, norme_dir: Path | None = None) -> dict:
+    mp = _metadata_path(norm_id, norme_dir)
     if mp.exists():
         return json.loads(mp.read_text(encoding="utf-8"))
     return {}
 
 
-def save_metadata(norm_id: str, meta: dict) -> None:
-    mp = _metadata_path(norm_id)
+def save_metadata(norm_id: str, meta: dict, norme_dir: Path | None = None) -> None:
+    mp = _metadata_path(norm_id, norme_dir)
     mp.parent.mkdir(parents=True, exist_ok=True)
     mp.write_text(json.dumps(meta, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -130,13 +131,18 @@ def _clause_to_filename(clause_id: str) -> str:
     return clause_id.replace(".", "_").replace(" ", "_").replace("/", "_")
 
 
-def init_norm(norm_id: str, source_url: str = "", source_path: str = "") -> dict:
+def init_norm(
+    norm_id: str,
+    source_url: str = "",
+    source_path: str = "",
+    norme_dir: Path | None = None,
+) -> dict:
     """Initialise metadata for a norm and create directory skeleton."""
-    nd = _norm_dir(norm_id)
+    nd = _norm_dir(norm_id, norme_dir)
     nd.mkdir(parents=True, exist_ok=True)
-    _extracts_dir(norm_id).mkdir(parents=True, exist_ok=True)
+    _extracts_dir(norm_id, norme_dir).mkdir(parents=True, exist_ok=True)
 
-    meta = load_metadata(norm_id)
+    meta = load_metadata(norm_id, norme_dir)
     if not meta:
         known = KNOWN_NORMS.get(norm_id, {})
         meta = {
@@ -164,38 +170,44 @@ def init_norm(norm_id: str, source_url: str = "", source_path: str = "") -> dict
             if str(sp) not in existing_paths:
                 meta.setdefault("source_files", []).append(entry)
 
-    save_metadata(norm_id, meta)
+    save_metadata(norm_id, meta, norme_dir)
     return meta
 
 
-def add_extract(norm_id: str, clause_id: str, text: str) -> Path:
+def add_extract(
+    norm_id: str,
+    clause_id: str,
+    text: str,
+    norme_dir: Path | None = None,
+) -> Path:
     """Write or overwrite a clause extract markdown file."""
     fname = _clause_to_filename(clause_id) + ".md"
-    ep = _extracts_dir(norm_id) / fname
+    ep = _extracts_dir(norm_id, norme_dir) / fname
     ep.parent.mkdir(parents=True, exist_ok=True)
     header = f"# {norm_id} – {clause_id}\n\n"
     ep.write_text(header + text.strip() + "\n", encoding="utf-8")
 
     # Update metadata clause list
-    meta = load_metadata(norm_id)
+    meta = load_metadata(norm_id, norme_dir)
     clauses = meta.get("clauses", [])
     clause_ids = {c["id"] for c in clauses}
     if clause_id not in clause_ids:
         clauses.append({"id": clause_id, "file": f"extracts/{fname}"})
         meta["clauses"] = clauses
-        save_metadata(norm_id, meta)
+        save_metadata(norm_id, meta, norme_dir)
 
     return ep
 
 
-def list_norms() -> list[dict]:
-    """Return list of registered norms in docs/_norme/."""
-    if not _NORME_DIR.exists():
+def list_norms(norme_dir: Path | None = None) -> list[dict]:
+    """Return list of registered norms in the norme directory."""
+    base = norme_dir if norme_dir is not None else _NORME_DIR
+    if not base.exists():
         return []
     result = []
-    for nd in sorted(_NORME_DIR.iterdir()):
+    for nd in sorted(base.iterdir()):
         if nd.is_dir():
-            meta = load_metadata(nd.name)
+            meta = load_metadata(nd.name, base)
             result.append({
                 "norm_id": nd.name,
                 "title": meta.get("title", nd.name),
@@ -205,7 +217,12 @@ def list_norms() -> list[dict]:
     return result
 
 
-def download_source(norm_id: str, url: str, allow_full_save: bool = False) -> str | None:
+def download_source(
+    norm_id: str,
+    url: str,
+    allow_full_save: bool = False,
+    norme_dir: Path | None = None,
+) -> str | None:
     """Attempt to download a normative source from *url*.
 
     Requires ``--allow-full-save`` (owner authorisation).
@@ -225,7 +242,7 @@ def download_source(norm_id: str, url: str, allow_full_save: bool = False) -> st
         print("urllib not available", file=sys.stderr)
         return None
 
-    source_dir = _norm_dir(norm_id) / "source"
+    source_dir = _norm_dir(norm_id, norme_dir) / "source"
     source_dir.mkdir(parents=True, exist_ok=True)
     fname = url.rstrip("/").split("/")[-1] or f"{norm_id}_source.pdf"
     dest = source_dir / fname
@@ -264,13 +281,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
 
-    # Override norme dir if specified
-    global _NORME_DIR
-    if args.norme_dir != str(_NORME_DIR):
-        _NORME_DIR = Path(args.norme_dir)
+    # Use explicit norme_dir for all operations (no global mutation)
+    norme_dir = Path(args.norme_dir)
 
     if args.list:
-        norms = list_norms()
+        norms = list_norms(norme_dir)
         if not norms:
             print("No norms registered. Use --norm NTC2018 [--source ...] to register.")
             return 0
@@ -281,7 +296,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.show:
-        meta = load_metadata(args.show)
+        meta = load_metadata(args.show, norme_dir)
         if not meta:
             print(f"Norm '{args.show}' not found. Register it with --norm {args.show}.", file=sys.stderr)
             return 1
@@ -299,16 +314,16 @@ def main(argv: list[str] | None = None) -> int:
     local_source = args.source
     if args.url:
         if args.allow_full_save:
-            downloaded = download_source(norm_id, args.url, allow_full_save=True)
+            downloaded = download_source(norm_id, args.url, allow_full_save=True, norme_dir=norme_dir)
             if downloaded:
                 local_source = downloaded
         # Always record the URL in metadata
-        meta = init_norm(norm_id, source_url=args.url, source_path=local_source or "")
+        meta = init_norm(norm_id, source_url=args.url, source_path=local_source or "", norme_dir=norme_dir)
     else:
-        meta = init_norm(norm_id, source_path=local_source or "")
+        meta = init_norm(norm_id, source_path=local_source or "", norme_dir=norme_dir)
 
-    print(f"  Norm dir : {_norm_dir(norm_id)}")
-    print(f"  Metadata : {_metadata_path(norm_id)}")
+    print(f"  Norm dir : {_norm_dir(norm_id, norme_dir)}")
+    print(f"  Metadata : {_metadata_path(norm_id, norme_dir)}")
     print(f"  Clauses  : {len(meta.get('clauses', []))}")
 
     # Add extract if requested
@@ -319,7 +334,7 @@ def main(argv: list[str] | None = None) -> int:
         if not text:
             print("--add-extract requires --text or --text-file", file=sys.stderr)
             return 1
-        ep = add_extract(norm_id, args.add_extract, text)
+        ep = add_extract(norm_id, args.add_extract, text, norme_dir=norme_dir)
         try:
             ep_display: Path | str = ep.relative_to(_ROOT)
         except ValueError:

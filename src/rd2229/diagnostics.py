@@ -259,8 +259,8 @@ class DiagnosticsService:
 
     def save_to_file(self, path: str) -> None:
         """Persist all diagnostics data to a JSON file."""
-        import os
-        os.makedirs(os.path.dirname(os.path.abspath(path)) if os.path.dirname(path) else ".", exist_ok=True)
+        from pathlib import Path as _Path
+        _Path(path).parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(self.dump_all(), fh, indent=2, ensure_ascii=False, sort_keys=True)
         logger.info("DiagnosticsService: saved to %s", path)

@@ -52,6 +52,10 @@ NORM_ALIASES: dict[str, list[str]] = {
 
 STUB_MARKERS = ["TODO", "STUB", "raise NotImplementedError", "SKELETON", "# TODO"]
 
+# Threshold for flagging a module as having an excessive number of stub/TODO markers.
+# Modules exceeding this count receive the "high_stub_count" gap annotation.
+HIGH_STUB_THRESHOLD = 10
+
 
 def _rel(path: Path) -> str:
     """Return path relative to _ROOT, or absolute string if not under _ROOT."""
@@ -247,7 +251,7 @@ def compute_coverage(
             gaps.append("no_tests")
         if not has_docs:
             gaps.append("no_documentation")
-        if has_src and se.get("stub_count", 0) > 10:
+        if has_src and se.get("stub_count", 0) > HIGH_STUB_THRESHOLD:
             gaps.append("high_stub_count")
 
         rows.append({

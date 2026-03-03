@@ -8,6 +8,7 @@ runs verification, and produces normalized CalcOutput.
 from __future__ import annotations
 
 import dataclasses
+import datetime as _dt
 import logging
 from typing import Any
 
@@ -131,7 +132,6 @@ def calc_output_to_dict(
         Optional additional metadata fields to merge into the ``metadata``
         block.  Ignored when *include_metadata* is ``False``.
     """
-    import datetime as _dt
 
     def _norm_ref_to_dict(nr):
         return {
