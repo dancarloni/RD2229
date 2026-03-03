@@ -1,42 +1,535 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "project.schema.json",
-  "title": "ProjectModel",
-  "type": "object",
-  "properties": {
-    "meta": {
-      "type": "object",
+  "$defs": {
+    "CodeSettings": {
       "properties": {
-        "id": {"type": "string"},
-        "name": {"type": "string"},
-        "created_at": {"type": "string"},
-        "updated_at": {"type": "string"},
-        "commit_hash": {"type": "string"},
-        "schema_version": {"type": "string"}
+        "existing_structure": {
+          "default": false,
+          "title": "Existing Structure",
+          "type": "boolean"
+        },
+        "lc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lc"
+        },
+        "limit_states": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limit States",
+          "type": "array"
+        },
+        "norm_code": {
+          "default": "RD2229",
+          "title": "Norm Code",
+          "type": "string"
+        },
+        "units_force": {
+          "default": "kN",
+          "title": "Units Force",
+          "type": "string"
+        },
+        "units_length": {
+          "default": "cm",
+          "title": "Units Length",
+          "type": "string"
+        }
       },
-      "required": ["id", "name", "created_at", "updated_at", "commit_hash", "schema_version"]
+      "title": "CodeSettings",
+      "type": "object"
     },
-    "normative_profile": {
-      "type": "object",
+    "FireSettings": {
       "properties": {
-        "source_ids": {"type": "array", "items": {"type": "string"}},
-        "clauses": {"type": "array", "items": {"type": "string"}}
+        "cover_mm_default": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cover Mm Default"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "exposure_sides_default": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exposure Sides Default"
+        },
+        "required_rating_minutes": {
+          "default": 60,
+          "title": "Required Rating Minutes",
+          "type": "integer"
+        },
+        "scenario": {
+          "default": "ISO_834",
+          "title": "Scenario",
+          "type": "string"
+        }
       },
-      "required": ["source_ids"]
+      "title": "FireSettings",
+      "type": "object"
+    },
+    "GeometryEntry": {
+      "properties": {
+        "extra": {
+          "additionalProperties": true,
+          "title": "Extra",
+          "type": "object"
+        },
+        "fire_override": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fire Override"
+        },
+        "fire_selected": {
+          "default": false,
+          "title": "Fire Selected",
+          "type": "boolean"
+        },
+        "height": {
+          "default": 0.0,
+          "title": "Height",
+          "type": "number"
+        },
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "default": "",
+          "title": "Type",
+          "type": "string"
+        },
+        "width": {
+          "default": 0.0,
+          "title": "Width",
+          "type": "number"
+        }
+      },
+      "title": "GeometryEntry",
+      "type": "object"
+    },
+    "LoadEntry": {
+      "properties": {
+        "Mx": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mx"
+        },
+        "My": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "My"
+        },
+        "Mz": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mz"
+        },
+        "N": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N"
+        },
+        "Tx": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tx"
+        },
+        "Ty": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ty"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "element_id": {
+          "default": "",
+          "title": "Element Id",
+          "type": "string"
+        }
+      },
+      "title": "LoadEntry",
+      "type": "object"
+    },
+    "MaterialEntry": {
+      "properties": {
+        "extra": {
+          "additionalProperties": true,
+          "title": "Extra",
+          "type": "object"
+        },
+        "f_ck": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "F Ck"
+        },
+        "f_yk": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "F Yk"
+        },
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "material_class": {
+          "default": "",
+          "title": "Material Class",
+          "type": "string"
+        },
+        "type": {
+          "default": "",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "MaterialEntry",
+      "type": "object"
+    },
+    "ModuleConfig": {
+      "description": "Per-module configuration entry.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ModuleConfig",
+      "type": "object"
+    },
+    "NormativeProfileRef": {
+      "description": "Lightweight reference to normative sources.",
+      "properties": {
+        "clauses": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Clauses",
+          "type": "array"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        }
+      },
+      "title": "NormativeProfileRef",
+      "type": "object"
+    },
+    "ProjectInfo": {
+      "properties": {
+        "author": {
+          "default": "",
+          "title": "Author",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "",
+          "title": "Created At",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "title": "ProjectInfo",
+      "type": "object"
+    },
+    "ProjectMeta": {
+      "description": "Auditable metadata block for the project container.",
+      "properties": {
+        "commit_hash": {
+          "default": "",
+          "title": "Commit Hash",
+          "type": "string"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "created_at"
+      ],
+      "title": "ProjectMeta",
+      "type": "object"
+    },
+    "ResultsRef": {
+      "properties": {
+        "computed_at": {
+          "default": "",
+          "title": "Computed At",
+          "type": "string"
+        },
+        "results_path": {
+          "default": "",
+          "title": "Results Path",
+          "type": "string"
+        },
+        "schema_version_input": {
+          "default": "",
+          "title": "Schema Version Input",
+          "type": "string"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "title": "ResultsRef",
+      "type": "object"
+    },
+    "SeismicInputs": {
+      "properties": {
+        "class_of_use": {
+          "default": "",
+          "title": "Class Of Use",
+          "type": "string"
+        },
+        "hazard_profile": {
+          "additionalProperties": true,
+          "title": "Hazard Profile",
+          "type": "object"
+        },
+        "site_label": {
+          "default": "",
+          "title": "Site Label",
+          "type": "string"
+        },
+        "vita_nominale_years": {
+          "default": 0,
+          "title": "Vita Nominale Years",
+          "type": "integer"
+        },
+        "vr_years": {
+          "default": 0,
+          "title": "Vr Years",
+          "type": "integer"
+        }
+      },
+      "title": "SeismicInputs",
+      "type": "object"
+    }
+  },
+  "description": "Unified project model: inherits pipeline fields and adds container fields.\n\nAll container fields are optional (default-constructed) for back-compat.",
+  "properties": {
+    "code_settings": {
+      "$ref": "#/$defs/CodeSettings"
+    },
+    "fire": {
+      "$ref": "#/$defs/FireSettings"
+    },
+    "geometry": {
+      "items": {
+        "$ref": "#/$defs/GeometryEntry"
+      },
+      "title": "Geometry",
+      "type": "array"
+    },
+    "io_settings": {
+      "additionalProperties": true,
+      "title": "Io Settings",
+      "type": "object"
+    },
+    "loads": {
+      "items": {
+        "$ref": "#/$defs/LoadEntry"
+      },
+      "title": "Loads",
+      "type": "array"
+    },
+    "materials": {
+      "items": {
+        "$ref": "#/$defs/MaterialEntry"
+      },
+      "title": "Materials",
+      "type": "array"
+    },
+    "meta": {
+      "$ref": "#/$defs/ProjectMeta"
     },
     "modules": {
-      "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "name": {"type": "string"},
-          "enabled": {"type": "boolean"},
-          "params": {"type": "object"}
-        },
-        "required": ["name", "enabled", "params"]
-      }
+        "$ref": "#/$defs/ModuleConfig"
+      },
+      "title": "Modules",
+      "type": "array"
     },
-    "io_settings": {"type": "object"}
+    "normative_profile": {
+      "$ref": "#/$defs/NormativeProfileRef"
+    },
+    "pipeline_steps": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Pipeline Steps",
+      "type": "array"
+    },
+    "plugins": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Plugins",
+      "type": "object"
+    },
+    "project_info": {
+      "$ref": "#/$defs/ProjectInfo"
+    },
+    "results_ref": {
+      "$ref": "#/$defs/ResultsRef"
+    },
+    "schema_version": {
+      "default": "1.1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "seismic_inputs": {
+      "$ref": "#/$defs/SeismicInputs"
+    },
+    "wind": {
+      "title": "Wind"
+    }
   },
-  "required": ["meta", "normative_profile", "modules", "io_settings"]
+  "title": "ProjectModel",
+  "type": "object"
 }

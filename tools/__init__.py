@@ -4,4 +4,4 @@ Contiene script e helper non legati direttamente ai moduli di calcolo,
 ma utili per la gestione del repository (es. sincronizzazione verifications).
 """
 
-__all__ = []
+__all__: list[str] = []
