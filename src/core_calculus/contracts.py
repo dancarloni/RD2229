@@ -8,8 +8,16 @@ All user-facing messages must be in Italian.
 from __future__ import annotations
 
 import dataclasses
+import enum
 from dataclasses import dataclass
 from typing import Any
+
+
+class ElementRole(enum.Enum):
+    """Structural role of an element per NTC2018 §7.2.3 / EC8 §4.2.2."""
+    PRIMARY = "PRIMARY"
+    SECONDARY = "SECONDARY"
+    UNDETERMINED = "UNDETERMINED"
 
 
 @dataclass
@@ -165,6 +173,9 @@ class CalcInput:
     staffe_passo: float | None = None  # Stirrup spacing [cm or mm]
     area_ferri_piegati: float | None = None  # Bent-up bars area [cm² or mm²]
 
+    # Element role classification
+    element_role: ElementRole = ElementRole.UNDETERMINED
+
     # Extra data (for circular rebar layouts, custom parameters, etc.)
     extra: dict[str, Any] = dataclasses.field(default_factory=dict)
 
@@ -187,6 +198,8 @@ class CalcOutput:
         default_factory=dict
     )  # template_id → result
     validation_result: ValidationResult | None = None
+    element_role: ElementRole = ElementRole.UNDETERMINED
+    profile_used: str = ""  # e.g. "PROFILE_PRIMARY_FULL", "PROFILE_SECONDARY_STABILITY"
     summary_metrics: dict[str, float | bool | str] = dataclasses.field(
         default_factory=dict
     )  # e.g., {"status": "OK", "utilizzazione_massima": 0.85, "template_controllante": "ntc2018_slu_flessione"}
