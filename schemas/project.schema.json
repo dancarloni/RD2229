@@ -1,46 +1,4 @@
 {
-<<<<<<< HEAD
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "project.schema.json",
-  "title": "ProjectModel",
-  "type": "object",
-  "properties": {
-    "meta": {
-      "type": "object",
-      "properties": {
-        "id": {"type": "string"},
-        "name": {"type": "string"},
-        "created_at": {"type": "string"},
-        "updated_at": {"type": "string"},
-        "commit_hash": {"type": "string"},
-        "schema_version": {"type": "string"}
-      },
-      "required": ["id", "name", "created_at", "updated_at", "commit_hash", "schema_version"]
-    },
-    "normative_profile": {
-      "type": "object",
-      "properties": {
-        "source_ids": {"type": "array", "items": {"type": "string"}},
-        "clauses": {"type": "array", "items": {"type": "string"}}
-      },
-      "required": ["source_ids"]
-    },
-    "modules": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {"type": "string"},
-          "enabled": {"type": "boolean"},
-          "params": {"type": "object"}
-        },
-        "required": ["name", "enabled", "params"]
-      }
-    },
-    "io_settings": {"type": "object"}
-  },
-  "required": ["meta", "normative_profile", "modules", "io_settings"]
-=======
   "$defs": {
     "CodeSettings": {
       "properties": {
@@ -319,6 +277,51 @@
       "title": "MaterialEntry",
       "type": "object"
     },
+    "ModuleConfig": {
+      "description": "Per-module configuration entry.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ModuleConfig",
+      "type": "object"
+    },
+    "NormativeProfileRef": {
+      "description": "Lightweight reference to normative sources.",
+      "properties": {
+        "clauses": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Clauses",
+          "type": "array"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        }
+      },
+      "title": "NormativeProfileRef",
+      "type": "object"
+    },
     "ProjectInfo": {
       "properties": {
         "author": {
@@ -348,6 +351,45 @@
         }
       },
       "title": "ProjectInfo",
+      "type": "object"
+    },
+    "ProjectMeta": {
+      "description": "Auditable metadata block for the project container.",
+      "properties": {
+        "commit_hash": {
+          "default": "",
+          "title": "Commit Hash",
+          "type": "string"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "created_at"
+      ],
+      "title": "ProjectMeta",
       "type": "object"
     },
     "ResultsRef": {
@@ -408,7 +450,7 @@
       "type": "object"
     }
   },
-  "description": "Validated project container used by pipeline, CLI and GUI.",
+  "description": "Unified project model: inherits pipeline fields and adds container fields.\n\nAll container fields are optional (default-constructed) for back-compat.",
   "properties": {
     "code_settings": {
       "$ref": "#/$defs/CodeSettings"
@@ -423,6 +465,11 @@
       "title": "Geometry",
       "type": "array"
     },
+    "io_settings": {
+      "additionalProperties": true,
+      "title": "Io Settings",
+      "type": "object"
+    },
     "loads": {
       "items": {
         "$ref": "#/$defs/LoadEntry"
@@ -436,6 +483,19 @@
       },
       "title": "Materials",
       "type": "array"
+    },
+    "meta": {
+      "$ref": "#/$defs/ProjectMeta"
+    },
+    "modules": {
+      "items": {
+        "$ref": "#/$defs/ModuleConfig"
+      },
+      "title": "Modules",
+      "type": "array"
+    },
+    "normative_profile": {
+      "$ref": "#/$defs/NormativeProfileRef"
     },
     "pipeline_steps": {
       "items": {
@@ -472,5 +532,4 @@
   },
   "title": "ProjectModel",
   "type": "object"
->>>>>>> 101a292 (feat: project IO + schema + timeline/replay MVP (sub-issue 01))
 }
