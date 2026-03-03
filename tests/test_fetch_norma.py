@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -12,9 +11,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-import tools.fetch_norma as fn_mod
 from tools.fetch_norma import (
-    _norm_dir,
     _extracts_dir,
     add_extract,
     init_norm,
@@ -124,8 +121,18 @@ class TestCLI:
     def test_cli_add_extract(self, nd, tmp_path):
         text_file = tmp_path / "clause.txt"
         text_file.write_text("Il calcestruzzo deve rispettare le prescrizioni.", encoding="utf-8")
-        ret = main(["--norm", "NTC2018", "--add-extract", "4.1.2.1",
-                    "--text-file", str(text_file), "--norme-dir", str(nd)])
+        ret = main(
+            [
+                "--norm",
+                "NTC2018",
+                "--add-extract",
+                "4.1.2.1",
+                "--text-file",
+                str(text_file),
+                "--norme-dir",
+                str(nd),
+            ]
+        )
         assert ret == 0
         ep = _extracts_dir("NTC2018", norme_dir=nd) / "4_1_2_1.md"
         assert ep.exists()

@@ -174,9 +174,9 @@ class TestShearFactorsComplete:
     )
     def test_kappa_pair_defined(self, section_type):
         """Each section type should have kappa (y, z) pair in DEFAULT_SHEAR_KAPPAS."""
-        assert section_type in DEFAULT_SHEAR_KAPPAS, (
-            f"{section_type} missing from DEFAULT_SHEAR_KAPPAS"
-        )
+        assert (
+            section_type in DEFAULT_SHEAR_KAPPAS
+        ), f"{section_type} missing from DEFAULT_SHEAR_KAPPAS"
         ky, kz = DEFAULT_SHEAR_KAPPAS[section_type]
         assert ky > 0
         assert kz > 0

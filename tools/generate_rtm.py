@@ -122,7 +122,9 @@ def scan_norm_extracts(norme_dir: Path) -> dict[str, dict]:
 
 def scan_src_evidence(src_dir: Path) -> dict[str, dict]:
     """Return {norm_id: {modules: [...], function_count: int, stub_count: int}}."""
-    result: dict[str, dict] = {nid: {"modules": [], "function_count": 0, "stub_count": 0} for nid in NORM_ALIASES}
+    result: dict[str, dict] = {
+        nid: {"modules": [], "function_count": 0, "stub_count": 0} for nid in NORM_ALIASES
+    }
 
     for py_file in _find_py_files(src_dir):
         # Skip legacy and __pycache__
@@ -158,7 +160,9 @@ def scan_src_evidence(src_dir: Path) -> dict[str, dict]:
 
 def scan_test_evidence(tests_dir: Path) -> dict[str, dict]:
     """Return {norm_id: {test_files: [...], test_function_count: int}}."""
-    result: dict[str, dict] = {nid: {"test_files": [], "test_function_count": 0} for nid in NORM_ALIASES}
+    result: dict[str, dict] = {
+        nid: {"test_files": [], "test_function_count": 0} for nid in NORM_ALIASES
+    }
 
     for tf in _find_py_files(tests_dir):
         if any(p in ("legacy_tkinter", "legacy_qt", "__pycache__") for p in tf.parts):
@@ -259,27 +263,32 @@ def compute_coverage(
         if has_src and se.get("stub_count", 0) > HIGH_STUB_THRESHOLD:
             gaps.append("high_stub_count")
 
-        rows.append({
-            "norm_id": norm_id,
-            "title": ne.get("title", NORM_ALIASES.get(norm_id, [norm_id])[0] if norm_id in NORM_ALIASES else norm_id),
-            "coverage_pct": score,
-            "has_extract": has_extract,
-            "extract_count": ne.get("extract_count", 0),
-            "has_src": has_src,
-            "src_module_count": len(se.get("modules", [])),
-            "src_function_count": se.get("function_count", 0),
-            "stub_count": se.get("stub_count", 0),
-            "has_tests": has_tests,
-            "test_file_count": len(te.get("test_files", [])),
-            "test_function_count": te.get("test_function_count", 0),
-            "has_docs": has_docs,
-            "doc_file_count": len(de),
-            "gaps": gaps,
-            "src_modules": se.get("modules", []),
-            "test_files": te.get("test_files", []),
-            "doc_files": de,
-            "extract_files": ne.get("extract_files", []),
-        })
+        rows.append(
+            {
+                "norm_id": norm_id,
+                "title": ne.get(
+                    "title",
+                    NORM_ALIASES.get(norm_id, [norm_id])[0] if norm_id in NORM_ALIASES else norm_id,
+                ),
+                "coverage_pct": score,
+                "has_extract": has_extract,
+                "extract_count": ne.get("extract_count", 0),
+                "has_src": has_src,
+                "src_module_count": len(se.get("modules", [])),
+                "src_function_count": se.get("function_count", 0),
+                "stub_count": se.get("stub_count", 0),
+                "has_tests": has_tests,
+                "test_file_count": len(te.get("test_files", [])),
+                "test_function_count": te.get("test_function_count", 0),
+                "has_docs": has_docs,
+                "doc_file_count": len(de),
+                "gaps": gaps,
+                "src_modules": se.get("modules", []),
+                "test_files": te.get("test_files", []),
+                "doc_files": de,
+                "extract_files": ne.get("extract_files", []),
+            }
+        )
 
     return rows
 
@@ -292,10 +301,21 @@ def compute_coverage(
 def write_csv(rows: list[dict], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
-        "norm_id", "title", "coverage_pct", "has_extract", "extract_count",
-        "has_src", "src_module_count", "src_function_count", "stub_count",
-        "has_tests", "test_file_count", "test_function_count",
-        "has_docs", "doc_file_count", "gaps",
+        "norm_id",
+        "title",
+        "coverage_pct",
+        "has_extract",
+        "extract_count",
+        "has_src",
+        "src_module_count",
+        "src_function_count",
+        "stub_count",
+        "has_tests",
+        "test_file_count",
+        "test_function_count",
+        "has_docs",
+        "doc_file_count",
+        "gaps",
     ]
     with open(path, "w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, extrasaction="ignore")
@@ -404,12 +424,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--output-dir", default="docs/RTM",
-                        help="Output directory; used as base for --csv/--json/--md defaults (default: docs/RTM)")
-    parser.add_argument("--norme-dir", default="docs/_norme", help="Normative extracts dir (default: docs/_norme)")
-    parser.add_argument("--csv", default=None, help="CSV output path (default: <output-dir>/rtm.csv)")
-    parser.add_argument("--json", default=None, help="JSON output path (default: <output-dir>/rtm.json)")
-    parser.add_argument("--md", default=None, help="Markdown output path (default: <output-dir>/rtm_coverage.md)")
+    parser.add_argument(
+        "--output-dir",
+        default="docs/RTM",
+        help="Output directory; used as base for --csv/--json/--md defaults (default: docs/RTM)",
+    )
+    parser.add_argument(
+        "--norme-dir", default="docs/_norme", help="Normative extracts dir (default: docs/_norme)"
+    )
+    parser.add_argument(
+        "--csv", default=None, help="CSV output path (default: <output-dir>/rtm.csv)"
+    )
+    parser.add_argument(
+        "--json", default=None, help="JSON output path (default: <output-dir>/rtm.json)"
+    )
+    parser.add_argument(
+        "--md", default=None, help="Markdown output path (default: <output-dir>/rtm_coverage.md)"
+    )
     return parser.parse_args(argv)
 
 

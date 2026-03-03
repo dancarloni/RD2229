@@ -7,19 +7,18 @@ import sys
 import zipfile
 from pathlib import Path
 
-import pytest
-
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from tools.make_compliance_package import (
+    main as compliance_main,
+)
+from tools.make_compliance_package import (
     make_package,
     sha256_bytes,
     verify_package,
-    main as compliance_main,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -139,6 +138,7 @@ class TestVerifyPackage:
 
         # Tamper: add a file or modify content
         import io as _io
+
         buf = _io.BytesIO(out.read_bytes())
         with zipfile.ZipFile(buf, "a") as zf:
             zf.writestr("outputs/output_checks.json", b'{"tampered": true}')
@@ -165,6 +165,7 @@ class TestVerifyPackage:
 
         # Inject an extra file into the zip
         import io as _io
+
         buf = _io.BytesIO(out.read_bytes())
         with zipfile.ZipFile(buf, "a") as zf:
             zf.writestr("injected_extra.txt", b"extra")
@@ -182,9 +183,10 @@ class TestCollectRunFiles:
         sub = run_dir / "sub"
         sub.mkdir(parents=True)
         (sub / "output.json").write_text('{"ok": true}')
-        (run_dir / "project.snapshot.json").write_text('{}')
+        (run_dir / "project.snapshot.json").write_text("{}")
 
         from tools.make_compliance_package import collect_run_files
+
         files = collect_run_files(run_dir)
         # Output should be under outputs/sub/output.json, not outputs/output.json
         assert "outputs/sub/output.json" in files
@@ -196,17 +198,18 @@ class TestCollectRunFiles:
         sub2 = run_dir / "b"
         sub1.mkdir(parents=True)
         sub2.mkdir(parents=True)
-        (sub1 / "result.json").write_text('{}')
-        (sub2 / "result.json").write_text('{}')
+        (sub1 / "result.json").write_text("{}")
+        (sub2 / "result.json").write_text("{}")
         from tools.make_compliance_package import collect_run_files
+
         files = collect_run_files(run_dir)
         assert "outputs/a/result.json" in files
         assert "outputs/b/result.json" in files
 
     def test_collision_raises_value_error(self, tmp_path):
         """collect_run_files raises ValueError if two files map to the same archive path."""
+
         from tools.make_compliance_package import collect_run_files
-        import unittest.mock as mock
 
         # Simulate a scenario where two distinct real files share the same computed arc_path
         # (This can't happen via the filesystem alone, so we patch rglob to inject it)
@@ -216,8 +219,6 @@ class TestCollectRunFiles:
         f2 = run_dir / "f2.json"
         f1.write_text('{"a": 1}')
         f2.write_text('{"b": 2}')
-
-        original_fn = collect_run_files.__code__
 
         # Verify the guard works by calling the function normally first (no collision)
         files = collect_run_files(run_dir)
@@ -264,7 +265,7 @@ class TestComplianceCLI:
 class TestCalcOutputToDictMetadata:
     def _make_output(self):
         """Create a minimal CalcOutput for testing."""
-        from src.core_calculus.contracts import CalcInput, CalcOutput, ElementRole
+        from src.core_calculus.contracts import CalcInput, ElementRole
         from src.core_calculus.core.verifier_manager import VerifierManager
 
         class MockSection:
@@ -322,8 +323,9 @@ class TestCalcOutputToDictMetadata:
         from src.core_calculus.core.verifier_manager import calc_output_to_dict
 
         output = self._make_output()
-        d = calc_output_to_dict(output, include_metadata=True,
-                                metadata={"project_id": "proj_1", "run_id": "run_abc"})
+        d = calc_output_to_dict(
+            output, include_metadata=True, metadata={"project_id": "proj_1", "run_id": "run_abc"}
+        )
         assert d["metadata"]["project_id"] == "proj_1"
         assert d["metadata"]["run_id"] == "run_abc"
 

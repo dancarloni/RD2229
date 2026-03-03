@@ -175,7 +175,9 @@ def calc_output_to_dict(
         _meta: dict[str, Any] = {
             "schema_version": "1.0",
             "tool": "calc_output_to_dict",
-            "generated": generated if generated is not None else _dt.datetime.now(_dt.timezone.utc).isoformat(),
+            "generated": (
+                generated if generated is not None else _dt.datetime.now(_dt.UTC).isoformat()
+            ),
         }
         if metadata:
             _meta.update(metadata)

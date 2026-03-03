@@ -68,7 +68,7 @@ def _build_readme(run_id: str, project_id: str, generated: str, norm_ids: list[s
 Generated  : {generated}
 Project ID : {project_id}
 Run ID     : {run_id}
-Norms      : {', '.join(norm_ids) if norm_ids else 'N/A'}
+Norms      : {", ".join(norm_ids) if norm_ids else "N/A"}
 
 Contents
 --------
@@ -114,8 +114,7 @@ def collect_run_files(run_dir: Path) -> dict[str, Path]:
                 arc_path = f"outputs/{arc_path}"
             if arc_path in files:
                 raise ValueError(
-                    f"Duplicate archive path {arc_path!r} for files "
-                    f"'{files[arc_path]}' and '{fp}'"
+                    f"Duplicate archive path {arc_path!r} for files '{files[arc_path]}' and '{fp}'"
                 )
             files[arc_path] = fp
     return files
@@ -224,7 +223,9 @@ def make_package(
         }
         if extra_metadata:
             manifest_obj["extra"] = extra_metadata
-        manifest_bytes = json.dumps(manifest_obj, indent=2, ensure_ascii=False, sort_keys=True).encode("utf-8")
+        manifest_bytes = json.dumps(
+            manifest_obj, indent=2, ensure_ascii=False, sort_keys=True
+        ).encode("utf-8")
         zf.writestr("manifest.json", manifest_bytes)
 
     zip_bytes = buf.getvalue()
@@ -290,8 +291,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     group.add_argument("--run-dir", metavar="DIR", help="Path to run folder to package")
     group.add_argument("--verify", metavar="ZIP", help="Verify an existing compliance ZIP")
 
-    parser.add_argument("--output", metavar="FILE", help="Output ZIP path (default: auto-named in cwd)")
-    parser.add_argument("--norme-dir", default="docs/_norme", help="Normative extracts dir (default: docs/_norme)")
+    parser.add_argument(
+        "--output", metavar="FILE", help="Output ZIP path (default: auto-named in cwd)"
+    )
+    parser.add_argument(
+        "--norme-dir", default="docs/_norme", help="Normative extracts dir (default: docs/_norme)"
+    )
     parser.add_argument("--project-id", default="", help="Project ID override")
     return parser.parse_args(argv)
 
@@ -321,7 +326,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ERROR: Run directory not found: {run_dir}", file=sys.stderr)
         return 1
 
-    norme_dir = _ROOT / args.norme_dir if not Path(args.norme_dir).is_absolute() else Path(args.norme_dir)
+    norme_dir = (
+        _ROOT / args.norme_dir if not Path(args.norme_dir).is_absolute() else Path(args.norme_dir)
+    )
 
     if args.output:
         output_path = Path(args.output)
@@ -329,7 +336,7 @@ def main(argv: list[str] | None = None) -> int:
         ts = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         output_path = Path(f"compliance_package_{ts}.zip")
 
-    print(f"=== make_compliance_package ===")
+    print("=== make_compliance_package ===")
     print(f"Run dir   : {run_dir}")
     print(f"Norme dir : {norme_dir}")
     print(f"Output    : {output_path}")

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sys
 import threading
 from datetime import UTC, datetime
@@ -16,7 +15,6 @@ if str(_ROOT) not in sys.path:
 
 from src.rd2229.diagnostics import (
     DiagnosticEvent,
-    DiagnosticsService,
     get_diagnostics,
     reset_diagnostics,
 )
@@ -208,6 +206,7 @@ class TestQueryEvents:
     def test_since_filter_utc_suffix(self):
         """since filter works with +00:00 suffix timestamps."""
         import time
+
         diag = get_diagnostics()
         sid = diag.start_session()
         diag.record_event(sid, "tool", "before")
@@ -225,6 +224,7 @@ class TestQueryEvents:
     def test_since_filter_z_suffix(self):
         """since filter handles 'Z' suffix (UTC shorthand)."""
         import time
+
         diag = get_diagnostics()
         sid = diag.start_session()
         diag.record_event(sid, "tool", "before")

@@ -44,8 +44,8 @@ class DiagnosticEvent:
 
     session_id: str
     timestamp: str
-    source: str       # e.g. "verifier", "pipeline", "gui", "tool"
-    event_type: str   # e.g. "check_result", "error", "warning", "info"
+    source: str  # e.g. "verifier", "pipeline", "gui", "tool"
+    event_type: str  # e.g. "check_result", "error", "warning", "info"
     payload: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,7 +58,7 @@ class DiagnosticEvent:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "DiagnosticEvent":
+    def from_dict(cls, d: dict[str, Any]) -> DiagnosticEvent:
         return cls(
             session_id=d.get("session_id", ""),
             timestamp=d.get("timestamp", ""),
@@ -76,10 +76,10 @@ class DiagnosticsService:
     events; there is currently no automatic ``"_no_session"`` fallback.
     """
 
-    _instance: "DiagnosticsService | None" = None
+    _instance: DiagnosticsService | None = None
     _lock: threading.Lock = threading.Lock()
 
-    def __new__(cls) -> "DiagnosticsService":
+    def __new__(cls) -> DiagnosticsService:
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -279,6 +279,7 @@ class DiagnosticsService:
     def save_to_file(self, path: str) -> None:
         """Persist all diagnostics data to a JSON file."""
         from pathlib import Path as _Path
+
         _Path(path).parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(self.dump_all(), fh, indent=2, ensure_ascii=False, sort_keys=True)

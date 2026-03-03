@@ -50,7 +50,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--since", help="ISO-8601 timestamp: only events at or after this time")
     parser.add_argument("--limit", type=int, help="Maximum number of events to show")
     parser.add_argument("--sessions", action="store_true", help="List all sessions")
-    parser.add_argument("--load", metavar="FILE", help="Load events from a previously saved JSON file")
+    parser.add_argument(
+        "--load", metavar="FILE", help="Load events from a previously saved JSON file"
+    )
     parser.add_argument("--save", metavar="FILE", help="Save current diagnostics to a JSON file")
     parser.add_argument("--json", action="store_true", help="Output events as JSON array")
     return parser.parse_args(argv)

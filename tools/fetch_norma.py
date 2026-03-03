@@ -126,7 +126,9 @@ def load_metadata(norm_id: str, norme_dir: Path | None = None) -> dict:
 def save_metadata(norm_id: str, meta: dict, norme_dir: Path | None = None) -> None:
     mp = _metadata_path(norm_id, norme_dir)
     mp.parent.mkdir(parents=True, exist_ok=True)
-    mp.write_text(json.dumps(meta, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+    mp.write_text(
+        json.dumps(meta, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def _clause_to_filename(clause_id: str) -> str:
@@ -168,7 +170,11 @@ def init_norm(
     if source_path:
         sp = Path(source_path)
         if sp.exists():
-            entry = {"path": str(sp), "sha256": _sha256_file(sp), "registered": datetime.now(UTC).isoformat()}
+            entry = {
+                "path": str(sp),
+                "sha256": _sha256_file(sp),
+                "registered": datetime.now(UTC).isoformat(),
+            }
             existing_paths = {e["path"] for e in meta.get("source_files", [])}
             if str(sp) not in existing_paths:
                 meta.setdefault("source_files", []).append(entry)
@@ -211,12 +217,14 @@ def list_norms(norme_dir: Path | None = None) -> list[dict]:
     for nd in sorted(base.iterdir()):
         if nd.is_dir():
             meta = load_metadata(nd.name, base)
-            result.append({
-                "norm_id": nd.name,
-                "title": meta.get("title", nd.name),
-                "clauses": len(meta.get("clauses", [])),
-                "source_files": len(meta.get("source_files", [])),
-            })
+            result.append(
+                {
+                    "norm_id": nd.name,
+                    "title": meta.get("title", nd.name),
+                    "clauses": len(meta.get("clauses", [])),
+                    "source_files": len(meta.get("source_files", [])),
+                }
+            )
     return result
 
 
@@ -270,14 +278,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--norm", help="Norm ID (e.g. NTC2018, RD2229, DM96)")
     parser.add_argument("--source", help="Path to local source file (PDF/HTML) to register")
-    parser.add_argument("--url", help="URL of normative source to record (or download with --allow-full-save)")
-    parser.add_argument("--allow-full-save", action="store_true", help="Allow downloading full source (owner auth)")
-    parser.add_argument("--add-extract", metavar="CLAUSE_ID", help="Add/update a clause extract (requires --text)")
+    parser.add_argument(
+        "--url", help="URL of normative source to record (or download with --allow-full-save)"
+    )
+    parser.add_argument(
+        "--allow-full-save", action="store_true", help="Allow downloading full source (owner auth)"
+    )
+    parser.add_argument(
+        "--add-extract", metavar="CLAUSE_ID", help="Add/update a clause extract (requires --text)"
+    )
     parser.add_argument("--text", help="Text content for --add-extract")
     parser.add_argument("--text-file", help="File containing text for --add-extract")
     parser.add_argument("--list", action="store_true", help="List all registered norms")
     parser.add_argument("--show", metavar="NORM_ID", help="Show metadata for a norm")
-    parser.add_argument("--norme-dir", default=str(_NORME_DIR), help=f"Base directory for norms (default: {_NORME_DIR})")
+    parser.add_argument(
+        "--norme-dir",
+        default=str(_NORME_DIR),
+        help=f"Base directory for norms (default: {_NORME_DIR})",
+    )
     return parser.parse_args(argv)
 
 
@@ -301,7 +319,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.show:
         meta = load_metadata(args.show, norme_dir)
         if not meta:
-            print(f"Norm '{args.show}' not found. Register it with --norm {args.show}.", file=sys.stderr)
+            print(
+                f"Norm '{args.show}' not found. Register it with --norm {args.show}.",
+                file=sys.stderr,
+            )
             return 1
         print(json.dumps(meta, indent=2, ensure_ascii=False))
         return 0
@@ -317,11 +338,15 @@ def main(argv: list[str] | None = None) -> int:
     local_source = args.source
     if args.url:
         if args.allow_full_save:
-            downloaded = download_source(norm_id, args.url, allow_full_save=True, norme_dir=norme_dir)
+            downloaded = download_source(
+                norm_id, args.url, allow_full_save=True, norme_dir=norme_dir
+            )
             if downloaded:
                 local_source = downloaded
         # Always record the URL in metadata
-        meta = init_norm(norm_id, source_url=args.url, source_path=local_source or "", norme_dir=norme_dir)
+        meta = init_norm(
+            norm_id, source_url=args.url, source_path=local_source or "", norme_dir=norme_dir
+        )
     else:
         meta = init_norm(norm_id, source_path=local_source or "", norme_dir=norme_dir)
 

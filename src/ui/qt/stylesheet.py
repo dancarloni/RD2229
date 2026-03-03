@@ -229,5 +229,6 @@ class DiagnosticsPanel:
             lines.append(f"[{ts}] {ev.source}/{ev.event_type}  sid={ev.session_id[:12]}")
             if ev.payload:
                 import json
+
                 lines.append(f"  → {json.dumps(ev.payload, ensure_ascii=False)[:120]}")
         return "\n".join(lines)

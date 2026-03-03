@@ -15,15 +15,15 @@ if str(_ROOT) not in sys.path:
 
 from tools.generate_rtm import (
     compute_coverage,
-    scan_doc_evidence,
     scan_norm_extracts,
     scan_src_evidence,
     scan_test_evidence,
     write_coverage_md,
     write_csv,
     write_json,
+)
+from tools.generate_rtm import (
     main as rtm_main,
-    NORM_ALIASES,
 )
 
 
@@ -34,7 +34,13 @@ def sample_norme_dir(tmp_path):
     extracts = nd / "extracts"
     extracts.mkdir(parents=True)
     (nd / "metadata.json").write_text(
-        json.dumps({"norm_id": "NTC2018", "title": "NTC 2018", "clauses": [{"id": "4.1.2.1", "file": "extracts/4_1_2_1.md"}]}),
+        json.dumps(
+            {
+                "norm_id": "NTC2018",
+                "title": "NTC 2018",
+                "clauses": [{"id": "4.1.2.1", "file": "extracts/4_1_2_1.md"}],
+            }
+        ),
         encoding="utf-8",
     )
     (extracts / "4_1_2_1.md").write_text("# NTC2018 – 4.1.2.1\n\nTesto.", encoding="utf-8")
@@ -115,7 +121,15 @@ class TestScanTestEvidence:
 
 class TestComputeCoverage:
     def test_full_evidence_100_pct(self):
-        norme = {"NTC2018": {"has_metadata": True, "title": "NTC 2018", "clauses": [], "extract_files": ["x.md"], "extract_count": 1}}
+        norme = {
+            "NTC2018": {
+                "has_metadata": True,
+                "title": "NTC 2018",
+                "clauses": [],
+                "extract_files": ["x.md"],
+                "extract_count": 1,
+            }
+        }
         src_ev = {"NTC2018": {"modules": ["src/a.py"], "function_count": 5, "stub_count": 0}}
         test_ev = {"NTC2018": {"test_files": ["tests/t.py"], "test_function_count": 2}}
         doc_ev = {"NTC2018": ["docs/ntc.md"]}
@@ -149,14 +163,27 @@ class TestComputeCoverage:
 class TestOutputWriters:
     def test_write_csv(self, tmp_path):
         rows = [
-            {"norm_id": "NTC2018", "title": "NTC 2018", "coverage_pct": 75,
-             "has_extract": True, "extract_count": 2, "has_src": True,
-             "src_module_count": 3, "src_function_count": 20, "stub_count": 0,
-             "has_tests": True, "test_file_count": 2, "test_function_count": 8,
-             "has_docs": False, "doc_file_count": 0, "gaps": ["no_documentation"]}
+            {
+                "norm_id": "NTC2018",
+                "title": "NTC 2018",
+                "coverage_pct": 75,
+                "has_extract": True,
+                "extract_count": 2,
+                "has_src": True,
+                "src_module_count": 3,
+                "src_function_count": 20,
+                "stub_count": 0,
+                "has_tests": True,
+                "test_file_count": 2,
+                "test_function_count": 8,
+                "has_docs": False,
+                "doc_file_count": 0,
+                "gaps": ["no_documentation"],
+            }
         ]
         path = tmp_path / "rtm.csv"
         import tools.generate_rtm as grtm
+
         orig = grtm._ROOT
         grtm._ROOT = tmp_path
         try:
@@ -175,6 +202,7 @@ class TestOutputWriters:
         rows = [{"norm_id": "RD2229", "coverage_pct": 50, "gaps": []}]
         path = tmp_path / "rtm.json"
         import tools.generate_rtm as grtm
+
         orig = grtm._ROOT
         grtm._ROOT = tmp_path
         try:
@@ -186,14 +214,32 @@ class TestOutputWriters:
         assert data["norm_count"] == 1
 
     def test_write_coverage_md(self, tmp_path):
-        rows = [{"norm_id": "NTC2018", "title": "NTC 2018", "coverage_pct": 100,
-                 "has_extract": True, "extract_count": 1, "has_src": True,
-                 "src_module_count": 2, "src_function_count": 5, "stub_count": 0,
-                 "has_tests": True, "test_file_count": 1, "test_function_count": 3,
-                 "has_docs": True, "doc_file_count": 1, "gaps": [],
-                 "src_modules": [], "test_files": [], "doc_files": [], "extract_files": []}]
+        rows = [
+            {
+                "norm_id": "NTC2018",
+                "title": "NTC 2018",
+                "coverage_pct": 100,
+                "has_extract": True,
+                "extract_count": 1,
+                "has_src": True,
+                "src_module_count": 2,
+                "src_function_count": 5,
+                "stub_count": 0,
+                "has_tests": True,
+                "test_file_count": 1,
+                "test_function_count": 3,
+                "has_docs": True,
+                "doc_file_count": 1,
+                "gaps": [],
+                "src_modules": [],
+                "test_files": [],
+                "doc_files": [],
+                "extract_files": [],
+            }
+        ]
         path = tmp_path / "rtm_coverage.md"
         import tools.generate_rtm as grtm
+
         orig = grtm._ROOT
         grtm._ROOT = tmp_path
         try:
@@ -209,13 +255,20 @@ class TestOutputWriters:
 class TestRTMCLI:
     def test_cli_runs_on_actual_repo(self, tmp_path):
         """Run generate_rtm on the actual repo (smoke test)."""
-        ret = rtm_main([
-            "--output-dir", str(tmp_path / "RTM"),
-            "--csv", str(tmp_path / "rtm.csv"),
-            "--json", str(tmp_path / "rtm.json"),
-            "--md", str(tmp_path / "rtm_coverage.md"),
-            "--norme-dir", str(tmp_path / "norme"),  # empty, OK
-        ])
+        ret = rtm_main(
+            [
+                "--output-dir",
+                str(tmp_path / "RTM"),
+                "--csv",
+                str(tmp_path / "rtm.csv"),
+                "--json",
+                str(tmp_path / "rtm.json"),
+                "--md",
+                str(tmp_path / "rtm_coverage.md"),
+                "--norme-dir",
+                str(tmp_path / "norme"),  # empty, OK
+            ]
+        )
         assert ret == 0
         assert (tmp_path / "rtm.csv").exists()
         assert (tmp_path / "rtm.json").exists()
@@ -224,10 +277,14 @@ class TestRTMCLI:
     def test_output_dir_used_as_base_for_defaults(self, tmp_path):
         """--output-dir derives default paths for csv/json/md."""
         out_dir = tmp_path / "my_rtm"
-        ret = rtm_main([
-            "--output-dir", str(out_dir),
-            "--norme-dir", str(tmp_path / "norme"),
-        ])
+        ret = rtm_main(
+            [
+                "--output-dir",
+                str(out_dir),
+                "--norme-dir",
+                str(tmp_path / "norme"),
+            ]
+        )
         assert ret == 0
         assert (out_dir / "rtm.csv").exists()
         assert (out_dir / "rtm.json").exists()
@@ -238,6 +295,7 @@ class TestDocEvidenceExclusion:
     def test_norme_dir_excluded_from_doc_evidence(self, tmp_path, monkeypatch):
         """docs/_norme/ extracts should NOT count as documentation evidence."""
         import tools.generate_rtm as grtm
+
         monkeypatch.setattr(grtm, "_DOCS", tmp_path / "docs")
         monkeypatch.setattr(grtm, "_ROOT", tmp_path)
 
@@ -253,6 +311,7 @@ class TestDocEvidenceExclusion:
     def test_real_docs_counted_for_doc_evidence(self, tmp_path, monkeypatch):
         """Docs outside _norme/ and RTM/ should count as evidence."""
         import tools.generate_rtm as grtm
+
         monkeypatch.setattr(grtm, "_DOCS", tmp_path / "docs")
         monkeypatch.setattr(grtm, "_ROOT", tmp_path)
 
