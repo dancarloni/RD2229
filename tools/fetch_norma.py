@@ -30,12 +30,15 @@ Usage::
     # Show metadata for a norm
     python tools/fetch_norma.py --show NTC2018
 
-    # Add/update a clause extract
-    python tools/fetch_norma.py --norm NTC2018 --add-extract 4.1.2.1 --text "..."
+    # Add/update a clause extract (non-verbatim: references, summaries, metadata only)
+    python tools/fetch_norma.py --norm NTC2018 --add-extract 4.1.2.1 --text "Ref: NTC2018 §4.1.2.1 – armature longitudinali (vedi testo ufficiale MIT)"
 
 Policy:
     Saving the full source PDF/HTML is allowed only with explicit ``--allow-full-save``
-    flag (owner authorization). Extracts (text snippets) are always allowed.
+    flag (owner authorization).
+    Extracts MUST NOT contain verbatim normative text (see docs/MANIFESTO_GOVERNANCE.md §2.5).
+    Only non-verbatim user-authored summaries, clause references (ID, article, paragraph),
+    official links, and derived metadata/hashes are permitted in ``docs/_norme/``.
 
 Exit codes: 0 = success, 1 = error.
 """

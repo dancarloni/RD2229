@@ -195,7 +195,12 @@ def scan_doc_evidence() -> dict[str, list[str]]:
     if readme.exists():
         doc_files.append(readme)
 
+    # Exclude generated/normative dirs to avoid inflating coverage scores
+    excluded_doc_dirs = {_DOCS / "_norme", _DOCS / "RTM"}
+
     for df in doc_files:
+        if any(df.is_relative_to(excl) for excl in excluded_doc_dirs):
+            continue
         try:
             text = df.read_text(encoding="utf-8", errors="replace")
         except OSError:
@@ -399,17 +404,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--output-dir", default="docs/RTM", help="Output directory (default: docs/RTM)")
+    parser.add_argument("--output-dir", default="docs/RTM",
+                        help="Output directory; used as base for --csv/--json/--md defaults (default: docs/RTM)")
     parser.add_argument("--norme-dir", default="docs/_norme", help="Normative extracts dir (default: docs/_norme)")
-    parser.add_argument("--csv", default="docs/RTM/rtm.csv", help="CSV output path")
-    parser.add_argument("--json", default="docs/RTM/rtm.json", help="JSON output path")
-    parser.add_argument("--md", default="docs/RTM/rtm_coverage.md", help="Markdown output path")
+    parser.add_argument("--csv", default=None, help="CSV output path (default: <output-dir>/rtm.csv)")
+    parser.add_argument("--json", default=None, help="JSON output path (default: <output-dir>/rtm.json)")
+    parser.add_argument("--md", default=None, help="Markdown output path (default: <output-dir>/rtm_coverage.md)")
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     norme_dir = _ROOT / args.norme_dir
+
+    # Derive output paths: explicit flag wins, otherwise use --output-dir as base
+    out_dir = _ROOT / args.output_dir
+    csv_path = _ROOT / args.csv if args.csv else out_dir / "rtm.csv"
+    json_path = _ROOT / args.json if args.json else out_dir / "rtm.json"
+    md_path = _ROOT / args.md if args.md else out_dir / "rtm_coverage.md"
 
     print("=== tools/generate_rtm.py ===")
     print(f"Repo root  : {_ROOT}")
@@ -431,10 +443,6 @@ def main(argv: list[str] | None = None) -> int:
 
     print("Step 5/5: Computing coverage and writing outputs...")
     rows = compute_coverage(norme, src_ev, test_ev, doc_ev)
-
-    csv_path = _ROOT / args.csv
-    json_path = _ROOT / args.json
-    md_path = _ROOT / args.md
 
     write_csv(rows, csv_path)
     write_json(rows, json_path, norme, src_ev, test_ev)

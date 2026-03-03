@@ -20,9 +20,9 @@ Integration points:
     - ``src.project.timeline`` – RunRecord provides run_id as session_id
     - GUI: bind DiagnosticsService.query_events to a log-viewer widget
 
-Thread safety: internal list is append-only; no locks needed for simple
-single-process use; multi-threaded writers should use ``thread_safe=True``
-(wraps mutations in a ``threading.Lock``).
+Thread safety: mutations are protected by an internal ``threading.Lock``,
+making appends safe for multi-threaded use within a single process.  The
+service is not intended for multi-process sharing.
 """
 
 from __future__ import annotations
@@ -71,8 +71,9 @@ class DiagnosticEvent:
 class DiagnosticsService:
     """Singleton diagnostics service.
 
-    All public methods are safe to call before ``start_session``; events
-    without a session are stored under the ``"_no_session"`` pseudo-ID.
+    Events are grouped by an explicit ``session_id`` (see ``start_session``).
+    Callers are expected to provide a valid session identifier when recording
+    events; there is currently no automatic ``"_no_session"`` fallback.
     """
 
     _instance: "DiagnosticsService | None" = None
@@ -123,12 +124,21 @@ class DiagnosticsService:
         if session_id is None:
             session_id = "diag_" + datetime.now(UTC).strftime("%Y%m%d_%H%M%S_%f")
         with self._write_lock:
-            self._sessions[session_id] = {
-                "session_id": session_id,
-                "started": datetime.now(UTC).isoformat(),
-                "metadata": metadata or {},
-                "event_count": 0,
-            }
+            if session_id in self._sessions:
+                # Resume existing session: preserve started/event_count, merge new metadata.
+                session = self._sessions[session_id]
+                if metadata is not None:
+                    existing = session.get("metadata")
+                    existing = existing if isinstance(existing, dict) else {}
+                    existing.update(metadata)
+                    session["metadata"] = existing
+            else:
+                self._sessions[session_id] = {
+                    "session_id": session_id,
+                    "started": datetime.now(UTC).isoformat(),
+                    "metadata": metadata or {},
+                    "event_count": 0,
+                }
         logger.info("DiagnosticsService: session started — %s", session_id)
         return session_id
 
@@ -224,7 +234,16 @@ class DiagnosticsService:
         if event_type is not None:
             events = [e for e in events if e.event_type == event_type]
         if since is not None:
-            events = [e for e in events if e.timestamp >= since]
+            try:
+                since_dt = datetime.fromisoformat(since.replace("Z", "+00:00"))
+
+                def _ts(e: DiagnosticEvent) -> datetime:
+                    return datetime.fromisoformat(e.timestamp.replace("Z", "+00:00"))
+
+                events = [e for e in events if _ts(e) >= since_dt]
+            except ValueError:
+                # Fall back to string comparison if parsing fails
+                events = [e for e in events if e.timestamp >= since]
         if limit is not None:
             events = events[-limit:]
 

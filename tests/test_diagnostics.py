@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 import threading
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -93,6 +94,29 @@ class TestSessions:
         s = diag.get_session(sid)
         assert "ended" in s
 
+    def test_resume_session_preserves_started_and_event_count(self):
+        """Calling start_session with an existing ID should resume, not reset."""
+        diag = get_diagnostics()
+        sid = diag.start_session(session_id="resume_test")
+        diag.record_event(sid, "tool", "ev")
+        started_orig = diag.get_session(sid)["started"]
+        event_count_orig = diag.get_session(sid)["event_count"]
+
+        # Resume: should NOT reset started or event_count
+        diag.start_session(session_id="resume_test")
+        s = diag.get_session(sid)
+        assert s["started"] == started_orig
+        assert s["event_count"] == event_count_orig
+
+    def test_resume_session_merges_metadata(self):
+        """Resuming with new metadata merges into existing metadata."""
+        diag = get_diagnostics()
+        sid = diag.start_session(session_id="meta_merge", metadata={"a": 1})
+        diag.start_session(session_id="meta_merge", metadata={"b": 2})
+        s = diag.get_session(sid)
+        assert s["metadata"]["a"] == 1
+        assert s["metadata"]["b"] == 2
+
 
 # ---------------------------------------------------------------------------
 # Event recording
@@ -180,6 +204,40 @@ class TestQueryEvents:
         s1, _ = self._populate(diag)
         events = diag.query_events(session_id=s1, source="verifier")
         assert len(events) == 1
+
+    def test_since_filter_utc_suffix(self):
+        """since filter works with +00:00 suffix timestamps."""
+        import time
+        diag = get_diagnostics()
+        sid = diag.start_session()
+        diag.record_event(sid, "tool", "before")
+        time.sleep(0.01)
+        # Capture a timestamp after the first event
+        cutoff = datetime.now(UTC).isoformat()
+        time.sleep(0.01)
+        diag.record_event(sid, "tool", "after")
+
+        events = diag.query_events(session_id=sid, since=cutoff)
+        types = [e.event_type for e in events]
+        assert "after" in types
+        assert "before" not in types
+
+    def test_since_filter_z_suffix(self):
+        """since filter handles 'Z' suffix (UTC shorthand)."""
+        import time
+        diag = get_diagnostics()
+        sid = diag.start_session()
+        diag.record_event(sid, "tool", "before")
+        time.sleep(0.01)
+        cutoff_dt = datetime.now(UTC)
+        cutoff_z = cutoff_dt.strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z"
+        time.sleep(0.01)
+        diag.record_event(sid, "tool", "after")
+
+        events = diag.query_events(session_id=sid, since=cutoff_z)
+        types = [e.event_type for e in events]
+        assert "after" in types
+        assert "before" not in types
 
 
 # ---------------------------------------------------------------------------

@@ -94,7 +94,12 @@ Normative extracts are informational reference material.
 
 
 def collect_run_files(run_dir: Path) -> dict[str, Path]:
-    """Return {archive_path: local_path} for all files in the run dir."""
+    """Return {archive_path: local_path} for all files in the run dir.
+
+    JSON output files (not snapshot/record) are placed under ``outputs/``
+    while preserving their relative sub-path to avoid basename collisions.
+    Raises ``ValueError`` if two files would map to the same archive path.
+    """
     files: dict[str, Path] = {}
     for fp in sorted(run_dir.rglob("*")):
         if fp.is_file():
@@ -104,9 +109,14 @@ def collect_run_files(run_dir: Path) -> dict[str, Path]:
                 rel = fp.name
             # Normalize to forward slashes
             arc_path = rel.replace("\\", "/")
-            # Put output JSON files under outputs/
+            # Put output JSON files under outputs/, preserving relative path
             if fp.suffix == ".json" and "snapshot" not in fp.name and "record" not in fp.name:
-                arc_path = f"outputs/{fp.name}"
+                arc_path = f"outputs/{arc_path}"
+            if arc_path in files:
+                raise ValueError(
+                    f"Duplicate archive path {arc_path!r} for files "
+                    f"'{files[arc_path]}' and '{fp}'"
+                )
             files[arc_path] = fp
     return files
 
@@ -248,13 +258,20 @@ def verify_package(zip_path: Path) -> tuple[bool, list[str]]:
             return False, [f"manifest.json is not valid JSON: {exc}"]
 
         expected: dict[str, str] = manifest.get("files", {})
+        # Consider only non-directory entries
+        file_names = {name for name in names if not name.endswith("/")}
         for arc_path, expected_hash in sorted(expected.items()):
-            if arc_path not in names:
+            if arc_path not in file_names:
                 errors.append(f"MISSING: {arc_path}")
                 continue
             actual_hash = sha256_bytes(zf.read(arc_path))
             if actual_hash != expected_hash:
                 errors.append(f"HASH MISMATCH: {arc_path}")
+
+        # Flag any unexpected files not listed in the manifest
+        allowed = set(expected.keys()) | {"manifest.json"}
+        for extra in sorted(file_names - allowed):
+            errors.append(f"UNEXPECTED FILE: {extra}")
 
     return len(errors) == 0, errors
 

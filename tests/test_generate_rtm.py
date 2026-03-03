@@ -220,3 +220,46 @@ class TestRTMCLI:
         assert (tmp_path / "rtm.csv").exists()
         assert (tmp_path / "rtm.json").exists()
         assert (tmp_path / "rtm_coverage.md").exists()
+
+    def test_output_dir_used_as_base_for_defaults(self, tmp_path):
+        """--output-dir derives default paths for csv/json/md."""
+        out_dir = tmp_path / "my_rtm"
+        ret = rtm_main([
+            "--output-dir", str(out_dir),
+            "--norme-dir", str(tmp_path / "norme"),
+        ])
+        assert ret == 0
+        assert (out_dir / "rtm.csv").exists()
+        assert (out_dir / "rtm.json").exists()
+        assert (out_dir / "rtm_coverage.md").exists()
+
+
+class TestDocEvidenceExclusion:
+    def test_norme_dir_excluded_from_doc_evidence(self, tmp_path, monkeypatch):
+        """docs/_norme/ extracts should NOT count as documentation evidence."""
+        import tools.generate_rtm as grtm
+        monkeypatch.setattr(grtm, "_DOCS", tmp_path / "docs")
+        monkeypatch.setattr(grtm, "_ROOT", tmp_path)
+
+        # Create docs/_norme/NTC2018/extracts/4_1_2_1.md with norm reference
+        extract_dir = tmp_path / "docs" / "_norme" / "NTC2018" / "extracts"
+        extract_dir.mkdir(parents=True)
+        (extract_dir / "4_1_2_1.md").write_text("# NTC2018 – 4.1.2.1\n\nRef NTC2018.")
+
+        result = grtm.scan_doc_evidence()
+        # Should be empty – the extract is in _norme and must be excluded
+        assert result.get("NTC2018", []) == []
+
+    def test_real_docs_counted_for_doc_evidence(self, tmp_path, monkeypatch):
+        """Docs outside _norme/ and RTM/ should count as evidence."""
+        import tools.generate_rtm as grtm
+        monkeypatch.setattr(grtm, "_DOCS", tmp_path / "docs")
+        monkeypatch.setattr(grtm, "_ROOT", tmp_path)
+
+        # Create a real doc with NTC2018 reference
+        docs_dir = tmp_path / "docs"
+        docs_dir.mkdir(parents=True)
+        (docs_dir / "architecture.md").write_text("# Arch\n\nNTC2018 compliance.")
+
+        result = grtm.scan_doc_evidence()
+        assert len(result.get("NTC2018", [])) >= 1
