@@ -50,7 +50,7 @@ def _git_commit() -> str:
 
 
 def _now_utc() -> str:
-    return datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    return datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%d %H:%M UTC")
 
 
 def _count_py(path: Path) -> int:
