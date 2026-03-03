@@ -22,6 +22,13 @@ from .base import EligibilityResult, NormAdapter
 _INVALID_UTILISATION = 99.0
 
 
+def _safe_utilisation(demand: float, capacity: float) -> float:
+    """Compute utilisation ratio safely (demand / capacity)."""
+    if capacity > 0:
+        return demand / capacity
+    return 0.0 if demand == 0 else _INVALID_UTILISATION
+
+
 class Ntc2018Adapter(NormAdapter):
     """NTC 2018 adapter for RC element verification (ULS)."""
 
@@ -122,7 +129,7 @@ class Ntc2018Adapter(NormAdapter):
             z = d
             M_Rd = 0.0
 
-        utilisation = M_Ed / M_Rd if M_Rd > 0 else (0.0 if M_Ed == 0 else _INVALID_UTILISATION)
+        utilisation = _safe_utilisation(M_Ed, M_Rd)
         ok = utilisation <= 1.0
 
         return SingleCheckResult(
@@ -170,7 +177,7 @@ class Ntc2018Adapter(NormAdapter):
             v_min * b * d / 1000,
         )  # kN
 
-        utilisation = V_Ed / V_Rd_c if V_Rd_c > 0 else (0.0 if V_Ed == 0 else _INVALID_UTILISATION)
+        utilisation = _safe_utilisation(V_Ed, V_Rd_c)
         ok = utilisation <= 1.0
 
         return SingleCheckResult(

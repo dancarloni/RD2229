@@ -21,6 +21,13 @@ from .base import EligibilityResult, NormAdapter
 _INVALID_UTILISATION = 99.0
 
 
+def _safe_utilisation(demand: float, capacity: float) -> float:
+    """Compute utilisation ratio safely (demand / capacity)."""
+    if capacity > 0:
+        return demand / capacity
+    return 0.0 if demand == 0 else _INVALID_UTILISATION
+
+
 class Rd2229Adapter(NormAdapter):
     """RD 2229/1939 adapter for RC element verification (TA)."""
 
@@ -176,7 +183,7 @@ class Rd2229Adapter(NormAdapter):
         V = abs(ci.Tx or ci.Ty or 0.0) * 101.972  # kN -> kg
 
         tau = V / (b * d) if (b * d) > 0 else 0.0
-        utilisation = tau / tau_c0 if tau_c0 > 0 else (0.0 if tau == 0 else _INVALID_UTILISATION)
+        utilisation = _safe_utilisation(tau, tau_c0)
         ok = utilisation <= 1.0
 
         return SingleCheckResult(
