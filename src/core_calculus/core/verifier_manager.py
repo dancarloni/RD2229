@@ -111,8 +111,27 @@ class VerifierManager:
         return [self.verify(ci) for ci in inputs]
 
 
-def calc_output_to_dict(output: CalcOutput) -> dict[str, Any]:
-    """Serialize CalcOutput to a JSON-compatible dict."""
+def calc_output_to_dict(
+    output: CalcOutput,
+    *,
+    include_metadata: bool = True,
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Serialize CalcOutput to a JSON-compatible dict.
+
+    Parameters
+    ----------
+    output:
+        The :class:`CalcOutput` to serialise.
+    include_metadata:
+        When ``True`` (default) a ``metadata`` key is included with standard
+        audit fields (schema_version, tool, generated timestamp).  Set to
+        ``False`` for backward-compatible output without the key.
+    metadata:
+        Optional additional metadata fields to merge into the ``metadata``
+        block.  Ignored when *include_metadata* is ``False``.
+    """
+    import datetime as _dt
 
     def _norm_ref_to_dict(nr):
         return {
@@ -123,7 +142,7 @@ def calc_output_to_dict(output: CalcOutput) -> dict[str, Any]:
             "description_it": nr.description_it,
         }
 
-    result = {
+    result: dict[str, Any] = {
         "element_name": output.element_name,
         "norm_code": output.norm_code,
         "ok": output.ok,
@@ -146,4 +165,15 @@ def calc_output_to_dict(output: CalcOutput) -> dict[str, Any]:
             "check_category": scr.check_category,
             "limit_state": scr.limit_state,
         }
+
+    if include_metadata:
+        _meta: dict[str, Any] = {
+            "schema_version": "1.0",
+            "tool": "calc_output_to_dict",
+            "generated": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        }
+        if metadata:
+            _meta.update(metadata)
+        result["metadata"] = _meta
+
     return result
