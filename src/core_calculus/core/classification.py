@@ -4,9 +4,9 @@ Element role classification policy.
 Classifies structural elements as PRIMARY or SECONDARY based on
 configurable rules per NTC2018 §7.2.3 and EC8 §4.2.2.
 """
+
 from __future__ import annotations
 
-import dataclasses
 import re
 from dataclasses import dataclass, field
 from typing import Any
@@ -17,6 +17,7 @@ from src.core_calculus.contracts import ElementRole, NormReference
 @dataclass
 class ClassificationRule:
     """A single classification rule with rationale."""
+
     rule_id: str
     description_it: str
     condition: str  # human-readable condition description
@@ -28,6 +29,7 @@ class ClassificationRule:
 @dataclass
 class ClassificationResult:
     """Result of classifying an element."""
+
     role: ElementRole
     rationale: list[str] = field(default_factory=list)
     applied_rules: list[str] = field(default_factory=list)
@@ -41,7 +43,9 @@ _DEFAULT_RULES: list[ClassificationRule] = [
         condition="element_type in ('wall', 'partition', 'infill')",
         assigned_role=ElementRole.SECONDARY,
         norm_reference=NormReference(
-            norm_code="NTC2018", chapter="7.2", paragraph="7.2.3",
+            norm_code="NTC2018",
+            chapter="7.2",
+            paragraph="7.2.3",
             description_it="Elementi secondari: definizione e criteri",
         ),
         priority=10,
@@ -52,7 +56,9 @@ _DEFAULT_RULES: list[ClassificationRule] = [
         condition="element_type in ('beam', 'column', 'pillar')",
         assigned_role=ElementRole.PRIMARY,
         norm_reference=NormReference(
-            norm_code="NTC2018", chapter="7.2", paragraph="7.2.3",
+            norm_code="NTC2018",
+            chapter="7.2",
+            paragraph="7.2.3",
             description_it="Elementi primari: travi e pilastri del telaio",
         ),
         priority=10,
@@ -63,7 +69,9 @@ _DEFAULT_RULES: list[ClassificationRule] = [
         condition="element_type in ('foundation', 'footing', 'pile')",
         assigned_role=ElementRole.PRIMARY,
         norm_reference=NormReference(
-            norm_code="NTC2018", chapter="7.2", paragraph="7.2.5",
+            norm_code="NTC2018",
+            chapter="7.2",
+            paragraph="7.2.5",
             description_it="Fondazioni: verifiche specifiche",
         ),
         priority=10,
@@ -87,7 +95,6 @@ def classify_element(
         ClassificationResult with role, rationale, and norm references.
     """
     rules = custom_rules if custom_rules is not None else _DEFAULT_RULES
-    props = properties or {}
     et = element_type.lower().strip()
 
     matched_rules: list[ClassificationRule] = []

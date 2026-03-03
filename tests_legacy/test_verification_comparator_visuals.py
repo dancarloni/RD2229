@@ -59,7 +59,9 @@ def test_shaded_polygon_prefers_top_or_bottom_based_on_stresses():
         for i in range(n):
             xi, yi = poly[i]
             xj, yj = poly[(i + 1) % n]
-            intersect = ((yi > y) != (yj > y)) and (x < (xj - xi) * (y - yi) / (yj - yi + 1e-12) + xi)
+            intersect = ((yi > y) != (yj > y)) and (
+                x < (xj - xi) * (y - yi) / (yj - yi + 1e-12) + xi
+            )
             if intersect:
                 inside = not inside
         return inside

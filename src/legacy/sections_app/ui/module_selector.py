@@ -93,7 +93,9 @@ class ModuleSelectorController:
                 self.open_windows.append(window)
 
             # start the module in a separate thread to avoid blocking the selector UI
-            thread = threading.Thread(target=self._run_window, args=(window, module_key), daemon=True)
+            thread = threading.Thread(
+                target=self._run_window, args=(window, module_key), daemon=True
+            )
             thread.start()
             logger.info("Modulo '%s' avviato in background.", module_key)
         except Exception as e:
@@ -237,8 +239,12 @@ class ModuleSelectorWindow(Tk):
 
         tools_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Strumenti", menu=tools_menu)
-        tools_menu.add_command(label="Impostazioni Codice", command=self.controller.open_code_settings)
-        tools_menu.add_command(label="Centro Notifiche", command=self.controller.open_notification_center)
+        tools_menu.add_command(
+            label="Impostazioni Codice", command=self.controller.open_code_settings
+        )
+        tools_menu.add_command(
+            label="Centro Notifiche", command=self.controller.open_notification_center
+        )
         tools_menu.add_separator()
         tools_menu.add_command(label="Aggiorna Moduli", command=self._refresh_modules)
 

@@ -34,6 +34,7 @@ WORKFLOWS = ROOT / ".github" / "workflows"
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _git_commit() -> str:
     try:
         return (
@@ -143,6 +144,7 @@ def _tests_summary() -> dict:
 # Report builders
 # ---------------------------------------------------------------------------
 
+
 def _status_from_package(pkg: dict) -> str:
     """Derive a coarse status label from filesystem evidence only."""
     if pkg["py_files"] == 0:
@@ -199,9 +201,7 @@ def build_repo_inventory(commit: str, now: str) -> str:
         "",
     ]
     for wf in workflows:
-        lines.append(
-            f"- `{wf['path']}` ({wf['size_lines']} righe)"
-        )
+        lines.append(f"- `{wf['path']}` ({wf['size_lines']} righe)")
 
     lines += [
         "",
@@ -292,6 +292,7 @@ def build_module_index(commit: str, now: str) -> str:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(

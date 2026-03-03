@@ -9,6 +9,7 @@ Metrics per image:
 - entropy (grayscale)
 - is_uniform (True if image has <= 2 unique colors)
 """
+
 from __future__ import annotations
 
 import json

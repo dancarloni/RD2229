@@ -4,10 +4,10 @@ NTC2018 verification adapter.
 Implements ULS bending + shear checks for RC beam/column elements
 per NTC 2018 §4.1.2.
 """
+
 from __future__ import annotations
 
 import math
-from typing import Any
 
 from src.core_calculus.contracts import (
     CalcInput,
@@ -58,11 +58,17 @@ class Ntc2018Adapter(NormAdapter):
         if reasons:
             return EligibilityResult(eligible=False, reasons=reasons)
 
-        refs.append(NormReference(
-            norm_code="NTC2018", chapter="4.1", paragraph="4.1.2",
-            description_it="Verifiche allo stato limite ultimo per elementi in c.a.",
-        ))
-        return EligibilityResult(eligible=True, reasons=["Elemento RC compatibile NTC2018"], norm_references=refs)
+        refs.append(
+            NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2",
+                description_it="Verifiche allo stato limite ultimo per elementi in c.a.",
+            )
+        )
+        return EligibilityResult(
+            eligible=True, reasons=["Elemento RC compatibile NTC2018"], norm_references=refs
+        )
 
     def verify(self, calc_input: CalcInput) -> CalcOutput:
         results: dict[str, SingleCheckResult] = {}
@@ -99,8 +105,8 @@ class Ntc2018Adapter(NormAdapter):
         """ULS bending check per NTC2018 §4.1.2.1.3."""
         b = _get_width(ci)  # mm
         h = _get_height(ci)  # mm
-        d = (ci.d or (h - 40.0))  # mm, effective depth
-        As = (ci.As or 0.0)  # mm²
+        d = ci.d or (h - 40.0)  # mm, effective depth
+        As = ci.As or 0.0  # mm²
 
         fck = _get_fck(ci)  # MPa
         fyk = _get_fyk(ci)  # MPa
@@ -149,7 +155,9 @@ class Ntc2018Adapter(NormAdapter):
             },
             norm_references=[
                 NormReference(
-                    norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.1.3.1",
+                    norm_code="NTC2018",
+                    chapter="4.1",
+                    paragraph="4.1.2.1.3.1",
                     description_it="Resistenza a pressoflessione retta SLU",
                 ),
             ],
@@ -171,7 +179,7 @@ class Ntc2018Adapter(NormAdapter):
         # Concrete contribution (no stirrups) per §4.1.2.3.5.1
         k = min(1 + math.sqrt(200 / d), 2.0) if d > 0 else 1.0
         rho_l = min((ci.As or 0.0) / (b * d), 0.02) if (b * d) > 0 else 0.0
-        v_min = 0.035 * k ** 1.5 * math.sqrt(fck)
+        v_min = 0.035 * k**1.5 * math.sqrt(fck)
         V_Rd_c = max(
             (0.18 / 1.5) * k * (100 * rho_l * fck) ** (1 / 3) * b * d / 1000,
             v_min * b * d / 1000,
@@ -193,7 +201,9 @@ class Ntc2018Adapter(NormAdapter):
             },
             norm_references=[
                 NormReference(
-                    norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.3.5.1",
+                    norm_code="NTC2018",
+                    chapter="4.1",
+                    paragraph="4.1.2.3.5.1",
                     description_it="Resistenza a taglio SLU senza armatura specifica",
                 ),
             ],
@@ -204,6 +214,7 @@ class Ntc2018Adapter(NormAdapter):
 
 
 # --- Helper functions ---
+
 
 def _get_width(ci: CalcInput) -> float:
     """Extract width in mm from section or extra."""

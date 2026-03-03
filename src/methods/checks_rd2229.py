@@ -546,9 +546,11 @@ def check_flessione_ta_rett(
                     N_kg=ta_loads["N_kg"],
                     Mx_kg_cm=ta_loads["Mx_kg_cm"],
                     My_kg_cm=ta_loads["My_kg_cm"],
-                    A_cm2=ta_properties.area_equivalent
-                    if hasattr(ta_properties, "area_equivalent")
-                    else 0.0,
+                    A_cm2=(
+                        ta_properties.area_equivalent
+                        if hasattr(ta_properties, "area_equivalent")
+                        else 0.0
+                    ),
                     Wx_cm3=Wx_cm3,
                     Wy_cm3=Wy_cm3,
                 )

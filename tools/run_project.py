@@ -5,6 +5,7 @@ Usage::
 
     python tools/run_project.py path/to/project.json
 """
+
 from __future__ import annotations
 
 import json

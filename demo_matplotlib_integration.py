@@ -69,7 +69,9 @@ def demo_section_visualization():
 
     # Left: Rectangular section with reinforcement
     ax1.set_title("Sezione Rettangolare con Armatura")
-    rect = Rectangle((0, 0), 30, 50, fill=True, facecolor="lightgray", edgecolor="black", linewidth=2)
+    rect = Rectangle(
+        (0, 0), 30, 50, fill=True, facecolor="lightgray", edgecolor="black", linewidth=2
+    )
     ax1.add_patch(rect)
 
     # Add reinforcement bars (simplified)
@@ -143,7 +145,9 @@ def demo_verification_results():
     ax.plot([0, 0], [0, height], "k-", linewidth=2, label="Sezione")
 
     # Plot stress distribution
-    ax.fill_betweenx(y, 0, stress, where=(stress >= 0), color="blue", alpha=0.3, label="Compressione")
+    ax.fill_betweenx(
+        y, 0, stress, where=(stress >= 0), color="blue", alpha=0.3, label="Compressione"
+    )
     ax.fill_betweenx(y, 0, stress, where=(stress < 0), color="red", alpha=0.3, label="Trazione")
     ax.plot(stress, y, "k-", linewidth=1.5)
 

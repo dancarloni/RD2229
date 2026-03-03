@@ -62,13 +62,17 @@ def test_material_persistence_basic():
         c120_loaded = repo2.find_by_name("C120")
         assert c120_loaded is not None, "Materiale C120 non caricato"
         assert c120_loaded.type == "concrete", f"Type errato: {c120_loaded.type}"
-        assert c120_loaded.properties.get("fck") == 120, f"fck errata: {c120_loaded.properties.get('fck')}"
+        assert (
+            c120_loaded.properties.get("fck") == 120
+        ), f"fck errata: {c120_loaded.properties.get('fck')}"
         print("  ✓ Verificate proprietà materiale C120")
 
         a500_loaded = repo2.find_by_name("A500")
         assert a500_loaded is not None, "Materiale A500 non caricato"
         assert a500_loaded.type == "steel", f"Type errato: {a500_loaded.type}"
-        assert a500_loaded.properties.get("fyk") == 500, f"fyk errata: {a500_loaded.properties.get('fyk')}"
+        assert (
+            a500_loaded.properties.get("fyk") == 500
+        ), f"fyk errata: {a500_loaded.properties.get('fyk')}"
         print("  ✓ Verificate proprietà materiale A500")
 
     print("\n✅ TEST 1 PASSATO\n")
@@ -99,7 +103,9 @@ def test_material_persistence_update_delete():
 
         # Modifica un materiale
         print("\n[2] Modifica materiale...")
-        c120_modified = Material(id=c120_id, name="C120_Modified", type="concrete", properties={"fck": 125})
+        c120_modified = Material(
+            id=c120_id, name="C120_Modified", type="concrete", properties={"fck": 125}
+        )
         repo1.update(c120_id, c120_modified)
         print(f"  ✓ Modificato materiale {c120_id[:8]}...")
 
@@ -118,7 +124,9 @@ def test_material_persistence_update_delete():
 
         loaded_material = loaded_materials[0]
         assert loaded_material.name == "C120_Modified", f"Name errato: {loaded_material.name}"
-        assert loaded_material.properties.get("fck") == 125, f"fck errata: {loaded_material.properties.get('fck')}"
+        assert (
+            loaded_material.properties.get("fck") == 125
+        ), f"fck errata: {loaded_material.properties.get('fck')}"
         print("  ✓ Verificate proprietà modificate")
 
     print("\n✅ TEST 2 PASSATO\n")

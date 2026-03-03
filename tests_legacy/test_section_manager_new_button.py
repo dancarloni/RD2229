@@ -5,10 +5,9 @@ from unittest.mock import MagicMock, patch
 
 os.environ["DISPLAY"] = ":0"
 
-from libs.app_module.ui.module_selector import ModuleSelectorWindow
-
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 from libs.app_module.ui.main_window import MainWindow
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
 
 class TestSectionManagerNewButton(unittest.TestCase):
@@ -38,7 +37,10 @@ class TestSectionManagerNewButton(unittest.TestCase):
                 self.assertTrue(getattr(manager, "winfo_exists", lambda: False)())
             finally:
                 try:
-                    if getattr(main, "section_manager", None) is not None and main.section_manager.winfo_exists():
+                    if (
+                        getattr(main, "section_manager", None) is not None
+                        and main.section_manager.winfo_exists()
+                    ):
                         main.section_manager.destroy()
                 except Exception:  # nosec
                     pass

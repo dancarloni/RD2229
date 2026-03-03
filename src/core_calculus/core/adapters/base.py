@@ -5,23 +5,19 @@ Each norm adapter implements:
 - applicability(): whether this adapter can verify a given element
 - verify(): perform the verification and return a CalcOutput
 """
+
 from __future__ import annotations
 
 import abc
 from dataclasses import dataclass, field
-from typing import Any
 
-from src.core_calculus.contracts import (
-    CalcInput,
-    CalcOutput,
-    NormReference,
-    SingleCheckResult,
-)
+from src.core_calculus.contracts import CalcInput, CalcOutput, NormReference
 
 
 @dataclass
 class EligibilityResult:
     """Result of checking whether an adapter is applicable."""
+
     eligible: bool
     reasons: list[str] = field(default_factory=list)
     norm_references: list[NormReference] = field(default_factory=list)

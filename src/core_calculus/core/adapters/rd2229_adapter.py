@@ -4,6 +4,7 @@ RD 2229/1939 verification adapter.
 Implements TA (Tensioni Ammissibili) bending + shear checks for RC elements
 per Regio Decreto 2229/1939.
 """
+
 from __future__ import annotations
 
 import math
@@ -57,12 +58,17 @@ class Rd2229Adapter(NormAdapter):
         if reasons:
             return EligibilityResult(eligible=False, reasons=reasons)
 
-        refs.append(NormReference(
-            norm_code="RD2229", chapter="Art. 7-9",
-            paragraph="Art. 7",
-            description_it="Verifica sezioni in c.a. con metodo tensioni ammissibili",
-        ))
-        return EligibilityResult(eligible=True, reasons=["Elemento RC compatibile RD2229"], norm_references=refs)
+        refs.append(
+            NormReference(
+                norm_code="RD2229",
+                chapter="Art. 7-9",
+                paragraph="Art. 7",
+                description_it="Verifica sezioni in c.a. con metodo tensioni ammissibili",
+            )
+        )
+        return EligibilityResult(
+            eligible=True, reasons=["Elemento RC compatibile RD2229"], norm_references=refs
+        )
 
     def verify(self, calc_input: CalcInput) -> CalcOutput:
         results: dict[str, SingleCheckResult] = {}
@@ -100,7 +106,7 @@ class Rd2229Adapter(NormAdapter):
         b = _get_width_cm(ci)  # cm
         h = _get_height_cm(ci)  # cm
         d = (ci.d or (h * 10 - 40)) / 10  # convert mm to cm if needed
-        As = (ci.As or 0.0)  # cm²
+        As = ci.As or 0.0  # cm²
 
         sigma_c28 = _get_sigma_c28(ci)  # kg/cm²
         sigma_sn = _get_sigma_sn(ci)  # kg/cm²
@@ -121,7 +127,7 @@ class Rd2229Adapter(NormAdapter):
             a_coeff = b / 2.0
             b_coeff = n * As
             c_coeff = -n * As * d
-            disc = b_coeff ** 2 - 4 * a_coeff * c_coeff
+            disc = b_coeff**2 - 4 * a_coeff * c_coeff
             x = (-b_coeff + math.sqrt(max(disc, 0))) / (2 * a_coeff)
             x = max(x, 0.0)
         else:
@@ -160,7 +166,8 @@ class Rd2229Adapter(NormAdapter):
             },
             norm_references=[
                 NormReference(
-                    norm_code="RD2229", chapter="Art. 7-8",
+                    norm_code="RD2229",
+                    chapter="Art. 7-8",
                     paragraph="Art. 7",
                     description_it="Tensioni ammissibili: flessione e pressoflessione",
                 ),
@@ -197,7 +204,8 @@ class Rd2229Adapter(NormAdapter):
             },
             norm_references=[
                 NormReference(
-                    norm_code="RD2229", chapter="Art. 9",
+                    norm_code="RD2229",
+                    chapter="Art. 9",
                     paragraph="Art. 9",
                     description_it="Tensioni tangenziali ammissibili senza armatura specifica",
                 ),
@@ -209,6 +217,7 @@ class Rd2229Adapter(NormAdapter):
 
 
 # --- Helper functions ---
+
 
 def _get_width_cm(ci: CalcInput) -> float:
     """Extract width in cm."""

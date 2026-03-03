@@ -36,7 +36,11 @@ def _export(project: str, output: str) -> dict[str, object]:
             "html": str(html_path),
             "markdown": str(md_path),
         }
-    except (ImportError, FileNotFoundError, RuntimeError) as exc:  # plugin errors must not crash the app
+    except (
+        ImportError,
+        FileNotFoundError,
+        RuntimeError,
+    ) as exc:  # plugin errors must not crash the app
         return {"ok": False, "error": str(exc)}
 
 

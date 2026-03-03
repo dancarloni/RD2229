@@ -5,11 +5,10 @@ from unittest.mock import patch
 
 os.environ["DISPLAY"] = ":0"  # Set display for headless environments
 
-from libs.app_module.ui.module_selector import ModuleSelectorWindow
-
 from apps.sections.models.sections import RectangularSection
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import MaterialRepository
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
 
 class TestModuleSelectorSectionButton(unittest.TestCase):
@@ -44,7 +43,9 @@ class TestModuleSelectorSectionButton(unittest.TestCase):
                     return None
 
                 button = find_button(window)
-                self.assertIsNotNone(button, "Button 'Open Sections' not found in ModuleSelectorWindow")
+                self.assertIsNotNone(
+                    button, "Button 'Open Sections' not found in ModuleSelectorWindow"
+                )
             finally:
                 if window.winfo_exists():
                     window.destroy()
@@ -117,7 +118,10 @@ class TestModuleSelectorSectionButton(unittest.TestCase):
             finally:
                 # Close carbon_fiber_placeholder if opened
                 try:
-                    if getattr(window, "_geometry_window", None) is not None and window._geometry_window.winfo_exists():
+                    if (
+                        getattr(window, "_geometry_window", None) is not None
+                        and window._geometry_window.winfo_exists()
+                    ):
                         window._geometry_window.destroy()
                 except Exception:  # nosec
                     pass

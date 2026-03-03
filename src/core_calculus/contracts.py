@@ -15,6 +15,7 @@ from typing import Any
 
 class ElementRole(enum.Enum):
     """Structural role of an element per NTC2018 §7.2.3 / EC8 §4.2.2."""
+
     PRIMARY = "PRIMARY"
     SECONDARY = "SECONDARY"
     UNDETERMINED = "UNDETERMINED"

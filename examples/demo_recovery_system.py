@@ -151,7 +151,9 @@ def scenario_4_save_after_recovery():
         print(f"  - Materiali recuperati: {len(repo.get_all())}")
 
         # Aggiungi un nuovo materiale
-        new_concrete = Material(id="C30/37", name="Calcestruzzo C30/37", type="concrete", properties={"fck": 30.0})
+        new_concrete = Material(
+            id="C30/37", name="Calcestruzzo C30/37", type="concrete", properties={"fck": 30.0}
+        )
         repo.add(new_concrete)
 
         print(f"\n✓ Aggiunto nuovo materiale: {new_concrete.name}")

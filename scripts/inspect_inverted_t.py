@@ -7,7 +7,9 @@ if ROOT not in sys.path:
 from sections_app.models.sections import InvertedTSection
 from sections_app.section_calculations import section_to_geometry
 
-sec = InvertedTSection(name="it", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0)
+sec = InvertedTSection(
+    name="it", flange_width=10.0, flange_thickness=2.0, web_thickness=1.0, web_height=8.0
+)
 old = sec.compute_properties()
 print("old area", old.area)
 geom = section_to_geometry(sec)

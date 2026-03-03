@@ -3,20 +3,17 @@ Tests for structural verification adapters (NTC2018 + RD2229).
 
 Unit tests for each adapter and integration test for VerifierManager.
 """
+
 from __future__ import annotations
 
 import json
 from dataclasses import dataclass
 
-import pytest
-
 from src.core_calculus.contracts import CalcInput, CalcOutput, ElementRole
-from src.core_calculus.core.adapters.base import NormAdapter
 from src.core_calculus.core.adapters.ntc2018_adapter import Ntc2018Adapter
 from src.core_calculus.core.adapters.rd2229_adapter import Rd2229Adapter
-from src.core_calculus.core.classification import classify_element, ClassificationResult
+from src.core_calculus.core.classification import classify_element
 from src.core_calculus.core.verifier_manager import VerifierManager, calc_output_to_dict
-
 
 # ── Mock objects ──────────────────────────────────────────────────────
 
@@ -24,6 +21,7 @@ from src.core_calculus.core.verifier_manager import VerifierManager, calc_output
 @dataclass
 class MockSection:
     """Mock rectangular section (mm)."""
+
     b: float = 300.0
     h: float = 500.0
 
@@ -39,6 +37,7 @@ class MockSection:
 @dataclass
 class MockMaterial:
     """Mock modern material (MPa)."""
+
     fck: float = 25.0
     fyk: float = 450.0
 
@@ -46,6 +45,7 @@ class MockMaterial:
 @dataclass
 class MockRD2229Material:
     """Mock RD2229 material (kg/cm²)."""
+
     sigma_c28: float = 160.0
     sigma_sn: float = 3800.0
     n: float = 15.0

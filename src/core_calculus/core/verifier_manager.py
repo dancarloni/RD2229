@@ -4,6 +4,7 @@ Multi-norm verifier manager.
 Selects appropriate adapter(s) based on CalcInput configuration,
 runs verification, and produces normalized CalcOutput.
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -68,9 +69,7 @@ class VerifierManager:
             element_type = calc_input.extra.get("element_type", "")
             if element_type:
                 classification = classify_element(element_type)
-                calc_input = dataclasses.replace(
-                    calc_input, element_role=classification.role
-                )
+                calc_input = dataclasses.replace(calc_input, element_role=classification.role)
 
         # Find adapter
         adapter = None
@@ -82,7 +81,10 @@ class VerifierManager:
                     norm_code=calc_input.norm_code,
                     ok=False,
                     element_role=calc_input.element_role,
-                    summary_metrics={"status": "ERRORE", "motivo": f"Adapter '{calc_input.norm_code}' non trovato"},
+                    summary_metrics={
+                        "status": "ERRORE",
+                        "motivo": f"Adapter '{calc_input.norm_code}' non trovato",
+                    },
                 )
         else:
             for a in self._adapters:
@@ -99,7 +101,9 @@ class VerifierManager:
                 summary_metrics={"status": "ERRORE", "motivo": "Nessun adapter applicabile"},
             )
 
-        logger.info("Verifica elemento '%s' con adapter '%s'", calc_input.element_name, adapter.norm_code)
+        logger.info(
+            "Verifica elemento '%s' con adapter '%s'", calc_input.element_name, adapter.norm_code
+        )
         return adapter.verify(calc_input)
 
     def verify_bulk(self, inputs: list[CalcInput]) -> list[CalcOutput]:
@@ -109,6 +113,7 @@ class VerifierManager:
 
 def calc_output_to_dict(output: CalcOutput) -> dict[str, Any]:
     """Serialize CalcOutput to a JSON-compatible dict."""
+
     def _norm_ref_to_dict(nr):
         return {
             "norm_code": nr.norm_code,
@@ -122,7 +127,11 @@ def calc_output_to_dict(output: CalcOutput) -> dict[str, Any]:
         "element_name": output.element_name,
         "norm_code": output.norm_code,
         "ok": output.ok,
-        "element_role": output.element_role.value if isinstance(output.element_role, ElementRole) else str(output.element_role),
+        "element_role": (
+            output.element_role.value
+            if isinstance(output.element_role, ElementRole)
+            else str(output.element_role)
+        ),
         "profile_used": output.profile_used,
         "summary_metrics": output.summary_metrics,
         "checks": {},
