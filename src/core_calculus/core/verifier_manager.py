@@ -8,6 +8,7 @@ runs verification, and produces normalized CalcOutput.
 from __future__ import annotations
 
 import dataclasses
+import datetime as _dt
 import logging
 from typing import Any
 
@@ -111,8 +112,31 @@ class VerifierManager:
         return [self.verify(ci) for ci in inputs]
 
 
-def calc_output_to_dict(output: CalcOutput) -> dict[str, Any]:
-    """Serialize CalcOutput to a JSON-compatible dict."""
+def calc_output_to_dict(
+    output: CalcOutput,
+    *,
+    include_metadata: bool = False,
+    metadata: dict[str, Any] | None = None,
+    generated: str | None = None,
+) -> dict[str, Any]:
+    """Serialize CalcOutput to a JSON-compatible dict.
+
+    Parameters
+    ----------
+    output:
+        The :class:`CalcOutput` to serialise.
+    include_metadata:
+        When ``True`` a ``metadata`` key is included with standard audit
+        fields (schema_version, tool, generated timestamp).  Defaults to
+        ``False`` to preserve the original output shape for existing callers.
+    metadata:
+        Optional additional metadata fields to merge into the ``metadata``
+        block.  Ignored when *include_metadata* is ``False``.
+    generated:
+        Optional ISO-8601 timestamp to use as the ``generated`` field.
+        When omitted, the current UTC time is used.  Supply a fixed value
+        (e.g. the run timestamp) to produce deterministic, audit-safe output.
+    """
 
     def _norm_ref_to_dict(nr):
         return {
@@ -123,7 +147,7 @@ def calc_output_to_dict(output: CalcOutput) -> dict[str, Any]:
             "description_it": nr.description_it,
         }
 
-    result = {
+    result: dict[str, Any] = {
         "element_name": output.element_name,
         "norm_code": output.norm_code,
         "ok": output.ok,
@@ -146,4 +170,17 @@ def calc_output_to_dict(output: CalcOutput) -> dict[str, Any]:
             "check_category": scr.check_category,
             "limit_state": scr.limit_state,
         }
+
+    if include_metadata:
+        _meta: dict[str, Any] = {
+            "schema_version": "1.0",
+            "tool": "calc_output_to_dict",
+            "generated": (
+                generated if generated is not None else _dt.datetime.now(_dt.UTC).isoformat()
+            ),
+        }
+        if metadata:
+            _meta.update(metadata)
+        result["metadata"] = _meta
+
     return result

@@ -54,9 +54,9 @@ def test_pipeline_wind_in_extra():
     project = _project_with_wind()
     results = run_pipeline(project)
 
-    assert "wind" in results.extra, (
-        f"Risultati vento mancanti in results.extra; extra keys: {list(results.extra.keys())}"
-    )
+    assert (
+        "wind" in results.extra
+    ), f"Risultati vento mancanti in results.extra; extra keys: {list(results.extra.keys())}"
 
 
 def test_pipeline_wind_has_profile():
@@ -121,6 +121,6 @@ def test_pipeline_wind_profile_monotonic():
     for i in range(1, len(profile)):
         v_prev = profile[i - 1].get("v_m_s", 0)
         v_curr = profile[i].get("v_m_s", 0)
-        assert v_curr >= v_prev * 0.95, (
-            f"Profilo non monotono: v[{i}]={v_curr} < v[{i - 1}]={v_prev}"
-        )
+        assert (
+            v_curr >= v_prev * 0.95
+        ), f"Profilo non monotono: v[{i}]={v_curr} < v[{i - 1}]={v_prev}"
