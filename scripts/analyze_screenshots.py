@@ -9,18 +9,17 @@ Metrics per image:
 - entropy (grayscale)
 - is_uniform (True if image has <= 2 unique colors)
 """
+
 from __future__ import annotations
 
 import json
 import math
 import os
-from collections import Counter
-from typing import List
 
 from PIL import Image
 
 
-def channel_stats(pixels: List[int], channel_count: int) -> List[tuple]:
+def channel_stats(pixels: list[int], channel_count: int) -> list[tuple]:
     # pixels is a flat list of ints (0..255) in channel-major order per pixel
     totals = [0.0] * channel_count
     totalsq = [0.0] * channel_count
@@ -42,7 +41,7 @@ def channel_stats(pixels: List[int], channel_count: int) -> List[tuple]:
     return stats
 
 
-def shannon_entropy(hist: List[int], total: int) -> float:
+def shannon_entropy(hist: list[int], total: int) -> float:
     if total <= 0:
         return 0.0
     ent = 0.0
@@ -88,7 +87,7 @@ def analyze_image(path: str) -> dict:
     }
 
 
-def find_images(root: str) -> List[str]:
+def find_images(root: str) -> list[str]:
     exts = {".png", ".jpg", ".jpeg", ".bmp", ".gif"}
     out = []
     for dirpath, _, filenames in os.walk(root):

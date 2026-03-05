@@ -11,6 +11,39 @@ python -c "import pydantic; print(pydantic.__version__)"
 ```
 
 Se il comando stampa una versione >=2,<3, l’ambiente è pronto.
+## ⚠️ Policy obbligatoria: Linting e Formatting pre-commit
+
+**IMPORTANTE:** Prima di ogni commit/push, è **obbligatorio** eseguire questi comandi per evitare fallimenti CI su GitHub:
+
+```bash
+# 1. Fix automatico errori linting
+python -m ruff check . --fix
+
+# 2. Formatting automatico
+python -m ruff format .
+
+# 3. Ordinamento import
+python -m isort . --profile black --line-length 100
+
+# 4. Formatting con black
+python -m black . --line-length 100
+
+# 5. Verifica finale
+python -m ruff check .
+python -m flake8 .
+```
+
+**Perché questo è necessario:** Gli errori di linting/import che non emergono in locale possono causare fallimenti CI su GitHub a causa di:
+- Differenze di ambiente (versioni tool, Python, dipendenze)
+- Comandi non eseguiti localmente prima del push
+- Cache locali che mascherano errori
+
+**Best practice:**
+- Eseguire questi comandi **prima** di ogni `git commit`
+- Verificare che `ruff check .` restituisca "All checks passed!"
+- I test devono passare: `pytest -q`
+
+Se hai dubbi sulla coerenza locale/CI, usa Docker o GitHub Codespaces per replicare l'ambiente CI.
 
 # RD2229
 

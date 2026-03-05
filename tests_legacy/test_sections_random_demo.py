@@ -28,7 +28,9 @@ class TestRectangularSectionProperties(unittest.TestCase):
                 width = random.uniform(10.0, 100.0)
                 height = random.uniform(10.0, 100.0)
 
-                section = RectangularSection(name=f"Rect_Random_{i+1}", width=width, height=height)
+                section = RectangularSection(
+                    name=f"Rect_Random_{i + 1}", width=width, height=height
+                )
 
                 props = section.compute_properties()
 
@@ -59,10 +61,14 @@ class TestRectangularSectionProperties(unittest.TestCase):
                 )
 
                 ix_teorico = (width * height**3) / 12
-                self.assertAlmostEqual(props.ix, ix_teorico, places=6, msg="Ix deve corrispondere a b*h³/12")
+                self.assertAlmostEqual(
+                    props.ix, ix_teorico, places=6, msg="Ix deve corrispondere a b*h³/12"
+                )
 
                 iy_teorico = (height * width**3) / 12
-                self.assertAlmostEqual(props.iy, iy_teorico, places=6, msg="Iy deve corrispondere a h*b³/12")
+                self.assertAlmostEqual(
+                    props.iy, iy_teorico, places=6, msg="Iy deve corrispondere a h*b³/12"
+                )
 
                 # Baricentro al centro del rettangolo
                 self.assertAlmostEqual(props.centroid_x, width / 2, places=6)
@@ -82,7 +88,7 @@ class TestCircularSectionProperties(unittest.TestCase):
                 # Diametro casuale tra 10 e 100 cm
                 diameter = random.uniform(10.0, 100.0)
 
-                section = CircularSection(name=f"Circle_Random_{i+1}", diameter=diameter)
+                section = CircularSection(name=f"Circle_Random_{i + 1}", diameter=diameter)
 
                 props = section.compute_properties()
                 radius = diameter / 2
@@ -114,7 +120,9 @@ class TestCircularSectionProperties(unittest.TestCase):
                 )
 
                 i_teorico = (math.pi * radius**4) / 4
-                self.assertAlmostEqual(props.ix, i_teorico, places=6, msg="Ix deve corrispondere a π*r⁴/4")
+                self.assertAlmostEqual(
+                    props.ix, i_teorico, places=6, msg="Ix deve corrispondere a π*r⁴/4"
+                )
 
                 self.assertAlmostEqual(
                     props.iy,
@@ -148,7 +156,7 @@ class TestTSectionProperties(unittest.TestCase):
                 web_height = random.uniform(10.0, 80.0)
 
                 section = TSection(
-                    name=f"T_Random_{i+1}",
+                    name=f"T_Random_{i + 1}",
                     flange_width=flange_width,
                     flange_thickness=flange_thickness,
                     web_thickness=web_thickness,
@@ -177,7 +185,9 @@ class TestTSectionProperties(unittest.TestCase):
                 self.assertFalse(math.isnan(props.centroid_y), "Centroid_y non deve essere NaN")
 
                 # Area approssimativa: ala + anima
-                area_approssimativa = (flange_width * flange_thickness) + (web_height * web_thickness)
+                area_approssimativa = (flange_width * flange_thickness) + (
+                    web_height * web_thickness
+                )
                 # L'area calcolata deve essere ragionevole (entro 10% per approssimazione)
                 self.assertAlmostEqual(
                     props.area,

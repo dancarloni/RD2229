@@ -2,6 +2,7 @@
 Script: generate_modules_from_docs.py
 Genera/aggiorna modules_config.json e stub Python per tutti i moduli richiesti dalla documentazione.
 """
+
 import json
 import os
 
@@ -41,7 +42,7 @@ MODULES = [
 
 CONFIG_PATH = "modules/modules_config.json"
 
-MODULE_SPEC_TEMPLATE = '''MODULE_SPEC = {{
+MODULE_SPEC_TEMPLATE = """MODULE_SPEC = {{
     "key": "{key}",
     "name": "{name}",
     "description": "{description}"
@@ -56,7 +57,8 @@ class _Placeholder:
 def create_module(master=None, **context):
     # TODO: implement real window logic
     return _Placeholder(master)
-'''
+"""
+
 
 def main():
     # Update modules_config.json
@@ -70,6 +72,7 @@ def main():
             with open(m["path"], "w", encoding="utf-8") as f:
                 f.write(MODULE_SPEC_TEMPLATE.format(**m))
     print(f"Aggiornato {CONFIG_PATH} e stub moduli.")
+
 
 if __name__ == "__main__":
     main()

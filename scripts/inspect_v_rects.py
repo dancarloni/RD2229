@@ -65,7 +65,12 @@ def rect_area(rect):
 print("left area", rect_area(left_rect))
 print(
     "left edge lengths",
-    [math.hypot(left_rect[i][0] - left_rect[(i + 1) % 4][0], left_rect[i][1] - left_rect[(i + 1) % 4][1]) for i in range(4)],
+    [
+        math.hypot(
+            left_rect[i][0] - left_rect[(i + 1) % 4][0], left_rect[i][1] - left_rect[(i + 1) % 4][1]
+        )
+        for i in range(4)
+    ],
 )
 # try different orders for right_rect
 chosen = [
@@ -86,7 +91,10 @@ for i, o in enumerate(orders):
     if len(o) >= 4:
         print(
             " edge lengths:",
-            [math.hypot(o[j][0] - o[(j + 1) % 4][0], o[j][1] - o[(j + 1) % 4][1]) for j in range(4)],
+            [
+                math.hypot(o[j][0] - o[(j + 1) % 4][0], o[j][1] - o[(j + 1) % 4][1])
+                for j in range(4)
+            ],
         )
 print("sum with best order", rect_area(left_rect) + max(rect_area(o) for o in orders))
 # overlap area by intersection approx? not computed

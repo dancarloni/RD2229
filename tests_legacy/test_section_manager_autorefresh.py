@@ -101,9 +101,15 @@ class TestSectionManagerAutoRefresh(unittest.TestCase):
 
         # Verifica che _on_sections_changed sia stato rimosso
         self.assertNotIn(manager._on_sections_changed, event_bus._listeners.get(SECTIONS_ADDED, []))
-        self.assertNotIn(manager._on_sections_changed, event_bus._listeners.get(SECTIONS_UPDATED, []))
-        self.assertNotIn(manager._on_sections_changed, event_bus._listeners.get(SECTIONS_DELETED, []))
-        self.assertNotIn(manager._on_sections_changed, event_bus._listeners.get(SECTIONS_CLEARED, []))
+        self.assertNotIn(
+            manager._on_sections_changed, event_bus._listeners.get(SECTIONS_UPDATED, [])
+        )
+        self.assertNotIn(
+            manager._on_sections_changed, event_bus._listeners.get(SECTIONS_DELETED, [])
+        )
+        self.assertNotIn(
+            manager._on_sections_changed, event_bus._listeners.get(SECTIONS_CLEARED, [])
+        )
 
     def test_autorefresh_quando_repository_emette_sections_added(self):
         """Verifica che il manager si aggiorni automaticamente quando si aggiungono sezioni."""

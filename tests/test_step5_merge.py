@@ -161,9 +161,9 @@ def test_pipeline_step5_skipped_when_lc_none():
         for w in results.warnings
     )
     has_trace = any("lc_None" in t or "no_applicable_templates" in t for t in results.trace)
-    assert has_warning or has_trace, (
-        f"Atteso warning/trace per lc=None; " f"warnings={results.warnings}, trace={results.trace}"
-    )
+    assert (
+        has_warning or has_trace
+    ), f"Atteso warning/trace per lc=None; warnings={results.warnings}, trace={results.trace}"
 
 
 def test_pipeline_ok_invariant_without_step5():

@@ -374,7 +374,9 @@ def compute_sigma_concrete_biaxial_ta(
     return sigma_max
 
 
-def apply_slenderness_reduction_ta(sigma_c_adm: float, b_cm: float, h_cm: float) -> tuple[float, dict[str, Any]]:
+def apply_slenderness_reduction_ta(
+    sigma_c_adm: float, b_cm: float, h_cm: float
+) -> tuple[float, dict[str, Any]]:
     """Applica riduzione per sezioni snelle (feature repository).
 
     Riduzione già implementata in Session 6 per pressoflessione monoassiale.
@@ -416,7 +418,9 @@ def apply_slenderness_reduction_ta(sigma_c_adm: float, b_cm: float, h_cm: float)
 # ==============================================================================
 
 
-def check_flessione_ta_rett(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_flessione_ta_rett(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a flessione metodo TA - RD 2229/39 (IMPLEMENTAZIONE COMPLETA).
 
     Utilizza il modulo historical_ta per calcolo completo tensioni normali con metodo TA.
@@ -542,7 +546,11 @@ def check_flessione_ta_rett(calc_input: CalcInput, template: VerificationTemplat
                     N_kg=ta_loads["N_kg"],
                     Mx_kg_cm=ta_loads["Mx_kg_cm"],
                     My_kg_cm=ta_loads["My_kg_cm"],
-                    A_cm2=ta_properties.area_equivalent if hasattr(ta_properties, "area_equivalent") else 0.0,
+                    A_cm2=(
+                        ta_properties.area_equivalent
+                        if hasattr(ta_properties, "area_equivalent")
+                        else 0.0
+                    ),
                     Wx_cm3=Wx_cm3,
                     Wy_cm3=Wy_cm3,
                 )
@@ -556,14 +564,18 @@ def check_flessione_ta_rett(calc_input: CalcInput, template: VerificationTemplat
 
         # consider envelope utilisation as well (conservative check)
         try:
-            util_c_env = abs(sigma_c_env) / allowable.sigma_c_allow if allowable.sigma_c_allow else 0.0
+            util_c_env = (
+                abs(sigma_c_env) / allowable.sigma_c_allow if allowable.sigma_c_allow else 0.0
+            )
             if util_c_env > utilisazione:
                 utilisazione = util_c_env
             # only treat large exceedances as decisive (allow small numeric/method differences)
             if util_c_env > 1.05:
                 check_result.check_concrete = False
                 check_result.ok = False
-                check_result.messages.append(f"Conservative envelope exceeded: σ_c,env = {sigma_c_env:.1f} kg/cm²")
+                check_result.messages.append(
+                    f"Conservative envelope exceeded: σ_c,env = {sigma_c_env:.1f} kg/cm²"
+                )
         except Exception:
             pass
 
@@ -651,7 +663,9 @@ def check_flessione_ta_rett(calc_input: CalcInput, template: VerificationTemplat
         )
 
 
-def check_pressoflessione_ta_rett(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_pressoflessione_ta_rett(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a pressoflessione metodo TA - RD 2229/39 (IMPLEMENTAZIONE MIGLIORATA).
 
     Utilizza lo stesso motore di flessione_ta_rett ma con sforzo normale N presente.
@@ -750,7 +764,9 @@ def check_pressoflessione_ta_rett(calc_input: CalcInput, template: VerificationT
     return result
 
 
-def check_taglio_ta_rett(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_taglio_ta_rett(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica a taglio metodo TA - RD 2229/39 (IMPLEMENTAZIONE PARZIALE).
 
     Implementa formula base: tau = V / (b * d)
@@ -885,7 +901,8 @@ def check_taglio_ta_rett(calc_input: CalcInput, template: VerificationTemplate) 
             f"  τ_c0 = {tau_c0:.2f} kg/cm² (senza staffe - Art. 21)",
             f"  τ_c1 = {tau_c1:.2f} kg/cm² (con staffe - Art. 21)",
             "",
-            f"Verifica: {tau_kg_cm2:.2f} / {tau_adm:.2f} = {utilisazione:.3f} " f"{'✓ OK' if ok else '✗ NON OK'}",
+            f"Verifica: {tau_kg_cm2:.2f} / {tau_adm:.2f} = {utilisazione:.3f} "
+            f"{'✓ OK' if ok else '✗ NON OK'}",
             "",
             "⚠️ IMPLEMENTAZIONE PARZIALE:",
             "   Formula base τ = V/(b×d) implementata (verifica conservativa)",
@@ -929,7 +946,9 @@ def check_taglio_ta_rett(calc_input: CalcInput, template: VerificationTemplate) 
         )
 
 
-def check_minimi_armatura_ta(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_minimi_armatura_ta(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica minimi armatura longitudinale - RD 2229/39 (IMPLEMENTAZIONE COMPLETA).
 
     Implementa controllo con distinzione travi/pilastri usando compute_long_rebar_limits_ta():
@@ -1046,8 +1065,8 @@ def check_minimi_armatura_ta(calc_input: CalcInput, template: VerificationTempla
             f"  As,min = {As_min_cm2:.2f} cm² ({rho_min_percent:.2f}% A_sez)",
             f"  As,max = {As_max_cm2:.2f} cm² ({rho_max_percent:.1f}% A_sez)",
             "",
-            f"Verifica minimo: {As_cm2:.2f} ≥ {As_min_cm2:.2f} " f"{'✓ OK' if ok_min else '✗ NON OK'}",
-            f"Verifica massimo: {As_cm2:.2f} ≤ {As_max_cm2:.2f} " f"{'✓ OK' if ok_max else '✗ NON OK'}",
+            f"Verifica minimo: {As_cm2:.2f} ≥ {As_min_cm2:.2f} {'✓ OK' if ok_min else '✗ NON OK'}",
+            f"Verifica massimo: {As_cm2:.2f} ≤ {As_max_cm2:.2f} {'✓ OK' if ok_max else '✗ NON OK'}",
             "",
             f"Utilizzazione: {utilisazione:.3f} ({'✓ OK' if ok else '✗ NON OK'})",
             "",
@@ -1090,7 +1109,9 @@ def check_minimi_armatura_ta(calc_input: CalcInput, template: VerificationTempla
         )
 
 
-def check_pressoflessione_deviata_ta_concrete(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_pressoflessione_deviata_ta_concrete(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica cls pressoflessione deviata TA - RD 2229/39 (COMPLETO).
 
     Implementa sovrapposizione elastica per N-Mx-My secondo Art. 29 RD 2229/39:
@@ -1180,7 +1201,9 @@ def check_pressoflessione_deviata_ta_concrete(calc_input: CalcInput, template: V
         sigma_c_adm, slender_details = apply_slenderness_reduction_ta(sigma_c_adm_base, b_cm, h_cm)
 
         # 6. Compute σ_c,max with elastic superposition (Art. 29)
-        sigma_c_max = compute_sigma_concrete_biaxial_ta(N_kg, Mx_kg_cm, My_kg_cm, A_cm2, Wx_cm3, Wy_cm3)
+        sigma_c_max = compute_sigma_concrete_biaxial_ta(
+            N_kg, Mx_kg_cm, My_kg_cm, A_cm2, Wx_cm3, Wy_cm3
+        )
 
         # 7. Verify
         ok = sigma_c_max <= sigma_c_adm
@@ -1196,8 +1219,16 @@ def check_pressoflessione_deviata_ta_concrete(calc_input: CalcInput, template: V
             "",
             "Sollecitazioni:",
             f"  N = {calc_input.N:.1f} kN = {N_kg:.0f} kg" if N_present else "  N = 0 kN",
-            (f"  Mx = {calc_input.Mx:.1f} kNm = {Mx_kg_cm:.0f} kg·cm" if Mx_present else "  Mx = 0 kNm"),
-            (f"  My = {calc_input.My:.1f} kNm = {My_kg_cm:.0f} kg·cm" if My_present else "  My = 0 kNm"),
+            (
+                f"  Mx = {calc_input.Mx:.1f} kNm = {Mx_kg_cm:.0f} kg·cm"
+                if Mx_present
+                else "  Mx = 0 kNm"
+            ),
+            (
+                f"  My = {calc_input.My:.1f} kNm = {My_kg_cm:.0f} kg·cm"
+                if My_present
+                else "  My = 0 kNm"
+            ),
             "",
             f"Tensione ammissibile cls (Art. 18): σ_c,adm = {sigma_c_adm_base:.1f} kg/cm²",
         ]
@@ -1214,7 +1245,9 @@ def check_pressoflessione_deviata_ta_concrete(calc_input: CalcInput, template: V
                 ]
             )
         elif slender_details["A_min_cm"] >= 25.0:
-            messages_it.append(f"Sezione non snella (A_min = {slender_details['A_min_cm']:.1f} cm ≥ 25 cm)")
+            messages_it.append(
+                f"Sezione non snella (A_min = {slender_details['A_min_cm']:.1f} cm ≥ 25 cm)"
+            )
 
         # Stress calculation breakdown
         sigma_N_component = abs(N_kg / A_cm2) if A_cm2 > 0 else 0.0
@@ -1287,7 +1320,9 @@ def check_pressoflessione_deviata_ta_concrete(calc_input: CalcInput, template: V
         )
 
 
-def check_pressoflessione_deviata_ta_steel(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_pressoflessione_deviata_ta_steel(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica acciaio pressoflessione deviata TA - RD 2229/39 (PARZIALE).
 
     Verifica tensioni acciaio per N-Mx-My con sovrapposizione elastica.

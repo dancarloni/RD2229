@@ -86,7 +86,8 @@ def test_ntc2018_velocity_profile_monotonic():
     profile = compute_velocity_profile_ntc2018(site, 25.0, z_values)
     for i in range(1, len(profile)):
         assert profile[i].v_m_s >= profile[i - 1].v_m_s * 0.99, (
-            f"Non monotono: z={profile[i].z_m}, v={profile[i].v_m_s} " f"< v_prev={profile[i-1].v_m_s}"
+            f"Non monotono: z={profile[i].z_m}, v={profile[i].v_m_s} "
+            f"< v_prev={profile[i - 1].v_m_s}"
         )
 
 

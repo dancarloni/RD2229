@@ -103,7 +103,7 @@ def test_iso834_temperature_monotonic():
     times = [0, 5, 10, 20, 30, 60, 90, 120]
     temps = [iso834_temperature(t) for t in times]
     for i in range(1, len(temps)):
-        assert temps[i] > temps[i - 1], f"Non monotona tra t={times[i-1]} e t={times[i]}"
+        assert temps[i] > temps[i - 1], f"Non monotona tra t={times[i - 1]} e t={times[i]}"
 
 
 def test_iso834_temperature_negative_raises():

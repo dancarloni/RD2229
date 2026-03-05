@@ -107,7 +107,7 @@ def test_golden_nu_max():
     result = compute_axial_capacity(inp)
     assert (
         _rel_err(result.nu_max_n, _NU_MAX_N) <= TOLERANCE_REL
-    ), f"Nu_max: calcolato={result.nu_max_kn:.2f} kN, atteso={_NU_MAX_N/1000:.2f} kN"
+    ), f"Nu_max: calcolato={result.nu_max_kn:.2f} kN, atteso={_NU_MAX_N / 1000:.2f} kN"
 
 
 # ---------------------------------------------------------------------------
@@ -129,7 +129,7 @@ def test_golden_nu_min():
     result = compute_axial_capacity(inp)
     assert (
         _rel_err(result.nu_min_n, _NU_MIN_N) <= TOLERANCE_REL
-    ), f"Nu_min: calcolato={result.nu_min_kn:.2f} kN, atteso={_NU_MIN_N/1000:.2f} kN"
+    ), f"Nu_min: calcolato={result.nu_min_kn:.2f} kN, atteso={_NU_MIN_N / 1000:.2f} kN"
 
 
 # ---------------------------------------------------------------------------

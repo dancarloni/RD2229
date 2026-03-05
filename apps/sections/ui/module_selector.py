@@ -244,8 +244,12 @@ class ModuleSelectorWindow(Tk):
 
         tools_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Strumenti", menu=tools_menu)
-        tools_menu.add_command(label="Impostazioni Codice", command=self.controller.open_code_settings)
-        tools_menu.add_command(label="Centro Notifiche", command=self.controller.open_notification_center)
+        tools_menu.add_command(
+            label="Impostazioni Codice", command=self.controller.open_code_settings
+        )
+        tools_menu.add_command(
+            label="Centro Notifiche", command=self.controller.open_notification_center
+        )
         tools_menu.add_separator()
         tools_menu.add_command(label="Aggiorna Moduli", command=self._refresh_modules)
 

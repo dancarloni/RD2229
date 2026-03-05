@@ -263,7 +263,11 @@ def test_validation_fire_with_config():
     calc_input = _make_fire_calc_input("R60", 3)
 
     result = validate_calc_input(calc_input, "FIRE_DM2007")
-    fire_errors = [i for i in result.issues if i.severity == "error" and ("FIRE" in i.code or "fire" in i.code.lower())]
+    fire_errors = [
+        i
+        for i in result.issues
+        if i.severity == "error" and ("FIRE" in i.code or "fire" in i.code.lower())
+    ]
     assert len(fire_errors) == 0, f"Non dovrebbero esserci errori fire: {fire_errors}"
 
 

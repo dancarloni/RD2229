@@ -1,4 +1,3 @@
-import inspect
 import sys
 
 print("python exe:", sys.executable)

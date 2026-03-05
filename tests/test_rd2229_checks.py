@@ -760,7 +760,9 @@ def test_minimi_armatura_ta_beam_vs_column():
 
     # Should fail for column (3.0 < 4.5)
     assert not result_column.ok, "Column with As=3.0 cm² should fail (min=4.5 cm²)"
-    assert "pilastro" in "\n".join(result_column.messages_it).lower(), "Messages should mention 'pilastro'"
+    assert (
+        "pilastro" in "\n".join(result_column.messages_it).lower()
+    ), "Messages should mention 'pilastro'"
     assert result_column.details["element_type"] == "pilastro"
     assert result_column.details["is_column"]
     assert not result_column.details["is_beam"]
@@ -836,9 +838,12 @@ def test_pressoflessione_ta_slenderness_reduction():
     ), "Should mention no reduction for thick section"
 
     # Verify PARTIAL status improved to mention slenderness implementation
-    assert "MIGLIORATA" in messages_text or "PARTIAL" in messages_text, "Should show improved status"
     assert (
-        "Riduzione σ_c,adm per sezioni snelle implementata" in messages_text or "riduzione σ_c,adm" in messages_text.lower()
+        "MIGLIORATA" in messages_text or "PARTIAL" in messages_text
+    ), "Should show improved status"
+    assert (
+        "Riduzione σ_c,adm per sezioni snelle implementata" in messages_text
+        or "riduzione σ_c,adm" in messages_text.lower()
     ), "Should mention slenderness implemented"
 
 
@@ -886,7 +891,9 @@ def test_pressoflessione_deviata_ta_concrete_ok():
     # Check stresses within limits
     sigma_c_max = result.details["sigma_c_max_kg_cm2"]
     sigma_c_adm = result.details["sigma_c_adm_kg_cm2"]
-    assert sigma_c_max <= sigma_c_adm, f"σ_c,max ({sigma_c_max}) should be ≤ σ_c,adm ({sigma_c_adm})"
+    assert (
+        sigma_c_max <= sigma_c_adm
+    ), f"σ_c,max ({sigma_c_max}) should be ≤ σ_c,adm ({sigma_c_adm})"
     assert 50.0 < sigma_c_max < 65.0, f"Expected σ_c,max ≈ 58 kg/cm², got {sigma_c_max}"
 
     # Check Italian messages contain key phrases
@@ -922,9 +929,13 @@ def test_pressoflessione_deviata_ta_slenderness():
     result = check_pressoflessione_deviata_ta_concrete(calc_input, template)
 
     # Should have reduction applied
-    assert result.details["reduction_applied"] is True, "Reduction should be applied for b=20cm < 25cm"
+    assert (
+        result.details["reduction_applied"] is True
+    ), "Reduction should be applied for b=20cm < 25cm"
     assert "A_min_cm" in result.details
-    assert result.details["A_min_cm"] == 20.0, f"A_min should be 20cm, got {result.details['A_min_cm']}"
+    assert (
+        result.details["A_min_cm"] == 20.0
+    ), f"A_min should be 20cm, got {result.details['A_min_cm']}"
 
     # Check reduction factor = 0.85
     reduction_factor = result.details["reduction_factor"]

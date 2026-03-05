@@ -242,7 +242,9 @@ def write_inventory_json(modules: list[dict], output_path: Path) -> None:
         "module_count": len(modules),
         "modules": modules,
     }
-    output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    output_path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
     print(f"  Wrote {output_path.relative_to(REPO_ROOT)}")
 
 

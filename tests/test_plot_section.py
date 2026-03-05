@@ -1,5 +1,12 @@
+import pytest
+
+
 def test_plot_section_smoke():
-    from gui.section_gui import plot_section
+    try:
+        from gui.section_gui import plot_section
+    except ImportError:
+        pytest.skip("matplotlib not available")
+
     from src.core.geometry import RectangularSection
 
     s = RectangularSection(width=20.0, height=30.0)

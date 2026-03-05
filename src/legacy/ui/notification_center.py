@@ -36,7 +36,9 @@ class NotificationCenter:
             try:
                 self._create_window()
             except Exception:
-                logger.exception("Unable to create NotificationCenter window; switching to headless mode")
+                logger.exception(
+                    "Unable to create NotificationCenter window; switching to headless mode"
+                )
                 self.headless = True
 
     def _load_settings(self) -> None:
@@ -145,7 +147,11 @@ class NotificationCenter:
 
     def destroy(self) -> None:
         self._unsubscribe()
-        if self._win is not None and getattr(self._win, "winfo_exists", None) and self._win.winfo_exists():
+        if (
+            self._win is not None
+            and getattr(self._win, "winfo_exists", None)
+            and self._win.winfo_exists()
+        ):
             try:
                 self._win.destroy()
             except Exception:

@@ -86,7 +86,8 @@ class HazardPasteWindow(tk.Toplevel):
         self.preview.delete("1.0", "end")
         for r in rows:
             self.preview.insert(
-                "end", f"{r.limit_state_label}: Tr={r.tr_years}, ag/g={r.ag_g}, F0={r.f0}, Tc*={r.tc_star_s}\n"
+                "end",
+                f"{r.limit_state_label}: Tr={r.tr_years}, ag/g={r.ag_g}, F0={r.f0}, Tc*={r.tc_star_s}\n",
             )
         self.preview.config(state="disabled")
 

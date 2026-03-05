@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "id": "proj1",
+    "name": "Test Project",
+    "created_at": "2026-03-01T00:00:00Z",
+    "updated_at": "2026-03-01T00:00:00Z",
+    "commit_hash": "abc123",
+    "schema_version": "1.0.0"
+  },
+  "normative_profile": {
+    "source_ids": [
+      "RD2229"
+    ],
+    "clauses": [
+      "§4.2.1"
+    ]
+  },
+  "modules": [
+    {
+      "name": "mod1",
+      "enabled": true,
+      "params": {}
+    }
+  ],
+  "io_settings": {},
+  "code_settings": {
+    "existing_structure": true,
+    "lc": "LC1"
+  }
+}

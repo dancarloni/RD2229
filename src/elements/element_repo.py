@@ -70,7 +70,9 @@ class ElementRepository:
 
     # --------------------------------------------------------------
 
-    def assign_material(self, element_id: str, material_id: str, material_repo: MaterialRepository) -> None:
+    def assign_material(
+        self, element_id: str, material_id: str, material_repo: MaterialRepository
+    ) -> None:
         """
         Assegna un materiale a un elemento, recuperandolo dal repository.
 

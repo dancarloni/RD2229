@@ -1,353 +1,160 @@
 {
-<<<<<<< HEAD
-  "$schema": "sources.schema.json",
-  "_generated": "2026-03-01",
-  "_note": "Metadati only. Nessun testo normativo estratto. Evidenze: grep su src/ per ID stringa.",
-=======
   "_comment": "Catalogo fonti normative RD2229. NESSUN testo normativo copiato: solo metadati e link ufficiali. Aggiornare tramite PR con revisione.",
   "_schema": "./sources.schema.json",
   "_generated": "2026-03-01",
->>>>>>> d5ef881 (feat: audit/docs infrastructure - audit_repo, RTM, governance, normative catalog, module docs)
   "sources": [
     {
       "id": "RD2229",
       "title": "R.D. 16 novembre 1939, n. 2229 – Norme per la esecuzione delle opere in conglomerato cementizio semplice od armato",
       "authority": "Ministero dei Lavori Pubblici",
       "year": 1939,
-<<<<<<< HEAD
-      "country": "IT",
-      "url_official": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1939-11-16;2229",
-      "copyright_note": "Norma italiana di dominio pubblico (ante 1948)",
-      "freely_available": true,
-      "local_copy": null,
-      "repo_occurrences": [
-        "src/core_calculus/normative_registry.py",
-        "src/methods/checks_rd2229.py",
-        "src/project/schema.py",
-        "src/checks/registry.py",
-        "src/cli/entrypoint.py",
-        "src/plugins/__init__.py"
-      ],
-      "notes": "Norma storica per strutture in c.a. con metodo delle tensioni ammissibili (TA)"
-=======
       "url": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1939-11-16;2229",
       "license_notes": "Norma italiana di dominio pubblico (ante 1948). Liberamente consultabile.",
       "availability": "free",
       "country": "IT",
-      "$schema": "./sources.schema.json",
-      "_generated": "2026-03-01",
-      "_comment": "Catalogo fonti normative RD2229. NESSUN testo normativo copiato: solo metadati e link ufficiali. Aggiornare tramite PR con revisione.",
-  
->>>>>>> d5ef881 (feat: audit/docs infrastructure - audit_repo, RTM, governance, normative catalog, module docs)
+      "supersedes": null,
+      "superseded_by": "DM92",
+      "tags": ["cemento_armato", "TA", "storica"],
+      "notes": "Norma storica per strutture in c.a. con metodo delle tensioni ammissibili (TA). Norma che dà il nome al progetto.",
+      "local_copy": {
+        "path": "R.D. 16.11.1939 n.2229.pdf",
+        "sha256": "TBD"
+      }
     },
     {
       "id": "DM92",
       "title": "D.M. 14 febbraio 1992 – Norme tecniche per l'esecuzione delle opere in cemento armato normale e precompresso e per le strutture metalliche",
       "authority": "Ministero dei Lavori Pubblici",
+      "year": 1992,
+      "url": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:ministero.lavori.pubblici:decreto:1992-02-14",
+      "license_notes": "Norma italiana. Consultare MIT/normattiva.it per disponibilità testo ufficiale.",
+      "availability": "restricted",
       "country": "IT",
-      "url": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1939-11-16;2229",
-      "license_notes": "Norma italiana di dominio pubblico (ante 1948). Liberamente consultabile.",
-      "availability": "free",
-      "supersedes": null,
-      "superseded_by": "DM92",
-      "tags": [
-        "cemento_armato",
-        "TA",
-        "storica"
-      ],
-      "notes": "Norma storica per strutture in c.a. con metodo delle tensioni ammissibili (TA). Norma che dà il nome al progetto."{
-        "id": "DM96",
-        "title": "D.M. 09 gennaio 1996 – Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato normale e precompresso e per le strutture metalliche",
-        "authority": "Ministero dei Lavori Pubblici",
-        "year": 1996,
-<<<<<<< HEAD
-      "country": "IT",
-        "url_official": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:ministero.lavori.pubblici:decreto:1996-01-09",
-        "copyright_note": "Norma italiana – consultare MIT per disponibilità testo ufficiale",
-        "freely_available": false,
-        "local_copy": null,
-        "repo_occurrences": [
-          "src/methods/checks_dm96.py",
-          "src/core_calculus/normative_registry.py",
-          "src/checks/registry.py"
-        ],
-        "notes": "Check SLU/SLE/TA DM96 implementati in src/methods/checks_dm96.py"
-=======
+      "supersedes": "RD2229",
+      "superseded_by": "DM96",
+      "tags": ["cemento_armato", "TA", "acciaio"],
+      "notes": "Norma TA 1992 per strutture in c.a. e acciaio.",
+      "local_copy": null
+    },
+    {
+      "id": "DM96",
+      "title": "D.M. 09 gennaio 1996 – Norme tecniche per il calcolo, l'esecuzione ed il collaudo delle strutture in cemento armato normale e precompresso e per le strutture metalliche",
+      "authority": "Ministero dei Lavori Pubblici",
+      "year": 1996,
       "url": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:ministero.lavori.pubblici:decreto:1996-01-09",
-        "license_notes": "Norma italiana. Consultare MIT/normattiva.it per disponibilità testo ufficiale.",
-        "availability": "restricted",
-        "country": "IT",
-        "supersedes": "DM92",
-        "superseded_by": "NTC2018",
-        "tags": [
-          "cemento_armato",
-          "SLU",
-          "SLE",
-          "acciaio"
-        ],
-        "notes": "Norma SLU/SLE precedente NTC2008.",
-        "local_copy": null
->>>>>>> d5ef881 (feat: audit/docs infrastructure - audit_repo, RTM, governance, normative catalog, module docs)
-      },
-      {
-        "id": "NTC2018",
-        "title": "D.M. 17 gennaio 2018 – Aggiornamento delle Norme Tecniche per le Costruzioni",
-        "authority": "Ministero delle Infrastrutture e dei Trasporti",
-        "year": 2018,
-<<<<<<< HEAD
+      "license_notes": "Norma italiana. Consultare MIT/normattiva.it per disponibilità testo ufficiale.",
+      "availability": "restricted",
       "country": "IT",
-        "url_official": "https://www.mit.gov.it/normativa/decreto-ministeriale-17-gennaio-2018",
-        "copyright_note": "Norma italiana – testo ufficiale disponibile su sito MIT",
-        "freely_available": true,
-        "local_copy": null,
-        "repo_occurrences": [
-          "src/wind/ntc2018.py:1-3",
-          "src/core/pipeline.py",
-          "src/codes/ntc2018/code_module.py:2",
-          "src/codes/ntc2018/spectrum_paste_service.py:1",
-          "src/core_calculus/normative_registry.py",
-          "src/methods/checks_ntc2018.py",
-          "src/fire/rc_fire_check.py:7",
-          "src/project/schema.py"
-        ],
-        "notes": "Norma vigente. §3.3 vento, §3.6.1 incendio implementati; §3.2 sisma parziale; Cap.4 SLU/SLE implementati in core_calculus e methods."
-      },
-      {
-        "id": "NTC2018_CIRC",
-        "title": "Circolare 21 gennaio 2019, n. 7 – Istruzioni per l'applicazione dell'Aggiornamento delle NTC",
-        "authority": "Consiglio Superiore dei Lavori Pubblici",
-        "year": 2019,
-        "country": "IT",
-        "url_official": "https://www.mit.gov.it/normativa/circolare-21-gennaio-2019-n-7",
-        "copyright_note": "Documento ministeriale italiano – disponibile su sito MIT",
-        "freely_available": true,
-        "local_copy": null,
-        "repo_occurrences": [],
-        "notes": "Circolare applicativa NTC2018. Non trovata come stringa esplicita nel codice src/."
-      },
-      {
-        "id": "ISO834",
-        "title": "ISO 834-1:1999 – Fire resistance tests – Elements of building construction – Part 1: General requirements",
-        "authority": "ISO",
-        "year": 1999,
-        "country": "International",
-        "url_official": "https://www.iso.org/standard/24975.html",
-        "copyright_note": "Standard ISO – soggetto a copyright ISO",
-        "freely_available": false,
-        "local_copy": null,
-        "repo_occurrences": [
-          "src/fire/curves.py"
-        ],
-        "notes": "Formula standard fire T(t) = 20 + 345*log10(8t+1) implementata in src/fire/curves.py. La formula è ampiamente citata in letteratura pubblica."
-      },
-      {
-        "id": "EN1992_1_2",
-        "title": "EN 1992-1-2:2004 – Design of concrete structures – Structural fire design",
-        "authority": "CEN",
-        "year": 2004,
-        "country": "EU",
-        "url_official": "https://www.en-standard.eu/une-en-1992-1-2-2011/",
-        "copyright_note": "Standard CEN – soggetto a copyright. Acquistare da ente di normazione nazionale.",
-        "freely_available": false,
-        "local_copy": null,
-        "repo_occurrences": [
-          "src/fire/rc_fire_check.py:7",
-          "src/methods/checks_fire_dm96.py"
-        ],
-        "notes": "Tabelle dimensioni minime e asse-distanza armatura per classi R. Tabella placeholder in rc_fire_check.py (TODO: caricare da JSON)."
-      },
-      {
-        "id": "EN1992_1_1",
-        "title": "EN 1992-1-1:2004 – Design of concrete structures – General rules and rules for buildings (EC2 Part 1-1)",
-        "authority": "CEN",
-        "year": 2004,
-        "country": "EU",
-        "url_official": "https://www.en-standard.eu/une-en-1992-1-1-2010/",
-        "copyright_note": "Standard CEN – soggetto a copyright.",
-        "freely_available": false,
-        "local_copy": null,
-        "repo_occurrences": [
-          "src/methods/checks_dm96.py:24"
-        ],
-        "notes": "Citato come 'EC2 Parte 1-1 (formule generali di riferimento)' in checks_dm96.py:24."
-=======
+      "supersedes": "DM92",
+      "superseded_by": "NTC2018",
+      "tags": ["cemento_armato", "SLU", "SLE", "acciaio"],
+      "notes": "Norma SLU/SLE precedente NTC2008.",
+      "local_copy": null
+    },
+    {
+      "id": "NTC2018",
+      "title": "D.M. 17 gennaio 2018 – Aggiornamento delle Norme Tecniche per le Costruzioni",
+      "authority": "Ministero delle Infrastrutture e dei Trasporti",
+      "year": 2018,
       "url": "https://www.mit.gov.it/normativa/decreto-ministeriale-17-gennaio-2018",
-        "license_notes": "Testo ufficiale disponibile su sito MIT. Liberamente consultabile.",
-        "availability": "free",
-        "country": "IT",
-        "supersedes": "DM96",
-        "superseded_by": null,
-        "tags": [
-          "cemento_armato",
-          "SLU",
-          "SLE",
-          "sismica",
-          "vento",
-          "incendio",
-          "vigente"
-        ],
-        "notes": "Norma vigente per le costruzioni. Implementazioni incrementali in corso.",
-        "local_copy": null
-      },
-      {
-        "id": "NTC2018_CIRC",
-        "title": "Circolare 21 gennaio 2019, n. 7 – Istruzioni per l'applicazione dell'«Aggiornamento delle Norme Tecniche per le Costruzioni»",
-        "authority": "Consiglio Superiore dei Lavori Pubblici",
-        "year": 2019,
-        "url": "https://www.mit.gov.it/normativa/circolare-21-gennaio-2019-n-7",
-        "license_notes": "Documento ministeriale italiano. Liberamente consultabile su sito MIT.",
-        "availability": "free",
-        "country": "IT",
-        "supersedes": null,
-        "superseded_by": null,
-        "tags": [
-          "NTC2018",
-          "istruzioni",
-          "circolare"
-        ],
-        "notes": "Circolare applicativa NTC2018.",
-        "local_copy": null
-      },
-      {
-        "id": "EN1992_1_1",
-        "title": "EN 1992-1-1:2004 – Eurocode 2: Design of concrete structures – General rules and rules for buildings",
-        "authority": "CEN (Comité Européen de Normalisation)",
-        "year": 2004,
-        "url": "https://www.en-standard.eu/une-en-1992-1-1-2013/",
-        "license_notes": "Standard CEN soggetto a copyright. Acquistare da ente di normazione nazionale (UNI per Italia).",
-        "availability": "restricted",
-        "country": "EU",
-        "supersedes": null,
-        "superseded_by": null,
-        "tags": [
-          "cemento_armato",
-          "SLU",
-          "SLE",
-          "Eurocodice"
-        ],
-        "notes": "Eurocodice 2 parte 1-1. Regole generali per strutture in c.a.",
-        "local_copy": null
-      },
-      {
-        "id": "EN1992_1_2",
-        "title": "EN 1992-1-2:2004 – Eurocode 2: Design of concrete structures – Structural fire design",
-        "authority": "CEN (Comité Européen de Normalisation)",
-        "year": 2004,
-        "url": "https://www.en-standard.eu/une-en-1992-1-2-2011/",
-        "license_notes": "Standard CEN soggetto a copyright. Acquistare da ente di normazione nazionale.",
-        "availability": "restricted",
-        "country": "EU",
-        "supersedes": null,
-        "superseded_by": null,
-        "tags": [
-          "cemento_armato",
-          "incendio",
-          "Eurocodice"
-        ],
-        "notes": "Eurocodice 2 parte 1-2. Progettazione strutturale al fuoco.",
-        "local_copy": null
->>>>>>> d5ef881 (feat: audit/docs infrastructure - audit_repo, RTM, governance, normative catalog, module docs)
-      },
-      {
-        "id": "EN1991_1_4",
-        "title": "EN 1991-1-4:2005 – Eurocode 1: Actions on structures – Wind actions",
-<<<<<<< HEAD
-      "authority": "CEN",
-        "year": 2005,
-        "country": "EU",
-        "url_official": "https://www.en-standard.eu/une-en-1991-1-4-2007/",
-        "copyright_note": "Standard CEN – soggetto a copyright.",
-        "freely_available": false,
-        "local_copy": null,
-        "repo_occurrences": [
-          "src/wind/ec1991_1_4.py:3",
-          "src/wind/__init__.py"
-        ],
-        "notes": "Azioni vento Eurocodice 1. Implementato in src/wind/ec1991_1_4.py."
-=======
-      "authority": "CEN (Comité Européen de Normalisation)",
-        "year": 2005,
-        "url": "https://www.en-standard.eu/une-en-1991-1-4-2007/",
-        "license_notes": "Standard CEN soggetto a copyright.",
-        "availability": "restricted",
-        "country": "EU",
-        "supersedes": null,
-        "superseded_by": null,
-        "tags": [
-          "vento",
-          "azioni",
-          "Eurocodice"
-        ],
-        "notes": "Eurocodice 1 parte 1-4. Azioni del vento.",
-        "local_copy": null
-      },
-      {
-        "id": "ISO834",
-        "title": "ISO 834-1:1999 – Fire resistance tests – Elements of building construction – Part 1: General requirements",
-        "authority": "ISO (International Organization for Standardization)",
-        "year": 1999,
-        "url": "https://www.iso.org/standard/24975.html",
-        "license_notes": "Standard ISO soggetto a copyright ISO.",
-        "availability": "restricted",
-        "country": "International",
-        "supersedes": null,
-        "superseded_by": null,
-        "tags": [
-          "incendio",
-          "resistenza_al_fuoco",
-          "ISO"
-        ],
-        "notes": "Curva di incendio standard (nominale). Formula ampiamente citata in letteratura pubblica.",
-        "local_copy": null
->>>>>>> d5ef881 (feat: audit/docs infrastructure - audit_repo, RTM, governance, normative catalog, module docs)
-      },
-      {
-        "id": "CNR_DT207",
-        "title": "CNR-DT 207 R1/2018 – Istruzioni per la valutazione delle azioni e degli effetti del vento sulle costruzioni",
-        "authority": "CNR (Consiglio Nazionale delle Ricerche)",
-        "year": 2018,
-<<<<<<< HEAD
+      "license_notes": "Testo ufficiale disponibile su sito MIT. Liberamente consultabile.",
+      "availability": "free",
       "country": "IT",
-        "url_official": "https://www.cnr.it/it/node/2891",
-        "copyright_note": "Proprietà letteraria riservata CNR. Disponibile per consultazione/download su sito CNR.",
-        "freely_available": true,
-        "local_copy": null,
-        "repo_occurrences": [
-          "src/wind/cnr_dt207.py:1-3",
-          "src/wind/service.py:26",
-          "src/wind/models.py:3"
-        ],
-        "notes": "Turbolenza e risposta dinamica vento. Cd non implementato (TODO in cnr_dt207.py)."
-      },
-      {
-        "id": "EN1991_1_2",
-        "title": "EN 1991-1-2:2002 – Eurocode 1: Actions on structures – Actions on structures exposed to fire",
-        "authority": "CEN",
-        "year": 2002,
-        "country": "EU",
-        "url_official": "https://www.en-standard.eu/une-en-1991-1-2-2011/",
-        "copyright_note": "Standard CEN – soggetto a copyright.",
-        "freely_available": false,
-        "local_copy": null,
-        "repo_occurrences": [
-          "src/fire/curves.py:8"
-        ],
-        "notes": "Citato in curves.py:8 come riferimento per formula curva incendio standard."
-=======
+      "supersedes": "DM96",
+      "superseded_by": null,
+      "tags": ["cemento_armato", "SLU", "SLE", "sismica", "vento", "incendio", "vigente"],
+      "notes": "Norma vigente per le costruzioni. Implementazioni incrementali in corso.",
+      "local_copy": null
+    },
+    {
+      "id": "NTC2018_CIRC",
+      "title": "Circolare 21 gennaio 2019, n. 7 – Istruzioni per l'applicazione dell'«Aggiornamento delle Norme Tecniche per le Costruzioni»",
+      "authority": "Consiglio Superiore dei Lavori Pubblici",
+      "year": 2019,
+      "url": "https://www.mit.gov.it/normativa/circolare-21-gennaio-2019-n-7",
+      "license_notes": "Documento ministeriale italiano. Liberamente consultabile su sito MIT.",
+      "availability": "free",
+      "country": "IT",
+      "supersedes": null,
+      "superseded_by": null,
+      "tags": ["NTC2018", "istruzioni", "circolare"],
+      "notes": "Circolare applicativa NTC2018.",
+      "local_copy": null
+    },
+    {
+      "id": "EN1992_1_1",
+      "title": "EN 1992-1-1:2004 – Eurocode 2: Design of concrete structures – General rules and rules for buildings",
+      "authority": "CEN (Comité Européen de Normalisation)",
+      "year": 2004,
+      "url": "https://www.en-standard.eu/une-en-1992-1-1-2013/",
+      "license_notes": "Standard CEN soggetto a copyright. Acquistare da ente di normazione nazionale (UNI per Italia).",
+      "availability": "restricted",
+      "country": "EU",
+      "supersedes": null,
+      "superseded_by": null,
+      "tags": ["cemento_armato", "SLU", "SLE", "Eurocodice"],
+      "notes": "Eurocodice 2 parte 1-1. Regole generali per strutture in c.a.",
+      "local_copy": null
+    },
+    {
+      "id": "EN1992_1_2",
+      "title": "EN 1992-1-2:2004 – Eurocode 2: Design of concrete structures – Structural fire design",
+      "authority": "CEN (Comité Européen de Normalisation)",
+      "year": 2004,
+      "url": "https://www.en-standard.eu/une-en-1992-1-2-2011/",
+      "license_notes": "Standard CEN soggetto a copyright. Acquistare da ente di normazione nazionale.",
+      "availability": "restricted",
+      "country": "EU",
+      "supersedes": null,
+      "superseded_by": null,
+      "tags": ["cemento_armato", "incendio", "Eurocodice"],
+      "notes": "Eurocodice 2 parte 1-2. Progettazione strutturale al fuoco.",
+      "local_copy": null
+    },
+    {
+      "id": "EN1991_1_4",
+      "title": "EN 1991-1-4:2005 – Eurocode 1: Actions on structures – Wind actions",
+      "authority": "CEN (Comité Européen de Normalisation)",
+      "year": 2005,
+      "url": "https://www.en-standard.eu/une-en-1991-1-4-2007/",
+      "license_notes": "Standard CEN soggetto a copyright.",
+      "availability": "restricted",
+      "country": "EU",
+      "supersedes": null,
+      "superseded_by": null,
+      "tags": ["vento", "azioni", "Eurocodice"],
+      "notes": "Eurocodice 1 parte 1-4. Azioni del vento.",
+      "local_copy": null
+    },
+    {
+      "id": "ISO834",
+      "title": "ISO 834-1:1999 – Fire resistance tests – Elements of building construction – Part 1: General requirements",
+      "authority": "ISO (International Organization for Standardization)",
+      "year": 1999,
+      "url": "https://www.iso.org/standard/24975.html",
+      "license_notes": "Standard ISO soggetto a copyright ISO.",
+      "availability": "restricted",
+      "country": "International",
+      "supersedes": null,
+      "superseded_by": null,
+      "tags": ["incendio", "resistenza_al_fuoco", "ISO"],
+      "notes": "Curva di incendio standard (nominale). Formula ampiamente citata in letteratura pubblica.",
+      "local_copy": null
+    },
+    {
+      "id": "CNR_DT207",
+      "title": "CNR-DT 207 R1/2018 – Istruzioni per la valutazione delle azioni e degli effetti del vento sulle costruzioni",
+      "authority": "CNR (Consiglio Nazionale delle Ricerche)",
+      "year": 2018,
       "url": "https://www.cnr.it/it/node/2891",
-        "license_notes": "Proprietà letteraria riservata CNR. Disponibile per consultazione/download su sito CNR.",
-        "availability": "free",
-        "country": "IT",
-        "supersedes": null,
-        "superseded_by": null,
-        "tags": [
-          "vento",
-          "CNR",
-          "istruzioni"
-        ],
-        "notes": "Istruzioni tecniche CNR per azioni del vento.",
-        "local_copy": null
->>>>>>> d5ef881 (feat: audit/docs infrastructure - audit_repo, RTM, governance, normative catalog, module docs)
-      }
-    ]
-  }
+      "license_notes": "Proprietà letteraria riservata CNR. Disponibile per consultazione/download su sito CNR.",
+      "availability": "free",
+      "country": "IT",
+      "supersedes": null,
+      "superseded_by": null,
+      "tags": ["vento", "CNR", "istruzioni"],
+      "notes": "Istruzioni tecniche CNR per azioni del vento.",
+      "local_copy": null
+    }
+  ]
+}

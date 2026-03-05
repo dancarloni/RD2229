@@ -119,7 +119,10 @@ def run_step5(
     # Ottieni i template per la normativa corrente
     templates = get_templates_for_norm(norm_code)
     if not templates:
-        warnings.append(f"Nessun template disponibile per la normativa '{norm_code}'; " "step5 non produce risultati.")
+        warnings.append(
+            f"Nessun template disponibile per la normativa '{norm_code}'; "
+            "step5 non produce risultati."
+        )
         trace.append(f"step5:skip(no_templates_for_{norm_code})")
         return element_results, warnings, trace
 
@@ -181,7 +184,9 @@ def run_step5(
             trace.append(f"step5:element:{elem_id}:skip(no_geom)")
             continue
 
-        calc_input = _build_calc_input(elem_id, load, geom, mat, norm_code, limit_states, project.code_settings)
+        calc_input = _build_calc_input(
+            elem_id, load, geom, mat, norm_code, limit_states, project.code_settings
+        )
 
         try:
             calc_output = run_verifications_for_element(

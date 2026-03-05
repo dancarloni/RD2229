@@ -1,0 +1,52 @@
+{
+  "code_settings": {
+    "existing_structure": true,
+    "lc": "LC1",
+    "limit_states": [
+      "TA"
+    ],
+    "norm_code": "RD2229",
+    "units_force": "kN",
+    "units_length": "cm"
+  },
+  "fire": {
+    "cover_mm_default": null,
+    "enabled": false,
+    "exposure_sides_default": null,
+    "required_rating_minutes": 60,
+    "scenario": "ISO_834"
+  },
+  "geometry": [],
+  "loads": [],
+  "materials": [],
+  "pipeline_steps": [
+    "validate",
+    "seismic",
+    "checks",
+    "step5",
+    "aggregate"
+  ],
+  "plugins": {},
+  "project_info": {
+    "author": "",
+    "created_at": "",
+    "description": "",
+    "name": "",
+    "updated_at": ""
+  },
+  "results_ref": {
+    "computed_at": "",
+    "results_path": "",
+    "schema_version_input": "",
+    "summary": ""
+  },
+  "schema_version": "1.1.0",
+  "seismic_inputs": {
+    "class_of_use": "",
+    "hazard_profile": {},
+    "site_label": "",
+    "vita_nominale_years": 0,
+    "vr_years": 0
+  },
+  "wind": {}
+}

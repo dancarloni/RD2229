@@ -91,7 +91,9 @@ class FireVerificationConfig:
     note: str = ""
 
 
-def _extract_fire_config(calc_input: CalcInput, template: VerificationTemplate) -> FireVerificationConfig | None:
+def _extract_fire_config(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> FireVerificationConfig | None:
     """Estrae la configurazione incendio da CalcInput.extra o template.extra_params.
 
     Ritorna None se la configurazione non e' presente.
@@ -102,7 +104,11 @@ def _extract_fire_config(calc_input: CalcInput, template: VerificationTemplate) 
         return fire_cfg
     if isinstance(fire_cfg, dict):
         return FireVerificationConfig(
-            **{k: v for k, v in fire_cfg.items() if k in FireVerificationConfig.__dataclass_fields__}
+            **{
+                k: v
+                for k, v in fire_cfg.items()
+                if k in FireVerificationConfig.__dataclass_fields__
+            }
         )
 
     # Prova da template.extra_params
@@ -111,7 +117,11 @@ def _extract_fire_config(calc_input: CalcInput, template: VerificationTemplate) 
         return fire_cfg
     if isinstance(fire_cfg, dict):
         return FireVerificationConfig(
-            **{k: v for k, v in fire_cfg.items() if k in FireVerificationConfig.__dataclass_fields__}
+            **{
+                k: v
+                for k, v in fire_cfg.items()
+                if k in FireVerificationConfig.__dataclass_fields__
+            }
         )
 
     # Prova campi singoli da template.extra_params
@@ -140,7 +150,9 @@ _FIRE_NORM_REF = NormReference(
 # ==============================================================================
 
 
-def check_fire_resistance_beam_rc(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_fire_resistance_beam_rc(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica di resistenza al fuoco di una trave in c.a.
 
     Utilizza il metodo tabellare/semplificato (se definito) in base alla
@@ -185,7 +197,7 @@ def check_fire_resistance_beam_rc(calc_input: CalcInput, template: VerificationT
     section = calc_input.section
     b_info = ""
     if section and hasattr(section, "width"):
-        b_info = f"Larghezza trave: b = {section.width/10:.1f} cm"
+        b_info = f"Larghezza trave: b = {section.width / 10:.1f} cm"
 
     messages_it = [
         "Verifica resistenza al fuoco: TRAVE C.A.",
@@ -193,7 +205,11 @@ def check_fire_resistance_beam_rc(calc_input: CalcInput, template: VerificationT
         f"Lati esposti: {fire_cfg.exposed_sides}",
         f"Metodo: {fire_cfg.design_method}",
         f"Protezione: {fire_cfg.protection_type}"
-        + (f" ({fire_cfg.protection_thickness_mm} mm)" if fire_cfg.protection_thickness_mm > 0 else ""),
+        + (
+            f" ({fire_cfg.protection_thickness_mm} mm)"
+            if fire_cfg.protection_thickness_mm > 0
+            else ""
+        ),
         b_info,
         "",
         "TODO: implementazione metodo tabellare/semplificato.",
@@ -217,7 +233,9 @@ def check_fire_resistance_beam_rc(calc_input: CalcInput, template: VerificationT
     )
 
 
-def check_fire_resistance_column_rc(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_fire_resistance_column_rc(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica di resistenza al fuoco di un pilastro in c.a.
 
     In prima fase, placeholder con TODO ben documentato.
@@ -246,7 +264,7 @@ def check_fire_resistance_column_rc(calc_input: CalcInput, template: Verificatio
     section = calc_input.section
     dims_info = ""
     if section and hasattr(section, "width") and hasattr(section, "height"):
-        dims_info = f"Sezione: {section.width/10:.1f} x {section.height/10:.1f} cm"
+        dims_info = f"Sezione: {section.width / 10:.1f} x {section.height / 10:.1f} cm"
 
     messages_it = [
         "Verifica resistenza al fuoco: PILASTRO C.A.",
@@ -275,7 +293,9 @@ def check_fire_resistance_column_rc(calc_input: CalcInput, template: Verificatio
     )
 
 
-def check_fire_resistance_slab_rc(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_fire_resistance_slab_rc(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Verifica di resistenza al fuoco di un solaio/piastra in c.a.
 
     NormReference: DM 9/3/2007, DM 16/2/2007, EC2 Parte 1-2
@@ -324,7 +344,9 @@ def check_fire_resistance_slab_rc(calc_input: CalcInput, template: VerificationT
     )
 
 
-def check_fire_resistance_beam_cap(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
+def check_fire_resistance_beam_cap(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
     """Gancio per verifica resistenza al fuoco di trave in c.a.p.
 
     In futuro dovra:

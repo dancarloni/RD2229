@@ -7,7 +7,9 @@ def test_profile_roundtrip(tmp_path):
     proj.new_project()
 
     raw = "Operatività 0.5 0.25 0.3 0.4"
-    profile = build_profile(class_of_use="II", vita_nominale_years=50, vr_years=100, site_label="Test", raw_paste=raw)
+    profile = build_profile(
+        class_of_use="II", vita_nominale_years=50, vr_years=100, site_label="Test", raw_paste=raw
+    )
     proj.seismic_inputs.ntc2018_hazard_profile = profile
 
     file = tmp_path / "proj.jsonp"

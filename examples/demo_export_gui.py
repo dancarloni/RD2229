@@ -41,7 +41,9 @@ def main():
 
     rect = RectangularSection(name="Pilastro 30x50", width=300, height=500)
     circ = CircularSection(name="Palo Circolare D40", diameter=400)
-    tsec = TSection(name="Trave a T", flange_width=500, flange_thickness=100, web_thickness=150, web_height=700)
+    tsec = TSection(
+        name="Trave a T", flange_width=500, flange_thickness=100, web_thickness=150, web_height=700
+    )
 
     section_repo.add_section(rect)
     section_repo.add_section(circ)
@@ -52,8 +54,12 @@ def main():
     # Repository materiali con dati di esempio
     material_repo = MaterialRepository(json_file=str(temp_path / "materials.json"))
 
-    mat1 = Material(id="C25/30", name="Calcestruzzo C25/30", type="concrete", properties={"fck": 25.0})
-    mat2 = Material(id="C30/37", name="Calcestruzzo C30/37", type="concrete", properties={"fck": 30.0})
+    mat1 = Material(
+        id="C25/30", name="Calcestruzzo C25/30", type="concrete", properties={"fck": 25.0}
+    )
+    mat2 = Material(
+        id="C30/37", name="Calcestruzzo C30/37", type="concrete", properties={"fck": 30.0}
+    )
     mat3 = Material(id="B450C", name="Acciaio B450C", type="steel", properties={"fyk": 450.0})
 
     material_repo.add(mat1)

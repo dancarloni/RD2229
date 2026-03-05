@@ -228,7 +228,7 @@ class DemoControlPanel(tk.Tk):
         if random.choice([True, False]):
             # Concrete
             fck = random.choice([20, 25, 30, 35, 40])
-            material = Material(name=f"C{fck}/{fck+5}", type="concrete", properties={"fck": fck})
+            material = Material(name=f"C{fck}/{fck + 5}", type="concrete", properties={"fck": fck})
         else:
             # Steel
             fyk = random.choice([400, 450, 500])

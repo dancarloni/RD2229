@@ -1,0 +1,17 @@
+{
+  "files": [
+    {
+      "path": "projects\\proj1\\runs\\run_20260301T211656Z\\output_mod1.json",
+      "sha256": "1c807bc37ad8f68b67c33c53019f2353c4f06ea1fdb2fcd77eed73c40e24bdc5"
+    }
+  ],
+  "module_outputs": {
+    "mod1": {
+      "normative_ids": [
+        "RD2229"
+      ],
+      "status": "TBD"
+    }
+  },
+  "warnings": []
+}

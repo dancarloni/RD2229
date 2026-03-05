@@ -1,0 +1,18 @@
+{
+  "_created": "2026-03-03T21:24:43.711750+00:00",
+  "_tool": "tools/fetch_norma.py",
+  "_updated": "2026-03-03T21:24:43.711761+00:00",
+  "clauses": [
+    {
+      "file": "extracts/4_1_2_1.md",
+      "id": "4.1.2.1"
+    }
+  ],
+  "gu_ref": "G.U. n.42 del 20/02/2018",
+  "issuer": "MIT",
+  "norm_id": "NTC2018",
+  "source_files": [],
+  "source_url": "",
+  "title": "Norme Tecniche per le Costruzioni 2018",
+  "year": 2018
+}

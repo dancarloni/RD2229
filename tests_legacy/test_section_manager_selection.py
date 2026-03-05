@@ -78,7 +78,10 @@ class TestModuleSelectorEditRetries(unittest.TestCase):
 
     def test_on_section_edit_limits_retries(self):
         # Patch MainWindow to return an object WITHOUT load_section_into_form
-        with patch("tkinter.Tk.mainloop"), patch("sections_app.ui.module_selector.MainWindow") as MockMain:
+        with (
+            patch("tkinter.Tk.mainloop"),
+            patch("sections_app.ui.module_selector.MainWindow") as MockMain,
+        ):
             MockMain.return_value = object()
             window = ModuleSelectorWindow(self.repo, self.serializer, self.material_repo)
             self.window = window
