@@ -199,9 +199,25 @@ def compute_canopy_pressures(
                 "w_max_kN_m2": round(cp_max * q_p_kN_m2, 4),
                 "w_min_kN_m2": round(cp_min * q_p_kN_m2, 4),
                 "bay_factor": bay_factor,
+                "force_application_d_fraction": 0.25,
             })
 
     return results
+
+
+def compute_canopy_application_point(depth_m: float) -> float:
+    """Punto di applicazione della risultante per tettoia (CNR-DT 207 App. G.6).
+
+    La risultante della pressione netta è applicata a d/4 dal bordo
+    sopravento della tettoia.
+
+    Args:
+        depth_m: Profondità della tettoia [m] (nella direzione del vento).
+
+    Returns:
+        Distanza dal bordo sopravento [m].
+    """
+    return round(depth_m / 4.0, 3)
 
 
 # ===========================================================================
@@ -372,6 +388,123 @@ def compute_sign_force(
         "F_kN": round(F_kN, 3),
         "application_point_m": ground_clearance_m + h_m / 2.0,
         "eccentricity_m": eccentricity,
+    }
+
+
+def compute_sign_zone_pressures(
+    b_m: float,
+    h_m: float,
+    q_p_kN_m2: float,
+    *,
+    solidity_ratio: float = 1.0,
+    ground_clearance_m: float = 0.0,
+) -> list[dict[str, Any]]:
+    """Calcola le pressioni per zone su un'insegna (CNR-DT 207 App. G.7).
+
+    L'insegna è suddivisa in zone con cpn differenti:
+    - b/h ≤ 1: zona A (larghezza b/2, bordo sopravento) + zona B (b/2, sottovento)
+    - 1 < b/h ≤ 2: zona A (larghezza h) + zona B (b - h)
+    - b/h > 2: zona A (larghezza h) + zona C (b - 2h) + zona B (h)
+    - Zona D: fasce superiore/inferiore (altezza h/10) su tutta la larghezza
+
+    Args:
+        b_m: Larghezza insegna [m].
+        h_m: Altezza insegna [m].
+        q_p_kN_m2: Pressione di picco [kN/m²].
+        solidity_ratio: Rapporto pieni/vuoti φ.
+        ground_clearance_m: Distanza dal suolo [m].
+
+    Returns:
+        Lista di dict con zone_id, cpn, area, w_kN_m2 per ciascuna zona.
+    """
+    data = _get_signs_data()
+    zone_data = data.get("zone_pressures", {})
+
+    b_h = b_m / h_m if h_m > 0 else 5.0
+
+    # Interpola cpn per ciascuna zona
+    ratios = zone_data.get("b_h_ratios", [1.0, 2.0, 5.0])
+    cpn_A = _interpolate(b_h, ratios, zone_data.get("cpn_A", [2.4, 2.1, 1.8]))
+    cpn_B = _interpolate(b_h, ratios, zone_data.get("cpn_B", [1.4, 1.6, 1.8]))
+    cpn_C = _interpolate(b_h, ratios, zone_data.get("cpn_C", [1.2, 1.4, 1.8]))
+    cpn_D = _interpolate(b_h, ratios, zone_data.get("cpn_D", [2.0, 1.8, 1.2]))
+
+    # Riduzione per solidity
+    eta = 1.0
+    if solidity_ratio < 1.0:
+        sol = data.get("solidity_effect", {})
+        phi_vals = sol.get("phi_values", [])
+        eta_vals = sol.get("eta_values", [])
+        if phi_vals:
+            eta = _interpolate(solidity_ratio, phi_vals, eta_vals)
+
+    zones = []
+    app_point = ground_clearance_m + h_m / 2.0
+    h_D = h_m / 10.0  # Altezza fascia zona D
+
+    if b_h <= 1.0:
+        # Due zone simmetriche: A e B, ciascuna b/2
+        w_A = b_m / 2.0
+        w_B = b_m / 2.0
+        area_A = w_A * h_m * solidity_ratio
+        area_B = w_B * h_m * solidity_ratio
+        zones.append(_zone_entry("sign_A", "Insegna zona A (bordo sopravento)",
+                                 cpn_A * eta, area_A, q_p_kN_m2, app_point))
+        zones.append(_zone_entry("sign_B", "Insegna zona B (bordo sottovento)",
+                                 cpn_B * eta, area_B, q_p_kN_m2, app_point))
+    elif b_h <= 2.0:
+        # Zona A (larghezza h) + Zona B (b - h)
+        w_A = h_m
+        w_B = b_m - h_m
+        area_A = w_A * h_m * solidity_ratio
+        area_B = w_B * h_m * solidity_ratio
+        zones.append(_zone_entry("sign_A", "Insegna zona A (bordo sopravento)",
+                                 cpn_A * eta, area_A, q_p_kN_m2, app_point))
+        zones.append(_zone_entry("sign_B", "Insegna zona B (bordo sottovento)",
+                                 cpn_B * eta, area_B, q_p_kN_m2, app_point))
+    else:
+        # Zona A (h) + Zona C (b-2h) + Zona B (h)
+        w_A = h_m
+        w_C = b_m - 2 * h_m
+        w_B = h_m
+        area_A = w_A * h_m * solidity_ratio
+        area_C = w_C * h_m * solidity_ratio
+        area_B = w_B * h_m * solidity_ratio
+        zones.append(_zone_entry("sign_A", "Insegna zona A (bordo sopravento)",
+                                 cpn_A * eta, area_A, q_p_kN_m2, app_point))
+        zones.append(_zone_entry("sign_C", "Insegna zona C (centrale)",
+                                 cpn_C * eta, area_C, q_p_kN_m2, app_point))
+        zones.append(_zone_entry("sign_B", "Insegna zona B (bordo sottovento)",
+                                 cpn_B * eta, area_B, q_p_kN_m2, app_point))
+
+    # Zona D: fasce superiore e inferiore (h/10 di altezza)
+    area_D = b_m * h_D * solidity_ratio
+    zones.append(_zone_entry("sign_D", "Insegna zona D (fasce sup./inf.)",
+                             cpn_D * eta, area_D, q_p_kN_m2, app_point))
+
+    return zones
+
+
+def _zone_entry(
+    zone_id: str,
+    description: str,
+    cpn: float,
+    area_m2: float,
+    q_p_kN_m2: float,
+    application_point_m: float,
+) -> dict[str, Any]:
+    """Helper per creare un entry di zona insegna."""
+    cpn_r = round(cpn, 3)
+    w = round(cpn_r * q_p_kN_m2, 4)
+    F = round(cpn_r * q_p_kN_m2 * area_m2, 3)
+    return {
+        "zone_id": zone_id,
+        "description": description,
+        "cpn": cpn_r,
+        "area_m2": round(area_m2, 3),
+        "w_kN_m2": w,
+        "F_kN": F,
+        "application_point_m": application_point_m,
     }
 
 

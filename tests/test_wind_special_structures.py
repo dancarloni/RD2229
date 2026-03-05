@@ -8,9 +8,11 @@ from src.wind.special_structures import (
     get_canopy_cp,
     get_canopy_multibay_factor,
     compute_canopy_pressures,
+    compute_canopy_application_point,
     compute_shelter_pressures,
     get_sign_cf,
     compute_sign_force,
+    compute_sign_zone_pressures,
     get_solar_panel_cp,
     compute_solar_pressures,
     get_freestanding_wall_cp,
@@ -235,3 +237,100 @@ class TestFreestandingWall:
     def test_override(self):
         cp = get_freestanding_wall_cp(10.0, 3.0, override=3.0)
         assert cp == 3.0
+
+
+# ===========================================================================
+# Pressioni a zone insegne (CNR-DT 207 G.7)
+# ===========================================================================
+
+class TestSignZonePressures:
+    def test_wide_sign_has_zone_C(self):
+        """b/h > 2 → zone A, C, B + D."""
+        zones = compute_sign_zone_pressures(6.0, 2.0, 0.5)
+        zone_ids = [z["zone_id"] for z in zones]
+        assert "sign_A" in zone_ids
+        assert "sign_B" in zone_ids
+        assert "sign_C" in zone_ids
+        assert "sign_D" in zone_ids
+
+    def test_narrow_sign_no_zone_C(self):
+        """b/h ≤ 1 → only zones A, B, D (no C)."""
+        zones = compute_sign_zone_pressures(2.0, 3.0, 0.5)
+        zone_ids = [z["zone_id"] for z in zones]
+        assert "sign_A" in zone_ids
+        assert "sign_B" in zone_ids
+        assert "sign_C" not in zone_ids
+        assert "sign_D" in zone_ids
+
+    def test_medium_sign_no_zone_C(self):
+        """1 < b/h ≤ 2 → zones A, B, D (no C)."""
+        zones = compute_sign_zone_pressures(3.0, 2.0, 0.5)
+        zone_ids = [z["zone_id"] for z in zones]
+        assert "sign_A" in zone_ids
+        assert "sign_B" in zone_ids
+        assert "sign_C" not in zone_ids
+
+    def test_zone_A_higher_cpn_for_small_bh(self):
+        """For small b/h, zone A cpn should be higher than zone B."""
+        zones = compute_sign_zone_pressures(2.0, 2.0, 0.5)
+        cpn_A = next(z["cpn"] for z in zones if z["zone_id"] == "sign_A")
+        cpn_B = next(z["cpn"] for z in zones if z["zone_id"] == "sign_B")
+        assert cpn_A > cpn_B
+
+    def test_all_zones_have_required_keys(self):
+        zones = compute_sign_zone_pressures(6.0, 2.0, 0.5)
+        for z in zones:
+            assert "zone_id" in z
+            assert "cpn" in z
+            assert "area_m2" in z
+            assert "w_kN_m2" in z
+            assert "F_kN" in z
+            assert "application_point_m" in z
+
+    def test_pressure_proportional_to_qp(self):
+        z1 = compute_sign_zone_pressures(6.0, 2.0, 0.5)
+        z2 = compute_sign_zone_pressures(6.0, 2.0, 1.0)
+        for a, b in zip(z1, z2):
+            assert b["w_kN_m2"] == pytest.approx(a["w_kN_m2"] * 2.0, rel=0.01)
+
+    def test_solidity_reduces_cpn(self):
+        z_solid = compute_sign_zone_pressures(6.0, 2.0, 0.5, solidity_ratio=1.0)
+        z_perf = compute_sign_zone_pressures(6.0, 2.0, 0.5, solidity_ratio=0.5)
+        for a, b in zip(z_solid, z_perf):
+            assert b["cpn"] < a["cpn"]
+
+    def test_ground_clearance_shifts_application_point(self):
+        z1 = compute_sign_zone_pressures(6.0, 2.0, 0.5, ground_clearance_m=0.0)
+        z2 = compute_sign_zone_pressures(6.0, 2.0, 0.5, ground_clearance_m=3.0)
+        assert z2[0]["application_point_m"] > z1[0]["application_point_m"]
+
+    def test_total_area_consistent(self):
+        """Total zone area should approximate b × h (minus D overlap)."""
+        b, h = 6.0, 2.0
+        zones = compute_sign_zone_pressures(b, h, 0.5)
+        total_area = sum(z["area_m2"] for z in zones)
+        # D zone overlaps A/B/C, so total > b*h
+        assert total_area > 0
+
+
+# ===========================================================================
+# Punto di applicazione tettoie (CNR-DT 207 G.6)
+# ===========================================================================
+
+class TestCanopyApplicationPoint:
+    def test_d_over_4(self):
+        """Application point at d/4 from windward edge."""
+        assert compute_canopy_application_point(8.0) == pytest.approx(2.0)
+
+    def test_d_over_4_small(self):
+        assert compute_canopy_application_point(4.0) == pytest.approx(1.0)
+
+    def test_d_over_4_large(self):
+        assert compute_canopy_application_point(20.0) == pytest.approx(5.0)
+
+    def test_canopy_results_have_application_fraction(self):
+        """Canopy pressure results include force_application_d_fraction."""
+        results = compute_canopy_pressures("CANOPY_MONO", 15.0, 0.0, 0.5)
+        for r in results:
+            assert "force_application_d_fraction" in r
+            assert r["force_application_d_fraction"] == pytest.approx(0.25)

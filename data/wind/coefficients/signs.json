@@ -1,9 +1,9 @@
 {
-  "_source": "EN 1991-1-4:2005, §7.4.3 — Signboards and lattice structures",
+  "_source": "EN 1991-1-4:2005, §7.4.3 + CNR-DT 207 R1/2018 App. G.7 — Signboards and lattice structures",
   "_placeholder": true,
   "_comment": [
     "Coefficienti di forza cf per insegne, pannelli pubblicitari e strutture reticolari.",
-    "Valori indicativi; il professionista deve verificare con EC1 §7.4.3."
+    "Valori indicativi; il professionista deve verificare con EC1 §7.4.3 / CNR-DT 207 App. G.7."
   ],
   "solid_plate": {
     "_comment": "Insegna/pannello pieno — EC1 §7.4.3",
@@ -11,6 +11,28 @@
     "b_h_ratios": [1, 2, 5, 10, 20, 50],
     "cf_values": [1.8, 1.8, 1.8, 1.8, 1.8, 1.8],
     "note": "cf = 1.8 per insegne isolate (valore conservativo indipendente da b/h)"
+  },
+  "zone_pressures": {
+    "_comment": [
+      "Distribuzione pressioni per zone — CNR-DT 207 App. G.7.",
+      "Insegna suddivisa in zone A, B, C, D con cpn differenti.",
+      "h = altezza insegna, b = larghezza insegna.",
+      "Zone A: bordo sopravento (larghezza h), B: bordo sottovento (larghezza h),",
+      "C: zona centrale (larghezza b - 2h, presente solo se b > 2h), D: bordo superiore/inferiore.",
+      "Per b/h ≤ 1: solo zone A e B (ciascuna b/2).",
+      "Per 1 < b/h ≤ 2: zone A(h) + B(b-h).",
+      "Per b/h > 2: zone A(h) + C(b-2h) + B(h)."
+    ],
+    "b_h_ratios": [0.5, 1.0, 2.0, 5.0, 10.0],
+    "cpn_A": [2.4, 2.4, 2.1, 1.8, 1.8],
+    "cpn_B": [1.4, 1.4, 1.6, 1.8, 1.8],
+    "cpn_C": [1.2, 1.2, 1.4, 1.6, 1.8],
+    "cpn_D": [2.0, 2.0, 1.8, 1.4, 1.2],
+    "note": [
+      "Per b/h piccoli (< 2) i bordi sono dominanti (cpn_A alto).",
+      "Per b/h grandi (> 5) la distribuzione tende a uniformarsi verso cf=1.8.",
+      "cpn_D si applica a fasce superiore e inferiore (altezza h/10)."
+    ]
   },
   "solidity_effect": {
     "_comment": [
