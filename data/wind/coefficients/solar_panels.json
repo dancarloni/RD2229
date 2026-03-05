@@ -1,0 +1,101 @@
+{
+  "_source": "Letteratura tecnica e linee guida per pannelli fotovoltaici",
+  "_placeholder": true,
+  "_comment": [
+    "Coefficienti di pressione per pannelli fotovoltaici.",
+    "Layout supportati: SOLAR_GROUND, SOLAR_FLAT_ROOF, SOLAR_PITCHED_ROOF, SOLAR_TRACKER.",
+    "I valori sono indicativi e derivano da studi in galleria del vento e linee guida",
+    "internazionali (NEN 7250, AS/NZS 1170.2 App. D, TNO, vari studi).",
+    "Il professionista deve verificare con normativa applicabile e studi specifici."
+  ],
+  "ground_mounted": {
+    "_comment": [
+      "Pannelli a terra — file parallele orientate N-S o E-O.",
+      "Coefficienti dipendono da: inclinazione pannello, altezza dal suolo,",
+      "posizione nella fila (bordo/interno), distanza tra file."
+    ],
+    "tilt_angles_deg": [10, 15, 20, 25, 30, 35, 40, 45],
+    "edge_panel": {
+      "cp_net_max": [0.4, 0.6, 0.8, 1.0, 1.2, 1.3, 1.4, 1.5],
+      "cp_net_min": [-1.0, -1.2, -1.4, -1.6, -1.8, -1.9, -2.0, -2.1]
+    },
+    "interior_panel": {
+      "cp_net_max": [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+      "cp_net_min": [-0.5, -0.6, -0.8, -0.9, -1.0, -1.1, -1.2, -1.3]
+    },
+    "shielding_factors": {
+      "_comment": "Fattore di schermatura per file successive (prima fila = 1.0)",
+      "row_1": 1.0,
+      "row_2": 0.85,
+      "row_3_plus": 0.70,
+      "note": "Applicabile se spacing/height > 3"
+    }
+  },
+  "flat_roof": {
+    "_comment": [
+      "Pannelli su tetto piano — NEN 7250 / studi galleria del vento.",
+      "Tilt del pannello < 35° tipicamente.",
+      "Zone: corner, edge, interior del tetto."
+    ],
+    "tilt_angles_deg": [5, 10, 15, 20, 25, 30],
+    "corner_zone": {
+      "cp_net_max": [0.3, 0.5, 0.7, 0.9, 1.1, 1.2],
+      "cp_net_min": [-1.5, -1.8, -2.0, -2.2, -2.4, -2.5]
+    },
+    "edge_zone": {
+      "cp_net_max": [0.2, 0.4, 0.6, 0.8, 0.9, 1.0],
+      "cp_net_min": [-1.2, -1.4, -1.6, -1.8, -1.9, -2.0]
+    },
+    "interior_zone": {
+      "cp_net_max": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+      "cp_net_min": [-0.8, -1.0, -1.2, -1.3, -1.4, -1.5]
+    },
+    "parapet_reduction": {
+      "_comment": "Riduzione per parapetto perimetrale: hp/h_panel",
+      "hp_over_h": [0.0, 0.5, 1.0, 2.0],
+      "reduction_factor": [1.0, 0.90, 0.80, 0.65]
+    }
+  },
+  "pitched_roof": {
+    "_comment": [
+      "Pannelli su tetto inclinato — parametrico.",
+      "cp dipende da: angolo tetto (roof_angle), angolo pannello (panel_tilt),",
+      "posizione sul tetto, direzione vento.",
+      "I valori sono interpolati tra tetto piano e caso senza pannello."
+    ],
+    "roof_angles_deg": [10, 20, 30, 40, 50],
+    "flush_mounted": {
+      "_comment": "Pannello aderente al tetto (tilt = roof angle)",
+      "cp_net_max": [0.3, 0.5, 0.7, 0.8, 0.8],
+      "cp_net_min": [-1.0, -1.2, -1.3, -1.2, -1.0]
+    },
+    "tilted_above_roof": {
+      "_comment": "Pannello inclinato oltre il tetto — incremento del 20-40%",
+      "extra_tilt_factor_max": 1.3,
+      "extra_tilt_factor_min": 1.4,
+      "note": "Moltiplicare cp_net flush per questi fattori quando tilt > roof angle"
+    }
+  },
+  "tracker": {
+    "_comment": [
+      "Inseguitori solari monoassiali — orientamento N-S, rotazione E-O.",
+      "Coefficienti dipendono dall'angolo di tracking istantaneo.",
+      "In posizione di stow (orizzontale), coefficienti ridotti."
+    ],
+    "tracking_angles_deg": [0, 15, 30, 45, 60],
+    "edge_tracker": {
+      "cp_net_max": [0.3, 0.5, 0.8, 1.1, 1.4],
+      "cp_net_min": [-0.3, -0.8, -1.2, -1.6, -2.0]
+    },
+    "interior_tracker": {
+      "cp_net_max": [0.2, 0.3, 0.5, 0.7, 0.9],
+      "cp_net_min": [-0.2, -0.5, -0.8, -1.1, -1.4]
+    },
+    "stow_position": {
+      "angle_deg": 0,
+      "cp_net_max": 0.3,
+      "cp_net_min": -0.3,
+      "note": "Posizione di sicurezza per vento forte"
+    }
+  }
+}
