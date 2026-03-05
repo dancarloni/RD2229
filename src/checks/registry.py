@@ -330,7 +330,25 @@ def _build_default_registry() -> CheckRegistry:
         )
     )
 
-    # --- Wind (TODO) ---
+    # --- Wind ---
+    def _compute_wind_ntc2018(inputs: dict) -> dict:
+        import dataclasses
+        from src.wind.models import BuildingGeom, WindSite
+        from src.wind.ntc2018 import run_ntc2018_wind
+
+        site = WindSite(
+            altitude_m=inputs.get("altitudine_m", 0.0),
+            terrain_category=inputs.get("categoria_terreno", "II"),
+            zone_id=inputs.get("zona_geografica"),
+        )
+        building = BuildingGeom(
+            height_m=inputs.get("altezza_m", 10.0),
+            width_m=inputs.get("larghezza_m", 10.0),
+            depth_m=inputs.get("profondita_m", 10.0),
+        )
+        result = run_ntc2018_wind(site, building)
+        return dataclasses.asdict(result)
+
     reg.register(
         CheckSpec(
             id="wind.ntc2018.pressione_vento",
@@ -348,9 +366,26 @@ def _build_default_registry() -> CheckRegistry:
                 "altezza_m": "float",
             },
             tags=["wind", "NTC2018"],
-            compute=lambda _: {},
+            compute=_compute_wind_ntc2018,
         )
     )
+
+    def _compute_wind_en1991(inputs: dict) -> dict:
+        import dataclasses
+        from src.wind.models import BuildingGeom, WindSite
+        from src.wind.ec1991_1_4 import run_en1991_1_4_wind
+
+        site = WindSite(
+            terrain_category=inputs.get("terrain_category", "II"),
+            reference_wind_speed_ms=inputs.get("v_b_ms"),
+        )
+        building = BuildingGeom(
+            height_m=inputs.get("z", 10.0),
+            width_m=inputs.get("width_m", 10.0),
+            depth_m=inputs.get("depth_m", 10.0),
+        )
+        result = run_en1991_1_4_wind(site, building)
+        return dataclasses.asdict(result)
 
     reg.register(
         CheckSpec(
@@ -365,7 +400,7 @@ def _build_default_registry() -> CheckRegistry:
             ],
             input_schema={"z": "float", "terrain_category": "str"},
             tags=["wind", "EN1991"],
-            compute=None,  # TODO: implementare
+            compute=_compute_wind_en1991,
         )
     )
 

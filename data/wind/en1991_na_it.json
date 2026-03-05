@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "Parametri National Annex italiano per EN 1991-1-4:2005.",
+    "Il NA italiano mappa direttamente alle zone NTC2018.",
+    "Valori PLACEHOLDER – il professionista deve verificare.",
+    "Riferimento: UNI EN 1991-1-4:2005/NA"
+  ],
+  "_placeholder": true,
+  "terrain_categories": {
+    "0": {"z0_m": 0.003, "z_min_m": 1.0, "description": "Mare, costa esposta"},
+    "I": {"z0_m": 0.01, "z_min_m": 1.0, "description": "Laghi, pianura aperta"},
+    "II": {"z0_m": 0.05, "z_min_m": 2.0, "description": "Bassa vegetazione, rurale"},
+    "III": {"z0_m": 0.30, "z_min_m": 5.0, "description": "Copertura regolare, suburbano"},
+    "IV": {"z0_m": 1.00, "z_min_m": 10.0, "description": "Urbano, industriale"}
+  },
+  "zones": {
+    "1": {"vb0_ms": 25.0, "a0_m": 1000.0, "ka": 0.010, "description": "Italia nord-occidentale (PLACEHOLDER)", "_placeholder": true},
+    "2": {"vb0_ms": 25.0, "a0_m": 1000.0, "ka": 0.010, "description": "Italia nord-orientale (PLACEHOLDER)", "_placeholder": true},
+    "3": {"vb0_ms": 27.0, "a0_m": 1000.0, "ka": 0.010, "description": "Italia centrale (PLACEHOLDER)", "_placeholder": true},
+    "4": {"vb0_ms": 28.0, "a0_m": 1500.0, "ka": 0.010, "description": "Italia meridionale (PLACEHOLDER)", "_placeholder": true},
+    "5": {"vb0_ms": 28.0, "a0_m": 1500.0, "ka": 0.010, "description": "Sicilia (PLACEHOLDER)", "_placeholder": true},
+    "6": {"vb0_ms": 28.0, "a0_m": 500.0, "ka": 0.020, "description": "Sardegna (PLACEHOLDER)", "_placeholder": true},
+    "7": {"vb0_ms": 28.0, "a0_m": 500.0, "ka": 0.020, "description": "Isole minori (PLACEHOLDER)", "_placeholder": true}
+  },
+  "rho_kg_m3": 1.25,
+  "kI": 1.0
+}

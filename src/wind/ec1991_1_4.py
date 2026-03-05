@@ -119,12 +119,34 @@ def run_en1991_1_4_wind(
         qm = compute_kinetic_pressure_en(vm)
         profile.append(WindProfilePoint(z_m=z, v_m_s=round(vm, 3), q_kN_m2=round(qm, 4)))
 
+    # Pressioni sulle zone dell'edificio
+    pressure_zones = []
+    if building.width_m > 0 and building.depth_m > 0:
+        from src.wind.pressure_coefficients import compute_building_pressure_zones
+        from src.wind.outputs import PressureZoneResults
+
+        q_at_h = profile[-1].q_kN_m2 if profile else q_b
+        zones_data = compute_building_pressure_zones(
+            h, building.width_m, building.depth_m, q_at_h,
+        )
+        for zd in zones_data:
+            pressure_zones.append(PressureZoneResults(
+                zone_id=zd["zone_id"],
+                description=zd["description"],
+                cpe=zd["cpe"],
+                cpi=zd["cpi"],
+                we_kN_m2=zd["we_kN_m2"],
+                wi_kN_m2=zd["wi_kN_m2"],
+                net_kN_m2=zd["net_kN_m2"],
+            ))
+
     return WindResults(
         method="EN1991_1_4",
         v_b_ms=round(v_b, 3),
         v_ref_ms=round(v_b, 3),
         q_b_kN_m2=round(q_b, 4),
         velocity_profile=profile,
+        pressure_zones=pressure_zones,
         warnings=warnings,
         extra={
             "terrain_category": site.terrain_category,
