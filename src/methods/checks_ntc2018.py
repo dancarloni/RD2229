@@ -271,6 +271,516 @@ def check_flessione_slu_rett(
     )
 
 
+def check_pressoflessione_slu(
+    calc_input: CalcInput, template: VerificationTemplate
+) -> SingleCheckResult:
+    """Verifica a presso/tenso-flessione retta e deviata SLU — NTC 2018 § 4.1.2.1.3.1.
+
+    Modello generalizzato per QUALSIASI tipo di sezione gestito dal software.
+    Copre tutti i casi di interazione N + M:
+    - Compressione centrata (N > 0, M = 0)
+    - Trazione centrata (N < 0, M = 0)
+    - Flessione semplice retta (N = 0, Mx o My)
+    - Presso-flessione retta (N > 0, Mx o My)
+    - Tenso-flessione retta (N < 0, Mx o My)
+    - Flessione deviata (N + Mx + My, formula di Bresler)
+
+    Metodo: fiber method con stress block rettangolare (λ=0.8).
+    Convenzione: N > 0 = compressione, N < 0 = trazione.
+
+    Args:
+        calc_input: Dati di input (N, Mx, My, sezione, materiale, armatura)
+        template: Template della verifica
+
+    Returns:
+        Risultato della verifica con interazione N-M
+    """
+    from src.methods.section_fiber import (
+        compute_concrete_resultant,
+        get_section_height,
+        get_section_width,
+    )
+
+    # --- Validazione input ---
+    if calc_input.section is None:
+        return SingleCheckResult(
+            template_id=template.template_id, ok=False, utilisation=None,
+            details={}, messages_it=["Sezione non specificata"],
+        )
+    if calc_input.material is None:
+        return SingleCheckResult(
+            template_id=template.template_id, ok=False, utilisation=None,
+            details={}, messages_it=["Materiale non specificato"],
+        )
+
+    section = calc_input.section
+    material = calc_input.material
+
+    # Verifica che la sezione abbia un tipo riconosciuto
+    section_type = getattr(section, "section_type", None)
+    try:
+        h = get_section_height(section)
+        w = get_section_width(section)
+    except ValueError:
+        return SingleCheckResult(
+            template_id=template.template_id, ok=False, utilisation=None,
+            details={},
+            messages_it=[f"Geometria sezione non disponibile (tipo: {section_type})"],
+        )
+
+    f_ck_base = getattr(material, "f_ck", None)
+    f_yk_base = getattr(material, "f_yk", None)
+    if f_ck_base is None or f_yk_base is None:
+        return SingleCheckResult(
+            template_id=template.template_id, ok=False, utilisation=None,
+            details={}, messages_it=["Proprietà materiale (f_ck, f_yk) non disponibili"],
+        )
+
+    # --- LC/FC per edifici esistenti ---
+    if calc_input.lc is not None and calc_input.fc is not None:
+        try:
+            adjusted = apply_lc_fc_adjustments(material, calc_input.lc, calc_input.fc)
+            f_ck = adjusted.f_ck_adjusted
+            f_yk = adjusted.f_yk_adjusted
+        except ValueError as e:
+            f_ck = f_ck_base
+            f_yk = f_yk_base
+            logger.warning(f"LC/FC adjustment failed: {e}")
+    else:
+        f_ck = f_ck_base
+        f_yk = f_yk_base
+
+    # --- Parametri di calcolo ---
+    gamma_c = 1.5
+    gamma_s = 1.15
+    f_cd = 0.85 * f_ck / gamma_c   # MPa
+    f_yd = f_yk / gamma_s           # MPa
+    lambda_f = 0.8                  # profondità stress block
+    Es = 200000.0                   # MPa, modulo elastico acciaio
+    eps_cu = 0.0035                 # deformazione ultima cls NTC2018 §4.1.2.1.2
+    eps_yd = f_yd / Es
+
+    # Armatura
+    As = calc_input.As or 0.0               # cm² (tesa)
+    As_prime = calc_input.As_prime or 0.0    # cm² (compressa)
+    d = calc_input.d or (h * 0.9 / 10.0)    # cm (profondità utile)
+    d_prime = calc_input.d_prime or 4.0      # cm
+
+    d_mm = d * 10.0
+    d_prime_mm = d_prime * 10.0
+    As_mm2 = As * 100.0
+    As_prime_mm2 = As_prime * 100.0
+
+    # Sollecitazioni
+    N_Ed = calc_input.N or 0.0    # kN (positivo = compressione)
+    Mx_Ed = calc_input.Mx or 0.0  # kNm
+    My_Ed = calc_input.My or 0.0  # kNm
+    N_Ed_N = N_Ed * 1000.0        # N
+
+    # --- Casi limite: sollecitazioni nulle ---
+    if abs(N_Ed_N) < 1.0 and abs(Mx_Ed) < 1e-6 and abs(My_Ed) < 1e-6:
+        return SingleCheckResult(
+            template_id=template.template_id, ok=True, utilisation=0.0,
+            details={"N_Ed_kN": N_Ed, "Mx_Ed_kNm": Mx_Ed, "My_Ed_kNm": My_Ed},
+            messages_it=["Sollecitazioni nulle (N≈0, Mx≈0, My≈0): verifica soddisfatta."],
+            norm_references=[],
+        )
+
+    # --- Funzione ausiliaria: verifica uniassiale su un asse ---
+
+    def _uniaxial_check(M_Ed_kNm: float, axis: str) -> dict:
+        """Esegue verifica uniassiale N + M su un asse.
+
+        Args:
+            M_Ed_kNm: momento agente [kNm]
+            axis: "x" o "y"
+
+        Returns:
+            dict con chiavi: M_Rd_kNm, x_eq_mm, x_over_d, over_reinforced,
+                             ok, utilisazione, messages
+        """
+        M_Ed_Nmm = abs(M_Ed_kNm) * 1e6
+        h_axis = h if axis == "x" else w
+        h_2 = h_axis / 2.0
+        # Per asse y, d si riferisce alla dimensione orizzontale
+        d_ax_mm = d_mm if axis == "x" else (w * 0.9 if calc_input.d is None else d_mm)
+
+        def _sigma_s(eps: float) -> float:
+            if abs(eps) >= eps_yd:
+                return f_yd if eps >= 0 else -f_yd
+            return eps * Es
+
+        def _equilibrium_N(x_na: float) -> float:
+            """Sforzo normale interno per dato asse neutro x_na [mm]."""
+            R_c, _ = compute_concrete_resultant(
+                section, x_na, f_cd, axis=axis, lambda_f=lambda_f
+            )
+            # Deformazione armature
+            if x_na > 0:
+                eps_s_comp = eps_cu * (x_na - d_prime_mm) / x_na
+                eps_s_tens = eps_cu * (x_na - d_ax_mm) / x_na
+            else:
+                eps_s_comp = -eps_cu
+                eps_s_tens = -eps_cu
+
+            R_s_comp = As_prime_mm2 * _sigma_s(eps_s_comp)
+            R_s_tens = As_mm2 * _sigma_s(eps_s_tens)
+            return R_c + R_s_comp + R_s_tens
+
+        def _moment_about_center(x_na: float) -> float:
+            """Momento interno rispetto al baricentro geometrico [N·mm]."""
+            _, M_c = compute_concrete_resultant(
+                section, x_na, f_cd, axis=axis, lambda_f=lambda_f
+            )
+            if x_na > 0:
+                eps_s_comp = eps_cu * (x_na - d_prime_mm) / x_na
+                eps_s_tens = eps_cu * (x_na - d_ax_mm) / x_na
+            else:
+                eps_s_comp = -eps_cu
+                eps_s_tens = -eps_cu
+
+            R_s_comp = As_prime_mm2 * _sigma_s(eps_s_comp)
+            R_s_tens = As_mm2 * _sigma_s(eps_s_tens)
+
+            M_int = M_c + R_s_comp * (h_2 - d_prime_mm) - R_s_tens * (d_ax_mm - h_2)
+            return M_int
+
+        # Bisezione su asse neutro
+        x_lo = -h_axis
+        x_hi = 3.0 * h_axis
+
+        N_lo = _equilibrium_N(x_lo)
+        N_hi = _equilibrium_N(x_hi)
+
+        if N_Ed_N < N_lo or N_Ed_N > N_hi:
+            return {
+                "M_Rd_kNm": 0.0, "x_eq_mm": 0.0, "x_over_d": 0.0,
+                "over_reinforced": False, "ok": False, "utilisazione": 999.0,
+                "messages": [
+                    f"N_Ed = {N_Ed:.1f} kN fuori dal dominio di resistenza.",
+                    f"N_Rd,min = {N_lo / 1000:.1f} kN, N_Rd,max = {N_hi / 1000:.1f} kN",
+                ],
+            }
+
+        for _ in range(100):
+            x_mid = (x_lo + x_hi) / 2.0
+            N_mid = _equilibrium_N(x_mid)
+            if abs(N_mid - N_Ed_N) < 0.1:
+                break
+            if N_mid < N_Ed_N:
+                x_lo = x_mid
+            else:
+                x_hi = x_mid
+        x_eq = (x_lo + x_hi) / 2.0
+
+        M_Rd_Nmm = abs(_moment_about_center(x_eq))
+        M_Rd_kNm_val = M_Rd_Nmm / 1e6
+
+        if M_Rd_Nmm > 0:
+            util = M_Ed_Nmm / M_Rd_Nmm
+        elif M_Ed_Nmm < 1.0:
+            util = 0.0
+        else:
+            util = 999.0
+
+        x_over_d_val = x_eq / d_ax_mm if d_ax_mm > 0 else 0.0
+        over_reinf = x_over_d_val > 0.45
+
+        return {
+            "M_Rd_kNm": M_Rd_kNm_val,
+            "x_eq_mm": x_eq,
+            "x_over_d": x_over_d_val,
+            "over_reinforced": over_reinf,
+            "ok": util <= 1.0 and not over_reinf,
+            "utilisazione": util,
+            "messages": [],
+        }
+
+    # --- Determinazione tipo verifica ---
+    has_Mx = abs(Mx_Ed) > 1e-6
+    has_My = abs(My_Ed) > 1e-6
+    biaxial = has_Mx and has_My
+
+    if biaxial:
+        # ---------------------------------------------------------------
+        # FLESSIONE DEVIATA: Formula di Bresler (NTC2018 / EC2 §5.8.9)
+        # (Mx_Ed/Mx_Rd)^α + (My_Ed/My_Rd)^α ≤ 1.0
+        # ---------------------------------------------------------------
+        res_x = _uniaxial_check(Mx_Ed, axis="x")
+        res_y = _uniaxial_check(My_Ed, axis="y")
+
+        Mx_Rd = res_x["M_Rd_kNm"]
+        My_Rd = res_y["M_Rd_kNm"]
+
+        # N_Rd per compressione centrata (tutta sezione + armatura)
+        # Approssimazione: area cls = h * w_medio (media larghezza)
+        # Per maggiore precisione usiamo integrazione fiber
+        R_c_full, _ = compute_concrete_resultant(
+            section, h / lambda_f, f_cd, axis="x", lambda_f=lambda_f
+        )
+        N_Rd_N = R_c_full + (As_mm2 + As_prime_mm2) * f_yd
+        N_Rd_kN = N_Rd_N / 1000.0
+
+        # Esponente α (interpolazione lineare)
+        n_rel = abs(N_Ed_N) / N_Rd_N if N_Rd_N > 0 else 0.0
+        if n_rel <= 0.1:
+            alpha = 1.0
+        elif n_rel >= 1.0:
+            alpha = 2.0
+        else:
+            # Interpolazione lineare 0.1→1.0: α da 1.0→2.0
+            alpha = 1.0 + (n_rel - 0.1) / 0.9
+        alpha = min(alpha, 2.0)
+
+        # Verifica Bresler
+        if Mx_Rd > 0 and My_Rd > 0:
+            ratio_x = abs(Mx_Ed) / Mx_Rd
+            ratio_y = abs(My_Ed) / My_Rd
+            bresler = ratio_x ** alpha + ratio_y ** alpha
+        elif Mx_Rd <= 0 and My_Rd <= 0:
+            bresler = 999.0
+        elif Mx_Rd <= 0:
+            bresler = 999.0 if abs(Mx_Ed) > 1e-6 else (abs(My_Ed) / My_Rd) ** alpha
+        else:
+            bresler = 999.0 if abs(My_Ed) > 1e-6 else (abs(Mx_Ed) / Mx_Rd) ** alpha
+
+        over_reinf = res_x["over_reinforced"] or res_y["over_reinforced"]
+        ok = bresler <= 1.0 and not over_reinf
+
+        messages_it = [
+            f"Sezione: {section_type}, h = {h / 10:.1f} cm, b = {w / 10:.1f} cm",
+            f"d = {d:.1f} cm, d' = {d_prime:.1f} cm",
+            f"Armatura tesa: As = {As:.2f} cm², compressa: As' = {As_prime:.2f} cm²",
+            f"Materiali: f_ck = {f_ck:.0f} MPa, f_yk = {f_yk:.0f} MPa "
+            f"(f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa)",
+            "",
+            "Sollecitazioni di calcolo:",
+            f"  N_Ed = {N_Ed:.1f} kN ({'compressione' if N_Ed > 0 else 'trazione'})",
+            f"  Mx_Ed = {Mx_Ed:.2f} kNm",
+            f"  My_Ed = {My_Ed:.2f} kNm",
+            "",
+            "FLESSIONE DEVIATA — Formula di Bresler (NTC2018 / EC2 §5.8.9):",
+            f"  Mx_Rd = {Mx_Rd:.2f} kNm (per N_Ed = {N_Ed:.1f} kN, asse x)",
+            f"  My_Rd = {My_Rd:.2f} kNm (per N_Ed = {N_Ed:.1f} kN, asse y)",
+            f"  N_Rd = {N_Rd_kN:.1f} kN, n = N_Ed/N_Rd = {n_rel:.3f}",
+            f"  α = {alpha:.2f}",
+            f"  (Mx/Mx_Rd)^α + (My/My_Rd)^α = {bresler:.3f} {'≤ 1.0 ✓ OK' if ok else '> 1.0 ✗ NON OK'}",
+        ]
+
+        if over_reinf:
+            messages_it.append("")
+            messages_it.append(
+                f"  ⚠️ Sezione sovra-armata: x/d_x = {res_x['x_over_d']:.3f}, "
+                f"x/d_y = {res_y['x_over_d']:.3f}"
+            )
+
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=ok,
+            utilisation=bresler,
+            details={
+                "N_Ed_kN": N_Ed,
+                "Mx_Ed_kNm": Mx_Ed,
+                "My_Ed_kNm": My_Ed,
+                "Mx_Rd_kNm": Mx_Rd,
+                "My_Rd_kNm": My_Rd,
+                "N_Rd_kN": N_Rd_kN,
+                "alpha_bresler": alpha,
+                "bresler_value": bresler,
+                "x_eq_x_mm": res_x["x_eq_mm"],
+                "x_eq_y_mm": res_y["x_eq_mm"],
+                "x_over_d_x": res_x["x_over_d"],
+                "x_over_d_y": res_y["x_over_d"],
+                "f_cd_MPa": f_cd,
+                "f_yd_MPa": f_yd,
+                "section_type": section_type,
+                "over_reinforced": over_reinf,
+                "biaxial": True,
+            },
+            norm_references=[
+                NormReference(
+                    norm_code="NTC2018",
+                    chapter="4.1",
+                    paragraph="4.1.2.1.3.1",
+                    formula_label="(4.1)",
+                    description_it=(
+                        "Verifica a presso/tenso-flessione deviata — "
+                        "Formula di Bresler per interazione biassiale"
+                    ),
+                ),
+                NormReference(
+                    norm_code="EC2",
+                    chapter="5.8",
+                    paragraph="5.8.9",
+                    description_it="Formula di interazione biassiale (Mx/Mx_Rd)^α + (My/My_Rd)^α ≤ 1",
+                ),
+            ],
+            messages_it=messages_it,
+        )
+
+    else:
+        # ---------------------------------------------------------------
+        # FLESSIONE RETTA (uniassiale): N + Mx oppure N + My
+        # ---------------------------------------------------------------
+        if has_My and not has_Mx:
+            axis = "y"
+            M_Ed = abs(My_Ed)
+        else:
+            axis = "x"
+            M_Ed = abs(Mx_Ed) if has_Mx else 0.0
+
+        M_Ed_Nmm = M_Ed * 1e6
+        res = _uniaxial_check(M_Ed, axis=axis)
+
+        # Per compressione/trazione centrata (M=0), verifica N solo
+        if M_Ed < 1e-6 and abs(N_Ed_N) >= 1.0:
+            # Compressione o trazione centrata
+            R_c_full, _ = compute_concrete_resultant(
+                section, h / lambda_f, f_cd, axis="x", lambda_f=lambda_f
+            )
+            if N_Ed > 0:
+                # Compressione centrata
+                N_Rd_N = R_c_full + (As_mm2 + As_prime_mm2) * f_yd
+                util = N_Ed_N / N_Rd_N if N_Rd_N > 0 else 999.0
+                ok = util <= 1.0
+                messages_it = [
+                    f"Sezione: {section_type}, h = {h / 10:.1f} cm, b = {w / 10:.1f} cm",
+                    f"Armatura: As = {As:.2f} cm², As' = {As_prime:.2f} cm²",
+                    f"Materiali: f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa",
+                    "",
+                    "COMPRESSIONE CENTRATA:",
+                    f"  N_Ed = {N_Ed:.1f} kN",
+                    f"  N_Rd = {N_Rd_N / 1000:.1f} kN",
+                    f"  Utilizzazione: {util:.3f} {'✓ OK' if ok else '✗ NON OK'}",
+                ]
+            else:
+                # Trazione centrata
+                N_Rd_t_N = (As_mm2 + As_prime_mm2) * f_yd
+                util = abs(N_Ed_N) / N_Rd_t_N if N_Rd_t_N > 0 else 999.0
+                ok = util <= 1.0
+                messages_it = [
+                    f"Sezione: {section_type}, h = {h / 10:.1f} cm, b = {w / 10:.1f} cm",
+                    f"Armatura: As = {As:.2f} cm², As' = {As_prime:.2f} cm²",
+                    f"Materiali: f_yd = {f_yd:.0f} MPa",
+                    "",
+                    "TRAZIONE CENTRATA:",
+                    f"  N_Ed = {N_Ed:.1f} kN (trazione)",
+                    f"  N_Rd,t = {N_Rd_t_N / 1000:.1f} kN",
+                    f"  Utilizzazione: {util:.3f} {'✓ OK' if ok else '✗ NON OK'}",
+                ]
+
+            return SingleCheckResult(
+                template_id=template.template_id,
+                ok=ok,
+                utilisation=util,
+                details={
+                    "N_Ed_kN": N_Ed,
+                    "N_Rd_kN": (N_Rd_N if N_Ed > 0 else N_Rd_t_N) / 1000,
+                    "f_cd_MPa": f_cd,
+                    "f_yd_MPa": f_yd,
+                    "section_type": section_type,
+                },
+                norm_references=[
+                    NormReference(
+                        norm_code="NTC2018",
+                        chapter="4.1",
+                        paragraph="4.1.2.1.3.1",
+                        description_it="Verifica a compressione/trazione centrata",
+                    ),
+                ],
+                messages_it=messages_it,
+            )
+
+        # Flessione retta (con o senza N)
+        M_Rd_kNm = res["M_Rd_kNm"]
+        x_eq = res["x_eq_mm"]
+        x_over_d = res["x_over_d"]
+        over_reinforced = res["over_reinforced"]
+        utilisazione = res["utilisazione"]
+        ok = res["ok"]
+
+        # Tipo sollecitazione per messaggi
+        if abs(N_Ed) < 0.01:
+            tipo_soll = "FLESSIONE SEMPLICE"
+        elif N_Ed > 0:
+            tipo_soll = "PRESSO-FLESSIONE"
+        else:
+            tipo_soll = "TENSO-FLESSIONE"
+
+        asse_label = "Mx" if axis == "x" else "My"
+
+        messages_it = [
+            f"Sezione: {section_type}, h = {h / 10:.1f} cm, b = {w / 10:.1f} cm",
+            f"d = {d:.1f} cm, d' = {d_prime:.1f} cm",
+            f"Armatura tesa: As = {As:.2f} cm², compressa: As' = {As_prime:.2f} cm²",
+            f"Materiali: f_ck = {f_ck:.0f} MPa, f_yk = {f_yk:.0f} MPa "
+            f"(f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa)",
+            "",
+            "Sollecitazioni di calcolo:",
+            f"  N_Ed = {N_Ed:.1f} kN ({'compressione' if N_Ed >= 0 else 'trazione'})",
+            f"  {asse_label}_Ed = {M_Ed:.2f} kNm",
+            "",
+            f"{tipo_soll} — Equilibrio sezione (NTC 2018 § 4.1.2.1.3.1):",
+            f"  Asse neutro: x = {x_eq:.1f} mm (x/d = {x_over_d:.3f})",
+        ]
+
+        if res["messages"]:
+            messages_it.extend(["  " + m for m in res["messages"]])
+
+        if over_reinforced:
+            messages_it.append(f"  ⚠️ x/d = {x_over_d:.3f} > 0.45: sezione sovra-armata")
+
+        messages_it.extend([
+            "",
+            f"Momento resistente: {asse_label}_Rd = {M_Rd_kNm:.2f} kNm "
+            f"(per N_Ed = {N_Ed:.1f} kN)",
+            f"Momento agente: {asse_label}_Ed = {M_Ed:.2f} kNm",
+            f"Utilizzazione: {utilisazione:.3f} {'✓ OK' if ok else '✗ NON OK'}",
+        ])
+
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=ok,
+            utilisation=utilisazione,
+            details={
+                "N_Ed_kN": N_Ed,
+                "M_Ed_kNm": M_Ed,
+                "M_Rd_kNm": M_Rd_kNm,
+                "x_mm": x_eq,
+                "x_over_d": x_over_d,
+                "f_cd_MPa": f_cd,
+                "f_yd_MPa": f_yd,
+                "As_cm2": As,
+                "As_prime_cm2": As_prime,
+                "d_cm": d,
+                "d_prime_cm": d_prime,
+                "over_reinforced": over_reinforced,
+                "section_type": section_type,
+                "axis": axis,
+                "biaxial": False,
+            },
+            norm_references=[
+                NormReference(
+                    norm_code="NTC2018",
+                    chapter="4.1",
+                    paragraph="4.1.2.1.3.1",
+                    formula_label="(4.1)",
+                    description_it=(
+                        f"Verifica a {tipo_soll.lower()} — "
+                        f"sezione {section_type}"
+                    ),
+                ),
+                NormReference(
+                    norm_code="Circolare7",
+                    chapter="C4.1",
+                    paragraph="C4.1.2.1.3.1",
+                    description_it="Istruzioni per verifica a pressoflessione",
+                ),
+            ],
+            messages_it=messages_it,
+        )
+
+
 def check_minimi_armatura_flessione_slu(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:

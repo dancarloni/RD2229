@@ -233,9 +233,85 @@ def get_ntc2018_templates() -> list[VerificationTemplate]:
             requires_existing_structure=False,
             extra_params={"implementation_status": "complete"},
         ),
+        # Presso/tenso-flessione retta e deviata SLU (generalizzata per tutte le sezioni)
+        VerificationTemplate(
+            template_id="ntc2018_slu_pressoflessione",
+            norm_code="NTC2018",
+            norm_version="2018",
+            verification_type="pressoflessione",
+            limit_state="SLU",
+            description_it=(
+                "Verifica a presso/tenso-flessione retta e deviata SLU — "
+                "qualsiasi tipo di sezione"
+            ),
+            check_category="resistenza",
+            required_inputs=["section", "material", "As", "d"],
+            optional_inputs=["N", "Mx", "My", "As_prime", "d_prime"],
+            output_metrics=[
+                "N_Ed_kN",
+                "M_Ed_kNm",
+                "M_Rd_kNm",
+                "x_mm",
+                "x_over_d",
+                "utilizzazione",
+                "bresler_value",
+                "alpha_bresler",
+            ],
+            primary_reference=NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.1.3.1",
+                formula_label="(4.1)",
+                description_it=(
+                    "Verifica a presso/tenso-flessione retta e deviata. "
+                    "Fiber method con stress block rettangolare λ=0.8, εcu=0.0035. "
+                    "Flessione deviata: formula di Bresler."
+                ),
+                notes_it=(
+                    "Modello generalizzato: copre compressione/trazione centrata, "
+                    "flessione semplice, presso-flessione, tenso-flessione retta e "
+                    "deviata. Applicabile a tutte le sezioni gestite dal software."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="EC2",
+                    chapter="5.8",
+                    paragraph="5.8.9",
+                    description_it=(
+                        "Formula di Bresler per flessione deviata: "
+                        "(Mx/Mx_Rd)^α + (My/My_Rd)^α ≤ 1.0"
+                    ),
+                ),
+                NormReference(
+                    norm_code="Circolare7",
+                    chapter="C4.1",
+                    paragraph="C4.1.2.1.3.1",
+                    description_it="Istruzioni per verifica a pressoflessione",
+                ),
+            ],
+            function_path="src.methods.checks_ntc2018.check_pressoflessione_slu",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=[
+                "rectangular", "RECTANGULAR",
+                "circular", "CIRCULAR",
+                "circular_hollow", "CIRCULAR_HOLLOW",
+                "rectangular_hollow", "RECTANGULAR_HOLLOW",
+                "t_section", "T_SECTION",
+                "inverted_t_section", "INVERTED_T_SECTION",
+                "i_section", "I_SECTION",
+                "pi_section", "PI_SECTION",
+                "c_section", "C_SECTION",
+                "l_section", "L_SECTION",
+                "v_section", "V_SECTION",
+                "inverted_v_section", "INVERTED_V_SECTION",
+            ],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "complete"},
+        ),
         # TODO: Add more templates:
-        # - Presso-flessione SLU
-        # - Compressione/trazione SLU
         # - Torsione SLU
         # - Taglio + torsione SLU
         # - Tensioni SLE
