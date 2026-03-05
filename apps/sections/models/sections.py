@@ -50,6 +50,10 @@ CSV_HEADERS = [
     "core_y",
     "ellipse_a",
     "ellipse_b",
+    "J_t",
+    "C_w",
+    "x_s",
+    "y_s",
     "note",
 ]
 
@@ -129,6 +133,12 @@ class SectionProperties:
     # These are computed as A_y = kappa_y * A_ref_y and A_z = kappa_z * A_ref_z
     shear_area_y: float | None = None
     shear_area_z: float | None = None
+
+    # Torsional properties (St. Venant)
+    j_t: float | None = None      # Costante torsionale St. Venant [cm⁴]
+    c_w: float | None = None      # Costante di ingobbamento [cm⁶]
+    x_s: float | None = None      # Coord. x centro di taglio [cm]
+    y_s: float | None = None      # Coord. y centro di taglio [cm]
 
 
 @dataclass
@@ -292,8 +302,170 @@ class Section:
             props.shear_area_z,
         )
 
+        # --- TORSION: compute J_t, C_w, shear center ---
+        try:
+            self._compute_torsion_properties(props)
+        except Exception:
+            logger.exception("Errore nel calcolo delle proprietà torsionali")
+
         logger.debug("Proprietà calcolate per %s: %s", self.section_type, self.properties)
         return self.properties
+
+    def _compute_torsion_properties(self, props: SectionProperties) -> None:
+        """Calcola proprietà torsionali (J_t, C_w, centro di taglio).
+
+        Formule da letteratura classica (Timoshenko, EC3 Annex J):
+        - Sezioni piene: formula esatta o approssimata
+        - Sezioni cave chiuse: Bredt
+        - Sezioni aperte thin-walled: somma rettangoli
+        """
+        st = self.section_type
+
+        if st == "RECTANGULAR":
+            b = max(self.width, self.height)
+            a = min(self.width, self.height)
+            ratio = a / b if b > 0 else 0
+            # J_t = beta * a^3 * b con beta approssimato
+            beta = (1.0 / 3.0) * (1.0 - 0.63 * ratio + 0.052 * ratio**3)
+            props.j_t = beta * a**3 * b
+            props.c_w = 0.0  # Sezione piena compatta: C_w trascurabile
+            props.x_s = props.centroid_x
+            props.y_s = props.centroid_y
+
+        elif st == "CIRCULAR":
+            r = self.diameter / 2
+            props.j_t = pi * r**4 / 2  # = pi * d^4 / 32
+            props.c_w = 0.0
+            props.x_s = props.centroid_x
+            props.y_s = props.centroid_y
+
+        elif st == "CIRCULAR_HOLLOW":
+            r_out = self.outer_diameter / 2
+            r_in = r_out - self.thickness
+            if r_in < 0:
+                r_in = 0
+            props.j_t = (pi / 2) * (r_out**4 - r_in**4)
+            props.c_w = 0.0  # Sezione chiusa: C_w trascurabile
+            props.x_s = props.centroid_x
+            props.y_s = props.centroid_y
+
+        elif st == "RECTANGULAR_HOLLOW":
+            t = self.thickness
+            b_m = self.width - t     # larghezza media
+            h_m = self.height - t    # altezza media
+            if b_m > 0 and h_m > 0:
+                A_m = b_m * h_m      # area racchiusa dalla linea media
+                p_m = 2 * (b_m + h_m)  # perimetro medio
+                props.j_t = 4 * A_m**2 * t / p_m  # Bredt
+            else:
+                props.j_t = 0.0
+            props.c_w = 0.0  # Sezione chiusa
+            props.x_s = props.centroid_x
+            props.y_s = props.centroid_y
+
+        elif st == "I_SECTION":
+            bf = self.flange_width
+            tf = self.flange_thickness
+            hw = self.web_height
+            tw = self.web_thickness
+            h = hw + 2 * tf  # altezza totale
+            # J_t = somma rettangoli (sezione aperta)
+            props.j_t = (1.0 / 3.0) * (2 * bf * tf**3 + hw * tw**3)
+            # C_w per I simmetrica: C_w = I_f * h_s^2 / 4
+            # dove I_f = tf * bf^3 / 12, h_s = h - tf (distanza tra linee medie ali)
+            I_f = tf * bf**3 / 12
+            h_s = h - tf
+            props.c_w = I_f * h_s**2 / 4
+            # Centro di taglio: baricentro (sezione doppiamente simmetrica)
+            props.x_s = props.centroid_x
+            props.y_s = props.centroid_y
+
+        elif st == "T_SECTION":
+            bf = self.flange_width
+            tf = self.flange_thickness
+            hw = self.web_height
+            tw = self.web_thickness
+            props.j_t = (1.0 / 3.0) * (bf * tf**3 + hw * tw**3)
+            props.c_w = 0.0  # T simmetrica: C_w ≈ 0 (approssimazione ingegneristica)
+            # Centro di taglio: sull'asse di simmetria verticale
+            # Per sezione T: centro di taglio al giunto ala-anima (approssimazione)
+            props.x_s = props.centroid_x  # simmetria
+            props.y_s = self.web_height + self.flange_thickness  # all'intersezione ala-anima (sommità anima)
+
+        elif st == "INVERTED_T_SECTION":
+            bf = self.flange_width
+            tf = self.flange_thickness
+            hw = self.web_height
+            tw = self.web_thickness
+            props.j_t = (1.0 / 3.0) * (bf * tf**3 + hw * tw**3)
+            props.c_w = 0.0
+            props.x_s = props.centroid_x
+            props.y_s = tf  # giunto ala-anima (base anima)
+
+        elif st == "C_SECTION":
+            bf = self.width        # larghezza ali
+            tf = self.flange_thickness
+            hw = self.height - 2 * tf
+            tw = self.web_thickness
+            if hw < 0:
+                hw = 0
+            h = self.height
+            props.j_t = (1.0 / 3.0) * (2 * bf * tf**3 + hw * tw**3)
+            # C_w per C: formula semplificata
+            h_s = h - tf
+            I_f = tf * bf**3 / 12
+            props.c_w = I_f * h_s**2 / 4  # approssimazione come I
+            # Centro di taglio per C: sull'asse di simmetria orizzontale
+            # e_s dalla faccia dell'anima
+            denom = 6 * bf * tf + hw * tw
+            if denom > 0:
+                e_s = 3 * bf**2 * tf / denom
+            else:
+                e_s = 0.0
+            props.x_s = -e_s  # fuori dall'anima (lato opposto all'anima)
+            props.y_s = props.centroid_y  # simmetria verticale
+
+        elif st == "L_SECTION":
+            bh = self.width
+            th = self.t_horizontal
+            bv = self.height - th
+            tv = self.t_vertical
+            if bv < 0:
+                bv = 0
+            props.j_t = (1.0 / 3.0) * (bh * th**3 + bv * tv**3)
+            props.c_w = 0.0  # L: C_w ≈ 0 (sezione angolare semplice)
+            # Centro di taglio per L: al vertice dell'angolo (approssimazione thin-walled)
+            props.x_s = self.t_vertical / 2
+            props.y_s = self.height - self.t_horizontal / 2
+
+        elif st == "PI_SECTION":
+            bf = self.flange_width
+            tf = self.flange_thickness
+            hw = self.web_height
+            tw = self.web_thickness
+            # Due anime + una flangia
+            props.j_t = (1.0 / 3.0) * (bf * tf**3 + 2 * hw * tw**3)
+            props.c_w = 0.0  # Approssimazione
+            props.x_s = props.centroid_x
+            props.y_s = props.centroid_y
+
+        elif st in ("V_SECTION", "INVERTED_V_SECTION"):
+            # Approssimazione: due pareti inclinate thin-walled
+            half_w = getattr(self, "width", 0) / 2
+            h = getattr(self, "height", 0)
+            t = getattr(self, "thickness", 0)
+            length = sqrt(half_w**2 + h**2) if half_w > 0 and h > 0 else 0
+            props.j_t = (1.0 / 3.0) * 2 * length * t**3
+            props.c_w = 0.0
+            props.x_s = props.centroid_x
+            props.y_s = props.centroid_y
+
+        else:
+            # Tipo sconosciuto: nessun calcolo torsionale
+            props.j_t = None
+            props.c_w = None
+            props.x_s = None
+            props.y_s = None
 
     def _collect_dimensions(self) -> dict[str, float | None]:
         """Raccoglie tutte le dimensioni possibili in un dizionario con chiavi fisse.
@@ -382,6 +554,10 @@ class Section:
                 "core_y": getattr(props, "core_y", None) if props else None,
                 "ellipse_a": getattr(props, "ellipse_a", None) if props else None,
                 "ellipse_b": getattr(props, "ellipse_b", None) if props else None,
+                "J_t": getattr(props, "j_t", None) if props else None,
+                "C_w": getattr(props, "c_w", None) if props else None,
+                "x_s": getattr(props, "x_s", None) if props else None,
+                "y_s": getattr(props, "y_s", None) if props else None,
             }
         )
         return data
