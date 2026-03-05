@@ -331,12 +331,209 @@ def get_ntc2018_templates() -> list[VerificationTemplate]:
             requires_existing_structure=False,
             extra_params={"implementation_status": "complete"},
         ),
-        # TODO: Add more templates:
-        # - Torsione SLU
-        # - Taglio + torsione SLU
-        # - Tensioni SLE
-        # - Fessurazione SLE
-        # - Deformazioni SLE
+        # Torsione SLU
+        VerificationTemplate(
+            template_id="ntc2018_slu_torsione",
+            norm_code="NTC2018",
+            norm_version="2018",
+            verification_type="torsione",
+            limit_state="SLU",
+            description_it=(
+                "Verifica a torsione SLU — modello traliccio thin-walled, "
+                "qualsiasi tipo di sezione"
+            ),
+            check_category="resistenza",
+            required_inputs=["section", "material", "Mz"],
+            optional_inputs=[
+                "Tx", "staffe_passo", "staffe_diametro", "staffe_num_bracci", "d",
+            ],
+            output_metrics=[
+                "T_Ed_kNm", "T_Rd_kNm", "T_Rd_max_kNm", "T_Rd_s_kNm",
+                "A_k_mm2", "interaction_ratio", "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.1.5",
+                formula_label="EC2 (6.26)-(6.29)",
+                description_it="Verifica a torsione con modello a traliccio thin-walled",
+                notes_it=(
+                    "T_Rd,max = 2·ν·A_k·t_ef·f_cd·sinθ·cosθ (puntone compresso). "
+                    "T_Rd,s = 2·A_k·(Asw/s)·f_ywd·cotθ (armature). "
+                    "Interazione taglio-torsione: T_Ed/T_Rd,max + V_Ed/V_Rd,max ≤ 1.0."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="EC2",
+                    chapter="6.3",
+                    paragraph="6.3.2",
+                    description_it="Modello a traliccio per torsione",
+                ),
+            ],
+            function_path="src.methods.checks_ntc2018.check_torsione_slu",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=[
+                "RECTANGULAR", "CIRCULAR", "CIRCULAR_HOLLOW",
+                "RECTANGULAR_HOLLOW", "T_SECTION", "INVERTED_T_SECTION",
+                "I_SECTION", "PI_SECTION", "C_SECTION", "L_SECTION",
+                "V_SECTION", "INVERTED_V_SECTION",
+            ],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "complete"},
+        ),
+        # Tensioni SLE
+        VerificationTemplate(
+            template_id="ntc2018_sle_tensioni",
+            norm_code="NTC2018",
+            norm_version="2018",
+            verification_type="tensioni_esercizio",
+            limit_state="SLE",
+            description_it=(
+                "Verifica tensioni in esercizio SLE — "
+                "qualsiasi tipo di sezione"
+            ),
+            check_category="tensioni_esercizio",
+            required_inputs=["section", "material", "As", "d"],
+            optional_inputs=["Mx", "N", "As_prime", "d_prime"],
+            output_metrics=[
+                "sigma_c_MPa", "sigma_s_MPa",
+                "sigma_c_lim_MPa", "sigma_s_lim_MPa",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.2.5",
+                description_it="Limiti tensioni in esercizio",
+                notes_it=(
+                    "σ_c ≤ 0.60·f_ck (comb. caratteristica), "
+                    "σ_c ≤ 0.45·f_ck (comb. quasi-permanente), "
+                    "σ_s ≤ 0.80·f_yk. Sezione fessurata n-trasformata."
+                ),
+            ),
+            secondary_references=[],
+            function_path="src.methods.checks_ntc2018.check_tensioni_sle",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=[
+                "RECTANGULAR", "CIRCULAR", "CIRCULAR_HOLLOW",
+                "RECTANGULAR_HOLLOW", "T_SECTION", "INVERTED_T_SECTION",
+                "I_SECTION", "PI_SECTION", "C_SECTION", "L_SECTION",
+                "V_SECTION", "INVERTED_V_SECTION",
+            ],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "complete"},
+        ),
+        # Fessurazione SLE
+        VerificationTemplate(
+            template_id="ntc2018_sle_fessurazione",
+            norm_code="NTC2018",
+            norm_version="2018",
+            verification_type="fessurazione",
+            limit_state="SLE",
+            description_it=(
+                "Verifica fessurazione SLE — ampiezza fessure w_k, "
+                "qualsiasi tipo di sezione"
+            ),
+            check_category="fessurazione",
+            required_inputs=["section", "material", "Mx", "As", "d"],
+            optional_inputs=["As_prime", "d_prime"],
+            output_metrics=[
+                "w_k_mm", "w_amm_mm", "sigma_s_MPa",
+                "s_r_max_mm", "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.2.4",
+                formula_label="EC2 (7.8)-(7.11)",
+                description_it="Verifica ampiezza fessure",
+                notes_it=(
+                    "w_k = s_r,max · (ε_sm - ε_cm). "
+                    "s_r,max = 3.4·c + 0.425·k1·k2·φ/ρ_p,eff. "
+                    "Limite w_amm configurabile (default 0.3 mm)."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="EC2",
+                    chapter="7.3",
+                    paragraph="7.3.4",
+                    description_it="Calcolo ampiezza fessure",
+                ),
+            ],
+            function_path="src.methods.checks_ntc2018.check_fessurazione_sle",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=[
+                "RECTANGULAR", "CIRCULAR", "CIRCULAR_HOLLOW",
+                "RECTANGULAR_HOLLOW", "T_SECTION", "INVERTED_T_SECTION",
+                "I_SECTION", "PI_SECTION", "C_SECTION", "L_SECTION",
+                "V_SECTION", "INVERTED_V_SECTION",
+            ],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "complete", "w_amm_mm": 0.3},
+        ),
+        # Deformazioni SLE
+        VerificationTemplate(
+            template_id="ntc2018_sle_deformazioni",
+            norm_code="NTC2018",
+            norm_version="2018",
+            verification_type="deformazioni",
+            limit_state="SLE",
+            description_it=(
+                "Verifica deformazioni SLE — freccia con rigidezza interpolata, "
+                "qualsiasi tipo di sezione"
+            ),
+            check_category="deformazioni",
+            required_inputs=["section", "material", "Mx", "As", "d"],
+            optional_inputs=["As_prime", "d_prime"],
+            output_metrics=[
+                "delta_mm", "delta_amm_mm", "M_cr_kNm",
+                "zeta", "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.2.2",
+                formula_label="EC2 (7.18)-(7.19)",
+                description_it="Verifica frecce con rigidezza interpolata",
+                notes_it=(
+                    "1/r = ζ·1/r_II + (1-ζ)·1/r_I. "
+                    "ζ = 1 - β·(M_cr/M_Ed)². "
+                    "Richiede span_mm in CalcInput.extra. "
+                    "Limite: L/250 (aspetto) o L/500 (danni)."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="EC2",
+                    chapter="7.4",
+                    paragraph="7.4.3",
+                    description_it="Metodo rigidezza interpolata per frecce",
+                ),
+            ],
+            function_path="src.methods.checks_ntc2018.check_deformazioni_sle",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=[
+                "RECTANGULAR", "CIRCULAR", "CIRCULAR_HOLLOW",
+                "RECTANGULAR_HOLLOW", "T_SECTION", "INVERTED_T_SECTION",
+                "I_SECTION", "PI_SECTION", "C_SECTION", "L_SECTION",
+                "V_SECTION", "INVERTED_V_SECTION",
+            ],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={
+                "implementation_status": "complete",
+                "deflection_limit_ratio": 250.0,
+            },
+        ),
     ]
 
 

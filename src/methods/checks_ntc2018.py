@@ -1107,3 +1107,814 @@ def check_minimi_armatura_taglio_slu(
         ],
         messages_it=messages_it,
     )
+
+
+# ===========================================================================
+# Torsione SLU — NTC 2018 § 4.1.2.1.5 / EC2 § 6.3
+# ===========================================================================
+
+def check_torsione_slu(
+    calc_input: CalcInput,
+    template: VerificationTemplate,
+    adjusted_material: AdjustedMaterialProperties | None = None,
+) -> SingleCheckResult:
+    """Verifica a torsione SLU — NTC 2018 § 4.1.2.1.5.
+
+    Modello a traliccio thin-walled (EC2 § 6.3):
+    - T_Rd,max = 2 · ν · A_k · t_ef · f_cd · sinθ · cosθ
+    - T_Rd,s  = 2 · A_k · (A_sw/s) · f_ywd · cotθ
+
+    Interazione taglio-torsione (EC2 eq. 6.29):
+    T_Ed/T_Rd,max + V_Ed/V_Rd,max ≤ 1.0
+
+    Generalizzata per qualsiasi tipo di sezione.
+    """
+    from src.methods.section_fiber import (
+        compute_torsion_properties,
+        get_section_height,
+        get_web_width,
+    )
+
+    section = calc_input.section
+    if section is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Sezione non specificata per verifica torsione"],
+        )
+
+    material = calc_input.material
+    if material is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Materiale non specificato per verifica torsione"],
+        )
+
+    # Momento torcente
+    Mz = calc_input.Mz or 0.0
+    T_Ed = abs(Mz)  # kNm
+
+    if T_Ed < 1e-6:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=True, utilisation=0.0,
+            details={"T_Ed_kNm": 0.0, "interaction": "nessuna"},
+            messages_it=["Momento torcente nullo: verifica non necessaria."],
+        )
+
+    # Material properties
+    if adjusted_material is not None:
+        f_ck = adjusted_material.f_ck_adjusted
+        f_yk = adjusted_material.f_yk_adjusted
+    else:
+        f_ck = getattr(material, "f_ck", None)
+        f_yk = getattr(material, "f_yk", None)
+
+    if not f_ck or f_ck <= 0 or not f_yk or f_yk <= 0:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Resistenze materiale non valide per verifica torsione"],
+        )
+
+    gamma_c = 1.5
+    gamma_s = 1.15
+    f_cd = 0.85 * f_ck / gamma_c  # MPa
+    f_ywd = f_yk / gamma_s  # MPa
+
+    # Torsion section properties
+    try:
+        A_k, u_k, t_ef = compute_torsion_properties(section)
+    except (ValueError, AttributeError):
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Impossibile calcolare proprietà torsionali della sezione"],
+        )
+
+    if A_k <= 0:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Area nucleo torsionale A_k ≤ 0"],
+        )
+
+    # Strut angle θ (conservative: θ = 21.8° → cotθ = 2.5)
+    theta_deg = 21.8
+    theta = math.radians(theta_deg)
+    sin_t = math.sin(theta)
+    cos_t = math.cos(theta)
+    cot_t = cos_t / sin_t
+
+    # ν coefficient
+    nu = 0.6 * (1.0 - f_ck / 250.0)
+
+    # T_Rd,max — resistenza puntone compresso
+    # T_Rd,max = 2 · ν · A_k · t_ef · f_cd · sinθ · cosθ
+    T_Rd_max_Nmm = 2.0 * nu * A_k * t_ef * f_cd * sin_t * cos_t
+    T_Rd_max_kNm = T_Rd_max_Nmm / 1e6
+
+    # T_Rd,s — resistenza armature trasversali a torsione
+    # T_Rd,s = 2 · A_k · (A_sw/s) · f_ywd · cotθ
+    staffe_diametro = calc_input.staffe_diametro or 0.0  # mm
+    staffe_passo = calc_input.staffe_passo or 0.0  # cm
+    staffe_num_bracci = calc_input.staffe_num_bracci or 2
+
+    if staffe_diametro > 0 and staffe_passo > 0:
+        s_mm = staffe_passo * 10.0  # cm → mm
+        # Per torsione: un solo braccio della staffa contribuisce (non tutti)
+        A_sw_torsion = math.pi * (staffe_diametro ** 2) / 4.0  # mm² (1 braccio)
+        Asw_over_s = A_sw_torsion / s_mm  # mm²/mm
+        T_Rd_s_Nmm = 2.0 * A_k * Asw_over_s * f_ywd * cot_t
+        T_Rd_s_kNm = T_Rd_s_Nmm / 1e6
+    else:
+        T_Rd_s_kNm = 0.0
+
+    T_Rd_kNm = min(T_Rd_max_kNm, T_Rd_s_kNm) if T_Rd_s_kNm > 0 else T_Rd_max_kNm
+
+    # Interazione taglio-torsione
+    Tx = calc_input.Tx or 0.0
+    V_Ed = abs(Tx)  # kN
+    interaction_ratio = 0.0
+    has_interaction = V_Ed > 1e-6
+
+    if has_interaction:
+        # Calcolo V_Rd,max per interazione
+        try:
+            b_w = get_web_width(section)
+            h_sec = get_section_height(section)
+        except ValueError:
+            b_w = 0.0
+            h_sec = 0.0
+        d_mm = (calc_input.d or 0.9 * h_sec / 10.0) * 10.0
+        if d_mm <= 0 and h_sec > 0:
+            d_mm = 0.9 * h_sec
+        z = 0.9 * d_mm
+
+        V_Rd_max_N = b_w * z * nu * f_cd * sin_t * cos_t if (b_w > 0 and z > 0) else 1e30
+        V_Rd_max_kN = V_Rd_max_N / 1e3
+
+        # EC2 eq. 6.29: T_Ed/T_Rd,max + V_Ed/V_Rd,max ≤ 1.0
+        ratio_T = T_Ed / T_Rd_max_kNm if T_Rd_max_kNm > 0 else 999.0
+        ratio_V = V_Ed / V_Rd_max_kN if V_Rd_max_kN > 0 else 0.0
+        interaction_ratio = ratio_T + ratio_V
+    else:
+        V_Rd_max_kN = 0.0
+
+    # Utilizzazione
+    util_T = T_Ed / T_Rd_kNm if T_Rd_kNm > 0 else 999.0
+    utilisazione = max(util_T, interaction_ratio) if has_interaction else util_T
+    ok = utilisazione <= 1.0
+
+    messages_it = [
+        "VERIFICA A TORSIONE SLU — NTC 2018 § 4.1.2.1.5",
+        f"Sezione: tipo {getattr(section, 'section_type', '?')}",
+        f"Materiali: f_ck={f_ck:.0f} MPa, f_yk={f_yk:.0f} MPa",
+        "",
+        f"Proprietà torsionali:",
+        f"  A_k = {A_k:.0f} mm²  (area nucleo)",
+        f"  u_k = {u_k:.0f} mm   (perimetro nucleo)",
+        f"  t_ef = {t_ef:.1f} mm  (spessore efficace)",
+        "",
+        f"T_Ed = {T_Ed:.2f} kNm",
+        f"T_Rd,max = {T_Rd_max_kNm:.2f} kNm  (puntone compresso, θ={theta_deg}°)",
+    ]
+
+    if T_Rd_s_kNm > 0:
+        messages_it.append(
+            f"T_Rd,s = {T_Rd_s_kNm:.2f} kNm  (armature, φ{staffe_diametro:.0f}/{staffe_passo:.0f}cm)"
+        )
+    messages_it.append(f"T_Rd = {T_Rd_kNm:.2f} kNm")
+
+    if has_interaction:
+        messages_it.extend([
+            "",
+            "Interazione taglio-torsione (EC2 eq. 6.29):",
+            f"  T_Ed/T_Rd,max + V_Ed/V_Rd,max = {interaction_ratio:.3f}",
+        ])
+
+    messages_it.extend([
+        "",
+        f"Utilizzazione: {utilisazione:.3f} {'OK' if ok else 'NON OK'}",
+    ])
+
+    return SingleCheckResult(
+        template_id=template.template_id,
+        ok=ok,
+        utilisation=utilisazione,
+        details={
+            "T_Ed_kNm": T_Ed,
+            "T_Rd_kNm": T_Rd_kNm,
+            "T_Rd_max_kNm": T_Rd_max_kNm,
+            "T_Rd_s_kNm": T_Rd_s_kNm,
+            "A_k_mm2": A_k,
+            "u_k_mm": u_k,
+            "t_ef_mm": t_ef,
+            "theta_deg": theta_deg,
+            "interaction_ratio": interaction_ratio,
+            "has_interaction": has_interaction,
+        },
+        norm_references=[
+            NormReference(
+                norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.1.5",
+                formula_label="EC2 (6.26)-(6.29)",
+                description_it="Verifica a torsione con modello a traliccio thin-walled",
+            ),
+        ],
+        messages_it=messages_it,
+    )
+
+
+# ===========================================================================
+# Tensioni SLE — NTC 2018 § 4.1.2.2.5
+# ===========================================================================
+
+def check_tensioni_sle(
+    calc_input: CalcInput,
+    template: VerificationTemplate,
+    adjusted_material: AdjustedMaterialProperties | None = None,
+) -> SingleCheckResult:
+    """Verifica tensioni in esercizio SLE — NTC 2018 § 4.1.2.2.5.
+
+    Limiti tensioni normali in esercizio:
+    - σ_c ≤ 0.60 · f_ck  (combinazione caratteristica)
+    - σ_c ≤ 0.45 · f_ck  (combinazione quasi-permanente)
+    - σ_s ≤ 0.80 · f_yk  (combinazione caratteristica)
+
+    Calcolo tensioni con metodo n-trasformata (sezione fessurata).
+    Generalizzata per qualsiasi tipo di sezione.
+    """
+    from src.methods.section_fiber import get_section_height, get_web_width
+
+    section = calc_input.section
+    if section is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Sezione non specificata per verifica tensioni SLE"],
+        )
+
+    material = calc_input.material
+    if material is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Materiale non specificato per verifica tensioni SLE"],
+        )
+
+    # Material properties
+    if adjusted_material is not None:
+        f_ck = adjusted_material.f_ck_adjusted
+        f_yk = adjusted_material.f_yk_adjusted
+    else:
+        f_ck = getattr(material, "f_ck", None)
+        f_yk = getattr(material, "f_yk", None)
+
+    if not f_ck or f_ck <= 0 or not f_yk or f_yk <= 0:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Resistenze materiale non valide per verifica tensioni SLE"],
+        )
+
+    # Geometry
+    try:
+        h_mm = get_section_height(section)
+        b_w_mm = get_web_width(section)
+    except ValueError:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Geometria sezione non disponibile per verifica tensioni SLE"],
+        )
+
+    d_cm = calc_input.d or (0.9 * h_mm / 10.0)
+    d_mm = d_cm * 10.0
+    As_cm2 = calc_input.As or 0.0
+    As_mm2 = As_cm2 * 100.0
+    As_prime_cm2 = calc_input.As_prime or 0.0
+    As_prime_mm2 = As_prime_cm2 * 100.0
+    d_prime_cm = calc_input.d_prime or 4.0
+    d_prime_mm = d_prime_cm * 10.0
+
+    # Solicitations (esercizio = valori caratteristici, non fattorizzati)
+    M_Ed_kNm = abs(calc_input.Mx or 0.0)
+    N_Ed_kN = calc_input.N or 0.0
+    M_Ed_Nmm = M_Ed_kNm * 1e6
+    N_Ed_N = N_Ed_kN * 1e3
+
+    if M_Ed_kNm < 1e-6 and abs(N_Ed_kN) < 1e-6:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=True, utilisation=0.0,
+            details={"sigma_c_MPa": 0.0, "sigma_s_MPa": 0.0},
+            messages_it=["Sollecitazioni nulle: verifica non necessaria."],
+        )
+
+    # Modular ratio
+    E_s = 200000.0  # MPa
+    E_cm = 22000.0 * (f_ck / 10.0) ** 0.3  # EC2 Table 3.1
+    n = E_s / E_cm
+
+    # Calcolo asse neutro sezione fessurata (metodo semplificato)
+    # Per sezione con anima b_w e armature As, As':
+    # b_w · x²/2 + n·As'·(x - d') = n·As·(d - x)
+    # b_w · x²/2 + (n·As' + n·As)·x = n·As·d + n·As'·d'
+    b = b_w_mm
+    a_coeff = b / 2.0
+    b_coeff = n * (As_mm2 + As_prime_mm2)
+    c_coeff = -(n * As_mm2 * d_mm + n * As_prime_mm2 * d_prime_mm)
+
+    disc = b_coeff ** 2 - 4.0 * a_coeff * c_coeff
+    if disc < 0 or a_coeff <= 0:
+        x_cr = d_mm * 0.4  # fallback
+    else:
+        x_cr = (-b_coeff + math.sqrt(disc)) / (2.0 * a_coeff)
+        x_cr = max(0.0, min(x_cr, d_mm))
+
+    # Momento d'inerzia sezione fessurata
+    I_cr = (b * x_cr ** 3 / 3.0
+            + n * As_mm2 * (d_mm - x_cr) ** 2
+            + n * As_prime_mm2 * (x_cr - d_prime_mm) ** 2)
+
+    if I_cr <= 0:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Inerzia sezione fessurata non calcolabile"],
+        )
+
+    # Eccentricità per N
+    M_tot_Nmm = M_Ed_Nmm
+    if abs(N_Ed_N) > 1e-3:
+        # Momento totale rispetto al baricentro armatura tesa
+        e_mm = M_Ed_Nmm / N_Ed_N if abs(N_Ed_N) > 1e-3 else 0.0
+        # Semplificazione: somma momento + N·(d - h/2)
+        M_tot_Nmm = M_Ed_Nmm + N_Ed_N * (d_mm - h_mm / 2.0)
+
+    # Tensioni
+    sigma_c = abs(M_tot_Nmm) * x_cr / I_cr  # MPa (compressione al lembo)
+    sigma_s = n * abs(M_tot_Nmm) * (d_mm - x_cr) / I_cr  # MPa (trazione armatura)
+
+    # Se c'è compressione centrata, aggiungi contributo diretto
+    if N_Ed_N > 0:
+        A_cr = b * x_cr + n * As_mm2 + n * As_prime_mm2  # area trasformata approssimata
+        if A_cr > 0:
+            sigma_c += N_Ed_N / A_cr
+
+    # Limiti NTC2018 § 4.1.2.2.5
+    sigma_c_lim_car = 0.60 * f_ck  # combinazione caratteristica
+    sigma_c_lim_qp = 0.45 * f_ck   # combinazione quasi-permanente
+    sigma_s_lim = 0.80 * f_yk       # acciaio
+
+    # Combinazione: usa caratteristica come default (conservativa)
+    combo = calc_input.extra.get("combinazione_sle", "caratteristica")
+    sigma_c_lim = sigma_c_lim_qp if combo == "quasi_permanente" else sigma_c_lim_car
+
+    ok_c = sigma_c <= sigma_c_lim
+    ok_s = sigma_s <= sigma_s_lim
+    ok = ok_c and ok_s
+
+    util_c = sigma_c / sigma_c_lim if sigma_c_lim > 0 else 0.0
+    util_s = sigma_s / sigma_s_lim if sigma_s_lim > 0 else 0.0
+    utilisazione = max(util_c, util_s)
+
+    messages_it = [
+        "VERIFICA TENSIONI IN ESERCIZIO SLE — NTC 2018 § 4.1.2.2.5",
+        f"Sezione: tipo {getattr(section, 'section_type', '?')}",
+        f"Materiali: f_ck={f_ck:.0f} MPa, f_yk={f_yk:.0f} MPa, n={n:.1f}",
+        f"Combinazione: {combo}",
+        "",
+        f"M_Ed = {M_Ed_kNm:.2f} kNm, N_Ed = {N_Ed_kN:.2f} kN",
+        f"d = {d_cm:.1f} cm, As = {As_cm2:.2f} cm², As' = {As_prime_cm2:.2f} cm²",
+        "",
+        f"Asse neutro fessurato: x = {x_cr:.1f} mm",
+        "",
+        f"Tensione cls:    σ_c = {sigma_c:.2f} MPa  ≤  {sigma_c_lim:.2f} MPa  "
+        f"{'OK' if ok_c else 'NON OK'}",
+        f"Tensione acciaio: σ_s = {sigma_s:.2f} MPa  ≤  {sigma_s_lim:.2f} MPa  "
+        f"{'OK' if ok_s else 'NON OK'}",
+        "",
+        f"Utilizzazione: {utilisazione:.3f} {'OK' if ok else 'NON OK'}",
+    ]
+
+    return SingleCheckResult(
+        template_id=template.template_id,
+        ok=ok,
+        utilisation=utilisazione,
+        details={
+            "sigma_c_MPa": round(sigma_c, 2),
+            "sigma_s_MPa": round(sigma_s, 2),
+            "sigma_c_lim_MPa": sigma_c_lim,
+            "sigma_s_lim_MPa": sigma_s_lim,
+            "x_cr_mm": round(x_cr, 1),
+            "n_modular": round(n, 2),
+            "I_cr_mm4": round(I_cr, 0),
+            "combinazione": combo,
+        },
+        norm_references=[
+            NormReference(
+                norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.2.5",
+                description_it="Limiti tensioni in esercizio: σ_c ≤ 0.60·f_ck, σ_s ≤ 0.80·f_yk",
+            ),
+        ],
+        messages_it=messages_it,
+    )
+
+
+# ===========================================================================
+# Fessurazione SLE — NTC 2018 § 4.1.2.2.4 / EC2 § 7.3
+# ===========================================================================
+
+def check_fessurazione_sle(
+    calc_input: CalcInput,
+    template: VerificationTemplate,
+    adjusted_material: AdjustedMaterialProperties | None = None,
+) -> SingleCheckResult:
+    """Verifica fessurazione SLE — NTC 2018 § 4.1.2.2.4.
+
+    Calcolo ampiezza fessure w_k e confronto con w_amm.
+
+    EC2 § 7.3.4:
+    w_k = s_r,max · (ε_sm - ε_cm)
+
+    dove:
+    s_r,max = 3.4·c + 0.425·k1·k2·φ/ρ_p,eff
+    ε_sm - ε_cm = [σ_s - kt·f_ct,eff/ρ_p,eff·(1+αe·ρ_p,eff)] / E_s ≥ 0.6·σ_s/E_s
+
+    Generalizzata per qualsiasi tipo di sezione.
+    """
+    from src.methods.section_fiber import get_section_height, get_web_width
+
+    section = calc_input.section
+    if section is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Sezione non specificata per verifica fessurazione"],
+        )
+
+    material = calc_input.material
+    if material is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Materiale non specificato per verifica fessurazione"],
+        )
+
+    # Material properties
+    if adjusted_material is not None:
+        f_ck = adjusted_material.f_ck_adjusted
+        f_yk = adjusted_material.f_yk_adjusted
+    else:
+        f_ck = getattr(material, "f_ck", None)
+        f_yk = getattr(material, "f_yk", None)
+
+    if not f_ck or f_ck <= 0 or not f_yk or f_yk <= 0:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Resistenze materiale non valide per verifica fessurazione"],
+        )
+
+    # Geometry
+    try:
+        h_mm = get_section_height(section)
+        b_w_mm = get_web_width(section)
+    except ValueError:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Geometria sezione non disponibile per verifica fessurazione"],
+        )
+
+    d_cm = calc_input.d or (0.9 * h_mm / 10.0)
+    d_mm = d_cm * 10.0
+    As_cm2 = calc_input.As or 0.0
+    As_mm2 = As_cm2 * 100.0
+
+    if As_mm2 <= 0:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Armatura As non specificata per verifica fessurazione"],
+        )
+
+    # Solicitations
+    M_Ed_kNm = abs(calc_input.Mx or 0.0)
+    if M_Ed_kNm < 1e-6:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=True, utilisation=0.0,
+            details={"w_k_mm": 0.0},
+            messages_it=["Sollecitazione nulla: verifica fessurazione non necessaria."],
+        )
+
+    # Material derived
+    E_s = 200000.0  # MPa
+    E_cm = 22000.0 * (f_ck / 10.0) ** 0.3
+    n = E_s / E_cm
+    f_ctm = 0.30 * f_ck ** (2.0 / 3.0) if f_ck <= 50 else 2.12 * math.log(1 + f_ck / 10.0)
+    f_ct_eff = f_ctm  # per fessurazione
+
+    # Copriferro netto e diametro barre
+    c_nom_mm = calc_input.extra.get("copriferro_mm", 30.0)
+    phi_long_mm = calc_input.extra.get("phi_long_mm", 16.0)
+
+    # Asse neutro fessurato (semplificato)
+    b = b_w_mm
+    a_c = b / 2.0
+    b_c = n * As_mm2
+    c_c = -n * As_mm2 * d_mm
+    disc = b_c ** 2 - 4.0 * a_c * c_c
+    x_cr = (-b_c + math.sqrt(max(disc, 0.0))) / (2.0 * a_c) if a_c > 0 else d_mm * 0.4
+    x_cr = max(0.0, min(x_cr, d_mm))
+
+    # Inerzia fessurata e tensione acciaio
+    I_cr = b * x_cr ** 3 / 3.0 + n * As_mm2 * (d_mm - x_cr) ** 2
+    M_Ed_Nmm = M_Ed_kNm * 1e6
+    sigma_s = n * M_Ed_Nmm * (d_mm - x_cr) / I_cr if I_cr > 0 else 0.0
+
+    # Altezza efficace della zona tesa
+    h_c_eff = min(2.5 * (h_mm - d_mm), (h_mm - x_cr) / 3.0, h_mm / 2.0)
+    h_c_eff = max(h_c_eff, 0.0)
+    A_c_eff = b * h_c_eff  # mm²
+    rho_p_eff = As_mm2 / A_c_eff if A_c_eff > 0 else 0.01
+
+    # Coefficienti EC2 § 7.3.4
+    k1 = 0.8  # barre ad aderenza migliorata
+    k2 = 0.5  # flessione
+    kt = 0.4  # lungo termine (quasi-permanente); 0.6 per breve termine
+    combo = calc_input.extra.get("combinazione_sle", "quasi_permanente")
+    if combo == "frequente":
+        kt = 0.6
+
+    alpha_e = n
+
+    # s_r,max — distanza massima tra fessure
+    s_r_max = 3.4 * c_nom_mm + 0.425 * k1 * k2 * phi_long_mm / rho_p_eff
+
+    # ε_sm - ε_cm
+    eps_diff = (sigma_s - kt * f_ct_eff / rho_p_eff * (1 + alpha_e * rho_p_eff)) / E_s
+    eps_min = 0.6 * sigma_s / E_s
+    eps_diff = max(eps_diff, eps_min)
+
+    # w_k
+    w_k = s_r_max * eps_diff  # mm
+
+    # Limite ammissibile
+    w_amm = calc_input.extra.get("w_amm_mm", 0.3)  # default 0.3 mm
+
+    ok = w_k <= w_amm
+    utilisazione = w_k / w_amm if w_amm > 0 else 999.0
+
+    messages_it = [
+        "VERIFICA FESSURAZIONE SLE — NTC 2018 § 4.1.2.2.4 / EC2 § 7.3",
+        f"Sezione: tipo {getattr(section, 'section_type', '?')}",
+        f"Materiali: f_ck={f_ck:.0f} MPa, f_yk={f_yk:.0f} MPa",
+        f"Copriferro: c={c_nom_mm:.0f} mm, φ_long={phi_long_mm:.0f} mm",
+        f"Combinazione: {combo} (kt={kt})",
+        "",
+        f"M_Ed = {M_Ed_kNm:.2f} kNm",
+        f"σ_s = {sigma_s:.1f} MPa  (tensione acciaio in esercizio)",
+        "",
+        f"h_c,eff = {h_c_eff:.1f} mm, ρ_p,eff = {rho_p_eff:.4f}",
+        f"s_r,max = {s_r_max:.1f} mm",
+        f"ε_sm - ε_cm = {eps_diff:.6f}",
+        "",
+        f"w_k = {w_k:.3f} mm  ≤  w_amm = {w_amm:.2f} mm  {'OK' if ok else 'NON OK'}",
+        f"Utilizzazione: {utilisazione:.3f}",
+    ]
+
+    return SingleCheckResult(
+        template_id=template.template_id,
+        ok=ok,
+        utilisation=utilisazione,
+        details={
+            "w_k_mm": round(w_k, 3),
+            "w_amm_mm": w_amm,
+            "sigma_s_MPa": round(sigma_s, 1),
+            "s_r_max_mm": round(s_r_max, 1),
+            "eps_diff": round(eps_diff, 6),
+            "h_c_eff_mm": round(h_c_eff, 1),
+            "rho_p_eff": round(rho_p_eff, 5),
+            "x_cr_mm": round(x_cr, 1),
+        },
+        norm_references=[
+            NormReference(
+                norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.2.4",
+                formula_label="EC2 (7.8)-(7.11)",
+                description_it="Verifica ampiezza fessure: w_k = s_r,max · (ε_sm - ε_cm)",
+            ),
+        ],
+        messages_it=messages_it,
+    )
+
+
+# ===========================================================================
+# Deformazioni SLE — NTC 2018 § 4.1.2.2.2 / EC2 § 7.4
+# ===========================================================================
+
+def check_deformazioni_sle(
+    calc_input: CalcInput,
+    template: VerificationTemplate,
+    adjusted_material: AdjustedMaterialProperties | None = None,
+) -> SingleCheckResult:
+    """Verifica deformazioni SLE — NTC 2018 § 4.1.2.2.2.
+
+    Calcolo freccia con metodo della rigidezza interpolata (EC2 § 7.4.3):
+    1/r = ζ · 1/r_II + (1-ζ) · 1/r_I
+
+    dove ζ = 1 - β · (M_cr / M_Ed)²  (coefficiente di distribuzione)
+
+    Limite: δ ≤ L / 250 (aspetto) o L / 500 (danni elementi non strutturali)
+
+    Richiede luce della trave in CalcInput.extra["span_mm"].
+    Generalizzata per qualsiasi tipo di sezione.
+    """
+    from src.methods.section_fiber import get_section_height, get_web_width
+
+    section = calc_input.section
+    if section is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Sezione non specificata per verifica deformazioni"],
+        )
+
+    material = calc_input.material
+    if material is None:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Materiale non specificato per verifica deformazioni"],
+        )
+
+    # Luce trave
+    span_mm = calc_input.extra.get("span_mm", None)
+    if span_mm is None or span_mm <= 0:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Luce trave (span_mm) non specificata in CalcInput.extra"],
+        )
+
+    # Material properties
+    if adjusted_material is not None:
+        f_ck = adjusted_material.f_ck_adjusted
+        f_yk = adjusted_material.f_yk_adjusted
+    else:
+        f_ck = getattr(material, "f_ck", None)
+        f_yk = getattr(material, "f_yk", None)
+
+    if not f_ck or f_ck <= 0:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["f_ck non valido per verifica deformazioni"],
+        )
+
+    # Geometry
+    try:
+        h_mm = get_section_height(section)
+        b_w_mm = get_web_width(section)
+    except ValueError:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=False, utilisation=None, details={},
+            messages_it=["Geometria sezione non disponibile per verifica deformazioni"],
+        )
+
+    d_cm = calc_input.d or (0.9 * h_mm / 10.0)
+    d_mm = d_cm * 10.0
+    As_cm2 = calc_input.As or 0.0
+    As_mm2 = As_cm2 * 100.0
+    As_prime_cm2 = calc_input.As_prime or 0.0
+    As_prime_mm2 = As_prime_cm2 * 100.0
+    d_prime_mm = (calc_input.d_prime or 4.0) * 10.0
+
+    # Solicitations
+    M_Ed_kNm = abs(calc_input.Mx or 0.0)
+    M_Ed_Nmm = M_Ed_kNm * 1e6
+
+    if M_Ed_kNm < 1e-6:
+        return SingleCheckResult(
+            template_id=template.template_id,
+            ok=True, utilisation=0.0,
+            details={"delta_mm": 0.0},
+            messages_it=["Sollecitazione nulla: verifica deformazioni non necessaria."],
+        )
+
+    # Material derived
+    E_s = 200000.0
+    E_cm = 22000.0 * (f_ck / 10.0) ** 0.3
+    n = E_s / E_cm
+    f_ctm = 0.30 * f_ck ** (2.0 / 3.0) if f_ck <= 50 else 2.12 * math.log(1 + f_ck / 10.0)
+
+    b = b_w_mm
+
+    # Inerzia sezione integra (stadio I)
+    # Approssimazione: sezione rettangolare equivalente b × h
+    I_I = b * h_mm ** 3 / 12.0 + n * As_mm2 * (d_mm - h_mm / 2.0) ** 2
+    if As_prime_mm2 > 0:
+        I_I += n * As_prime_mm2 * (h_mm / 2.0 - d_prime_mm) ** 2
+
+    # Momento di fessurazione
+    W_I = I_I / (h_mm / 2.0) if h_mm > 0 else 1.0
+    M_cr_Nmm = f_ctm * W_I
+    M_cr_kNm = M_cr_Nmm / 1e6
+
+    # Inerzia sezione fessurata (stadio II)
+    a_c = b / 2.0
+    b_c = n * (As_mm2 + As_prime_mm2)
+    c_c = -(n * As_mm2 * d_mm + n * As_prime_mm2 * d_prime_mm)
+    disc = b_c ** 2 - 4.0 * a_c * c_c
+    x_cr = (-b_c + math.sqrt(max(disc, 0.0))) / (2.0 * a_c) if a_c > 0 else d_mm * 0.4
+    x_cr = max(0.0, min(x_cr, d_mm))
+
+    I_II = (b * x_cr ** 3 / 3.0
+            + n * As_mm2 * (d_mm - x_cr) ** 2
+            + n * As_prime_mm2 * (x_cr - d_prime_mm) ** 2)
+
+    # Coefficiente di distribuzione (EC2 eq. 7.19)
+    beta = 1.0  # carico di lunga durata (0.5 per breve durata)
+    combo = calc_input.extra.get("combinazione_sle", "quasi_permanente")
+    if combo == "caratteristica":
+        beta = 0.5
+
+    if M_Ed_Nmm > M_cr_Nmm:
+        zeta = 1.0 - beta * (M_cr_Nmm / M_Ed_Nmm) ** 2
+        zeta = max(0.0, min(zeta, 1.0))
+    else:
+        zeta = 0.0  # sezione non fessurata
+
+    # Rigidezza interpolata
+    # 1/r = ζ · M/(E·I_II) + (1-ζ) · M/(E·I_I)
+    if I_I > 0 and I_II > 0:
+        curv_I = M_Ed_Nmm / (E_cm * I_I)
+        curv_II = M_Ed_Nmm / (E_cm * I_II)
+        curv = zeta * curv_II + (1.0 - zeta) * curv_I
+    else:
+        curv = M_Ed_Nmm / (E_cm * max(I_I, I_II, 1.0))
+
+    # Freccia per trave semplicemente appoggiata: δ = 5/48 · 1/r · L²
+    # (per carico uniforme equivalente)
+    k_defl = calc_input.extra.get("k_deflection", 5.0 / 48.0)
+    delta_mm = k_defl * curv * span_mm ** 2
+
+    # Creep: amplificazione
+    phi_creep = calc_input.extra.get("phi_creep", 2.0)  # EC2 default ≈ 2.0
+    delta_mm *= (1.0 + phi_creep)
+
+    # Limite
+    limit_ratio = calc_input.extra.get("deflection_limit_ratio", 250.0)
+    delta_amm_mm = span_mm / limit_ratio
+
+    ok = delta_mm <= delta_amm_mm
+    utilisazione = delta_mm / delta_amm_mm if delta_amm_mm > 0 else 999.0
+
+    messages_it = [
+        "VERIFICA DEFORMAZIONI SLE — NTC 2018 § 4.1.2.2.2 / EC2 § 7.4",
+        f"Sezione: tipo {getattr(section, 'section_type', '?')}",
+        f"Materiali: f_ck={f_ck:.0f} MPa, E_cm={E_cm:.0f} MPa",
+        f"Luce: L = {span_mm:.0f} mm ({span_mm / 1000:.2f} m)",
+        f"Combinazione: {combo} (β={beta})",
+        "",
+        f"M_Ed = {M_Ed_kNm:.2f} kNm",
+        f"M_cr = {M_cr_kNm:.2f} kNm",
+        f"ζ = {zeta:.3f}  (coefficiente distribuzione)",
+        "",
+        f"I_I = {I_I:.0f} mm⁴  (sezione integra)",
+        f"I_II = {I_II:.0f} mm⁴  (sezione fessurata)",
+        f"φ_creep = {phi_creep:.1f}",
+        "",
+        f"Freccia: δ = {delta_mm:.2f} mm  ≤  L/{limit_ratio:.0f} = {delta_amm_mm:.2f} mm  "
+        f"{'OK' if ok else 'NON OK'}",
+        f"Utilizzazione: {utilisazione:.3f}",
+    ]
+
+    return SingleCheckResult(
+        template_id=template.template_id,
+        ok=ok,
+        utilisation=utilisazione,
+        details={
+            "delta_mm": round(delta_mm, 2),
+            "delta_amm_mm": round(delta_amm_mm, 2),
+            "M_cr_kNm": round(M_cr_kNm, 2),
+            "I_I_mm4": round(I_I, 0),
+            "I_II_mm4": round(I_II, 0),
+            "zeta": round(zeta, 3),
+            "phi_creep": phi_creep,
+            "span_mm": span_mm,
+            "limit_ratio": limit_ratio,
+        },
+        norm_references=[
+            NormReference(
+                norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.2.2",
+                formula_label="EC2 (7.18)-(7.19)",
+                description_it="Verifica frecce con rigidezza interpolata",
+            ),
+        ],
+        messages_it=messages_it,
+    )

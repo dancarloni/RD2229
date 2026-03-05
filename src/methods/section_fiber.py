@@ -440,6 +440,176 @@ def get_web_width(section: Any) -> float:
 # Area totale della sezione (per integrazione di verifica)
 # ---------------------------------------------------------------------------
 
+def compute_torsion_properties(section: Any) -> tuple[float, float, float]:
+    """Proprietà torsionali della sezione per verifica a torsione [mm].
+
+    Modello thin-walled (EC2 §6.3.2 / NTC2018 §4.1.2.1.5):
+    - A_k: area del nucleo racchiuso dal flusso di taglio medio
+    - u_k: perimetro del nucleo
+    - t_ef: spessore efficace (= A / u, ma ≥ 2·copriferro)
+
+    Per sezioni piene: il nucleo è approssimato come la sezione
+    ridotta di t_ef su ogni lato.
+
+    Returns:
+        (A_k [mm²], u_k [mm], t_ef [mm])
+    """
+    st = getattr(section, "section_type", "")
+
+    if st == "RECTANGULAR":
+        b = float(section.width)
+        h = float(section.height)
+        # Spessore efficace approssimato = A / u
+        A_gross = b * h
+        u = 2.0 * (b + h)
+        t_ef = A_gross / u
+        # Nucleo: ridotto di t_ef/2 su ogni lato
+        b_k = b - t_ef
+        h_k = h - t_ef
+        A_k = max(b_k * h_k, 0.0)
+        u_k = 2.0 * (b_k + h_k) if A_k > 0 else 0.0
+        return (A_k, u_k, t_ef)
+
+    if st == "CIRCULAR":
+        D = float(section.diameter)
+        R = D / 2.0
+        A_gross = math.pi * R * R
+        u = math.pi * D
+        t_ef = A_gross / u  # = R/2
+        R_k = R - t_ef / 2.0
+        A_k = max(math.pi * R_k * R_k, 0.0)
+        u_k = 2.0 * math.pi * R_k if A_k > 0 else 0.0
+        return (A_k, u_k, t_ef)
+
+    if st == "CIRCULAR_HOLLOW":
+        R_out = float(section.outer_diameter) / 2.0
+        t = float(section.thickness)
+        R_mid = R_out - t / 2.0
+        A_k = math.pi * R_mid * R_mid
+        u_k = 2.0 * math.pi * R_mid
+        t_ef = t
+        return (A_k, u_k, t_ef)
+
+    if st == "RECTANGULAR_HOLLOW":
+        b = float(section.width)
+        h = float(section.height)
+        t = float(section.thickness)
+        b_k = b - t
+        h_k = h - t
+        A_k = max(b_k * h_k, 0.0)
+        u_k = 2.0 * (b_k + h_k) if A_k > 0 else 0.0
+        t_ef = t
+        return (A_k, u_k, t_ef)
+
+    if st in ("T_SECTION", "INVERTED_T_SECTION"):
+        bf = float(section.flange_width)
+        tf = float(section.flange_thickness)
+        tw = float(section.web_thickness)
+        hw = float(section.web_height)
+        # Sezione a T: approssima come somma rettangoli
+        A_gross = bf * tf + tw * hw
+        u = 2.0 * (bf + tf + hw) + 2.0 * (bf - tw) / 2.0
+        # Semplificazione: u = perimetro esterno
+        u = 2.0 * bf + 2.0 * (tf + hw)
+        t_ef = A_gross / u
+        # Nucleo approssimato (rettangolo inscritto nell'anima)
+        b_k = tw - t_ef
+        h_k = (tf + hw) - t_ef
+        A_k = max(b_k * h_k, 0.0)
+        u_k = 2.0 * (b_k + h_k) if A_k > 0 else 0.0
+        return (A_k, u_k, t_ef)
+
+    if st == "I_SECTION":
+        bf = float(section.flange_width)
+        tf = float(section.flange_thickness)
+        tw = float(section.web_thickness)
+        hw = float(section.web_height)
+        h_tot = 2.0 * tf + hw
+        A_gross = 2.0 * bf * tf + tw * hw
+        u = 2.0 * bf + 2.0 * h_tot
+        t_ef = A_gross / u
+        b_k = tw - t_ef
+        h_k = h_tot - t_ef
+        A_k = max(b_k * h_k, 0.0)
+        u_k = 2.0 * (b_k + h_k) if A_k > 0 else 0.0
+        return (A_k, u_k, t_ef)
+
+    if st == "PI_SECTION":
+        bf = float(section.flange_width)
+        tf = float(section.flange_thickness)
+        tw = float(section.web_thickness)
+        hw = float(section.web_height)
+        h_tot = tf + hw
+        A_gross = bf * tf + 2.0 * tw * hw
+        u = 2.0 * bf + 2.0 * h_tot
+        t_ef = A_gross / u
+        # Nucleo: tra le 2 anime
+        b_k = bf - 2.0 * tw
+        h_k = h_tot - t_ef
+        A_k = max(b_k * h_k, 0.0) if b_k > 0 else 0.0
+        u_k = 2.0 * (b_k + h_k) if A_k > 0 else 0.0
+        return (A_k, u_k, t_ef)
+
+    if st == "C_SECTION":
+        b = float(section.width)
+        h = float(section.height)
+        tf = float(section.flange_thickness)
+        tw = float(section.web_thickness)
+        A_gross = 2.0 * b * tf + tw * (h - 2.0 * tf)
+        u = 2.0 * (b + h)
+        t_ef = A_gross / u
+        b_k = b - t_ef
+        h_k = h - t_ef
+        A_k = max(b_k * h_k, 0.0)
+        u_k = 2.0 * (b_k + h_k) if A_k > 0 else 0.0
+        return (A_k, u_k, t_ef)
+
+    if st == "L_SECTION":
+        b = float(section.width)
+        h = float(section.height)
+        th = float(section.t_horizontal)
+        tv = float(section.t_vertical)
+        A_gross = b * th + tv * (h - th)
+        u = 2.0 * (b + h)
+        t_ef = A_gross / u
+        # Nucleo approssimato: braccio verticale
+        b_k = tv - t_ef
+        h_k = h - t_ef
+        A_k = max(b_k * h_k, 0.0)
+        u_k = 2.0 * (b_k + h_k) if A_k > 0 else 0.0
+        return (A_k, u_k, t_ef)
+
+    if st in ("V_SECTION", "INVERTED_V_SECTION"):
+        b = float(section.width)
+        h = float(section.height)
+        t = float(section.thickness)
+        # Approssimazione trapezoidale
+        A_gross = (b + 0.0) / 2.0 * h  # solo guscio
+        A_gross = t * (b + h)  # approssimazione perimetro * spessore
+        t_ef = t
+        b_k = b / 2.0 - t
+        h_k = h - t
+        A_k = max(b_k * h_k / 2.0, 0.0)
+        u_k = b_k + 2.0 * math.sqrt(b_k ** 2 / 4.0 + h_k ** 2) if A_k > 0 else 0.0
+        return (A_k, u_k, t_ef)
+
+    # Fallback: tratta come rettangolare
+    h = get_section_height(section)
+    b = get_section_width(section)
+    A_gross = b * h
+    u = 2.0 * (b + h)
+    t_ef = A_gross / u
+    b_k = b - t_ef
+    h_k = h - t_ef
+    A_k = max(b_k * h_k, 0.0)
+    u_k = 2.0 * (b_k + h_k) if A_k > 0 else 0.0
+    return (A_k, u_k, t_ef)
+
+
+# ---------------------------------------------------------------------------
+# Area totale della sezione (per integrazione di verifica)
+# ---------------------------------------------------------------------------
+
 def compute_section_area(section: Any, n_strips: int = 200) -> float:
     """Area della sezione per integrazione numerica [mm²].
 
