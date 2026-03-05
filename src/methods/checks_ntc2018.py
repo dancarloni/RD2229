@@ -27,248 +27,30 @@ from src.core_calculus.lc_fc_adjustments import AdjustedMaterialProperties, appl
 logger = logging.getLogger(__name__)
 
 
-def check_flessione_slu_rett(
+def check_flessione_slu(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
-    """Verifica a flessione semplice SLU per sezione rettangolare - NTC 2018.
+    """Verifica a flessione semplice SLU — NTC 2018 § 4.1.2.1.3.1.
 
-    TODO: Implementazione PARZIALE - formula semplificata.
-    Richiede implementazione completa secondo NTC 2018 § 4.1.2.1.3.1.
+    Generalizzata per QUALSIASI tipo di sezione. Delega a check_pressoflessione_slu
+    imponendo N=0, sfruttando il fiber method per tutte le geometrie.
 
     Args:
-        calc_input: Dati di input
+        calc_input: Dati di input (Mx, My, sezione, materiale, armatura)
         template: Template della verifica
 
     Returns:
-        Risultato della verifica
+        Risultato della verifica a flessione semplice
     """
-    # Check required inputs
-    if calc_input.section is None:
-        return SingleCheckResult(
-            template_id=template.template_id,
-            ok=False,
-            utilisation=None,
-            details={},
-            messages_it=["Sezione non specificata"],
-        )
+    import dataclasses
 
-    if calc_input.material is None:
-        return SingleCheckResult(
-            template_id=template.template_id,
-            ok=False,
-            utilisation=None,
-            details={},
-            messages_it=["Materiale non specificato"],
-        )
+    # Forza N=0 per flessione semplice (ignora eventuale N nel calc_input)
+    ci_flessione = dataclasses.replace(calc_input, N=0.0)
+    return check_pressoflessione_slu(ci_flessione, template)
 
-    # Get geometry from section
-    section = calc_input.section
-    if hasattr(section, "width") and hasattr(section, "height"):
-        b = section.width  # mm
-        h = section.height  # mm
-    else:
-        return SingleCheckResult(
-            template_id=template.template_id,
-            ok=False,
-            utilisation=None,
-            details={},
-            messages_it=["Sezione non rettangolare o geometria non disponibile"],
-        )
 
-    # Get material properties
-    material = calc_input.material
-    f_ck_base = getattr(material, "f_ck", None)  # MPa
-    f_yk_base = getattr(material, "f_yk", None)  # MPa
-
-    if f_ck_base is None or f_yk_base is None:
-        return SingleCheckResult(
-            template_id=template.template_id,
-            ok=False,
-            utilisation=None,
-            details={},
-            messages_it=["Proprietà materiale (f_ck, f_yk) non disponibili"],
-        )
-
-    # Apply LC/FC adjustments if structure is existing (LC/FC set)
-    if calc_input.lc is not None and calc_input.fc is not None:
-        try:
-            adjusted = apply_lc_fc_adjustments(material, calc_input.lc, calc_input.fc)
-            f_ck = adjusted.f_ck_adjusted
-            f_yk = adjusted.f_yk_adjusted
-        except ValueError as e:
-            # LC/FC invalid - use base values and warn
-            f_ck = f_ck_base
-            f_yk = f_yk_base
-            logger.warning(f"LC/FC adjustment failed: {e}")
-    else:
-        f_ck = f_ck_base
-        f_yk = f_yk_base
-
-    # Get reinforcement
-    As = calc_input.As or 0.0  # cm²
-    d = calc_input.d or (h * 0.9 / 10.0)  # cm (if not specified, assume d = 0.9h)
-
-    # Convert d to mm
-    d_mm = d * 10.0
-
-    # Get bending moment
-    Mx = calc_input.Mx or 0.0  # kNm
-    My = calc_input.My or 0.0  # kNm
-    # Use primary moment (larger of Mx, My)
-    M_Ed = max(abs(Mx), abs(My))  # kNm
-    M_Ed_Nmm = M_Ed * 1e6  # N·mm
-
-    # Material safety factors - NTC 2018 § 4.1.2.1.1.2
-    gamma_c = 1.5
-    gamma_s = 1.15
-
-    # Design strengths
-    f_cd = 0.85 * f_ck / gamma_c  # MPa
-    f_yd = f_yk / gamma_s  # MPa
-
-    # Get compression reinforcement (if any)
-    As_prime = calc_input.As_prime or 0.0  # cm²
-    d_prime = calc_input.d_prime  # cm
-    if d_prime is None or d_prime <= 0:
-        d_prime = 4.0  # cm (typical cover + stirrup + bar_diam/2)
-
-    # Convert to mm
-    As_prime_mm2 = As_prime * 100.0  # mm²
-    d_prime_mm = d_prime * 10.0  # mm
-
-    # Parameters for rectangular stress block - NTC 2018 § 4.1.2.1.2
-    lambda_factor = 0.8  # depth of equivalent rectangular stress block
-    # eta_factor = 1.0 (stress efficiency factor, already included in lambda)
-
-    # Neutral axis calculation for simple bending (N=0)
-    # Equilibrium: R_c + R_s' = R_s
-    # Where: R_c = lambda * x * b * f_cd (concrete compression)
-    #        R_s = As * f_yd (steel tension)
-    #        R_s' = As' * sigma_s' (steel compression, if x > d')
-
-    As_mm2 = As * 100.0  # mm²
-
-    # For singly reinforced section or when As' negligible
-    if As_prime_mm2 < 0.01 or As_prime < 0.01:
-        # Simplified case: only tension reinforcement
-        # R_c = R_s → lambda * x * b * f_cd = As * f_yd
-        x = (As_mm2 * f_yd) / (lambda_factor * b * f_cd)  # mm
-
-        # Compression steel contribution (none for singly reinforced)
-        R_s_comp = 0.0  # N
-
-    else:
-        # Doubly reinforced section - need to check if compression steel yields
-        # Assumption 1: compression steel yields (sigma_s' = f_yd)
-        # Then: lambda * x * b * f_cd + As' * f_yd = As * f_yd
-        x_assumption = ((As_mm2 - As_prime_mm2) * f_yd) / (lambda_factor * b * f_cd)
-
-        # Check if assumption valid (x > d' means compression steel is in compression)
-        if x_assumption > d_prime_mm:
-            # Compression steel yields - assumption valid
-            x = x_assumption
-            # sigma_s_prime = f_yd (compression steel yields)
-            R_s_comp = As_prime_mm2 * f_yd
-        else:
-            # Compression steel may not yield - iterative solution needed
-            # For now, use simplified approach: assume compression steel yields
-            # and set minimum x = 1.1 * d' to ensure compression
-            x = max(x_assumption, 1.1 * d_prime_mm)
-            # Assume sigma_s_prime = f_yd (compression steel yields)
-            R_s_comp = As_prime_mm2 * f_yd
-
-    # Check limits on neutral axis depth
-    # Maximum x to ensure ductile failure: x/d ≤ 0.45 for ductility class B
-    x_max = 0.45 * d_mm
-    if x > x_max:
-        # Over-reinforced section - warn but continue
-        x_limited = True
-    else:
-        x_limited = False
-
-    # Compute lever arms
-    z_c = d_mm - lambda_factor * x / 2.0  # lever arm for concrete force
-    z_s_comp = d_mm - d_prime_mm  # lever arm for compression steel
-
-    # Compute internal forces
-    R_c = lambda_factor * x * b * f_cd  # N (concrete compression)
-    R_s = As_mm2 * f_yd  # N (steel tension)
-
-    # Compute moment capacity
-    M_Rd = R_c * z_c + R_s_comp * z_s_comp  # N·mm
-    M_Rd_kNm = M_Rd / 1e6  # kNm
-
-    # Utilisation
-    utilisazione = M_Ed_Nmm / M_Rd if M_Rd > 0 else 999.0
-    ok = utilisazione <= 1.0
-
-    # Messages
-    messages_it = [
-        f"Sezione: {b / 10:.1f} × {h / 10:.1f} cm, d = {d:.1f} cm, d' = {d_prime:.1f} cm",
-        f"Armatura tesa: As = {As:.2f} cm²",
-        (
-            f"Armatura compressa: As' = {As_prime:.2f} cm²"
-            if As_prime > 0.01
-            else "Armatura compressa: As' = 0 (sezione semplicemente armata)"
-        ),
-        f"Materiali: C{f_ck:.0f}/{f_yk:.0f} (f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa)",
-        "",
-        "Calcolo asse neutro (NTC 2018 § 4.1.2.1.3.1):",
-        f"  x = {x:.1f} mm ({x / d_mm:.3f}·d)",
-        f"  Braccio coppia z = {z_c:.1f} mm",
-    ]
-
-    if x_limited:
-        messages_it.append(
-            f"  ⚠️ x/d = {x / d_mm:.3f} > 0.45: sezione sovra-armata, verificare duttilità"
-        )
-
-    messages_it.extend(
-        [
-            "",
-            f"Momento agente: M_Ed = {M_Ed:.2f} kNm",
-            f"Momento resistente: M_Rd = {M_Rd_kNm:.2f} kNm",
-            f"Utilizzazione: {utilisazione:.3f} {'✓ OK' if ok else '✗ NON OK'}",
-        ]
-    )
-
-    return SingleCheckResult(
-        template_id=template.template_id,
-        ok=ok and not x_limited,  # Fail if over-reinforced
-        utilisation=utilisazione,
-        details={
-            "M_Ed_kNm": M_Ed,
-            "M_Rd_kNm": M_Rd_kNm,
-            "f_cd_MPa": f_cd,
-            "f_yd_MPa": f_yd,
-            "x_mm": x,
-            "x_over_d": x / d_mm,
-            "z_mm": z_c,
-            "As_cm2": As,
-            "As_prime_cm2": As_prime,
-            "d_cm": d,
-            "d_prime_cm": d_prime,
-            "R_c_kN": R_c / 1000.0,
-            "R_s_kN": R_s / 1000.0,
-            "over_reinforced": x_limited,
-        },
-        norm_references=[
-            NormReference(
-                norm_code="NTC2018",
-                chapter="4.1",
-                paragraph="4.1.2.1.3.1",
-                formula_label="(4.1)",
-                description_it="Verifica a flessione semplice e composta - sezione rettangolare",
-            ),
-            NormReference(
-                norm_code="NTC2018",
-                chapter="4.1",
-                paragraph="4.1.2.1.2",
-                description_it="Parametri stress block rettangolare (λ=0.8, η=1.0)",
-            ),
-        ],
-        messages_it=messages_it,
-    )
+# Alias per retrocompatibilità
+check_flessione_slu_rett = check_flessione_slu
 
 
 def check_pressoflessione_slu(
@@ -784,10 +566,11 @@ def check_pressoflessione_slu(
 def check_minimi_armatura_flessione_slu(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
-    """Verifica minimi di armatura a flessione SLU - NTC 2018.
+    """Verifica minimi di armatura a flessione SLU — NTC 2018 § 4.1.6.1.1.
 
-    Implementa la formula completa secondo NTC 2018 § 4.1.6.1.1:
-    As,min = max(0.26 * f_ctm / f_yk * b * d, 0.0013 * b * d)
+    Generalizzata per qualsiasi tipo di sezione.
+    Formula: As,min = max(0.26 * f_ctm / f_yk * b * d, 0.0013 * b * d)
+    dove b = larghezza anima (b_w) per sezioni a T/I/C.
 
     Args:
         calc_input: Dati di input
@@ -796,6 +579,8 @@ def check_minimi_armatura_flessione_slu(
     Returns:
         Risultato della verifica
     """
+    from src.methods.section_fiber import get_section_height, get_web_width
+
     if calc_input.section is None or calc_input.material is None:
         return SingleCheckResult(
             template_id=template.template_id,
@@ -805,12 +590,12 @@ def check_minimi_armatura_flessione_slu(
             messages_it=["Sezione o materiale non specificati"],
         )
 
-    # Get geometry
+    # Get geometry from any section type
     section = calc_input.section
-    if hasattr(section, "width") and hasattr(section, "height"):
-        b = section.width  # mm
-        h = section.height  # mm
-    else:
+    try:
+        h = get_section_height(section)
+        b = get_web_width(section)  # b_w per sezioni a T/I
+    except ValueError:
         return SingleCheckResult(
             template_id=template.template_id,
             ok=False,
@@ -934,16 +719,10 @@ def check_minimi_armatura_flessione_slu(
 
 
 def check_taglio_slu(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
-    """Verifica a taglio SLU - NTC 2018 § 4.1.2.1.3.2.
+    """Verifica a taglio SLU — NTC 2018 § 4.1.2.1.3.2.
 
-    Implementa la verifica a taglio con staffe verticali:
-    V_Rd = min(V_Rd,s, V_Rd,max)
-
-    Dove:
-    - V_Rd,s = (Asw/s) * 0.9 * d * f_yd (resistenza con staffe)
-    - V_Rd,max = 0.9 * d * b * ν * f_cd / (cotθ + tanθ) (resistenza puntoni compressi)
-    - ν = 0.6 * (1 - f_ck/250)
-    - θ = 21.8° (conservativo, min allowable per NTC 2018)
+    Generalizzata per qualsiasi tipo di sezione.
+    V_Rd = min(V_Rd,s, V_Rd,max) con b = b_w (larghezza anima).
 
     Args:
         calc_input: Dati di input
@@ -952,6 +731,8 @@ def check_taglio_slu(calc_input: CalcInput, template: VerificationTemplate) -> S
     Returns:
         Risultato della verifica
     """
+    from src.methods.section_fiber import get_section_height, get_web_width
+
     # Check required inputs
     if calc_input.section is None or calc_input.material is None:
         return SingleCheckResult(
@@ -962,12 +743,12 @@ def check_taglio_slu(calc_input: CalcInput, template: VerificationTemplate) -> S
             messages_it=["Sezione o materiale non specificati"],
         )
 
-    # Get geometry
+    # Get geometry from any section type
     section = calc_input.section
-    if hasattr(section, "width") and hasattr(section, "height"):
-        b = section.width  # mm
-        h = section.height  # mm
-    else:
+    try:
+        h = get_section_height(section)
+        b = get_web_width(section)  # b_w per taglio
+    except ValueError:
         return SingleCheckResult(
             template_id=template.template_id,
             ok=False,
@@ -1158,9 +939,10 @@ def check_minimi_armatura_taglio_slu(
     template: VerificationTemplate,
     adjusted_material: AdjustedMaterialProperties | None = None,
 ) -> SingleCheckResult:
-    """Check minimum shear reinforcement per NTC 2018 § 4.1.6.1.1.
+    """Verifica minimi armatura a taglio — NTC 2018 § 4.1.6.1.1.
 
-    Formula: Asw,min/s = 0.08 * sqrt(f_ck) / f_yk * b
+    Generalizzata per qualsiasi tipo di sezione.
+    Formula: Asw,min/s = 0.08 * sqrt(f_ck) / f_yk * b_w
 
     Args:
         calc_input: Input data with section, material, stirrups data
@@ -1170,6 +952,8 @@ def check_minimi_armatura_taglio_slu(
     Returns:
         SingleCheckResult with ok/non-ok
     """
+    from src.methods.section_fiber import get_section_height, get_web_width
+
     # Extract section
     section = calc_input.section
     if section is None:
@@ -1181,25 +965,16 @@ def check_minimi_armatura_taglio_slu(
             messages_it=["Sezione non specificata per verifica minimi armatura taglio"],
         )
 
-    b = getattr(section, "b", None)
-    h = getattr(section, "h", None)
-
-    if b is None or b <= 0:
+    try:
+        b = get_web_width(section)
+        h = get_section_height(section)
+    except ValueError:
         return SingleCheckResult(
             template_id=template.template_id,
             ok=False,
             utilisation=None,
             details={},
-            messages_it=[f"Larghezza sezione b non valida o mancante (b = {b})"],
-        )
-
-    if h is None or h <= 0:
-        return SingleCheckResult(
-            template_id=template.template_id,
-            ok=False,
-            utilisation=None,
-            details={},
-            messages_it=[f"Altezza sezione h non valida o mancante (h = {h})"],
+            messages_it=["Geometria sezione non disponibile per verifica minimi armatura taglio"],
         )
 
     # Extract material

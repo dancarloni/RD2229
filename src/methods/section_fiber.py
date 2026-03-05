@@ -385,6 +385,58 @@ def compute_concrete_resultant(
 
 
 # ---------------------------------------------------------------------------
+# Larghezza anima (b_w) per verifica a taglio
+# ---------------------------------------------------------------------------
+
+def get_web_width(section: Any) -> float:
+    """Larghezza minima dell'anima (b_w) per verifica a taglio [mm].
+
+    Per sezioni a T/I/C/Pi: spessore anima (zona dove agisce il taglio).
+    Per sezioni rettangolari/circolari: larghezza piena o diametro.
+    Per sezioni cave: spessore pareti (somma).
+    """
+    st = getattr(section, "section_type", "")
+
+    if st == "RECTANGULAR":
+        return float(section.width)
+
+    if st == "CIRCULAR":
+        return float(section.diameter)
+
+    if st == "CIRCULAR_HOLLOW":
+        # Approssimazione: larghezza efficace = 2 * spessore
+        return 2.0 * section.thickness
+
+    if st == "RECTANGULAR_HOLLOW":
+        return 2.0 * section.thickness
+
+    if st in ("T_SECTION", "INVERTED_T_SECTION", "I_SECTION"):
+        return float(section.web_thickness)
+
+    if st == "PI_SECTION":
+        return 2.0 * section.web_thickness  # 2 anime
+
+    if st == "C_SECTION":
+        return float(section.web_thickness)
+
+    if st == "L_SECTION":
+        return float(section.t_vertical)
+
+    if st in ("V_SECTION", "INVERTED_V_SECTION"):
+        return 2.0 * section.thickness
+
+    # Fallback
+    if hasattr(section, "web_thickness"):
+        return float(section.web_thickness)
+    if hasattr(section, "width"):
+        return float(section.width)
+    if hasattr(section, "diameter"):
+        return float(section.diameter)
+
+    raise ValueError(f"Impossibile determinare larghezza anima per sezione tipo '{st}'")
+
+
+# ---------------------------------------------------------------------------
 # Area totale della sezione (per integrazione di verifica)
 # ---------------------------------------------------------------------------
 
