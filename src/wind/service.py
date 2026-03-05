@@ -404,7 +404,12 @@ class WindActionService:
             area_m2=force_data["area_ref_m2"],
         )]
 
-        return dataclasses.replace(results, pressure_zones=zones)
+        # Salva eccentricità e punto di applicazione per forze risultanti
+        extra = dict(results.extra)
+        extra["sign_eccentricity_m"] = force_data.get("eccentricity_m", 0.0)
+        extra["sign_application_point_m"] = force_data.get("application_point_m", 0.0)
+
+        return dataclasses.replace(results, pressure_zones=zones, extra=extra)
 
     def _pressures_solar(
         self, results: WindResults, config: WindConfig, q_p: float,
@@ -503,10 +508,16 @@ class WindActionService:
         building = config.get_building_geom()
         default_area = config.extra.get("default_tributary_area_m2", 0.0)
 
+        # Eccentricità per insegne (CNR-DT 207 App. G.7)
+        sign_eccentricity = results.extra.get("sign_eccentricity_m", 0.0)
+        sign_app_point = results.extra.get("sign_application_point_m", 0.0)
+
         forces = compute_resultant_forces(
             results.pressure_zones,
             default_area_m2=default_area,
             height_m=building.height_m,
+            eccentricity_m=sign_eccentricity,
+            force_application_point_m=sign_app_point if sign_app_point > 0 else None,
         )
 
         return dataclasses.replace(results, resultant_forces=forces)

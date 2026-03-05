@@ -42,6 +42,7 @@ class ZoneForce:
     direction: str = ""  # "pressure", "suction", "uplift", "drag"
     tributary_area_m2: float = 0.0
     application_point_m: float = 0.0  # quota di applicazione [m]
+    eccentricity_m: float = 0.0  # eccentricità orizzontale [m] (±b/4 per insegne)
 
 
 @dataclass

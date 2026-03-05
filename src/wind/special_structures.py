@@ -336,6 +336,9 @@ def compute_sign_force(
 
     F_w = cf · q_p · A_ref
 
+    La risultante è applicata con eccentricità orizzontale ±b/4
+    rispetto al baricentro (CNR-DT 207 App. G.7 / EC1 §7.4.3).
+
     Args:
         b_m: Larghezza [m].
         h_m: Altezza [m].
@@ -343,7 +346,7 @@ def compute_sign_force(
         Tutti gli altri parametri come get_sign_cf().
 
     Returns:
-        Dict con cf, area, F_kN.
+        Dict con cf, area, F_kN, eccentricity_m.
     """
     cf = get_sign_cf(
         b_m, h_m,
@@ -356,6 +359,9 @@ def compute_sign_force(
     area = b_m * h_m * solidity_ratio
     F_kN = cf * q_p_kN_m2 * area
 
+    # Eccentricità orizzontale ±b/4 (CNR-DT 207 App. G.7 / EC1 §7.4.3)
+    eccentricity = round(b_m / 4.0, 3)
+
     return {
         "zone_id": "sign",
         "description": f"Insegna {b_m:.1f}×{h_m:.1f} m",
@@ -365,6 +371,7 @@ def compute_sign_force(
         "q_p_kN_m2": q_p_kN_m2,
         "F_kN": round(F_kN, 3),
         "application_point_m": ground_clearance_m + h_m / 2.0,
+        "eccentricity_m": eccentricity,
     }
 
 
