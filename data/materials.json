@@ -1,0 +1,652 @@
+[
+  {
+    "material_id": "cls_C20/25",
+    "descrizione": "Calcestruzzo C20/25 — NTC2018",
+    "famiglia": "calcestruzzo",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 2500.0,
+    "E": 305005.6087582744,
+    "nu": 0.2,
+    "note": "",
+    "f_ck": 203.9,
+    "gamma_c": 1.5,
+    "alpha_cc": 0.85,
+    "sigma_c28": 0.0,
+    "sigma_c_adm": 0.0,
+    "tau_c0_adm": 0.0,
+    "tau_c1_adm": 0.0,
+    "n_omogenizzazione": 0.0,
+    "derivati": {
+      "f_cm": {
+        "valore": 283.9,
+        "override": false,
+        "formula": "f_cm = f_ck + 80 kg/cm² (EC2 Tab.3.1)"
+      },
+      "f_cd": {
+        "valore": 115.54333333333334,
+        "override": false,
+        "formula": "f_cd = α_cc × f_ck / γ_c"
+      },
+      "f_ctm": {
+        "valore": 22.53681363542057,
+        "override": false,
+        "formula": "f_ctm = 0.30 × f_ck^(2/3) [MPa] (EC2 §3.1.3)"
+      },
+      "f_ctk_005": {
+        "valore": 15.775769544794398,
+        "override": false,
+        "formula": "f_ctk,0.05 = 0.7 × f_ctm (EC2 Tab.3.1)"
+      },
+      "f_ctk_095": {
+        "valore": 29.297857726046743,
+        "override": false,
+        "formula": "f_ctk,0.95 = 1.3 × f_ctm (EC2 Tab.3.1)"
+      },
+      "E_cm": {
+        "valore": 305005.6087582744,
+        "override": false,
+        "formula": "E_cm = 22000 × (f_cm/10)^0.3 [MPa] (EC2 §3.1.3)"
+      },
+      "G": {
+        "valore": 127085.67031594767,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "cls_C25/30",
+    "descrizione": "Calcestruzzo C25/30 — NTC2018",
+    "famiglia": "calcestruzzo",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 2500.0,
+    "E": 320503.4820416048,
+    "nu": 0.2,
+    "note": "",
+    "f_ck": 254.9,
+    "gamma_c": 1.5,
+    "alpha_cc": 0.85,
+    "sigma_c28": 0.0,
+    "sigma_c_adm": 0.0,
+    "tau_c0_adm": 0.0,
+    "tau_c1_adm": 0.0,
+    "n_omogenizzazione": 0.0,
+    "derivati": {
+      "f_cm": {
+        "valore": 334.9,
+        "override": false,
+        "formula": "f_cm = f_ck + 80 kg/cm² (EC2 Tab.3.1)"
+      },
+      "f_cd": {
+        "valore": 144.44333333333333,
+        "override": false,
+        "formula": "f_cd = α_cc × f_ck / γ_c"
+      },
+      "f_ctm": {
+        "valore": 26.15336569771043,
+        "override": false,
+        "formula": "f_ctm = 0.30 × f_ck^(2/3) [MPa] (EC2 §3.1.3)"
+      },
+      "f_ctk_005": {
+        "valore": 18.3073559883973,
+        "override": false,
+        "formula": "f_ctk,0.05 = 0.7 × f_ctm (EC2 Tab.3.1)"
+      },
+      "f_ctk_095": {
+        "valore": 33.999375407023564,
+        "override": false,
+        "formula": "f_ctk,0.95 = 1.3 × f_ctm (EC2 Tab.3.1)"
+      },
+      "E_cm": {
+        "valore": 320503.4820416048,
+        "override": false,
+        "formula": "E_cm = 22000 × (f_cm/10)^0.3 [MPa] (EC2 §3.1.3)"
+      },
+      "G": {
+        "valore": 133543.11751733534,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "cls_C28/35",
+    "descrizione": "Calcestruzzo C28/35 — NTC2018",
+    "famiglia": "calcestruzzo",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 2500.0,
+    "E": 329021.609349898,
+    "nu": 0.2,
+    "note": "",
+    "f_ck": 285.5,
+    "gamma_c": 1.5,
+    "alpha_cc": 0.85,
+    "sigma_c28": 0.0,
+    "sigma_c_adm": 0.0,
+    "tau_c0_adm": 0.0,
+    "tau_c1_adm": 0.0,
+    "n_omogenizzazione": 0.0,
+    "derivati": {
+      "f_cm": {
+        "valore": 365.5,
+        "override": false,
+        "formula": "f_cm = f_ck + 80 kg/cm² (EC2 Tab.3.1)"
+      },
+      "f_cd": {
+        "valore": 161.78333333333333,
+        "override": false,
+        "formula": "f_cd = α_cc × f_ck / γ_c"
+      },
+      "f_ctm": {
+        "valore": 28.206666989645917,
+        "override": false,
+        "formula": "f_ctm = 0.30 × f_ck^(2/3) [MPa] (EC2 §3.1.3)"
+      },
+      "f_ctk_005": {
+        "valore": 19.74466689275214,
+        "override": false,
+        "formula": "f_ctk,0.05 = 0.7 × f_ctm (EC2 Tab.3.1)"
+      },
+      "f_ctk_095": {
+        "valore": 36.66866708653969,
+        "override": false,
+        "formula": "f_ctk,0.95 = 1.3 × f_ctm (EC2 Tab.3.1)"
+      },
+      "E_cm": {
+        "valore": 329021.609349898,
+        "override": false,
+        "formula": "E_cm = 22000 × (f_cm/10)^0.3 [MPa] (EC2 §3.1.3)"
+      },
+      "G": {
+        "valore": 137092.33722912418,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "cls_C30/37",
+    "descrizione": "Calcestruzzo C30/37 — NTC2018",
+    "famiglia": "calcestruzzo",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 2500.0,
+    "E": 334426.4675094358,
+    "nu": 0.2,
+    "note": "",
+    "f_ck": 305.9,
+    "gamma_c": 1.5,
+    "alpha_cc": 0.85,
+    "sigma_c28": 0.0,
+    "sigma_c_adm": 0.0,
+    "tau_c0_adm": 0.0,
+    "tau_c1_adm": 0.0,
+    "n_omogenizzazione": 0.0,
+    "derivati": {
+      "f_cm": {
+        "valore": 385.9,
+        "override": false,
+        "formula": "f_cm = f_ck + 80 kg/cm² (EC2 Tab.3.1)"
+      },
+      "f_cd": {
+        "valore": 173.34333333333333,
+        "override": false,
+        "formula": "f_cd = α_cc × f_ck / γ_c"
+      },
+      "f_ctm": {
+        "valore": 29.534798631714093,
+        "override": false,
+        "formula": "f_ctm = 0.30 × f_ck^(2/3) [MPa] (EC2 §3.1.3)"
+      },
+      "f_ctk_005": {
+        "valore": 20.674359042199864,
+        "override": false,
+        "formula": "f_ctk,0.05 = 0.7 × f_ctm (EC2 Tab.3.1)"
+      },
+      "f_ctk_095": {
+        "valore": 38.395238221228325,
+        "override": false,
+        "formula": "f_ctk,0.95 = 1.3 × f_ctm (EC2 Tab.3.1)"
+      },
+      "E_cm": {
+        "valore": 334426.4675094358,
+        "override": false,
+        "formula": "E_cm = 22000 × (f_cm/10)^0.3 [MPa] (EC2 §3.1.3)"
+      },
+      "G": {
+        "valore": 139344.3614622649,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "cls_C35/45",
+    "descrizione": "Calcestruzzo C35/45 — NTC2018",
+    "famiglia": "calcestruzzo",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 2500.0,
+    "E": 347114.5523633933,
+    "nu": 0.2,
+    "note": "",
+    "f_ck": 356.9,
+    "gamma_c": 1.5,
+    "alpha_cc": 0.85,
+    "sigma_c28": 0.0,
+    "sigma_c_adm": 0.0,
+    "tau_c0_adm": 0.0,
+    "tau_c1_adm": 0.0,
+    "n_omogenizzazione": 0.0,
+    "derivati": {
+      "f_cm": {
+        "valore": 436.9,
+        "override": false,
+        "formula": "f_cm = f_ck + 80 kg/cm² (EC2 Tab.3.1)"
+      },
+      "f_cd": {
+        "valore": 202.2433333333333,
+        "override": false,
+        "formula": "f_cd = α_cc × f_ck / γ_c"
+      },
+      "f_ctm": {
+        "valore": 32.732466205496145,
+        "override": false,
+        "formula": "f_ctm = 0.30 × f_ck^(2/3) [MPa] (EC2 §3.1.3)"
+      },
+      "f_ctk_005": {
+        "valore": 22.9127263438473,
+        "override": false,
+        "formula": "f_ctk,0.05 = 0.7 × f_ctm (EC2 Tab.3.1)"
+      },
+      "f_ctk_095": {
+        "valore": 42.55220606714499,
+        "override": false,
+        "formula": "f_ctk,0.95 = 1.3 × f_ctm (EC2 Tab.3.1)"
+      },
+      "E_cm": {
+        "valore": 347114.5523633933,
+        "override": false,
+        "formula": "E_cm = 22000 × (f_cm/10)^0.3 [MPa] (EC2 §3.1.3)"
+      },
+      "G": {
+        "valore": 144631.06348474722,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "cls_Rck200_RD2229",
+    "descrizione": "Calcestruzzo Rck 200 — RD 2229/39",
+    "famiglia": "calcestruzzo",
+    "norma_riferimento": "RD2229",
+    "densita_kg_m3": 2400.0,
+    "E": 0.0,
+    "nu": 0.2,
+    "note": "",
+    "f_ck": 0.0,
+    "gamma_c": 1.0,
+    "alpha_cc": 1.0,
+    "sigma_c28": 200.0,
+    "sigma_c_adm": 50.0,
+    "tau_c0_adm": 5.0,
+    "tau_c1_adm": 14.0,
+    "n_omogenizzazione": 10.0,
+    "derivati": {
+      "f_cm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_cd": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctk_005": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctk_095": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "E_cm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "G": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      }
+    }
+  },
+  {
+    "material_id": "cls_Rck250_RD2229",
+    "descrizione": "Calcestruzzo Rck 250 — RD 2229/39",
+    "famiglia": "calcestruzzo",
+    "norma_riferimento": "RD2229",
+    "densita_kg_m3": 2400.0,
+    "E": 0.0,
+    "nu": 0.2,
+    "note": "",
+    "f_ck": 0.0,
+    "gamma_c": 1.0,
+    "alpha_cc": 1.0,
+    "sigma_c28": 250.0,
+    "sigma_c_adm": 62.5,
+    "tau_c0_adm": 5.5,
+    "tau_c1_adm": 16.0,
+    "n_omogenizzazione": 10.0,
+    "derivati": {
+      "f_cm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_cd": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctk_005": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctk_095": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "E_cm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "G": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      }
+    }
+  },
+  {
+    "material_id": "cls_Rck300_RD2229",
+    "descrizione": "Calcestruzzo Rck 300 — RD 2229/39",
+    "famiglia": "calcestruzzo",
+    "norma_riferimento": "RD2229",
+    "densita_kg_m3": 2400.0,
+    "E": 0.0,
+    "nu": 0.2,
+    "note": "",
+    "f_ck": 0.0,
+    "gamma_c": 1.0,
+    "alpha_cc": 1.0,
+    "sigma_c28": 300.0,
+    "sigma_c_adm": 75.0,
+    "tau_c0_adm": 6.0,
+    "tau_c1_adm": 18.0,
+    "n_omogenizzazione": 10.0,
+    "derivati": {
+      "f_cm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_cd": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctk_005": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "f_ctk_095": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "E_cm": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "G": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      }
+    }
+  },
+  {
+    "material_id": "acc_B450C",
+    "descrizione": "Acciaio B450C — NTC2018",
+    "famiglia": "acciaio",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 7850.0,
+    "E": 2100000.0,
+    "nu": 0.3,
+    "note": "",
+    "f_yk": 4589.0,
+    "gamma_s": 1.15,
+    "sigma_s_adm": 0.0,
+    "derivati": {
+      "f_yd": {
+        "valore": 3990.434782608696,
+        "override": false,
+        "formula": "f_yd = f_yk / γ_s"
+      },
+      "E_s": {
+        "valore": 2100000.0,
+        "override": false,
+        "formula": "E_s = 2'100'000 kg/cm² (EC2 §3.2.7)"
+      },
+      "G": {
+        "valore": 807692.3076923076,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "acc_B450A",
+    "descrizione": "Acciaio B450A — NTC2018",
+    "famiglia": "acciaio",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 7850.0,
+    "E": 2100000.0,
+    "nu": 0.3,
+    "note": "",
+    "f_yk": 4589.0,
+    "gamma_s": 1.15,
+    "sigma_s_adm": 0.0,
+    "derivati": {
+      "f_yd": {
+        "valore": 3990.434782608696,
+        "override": false,
+        "formula": "f_yd = f_yk / γ_s"
+      },
+      "E_s": {
+        "valore": 2100000.0,
+        "override": false,
+        "formula": "E_s = 2'100'000 kg/cm² (EC2 §3.2.7)"
+      },
+      "G": {
+        "valore": 807692.3076923076,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "acc_Aq42_RD2229",
+    "descrizione": "Acciaio Aq42 — RD 2229/39",
+    "famiglia": "acciaio",
+    "norma_riferimento": "RD2229",
+    "densita_kg_m3": 7850.0,
+    "E": 2100000.0,
+    "nu": 0.3,
+    "note": "",
+    "f_yk": 0.0,
+    "gamma_s": 1.0,
+    "sigma_s_adm": 1400.0,
+    "derivati": {
+      "f_yd": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "E_s": {
+        "valore": 2100000.0,
+        "override": false,
+        "formula": "E_s = 2'100'000 kg/cm² (EC2 §3.2.7)"
+      },
+      "G": {
+        "valore": 807692.3076923076,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "acc_Aq50_RD2229",
+    "descrizione": "Acciaio Aq50 — RD 2229/39",
+    "famiglia": "acciaio",
+    "norma_riferimento": "RD2229",
+    "densita_kg_m3": 7850.0,
+    "E": 2100000.0,
+    "nu": 0.3,
+    "note": "",
+    "f_yk": 0.0,
+    "gamma_s": 1.0,
+    "sigma_s_adm": 1600.0,
+    "derivati": {
+      "f_yd": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "E_s": {
+        "valore": 2100000.0,
+        "override": false,
+        "formula": "E_s = 2'100'000 kg/cm² (EC2 §3.2.7)"
+      },
+      "G": {
+        "valore": 807692.3076923076,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "acc_Aq60_RD2229",
+    "descrizione": "Acciaio Aq60 — RD 2229/39",
+    "famiglia": "acciaio",
+    "norma_riferimento": "RD2229",
+    "densita_kg_m3": 7850.0,
+    "E": 2100000.0,
+    "nu": 0.3,
+    "note": "",
+    "f_yk": 0.0,
+    "gamma_s": 1.0,
+    "sigma_s_adm": 2000.0,
+    "derivati": {
+      "f_yd": {
+        "valore": 0.0,
+        "override": false,
+        "formula": ""
+      },
+      "E_s": {
+        "valore": 2100000.0,
+        "override": false,
+        "formula": "E_s = 2'100'000 kg/cm² (EC2 §3.2.7)"
+      },
+      "G": {
+        "valore": 807692.3076923076,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "mur_mattoni_pieni_M10",
+    "descrizione": "Muratura mattoni_pieni malta M10 — NTC2018",
+    "famiglia": "muratura",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 1800.0,
+    "E": 36000.0,
+    "nu": 0.15,
+    "note": "",
+    "f_k": 36.0,
+    "f_vk0": 2.0,
+    "gamma_M": 2.0,
+    "derivati": {
+      "f_d": {
+        "valore": 18.0,
+        "override": false,
+        "formula": "f_d = f_k / γ_M (NTC2018 §4.5.6.1)"
+      },
+      "f_vd": {
+        "valore": 1.0,
+        "override": false,
+        "formula": "f_vd = f_vk0 / γ_M (NTC2018 §4.5.6.1)"
+      },
+      "G": {
+        "valore": 15652.17391304348,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  },
+  {
+    "material_id": "mur_blocchi_cls_M5",
+    "descrizione": "Muratura blocchi_cls malta M5 — NTC2018",
+    "famiglia": "muratura",
+    "norma_riferimento": "NTC2018",
+    "densita_kg_m3": 1800.0,
+    "E": 20000.0,
+    "nu": 0.15,
+    "note": "",
+    "f_k": 20.0,
+    "f_vk0": 1.8,
+    "gamma_M": 2.0,
+    "derivati": {
+      "f_d": {
+        "valore": 10.0,
+        "override": false,
+        "formula": "f_d = f_k / γ_M (NTC2018 §4.5.6.1)"
+      },
+      "f_vd": {
+        "valore": 0.9,
+        "override": false,
+        "formula": "f_vd = f_vk0 / γ_M (NTC2018 §4.5.6.1)"
+      },
+      "G": {
+        "valore": 8695.652173913044,
+        "override": false,
+        "formula": "G = E / (2 × (1 + ν))"
+      }
+    }
+  }
+]
