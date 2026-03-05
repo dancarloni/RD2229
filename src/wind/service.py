@@ -383,11 +383,12 @@ class WindActionService:
     def _pressures_sign(
         self, results: WindResults, config: WindConfig, q_p: float,
     ) -> WindResults:
-        from src.wind.special_structures import compute_sign_force
+        from src.wind.special_structures import compute_sign_force, compute_sign_zone_pressures
 
         structure = config.structure
         is_lattice = structure.structure_type.upper() == "SIGN_LATTICE"
 
+        # Forza globale (cf complessivo)
         force_data = compute_sign_force(
             structure.width_m, structure.height_m, q_p,
             solidity_ratio=structure.solidity_ratio,
@@ -396,18 +397,38 @@ class WindActionService:
             override_cf=config.extra.get("cf_override"),
         )
 
-        zones = [PressureZoneResults(
-            zone_id="sign",
-            description=force_data["description"],
-            cpe=force_data["cf"],
-            net_kN_m2=force_data["F_kN"] / max(force_data["area_ref_m2"], 0.01),
-            area_m2=force_data["area_ref_m2"],
-        )]
+        # Zone di pressione dettagliate (CNR-DT 207 G.7)
+        use_zones = config.extra.get("sign_zone_pressures", False)
+
+        if use_zones and not is_lattice:
+            zone_data = compute_sign_zone_pressures(
+                structure.width_m, structure.height_m, q_p,
+                solidity_ratio=structure.solidity_ratio,
+                ground_clearance_m=structure.ground_clearance_m,
+            )
+            zones = []
+            for zd in zone_data:
+                zones.append(PressureZoneResults(
+                    zone_id=zd["zone_id"],
+                    description=zd["description"],
+                    cpe=zd["cpn"],
+                    net_kN_m2=zd["w_kN_m2"],
+                    area_m2=zd["area_m2"],
+                ))
+        else:
+            zones = [PressureZoneResults(
+                zone_id="sign",
+                description=force_data["description"],
+                cpe=force_data["cf"],
+                net_kN_m2=force_data["F_kN"] / max(force_data["area_ref_m2"], 0.01),
+                area_m2=force_data["area_ref_m2"],
+            )]
 
         # Salva eccentricità e punto di applicazione per forze risultanti
         extra = dict(results.extra)
         extra["sign_eccentricity_m"] = force_data.get("eccentricity_m", 0.0)
         extra["sign_application_point_m"] = force_data.get("application_point_m", 0.0)
+        extra["sign_global_force_kN"] = force_data.get("F_kN", 0.0)
 
         return dataclasses.replace(results, pressure_zones=zones, extra=extra)
 

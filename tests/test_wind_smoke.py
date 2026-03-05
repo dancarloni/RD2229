@@ -15,7 +15,7 @@ from src.wind.ec1991_1_4 import (
     compute_mean_wind_velocity,
     run_en1991_1_4_wind,
 )
-from src.wind.models import BuildingGeom, WindSite
+from src.wind.models import BuildingGeom, StructureGeom, WindSite
 from src.wind.ntc2018 import (
     compute_kinetic_pressure,
     compute_reference_wind_speed,
@@ -248,3 +248,68 @@ def test_service_profile_consistent():
 
     # Stessa altezza edificio → stesso numero punti profilo
     assert len(ntc_r.velocity_profile) == len(en_r.velocity_profile)
+
+
+# ---------------------------------------------------------------------------
+# Service — strutture speciali (insegne con zone pressioni)
+# ---------------------------------------------------------------------------
+
+
+def test_service_sign_global_force():
+    """Service con SIGN deve calcolare forza globale."""
+    service = WindActionService()
+    config = WindConfig(
+        method="NTC2018",
+        site=_default_site(),
+        structure=StructureGeom(
+            structure_type="SIGN",
+            width_m=4.0,
+            height_m=2.0,
+            ground_clearance_m=3.0,
+        ),
+    )
+    results = service.compute(config)
+    assert len(results.pressure_zones) >= 1
+    assert results.pressure_zones[0].zone_id == "sign"
+    assert results.extra.get("sign_eccentricity_m", 0) == pytest.approx(1.0)
+
+
+def test_service_sign_zone_pressures():
+    """Service con sign_zone_pressures=True deve generare zone A/B/C/D."""
+    service = WindActionService()
+    config = WindConfig(
+        method="NTC2018",
+        site=_default_site(),
+        structure=StructureGeom(
+            structure_type="SIGN",
+            width_m=6.0,
+            height_m=2.0,
+            ground_clearance_m=3.0,
+        ),
+        extra={"sign_zone_pressures": True},
+    )
+    results = service.compute(config)
+    zone_ids = [pz.zone_id for pz in results.pressure_zones]
+    assert "sign_A" in zone_ids
+    assert "sign_B" in zone_ids
+    assert "sign_D" in zone_ids
+    # b/h = 3 > 2 → zona C presente
+    assert "sign_C" in zone_ids
+
+
+def test_service_sign_zone_global_force_stored():
+    """Service con zone deve comunque salvare la forza globale in extra."""
+    service = WindActionService()
+    config = WindConfig(
+        method="NTC2018",
+        site=_default_site(),
+        structure=StructureGeom(
+            structure_type="SIGN",
+            width_m=6.0,
+            height_m=2.0,
+            ground_clearance_m=3.0,
+        ),
+        extra={"sign_zone_pressures": True},
+    )
+    results = service.compute(config)
+    assert results.extra.get("sign_global_force_kN", 0) > 0
