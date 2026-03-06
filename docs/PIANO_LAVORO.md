@@ -21,7 +21,7 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1460+ |
+| Test totali | ~1509 |
 | Test falliti | 0 |
 | Moduli implementati | 35+ |
 | Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
@@ -207,10 +207,20 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 - [x] Pressoflessione nel piano — V_pf = (L²×t×σ₀)/(2h₀)×(1-σ₀/(0.85fd))
 - [x] Verifica combinata con ordinamento per V_Rd (criterio più restrittivo)
 
-### E.3 Fuori piano + ribaltamento
-- [ ] Cinematica lineare
-- [ ] Cinematica non lineare
-- [ ] Ribaltamento semplice e composto
+### E.3 Fuori piano + ribaltamento (meccanismi locali) ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Ribaltamento semplice (parete ruota alla base)
+- [x] Ribaltamento composto (parete + cuneo sovrastante)
+- [x] Flessione verticale (cerniera a metà altezza, meccanismo a 2 corpi)
+- [x] Flessione orizzontale (arco a 3 cerniere tra vincoli laterali)
+- [x] Cinematica lineare (§C8A.4.1): α₀, M*, e*, a₀*, verifica a terra e in quota
+- [x] Cinematica non lineare (§C8A.4.2): d₀*, d*_u = 0.4·d₀*, T_s, domanda spostamento
+- [x] Integrazione catene/tiranti (ForzaCatena con angolo, contributo stabilizzante)
+- [x] Analisi completa tutti i meccanismi ordinati per α₀ crescente
+- [x] Parametri sismici manuali (a_g, S, q, FC) + predisposizione INGV
+
+**File**: `src/methods/muratura/cinematica.py` (~654 righe)
+**Test**: `tests/test_cinematica_muratura.py` (49 test)
 
 ### E.4 Spanciamento ✅
 **Stato**: COMPLETATO — commit corrente
@@ -384,6 +394,7 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | Verifiche muratura (compressione, taglio, spanciamento) | corrente | `src/methods/muratura/verifiche.py` |
 | Modello cordolo CA + metallico | corrente | `src/elements/cordolo.py` |
 | Catene e paletti (trazione + punzonamento) | corrente | `src/elements/cordolo.py` |
+| Meccanismi locali fuori piano (4 mecc. + cin. lin./non lin.) | corrente | `src/methods/muratura/cinematica.py` |
 
 ---
 
