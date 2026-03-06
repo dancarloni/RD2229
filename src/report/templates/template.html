@@ -1,26 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
     <meta charset="utf-8">
-    <title>Report di Verifica — Template HTML</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report di Verifica Strutturale</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 2em; color: #333; line-height: 1.5; }
+        h1 { color: #1a365d; border-bottom: 2px solid #1a365d; padding-bottom: 0.3em; }
+        h2 { color: #2c5282; margin-top: 1.5em; }
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+        th { background-color: #edf2f7; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f7fafc; }
+        .pass { color: #276749; font-weight: bold; }
+        .fail { color: #c53030; font-weight: bold; }
+        .summary { background: #ebf8ff; border: 1px solid #90cdf4; padding: 1em; border-radius: 4px; margin: 1em 0; }
+        .header-info { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em; margin-bottom: 1.5em; }
+        .header-info p { margin: 0.2em 0; }
+        .footer { margin-top: 2em; padding-top: 1em; border-top: 1px solid #e2e8f0; color: #718096; font-size: 0.85em; }
+        .details { font-size: 0.9em; color: #4a5568; }
+    </style>
 </head>
 
 <body>
-    <h1>Report di Verifica — Template HTML</h1>
+    <h1>Report di Verifica Strutturale</h1>
 
-    <p><strong>Generato:</strong> {{generation_date}}</p>
-    <p><strong>Normativa:</strong> {{code_name}}</p>
-    <p><strong>Versione software:</strong> {{software_version}}</p>
+    <div class="header-info">
+        <p><strong>Data generazione:</strong> {{generation_date}}</p>
+        <p><strong>Normativa:</strong> {{code_name}}</p>
+        <p><strong>Versione software:</strong> {{software_version}}</p>
+        <p><strong>Progetto:</strong> {{project_name}}</p>
+    </div>
 
-    <h2>Elementi</h2>
+    <div class="summary">
+        {{summary}}
+    </div>
+
+    <h2>Elementi verificati</h2>
     {{elements_table}}
 
-    <h2>Risultati</h2>
+    <h2>Risultati delle verifiche</h2>
     {{results_table}}
 
-    <h2>Messaggi</h2>
+    <h2>Dettagli e messaggi</h2>
     {{messages}}
 
-    <p><em>File template.html — STUB S2</em></p>
+    <div class="footer">
+        <p>Report generato automaticamente dal framework di verifica strutturale.</p>
+        <p>Normativa di riferimento: {{code_name}}. I risultati devono essere validati dal progettista responsabile.</p>
+    </div>
 </body>
 </html>

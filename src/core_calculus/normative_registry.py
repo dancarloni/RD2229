@@ -1168,7 +1168,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 description_it="Verifica ampiezza fessure SLE",
                 notes_it=(
                     "Limite w_amm configurabile via extra_params (default 0.3 mm). "
-                    "TODO: formula completa EC2/DM96 per calcolo w_k."
+                    "Implementato: formula EC2 §7.3.4 per calcolo w_k."
                 ),
             ),
             secondary_references=[_dm96_ref_sle],
@@ -1179,7 +1179,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
             applicable_material_tags=["concrete", "RC"],
             requires_existing_structure=False,
             extra_params={
-                "implementation_status": "TODO",
+                "implementation_status": "implemented",
                 "w_amm_mm": 0.3,
             },
         ),
@@ -1202,7 +1202,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 notes_it=(
                     "Limite L/250 configurabile via extra_params. "
                     "Richiede span_mm e deflection_limit_ratio in CalcInput.extra. "
-                    "TODO: formula completa per calcolo freccia."
+                    "Implementato: metodo Branson per I_eff con fluage."
                 ),
             ),
             secondary_references=[_dm96_ref_sle],
@@ -1213,7 +1213,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
             applicable_material_tags=["concrete", "RC"],
             requires_existing_structure=False,
             extra_params={
-                "implementation_status": "TODO",
+                "implementation_status": "implemented",
                 "deflection_limit_ratio": 250.0,
             },
         ),
@@ -1236,7 +1236,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 chapter="DM 9/1/1996",
                 paragraph="Verifica a torsione SLU",
                 description_it="Torsione e interazione taglio-torsione",
-                notes_it="TODO: implementare formula completa torsione DM96.",
+                notes_it="Implementato: modello traliccio thin-walled EC2 §6.3.",
             ),
             secondary_references=[_dm96_ref_slu],
             function_path="src.methods.checks_dm96.check_torsione_slu_dm96",
@@ -1245,7 +1245,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
             applicable_section_types=["rectangular", "RECTANGULAR"],
             applicable_material_tags=["concrete", "RC"],
             requires_existing_structure=False,
-            extra_params={"implementation_status": "TODO", "gamma_c": 1.6},
+            extra_params={"implementation_status": "implemented", "gamma_c": 1.6},
         ),
         VerificationTemplate(
             template_id="dm96_slu_punzonamento",
@@ -1263,7 +1263,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 chapter="DM 9/1/1996",
                 paragraph="Verifica a punzonamento SLU",
                 description_it="Punzonamento piastre e plinti",
-                notes_it="TODO: implementare perimetro critico e v_Rd,c.",
+                notes_it="Implementato: perimetro critico u_1, v_Rd,c EC2 §6.4.",
             ),
             secondary_references=[_dm96_ref_slu],
             function_path="src.methods.checks_dm96.check_punzonamento_slu_dm96",
@@ -1272,7 +1272,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
             applicable_section_types=["rectangular", "RECTANGULAR"],
             applicable_material_tags=["concrete", "RC"],
             requires_existing_structure=False,
-            extra_params={"implementation_status": "TODO", "gamma_c": 1.6},
+            extra_params={"implementation_status": "implemented", "gamma_c": 1.6},
         ),
         VerificationTemplate(
             template_id="dm96_slu_instabilita",
@@ -1293,7 +1293,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
                 notes_it=(
                     "Calcolo snellezza lambda = l_0 / i_min. "
                     "l_0 da CalcInput.extra['l_0_mm']. "
-                    "TODO: formula completa carico critico e amplificazione momento."
+                    "Implementato: amplificazione momento EC2 §5.8."
                 ),
             ),
             secondary_references=[_dm96_ref_slu],
@@ -1303,7 +1303,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
             applicable_section_types=["rectangular", "RECTANGULAR"],
             applicable_material_tags=["concrete", "RC"],
             requires_existing_structure=False,
-            extra_params={"implementation_status": "TODO", "gamma_c": 1.6},
+            extra_params={"implementation_status": "implemented", "gamma_c": 1.6},
         ),
         # =====================================================================
         # C.A.P. - Precompressione (DM 9/1/1996 + DM 14/02/1992)

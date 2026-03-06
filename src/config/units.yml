@@ -1,49 +1,76 @@
 # ==========================================================
-# units.yml
+# units.yml — Unità di misura del progetto
 # ==========================================================
-# File di configurazione principale delle unità di misura.
 #
-# ATTENZIONE:
-# - Il progetto utilizza *solo* le unità richieste dall'utente.
-# - Nessuna conversione implicita deve essere fatta nei moduli.
-#
-# FORMATO:
-# - "unit": stringa descrittiva (ad uso GUI / report)
-# - "factor": eventuale fattore di conversione se in futuro
-#   volessi supportare unità alternative (non implementato ora).
-#
-# STUB S2 — pronto per essere esteso.
-# ==========================================================
+# Il sistema base è kg/cm² (storico, RD2229).
+# Le normative moderne (NTC2018, EC2) usano MPa/kN/kNm.
+# I fattori di conversione permettono interoperabilità.
 
+# --- Unità base di calcolo ---
 length:
   base: "cm"
-  factor: 1.0      # cm → cm
+  display: "cm"
+  factor: 1.0
+  alternatives:
+    mm: 0.1          # 1 mm = 0.1 cm
+    m: 100.0         # 1 m = 100 cm
 
 area:
   base: "cm2"
+  display: "cm²"
   factor: 1.0
+  alternatives:
+    mm2: 0.01        # 1 mm² = 0.01 cm²
+    m2: 10000.0      # 1 m² = 10000 cm²
 
 inertia:
   base: "cm4"
+  display: "cm⁴"
   factor: 1.0
+  alternatives:
+    mm4: 0.0001      # 1 mm⁴ = 10⁻⁴ cm⁴
 
 stress:
   base: "kg/cm2"
+  display: "kg/cm²"
   factor: 1.0
+  alternatives:
+    MPa: 10.197      # 1 MPa = 10.197 kg/cm²
+    daN_cm2: 1.0     # 1 daN/cm² ≈ 1 kg/cm² (approssimazione ingegneristica)
+
+force:
+  base: "kg"
+  display: "kg"
+  factor: 1.0
+  alternatives:
+    kN: 101.97       # 1 kN = 101.97 kg
+    daN: 1.0         # 1 daN ≈ 1 kg
+    N: 0.10197       # 1 N = 0.10197 kg
+
+moment:
+  base: "kgm"
+  display: "kg·m"
+  factor: 1.0
+  alternatives:
+    kNm: 101.97      # 1 kNm = 101.97 kgm
+    kgcm: 0.01       # 1 kg·cm = 0.01 kg·m
 
 density:
   base: "kg/m3"
+  display: "kg/m³"
   factor: 1.0
 
 mass:
   base: "kg"
+  display: "kg"
   factor: 1.0
 
-force:
-  base: "kg"
-  factor: 1.0
-
-# NOTE:
-#   In futuro si potrà estendere con:
-#     - kN, kN·m, MPa, etc.
-#   mantenendo cm e kg come base di calcolo.
+# --- Fattori di conversione rapida ---
+conversion:
+  MPa_to_kg_cm2: 10.197
+  kg_cm2_to_MPa: 0.09807
+  kN_to_kg: 101.97
+  kg_to_kN: 0.009807
+  kNm_to_kgm: 101.97
+  mm_to_cm: 0.1
+  cm_to_mm: 10.0

@@ -1,25 +1,36 @@
 # ==========================================================
-# numerics.yml
-# ==========================================================
-# Configurazione per la parte numerica del software.
-#
-# CONTIENE:
-# - precisioni di arrotondamento
-# - tolleranze numeriche
-# - parametri utili ai calcoli interni
-#
-# STUB S2 — nessun valore definitivo
+# numerics.yml — Configurazione numerica
 # ==========================================================
 
 rounding:
-  default: 4            # decimali di default
-  stresses: 3           # tensioni
-  geometry: 3           # aree, inerzie
+  default: 4              # decimali di default per output generico
+  stresses: 2             # tensioni (kg/cm² o MPa)
+  forces: 2               # forze (kN o kg)
+  moments: 2              # momenti (kNm o kgm)
+  geometry: 2             # aree (cm²), inerzie (cm⁴)
+  utilisation: 3          # rapporti di utilizzazione
+  kappa: 4                # fattori di taglio
+  reinforcement: 2        # armature (cm²)
 
 tolerances:
-  zero: 1e-9            # tolleranza valore zero
-  equality: 1e-6        # tolleranza confronto valori
+  zero: 1e-9              # tolleranza per considerare un valore nullo
+  equality: 1e-6          # tolleranza per confronto tra valori
+  convergence: 1e-6       # convergenza iterativa (es. asse neutro)
+  area_min_cm2: 0.01      # area minima significativa
+
+iteration:
+  max_iterations: 100     # iterazioni massime per convergenza
+  bisection_tolerance: 0.01  # mm, tolleranza bisezione asse neutro
+
+stress_block:
+  # Parametri stress block rettangolare EC2/NTC2018
+  lambda_default: 0.8     # profondità relativa stress block
+  eta_default: 1.0        # fattore di riduzione resistenza
+  epsilon_cu: 0.0035      # deformazione ultima calcestruzzo
+  epsilon_c2: 0.002       # deformazione al picco calcestruzzo
 
 options:
-  enable_debug: false   # debug numerico
+  enable_debug: false
   verbose_calculation: false
+  check_equilibrium: true   # verifica equilibrio sezione
+  warn_on_extrapolation: true
