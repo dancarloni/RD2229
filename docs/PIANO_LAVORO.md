@@ -21,7 +21,7 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1435+ |
+| Test totali | ~1460+ |
 | Test falliti | 0 |
 | Moduli implementati | 35+ |
 | Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
@@ -172,7 +172,16 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 **File**: `src/steel/connessioni.py` (~380 righe)
 **Test**: `tests/test_connessioni_acciaio.py` (24 test)
 
-### D.6 GUI Qt cordoli
+### D.6 Modello cordolo (CA + metallico) ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Cordolo CA: sezione, armatura, minimi NTC2018 §7.8.1.6
+- [x] Cordolo metallico: profilo singolo, flessione/taglio TA
+- [x] Verifica flessione e taglio per entrambi i tipi
+- [x] Posizione: sommitale, intermedio, fondazione
+
+**File**: `src/elements/cordolo.py` (~350 righe)
+
+### D.7 GUI Qt cordoli
 - [ ] Interfaccia selezione profilo
 - [ ] Visualizzazione sezione
 - [ ] Input sollecitazioni
@@ -211,10 +220,14 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 **File**: `src/methods/muratura/verifiche.py` (~400 righe)
 **Test**: `tests/test_muratura_verifiche.py` (34 test)
 
-### E.5 Catene e paletti
-- [ ] Tipi piastre (circolare, quadrata, a L)
-- [ ] Verifica trazione catena
-- [ ] Verifica punzonamento locale
+### E.5 Catene e paletti ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Tipi piastre (circolare, quadrata, a paletto)
+- [x] Verifica trazione catena (σ = F/A ≤ σ_s_adm)
+- [x] Verifica punzonamento locale piastra (σ_p ≤ fd_mur)
+
+**File**: `src/elements/cordolo.py` (catene + cordoli)
+**Test**: `tests/test_cordolo.py` (25 test)
 
 ### E.6 Apertura cantonali
 - [ ] Riduzione resistenza per aperture
@@ -369,6 +382,8 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | Solutore traliccio 2D (rigidezza diretta) | corrente | `src/steel/traliccio_2d.py` |
 | Connessioni acciaio (saldature + bulloni) | corrente | `src/steel/connessioni.py` |
 | Verifiche muratura (compressione, taglio, spanciamento) | corrente | `src/methods/muratura/verifiche.py` |
+| Modello cordolo CA + metallico | corrente | `src/elements/cordolo.py` |
+| Catene e paletti (trazione + punzonamento) | corrente | `src/elements/cordolo.py` |
 
 ---
 
