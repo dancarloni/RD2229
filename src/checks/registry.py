@@ -267,6 +267,12 @@ def _build_default_registry() -> CheckRegistry:
         )
     )
 
+    def _compute_sle_stress(inputs: dict) -> dict:
+        from src.actions.action_repo import SLEStressCheck
+        element = inputs
+        normative = {"norm_code": "NTC2018", "material": inputs.get("material", {})}
+        return SLEStressCheck().run(element, normative, inputs.get("settings", {}))
+
     reg.register(
         CheckSpec(
             id="ntc2018.sle_deformazione",
@@ -280,9 +286,15 @@ def _build_default_registry() -> CheckRegistry:
             ],
             input_schema={"width": "float", "height": "float", "Mx": "float"},
             tags=["RC", "SLE", "NTC2018"],
-            compute=None,  # TODO: implementare
+            compute=_compute_sle_stress,
         )
     )
+
+    def _compute_sle_cracking(inputs: dict) -> dict:
+        from src.actions.action_repo import SLECrackingCheck
+        element = inputs
+        normative = {"norm_code": "NTC2018", "material": inputs.get("material", {})}
+        return SLECrackingCheck().run(element, normative, inputs.get("settings", {}))
 
     reg.register(
         CheckSpec(
@@ -297,7 +309,7 @@ def _build_default_registry() -> CheckRegistry:
             ],
             input_schema={"width": "float", "height": "float", "Mx": "float"},
             tags=["RC", "SLE", "NTC2018"],
-            compute=None,  # TODO: implementare
+            compute=_compute_sle_cracking,
         )
     )
 
