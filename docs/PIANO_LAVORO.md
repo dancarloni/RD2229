@@ -21,7 +21,7 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1401+ |
+| Test totali | ~1435+ |
 | Test falliti | 0 |
 | Moduli implementati | 35+ |
 | Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
@@ -182,24 +182,34 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 
 ## FASE E — Muratura Verifiche Locali
 
-**Stato**: TODO
+**Stato**: PARZIALMENTE COMPLETATO
 
-### E.1 Compressione + snellezza
-- [ ] σ ≤ f_d / γ_M con riduzione snellezza Φ
-- [ ] Tabelle Φ da NTC2018 Tab 4.5.V
+### E.1 Compressione + snellezza ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] σ ≤ f_d / γ_M con riduzione snellezza Φ
+- [x] Tabella Φ da NTC2018 Tab 4.5.V (interpolazione bilineare λ×e/t)
+- [x] Eccentricità e/t da momento flettente
+- [x] Fattore vincolo ρ per altezza efficace
 
-### E.2 Taglio nel piano
-- [ ] Criterio diagonale (Turnšek-Čačovič)
-- [ ] Criterio di scorrimento
-- [ ] Pressoflessione nel piano
+### E.2 Taglio nel piano ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Criterio diagonale (Turnšek-Čačovič) — NTC2018 §7.8.2.2.1
+- [x] Criterio di scorrimento (Mohr-Coulomb: fvk = fvk0 + μ·σ_n)
+- [x] Pressoflessione nel piano — V_pf = (L²×t×σ₀)/(2h₀)×(1-σ₀/(0.85fd))
+- [x] Verifica combinata con ordinamento per V_Rd (criterio più restrittivo)
 
 ### E.3 Fuori piano + ribaltamento
 - [ ] Cinematica lineare
 - [ ] Cinematica non lineare
 - [ ] Ribaltamento semplice e composto
 
-### E.4 Spanciamento
-- [ ] Verifica snellezza muro (h_eff/t)
+### E.4 Spanciamento ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Verifica snellezza muro λ = h_eff/t ≤ λ_max
+- [x] Limiti configurabili (20 ordinario, 15 esistente, 12 sismico)
+
+**File**: `src/methods/muratura/verifiche.py` (~400 righe)
+**Test**: `tests/test_muratura_verifiche.py` (34 test)
 
 ### E.5 Catene e paletti
 - [ ] Tipi piastre (circolare, quadrata, a L)
@@ -358,6 +368,7 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | Verifiche acciaio TA (flessione, taglio, instabilità) | corrente | `src/steel/verifiche_ta.py` |
 | Solutore traliccio 2D (rigidezza diretta) | corrente | `src/steel/traliccio_2d.py` |
 | Connessioni acciaio (saldature + bulloni) | corrente | `src/steel/connessioni.py` |
+| Verifiche muratura (compressione, taglio, spanciamento) | corrente | `src/methods/muratura/verifiche.py` |
 
 ---
 
