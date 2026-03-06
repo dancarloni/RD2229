@@ -21,9 +21,9 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1693 |
+| Test totali | ~1766 |
 | Test falliti | 0 |
-| Moduli implementati | 42+ |
+| Moduli implementati | 45+ |
 | Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
 
 ---
@@ -242,9 +242,39 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 ### E.6 Apertura cantonali
 - [ ] Riduzione resistenza per aperture
 
-### E.7 Muratura multipiano
-- [ ] Distribuzione carichi
-- [ ] Verifica piano per piano
+### E.7 Muratura multipiano ✅
+**Stato**: COMPLETATO — commit corrente
+
+#### E.7.1 Carichi verticali per aree di influenza ✅
+- [x] `CaricoSolaio` — input per parete: G1, G2, Q, luce_sx, luce_dx
+- [x] `CaricoMaschio` — componenti scomposti (peso proprio, solaio G1/G2/Q, superiore)
+- [x] `_area_influenza_maschio()` — metà luce tra maschi adiacenti
+- [x] `distribuisci_carichi_solaio()` — da CaricoSolaio a N per maschio
+- [x] `calcola_N_multipiano()` — accumulo top-down realistico
+
+**File**: `src/methods/muratura/carichi_verticali.py` (~260 righe)
+**Test**: `tests/test_carichi_verticali.py` (20 test)
+
+#### E.7.2 Combinazioni personalizzabili ✅
+- [x] `CombinazioneCarico` — γ_G1, γ_G2, γ_Q, ψ, attiva/disattiva
+- [x] `GestoreCombinazioni` — CRUD + attiva/disattiva + ripristino default
+- [x] 6 combinazioni default NTC2018 §2.5.3 (SLU sfav/fav, SLE rara/freq/qperm, sismica)
+- [x] Coefficienti ψ₀/ψ₁/ψ₂ per categorie A÷H (Tab. 2.5.I)
+- [x] `calcola_N_tutte()` / `N_Ed_max()` — N combinato per tutte le attive
+
+**File**: `src/methods/muratura/combinazioni_muratura.py` (~260 righe)
+**Test**: `tests/test_combinazioni_muratura.py` (31 test)
+
+#### E.7.3 Verifiche compressione multipiano ✅
+- [x] `Eccentricita` — 4 fonti: geometrica, carico solaio, accidentale, vento/sisma
+- [x] `calcola_eccentricita()` — e_a = max(h_eff/200, 2 cm)
+- [x] `verifica_multipiano()` — Φ(λ, e/t) × fd × A per ogni maschio
+- [x] `RigaVerificaMaschio` — dettaglio: N_Ed, σ₀, e/t, λ, Φ, N_Rd, D/C
+- [x] `RigaVerificaPiano` — riepilogo: D/C_max, n_verificati
+- [x] `TabellaVerificheMultipiano` — tabella sintetica + dettagliata + formato_testo ASCII
+
+**File**: `src/methods/muratura/verifiche_multipiano.py` (~290 righe)
+**Test**: `tests/test_verifiche_multipiano.py` (22 test)
 
 ---
 
@@ -468,6 +498,9 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | POR pushover multipiano + bilinearizzazione | corrente | `src/methods/muratura/por_analisi.py` |
 | POR fattore comportamento q (NTC2018 Tab.7.3.II) | corrente | `src/methods/muratura/fattore_comportamento.py` |
 | POR verifiche tabella maschi + riepilogo rischio | corrente | `src/methods/muratura/por_verifiche.py` |
+| Carichi verticali multipiano (aree influenza, top-down) | corrente | `src/methods/muratura/carichi_verticali.py` |
+| Combinazioni di carico personalizzabili NTC2018 | corrente | `src/methods/muratura/combinazioni_muratura.py` |
+| Verifiche compressione multipiano (4 eccentricità, Φ) | corrente | `src/methods/muratura/verifiche_multipiano.py` |
 
 ---
 
