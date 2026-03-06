@@ -11,7 +11,8 @@
       "Bash(pip install:*)",
       "Bash(python -m pytest:*)",
       "Bash(python -m pip install:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(ls -la /c/Users/danca/workspaces/RD2229/docs/MEGAPLAN/*SECONDARY*)"
     ]
   }
 }

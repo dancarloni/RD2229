@@ -21,7 +21,7 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1766 |
+| Test totali | ~1838 |
 | Test falliti | 0 |
 | Moduli implementati | 45+ |
 | Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
@@ -51,10 +51,113 @@
 - Test: `tests/test_cataloghi_materiali.py` (22 test)
 
 ### A.2 MaterialSource strutturata
+
 **Stato**: TODO
-- [ ] Aggiungere entità `MaterialSource` con norma, articolo, paragrafo, tabella
-- [ ] Collegare a `Material` model
-- [ ] Persistenza JSON
+**Priorita**: MEDIA (prerequisito per Fase Q — Report relazione di calcolo)
+
+**Obiettivo**: Collegare ogni materiale alla sua fonte normativa con riferimento preciso
+(norma, articolo, paragrafo, tabella), abilitando citazione automatica nei tabulati.
+
+#### Analisi stato attuale
+
+Esistono **3 entita' parallele** per i riferimenti normativi, non collegate tra loro:
+
+| Entita' | File | Uso attuale | Azione |
+|---------|------|-------------|--------|
+| `MaterialSource` | `src/legacy/material_sources.py` | Legacy, 9 norme predefin. | Estrarre dati utili, eliminare file |
+| `NormRef` | `src/checks/registry.py` | CheckSpec (source_id + clause) | Mantenere (scope diverso: check) |
+| `NormReference` | `src/core_calculus/contracts.py` | SingleCheckResult | Mantenere (scope diverso: risultati) |
+
+Il modello `Material` (`src/materials/material_model.py`) ha solo `norma_riferimento: str`
+(es. "NTC2018") — un semplice codice, senza articolo/paragrafo/tabella.
+
+I cataloghi JSON (`data/materials/catalogo_*.json`) hanno solo `"norma_riferimento": "NTC2018"`.
+
+Il file `docs/normative/sources.yaml` contiene 8 fonti con id, title, year, authority.
+
+**File legacy da analizzare e poi eliminare**:
+- `src/legacy/material_sources.py` (~330 righe): contiene `MaterialSource` dataclass,
+  `MaterialSourceLibrary` CRUD, `_get_default_sources()` (9 norme), logica di calcolo
+  per RD2229/DM72/DM92/DM96. La logica di calcolo e' gia' coperta da
+  `src/materials/material_model.py` (parametri derivati) e `src/tools/concrete_strength.py`.
+  I dati delle 9 fonti vanno migrati in `data/materials/material_sources.json`.
+  Il `CalculationMethod` enum (TA/SL/SP/SPER) e' utile e va incorporato.
+
+#### Sub-plan dettagliato
+
+- [ ] **A.2.1** Creare `src/materials/material_source.py` (NUOVO, nella struttura attiva)
+  - Dataclass `MaterialSource` con campi: `id`, `name`, `year`, `calculation_method`,
+    `is_historical`, `reference`, `description`, `notes`
+  - Enum `MetodoCalcolo` (TA, SL, SP, SPER) — incorporato da legacy `CalculationMethod`
+  - Dataclass `MaterialNormRef` per riferimenti puntuali ai parametri:
+    - `norma_id: str` (es. "NTC2018")
+    - `articolo: str` (es. "§4.1.2.1.1")
+    - `tabella: str | None` (es. "Tab. 4.1.I")
+    - `formula: str | None` (es. "f_cd = alpha_cc * f_ck / gamma_c")
+    - `parametro: str` (es. "f_ck", "gamma_c")
+    - `descrizione_it: str`
+  - `to_dict()` / `from_dict()` per serializzazione JSON
+
+- [ ] **A.2.2** Creare `data/materials/material_sources.json`
+  - Migrare le 9 fonti predefinite da `src/legacy/material_sources.py`
+    (RD2229, DM72, DM92, DM96, OPCM3274, NTC2008, NTC2018, LAB_TEST, CUSTOM)
+  - Aggiungere fonti da `docs/normative/sources.yaml` non gia' presenti
+    (DM87, Circ81, ISO834, EN1992_1_2, EN1991_1_4, CNR_DT207, NTC2018_CIRC)
+  - Formato JSON nativo (no dipendenza PyYAML)
+
+- [ ] **A.2.3** Collegare `MaterialNormRef` a `Material`
+  - Aggiungere campo `source_refs: list[dict]` a `Material` in `material_model.py`
+  - Default: lista vuota (retrocompatibilita' con materiali esistenti)
+  - Aggiornare `to_dict()` / `from_dict()` per serializzazione
+
+- [ ] **A.2.4** Aggiornare `MaterialRepository` per gestire `MaterialSource` tipizzata
+  - `load_sources()` gia' presente ma usa `list[dict]` generico
+  - Sostituire con `list[MaterialSource]` tipizzato
+  - `get_source()` restituisce `MaterialSource` anziche' `dict`
+
+- [ ] **A.2.5** Popolare cataloghi JSON con riferimenti normativi (incrementale)
+  - `catalogo_ntc2018.json`: §4.1 cls, §4.2 acciaio, §4.5 muratura, Tab. 4.1.I, 4.2.I
+  - `catalogo_rd2229.json`: Art. 10-14 tensioni ammissibili cls/acciaio
+  - Altri cataloghi: aggiungere progressivamente (non bloccante)
+
+- [ ] **A.2.6** Integrare nel report
+  - `src/report/tabulati_calcolo.py`: sezione "Riferimenti normativi materiali"
+  - Help contestuale: mostrare §/tabella nel tooltip parametro (material_editor)
+
+- [ ] **A.2.7** Eliminare file legacy
+  - Eliminare `src/legacy/material_sources.py` (dati migrati, logica gia' coperta)
+  - Verificare che nessun import attivo punti a questo file
+  - Aggiornare eventuali import in `src/legacy/ui/historical_material_window.py`
+
+- [ ] **A.2.8** Test
+  - Serializzazione/deserializzazione `MaterialSource` e `MaterialNormRef`
+  - `Material.to_dict()` con source_refs presente e assente
+  - Caricamento catalogo con riferimenti
+  - Retrocompatibilita' cataloghi senza riferimenti
+  - `MaterialRepository.load_sources()` con nuovi tipi
+
+#### Dipendenze
+
+| Dipende da | Modulo | Stato |
+|-----------|--------|-------|
+| `Material` model | `src/materials/material_model.py` | COMPLETATO |
+| `MaterialRepository` | `src/materials/material_repo.py` | COMPLETATO |
+| `sources.yaml` | `docs/normative/sources.yaml` | COMPLETATO (8 fonti) |
+
+#### Abilitato da A.2 (dipendenze inverse)
+
+| Fase | Beneficio |
+|------|-----------|
+| Q — Report relazione di calcolo | Citazione automatica norma/§/tabella per ogni materiale |
+| GUI material editor | Help contestuale con § e tabella |
+| Fase H — Riorganizzazione | Unificazione eventuale NormRef/NormReference/MaterialSource |
+
+#### Note architetturali
+
+- `MaterialNormRef` e' specifica per i materiali; NON unificare ora con `NormRef` o
+  `NormReference` (scope diversi: check vs risultati vs materiali)
+- `source_refs` opzionale in Material — cataloghi esistenti continuano a funzionare
+- JSON nativo, no PyYAML
 
 ### A.3 Adapter unità (kg/cm² ↔ MPa)
 **Stato**: COMPLETATO — `src/materials/adapter.py` (112 righe)
@@ -144,9 +247,148 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 **File**: `src/steel/verifiche_ta.py` (~410 righe)
 **Test**: `tests/test_verifiche_acciaio_ta.py` (33 test)
 
-### D.3 Piatti saldati/bullonati
-- [ ] Sezione composta saldata
-- [ ] Sezione composta bullonata
+### D.3 Traliccio reticolare piano — cordolo metallico reticolare
+
+**Stato**: TODO
+**Priorita**: ALTA (collegamento diretto con Fase E.3 meccanismi fuori piano muratura)
+
+**Obiettivo**: Modulo per tralicci piani in acciaio (piatti saldati/bullonati, angolari,
+profili standard), con caso d'uso primario come **cordolo reticolare orizzontale** su
+muratura per contrastare meccanismi fuori piano, ma utilizzabile anche standalone
+come verifica generica traliccio 2D.
+
+#### Concetto strutturale
+
+Il traliccio e' disposto **orizzontalmente in pianta** sulla sommita' del muro.
+Entrambi i correnti e le diagonali sono nello spessore della muratura.
+Il cordolo reticolare si oppone ai meccanismi fuori piano (ribaltamento, spanciamento,
+cuneo d'angolo) con la sua rigidezza e resistenza nel piano di maggiore inerzia.
+
+La forza F proviene dall'analisi cinematica (`src/methods/muratura/cinematica.py`) e
+viene applicata come carico distribuito sul corrente superiore (variabile in funzione
+del segno di F / direzione sisma). Il traliccio e' caricato sempre nella direzione
+di maggiore rigidezza.
+
+#### Decisioni architetturali (da Q&A)
+
+| Aspetto | Decisione |
+|---------|-----------|
+| Schemi | Warren, Pratt, custom (disegno grafico libero — fase futura) |
+| Profili aste | Piatti, angolari, profili standard da sagomario |
+| Solutore | Riuso `src/steel/traliccio_2d.py` (rigidezza diretta) |
+| Orientamento | Piano XY reinterpretato come orizzontale (X=lungo muro, Y=spessore) |
+| Profondita' traliccio | Configurabile, default = spessore muro |
+| Sviluppo in pianta | Singolo muro rettilineo OPPURE anello chiuso perimetrale |
+| Angoli (se anello) | Nodo rigido saldato OPPURE piastra d'angolo bullonata |
+| Carichi | Solo forze orizzontali nel piano del traliccio |
+| F da cinematica | Automatico da `cinematica.py`, distribuzione proporzionale al modo o discreta ai nodi, a scelta utente |
+| Vincoli | Appoggi estremi + molle distribuite lungo corrente (configurabili) |
+| Collaborazione muro | Grado configurabile: vincolo cinematico puro / azione composta / intermedio |
+| Corrente caricato | Entrambi, in funzione della direzione del sisma |
+| Combinazioni | Tutte le norme supportate + custom utente (attivabili/disattivabili) |
+| Verifiche | SLU + SLE + fatica ciclica (TODO placeholder) |
+| Instabilita' | Entrambi i piani (orizzontale e verticale), selezionabile dall'utente |
+| Normativa acciaio | Selezionabile (NTC2018 SLU / TA storica) |
+| Meccanismi fuori piano | Tutti attivi di default, disattivabili singolarmente |
+| Collegamento muro | Barre inghisate / tasselli chimici / connettori, selezionabile |
+| Rigidezza collegamento | Configurabile (cerniera / incastro parziale) |
+| Unita' misura | Selezionabile tramite `unita_misura.py` |
+| Report | Tabulato integrato nell'edificio + esportabile standalone |
+| Uso standalone | Si', anche senza contesto muratura |
+
+#### Sub-plan dettagliato
+
+**D.3.1 — Generatore schemi traliccio**
+- [ ] `src/steel/traliccio_generatore.py` (NUOVO)
+- [ ] `genera_warren(L, h, n_campate, profilo_corrente, profilo_diagonale)` → nodi + aste
+- [ ] `genera_pratt(L, h, n_campate, ...)` → nodi + aste
+- [ ] Suggerimento profili minimi (pre-dimensionamento) dato N_max stimato
+- [ ] Disegno di anteprima (matplotlib) dello schema generato
+- [ ] Validazione geometrica (angoli diagonali, snellezze limite)
+
+**D.3.2 — Adattamento solutore traliccio_2d**
+- [ ] Estendere `src/steel/traliccio_2d.py` per supportare molle distribuite ai nodi
+- [ ] Aggiungere carico distribuito su corrente (convertito in forze nodali equivalenti)
+- [ ] Aggiungere output rigidezza globale del traliccio (K = F_tot / delta_max)
+- [ ] Nessuna modifica all'algoritmo core (Gauss con pivoting)
+
+**D.3.3 — Modulo cordolo reticolare**
+- [ ] `src/elements/cordolo_reticolare.py` (NUOVO)
+- [ ] Dataclass `CordoloReticolare`: schema, profili, L, h, vincoli, collegamento_muro
+- [ ] `da_cinematica(risultato_cinematica)` → carico distribuito F su corrente
+- [ ] Distribuzione F: proporzionale al modo di collasso OPPURE discreta ai nodi
+- [ ] `verifica_cordolo_reticolare()` → risultato completo (aste + nodi + collegamento)
+- [ ] `dimensiona_cordolo_reticolare(alpha_0_target, ...)` → profili minimi
+- [ ] Enum `TipoCollegamentoMuro` (INGHISAGGIO, TASSELLO_CHIMICO, CONNETTORE)
+- [ ] Enum `SchemaReticolare` (WARREN, PRATT, CUSTOM)
+
+**D.3.4 — Verifiche aste del traliccio**
+- [ ] Verifica compressione con instabilita' su entrambi i piani (selezionabile)
+- [ ] Verifica trazione
+- [ ] Verifica connessioni ai nodi (saldature / bulloni) tramite `src/steel/connessioni.py`
+- [ ] Verifica collegamento traliccio-muro per tipo selezionato
+- [ ] Normativa selezionabile: NTC2018 §4.2 SLU OPPURE TA storica (verifiche_ta.py)
+
+**D.3.5 — Integrazione con cinematica.py**
+- [ ] Il cordolo diventa vincolo in sommita' nel modello cinematico (ritegno orizzontale)
+- [ ] `cinematica.py`: aggiungere parametro opzionale `ritegno_sommitale` (forza H o rigidezza K)
+- [ ] Ricalcolo alpha_0 con ritegno → alpha_0 aumenta
+- [ ] Flusso bidirezionale: cinematica → F → traliccio → K → cinematica ricalcola (TODO futuro)
+- [ ] Tutti i meccanismi fuori piano beneficiati (ribaltamento, spanciamento, cuneo d'angolo)
+- [ ] Meccanismi attivabili/disattivabili singolarmente dall'utente
+
+**D.3.6 — Nodo d'angolo (cantonali)**
+- [ ] Verifica equilibrio locale al nodo d'angolo (forze da 2 muri ortogonali)
+- [ ] Integrazione nel modello globale traliccio ad anello (se configurazione anello)
+- [ ] Dettaglio costruttivo: piastra d'angolo, saldature, bulloni
+
+**D.3.7 — Report e tabulato**
+- [ ] Sezione dedicata nel tabulato di calcolo (`src/report/`)
+- [ ] Tabulato standalone esportabile
+- [ ] Passaggi di calcolo tracciabili (decision_log, norm_references)
+- [ ] Disegno schema traliccio con sforzi nelle aste (matplotlib)
+
+**D.3.8 — Test**
+- [ ] Generazione schema Warren/Pratt (geometria, nodi, aste)
+- [ ] Solutore con molle distribuite e carichi su corrente
+- [ ] Verifica aste (compressione, trazione, instabilita')
+- [ ] Verifica connessioni nodi
+- [ ] Integrazione cinematica: alpha_0 con/senza ritegno
+- [ ] Dimensionamento inverso (profili minimi per alpha_0 target)
+- [ ] Nodo d'angolo (equilibrio locale)
+- [ ] Retrocompatibilita' traliccio_2d (test esistenti invariati)
+
+**D.3.9 — Tool disegno grafico avanzato (FASE FUTURA)**
+- [ ] Disegno intuitivo nodi e aste per configurazione custom
+- [ ] Da implementare dopo D.3.1-D.3.8
+
+#### Dipendenze
+
+| Dipende da | Modulo | Stato |
+|-----------|--------|-------|
+| Solutore traliccio 2D | `src/steel/traliccio_2d.py` (D.4) | COMPLETATO |
+| Connessioni acciaio | `src/steel/connessioni.py` (D.5) | COMPLETATO |
+| Verifiche acciaio TA | `src/steel/verifiche_ta.py` (D.2) | COMPLETATO |
+| Sagomario profili | `src/steel/sagomario.py` (D.1) | COMPLETATO |
+| Meccanismi fuori piano | `src/methods/muratura/cinematica.py` (E.3) | COMPLETATO |
+| Cordolo base | `src/elements/cordolo.py` (D.6) | COMPLETATO (enum METALLICO_RETICOLARE dichiarato, non implementato) |
+| Unita' misura | `src/core/unita_misura.py` | COMPLETATO |
+
+#### Abilitato da D.3 (dipendenze inverse)
+
+| Fase | Beneficio |
+|------|-----------|
+| E.3 Meccanismi locali | Ritegno sommitale migliora alpha_0 |
+| E.6 Cantonali | Verifica nodo d'angolo del cordolo |
+| D.7 GUI cordoli | Interfaccia per configurazione reticolare |
+| Fase R — Edifici esistenti | Intervento di miglioramento sismico tipico |
+
+#### Note architetturali
+
+- Il solutore `traliccio_2d.py` e' gia' generico (piano XY); non serve flag orientamento
+- `CordoloReticolare` estende concettualmente `CordoloMetallico` (D.6) ma e' classe separata
+- La fatica ciclica sismica e' un TODO placeholder — metodo da definire in fase successiva
+- Il flusso iterativo cinematica ↔ traliccio (Q26c) e' un TODO futuro, non bloccante
 
 ### D.4 Solutore traliccio 2D ✅
 **Stato**: COMPLETATO — commit corrente
@@ -368,7 +610,7 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 
 ## FASE G — Elementi Secondari
 
-**Stato**: PARZIALMENTE COMPLETATO (commit 45e4648)
+**Stato**: COMPLETATO
 
 ### G.1 SLU forza inerziale F_a ✅
 **Completato** — `checks_ntc2018.py`
@@ -379,9 +621,32 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 ### G.3 Storage adapter CRUD ✅
 **Completato** — commit 45e4648
 
-### G.4 Verifiche elementi secondari per normative storiche
-- [ ] Elementi secondari RD2229
-- [ ] Elementi secondari DM92/DM96
+### G.4 Verifiche elementi secondari per normative storiche ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Elementi secondari RD2229 — `src/codes/rd2229/secondary_elements/checks.py`
+  - Verifica stabilità TA (omega * N / A) per elementi snelli sotto gravità
+  - SLE: NOT_APPLICABLE (norma pre-sismica)
+- [x] Elementi secondari DM92/DM96 — `src/codes/dm96/secondary_elements/checks.py`
+  - SLU: F_h = C * beta * W (coefficiente sismico semplificato per zona e piano)
+  - SLE: drift h/300
+  - Modello `SecondaryElementSpecDM96` con zona_sismica, piano, beta
+- [x] Dispatcher multi-norma — `verifications/secondary_elements/dispatcher.py`
+  - Routing basato su norma_attiva: NTC2018 (default), DM96/DM92, RD2229
+
+**Test**: `tests/test_secondary_elements_historical.py` (35 test) + `tests/test_secondary_elements_gating.py` (5 test) = 40 test totali
+
+### G.5 Stima periodo T_a e drift Metodo B (NTC2018)
+
+**Stato**: COMPLETATO — commit corrente
+
+- [x] `ta_models.py` — stima periodo fondamentale T_a con 4 modelli (RIGID, CANTILEVER_EQ, SDOF_EQ, MANUAL)
+- [x] `spectral_acceleration_floor()` — S_a al piano (NTC2018 eq. 7.2.5)
+- [x] `drift_models.py` — stima drift Metodo B (shear-building proxy) + USER + GLOBAL
+- [x] Validazione parametri con messaggi errore chiari
+- [x] decision_log tracciabile per ogni calcolo
+
+**File**: `src/codes/ntc2018/secondary_elements/ta_models.py`, `src/codes/ntc2018/secondary_elements/drift_models.py`
+**Test**: `tests/test_ta_drift_models.py` (37 test)
 
 ---
 
@@ -501,6 +766,11 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | Carichi verticali multipiano (aree influenza, top-down) | corrente | `src/methods/muratura/carichi_verticali.py` |
 | Combinazioni di carico personalizzabili NTC2018 | corrente | `src/methods/muratura/combinazioni_muratura.py` |
 | Verifiche compressione multipiano (4 eccentricità, Φ) | corrente | `src/methods/muratura/verifiche_multipiano.py` |
+| Elementi secondari DM96/DM92 (F_h = C*beta*W, drift h/300) | corrente | `src/codes/dm96/secondary_elements/checks.py` |
+| Elementi secondari RD2229 (stabilità TA, omega) | corrente | `src/codes/rd2229/secondary_elements/checks.py` |
+| Dispatcher multi-norma elementi secondari | corrente | `verifications/secondary_elements/dispatcher.py` |
+| Stima periodo T_a (4 modelli) + S_a floor NTC2018 | corrente | `src/codes/ntc2018/secondary_elements/ta_models.py` |
+| Stima drift Metodo B + USER + GLOBAL | corrente | `src/codes/ntc2018/secondary_elements/drift_models.py` |
 
 ---
 
