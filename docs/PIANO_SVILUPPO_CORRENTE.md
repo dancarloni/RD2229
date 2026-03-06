@@ -285,7 +285,7 @@ src/codes/seismic/
 | A.2 | MaterialSource strutturata | Sub-plan pronto, da implementare |
 | N | Carote cls in sito (9 formulazioni) | Da implementare |
 | J | Pressoflessione deviata (Bresler, N-Mx-My) | Da implementare |
-| I | Parametri statici sezioni completi | Da verificare cosa esiste |
+| I | Parametri statici sezioni completi | COMPLETATO — commit `[pending]` |
 | L | Cross-Pozzati telai piani | Da implementare |
 | R | Edifici esistenti LC/FC, vulnerabilita | Dipende da N |
 | H | Riorganizzazione methods/ per norma | Solo se necessario |
@@ -307,3 +307,26 @@ Stato attuale `spectrum_paste_service.py`: importa ag, F0, TC* da EdiLus-MS
 calcola SS, ST, alpha_S. E' il punto di integrazione per O.2.
 
 Modulo da creare: `src/codes/ntc2018/spectrum.py` (sub-plan completo in FASE O di PIANO_LAVORO.md).
+
+---
+
+## FASE I — Sezioni parametri statici completi (COMPLETATO)
+
+**Stato**: COMPLETATO — commit `[pending]`
+**Test**: 91 test, 0 falliti
+
+### Attivita completate
+
+- `src/codes/section_params/norme_n.py`: `get_n_for_norm()` per RD2229/DM92/DM96/NTC2008/NTC2018/EC2
+- `src/codes/section_params/omogenizzata.py`: sezione integra + fessurata + tensioni SLE
+- `src/codes/section_params/composita.py`: IPE_TABLE (18 profili) + sezione composta IPE+soletta
+- `src/codes/section_params/disegno_sezione.py`: matplotlib headless (profilo+barre+AN+diagramma)
+- `src/gui/widgets/sezione_canvas.py`: widget Qt (PySide6/PyQt6) anteprima real-time
+- `tests/test_sezione_omogenizzata.py`: 91 test (norma n, omogenizzata, fessurata, SLE, composita, disegno)
+
+### Decisioni progettuali
+
+- n per RD2229 selezionabile 8/10/12/15 (default 15); NTC2018 default 15 (§4.1.2.1.4.2 long-term)
+- Asse neutro fessurato: formula analitica per rettangolare+N=0+singola fila, bisect generale
+- Duck typing su section_type tramite section_fiber.py (stessa interfaccia per tutti i tipi)
+- Disegno matplotlib separato da Qt (nessun backend forzato); Qt canvas via FigureCanvasQTAgg

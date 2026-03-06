@@ -21,9 +21,9 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~2002 |
+| Test totali | ~2093 |
 | Test falliti | 0 |
-| Moduli implementati | 53+ |
+| Moduli implementati | 59+ |
 | Norme coperte | 10 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274, EC8) |
 
 ---
@@ -874,9 +874,51 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 - [ ] Migrazione checks esistenti nei rispettivi package
 
 ### FASE I — Sezioni parametri statici completi
-- [ ] Sezione omogenizzata (cls + n·A_s)
-- [ ] Parametri torsionali completi
-- [ ] Disegno sezione con armature
+
+**Stato**: COMPLETATO — commit `[pending]`
+**Test**: 91 test (test_sezione_omogenizzata.py), tutti passati
+
+#### I.1 Rapporto di omogeneizzazione n per norma ✅
+
+- [x] `src/codes/section_params/norme_n.py` — n per RD2229 (8/10/12/15), DM92, DM96, NTC2008, NTC2018, EC2
+- [x] RD2229: opzioni selezionabili 8/10/12/15, default 15
+- [x] NTC2018/NTC2008 §4.1.2.1.4.2: default n=15 (long-term quasi-permanente)
+- [x] DM92/DM96: calcolo automatico E_s/E_c o default 10
+- [x] EC2 §7.4.3: n = E_s/E_c_eff = E_s/(E_c/(1+phi))
+- [x] Precedenza utente (n_user) su tutti
+
+#### I.2 Sezione omogeneizzata integra + fessurata ✅
+
+- [x] `src/codes/section_params/omogenizzata.py`
+- [x] `BarraArmatura(y, A, zona)` — livello armatura
+- [x] `calcola_sezione_omogenizzata()` — A_om, y_G_om, I_om, W_sup, W_inf
+- [x] `calcola_asse_neutro_fessurato()` — analitico (rettangolare, N=0) + iterativo bisect (tutti i tipi)
+- [x] `calcola_tensioni_sle()` — sigma_c, sigma_s per ogni livello armatura
+- [x] `calcola_parametri_sezione_completi()` — pipeline unificata
+- [x] Tutti i tipi di sezione (duck-typed tramite section_fiber.py)
+
+#### I.3 Parametri torsionali ✅ (pre-esistenti)
+
+- [x] J_t, C_w, x_s, y_s implementati in `apps/sections/models/sections.py`
+- [x] Test: `tests/test_section_torsion.py` (27 test esistenti)
+
+#### I.4 Sezione composta acciaio-cls ✅
+
+- [x] `src/codes/section_params/composita.py`
+- [x] `IPE_TABLE` — 18 profili IPE standard (IPE80÷IPE600)
+- [x] `calcola_sezione_composta()` — A_comp, y_G_comp, I_comp, W_a, W_c
+- [x] `calcola_tensioni_sle_composita()` — sigma_a_inf, sigma_a_sup, sigma_c_sup
+
+#### I.5 Disegno sezione c.a. ✅
+
+- [x] `src/codes/section_params/disegno_sezione.py` — matplotlib (headless OK)
+- [x] `disegna_sezione()` — profilo + barre + asse neutro + zona compressa + diagramma tensioni
+- [x] `crea_figura_sezione_sle()` — pipeline da output calcola_parametri_sezione_completi
+- [x] `salva_figura()` — export PNG/PDF/SVG
+- [x] `src/gui/widgets/sezione_canvas.py` — widget Qt (PySide6/PyQt6) con FigureCanvasQTAgg
+
+**File**: `src/codes/section_params/` (5 file), `src/gui/widgets/sezione_canvas.py`
+**Test**: `tests/test_sezione_omogenizzata.py` (91 test)
 
 ### FASE J — Pressoflessione deviata
 - [ ] Dominio N-Mx-My
