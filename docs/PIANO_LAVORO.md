@@ -9,10 +9,10 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1291+ |
+| Test totali | ~1293+ |
 | Test falliti | 0 |
 | Moduli implementati | 35+ |
-| Norme coperte | 8 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81) |
+| Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
 
 ---
 
@@ -32,10 +32,11 @@
 | NTC2008 | `data/materials/catalogo_ntc2008.json` | 12 | C12/15→C50/60, B450C/A |
 | Circ81 | `data/materials/catalogo_circ81_muratura.json` | 5 | Muratura storica, γ_M≥5.0 |
 | Legno | `data/materials/catalogo_legno.json` | 6 | EN 338/14080 |
-| **Totale** | | **90** | |
+| OPCM3274 | `data/materials/catalogo_opcm3274.json` | 7 | Stessi valori DM96, γ_c=1.60, γ_s=1.15 |
+| **Totale** | | **97** | |
 
 - `material_repo.py`: metodi `list_by_norma()`, `list_norme_disponibili()`, `carica_tutti_cataloghi()`
-- Test: `tests/test_cataloghi_materiali.py` (20 test)
+- Test: `tests/test_cataloghi_materiali.py` (22 test)
 
 ### A.2 MaterialSource strutturata
 **Stato**: TODO
@@ -51,7 +52,7 @@
 ## FASE B — Torsione RD2229 TA
 
 ### B.1 Modulo torsione TA ✅
-**Stato**: COMPLETATO — commit corrente (da pushare)
+**Stato**: COMPLETATO — commit 394dc31
 
 **File**: `src/methods/rd2229/torsione.py` (~310 righe)
 
@@ -81,7 +82,7 @@ Tradotto da VB `Sub Torsione()` (PrincipCA_TA.bas riga 3818).
 ## FASE C — Instabilità RD2229 TA
 
 ### C.1 Modulo instabilità (carico di punta) ✅
-**Stato**: COMPLETATO — commit corrente (da pushare)
+**Stato**: COMPLETATO — commit 394dc31
 
 **File**: `src/methods/rd2229/instabilita.py` (~270 righe)
 
@@ -315,9 +316,9 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | Vento completo (160+ test) | 0a3d436→d8c88b5 | `src/wind/` |
 | Registries e routing | c153792 | `section_registry`, `code_registry` |
 | Pipeline verifiche + report | cbb07c5 | 6 verification actions, CLI |
-| Cataloghi multi-norma (90 mat.) | a0f05aa | `data/materials/catalogo_*.json` |
-| Torsione RD2229 TA | sessione corrente | `src/methods/rd2229/torsione.py` |
-| Instabilità RD2229 TA (ω) | sessione corrente | `src/methods/rd2229/instabilita.py` |
+| Cataloghi multi-norma (97 mat.) | a0f05aa + corrente | `data/materials/catalogo_*.json` |
+| Torsione RD2229 TA | 394dc31 | `src/methods/rd2229/torsione.py` |
+| Instabilità RD2229 TA (ω) | 394dc31 | `src/methods/rd2229/instabilita.py` |
 
 ---
 

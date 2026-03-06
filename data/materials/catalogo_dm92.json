@@ -51,7 +51,7 @@
     "alpha_cc": 0.85,
     "E": 300000.0,
     "nu": 0.20,
-    "note": "Classe comune anni '90. σ_c_adm=60+0.05×(Rck-200) per Rck>200."
+    "note": "Classe comune anni '90. σ_c_adm=60+0.25×(Rck-200) per Rck>200 (DM92 Prosp. 5-I)."
   },
   {
     "material_id": "cls_Rck300_DM92",
@@ -69,7 +69,7 @@
     "alpha_cc": 0.85,
     "E": 330000.0,
     "nu": 0.20,
-    "note": "σ_c_adm=60+0.05×(Rck-200). Classe alta per l'epoca."
+    "note": "σ_c_adm=60+0.25×(Rck-200). Classe alta per l'epoca."
   },
   {
     "material_id": "cls_Rck350_DM92",
@@ -87,7 +87,7 @@
     "alpha_cc": 0.85,
     "E": 355000.0,
     "nu": 0.20,
-    "note": "σ_c_adm=60+0.05×(Rck-200)."
+    "note": "σ_c_adm=60+0.25×(Rck-200)."
   },
   {
     "material_id": "cls_Rck400_DM92",

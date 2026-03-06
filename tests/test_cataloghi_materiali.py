@@ -28,7 +28,7 @@ class TestCaricamentoCataloghi:
     def test_norme_disponibili(self, repo_completo: MaterialRepository) -> None:
         """Verifica che tutte le norme attese siano presenti."""
         norme = repo_completo.list_norme_disponibili()
-        norme_attese = {"NTC2018", "RD2229", "DM72", "DM87", "DM92", "DM96", "NTC2008", "Circ81"}
+        norme_attese = {"NTC2018", "RD2229", "DM72", "DM87", "DM92", "DM96", "NTC2008", "Circ81", "OPCM3274"}
         for norma in norme_attese:
             assert norma in norme, f"Norma {norma} non trovata"
 
@@ -148,6 +148,24 @@ class TestCatalogoCirc81Muratura:
         for m in mats:
             assert m.famiglia == "muratura"
             assert m.gamma_M >= 5.0, "Circ81 ha gamma_M ≥ 5 senza prove"
+
+
+class TestCatalogoOPCM3274:
+    """Test specifici per materiali OPCM 3274/2003."""
+
+    def test_calcestruzzi_opcm3274(self, repo_completo: MaterialRepository) -> None:
+        mats = [m for m in repo_completo.list_by_norma("OPCM3274") if m.famiglia == "calcestruzzo"]
+        assert len(mats) >= 4
+        for m in mats:
+            assert m.gamma_c == 1.60, f"{m.material_id}: gamma_c deve essere 1.60"
+            assert m.sigma_c28 > 0
+
+    def test_acciai_opcm3274(self, repo_completo: MaterialRepository) -> None:
+        mats = [m for m in repo_completo.list_by_norma("OPCM3274") if m.famiglia == "acciaio"]
+        assert len(mats) >= 3
+        for m in mats:
+            assert m.gamma_s == 1.15
+            assert m.E == 2100000.0
 
 
 class TestNTC2018Completo:
