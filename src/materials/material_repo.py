@@ -97,9 +97,25 @@ class MaterialRepository:
         """Restituisce i materiali di una specifica famiglia.
 
         Parametri:
-            famiglia: "calcestruzzo", "acciaio", o "muratura".
+            famiglia: "calcestruzzo", "acciaio", "muratura", o "legno".
         """
         return [m for m in self._materials.values() if m.famiglia == famiglia]
+
+    def list_by_norma(self, norma: str) -> list[Material]:
+        """Restituisce i materiali di una specifica norma di riferimento.
+
+        Parametri:
+            norma: Codice norma (es. "NTC2018", "RD2229", "DM92", "DM96", "DM72", "NTC2008", "DM87", "Circ81").
+        """
+        return [m for m in self._materials.values() if m.norma_riferimento == norma]
+
+    def list_norme_disponibili(self) -> list[str]:
+        """Restituisce l'elenco delle norme disponibili nel repository."""
+        norme = set()
+        for m in self._materials.values():
+            if m.norma_riferimento:
+                norme.add(m.norma_riferimento)
+        return sorted(norme)
 
     def count(self) -> int:
         """Restituisce il numero di materiali nel repository."""
@@ -220,6 +236,39 @@ class MaterialRepository:
             if src.get("id") == source_id:
                 return dict(src)
         return None
+
+    # --- Caricamento cataloghi ---
+
+    def carica_tutti_cataloghi(self, catalogo_dir: str | Path | None = None) -> int:
+        """Carica tutti i cataloghi materiali dalla directory data/materials/.
+
+        Carica tutti i file JSON nella directory catalogo, aggiungendo
+        ogni materiale al repository. Se un materiale esiste già (stesso ID),
+        viene sovrascritto con un warning.
+
+        Parametri:
+            catalogo_dir: Directory contenente i file catalogo JSON.
+                          Se None, usa data/materials/ dalla root del progetto.
+
+        Restituisce:
+            Numero totale di materiali caricati da tutti i cataloghi.
+        """
+        if catalogo_dir is None:
+            catalogo_dir = Path(__file__).parent.parent.parent / "data" / "materials"
+        catalogo_dir = Path(catalogo_dir)
+
+        if not catalogo_dir.exists():
+            logger.warning("Directory cataloghi non trovata: %s", catalogo_dir)
+            return 0
+
+        totale = 0
+        for json_file in sorted(catalogo_dir.glob("catalogo_*.json")):
+            count = self.load_from_json(json_file)
+            totale += count
+            logger.info("Catalogo %s: %d materiali", json_file.name, count)
+
+        logger.info("Totale materiali caricati da cataloghi: %d", totale)
+        return totale
 
     # --- Materiali di default ---
 
