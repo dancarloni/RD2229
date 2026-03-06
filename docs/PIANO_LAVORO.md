@@ -21,7 +21,7 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1358+ |
+| Test totali | ~1401+ |
 | Test falliti | 0 |
 | Moduli implementati | 35+ |
 | Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
@@ -147,17 +147,30 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 ### D.3 Piatti saldati/bullonati
 - [ ] Sezione composta saldata
 - [ ] Sezione composta bullonata
-- [ ] Verifiche connessioni
 
-### D.4 Solutore traliccio 2D
-- [ ] Metodo dei nodi
-- [ ] Input nodi + aste + vincoli + carichi
-- [ ] Sforzi nelle aste
-- [ ] Verifiche a compressione/trazione
+### D.4 Solutore traliccio 2D ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Metodo della rigidezza diretta (Gauss con pivoting parziale)
+- [x] Input nodi + aste + vincoli (cerniera, carrello_x, carrello_y) + carichi
+- [x] Sforzi normali nelle aste (trazione/compressione)
+- [x] Reazioni vincolari con verifica equilibrio globale
+- [x] Verifiche a compressione/trazione con instabilità (ω)
 
-### D.5 Connessioni
-- [ ] Saldature (a cordone d'angolo, testa a testa)
-- [ ] Bullonature (taglio, trazione, interazione)
+**File**: `src/steel/traliccio_2d.py` (~330 righe)
+**Test**: `tests/test_traliccio_2d.py` (19 test)
+
+### D.5 Connessioni ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Saldature a cordone d'angolo (frontale, laterale, combinata)
+- [x] Saldature testa a testa (completa penetrazione)
+- [x] Bullonature: taglio (gambo/filetto)
+- [x] Bullonature: trazione
+- [x] Bullonature: interazione taglio+trazione (V/V_Rd)²+(N/N_Rd)²≤1
+- [x] Bullonature: rifollamento lamiera
+- [x] Coefficienti β_w (CNR 10011), classi 4.6÷10.9, M12÷M36
+
+**File**: `src/steel/connessioni.py` (~380 righe)
+**Test**: `tests/test_connessioni_acciaio.py` (24 test)
 
 ### D.6 GUI Qt cordoli
 - [ ] Interfaccia selezione profilo
@@ -343,6 +356,8 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | Instabilità RD2229 TA (ω) | 394dc31 | `src/methods/rd2229/instabilita.py` |
 | Sagomario acciaio EN 10365 (87 profili) | corrente | `src/steel/sagomario.py`, `data/steel/` |
 | Verifiche acciaio TA (flessione, taglio, instabilità) | corrente | `src/steel/verifiche_ta.py` |
+| Solutore traliccio 2D (rigidezza diretta) | corrente | `src/steel/traliccio_2d.py` |
+| Connessioni acciaio (saldature + bulloni) | corrente | `src/steel/connessioni.py` |
 
 ---
 
