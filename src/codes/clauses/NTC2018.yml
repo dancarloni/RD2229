@@ -1,33 +1,134 @@
-# Esempio STUB S2 di clausole normative per NTC 2018
-# Il testo NON è normativo reale: è solo struttura per supportare
-# Copilot Plan nella generazione di report tecnici.
+# Clausole normative NTC 2018 (D.M. 17 gennaio 2018)
+# Struttura per supporto report e verifiche
 
 general:
   title: "Norme Tecniche per le Costruzioni 2018"
-  scope: "Regole generali per progettazione e verifica."
+  reference: "D.M. 17 gennaio 2018"
+  scope: "Regole generali per la progettazione, l'esecuzione e il collaudo delle costruzioni."
 
 materials:
   concrete:
+    paragraph: "§4.1.2"
     limit_states:
-      - id: "SLE"
-        desc: "Stato Limite di Esercizio."
       - id: "SLU"
-        desc: "Stato Limite Ultimo."
-    remarks:
-      - "Questo testo è un placeholder e va sostituito."
+        desc: "Stato Limite Ultimo"
+        paragraph: "§4.1.2.1"
+      - id: "SLE"
+        desc: "Stato Limite di Esercizio"
+        paragraph: "§4.1.2.2"
+    design_values:
+      f_cd: "f_cd = alpha_cc * f_ck / gamma_c"
+      f_ctd: "f_ctd = f_ctk,0.05 / gamma_c"
+      gamma_c: 1.5
+      alpha_cc: 0.85
+    classes:
+      - "C20/25"
+      - "C25/30"
+      - "C28/35"
+      - "C30/37"
+      - "C32/40"
+      - "C35/45"
+      - "C40/50"
+      - "C45/55"
+      - "C50/60"
+  steel:
+    paragraph: "§11.3.2"
+    design_values:
+      f_yd: "f_yd = f_yk / gamma_s"
+      gamma_s: 1.15
+    grades:
+      - "B450C"
+      - "B450A"
 
 geometry:
   section_limits:
+    paragraph: "§4.1.6"
     min_height_cm: 20
     min_width_cm: 20
-    note: "Placeholder."
+    min_cover:
+      description: "Copriferro minimo §4.1.6.1.3"
 
 load_combinations:
-  ulc:
-    desc: "Combinazione allo Stato Limite Ultimo."
-    text: "Placeholder per descrizione combinazione ULC."
+  slu_fondamentale:
+    paragraph: "§2.5.3"
+    formula: "gamma_G1*G1 + gamma_G2*G2 + gamma_Q*(Q_k1 + sum(psi_0i*Q_ki))"
+    description: "Combinazione fondamentale SLU"
+  sle_rara:
+    paragraph: "§2.5.3"
+    formula: "G1 + G2 + Q_k1 + sum(psi_0i*Q_ki)"
+    description: "Combinazione rara SLE"
+  sle_frequente:
+    paragraph: "§2.5.3"
+    formula: "G1 + G2 + psi_11*Q_k1 + sum(psi_2i*Q_ki)"
+    description: "Combinazione frequente SLE"
+  sle_quasi_permanente:
+    paragraph: "§2.5.3"
+    formula: "G1 + G2 + sum(psi_2i*Q_ki)"
+    description: "Combinazione quasi permanente SLE"
 
 verification:
   flexure:
-    description: "Regole di verifica flessionale."
-    formula_ref: "TODO: inserire richiamo normativo reale."
+    paragraph: "§4.1.2.1.2"
+    description: "Verifica a flessione SLU"
+    method: "Stress block rettangolare semplificato"
+    ductility_limit: "x/d <= 0.45 per strutture in zona sismica"
+  shear:
+    paragraph: "§4.1.2.1.3"
+    description: "Verifica a taglio SLU"
+    no_stirrups:
+      paragraph: "§4.1.2.1.3.1"
+      formula: "V_Rd,c = [C_Rd,c * k * (100 * rho_l * f_ck)^(1/3) + k_1 * sigma_cp] * b_w * d"
+      C_Rd_c: "0.18 / gamma_c"
+      k: "min(1 + sqrt(200/d), 2.0)"
+      v_min: "0.035 * k^1.5 * f_ck^0.5"
+    with_stirrups:
+      paragraph: "§4.1.2.1.3.2"
+      formula: "V_Rd,s = A_sw/s * z * f_ywd * cot(theta)"
+      theta_range: "21.8° <= theta <= 45°"
+  torsion:
+    paragraph: "§4.1.2.1.4"
+    description: "Verifica a torsione SLU"
+    method: "Modello a traliccio a pareti sottili"
+  punching:
+    paragraph: "§4.1.2.1.5"
+    description: "Verifica a punzonamento SLU"
+  sle_cracking:
+    paragraph: "§4.1.2.2.4"
+    description: "Verifica fessurazione SLE"
+    formula: "w_k = s_r,max * (eps_sm - eps_cm)"
+    limits:
+      ordinaria: 0.4
+      aggressiva: 0.3
+      molto_aggressiva: 0.2
+  sle_stress:
+    paragraph: "§4.1.2.2.5"
+    description: "Verifica tensioni in esercizio SLE"
+    limits:
+      sigma_c_rara: "0.60 * f_ck"
+      sigma_c_qp: "0.45 * f_ck"
+      sigma_s: "0.80 * f_yk"
+  sle_deflection:
+    paragraph: "§4.1.2.2.6"
+    description: "Verifica deformazioni SLE"
+    limits:
+      appearance: "L/250"
+      functionality: "L/500"
+
+existing_structures:
+  paragraph: "§8"
+  lc_levels:
+    LC1:
+      description: "Livello di conoscenza 1 — limitato"
+      fc: 1.35
+    LC2:
+      description: "Livello di conoscenza 2 — adeguato"
+      fc: 1.20
+    LC3:
+      description: "Livello di conoscenza 3 — accurato"
+      fc: 1.00
+
+seismic:
+  paragraph: "§7"
+  element_roles:
+    primary: "Elemento strutturale primario (§7.2.3)"
+    secondary: "Elemento strutturale secondario (§7.2.3)"

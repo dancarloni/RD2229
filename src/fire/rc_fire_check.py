@@ -7,12 +7,8 @@ Riferimenti (pubblici):
 - NTC 2018, §3.6.1 – Azioni di incendio (requisiti prestazionali)
 - EN 1992-1-2:2004, §5.6 – Simplified calculation method for beams and slabs
 - EN 1992-1-2:2004, Table 5.4/5.5 – Axis distance requirements
-  (NOTA: i valori delle tabelle EN 1992-1-2 non sono liberamente riproducibili;
-   i valori qui usati sono parametri placeholder configurabili dall'utente
-   tramite data/fire/axis_distance_table.json – vedi TODO)
 
-TODO: Caricare i valori reali da data/fire/axis_distance_table.json
-      (da compilare dal professionista in base alle norme applicabili).
+La tabella dati è caricata da data/fire/axis_distance_table.json.
 """
 
 from __future__ import annotations
@@ -31,38 +27,109 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Tabella placeholder asse-distanza minima (axis distance) [mm]
-# Chiave: (durata_min, lati_esposti) → {b_min_mm, a_min_mm}
-# TODO: sostituire con valori da data/fire/axis_distance_table.json
-# ---------------------------------------------------------------------------
 _AXIS_DISTANCE_TABLE_PATH = os.path.join(
     os.path.dirname(__file__), "..", "..", "data", "fire", "axis_distance_table.json"
 )
 
-_AXIS_DISTANCE_PLACEHOLDER: dict[str, dict[str, float]] = {
-    # Formato chiave: "{durata}_{lati}" (es. "60_3")
+_FALLBACK_TABLE: dict[str, dict[str, float]] = {
     "30_3": {"b_min_mm": 80.0, "a_min_mm": 25.0},
     "60_3": {"b_min_mm": 120.0, "a_min_mm": 35.0},
     "90_3": {"b_min_mm": 150.0, "a_min_mm": 45.0},
     "120_3": {"b_min_mm": 200.0, "a_min_mm": 50.0},
-    "30_4": {"b_min_mm": 80.0, "a_min_mm": 25.0},
-    "60_4": {"b_min_mm": 120.0, "a_min_mm": 35.0},
-    "90_4": {"b_min_mm": 150.0, "a_min_mm": 45.0},
-    "120_4": {"b_min_mm": 200.0, "a_min_mm": 50.0},
 }
 
+_cached_table: dict | None = None
 
-def _load_axis_distance_table() -> dict[str, dict[str, float]]:
-    """Carica la tabella axis distance da file JSON, o usa il placeholder."""
+
+def _load_axis_distance_table() -> dict:
+    """Carica la tabella axis distance da file JSON, o usa il fallback."""
+    global _cached_table
+    if _cached_table is not None:
+        return _cached_table
+
     try:
         with open(_AXIS_DISTANCE_TABLE_PATH, encoding="utf-8") as f:
-            return json.load(f)
+            _cached_table = json.load(f)
+            return _cached_table
     except FileNotFoundError:
-        logger.debug("Tabella axis distance non trovata; uso valori placeholder.")
+        logger.debug("Tabella axis distance non trovata; uso valori fallback.")
     except Exception as exc:
         logger.warning("Errore caricamento tabella axis distance: %s", exc)
-    return _AXIS_DISTANCE_PLACEHOLDER
+    _cached_table = _FALLBACK_TABLE
+    return _cached_table
+
+
+def reset_fire_table_cache() -> None:
+    """Reset della cache della tabella (utile per i test)."""
+    global _cached_table
+    _cached_table = None
+
+
+def _lookup_fire_requirements(
+    table: dict, element_type: str, rating_minutes: int, exposure_sides: int,
+) -> dict[str, float] | None:
+    """Cerca i requisiti minimi dalla tabella, con fallback per tipo elemento.
+
+    Strategia di ricerca:
+    1. Tabella per tipo elemento (es. "travi_isostatiche" → "R60")
+    2. Chiave legacy "{durata}_{lati}" (es. "60_3")
+    3. Durata più conservativa disponibile ≥ richiesta
+    """
+    rating_key = f"R{rating_minutes}"
+    legacy_key = f"{rating_minutes}_{exposure_sides}"
+
+    # Mappa tipo elemento → categoria tabella
+    type_map = {
+        "beam": "travi_isostatiche",
+        "trave": "travi_isostatiche",
+        "trave_continua": "travi_continue",
+        "continuous_beam": "travi_continue",
+        "column": "pilastri",
+        "pilastro": "pilastri",
+        "slab": "solai",
+        "solaio": "solai",
+    }
+
+    category = type_map.get(element_type.lower(), "")
+
+    # 1. Cerca per tipo elemento
+    if category and category in table:
+        cat_table = table[category]
+        if rating_key in cat_table:
+            return cat_table[rating_key]
+        # Cerca durata più vicina ≥ richiesta
+        available = []
+        for k in cat_table:
+            if k.startswith("R") and k[1:].isdigit():
+                mins = int(k[1:])
+                if mins >= rating_minutes:
+                    available.append((mins, k))
+        if available:
+            available.sort()
+            return cat_table[available[0][1]]
+
+    # 2. Chiave legacy
+    if legacy_key in table:
+        row = table[legacy_key]
+        if isinstance(row, dict) and "b_min_mm" in row:
+            return row
+
+    # 3. Fallback con durata ≥ richiesta per i lati dati
+    suffix = f"_{exposure_sides}"
+    usable = []
+    for k, v in table.items():
+        if k.endswith(suffix) and isinstance(v, dict) and "b_min_mm" in v:
+            try:
+                mins = int(k.split("_")[0])
+                if mins >= rating_minutes:
+                    usable.append((mins, v))
+            except ValueError:
+                continue
+    if usable:
+        usable.sort()
+        return usable[0][1]
+
+    return None
 
 
 @dataclass
@@ -70,8 +137,7 @@ class ElementResultFire:
     """Risultato della verifica al fuoco per un singolo elemento."""
 
     element_id: str = ""
-    # Status: "OK" | "KO" | "NOT_VERIFIED" | "SKIPPED"
-    status: str = "NOT_VERIFIED"
+    status: str = "NOT_VERIFIED"  # "OK" | "KO" | "NOT_VERIFIED" | "SKIPPED"
     metrics: dict[str, Any] = field(default_factory=dict)
     messages: list[str] = field(default_factory=list)
 
@@ -84,13 +150,6 @@ def run_rc_fire_check(
 
     Metodo: confronto dimensionale (larghezza minima, asse-distanza armatura).
     Se i dati sono insufficienti restituisce status=NOT_VERIFIED con motivazioni.
-
-    Args:
-        project: Modello del progetto.
-        element: Elemento da verificare (deve essere già eleggibile).
-
-    Returns:
-        :class:`ElementResultFire` con status, metriche e messaggi.
     """
     messages: list[str] = []
     metrics: dict[str, Any] = {}
@@ -105,7 +164,7 @@ def run_rc_fire_check(
     metrics["iso834_temp_end_celsius"] = round(temp_at_end, 1)
     metrics["required_rating_minutes"] = required_min
 
-    # Larghezza in mm (converti da cm se necessario)
+    # Larghezza in mm
     units_length = project.code_settings.units_length or "cm"
     b_mm = element.width * (10.0 if units_length == "cm" else 1.0)
     h_mm = element.height * (10.0 if units_length == "cm" else 1.0)
@@ -117,55 +176,45 @@ def run_rc_fire_check(
 
     # Cerca valori nella tabella
     table = _load_axis_distance_table()
-    key = f"{required_min}_{exp_sides}"
-    row = table.get(key)
+    element_type = getattr(element, "type", getattr(element, "tipo", "beam"))
+    row = _lookup_fire_requirements(table, element_type, required_min, exp_sides)
 
     if row is None:
-        # Prova a trovare la durata più vicina disponibile
-        available_keys = [k for k in table if k.endswith(f"_{exp_sides}")]
-        if not available_keys:
-            messages.append(
-                f"Nessun dato tabellare per durata={required_min} min, lati={exp_sides}. "
-                "Compilare data/fire/axis_distance_table.json con valori normativi appropriati."
-            )
-            return ElementResultFire(
-                element_id=element.id,
-                status="NOT_VERIFIED",
-                metrics=metrics,
-                messages=messages,
-            )
-        # Usa la durata più conservativa ≥ required_min
-        usable = sorted(
-            [
-                (int(k.split("_")[0]), k)
-                for k in available_keys
-                if int(k.split("_")[0]) >= required_min
-            ]
-        )
-        if not usable:
-            messages.append(
-                f"Durata {required_min} min supera valori tabellari disponibili per {exp_sides} lati."
-            )
-            return ElementResultFire(
-                element_id=element.id,
-                status="NOT_VERIFIED",
-                metrics=metrics,
-                messages=messages,
-            )
-        row = table[usable[0][1]]
         messages.append(
-            f"[INFO] Usata durata tabellare {usable[0][0]} min (richiesta: {required_min} min)."
+            f"Nessun dato tabellare per durata={required_min} min, tipo={element_type}, "
+            f"lati={exp_sides}. Compilare data/fire/axis_distance_table.json."
+        )
+        return ElementResultFire(
+            element_id=element.id,
+            status="NOT_VERIFIED",
+            metrics=metrics,
+            messages=messages,
         )
 
     b_min_mm: float = row.get("b_min_mm", 0.0)
     a_min_mm: float = row.get("a_min_mm", 0.0)
+    h_min_mm: float = row.get("h_min_mm", 0.0)
 
     metrics["b_min_required_mm"] = b_min_mm
     metrics["a_min_required_mm"] = a_min_mm
+    if h_min_mm > 0:
+        metrics["h_min_required_mm"] = h_min_mm
 
-    # Verifica larghezza
-    ok_b = b_mm >= b_min_mm
-    metrics["ok_larghezza"] = ok_b
+    # Verifica larghezza (o altezza per solai)
+    if h_min_mm > 0:
+        ok_dim = h_mm >= h_min_mm
+        metrics["ok_dimensione"] = ok_dim
+        if ok_dim:
+            messages.append(f"OK – altezza {h_mm:.1f} mm >= h_min {h_min_mm:.1f} mm (R{required_min}).")
+        else:
+            messages.append(f"KO – altezza {h_mm:.1f} mm < h_min {h_min_mm:.1f} mm (R{required_min}).")
+    else:
+        ok_dim = b_mm >= b_min_mm
+        metrics["ok_larghezza"] = ok_dim
+        if ok_dim:
+            messages.append(f"OK – larghezza {b_mm:.1f} mm >= b_min {b_min_mm:.1f} mm (R{required_min}).")
+        else:
+            messages.append(f"KO – larghezza {b_mm:.1f} mm < b_min {b_min_mm:.1f} mm (R{required_min}).")
 
     # Verifica asse-distanza armatura (copriferro)
     if cover_mm is None:
@@ -174,26 +223,12 @@ def run_rc_fire_check(
     else:
         ok_a = cover_mm >= a_min_mm
         metrics["ok_asse_distanza"] = ok_a
-        if not ok_a:
-            messages.append(
-                f"KO – copriferro {cover_mm:.1f} mm < a_min richiesta {a_min_mm:.1f} mm "
-                f"(R{required_min})."
-            )
+        if ok_a:
+            messages.append(f"OK – copriferro {cover_mm:.1f} mm >= a_min {a_min_mm:.1f} mm (R{required_min}).")
         else:
-            messages.append(
-                f"OK – copriferro {cover_mm:.1f} mm ≥ a_min {a_min_mm:.1f} mm (R{required_min})."
-            )
+            messages.append(f"KO – copriferro {cover_mm:.1f} mm < a_min {a_min_mm:.1f} mm (R{required_min}).")
 
-    if not ok_b:
-        messages.append(
-            f"KO – larghezza {b_mm:.1f} mm < b_min richiesta {b_min_mm:.1f} mm (R{required_min})."
-        )
-    else:
-        messages.append(
-            f"OK – larghezza {b_mm:.1f} mm ≥ b_min {b_min_mm:.1f} mm (R{required_min})."
-        )
-
-    overall_ok = ok_b and (cover_mm is not None) and ok_a
+    overall_ok = ok_dim and (cover_mm is not None) and ok_a
     status = "OK" if overall_ok else "KO"
 
     return ElementResultFire(
@@ -202,3 +237,55 @@ def run_rc_fire_check(
         metrics=metrics,
         messages=messages,
     )
+
+
+def run_fire_check_standalone(
+    element_type: str,
+    rating_minutes: int,
+    b_mm: float,
+    cover_mm: float,
+    exposure_sides: int = 3,
+) -> dict[str, Any]:
+    """Verifica al fuoco standalone (senza ProjectModel).
+
+    Per uso diretto da CLI o da action_repo.
+
+    Returns:
+        dict con ok, messages, metrics
+    """
+    table = _load_axis_distance_table()
+    row = _lookup_fire_requirements(table, element_type, rating_minutes, exposure_sides)
+
+    if row is None:
+        return {
+            "ok": False,
+            "messages": [f"Nessun dato tabellare per R{rating_minutes}, tipo={element_type}."],
+            "metrics": {},
+        }
+
+    b_min = row.get("b_min_mm", 0.0)
+    a_min = row.get("a_min_mm", 0.0)
+    h_min = row.get("h_min_mm", 0.0)
+
+    ok_dim = (b_mm >= h_min) if h_min > 0 else (b_mm >= b_min)
+    ok_a = cover_mm >= a_min
+
+    messages = []
+    if ok_dim:
+        messages.append(f"OK – dimensione {b_mm:.1f} mm >= minimo {max(b_min, h_min):.1f} mm.")
+    else:
+        messages.append(f"KO – dimensione {b_mm:.1f} mm < minimo {max(b_min, h_min):.1f} mm.")
+    if ok_a:
+        messages.append(f"OK – copriferro {cover_mm:.1f} mm >= a_min {a_min:.1f} mm.")
+    else:
+        messages.append(f"KO – copriferro {cover_mm:.1f} mm < a_min {a_min:.1f} mm.")
+
+    return {
+        "ok": ok_dim and ok_a,
+        "messages": messages,
+        "metrics": {
+            "b_min_mm": b_min, "a_min_mm": a_min,
+            "b_mm": b_mm, "cover_mm": cover_mm,
+            "rating_minutes": rating_minutes,
+        },
+    }

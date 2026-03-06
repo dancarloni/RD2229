@@ -1,6 +1,11 @@
-"""
-Package initializer for report module.
+"""Package report — renderer HTML, Markdown e PDF per verifiche strutturali."""
 
-This module is part of the restructured architecture.
-Contains report renderers for MD, HTML, and PDF formats.
-"""
+from .renderer_html import HTMLReportRenderer
+from .renderer_md import MarkdownReportRenderer
+from .renderer_pdf import PDFReportRenderer
+
+__all__ = [
+    "HTMLReportRenderer",
+    "MarkdownReportRenderer",
+    "PDFReportRenderer",
+]

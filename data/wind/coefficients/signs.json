@@ -1,0 +1,70 @@
+{
+  "_source": "EN 1991-1-4:2005, §7.4.3 + CNR-DT 207 R1/2018 App. G.7 — Signboards and lattice structures",
+  "_placeholder": true,
+  "_comment": [
+    "Coefficienti di forza cf per insegne, pannelli pubblicitari e strutture reticolari.",
+    "Valori indicativi; il professionista deve verificare con EC1 §7.4.3 / CNR-DT 207 App. G.7."
+  ],
+  "solid_plate": {
+    "_comment": "Insegna/pannello pieno — EC1 §7.4.3",
+    "cf_default": 1.8,
+    "b_h_ratios": [1, 2, 5, 10, 20, 50],
+    "cf_values": [1.8, 1.8, 1.8, 1.8, 1.8, 1.8],
+    "note": "cf = 1.8 per insegne isolate (valore conservativo indipendente da b/h)"
+  },
+  "zone_pressures": {
+    "_comment": [
+      "Distribuzione pressioni per zone — CNR-DT 207 App. G.7.",
+      "Insegna suddivisa in zone A, B, C, D con cpn differenti.",
+      "h = altezza insegna, b = larghezza insegna.",
+      "Zone A: bordo sopravento (larghezza h), B: bordo sottovento (larghezza h),",
+      "C: zona centrale (larghezza b - 2h, presente solo se b > 2h), D: bordo superiore/inferiore.",
+      "Per b/h ≤ 1: solo zone A e B (ciascuna b/2).",
+      "Per 1 < b/h ≤ 2: zone A(h) + B(b-h).",
+      "Per b/h > 2: zone A(h) + C(b-2h) + B(h)."
+    ],
+    "b_h_ratios": [0.5, 1.0, 2.0, 5.0, 10.0],
+    "cpn_A": [2.4, 2.4, 2.1, 1.8, 1.8],
+    "cpn_B": [1.4, 1.4, 1.6, 1.8, 1.8],
+    "cpn_C": [1.2, 1.2, 1.4, 1.6, 1.8],
+    "cpn_D": [2.0, 2.0, 1.8, 1.4, 1.2],
+    "note": [
+      "Per b/h piccoli (< 2) i bordi sono dominanti (cpn_A alto).",
+      "Per b/h grandi (> 5) la distribuzione tende a uniformarsi verso cf=1.8.",
+      "cpn_D si applica a fasce superiore e inferiore (altezza h/10)."
+    ]
+  },
+  "solidity_effect": {
+    "_comment": [
+      "Effetto del rapporto pieni/vuoti φ (solidity ratio) sul cf.",
+      "Per insegne traforate: cf = cf_solid · η(φ).",
+      "η(φ) interpolato tra φ=0.1 e φ=1.0."
+    ],
+    "phi_values": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "eta_values": [0.30, 0.40, 0.50, 0.58, 0.65, 0.72, 0.78, 0.85, 0.92, 1.00],
+    "note": "Interpolazione lineare tra valori tabulati"
+  },
+  "lattice_structure": {
+    "_comment": [
+      "Struttura reticolare di supporto — EC1 §7.11.",
+      "cf dipende da solidity ratio e Reynolds number.",
+      "Profili piatti: cf_0 ≈ 2.0; profili circolari: cf_0 ≈ 1.2 (subcritico)."
+    ],
+    "flat_members": {
+      "cf_0": 2.0,
+      "note": "Profili a sezione piatta (angolari, piatti, UPN)"
+    },
+    "circular_members": {
+      "cf_0_subcritical": 1.2,
+      "cf_0_supercritical": 0.6,
+      "Re_critical": 200000,
+      "note": "Profili circolari, Re critico ≈ 2·10⁵"
+    }
+  },
+  "ground_clearance_factor": {
+    "_comment": "Fattore di incremento per insegne vicine al suolo",
+    "z_g_over_h": [0.5, 1.0, 2.0, 4.0],
+    "factor": [1.0, 1.0, 0.95, 0.90],
+    "note": "z_g = distanza dal suolo; h = altezza insegna"
+  }
+}

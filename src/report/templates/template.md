@@ -1,34 +1,34 @@
-# Report di Verifica — Template Markdown
-
-**ATTENZIONE:** questo file è uno STUB S2.  
-Verrà usato come base da renderer_md.py per generare report reali.
-
----
-
-## Intestazione
+# Report di Verifica Strutturale
 
 - **Data generazione:** {{generation_date}}
 - **Normativa:** {{code_name}}
 - **Versione software:** {{software_version}}
+- **Progetto:** {{project_name}}
 
 ---
 
-## Elementi
+## Riepilogo
+
+{{summary}}
+
+---
+
+## Elementi verificati
 
 {{elements_table}}
 
 ---
 
-## Risultati
+## Risultati delle verifiche
 
 {{results_table}}
 
 ---
 
-## Messaggi
+## Dettagli e messaggi
 
 {{messages}}
 
 ---
 
-_(File template.md, stub S2)_
+*Report generato automaticamente. Normativa: {{code_name}}. I risultati devono essere validati dal progettista responsabile.*

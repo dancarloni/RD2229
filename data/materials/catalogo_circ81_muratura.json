@@ -1,0 +1,67 @@
+[
+  {
+    "material_id": "mur_pieni_buona_Circ81",
+    "descrizione": "Muratura mattoni pieni buona fattura — Circ. 30/07/1981 n. 21745",
+    "famiglia": "muratura",
+    "norma_riferimento": "Circ81",
+    "densita_kg_m3": 1800.0,
+    "f_k": 24.0,
+    "f_vk0": 0.6,
+    "gamma_M": 5.0,
+    "E": 14400.0,
+    "nu": 0.15,
+    "note": "Circ. 21745/1981 Tab.1. Muratura piena buona qualità. τ_0=0.6 kg/cm². γ_M=5 senza prove."
+  },
+  {
+    "material_id": "mur_pieni_scarsa_Circ81",
+    "descrizione": "Muratura mattoni pieni scarsa fattura — Circ. 30/07/1981 n. 21745",
+    "famiglia": "muratura",
+    "norma_riferimento": "Circ81",
+    "densita_kg_m3": 1600.0,
+    "f_k": 12.0,
+    "f_vk0": 0.2,
+    "gamma_M": 5.0,
+    "E": 7200.0,
+    "nu": 0.15,
+    "note": "Circ. 21745/1981. Muratura piena scarsa qualità (malta scadente, giunti irregolari)."
+  },
+  {
+    "material_id": "mur_pietrame_Circ81",
+    "descrizione": "Muratura in pietrame — Circ. 30/07/1981 n. 21745",
+    "famiglia": "muratura",
+    "norma_riferimento": "Circ81",
+    "densita_kg_m3": 2100.0,
+    "f_k": 10.0,
+    "f_vk0": 0.2,
+    "gamma_M": 5.0,
+    "E": 6000.0,
+    "nu": 0.15,
+    "note": "Circ. 21745/1981. Pietrame irregolare con malta di calce."
+  },
+  {
+    "material_id": "mur_pietra_squadrata_Circ81",
+    "descrizione": "Muratura in pietra squadrata — Circ. 30/07/1981 n. 21745",
+    "famiglia": "muratura",
+    "norma_riferimento": "Circ81",
+    "densita_kg_m3": 2200.0,
+    "f_k": 20.0,
+    "f_vk0": 0.5,
+    "gamma_M": 5.0,
+    "E": 12000.0,
+    "nu": 0.15,
+    "note": "Circ. 21745/1981. Pietra squadrata con buona malta."
+  },
+  {
+    "material_id": "mur_tufo_Circ81",
+    "descrizione": "Muratura in tufo — Circ. 30/07/1981 n. 21745",
+    "famiglia": "muratura",
+    "norma_riferimento": "Circ81",
+    "densita_kg_m3": 1400.0,
+    "f_k": 8.0,
+    "f_vk0": 0.3,
+    "gamma_M": 5.0,
+    "E": 4800.0,
+    "nu": 0.15,
+    "note": "Circ. 21745/1981. Tufo."
+  }
+]

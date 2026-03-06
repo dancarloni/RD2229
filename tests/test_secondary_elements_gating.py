@@ -30,7 +30,7 @@ def test_dispatcher_contract_fields():
     proj = DummyProjectModel("NTC2018")
     res = dispatcher.run(inp, proj, "SLU")
     assert "trace" in res and "run_id" in res["trace"], "trace.run_id missing"
-    assert res.get("norm_references") == ["NTC2018"]
+    assert any("NTC2018" in ref for ref in res.get("norm_references", []))
     assert res.get("decision_log"), "decision_log should not be empty"
 
 

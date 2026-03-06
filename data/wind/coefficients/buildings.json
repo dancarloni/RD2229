@@ -1,0 +1,118 @@
+{
+  "_source": "EN 1991-1-4:2005, §7.2 — Pressure coefficients for buildings",
+  "_placeholder": true,
+  "_comment": [
+    "Coefficienti di pressione esterna cp_e per edifici a pianta rettangolare.",
+    "I valori dipendono dal rapporto h/d e dalla zona della superficie.",
+    "Il professionista deve verificare i valori con la norma EN 1991-1-4.",
+    "",
+    "Zone pareti (EC1 Fig. 7.5): D=sopravento, E=sottovento, A/B/C=laterali",
+    "Zone copertura piana (EC1 Fig. 7.6): F, G, H, I",
+    "Zone copertura inclinata (EC1 Fig. 7.8): F, G, H, I, J"
+  ],
+  "walls": {
+    "_comment": "cp_e pareti verticali — EC1 Table 7.1. Chiave: h/d ratio range → {zona: cp_e}",
+    "h_d_ratios": [0.25, 1.0, 5.0],
+    "zones": {
+      "D": {
+        "_description": "Parete sopravento",
+        "values": [0.7, 0.8, 0.8],
+        "note": "cp_e,10 per aree >= 10 m²"
+      },
+      "E": {
+        "_description": "Parete sottovento",
+        "values": [-0.3, -0.5, -0.7],
+        "note": "cp_e,10 per aree >= 10 m²"
+      },
+      "A": {
+        "_description": "Parete laterale — zona A (bordo sopravento)",
+        "values": [-1.2, -1.2, -1.2],
+        "note": "cp_e,10; cp_e,1 = -1.4 per aree <= 1 m²"
+      },
+      "B": {
+        "_description": "Parete laterale — zona B (centrale)",
+        "values": [-0.8, -0.8, -0.8],
+        "note": "cp_e,10; cp_e,1 = -1.1 per aree <= 1 m²"
+      },
+      "C": {
+        "_description": "Parete laterale — zona C (bordo sottovento)",
+        "values": [-0.5, -0.5, -0.5],
+        "note": "cp_e,10 per aree >= 10 m²"
+      }
+    }
+  },
+  "flat_roof": {
+    "_comment": "cp_e copertura piana — EC1 Table 7.2. Sharp eaves (bordi vivi).",
+    "zones": {
+      "F": {
+        "_description": "Angolo sopravento (bordo)",
+        "cp_e_10": -1.8,
+        "cp_e_1": -2.5
+      },
+      "G": {
+        "_description": "Bordo sopravento (centrale)",
+        "cp_e_10": -1.2,
+        "cp_e_1": -2.0
+      },
+      "H": {
+        "_description": "Zona centrale",
+        "cp_e_10": -0.7,
+        "cp_e_1": -1.2
+      },
+      "I": {
+        "_description": "Zona sottovento",
+        "cp_e_10_min": -0.2,
+        "cp_e_10_max": 0.2,
+        "cp_e_1": -0.2
+      }
+    }
+  },
+  "pitched_roof": {
+    "_comment": [
+      "cp_e copertura inclinata (a due falde) — EC1 Table 7.4a/b.",
+      "Valori per vento perpendicolare al colmo (θ=0°).",
+      "Angoli in gradi. Interpolazione lineare tra valori tabulati."
+    ],
+    "angles_deg": [5, 15, 30, 45, 60, 75],
+    "windward_zones": {
+      "F": {
+        "cp_e_10_min": [-1.7, -0.9, -0.5, -0.0, 0.7, 0.8],
+        "cp_e_10_max": [0.0, 0.2, 0.7, 0.7, 0.7, 0.8]
+      },
+      "G": {
+        "cp_e_10_min": [-1.2, -0.8, -0.5, -0.0, 0.7, 0.8],
+        "cp_e_10_max": [0.0, 0.2, 0.7, 0.7, 0.7, 0.8]
+      },
+      "H": {
+        "cp_e_10_min": [-0.6, -0.3, -0.2, -0.0, 0.7, 0.8],
+        "cp_e_10_max": [0.0, 0.2, 0.6, 0.6, 0.7, 0.8]
+      }
+    },
+    "leeward_zones": {
+      "I": {
+        "cp_e_10": [-0.6, -0.5, -0.5, -0.5, -0.5, -0.5]
+      },
+      "J": {
+        "cp_e_10": [-0.6, -1.0, -0.7, -0.5, -0.5, -0.5]
+      }
+    }
+  },
+  "monopitch_roof": {
+    "_comment": "cp_e copertura a falda unica — EC1 Table 7.3a/b (PLACEHOLDER)",
+    "angles_deg": [5, 15, 30, 45, 60, 75],
+    "zones": {
+      "F_up": {
+        "cp_e_10": [-1.7, -0.9, -0.5, -0.0, 0.7, 0.8]
+      },
+      "F_down": {
+        "cp_e_10": [-2.5, -2.0, -1.5, -1.0, -1.0, -1.0]
+      },
+      "G": {
+        "cp_e_10": [-1.2, -0.8, -0.5, -0.0, 0.7, 0.8]
+      },
+      "H": {
+        "cp_e_10": [-0.6, -0.3, -0.2, -0.0, 0.7, 0.8]
+      }
+    }
+  }
+}

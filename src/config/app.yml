@@ -1,39 +1,59 @@
 # ==========================================================
-# app.yml
-# ==========================================================
-# Configurazione generale dell'applicazione.
-#
-# CONTIENE:
-# - Nome software
-# - Versione
-# - Default normativa utilizzata
-# - Percorsi file
-# - Impostazioni globali
-#
-# STUB S2 — da estendere con Copilot Plan.
+# app.yml — Configurazione generale dell'applicazione
 # ==========================================================
 
 application:
   name: "Engineering Verification Framework"
-  version: "0.1.0"
-  description: "Framework modulare per verifiche strutturali — Stub S2"
+  version: "0.5.0"
+  description: "Framework modulare per verifiche strutturali in c.a. e c.a.p."
+  author: "RD2229 Project"
 
 defaults:
   normative: "NTC2018"
+  fallback_normative: "RD2229"
   report_format: "html"
+  language: "it"
+  unit_system: "kg_cm"   # kg/cm² come unità base
+
+norms_available:
+  - code: "NTC2018"
+    description: "Norme Tecniche per le Costruzioni 2018"
+    reference: "D.M. 17 gennaio 2018"
+  - code: "RD2229"
+    description: "Regio Decreto 2229/1939"
+    reference: "R.D. 16 novembre 1939 n. 2229"
+  - code: "DM96"
+    description: "DM 9/1/1996 e DM 14/02/1992"
+    reference: "Metodo TA e SLU pre-NTC2008"
+  - code: "EC2"
+    description: "Eurocodice 2"
+    reference: "EN 1992-1-1"
 
 paths:
   legacy: "src/legacy"
   templates: "src/report/templates"
+  params: "src/codes/params"
+  clauses: "src/codes/clauses"
+  fire_tables: "data/fire"
+  output_default: "output"
 
 logging:
-  level: "INFO"     # può essere DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
   file: "logs/app.log"
+  format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 
 plugins:
-  discovery: "both"  # folder, entry_points, or both
+  discovery: "both"
   folder: "plugins"
+
+verification:
+  max_iterations: 100
+  convergence_tolerance: 1e-6
+  enable_lc_fc: true       # Supporto strutture esistenti (LC/FC)
+  enable_fire_checks: true
+  enable_seismic: true
 
 gui:
   theme: "default"
   enable_gui_warnings: true
+  auto_save_interval_s: 300

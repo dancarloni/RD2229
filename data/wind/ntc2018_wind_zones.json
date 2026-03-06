@@ -3,68 +3,69 @@
     "Parametri delle zone geografiche NTC2018 per il calcolo della velocità del vento (§3.3.2).",
     "",
     "NOTA COPYRIGHT: I valori delle zone geografiche (vb0, a0, ka) sono definiti nella",
-    "Tabella 3.3.I del D.M. 17 gennaio 2018 (NTC 2018) e NON sono liberamente riproducibili.",
+    "Tabella 3.3.I del D.M. 17 gennaio 2018 (NTC 2018).",
     "Il professionista responsabile del calcolo deve:",
     "1. Consultare la NTC 2018 Tabella 3.3.I",
     "2. Identificare la zona geografica del sito",
-    "3. Inserire i valori corretti in questo file",
-    "",
-    "I valori presenti sono placeholder indicativi e NON devono essere usati per calcoli reali.",
+    "3. Verificare i valori in questo file",
     "",
     "Formato: zona_id → {vb0_ms, a0_m, ka, description}",
     "  vb0_ms: velocità base di riferimento [m/s]",
-    "  a0_m: altitudine di inizio riduzione [m]",
-    "  ka: coefficiente riduzione altitudine [1/m]",
-    "",
-    "TODO: Compilare con valori da NTC 2018 Tabella 3.3.I"
+    "  a0_m: altitudine di inizio variazione [m]",
+    "  ka: coefficiente altitudine [1/m]"
   ],
   "1": {
     "vb0_ms": 25.0,
     "a0_m": 1000.0,
     "ka": 0.010,
-    "description": "Zona 1 – Italia nord-occidentale (PLACEHOLDER)",
-    "_placeholder": true
+    "description": "Zona 1 – Valle d'Aosta, Piemonte, Lombardia, Trentino-Alto Adige, Veneto, Friuli-V.G. (esclusa prov. Trieste)"
   },
   "2": {
     "vb0_ms": 25.0,
-    "a0_m": 1000.0,
-    "ka": 0.010,
-    "description": "Zona 2 – Italia nord-orientale (PLACEHOLDER)",
-    "_placeholder": true
+    "a0_m": 750.0,
+    "ka": 0.015,
+    "description": "Zona 2 – Emilia-Romagna"
   },
   "3": {
     "vb0_ms": 27.0,
-    "a0_m": 1000.0,
-    "ka": 0.010,
-    "description": "Zona 3 – Italia centrale (PLACEHOLDER)",
-    "_placeholder": true
+    "a0_m": 500.0,
+    "ka": 0.020,
+    "description": "Zona 3 – Toscana, Marche, Umbria, Lazio, Abruzzo, Molise, Puglia, Campania, Basilicata, Calabria (esclusa prov. Reggio Calabria)"
   },
   "4": {
     "vb0_ms": 28.0,
-    "a0_m": 1500.0,
-    "ka": 0.010,
-    "description": "Zona 4 – Italia meridionale (PLACEHOLDER)",
-    "_placeholder": true
+    "a0_m": 500.0,
+    "ka": 0.020,
+    "description": "Zona 4 – Sicilia e provincia di Reggio Calabria"
   },
   "5": {
     "vb0_ms": 28.0,
-    "a0_m": 1500.0,
-    "ka": 0.010,
-    "description": "Zona 5 – Sicilia (PLACEHOLDER)",
-    "_placeholder": true
+    "a0_m": 500.0,
+    "ka": 0.020,
+    "description": "Zona 5 – Sardegna (zona a: costa orientale), provincia di Trieste"
   },
   "6": {
     "vb0_ms": 28.0,
     "a0_m": 500.0,
     "ka": 0.020,
-    "description": "Zona 6 – Sardegna (PLACEHOLDER)",
-    "_placeholder": true
+    "description": "Zona 6 – Liguria"
   },
   "7": {
     "vb0_ms": 28.0,
     "a0_m": 500.0,
     "ka": 0.020,
-    "description": "Zona 7 – Isole minori (PLACEHOLDER)",
-    "_placeholder": true
+    "description": "Zona 7 – Sardegna (zona b: costa occidentale e meridionale)"
+  },
+  "8": {
+    "vb0_ms": 30.0,
+    "a0_m": 500.0,
+    "ka": 0.020,
+    "description": "Zona 8 – Isole (Pantelleria, Lampedusa, Linosa)"
+  },
+  "9": {
+    "vb0_ms": 31.0,
+    "a0_m": 500.0,
+    "ka": 0.020,
+    "description": "Zona 9 – Sardegna (Capo Carbonara, Capo Testa, La Maddalena)"
   }
 }

@@ -1,0 +1,26 @@
+{
+  "_source": "EN 1991-1-4:2005, §7.5 — Friction coefficients",
+  "_placeholder": true,
+  "_comment": [
+    "Coefficienti di attrito c_fr per superfici esposte al vento.",
+    "F_fr = c_fr · q_p(z_e) · A_fr",
+    "Valori indicativi da letteratura tecnica pubblica."
+  ],
+  "classes": {
+    "SMOOTH": {
+      "c_fr": 0.01,
+      "description": "Superfici lisce: acciaio, vetro, calcestruzzo liscio",
+      "examples": ["vetro", "acciaio verniciato", "cls prefabbricato liscio"]
+    },
+    "ROUGH": {
+      "c_fr": 0.02,
+      "description": "Superfici rugose: laterizio, calcestruzzo grezzo, legno piallato",
+      "examples": ["laterizio", "cls grezzo", "legno piallato"]
+    },
+    "VERY_ROUGH": {
+      "c_fr": 0.04,
+      "description": "Superfici molto rugose: lamiera grecata, ondulato, membrana",
+      "examples": ["lamiera grecata", "lamiera ondulata", "membrana tessile"]
+    }
+  }
+}

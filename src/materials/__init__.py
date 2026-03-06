@@ -1,6 +1,28 @@
-"""
-Package initializer for materials module.
+"""Package materiali strutturali.
 
-This module is part of the restructured architecture.
-Contains material models, validation, and repository logic.
+Fornisce modello dati, repository con persistenza, e validazione
+per calcestruzzo, acciaio, muratura e legno.
 """
+
+from .material_model import (
+    Material,
+    ParametroDerivato,
+    crea_acciaio_ntc2018,
+    crea_calcestruzzo_ntc2018,
+    crea_legno_ntc2018,
+    crea_muratura_ntc2018,
+)
+from .material_repo import MaterialRepository
+from .validation import MaterialValidationError, validate_material
+
+__all__ = [
+    "Material",
+    "MaterialRepository",
+    "MaterialValidationError",
+    "ParametroDerivato",
+    "crea_acciaio_ntc2018",
+    "crea_calcestruzzo_ntc2018",
+    "crea_legno_ntc2018",
+    "crea_muratura_ntc2018",
+    "validate_material",
+]

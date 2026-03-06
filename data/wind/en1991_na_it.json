@@ -1,0 +1,44 @@
+{
+  "_comment": [
+    "Parametri National Annex italiano per EN 1991-1-4:2005.",
+    "Il NA italiano mappa le categorie di terreno EC alle classi di esposizione NTC.",
+    "Riferimento: UNI EN 1991-1-4:2005/NA"
+  ],
+  "terrain_categories": {
+    "0": {"z0_m": 0.003, "z_min_m": 1.0, "description": "Mare aperto, lago con fetch > 5 km"},
+    "I": {"z0_m": 0.01, "z_min_m": 1.0, "description": "Aree costiere esposte, pianura aperta senza ostacoli"},
+    "II": {"z0_m": 0.05, "z_min_m": 2.0, "description": "Aree agricole con bassa vegetazione, rade costruzioni"},
+    "III": {"z0_m": 0.30, "z_min_m": 5.0, "description": "Zone suburbane, industriali, copertura boschiva regolare"},
+    "IV": {"z0_m": 1.00, "z_min_m": 10.0, "description": "Zone urbane con almeno 15% della superficie coperta da edifici h > 15 m"}
+  },
+  "exposure_categories": {
+    "_comment": [
+      "Categorie di esposizione NTC2018 Tab. 3.3.II.",
+      "Mappatura: classe rugosità terreno → categoria esposizione in funzione della zona e distanza dalla costa."
+    ],
+    "I": {"kr": 0.17, "z0_m": 0.01, "z_min_m": 2.0, "description": "Costa (z > 0.5 km dal mare), isole"},
+    "II": {"kr": 0.19, "z0_m": 0.05, "z_min_m": 4.0, "description": "Entroterra pianeggiante (0.5-2 km dalla costa)"},
+    "III": {"kr": 0.20, "z0_m": 0.10, "z_min_m": 5.0, "description": "Aree suburbane (2-10 km dalla costa)"},
+    "IV": {"kr": 0.22, "z0_m": 0.30, "z_min_m": 8.0, "description": "Aree urbane (> 10 km dalla costa)"},
+    "V": {"kr": 0.23, "z0_m": 0.70, "z_min_m": 12.0, "description": "Centri urbani densi (> 30 km dalla costa, h > 15 m)"}
+  },
+  "zones": {
+    "1": {"vb0_ms": 25.0, "a0_m": 1000.0, "ka": 0.010, "description": "Italia nord-occidentale"},
+    "2": {"vb0_ms": 25.0, "a0_m": 750.0, "ka": 0.015, "description": "Emilia-Romagna"},
+    "3": {"vb0_ms": 27.0, "a0_m": 500.0, "ka": 0.020, "description": "Italia centrale e meridionale"},
+    "4": {"vb0_ms": 28.0, "a0_m": 500.0, "ka": 0.020, "description": "Sicilia e Reggio Calabria"},
+    "5": {"vb0_ms": 28.0, "a0_m": 500.0, "ka": 0.020, "description": "Sardegna orientale, Trieste"},
+    "6": {"vb0_ms": 28.0, "a0_m": 500.0, "ka": 0.020, "description": "Liguria"},
+    "7": {"vb0_ms": 28.0, "a0_m": 500.0, "ka": 0.020, "description": "Sardegna occidentale"},
+    "8": {"vb0_ms": 30.0, "a0_m": 500.0, "ka": 0.020, "description": "Isole minori"},
+    "9": {"vb0_ms": 31.0, "a0_m": 500.0, "ka": 0.020, "description": "Sardegna - punte estreme"}
+  },
+  "rho_kg_m3": 1.25,
+  "kI": 1.0,
+  "return_period_coefficients": {
+    "_comment": "Coefficiente di ritorno cr = α · ln(-ln(1 - 1/TR)) + β, TR = 50 anni → cr = 1.0",
+    "TR_ref_years": 50,
+    "alpha": 0.75,
+    "beta": 1.0
+  }
+}

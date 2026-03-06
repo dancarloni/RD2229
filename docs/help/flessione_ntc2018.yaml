@@ -1,0 +1,77 @@
+titolo: "Verifica a flessione — NTC2018 SLU"
+modulo: flessione_ntc2018
+descrizione: >
+  Verifica di resistenza a flessione semplice di sezioni in calcestruzzo armato
+  allo Stato Limite Ultimo (SLU) secondo NTC2018 e Circolare 7/2019.
+
+normativa:
+  - riferimento: "NTC2018 §4.1.2.1.3.2"
+    testo: >
+      La resistenza a flessione delle sezioni deve essere valutata con le
+      ipotesi di cui al §4.1.2.1.2.1, adottando un diagramma delle tensioni
+      nel calcestruzzo di tipo rettangolare con profondità 0,8x.
+  - riferimento: "Circ. 7/2019 n. 7 C.S.LL.PP. §C4.1.2.1.3.2"
+    testo: >
+      Il momento resistente M_Rd si calcola con riferimento alla sezione
+      fessurata, trascurando la resistenza a trazione del calcestruzzo.
+      Il dominio di rottura è definito dalle deformazioni limite:
+      ε_cu = 0,0035 per il calcestruzzo, ε_su = 0,010 per l'acciaio.
+
+formule:
+  - nome: "Momento resistente (sezione rettangolare)"
+    formula: "M_Rd = A_s × f_yd × (d - 0.4x)"
+    simboli:
+      A_s: "Area armatura longitudinale tesa [cm²]"
+      f_yd: "Resistenza di calcolo acciaio = f_yk / γ_s [kg/cm²]"
+      d: "Altezza utile della sezione [cm]"
+      x: "Profondità asse neutro [cm]"
+  - nome: "Profondità asse neutro"
+    formula: "x = A_s × f_yd / (0.8 × b × f_cd)"
+    simboli:
+      b: "Larghezza della sezione [cm]"
+      f_cd: "Resistenza di calcolo calcestruzzo = α_cc × f_ck / γ_c [kg/cm²]"
+  - nome: "Verifica"
+    formula: "M_Ed ≤ M_Rd → Rapporto D/C = M_Ed / M_Rd ≤ 1.0"
+    simboli:
+      M_Ed: "Momento di calcolo sollecitante [kg⋅cm]"
+      M_Rd: "Momento resistente [kg⋅cm]"
+
+parametri:
+  - nome: "b"
+    descrizione: "Larghezza della sezione rettangolare"
+    unita: "cm"
+    tooltip: "Dimensione trasversale della sezione nel piano di flessione"
+  - nome: "h"
+    descrizione: "Altezza totale della sezione"
+    unita: "cm"
+    tooltip: "Dimensione della sezione nella direzione della flessione"
+  - nome: "d"
+    descrizione: "Altezza utile (distanza bordo compresso - baricentro armatura tesa)"
+    unita: "cm"
+    tooltip: "d = h - copriferro - φ_staffa - φ_barra/2"
+  - nome: "A_s"
+    descrizione: "Area armatura longitudinale tesa"
+    unita: "cm²"
+    tooltip: "Somma delle aree delle barre nella zona tesa della sezione"
+  - nome: "f_ck"
+    descrizione: "Resistenza caratteristica cilindrica del calcestruzzo"
+    unita: "kg/cm²"
+    tooltip: "Valore caratteristico (frattile 5%) della resistenza a compressione su cilindro"
+  - nome: "f_yk"
+    descrizione: "Resistenza caratteristica di snervamento dell'acciaio"
+    unita: "kg/cm²"
+    tooltip: "Valore nominale della tensione di snervamento dell'acciaio da armatura"
+
+esempio:
+  titolo: "Trave rettangolare 30×50 — C25/30 — B450C"
+  passaggi:
+    - "Dati geometrici: b = 30 cm, h = 50 cm, copriferro = 3 cm, d = 46 cm"
+    - "Armatura: 4φ16 → A_s = 4 × 2.01 = 8.04 cm²"
+    - "Materiali: C25/30 → f_ck = 250 kg/cm², B450C → f_yk = 4500 kg/cm²"
+    - "Coefficienti: γ_c = 1.50, γ_s = 1.15, α_cc = 0.85"
+    - "f_cd = 0.85 × 250 / 1.50 = 141.7 kg/cm²"
+    - "f_yd = 4500 / 1.15 = 3913 kg/cm²"
+    - "x = 8.04 × 3913 / (0.8 × 30 × 141.7) = 9.25 cm"
+    - "x/d = 9.25/46 = 0.201 < 0.45 → rottura duttile (campo 3) ✓"
+    - "M_Rd = 8.04 × 3913 × (46 - 0.4 × 9.25) = 1'330'460 kg⋅cm = 13.30 t⋅m"
+    - "Se M_Ed = 10.80 t⋅m → D/C = 10.80/13.30 = 0.81 → VERIFICATO"

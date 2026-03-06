@@ -1,0 +1,14 @@
+{
+  "_comment": [
+    "Indice dei file di coefficienti per il calcolo delle azioni del vento.",
+    "Ogni file contiene coefficienti con flag _placeholder per valori da verificare."
+  ],
+  "version": "1.0",
+  "types": {
+    "buildings": "buildings.json",
+    "canopies": "canopies.json",
+    "signs": "signs.json",
+    "solar_panels": "solar_panels.json",
+    "friction": "friction.json"
+  }
+}

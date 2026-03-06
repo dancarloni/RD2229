@@ -1,0 +1,164 @@
+{
+  "_meta": {
+    "descrizione": "Tabella C8.5.I — Circolare n.7/2019. Parametri meccanici muratura esistente.",
+    "riferimento": "Circolare applicativa NTC2018, §C8.5.4, Tabella C8.5.I",
+    "note": [
+      "Valori riferiti a muratura CON malta di calce (condizione base).",
+      "I valori sono range min-max. Per LC1 usare min, per LC2 media, per LC3 media.",
+      "Applicare correttivi moltiplicativi per malta buona, iniezioni, ecc.",
+      "Unità: f e tau_0 in kg/cm², E e G in kg/cm², w in kg/m³."
+    ],
+    "correttivi": {
+      "malta_buona": "Applicare fattore 1.5 su f e tau_0 (Tab C8.5.II, voce 'malta buona')",
+      "ricorsi_mattoni": "Applicare fattore 1.2÷1.5 per ricorsi o listature di mattoni",
+      "iniezioni_miscela": "Applicare fattore 2.0 su f e 2.0 su tau_0",
+      "intonaco_armato": "Applicare fattore 1.5 su f e 1.5 su tau_0",
+      "connessione_trasversale": "Applicare fattore 1.3 su f e 1.3 su tau_0"
+    }
+  },
+  "tipologie": [
+    {
+      "id": "pietrame_disordinata",
+      "nome": "Muratura in pietrame disordinata (ciottoli, pietre erratiche e irregolari)",
+      "f_min": 10.0,
+      "f_max": 18.0,
+      "tau_0_min": 0.20,
+      "tau_0_max": 0.32,
+      "E_min": 6900,
+      "E_max": 10500,
+      "G_min": 2300,
+      "G_max": 3500,
+      "w": 1900
+    },
+    {
+      "id": "pietrame_a_spacco",
+      "nome": "Muratura a conci di pietra tenera (tufo, calcarenite, ecc.)",
+      "f_min": 14.0,
+      "f_max": 24.0,
+      "tau_0_min": 0.28,
+      "tau_0_max": 0.42,
+      "E_min": 9000,
+      "E_max": 12600,
+      "G_min": 3000,
+      "G_max": 4200,
+      "w": 1600
+    },
+    {
+      "id": "pietre_sbozzate",
+      "nome": "Muratura in pietre a spacco con buona tessitura",
+      "f_min": 20.0,
+      "f_max": 30.0,
+      "tau_0_min": 0.35,
+      "tau_0_max": 0.51,
+      "E_min": 15000,
+      "E_max": 19800,
+      "G_min": 5000,
+      "G_max": 6600,
+      "w": 2100
+    },
+    {
+      "id": "pietre_squadrate",
+      "nome": "Muratura in blocchi lapidei squadrati",
+      "f_min": 60.0,
+      "f_max": 80.0,
+      "tau_0_min": 0.56,
+      "tau_0_max": 0.74,
+      "E_min": 24000,
+      "E_max": 32000,
+      "G_min": 7800,
+      "G_max": 10400,
+      "w": 2200
+    },
+    {
+      "id": "mattoni_pieni_calce",
+      "nome": "Muratura in mattoni pieni e malta di calce",
+      "f_min": 24.0,
+      "f_max": 40.0,
+      "tau_0_min": 0.60,
+      "tau_0_max": 0.92,
+      "E_min": 12000,
+      "E_max": 18000,
+      "G_min": 4000,
+      "G_max": 6000,
+      "w": 1800
+    },
+    {
+      "id": "mattoni_pieni_cemento",
+      "nome": "Muratura in mattoni pieni e malta cementizia",
+      "f_min": 50.0,
+      "f_max": 80.0,
+      "tau_0_min": 1.20,
+      "tau_0_max": 1.80,
+      "E_min": 24000,
+      "E_max": 40000,
+      "G_min": 8000,
+      "G_max": 13300,
+      "w": 1800
+    },
+    {
+      "id": "blocchi_laterizio",
+      "nome": "Muratura in blocchi laterizio semipieni",
+      "f_min": 40.0,
+      "f_max": 60.0,
+      "tau_0_min": 0.80,
+      "tau_0_max": 1.20,
+      "E_min": 23600,
+      "E_max": 35400,
+      "G_min": 7860,
+      "G_max": 11800,
+      "w": 1500
+    },
+    {
+      "id": "blocchi_cls",
+      "nome": "Muratura in blocchi di calcestruzzo o argilla espansa (forati)",
+      "f_min": 15.0,
+      "f_max": 40.0,
+      "tau_0_min": 0.80,
+      "tau_0_max": 1.20,
+      "E_min": 22000,
+      "E_max": 33600,
+      "G_min": 7330,
+      "G_max": 11200,
+      "w": 1200
+    },
+    {
+      "id": "blocchi_cls_pieni",
+      "nome": "Muratura in blocchi di calcestruzzo pieni",
+      "f_min": 30.0,
+      "f_max": 44.0,
+      "tau_0_min": 1.80,
+      "tau_0_max": 2.40,
+      "E_min": 24000,
+      "E_max": 32000,
+      "G_min": 7600,
+      "G_max": 10400,
+      "w": 1400
+    },
+    {
+      "id": "tufo",
+      "nome": "Muratura in blocchi di tufo",
+      "f_min": 13.0,
+      "f_max": 19.0,
+      "tau_0_min": 0.28,
+      "tau_0_max": 0.40,
+      "E_min": 9000,
+      "E_max": 12600,
+      "G_min": 3000,
+      "G_max": 4200,
+      "w": 1600
+    },
+    {
+      "id": "pietra_lavorata",
+      "nome": "Muratura in pietra lavorata con buona tessitura e giunti sottili",
+      "f_min": 60.0,
+      "f_max": 80.0,
+      "tau_0_min": 0.90,
+      "tau_0_max": 1.20,
+      "E_min": 15600,
+      "E_max": 19800,
+      "G_min": 5200,
+      "G_max": 6600,
+      "w": 2100
+    }
+  ]
+}
