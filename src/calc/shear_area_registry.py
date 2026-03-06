@@ -1,153 +1,147 @@
-"""
-shear_area_registry.py
+"""Registry fattori di taglio per sezione.
 
-Questo modulo definisce:
-- Il registry per il calcolo dell'area a taglio A_sx e A_sy,
-  applicato a TUTTE le sezioni del software.
-- Un sistema estensibile per aggiungere strategie di calcolo
-  specifiche per tipologia di sezione.
-- Fallback universale basato su kappa (metodo Timoshenko).
-- Interfaccia coerente per integrarsi con il motore
-  elementi → risoluzione input → verifiche strutturali.
+Ogni sezione ha i propri fattori kappa (area a taglio A_s = kappa × A).
+I valori di default derivano dalla letteratura (Timoshenko, Cowper 1966,
+Pilkey 2002) e sono SEMPRE sovrascrivibili dall'utente tramite i campi
+``kappa_x`` e ``kappa_y`` dell'oggetto sezione.
 
-UNITÀ di MISURA:
-- Tutte le lunghezze devono essere considerate in cm.
-- Le aree devono essere restituite in cm^2.
-- Nessuna conversione implicita deve essere introdotta
-  in questo modulo.
+Gerarchia di priorità per kappa:
+1. Valore utente esplicito (kappa_x, kappa_y sull'oggetto sezione)
+2. Strategia registrata per shape_id nel registry
+3. Default da letteratura per section_type
+4. Fallback universale DEFAULT_KAPPA = 5/6
 
-NOTE:
-- Questo file è uno STUB S2: contiene docstring esaustive,
-  TODO chiari, e struttura definita, ma NON implementazione
-  di calcoli complessi.
-- Continue / Copilot Plan aggiungerà la logica quando richiesto.
+Unità: cm, cm².
 """
 
+from __future__ import annotations
+
+import logging
 from collections.abc import Callable
 from typing import Any
 
-# ======================================================================
-# TIPOLOGIE DI ALIAS
-# ======================================================================
+logger = logging.getLogger(__name__)
+
 ShearAreaFunction = Callable[[Any], tuple[float, float]]
-"""
-Funzione che accetta un oggetto sezione (Section)
-e restituisce una tupla:
-
-    (A_sx_cm2: float, A_sy_cm2: float)
-
-Unità: cm^2.
-"""
-
 
 # ======================================================================
-# COSTANTI DI BASE (VALORI CLASSICI PER SEZIONI PIENE)
+# COSTANTI DA LETTERATURA
 # ======================================================================
 
 DEFAULT_KAPPA: float = 5.0 / 6.0
-"""
-Valore kappa classico per sezioni rettangolari piene.
+"""Rettangolo pieno — Timoshenko (1921), valore esatto 5/6 ≈ 0.8333."""
 
-Questo valore è da considerarsi fallback.
-ATTENZIONE:
-- Non va usato come verità normativa.
-- È un valore standard della teoria della trave di Timoshenko.
-- Il software può sovrascriverlo tramite config o registry.
+CIRCLE_KAPPA: float = 6.0 / 7.0
+"""Cerchio pieno — Cowper (1966), 6/7 ≈ 0.8571.
+Nota: il valore 0.9 è anche usato in pratica (approssimazione ingegneristica)."""
 
-TODO Copilot:
-- Aggiungere supporto configurazione kappa da file YAML
-  (es. src/config/app.yml)
-"""
+HOLLOW_CIRCLE_KAPPA: float = 0.5
+"""Tubo circolare — Pilkey (2002), dipende da t/R; 0.5 è valore conservativo."""
 
+T_SECTION_KAPPA: float = 1.0
+"""Sezione a T — il taglio è assunto interamente dall'anima: A_s = A_anima.
+In mancanza di dati sull'anima, kappa = A_anima/A_totale."""
 
-CIRCLE_KAPPA: float = 0.9
-"""
-Valore classico approssimato per sezioni circolari piene.
+I_SECTION_KAPPA: float = 1.0
+"""Sezione a doppia T — idem: A_s = A_anima (Pilkey 2002)."""
 
-TODO Copilot:
-- Verificare eventuale ref. interna ai parametri materiali.
-"""
+# Mappa section_type → kappa default da letteratura
+KAPPA_DEFAULTS: dict[str, float] = {
+    "RECTANGULAR": DEFAULT_KAPPA,
+    "CIRCULAR": CIRCLE_KAPPA,
+    "CIRCULAR_HOLLOW": HOLLOW_CIRCLE_KAPPA,
+    "RECTANGULAR_HOLLOW": DEFAULT_KAPPA,
+    "T_SECTION": T_SECTION_KAPPA,
+    "INVERTED_T_SECTION": T_SECTION_KAPPA,
+    "I_SECTION": I_SECTION_KAPPA,
+    "PI_SECTION": T_SECTION_KAPPA,
+    "C_SECTION": I_SECTION_KAPPA,
+    "L_SECTION": DEFAULT_KAPPA,
+    "V_SECTION": DEFAULT_KAPPA,
+    "INVERTED_V_SECTION": DEFAULT_KAPPA,
+}
 
 
 # ======================================================================
-# REGISTRY DELLE STRATEGIE DI CALCOLO
+# REGISTRY DELLE STRATEGIE
 # ======================================================================
 
 SHEAR_AREA_STRATEGIES: dict[str, ShearAreaFunction] = {}
-"""
-Mappa:
-
-    shape_id: str → funzione calcolo A_sx, A_sy
-
-shape_id è l'identificatore univoco di una sezione
-nel repository delle sezioni (src/sections o src/elements).
-
-TODO Copilot:
-- Riempire il registry in fase di bootstrap
-  leggendo dal registry delle sezioni.
-"""
-
-
-# ======================================================================
-# FUNZIONI DI UTILITÀ PER REGISTRAZIONE
-# ======================================================================
 
 
 def register_shear_area_strategy(shape_id: str, func: ShearAreaFunction) -> None:
-    """
-    Registra una strategia di calcolo dell'area a taglio.
-
-    Parametri:
-    - shape_id: identificatore univoco della sezione.
-    - func: funzione che implementa il calcolo.
-
-    TODO Copilot:
-    - Validazioni: shape_id non vuoto, func callable.
-    """
+    """Registra una strategia di calcolo dell'area a taglio per shape_id."""
+    if not shape_id:
+        return
     SHEAR_AREA_STRATEGIES[shape_id] = func
 
 
 # ======================================================================
-# STRATEGIE STANDARD (rettangolo & cerchio)
+# STRATEGIE BUILT-IN
 # ======================================================================
 
 
 def _rectangular_shear_area(section: Any) -> tuple[float, float]:
-    """
-    Calcolo A_sx e A_sy per una sezione rettangolare piena.
-
-    Formula classica:
-        A_s = kappa * A
-
-    TODO Copilot:
-    - Recuperare area reale della sezione.
-    - Validare tipo 'rectangle'.
-    """
+    """Rettangolo pieno: A_s = 5/6 × A (Timoshenko)."""
     A = getattr(section, "area_cm2", 0.0)
-    As = DEFAULT_KAPPA * A
-    return (As, As)
+    kx = getattr(section, "kappa_x", DEFAULT_KAPPA)
+    ky = getattr(section, "kappa_y", DEFAULT_KAPPA)
+    return (kx * A, ky * A)
 
 
 def _circular_shear_area(section: Any) -> tuple[float, float]:
-    """
-    Calcolo A_sx e A_sy per sezione circolare piena.
-
-    TODO Copilot:
-    - Validare tipo 'circle'.
-    """
+    """Cerchio pieno: A_s = 6/7 × A (Cowper 1966)."""
     A = getattr(section, "area_cm2", 0.0)
-    As = CIRCLE_KAPPA * A
-    return (As, As)
+    kx = getattr(section, "kappa_x", CIRCLE_KAPPA)
+    ky = getattr(section, "kappa_y", CIRCLE_KAPPA)
+    return (kx * A, ky * A)
 
 
-# ======================================================================
-# REGISTRAZIONE DELLE STRATEGIE STANDARD
-# ======================================================================
+def _web_based_shear_area(section: Any) -> tuple[float, float]:
+    """Sezione con anima (T, I, C, PI): A_sx = kappa × b_w × h_w.
 
-# TODO Copilot:
-# - In futuro questi id saranno letti dal registry sezione.
+    Se i dati dell'anima non sono disponibili, usa kappa × A_totale.
+    kappa utente sovrascrive sempre.
+    """
+    bw = getattr(section, "web_width_cm", 0.0) or getattr(section, "web_thickness", 0.0)
+    hw = getattr(section, "web_height_cm", 0.0) or getattr(section, "web_height", 0.0)
+
+    if bw > 0 and hw > 0:
+        A_web = bw * hw
+        kx = getattr(section, "kappa_x", None)
+        if kx is not None:
+            A = getattr(section, "area_cm2", A_web)
+            return (kx * A, kx * A)
+        return (A_web, A_web)
+
+    # Fallback: kappa × area totale
+    A = getattr(section, "area_cm2", 0.0)
+    kx = getattr(section, "kappa_x", DEFAULT_KAPPA)
+    ky = getattr(section, "kappa_y", DEFAULT_KAPPA)
+    return (kx * A, ky * A)
+
+
+def _hollow_circle_shear_area(section: Any) -> tuple[float, float]:
+    """Tubo circolare: A_s ≈ 0.5 × A (conservativo, Pilkey 2002)."""
+    A = getattr(section, "area_cm2", 0.0)
+    kx = getattr(section, "kappa_x", HOLLOW_CIRCLE_KAPPA)
+    ky = getattr(section, "kappa_y", HOLLOW_CIRCLE_KAPPA)
+    return (kx * A, ky * A)
+
+
+# Registrazione strategie built-in
 register_shear_area_strategy("rectangle", _rectangular_shear_area)
+register_shear_area_strategy("RECTANGULAR", _rectangular_shear_area)
 register_shear_area_strategy("circle", _circular_shear_area)
+register_shear_area_strategy("CIRCULAR", _circular_shear_area)
+register_shear_area_strategy("CIRCULAR_HOLLOW", _hollow_circle_shear_area)
+register_shear_area_strategy("t_section", _web_based_shear_area)
+register_shear_area_strategy("T_SECTION", _web_based_shear_area)
+register_shear_area_strategy("INVERTED_T_SECTION", _web_based_shear_area)
+register_shear_area_strategy("i_section", _web_based_shear_area)
+register_shear_area_strategy("I_SECTION", _web_based_shear_area)
+register_shear_area_strategy("PI_SECTION", _web_based_shear_area)
+register_shear_area_strategy("C_SECTION", _web_based_shear_area)
 
 
 # ======================================================================
@@ -156,43 +150,49 @@ register_shear_area_strategy("circle", _circular_shear_area)
 
 
 def compute_shear_area(section: Any) -> tuple[float, float]:
-    """
-    Calcola (A_sx, A_sy) in cm^2 per una sezione arbitraria.
+    """Calcola (A_sx, A_sy) in cm² per una sezione arbitraria.
 
-    Comportamento:
-    - Se esiste una strategia registrata → usarla.
-    - Se *NON* esiste strategia → fallback a:
-            A_sx = kappa_x * A
-            A_sy = kappa_y * A
-      dove kappa_x / kappa_y sono attributi opzionali della sezione.
-      Se assenti → uso DEFAULT_KAPPA.
-
-    ATTENZIONE:
-    - Nessun calcolo normativo avviene qui.
-    - Nessuna conversione automatica di unità.
-    - Il fallback viene applicato a tutte le sezioni
-      non coperte dal registry.
-
-    TODO Copilot:
-    - Estrarre kappa_x e kappa_y dalla sezione,
-      con fallback DEFAULT_KAPPA.
-    - Loggare strategia usata.
-    - Integrare con config/numerics.yml se presente.
+    Priorità:
+    1. kappa_x/kappa_y espliciti sull'oggetto sezione (utente)
+    2. Strategia registrata per shape_id
+    3. Strategia registrata per section_type
+    4. Default da KAPPA_DEFAULTS per section_type
+    5. Fallback universale DEFAULT_KAPPA
     """
     shape_id: str | None = getattr(section, "shape_id", None)
+    section_type: str | None = getattr(section, "section_type", None)
 
-    if shape_id in SHEAR_AREA_STRATEGIES:
-        func = SHEAR_AREA_STRATEGIES[shape_id]
-        return func(section)
+    # 1. Controlla se l'utente ha impostato kappa espliciti
+    user_kx = getattr(section, "kappa_x", None)
+    user_ky = getattr(section, "kappa_y", None)
+    has_user_override = (user_kx is not None) or (user_ky is not None)
 
-    # --- Fallback universale ---
+    # 2. Cerca strategia registrata
+    if shape_id and shape_id in SHEAR_AREA_STRATEGIES:
+        return SHEAR_AREA_STRATEGIES[shape_id](section)
+
+    # 3. Cerca strategia per section_type
+    if section_type and section_type in SHEAR_AREA_STRATEGIES:
+        return SHEAR_AREA_STRATEGIES[section_type](section)
+
+    # 4/5. Fallback con kappa da utente o da letteratura
     A = getattr(section, "area_cm2", 0.0)
-    kappa_x = getattr(section, "kappa_x", DEFAULT_KAPPA)
-    kappa_y = getattr(section, "kappa_y", DEFAULT_KAPPA)
+    if has_user_override:
+        kx = user_kx if user_kx is not None else DEFAULT_KAPPA
+        ky = user_ky if user_ky is not None else DEFAULT_KAPPA
+    elif section_type and section_type in KAPPA_DEFAULTS:
+        k = KAPPA_DEFAULTS[section_type]
+        kx, ky = k, k
+    else:
+        kx, ky = DEFAULT_KAPPA, DEFAULT_KAPPA
 
-    return (kappa_x * A, kappa_y * A)
+    logger.debug(
+        "Shear area fallback per '%s' (type=%s): kappa=%.4f, A=%.1f",
+        shape_id, section_type, kx, A,
+    )
+    return (kx * A, ky * A)
 
 
-# ======================================================================
-# FINE FILE
-# ======================================================================
+def get_default_kappa(section_type: str) -> float:
+    """Restituisce il kappa default da letteratura per un section_type."""
+    return KAPPA_DEFAULTS.get(section_type, DEFAULT_KAPPA)

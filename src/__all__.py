@@ -1,18 +1,18 @@
-"""
-__all__.py
-
-Questo file permette import centralizzato, se utile in futuro.
-
-STUB S2 — non contiene nulla, ma può essere ampliato:
-"""
+"""Import centralizzato dei moduli del pacchetto src."""
 
 __all__ = [  # noqa: F822
     "calc",
-    "materials",
-    "elements",
+    "checks",
     "codes",
-    "actions",
-    "report",
     "config",
+    "core_calculus",
+    "actions",
+    "elements",
+    "fire",
+    "legacy",
+    "materials",
+    "methods",
+    "report",
     "tools",
+    "wind",
 ]
