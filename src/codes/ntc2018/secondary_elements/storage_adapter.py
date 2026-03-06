@@ -1,14 +1,47 @@
+"""Storage adapter per elementi secondari.
+
+Gestisce persistenza in-memory degli elementi secondari.
+In futuro sostituibile con persistenza su file/DB.
 """
-Storage adapter skeleton for secondary_elements data.
-This is only a placeholder to show where persistence code will live.
-"""
+
+from __future__ import annotations
+
+import uuid
+from typing import Any
+
+# Storage in-memory
+_STORAGE: dict[str, dict[str, Any]] = {}
 
 
-def save_secondary_element(record: dict) -> str:
-    """Persist the record and return an id (SKELETON)."""
-    return "TODO:id"
+def save_secondary_element(record: dict[str, Any]) -> str:
+    """Salva un elemento secondario e restituisce il suo ID.
+
+    Se il record ha già un 'id', lo usa; altrimenti ne genera uno.
+    """
+    record_id = record.get("id") or str(uuid.uuid4())
+    record["id"] = record_id
+    _STORAGE[record_id] = record
+    return record_id
 
 
-def load_secondary_element(record_id: str) -> dict:
-    """Load the record by id (SKELETON)."""
-    return {"id": record_id, "TODO": "not implemented"}
+def load_secondary_element(record_id: str) -> dict[str, Any] | None:
+    """Carica un elemento secondario per ID. Restituisce None se non trovato."""
+    return _STORAGE.get(record_id)
+
+
+def list_secondary_elements() -> list[str]:
+    """Restituisce la lista degli ID degli elementi salvati."""
+    return list(_STORAGE.keys())
+
+
+def delete_secondary_element(record_id: str) -> bool:
+    """Rimuove un elemento. Restituisce True se trovato e rimosso."""
+    if record_id in _STORAGE:
+        del _STORAGE[record_id]
+        return True
+    return False
+
+
+def clear_storage() -> None:
+    """Svuota lo storage (utile per i test)."""
+    _STORAGE.clear()
