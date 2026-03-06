@@ -285,7 +285,7 @@ src/codes/seismic/
 | A.2 | MaterialSource strutturata | Sub-plan pronto, da implementare |
 | N | Carote cls in sito (9 formulazioni) | Da implementare |
 | J | Pressoflessione deviata (Bresler, N-Mx-My) | Da implementare |
-| I | Parametri statici sezioni completi | COMPLETATO — commit `[pending]` |
+| I | Parametri statici sezioni completi | COMPLETATO — commit `3bed1a7` |
 | L | Cross-Pozzati telai piani | Da implementare |
 | R | Edifici esistenti LC/FC, vulnerabilita | Dipende da N |
 | H | Riorganizzazione methods/ per norma | Solo se necessario |

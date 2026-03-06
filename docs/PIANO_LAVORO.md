@@ -875,7 +875,7 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 
 ### FASE I — Sezioni parametri statici completi
 
-**Stato**: COMPLETATO — commit `[pending]`
+**Stato**: COMPLETATO — commit `3bed1a7`
 **Test**: 91 test (test_sezione_omogenizzata.py), tutti passati
 
 #### I.1 Rapporto di omogeneizzazione n per norma ✅
