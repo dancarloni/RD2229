@@ -8,6 +8,8 @@
 
 | File | Contenuto |
 |------|-----------|
+| `subplan_O_spettro_ntc2018.md` | FASE O: gap critico spettro NTC2018, catena §3.2.3, Tab. SS/ST/Cu, architettura spectrum.py, integrazione INGV + spectrum_paste_service |
+| `subplan_multinorm_seismic.md` | FASE O.3: azioni sismiche multinorma (src/codes/seismic/), 7 norme, forza base + distribuzione piani, 54 test |
 | `subplan_D3_traliccio.md` | Cordolo reticolare orizzontale: Q&A completo, decisioni, architettura, dipendenze, file da creare/modificare |
 | `subplan_E6_cantonali.md` | Ribaltamento cantonale + riduzione resistenza aperture: Q&A, decisioni, formule, letteratura |
 | `subplan_A2_material_source.md` | MaterialSource strutturata: analisi legacy, 3 entita' parallele, migrazione dati |
@@ -27,4 +29,4 @@
 - Domande: usare formato a scelta multipla, l'utente risponde con lettere
 - Modularita': massima, ogni modulo sostituibile senza refactoring globale
 - Formule mancanti: TODO + chiedere all'utente, mai inventare
-- Test: pytest, ~1838 test attuali, 0 falliti
+- Test: pytest, ~2002 test attuali, 0 falliti

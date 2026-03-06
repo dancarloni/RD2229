@@ -16,7 +16,10 @@ Funzione aggiuntiva:
 from __future__ import annotations
 
 import math
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from ..spectrum import CategoriaSuolo, CategoriaTopografica
 
 
 def estimate_ta(spec: dict[str, Any]) -> dict[str, Any]:
@@ -144,6 +147,45 @@ def spectral_acceleration_floor(
     S_a = alpha_S * max(amplification, 1.0)
 
     return S_a
+
+
+def spectral_acceleration_floor_from_site(
+    z: float,
+    H: float,
+    T_a: float,
+    T_1: float,
+    ag_g: float,
+    F0: float,
+    TC_star: float,
+    cat_suolo: "CategoriaSuolo",
+    cat_topografica: "CategoriaTopografica",
+) -> float:
+    """Calcola S_a al piano computando alpha_S dai parametri di sito.
+
+    Wrapper di spectral_acceleration_floor che riceve i parametri di sito
+    invece di alpha_S pre-calcolato. Delega il calcolo di SS, ST, alpha_S
+    al modulo spectrum.py.
+
+    Args:
+        z:               quota dell'elemento rispetto alla base [m]
+        H:               altezza totale dell'edificio [m]
+        T_a:             periodo fondamentale dell'elemento [s]
+        T_1:             periodo fondamentale dell'edificio [s]
+        ag_g:            accelerazione al suolo a_g/g [adimensionale]
+        F0:              fattore di amplificazione spettrale
+        TC_star:         periodo caratteristico TC* da griglia INGV [s]
+        cat_suolo:       categoria di sottosuolo (CategoriaSuolo)
+        cat_topografica: categoria topografica (CategoriaTopografica)
+
+    Returns:
+        S_a: accelerazione spettrale al piano (adimensionale, rapporto a g)
+    """
+    from ..spectrum import calcola_SS, calcola_ST, calcola_alpha_S  # lazy import
+
+    SS = calcola_SS(ag_g, F0, cat_suolo)
+    ST = calcola_ST(cat_topografica)
+    alpha_S = calcola_alpha_S(ag_g, SS, ST)
+    return spectral_acceleration_floor(z, H, T_a, T_1, alpha_S)
 
 
 # ---------------------------------------------------------------------------

@@ -228,10 +228,58 @@ Dettaglio completo in `docs/PIANO_LAVORO.md` sezione E.6.
 
 ---
 
+## FASE P — Azioni Sismiche Multinorma
+
+**Stato**: COMPLETATO (2026-03-06)
+**Priorita**: IMMEDIATA (eseguita)
+**Obiettivo**: Package `src/codes/seismic/` per calcolo azioni sismiche con
+forza alla base + distribuzione piani per 7 norme: RD2229, DM92, DM96,
+OPCM3274, EC8, NTC2008, NTC2018.
+
+### Architettura
+
+```text
+src/codes/seismic/
+├── __init__.py       # PianoEdificio, calcola_azione_sismica (re-export)
+├── base.py           # PianoEdificio, distribuzione_triangolare, _base_contract
+├── rd2229.py         # Coefficienti storici 0.0/0.05/0.07/0.10
+├── dm92.py           # F_h = C*I*eps*W, zone 1/2/3 (DM 3/6/1981 + agg.1992)
+├── dm96.py           # F_h = C*I*eps*W, zone 1/2/3 (DM 16/1/1996)
+├── opcm3274.py       # 4 zone ag fisso, F0=2.5, spettro via spectrum.py
+├── ec8.py            # Tipo1/Tipo2, S fisso per cat suolo, F0=2.5
+├── ntc2008.py        # Riusa spectrum.py NTC2018, norm_ref=NTC2008
+└── dispatcher.py     # routing multinorma su norma_attiva
+```
+
+### Attivita completate
+
+- [x] **P.1** `base.py`: PianoEdificio, distribuzione_triangolare, `_base_contract`
+- [x] **P.2** `rd2229.py`: calcola_azione_sismica_rd2229 (STATICO_EQUIVALENTE)
+- [x] **P.3** `dm92.py` + `dm96.py`: metodo statico equivalente, zone 1-3
+- [x] **P.4** `opcm3274.py`: 4 zone, spettro elastico via spectrum.py
+- [x] **P.5** `ec8.py`: Tipo1/Tipo2, `_spettro_elastico_ec8` locale
+- [x] **P.6** `ntc2008.py`: riusa spectrum.py, solo norm_ref diverso
+- [x] **P.7** `dispatcher.py`: routing per norma_attiva (case-insensitive)
+- [x] **P.8** `tests/test_azioni_sismiche_multinorma.py` (54 test)
+  - TestDistribuzionePiani (5), TestAzioneRD2229 (8), TestAzioneDM92 (8)
+  - TestAzioneDM96 (6), TestAzioneOPCM3274 (6), TestAzioneEC8 (8)
+  - TestAzioneNTC2008 (5), TestDispatcher (8)
+- [x] **P.9** Aggiornamento documentazione
+
+### Valori di riferimento verificati
+
+- DM96 zona 2, W_tot=1500 kN: F_base = 105 kN (C=0.07 * 1500)
+- EC8 Tipo1 cat B, ag=0.25g, T_1=TC=0.5s, q=1.5: V_b = 750 kN
+  (Se = 0.25*9.81*1.2*2.5 = 7.3575 m/s²; Sd = 4.905 m/s²)
+- NTC2008 e NTC2018 con stessi parametri → stesso V_b (verificato in test)
+
+---
+
 ## Fasi Successive
 
 | Fase | Descrizione | Note |
 |------|-------------|------|
+| O | Griglia INGV + **Spettro NTC2018** (SS, ST, classe uso, vita nominale) | **Gap critico** identificato 2026-03-06: G.1/G.5/POR/cinematica usano S_a/alpha_S esterni |
 | E.6 | Cantonali e aperture (ribaltamento + riduzione) | Sub-plan pronto, da implementare |
 | D.3 | Traliccio reticolare piano (cordolo muratura) | Sub-plan pronto, da implementare |
 | A.2 | MaterialSource strutturata | Sub-plan pronto, da implementare |
@@ -242,3 +290,20 @@ Dettaglio completo in `docs/PIANO_LAVORO.md` sezione E.6.
 | R | Edifici esistenti LC/FC, vulnerabilita | Dipende da N |
 | H | Riorganizzazione methods/ per norma | Solo se necessario |
 | K | Grafici | Da implementare |
+
+### Gap critico — Spettro NTC2018 (identificato 2026-03-06)
+
+Tutti i moduli che calcolano forze sismiche (G.1 check_slu, G.5 spectral_acceleration_floor
+e drift Metodo B, F.5 POR forze in altezza, E.3 cinematica) ricevono S_a/alpha_S/S_d
+come parametri gia' calcolati esternamente dall'utente (da EdiLus-MS o manualmente).
+
+Il software NON calcola autonomamente la catena NTC2018 SS3.2.3:
+  cat. suolo (A-E) + cat. topogr. (T1-T4) + classe d'uso + vita nominale
+    -> SS, ST, Cu, VR -> ag, F0, TC* (da INGV) -> alpha_S = (ag/g)*SS*ST
+    -> Se(T), Sd(T), S_a piano (eq.7.2.5), S_d(T_1)
+
+Stato attuale `spectrum_paste_service.py`: importa ag, F0, TC* da EdiLus-MS
+(parsing/storage), memorizza class_of_use e vita_nominale_years, ma NON
+calcola SS, ST, alpha_S. E' il punto di integrazione per O.2.
+
+Modulo da creare: `src/codes/ntc2018/spectrum.py` (sub-plan completo in FASE O di PIANO_LAVORO.md).
