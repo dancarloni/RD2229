@@ -1,5 +1,17 @@
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
+> **⭐ QUESTO FILE È LA FONTE DI VERITÀ DEL PROGETTO.**
+>
+> Funzioni di questo documento:
+> 1. **Registro attività** — ogni completamento è marcato con hash commit
+> 2. **Guida operativa** — ogni fase ha sub-plan dettagliati con checkbox [x]/[ ]
+> 3. **Stato avanzamento** — contatori test, moduli, norme sempre aggiornati
+> 4. **Continuità tra sessioni** — dopo compattazione contesto, rileggi questo file
+>
+> **Regola**: PRIMA di lavorare su qualsiasi fase, leggere questo file.
+> **Regola**: DOPO aver completato qualsiasi sotto-punto, aggiornare questo file.
+> **Riferimento**: `CLAUDE.md` alla radice del repo punta a questo file.
+
 **Ultimo aggiornamento**: 2026-03-06
 **Branch**: `claude/materials-database-structure-Fh726`
 
