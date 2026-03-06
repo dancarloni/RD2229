@@ -1,7 +1,7 @@
 """Package materiali strutturali.
 
 Fornisce modello dati, repository con persistenza, e validazione
-per calcestruzzo, acciaio, e muratura.
+per calcestruzzo, acciaio, muratura e legno.
 """
 
 from .material_model import (
@@ -9,6 +9,7 @@ from .material_model import (
     ParametroDerivato,
     crea_acciaio_ntc2018,
     crea_calcestruzzo_ntc2018,
+    crea_legno_ntc2018,
     crea_muratura_ntc2018,
 )
 from .material_repo import MaterialRepository
@@ -21,6 +22,7 @@ __all__ = [
     "ParametroDerivato",
     "crea_acciaio_ntc2018",
     "crea_calcestruzzo_ntc2018",
+    "crea_legno_ntc2018",
     "crea_muratura_ntc2018",
     "validate_material",
 ]

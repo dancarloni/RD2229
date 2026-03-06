@@ -145,6 +145,18 @@ class Material:
     f_vk0: float = 0.0           # Resistenza caratteristica a taglio senza σ [kg/cm²]
     gamma_M: float = 2.0         # Coefficiente parziale muratura
 
+    # --- Parametri primari legno (EN 338 / EN 14080 / NTC2018 §4.4) ---
+    f_mk: float = 0.0            # Resistenza caratteristica a flessione [kg/cm²]
+    f_t0k: float = 0.0           # Resistenza car. trazione parallela [kg/cm²]
+    f_t90k: float = 0.0          # Resistenza car. trazione perpendicolare [kg/cm²]
+    f_c0k: float = 0.0           # Resistenza car. compressione parallela [kg/cm²]
+    f_c90k: float = 0.0          # Resistenza car. compressione perpendicolare [kg/cm²]
+    f_vk: float = 0.0            # Resistenza caratteristica a taglio [kg/cm²]
+    E_0_mean: float = 0.0        # Modulo elastico medio parallelo alle fibre [kg/cm²]
+    E_90_mean: float = 0.0       # Modulo elastico medio perpendicolare [kg/cm²]
+    G_mean: float = 0.0          # Modulo di taglio medio [kg/cm²]
+    classe_servizio: int = 1     # Classe di servizio (1, 2, 3)
+
     # --- Parametri derivati (calcolati automaticamente) ---
     _derivati: dict[str, ParametroDerivato] = field(default_factory=dict)
 
@@ -218,8 +230,11 @@ class Material:
             self._calcola_derivati_acciaio()
         elif self.famiglia == "muratura":
             self._calcola_derivati_muratura()
-        # G è comune a tutti
-        self._calcola_derivato("G")
+        elif self.famiglia == "legno":
+            self._calcola_derivati_legno()
+        # G è comune a tutti (tranne legno che usa G_mean)
+        if self.famiglia != "legno":
+            self._calcola_derivato("G")
 
     def aggiorna_da_primario(self, nome_primario: str) -> None:
         """Ricalcola i derivati che dipendono da un parametro primario modificato.
@@ -242,6 +257,10 @@ class Material:
             "gamma_M": ["f_d", "f_vd"],
             "f_vk0": ["f_vd"],
             "sigma_c28": ["sigma_c_adm", "tau_c0_adm", "tau_c1_adm"],
+            "f_mk": ["f_md"],
+            "f_t0k": ["f_t0d"],
+            "f_c0k": ["f_c0d"],
+            "f_vk": ["f_vd_legno"],
         }
         nomi_derivati = dipendenze.get(nome_primario, [])
         for nome in nomi_derivati:
@@ -273,6 +292,11 @@ class Material:
     def _calcola_derivati_muratura(self) -> None:
         """Calcola tutti i parametri derivati per muratura."""
         for nome in ["f_d", "f_vd"]:
+            self._calcola_derivato(nome)
+
+    def _calcola_derivati_legno(self) -> None:
+        """Calcola tutti i parametri derivati per legno."""
+        for nome in ["f_md", "f_t0d", "f_c0d", "f_vd_legno", "E_0_05"]:
             self._calcola_derivato(nome)
 
     def _calcola_derivato(self, nome: str) -> None:
@@ -367,6 +391,42 @@ class Material:
                 valore = self.f_vk0 / self.gamma_M
                 formula = "f_vd = f_vk0 / γ_M (NTC2018 §4.5.6.1)"
 
+        # --- Legno (NTC2018 §4.4 / EN 1995-1-1) ---
+        elif nome == "f_md":
+            # Resistenza di calcolo a flessione: f_md = k_mod × f_mk / γ_M
+            # k_mod dipende da classe servizio e durata carico; default 0.8 (media durata, classe 1)
+            if self.f_mk > 0 and self.gamma_M > 0:
+                k_mod = 0.8  # media durata, classe servizio 1
+                valore = k_mod * self.f_mk / self.gamma_M
+                formula = "f_md = k_mod × f_mk / γ_M (k_mod=0.8, NTC2018 §4.4)"
+
+        elif nome == "f_t0d":
+            # Resistenza di calcolo a trazione parallela
+            if self.f_t0k > 0 and self.gamma_M > 0:
+                k_mod = 0.8
+                valore = k_mod * self.f_t0k / self.gamma_M
+                formula = "f_t0d = k_mod × f_t0k / γ_M"
+
+        elif nome == "f_c0d":
+            # Resistenza di calcolo a compressione parallela
+            if self.f_c0k > 0 and self.gamma_M > 0:
+                k_mod = 0.8
+                valore = k_mod * self.f_c0k / self.gamma_M
+                formula = "f_c0d = k_mod × f_c0k / γ_M"
+
+        elif nome == "f_vd_legno":
+            # Resistenza di calcolo a taglio legno
+            if self.f_vk > 0 and self.gamma_M > 0:
+                k_mod = 0.8
+                valore = k_mod * self.f_vk / self.gamma_M
+                formula = "f_vd = k_mod × f_vk / γ_M"
+
+        elif nome == "E_0_05":
+            # Frattile 5% modulo elastico parallelo: E_0,05 = E_0_mean × 2/3
+            if self.E_0_mean > 0:
+                valore = self.E_0_mean * 2.0 / 3.0
+                formula = "E_0,05 ≈ E_0_mean × 2/3 (EN 1995-1-1)"
+
         self._derivati[nome] = ParametroDerivato(
             valore=valore,
             override=False,
@@ -409,6 +469,21 @@ class Material:
     def f_vd(self) -> float:
         """Resistenza di calcolo a taglio muratura [kg/cm²]."""
         return self.ottieni_derivato("f_vd")
+
+    @property
+    def f_md(self) -> float:
+        """Resistenza di calcolo a flessione legno [kg/cm²]."""
+        return self.ottieni_derivato("f_md")
+
+    @property
+    def f_t0d(self) -> float:
+        """Resistenza di calcolo a trazione parallela legno [kg/cm²]."""
+        return self.ottieni_derivato("f_t0d")
+
+    @property
+    def f_c0d(self) -> float:
+        """Resistenza di calcolo a compressione parallela legno [kg/cm²]."""
+        return self.ottieni_derivato("f_c0d")
 
     # --- Metodo legacy compatibile ---
 
@@ -466,6 +541,20 @@ class Material:
             dati.update({
                 "f_k": self.f_k,
                 "f_vk0": self.f_vk0,
+                "gamma_M": self.gamma_M,
+            })
+        elif self.famiglia == "legno":
+            dati.update({
+                "f_mk": self.f_mk,
+                "f_t0k": self.f_t0k,
+                "f_t90k": self.f_t90k,
+                "f_c0k": self.f_c0k,
+                "f_c90k": self.f_c90k,
+                "f_vk": self.f_vk,
+                "E_0_mean": self.E_0_mean,
+                "E_90_mean": self.E_90_mean,
+                "G_mean": self.G_mean,
+                "classe_servizio": self.classe_servizio,
                 "gamma_M": self.gamma_M,
             })
 
@@ -654,4 +743,61 @@ def crea_muratura_ntc2018(
         gamma_M=2.0,
         E=E_mur,
         nu=0.15,
+    )
+
+
+def crea_legno_ntc2018(
+    classe: str = "C24",
+    material_id: str = "",
+) -> Material:
+    """Crea un materiale legno strutturale secondo EN 338 / NTC2018.
+
+    Parametri:
+        classe: Classe di resistenza (es. "C14", "C24", "C30", "GL24h", "GL28h", "GL32h").
+        material_id: ID univoco (generato automaticamente se vuoto).
+
+    Restituisce:
+        Material configurato per legno NTC2018.
+    """
+    # EN 338 / EN 14080 — valori in kg/cm² (da MPa × 10.197)
+    # Formato: classe → (f_mk, f_t0k, f_t90k, f_c0k, f_c90k, f_vk, E_0_mean, E_90_mean, G_mean, densità)
+    classi: dict[str, tuple[float, ...]] = {
+        "C14": (142.8, 81.6, 4.1, 163.2, 20.4, 30.6, 71379.0, 2345.0, 4487.0, 350.0),
+        "C16": (163.2, 102.0, 4.1, 173.4, 20.4, 32.6, 81600.0, 2754.0, 5098.0, 370.0),
+        "C18": (183.6, 112.2, 4.1, 183.6, 22.4, 34.7, 91800.0, 3060.0, 5709.0, 380.0),
+        "C22": (224.4, 132.6, 4.1, 204.0, 24.5, 38.8, 102000.0, 3366.0, 6320.0, 410.0),
+        "C24": (244.8, 142.8, 4.1, 214.2, 25.5, 40.8, 112200.0, 3774.0, 7140.0, 420.0),
+        "C27": (275.4, 163.2, 4.1, 224.4, 25.5, 40.8, 117300.0, 3774.0, 7140.0, 450.0),
+        "C30": (305.9, 183.6, 4.1, 234.6, 25.5, 40.8, 122400.0, 4080.0, 7650.0, 460.0),
+        "C35": (356.9, 214.2, 4.1, 254.9, 25.5, 40.8, 132600.0, 4284.0, 7650.0, 480.0),
+        "C40": (407.9, 244.8, 4.1, 265.1, 25.5, 40.8, 142800.0, 4692.0, 7650.0, 500.0),
+        # Lamellare omogeneo
+        "GL24h": (244.8, 193.8, 4.1, 244.8, 25.5, 35.7, 117300.0, 3906.0, 7446.0, 420.0),
+        "GL28h": (285.5, 224.4, 4.1, 265.1, 25.5, 35.7, 127500.0, 4182.0, 7446.0, 460.0),
+        "GL32h": (326.3, 255.0, 4.1, 285.5, 25.5, 35.7, 142800.0, 4692.0, 7650.0, 480.0),
+    }
+
+    params = classi.get(classe, classi["C24"])
+    f_mk, f_t0k, f_t90k, f_c0k, f_c90k, f_vk, E_0, E_90, G_m, rho = params
+
+    tipo = "lamellare" if classe.startswith("GL") else "massiccio"
+
+    return Material(
+        material_id=material_id or f"legno_{classe}",
+        descrizione=f"Legno {tipo} {classe} — NTC2018",
+        famiglia="legno",
+        norma_riferimento="NTC2018",
+        densita_kg_m3=rho,
+        f_mk=f_mk,
+        f_t0k=f_t0k,
+        f_t90k=f_t90k,
+        f_c0k=f_c0k,
+        f_c90k=f_c90k,
+        f_vk=f_vk,
+        E_0_mean=E_0,
+        E_90_mean=E_90,
+        G_mean=G_m,
+        E=E_0,
+        gamma_M=1.45,
+        nu=0.40,
     )

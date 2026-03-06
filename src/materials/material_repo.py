@@ -22,6 +22,7 @@ from .material_model import (
     Material,
     crea_acciaio_ntc2018,
     crea_calcestruzzo_ntc2018,
+    crea_legno_ntc2018,
     crea_muratura_ntc2018,
 )
 from .validation import validate_material
@@ -286,6 +287,10 @@ class MaterialRepository:
         # Muratura NTC2018
         defaults.append(crea_muratura_ntc2018("mattoni_pieni", "M10"))
         defaults.append(crea_muratura_ntc2018("blocchi_cls", "M5"))
+
+        # Legno NTC2018
+        for classe in ["C24", "GL24h", "GL28h"]:
+            defaults.append(crea_legno_ntc2018(classe))
 
         for mat in defaults:
             self._materials[mat.material_id] = mat

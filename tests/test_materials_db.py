@@ -232,12 +232,13 @@ class TestMaterialRepository:
     def test_carica_defaults(self) -> None:
         repo = MaterialRepository()
         n = repo.carica_defaults()
-        assert n == 15
-        assert repo.count() == 15
+        assert n == 18
+        assert repo.count() == 18
         # Verifica famiglie
         assert len(repo.list_by_famiglia("calcestruzzo")) == 8  # 5 NTC + 3 TA
         assert len(repo.list_by_famiglia("acciaio")) == 5       # 2 NTC + 3 TA
         assert len(repo.list_by_famiglia("muratura")) == 2
+        assert len(repo.list_by_famiglia("legno")) == 3          # C24, GL24h, GL28h
 
 
 class TestPersistenzaJSON:
@@ -254,8 +255,8 @@ class TestPersistenzaJSON:
 
         repo2 = MaterialRepository()
         n = repo2.load_from_json(tmp_path)
-        assert n == 15
-        assert repo2.count() == 15
+        assert n == 18
+        assert repo2.count() == 18
 
         # Verifica un materiale specifico
         mat = repo2.get("cls_C25/30")
@@ -328,7 +329,7 @@ class TestValidazione:
         assert any("densità" in e.lower() or "densita" in e.lower() for e in errors)
 
     def test_famiglia_invalida(self) -> None:
-        mat = Material(material_id="test", famiglia="legno")
+        mat = Material(material_id="test", famiglia="vetro")
         errors = validate_material(mat)
         assert any("famiglia" in e.lower() for e in errors)
 

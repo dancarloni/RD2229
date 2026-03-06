@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from .material_model import Material
 
-_FAMIGLIE_VALIDE = {"calcestruzzo", "acciaio", "muratura"}
+_FAMIGLIE_VALIDE = {"calcestruzzo", "acciaio", "muratura", "legno"}
 
 
 class MaterialValidationError(Exception):
@@ -59,6 +59,8 @@ def validate_material(material: Material) -> list[str]:
         errors.extend(_valida_acciaio(material))
     elif material.famiglia == "muratura":
         errors.extend(_valida_muratura(material))
+    elif material.famiglia == "legno":
+        errors.extend(_valida_legno(material))
 
     return errors
 
@@ -115,5 +117,27 @@ def _valida_muratura(material: Material) -> list[str]:
 
     if material.gamma_M <= 0:
         errors.append("Muratura: gamma_M deve essere > 0.")
+
+    return errors
+
+
+def _valida_legno(material: Material) -> list[str]:
+    """Validazione specifica per legno strutturale."""
+    errors: list[str] = []
+
+    if material.f_mk <= 0:
+        errors.append("Legno: f_mk (resistenza a flessione) deve essere > 0.")
+
+    if material.f_c0k <= 0:
+        errors.append("Legno: f_c0k (compressione parallela) deve essere > 0.")
+
+    if material.gamma_M <= 0:
+        errors.append("Legno: gamma_M deve essere > 0.")
+
+    if material.classe_servizio not in (1, 2, 3):
+        errors.append(
+            f"Legno: classe_servizio={material.classe_servizio} non valida. "
+            "Valori ammessi: 1, 2, 3."
+        )
 
     return errors
