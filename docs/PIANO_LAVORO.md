@@ -13,7 +13,7 @@
 > **Riferimento**: `CLAUDE.md` alla radice del repo punta a questo file.
 
 **Ultimo aggiornamento**: 2026-03-06
-**Branch**: `claude/materials-database-structure-Fh726`
+**Branch**: `main`
 
 ---
 
@@ -901,7 +901,7 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 
 ### FASE O — Griglia sismica INGV + Spettro NTC2018
 
-**Stato**: PARZIALMENTE COMPLETATO (O.2 completo; O.1 CSV richiede griglia utente)
+**Stato**: PARZIALMENTE COMPLETATO — commit `d6e589a` (O.2 completo; O.1 CSV richiede griglia utente)
 **Priorita'**: ALTA (prerequisito per G.1.a, G.5, POR, elementi secondari, FASE U)
 
 **Obiettivo**: Due sotto-fasi strettamente collegate:
@@ -981,7 +981,7 @@ E.3 (cinematica parametri sismici), FASE U (sismica dettagliata).
 
 #### O.3 — Azioni sismiche multinorma (`src/codes/seismic/`) ✅
 
-**Stato**: COMPLETATO (2026-03-06) — 54 test in `test_azioni_sismiche_multinorma.py`
+**Stato**: COMPLETATO — commit `d6e589a` — 54 test in `test_azioni_sismiche_multinorma.py`
 
 Package per calcolo taglio alla base + distribuzione triangolare ai piani per 7 norme.
 
@@ -1080,6 +1080,8 @@ Package per calcolo taglio alla base + distribuzione triangolare ai piani per 7 
 | Dispatcher multi-norma elementi secondari | corrente | `verifications/secondary_elements/dispatcher.py` |
 | Stima periodo T_a (4 modelli) + S_a floor NTC2018 | corrente | `src/codes/ntc2018/secondary_elements/ta_models.py` |
 | Stima drift Metodo B + USER + GLOBAL | corrente | `src/codes/ntc2018/secondary_elements/drift_models.py` |
+| Spettro NTC2018 §3.2.3 (SS, ST, CC, Se, Sd) + INGV webservice/CSV | d6e589a | `src/codes/ntc2018/spectrum.py`, `ingv_hazard.py` |
+| Azioni sismiche multinorma (7 norme, forza base + distrib. piani) | d6e589a | `src/codes/seismic/` (8 moduli + dispatcher) |
 
 ---
 
