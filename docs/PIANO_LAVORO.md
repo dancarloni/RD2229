@@ -21,7 +21,7 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1293+ |
+| Test totali | ~1358+ |
 | Test falliti | 0 |
 | Moduli implementati | 35+ |
 | Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
@@ -121,18 +121,28 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 
 ## FASE D — Cordoli Metallici
 
-**Stato**: TODO
+**Stato**: PARZIALMENTE COMPLETATO
 
-### D.1 Sagomario EN 10365
-- [ ] Database profili IPE, HEA, HEB, HEM, UPN in JSON
+### D.1 Sagomario EN 10365 ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Database profili IPE (18), HEA (19), HEB (19), HEM (19), UPN (12) in JSON — 87 profili totali
 - [ ] Import CSV custom utente
-- [ ] Ricerca e filtro profili
+- [x] Ricerca e filtro profili (per famiglia, Wx minimo, altezza, profilo ottimale)
 
-### D.2 Verifiche profilo singolo
-- [ ] Flessione (σ = M/W ≤ σ_adm)
-- [ ] Taglio (τ = T·S / (I·t) ≤ τ_adm)
-- [ ] Instabilità laterale (flesso-torsionale)
-- [ ] Pressoflessione
+**File**: `src/steel/sagomario.py` (~188 righe), `data/steel/sagomario_*.json`
+**Test**: `tests/test_sagomario_acciaio.py` (32 test)
+
+### D.2 Verifiche profilo singolo ✅
+**Stato**: COMPLETATO — commit corrente
+- [x] Flessione (σ = M/W ≤ σ_adm)
+- [x] Taglio (τ = V/A_anima ≤ τ_adm)
+- [x] Instabilità (ω·N/A, tabella CNR 10011)
+- [x] Pressoflessione (N + Mx + My)
+- [x] Combinata Von Mises (σ_VM = √(σ² + 3τ²))
+- [x] Selezione profilo ottimale per momento
+
+**File**: `src/steel/verifiche_ta.py` (~410 righe)
+**Test**: `tests/test_verifiche_acciaio_ta.py` (33 test)
 
 ### D.3 Piatti saldati/bullonati
 - [ ] Sezione composta saldata
@@ -331,6 +341,8 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | Cataloghi multi-norma (97 mat.) | a0f05aa + corrente | `data/materials/catalogo_*.json` |
 | Torsione RD2229 TA | 394dc31 | `src/methods/rd2229/torsione.py` |
 | Instabilità RD2229 TA (ω) | 394dc31 | `src/methods/rd2229/instabilita.py` |
+| Sagomario acciaio EN 10365 (87 profili) | corrente | `src/steel/sagomario.py`, `data/steel/` |
+| Verifiche acciaio TA (flessione, taglio, instabilità) | corrente | `src/steel/verifiche_ta.py` |
 
 ---
 
