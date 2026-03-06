@@ -21,9 +21,9 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1509 |
+| Test totali | ~1693 |
 | Test falliti | 0 |
-| Moduli implementati | 35+ |
+| Moduli implementati | 42+ |
 | Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
 
 ---
@@ -250,23 +250,89 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 
 ## FASE F — Metodo POR (Telaio Equivalente)
 
-**Stato**: TODO
+**Stato**: COMPLETATO — commit corrente
 
-### F.1 Discretizzazione
-- [ ] Maschi murari
-- [ ] Fasce di piano
+### F.1 Modello edificio + Tabella C8.5.I ✅
+**Stato**: COMPLETATO
+- [x] `Edificio`, `Piano`, `Parete`, `Apertura` — modello gerarchico
+- [x] `MaterialeMuratura` con fd, tau_0d, fvk0d proprietà derivate (γ_M × FC)
+- [x] `ParametriSismiciEdificio` con spettro elastico/progetto NTC2018 §3.2.3.2.1
+- [x] `ConfigPOR` con drift, criteri collasso, eccentricità, n_passi configurabili
+- [x] Enums: `TipoApertura`, `TipoDiaframma`, `LivelloConoscenza`, `TipoMuraturaC85I`
+- [x] FC_DA_LC: LC1→1.35, LC2→1.20, LC3→1.00
+- [x] `data/materials/tabella_c85i.json` — 11 tipologie murarie complete
 
-### F.2 Matrice rigidezza
-- [ ] Rigidezza maschio
-- [ ] Rigidezza fascia
+**File**: `src/methods/muratura/modello_edificio.py` (~300 righe)
+**Test**: `tests/test_modello_edificio.py` (47 test)
 
-### F.3 Assemblaggio e soluzione
-- [ ] Matrice globale
-- [ ] Forze orizzontali
-- [ ] Spostamenti e sforzi
+### F.2 Discretizzazione ✅
+**Stato**: COMPLETATO
+- [x] `Maschio` dataclass con geometria, materiale, N, vincolo, drift
+- [x] `Fascia` dataclass con ha_cordolo, e_biella
+- [x] `discretizza_parete()` — genera maschi/fasce da parete + aperture
+- [x] `discretizza_piano()` — processa tutte le pareti di un piano
+- [x] `calcola_N_gravitazionale()` — accumulo top-down carichi verticali
+- [x] `determina_vincoli_maschi()` — vincoli automatici da rigidezza fasce
 
-### F.4 Verifica maschi singoli
-- [ ] Taglio, pressoflessione, scorrimento
+**File**: `src/methods/muratura/discretizzazione.py` (~350 righe)
+**Test**: `tests/test_discretizzazione.py` (26 test)
+
+### F.3 Rigidezza + distribuzione forze ✅
+**Stato**: COMPLETATO
+- [x] `rigidezza_maschio()` — Timoshenko (flessione + taglio), doppio incastro / mensola
+- [x] `rigidezza_fascia()` — analoga, ridotta per biella
+- [x] `CentroRigidezzaPiano` — x_CR, y_CR, K_x, K_y, K_θ, eccentricità
+- [x] `assembla_matrice_piano()` — matrice 3×3 condensata [K_xx, K_xy, K_xθ; ...]
+- [x] `distribuisci_forza_piano()` — 3 GDL/piano (ux, uy, θz) + fallback per DOF ridotti
+- [x] Solver 3×3 Gauss con pivoting parziale + solver 2×2 ridotto
+
+**File**: `src/methods/muratura/rigidezza.py` (~350 righe)
+**Test**: `tests/test_rigidezza.py` (25 test)
+
+### F.4 Resistenza maschi/fasce ✅
+**Stato**: COMPLETATO
+- [x] `ResistenzaMaschio` — V_Rd, curva bilineare (k, δ_y, δ_u), `forza_per_spostamento()`, `stato_per_spostamento()`
+- [x] `calcola_resistenza_maschio()` — integra 3 criteri E.2 (diagonale, scorrimento, pressoflessione)
+- [x] `ResistenzaFascia` — con/senza cordolo
+- [x] `calcola_resistenze_piano()` — batch
+- [x] Criterio dominante determina drift limite (taglio 0.5%, pressoflessione 1.0%)
+
+**File**: `src/methods/muratura/resistenza.py` (~280 righe)
+**Test**: `tests/test_resistenza_maschio.py` (21 test)
+
+### F.5 Analisi pushover ✅
+**Stato**: COMPLETATO
+- [x] `forze_in_altezza()` — NTC2018 §7.3.4.1 (modo 1 + uniforme)
+- [x] `pushover_piano()` — POR singolo piano incrementale
+- [x] `pushover_multipiano()` — spostamenti proporzionali, criterio collasso
+- [x] `bilinearizza_curva()` — equipartizione energetica, SDOF T*
+- [x] `analisi_por_completa()` — 2 dir × 2 distr × ±ecc = 8 curve, curva governante
+- [x] Calcolo ζ_E = a*_y / S_d(T*)
+
+**File**: `src/methods/muratura/por_analisi.py` (~380 righe)
+**Test**: `tests/test_por_analisi.py` (18 test)
+
+### F.6 Fattore di comportamento q ✅
+**Stato**: COMPLETATO
+- [x] `ALPHA_U_ALPHA_1_TAB` — tabella NTC2018 Tab. 7.3.II
+- [x] `calcola_fattore_comportamento()` — q = q₀ × K_R
+- [x] Limiti per edifici esistenti (α_u/α_1 ≤ 1.50, Circ. §C8.5.5.1)
+- [x] Override manuale q e α_u/α_1
+- [x] Irregolarità pianta (media α) e altezza (K_R = 0.8)
+
+**File**: `src/methods/muratura/fattore_comportamento.py` (~180 righe)
+**Test**: `tests/test_fattore_comportamento.py` (22 test)
+
+### F.7 Verifiche e report ✅
+**Stato**: COMPLETATO
+- [x] `RigaMaschio`, `TabellaVerificheMaschi` — tabella stile 3Muri/Aedes
+- [x] `formato_testo()` — output ASCII per tabulati
+- [x] `genera_tabella_maschi()` — D/C per ogni maschio
+- [x] `RiepilogoRischio` — confronto ζ_E globale vs locale
+- [x] `plot_curva_pushover()` — matplotlib con bilineare sovrapposta
+
+**File**: `src/methods/muratura/por_verifiche.py` (~280 righe)
+**Test**: `tests/test_por_verifiche.py` (25 test)
 
 ---
 
@@ -395,6 +461,13 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 | Modello cordolo CA + metallico | corrente | `src/elements/cordolo.py` |
 | Catene e paletti (trazione + punzonamento) | corrente | `src/elements/cordolo.py` |
 | Meccanismi locali fuori piano (4 mecc. + cin. lin./non lin.) | corrente | `src/methods/muratura/cinematica.py` |
+| POR modello edificio + Tab. C8.5.I | corrente | `src/methods/muratura/modello_edificio.py` |
+| POR discretizzazione maschi/fasce | corrente | `src/methods/muratura/discretizzazione.py` |
+| POR rigidezza + distribuzione forze 3 GDL | corrente | `src/methods/muratura/rigidezza.py` |
+| POR resistenza maschi/fasce (bilineare) | corrente | `src/methods/muratura/resistenza.py` |
+| POR pushover multipiano + bilinearizzazione | corrente | `src/methods/muratura/por_analisi.py` |
+| POR fattore comportamento q (NTC2018 Tab.7.3.II) | corrente | `src/methods/muratura/fattore_comportamento.py` |
+| POR verifiche tabella maschi + riepilogo rischio | corrente | `src/methods/muratura/por_verifiche.py` |
 
 ---
 
