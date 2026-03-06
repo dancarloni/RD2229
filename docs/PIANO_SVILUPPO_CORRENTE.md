@@ -193,10 +193,46 @@ Ordine di priorita' consigliato:
 
 ---
 
+## FASE E.6 — Cantonali e Aperture (Meccanismo Ribaltamento + Riduzione Resistenza)
+
+**Stato**: TODO (analisi completata, sub-plan scritto)
+**Priorita**: ALTA (collegamento diretto con E.3 + D.3)
+**Obiettivo**: (A) Meccanismo di ribaltamento del cantonale (cuneo 3D semplificato),
+(B) riduzione resistenza maschi d'angolo per aperture ravvicinate.
+
+### Analisi Q&A completata (2026-03-06)
+
+Tre sotto-problemi identificati, due in scope E.6:
+
+1. **Ribaltamento cantonale** (priorita' A): cuneo 3D proiettato su piano a 45°,
+   modulo separato `cantonale.py`. Carichi: peso cuneo + puntone tetto + solaio +
+   catene + ritegno cordolo D.3. Integrato in analisi_tutti_meccanismi con flag "3D".
+
+2. **Riduzione resistenza maschi d'angolo** (priorita' A): diagnostica distanza
+   apertura-angolo (normativa + regola pratica + configurabile), coefficiente
+   riduzione lineare, applicabile a V_Rd e/o alpha_0 a scelta utente.
+   Flag `is_cantonale` automatico con override manuale.
+
+3. **Apertura nuovi vani** (fase separata R): confronto prima/dopo, telaio cerchiatura.
+
+Decisioni chiave:
+- Modulo separato `src/methods/muratura/cantonale.py` (massima modularita')
+- Modello 2D semplificato (proiezione 45°), 3D completo come TODO futuro
+- Spinta puntone: 2 formulazioni + input generico
+- Coperture: padiglione, capanna, generica
+- Collegamento D.3: ritegno generico (default) + nodo angolo specifico (evoluzione)
+
+### Sub-plan (6 sotto-fasi E.6.1 — E.6.6)
+
+Dettaglio completo in `docs/PIANO_LAVORO.md` sezione E.6.
+
+---
+
 ## Fasi Successive
 
 | Fase | Descrizione | Note |
 |------|-------------|------|
+| E.6 | Cantonali e aperture (ribaltamento + riduzione) | Sub-plan pronto, da implementare |
 | D.3 | Traliccio reticolare piano (cordolo muratura) | Sub-plan pronto, da implementare |
 | A.2 | MaterialSource strutturata | Sub-plan pronto, da implementare |
 | N | Carote cls in sito (9 formulazioni) | Da implementare |

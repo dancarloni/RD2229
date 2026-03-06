@@ -481,8 +481,146 @@ di maggiore rigidezza.
 **File**: `src/elements/cordolo.py` (catene + cordoli)
 **Test**: `tests/test_cordolo.py` (25 test)
 
-### E.6 Apertura cantonali
-- [ ] Riduzione resistenza per aperture
+### E.6 Cantonali e aperture — meccanismo ribaltamento cantonale + riduzione resistenza
+
+**Stato**: TODO
+**Priorita**: ALTA (collegamento diretto con E.3 + D.3)
+
+**Obiettivo**: Implementare (A) il meccanismo di ribaltamento del cantonale (cuneo 3D),
+(B) la riduzione di resistenza dei maschi d'angolo per aperture ravvicinate.
+L'apertura di nuovi vani in pareti portanti (confronto prima/dopo) e' in fase separata (Fase R).
+
+#### E.6.A — Ribaltamento del cantonale (meccanismo 3D)
+
+**Concetto**: Un cuneo di muratura delimitato da fratture diagonali a ~45° nelle due
+pareti concorrenti si stacca e ribalta. Tipico di tetti a padiglione con puntoni
+spingenti. L'asse di rotazione e' perpendicolare al piano a 45° tra le due pareti.
+
+**Modellazione**: Modello semplificato 2D (proiezione del cuneo su piano a 45°, come
+3Muri/PRO_CineM). Modello 3D completo come TODO futuro.
+
+Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla & Maione (2020).
+
+#### Decisioni architetturali (da Q&A)
+
+| Aspetto | Decisione |
+|---------|-----------|
+| Geometria cuneo | Selezione 2 pareti dal modello + input diretto, entrambi |
+| Angolo asse rotazione | Configurabile (default 45°) + auto-calcolabile da spessori pareti |
+| Modulo | Separato: `src/methods/muratura/cantonale.py` (massima modularita') |
+| Carichi sul cuneo | Tutti configurabili: peso proprio, puntone, solaio, catena, cordolo D.3 |
+| Spinta puntone | Input manuale + calcolo automatico (2 formulazioni) |
+| Tipologie copertura | Padiglione, capanna, generica (forza diretta) |
+| Distanza min apertura-angolo | Normativa + regola pratica (t_muro) + configurabile |
+| Riduzione resistenza | Warning + coefficiente + check PASS/FAIL, utente sceglie quali |
+| Riduzione agisce su | Selezionabile: V_Rd taglio, ammorsamento (alpha_0), o entrambi |
+| Flag maschio d'angolo | Automatico con override manuale |
+| Collegamento con D.3 | Default: cordolo come ritegno generico (D.3.5). Evoluzione: nodo angolo D.3.6 fornisce H specifica |
+| In analisi_tutti_meccanismi | Si', con flag "3D" per distinguerlo dai 2D |
+
+#### Sub-plan dettagliato
+
+**E.6.1 — Modulo cantonale.py (meccanismo ribaltamento)**
+
+- [ ] `src/methods/muratura/cantonale.py` (NUOVO, modulo separato)
+- [ ] Dataclass `InputCantonale`: 2 pareti (h, t, L_distacco), carichi, catene, ritegni
+- [ ] Dataclass `SpintaPuntone`: pendenza, luce, carico_mq OPPURE forza_diretta
+  - Formula A: F_h = q * L / (2 * tan(alpha)) — da carico distribuito
+  - Formula B: F_h = V / tan(alpha) — da forza verticale
+- [ ] Enum `TipoCopertura` (PADIGLIONE, CAPANNA, GENERICA)
+- [ ] `calcola_spinta_puntone(tipo, ...)` → F_h [kg]
+- [ ] `ribaltamento_cantonale(input)` → `RisultatoMeccanismo`
+  - Geometria cuneo 3D proiettata su piano a 45°
+  - Peso cuneo = 0.5 * h * L1_dist * t1 * gamma + 0.5 * h * L2_dist * t2 * gamma
+  - Bracci stabilizzanti e ribaltanti come da schede ReLUIS
+  - Angolo asse rotazione: configurabile (default 45°), auto = arctan(t2/t1)
+  - Contributo catene/tiranti come in cinematica.py (ForzaCatena)
+  - Contributo ritegno cordolo D.3 (opzionale)
+- [ ] `RisultatoCantonale(RisultatoMeccanismo)`: alpha_0, passaggi, tipo="3D"
+- [ ] Aggiungere `RIBALTAMENTO_CANTONALE` a `TipoMeccanismo` in cinematica.py
+- [ ] Integrare in `analisi_tutti_meccanismi()` con flag 3D
+
+**E.6.2 — Riduzione resistenza maschi d'angolo per aperture**
+
+- [ ] `src/methods/muratura/cantonale.py` — funzioni aggiuntive nello stesso modulo
+- [ ] `diagnostica_apertura_angolo(parete, aperture)` → warning/check
+  - Calcola distanza apertura piu' vicina dall'angolo della parete
+  - Soglie: normativa NTC2018 (se presente), regola pratica d_min = max(t, 100 cm),
+    configurabile dall'utente
+  - Esito: OK / WARNING / FAIL con messaggio e distanza misurata
+- [ ] `coefficiente_riduzione_angolo(distanza, t, criterio)` → float [0..1]
+  - Riduzione lineare: k = min(distanza / d_min, 1.0)
+  - Criterio selezionabile: taglio V_Rd, ammorsamento alpha_0, entrambi
+- [ ] `flag_maschio_cantonale(maschio, parete)` → bool
+  - Automatico: maschio il cui bordo sinistro == x_ini parete (inizio) o destro == x_fin (fine)
+  - Override manuale tramite campo opzionale `is_cantonale` su Maschio
+- [ ] Integrazione in `discretizza_parete()`:
+  - Maschi d'angolo ricevono automaticamente `is_cantonale = True`
+  - Se apertura ravvicinata: `fattore_riduzione_angolo` calcolato e assegnato
+
+**E.6.3 — Spinta puntoni copertura**
+
+- [ ] Calcolo automatico per tetto a padiglione (puntone diagonale + correnti)
+- [ ] Calcolo automatico per tetto a capanna (spinta su timpano)
+- [ ] Input generico: forza F, direzione, punto di applicazione
+- [ ] Integrazione come carico esterno nel meccanismo cantonale
+
+**E.6.4 — Integrazione con cordolo reticolare D.3**
+
+- [ ] Il cordolo D.3 modellato come ritegno sommitale generico (forza H o rigidezza K)
+  - Default: stessa logica di D.3.5 (ritegno_sommitale in cinematica)
+- [ ] Evoluzione: il nodo d'angolo D.3.6 fornisce la forza H specifica al cantonale
+  - Il traliccio ad anello distribuisce le forze ai nodi d'angolo
+  - H_angolo = reazione del nodo d'angolo del traliccio sotto i carichi cinematici
+- [ ] Entrambi gli approcci implementati, selezionabili dall'utente
+- [ ] Note: l'approccio (c) D.3.6 e' piu' preciso ma richiede D.3 completato
+
+**E.6.5 — Test**
+
+- [ ] Ribaltamento cantonale: cuneo simmetrico (2 pareti uguali, alpha_0 noto)
+- [ ] Ribaltamento cantonale: cuneo asimmetrico (spessori diversi)
+- [ ] Angolo asse rotazione: 45° vs auto-calcolato
+- [ ] Spinta puntone: padiglione, capanna, generica
+- [ ] Effetto catena/tirante sul cantonale
+- [ ] Effetto ritegno cordolo D.3
+- [ ] Diagnostica apertura-angolo: OK, WARNING, FAIL
+- [ ] Coefficiente riduzione: lineare, applicazione a V_Rd e alpha_0
+- [ ] Flag maschio cantonale: automatico e override
+- [ ] Integrazione in analisi_tutti_meccanismi (ordinamento alpha_0 con 3D)
+- [ ] Retrocompatibilita': cinematica.py test esistenti (49) invariati
+
+**E.6.6 — Report e tabulato**
+
+- [ ] Sezione "Meccanismo cantonale" nel tabulato
+- [ ] Sezione "Diagnostica aperture d'angolo" con warning
+- [ ] Passaggi calcolo tracciabili (decision_log)
+
+#### Dipendenze
+
+| Dipende da | Modulo | Stato |
+|-----------|--------|-------|
+| Meccanismi fuori piano | `src/methods/muratura/cinematica.py` (E.3) | COMPLETATO |
+| Discretizzazione | `src/methods/muratura/discretizzazione.py` (F.2) | COMPLETATO |
+| Modello edificio | `src/methods/muratura/modello_edificio.py` (F.1) | COMPLETATO |
+| Cordolo reticolare | `src/elements/cordolo_reticolare.py` (D.3) | TODO (non bloccante) |
+
+#### Abilitato da E.6 (dipendenze inverse)
+
+| Fase | Beneficio |
+|------|-----------|
+| D.3.5 Integrazione cinematica | Meccanismo cantonale disponibile come target per ritegno |
+| D.3.6 Nodo d'angolo | H_angolo calcolabile per dimensionamento nodo |
+| Fase R — Edifici esistenti | Vulnerabilita' cantonali quantificabile |
+| Fase K — Grafici | Disegno cuneo 3D proiettato |
+
+#### Riferimenti normativi e letteratura
+
+- Circ. n.7/2019 §C8A.4.1 — cinematica lineare meccanismi locali
+- Schede ReLUIS — meccanismi di collasso locali (ribaltamento cantonale)
+- Casapulla & Maione (2020) — rocking analysis of corner mechanisms
+- D'Ayala & Speranza (2003) — mechanisms for historic masonry
+- Dolce M. — schematizzazione e modellazione pareti, altezza efficace maschi
+- NTC2018 §7.8.2 — resistenza maschi murari nel piano
 
 ### E.7 Muratura multipiano ✅
 **Stato**: COMPLETATO — commit corrente
@@ -774,6 +912,20 @@ di maggiore rigidezza.
 
 ---
 
+## Memoria Persistente AI
+
+File di contesto dettagliato per continuita' tra sessioni, in `docs/memory/`:
+
+| File | Contenuto |
+|------|-----------|
+| `MEMORY.md` | Indice e convenzioni utente |
+| `subplan_D3_traliccio.md` | D.3: Q&A completo, decisioni, architettura, interfacce, file da creare/modificare |
+| `subplan_E6_cantonali.md` | E.6: Q&A, formule ribaltamento cantonale, riduzione resistenza, letteratura |
+| `subplan_A2_material_source.md` | A.2: analisi 3 entita' parallele, strutture dati, piano migrazione legacy |
+| `codebase_map.md` | Mappa moduli muratura/acciaio con file, righe chiave, TODO per fase |
+
+---
+
 ## Principi Architetturali (VINCOLI DURI)
 
 1. Modularità estrema — ogni modulo sostituibile senza refactoring globale
@@ -788,3 +940,5 @@ di maggiore rigidezza.
 10. No allucinazioni — formula mancante → TODO + chiedi all'utente
 11. Rigore scientifico — formule da normativa/letteratura/VB
 12. UI in italiano — tutto il testo visibile in italiano
+13. Memoria AI nel repository — file di contesto in `docs/memory/`, mai in directory esterne al repo
+14. Aggiornamento memoria dopo ogni modulo — salvare contesto implementativo in `docs/memory/` dopo ogni fase completata
