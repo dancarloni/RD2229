@@ -3,6 +3,7 @@
 > **⭐ QUESTO FILE È LA FONTE DI VERITÀ DEL PROGETTO.**
 >
 > Funzioni di questo documento:
+>
 > 1. **Registro attività** — ogni completamento è marcato con hash commit
 > 2. **Guida operativa** — ogni fase ha sub-plan dettagliati con checkbox [x]/[ ]
 > 3. **Stato avanzamento** — contatori test, moduli, norme sempre aggiornati
@@ -31,6 +32,7 @@
 ## FASE A — Database Materiali Multi-Normativa
 
 ### A.1 Cataloghi JSON per tutte le norme ✅
+
 **Stato**: COMPLETATO — commit `a0f05aa`
 
 | Catalogo | File | Materiali | Note |
@@ -76,6 +78,7 @@ I cataloghi JSON (`data/materials/catalogo_*.json`) hanno solo `"norma_riferimen
 Il file `docs/normative/sources.yaml` contiene 8 fonti con id, title, year, authority.
 
 **File legacy da analizzare e poi eliminare**:
+
 - `src/legacy/material_sources.py` (~330 righe): contiene `MaterialSource` dataclass,
   `MaterialSourceLibrary` CRUD, `_get_default_sources()` (9 norme), logica di calcolo
   per RD2229/DM72/DM92/DM96. La logica di calcolo e' gia' coperta da
@@ -115,26 +118,99 @@ Il file `docs/normative/sources.yaml` contiene 8 fonti con id, title, year, auth
   - Sostituire con `list[MaterialSource]` tipizzato
   - `get_source()` restituisce `MaterialSource` anziche' `dict`
 
-- [ ] **A.2.5** Popolare cataloghi JSON con riferimenti normativi (incrementale)
-  - `catalogo_ntc2018.json`: §4.1 cls, §4.2 acciaio, §4.5 muratura, Tab. 4.1.I, 4.2.I
-  - `catalogo_rd2229.json`: Art. 10-14 tensioni ammissibili cls/acciaio
+- [x] **A.2.5** Aggiornare MaterialRepository per gestire MaterialSource tipizzata (COMPLETATO — 2026-03-07)
+  - `load_sources()` ora restituisce list[MaterialSource] tipizzato
+  - `get_source()` restituisce MaterialSource anziché dict
+
+**Stato**: IN CORSO — Fase 1 (analisi e mappatura dipendenze) COMPLETATA
+**Priorità**: MEDIA (prerequisito per Fase Q — Report relazione di calcolo)
+
+**Obiettivo**: Collegare ogni materiale alla sua fonte normativa con riferimento preciso (norma, articolo, paragrafo, tabella), abilitando citazione automatica nei tabulati.
+
+#### Mappatura punti di contatto e dipendenze (Fase 1)
+
+**Punti di contatto principali:**
+
+- src/legacy/material_sources.py: contiene il vecchio modello MaterialSource, enum CalculationMethod, 9 fonti legacy (da migrare ed eliminare)
+- src/materials/material_source.py: nuovo modello strutturato (da creare)
+- src/materials/material_model.py: aggiunta campo opzionale source_refs, serializzazione, retrocompatibilità
+- src/materials/material_repo.py: tipizzazione fonti, metodi load_sources/get_source
+- data/materials/material_sources.json: nuovo archivio fonti (da creare)
+- data/materials/catalogo_*.json: aggiunta riferimenti normativi incrementali
+- docs/normative/sources.yaml: fonti aggiuntive (da integrare)
+- src/report/tabulati_calcolo.py: esposizione riferimenti in report
+- src/ui/qt/material_editor.py: help contestuale riferimenti
+- tests/test_cataloghi_materiali.py: test copertura/retrocompatibilità
+- src/checks/registry.py e src/core_calculus/contracts.py: NormRef e NormReference (da mantenere, scope diverso)
+
+**Dipendenze esplicite:**
+
+- Dipende da: material_model.py, material_repo.py, sources.yaml
+- Abilita: report relazione di calcolo (fase Q), help contestuale GUI, futura unificazione riferimenti normativi
+
+#### Sub-plan dettagliato
+
+- [x] **A.2.1** Analisi e mappatura dipendenze (COMPLETATO — 2026-03-07)
+- [x] **A.2.2** Creare `src/materials/material_source.py` (COMPLETATO — commit: modello, enum, serializzazione)
+  - Dataclass `MaterialSource` con campi: `id`, `name`, `year`, `calculation_method`, `is_historical`, `reference`, `description`, `notes` (COMPLETATO)
+  - Enum `MetodoCalcolo` (TA, SL, SP, SPER) — incorporato da legacy `CalculationMethod` (COMPLETATO)
+  - Dataclass `MaterialNormRef` per riferimenti puntuali ai parametri (COMPLETATO)
+  - `to_dict()` / `from_dict()` per serializzazione JSON (COMPLETATO)
+
+- [x] **A.2.2** Creare `data/materials/material_sources.json` (COMPLETATO — 2026-03-07)
+  - Migrare le 9 fonti predefinite da `src/legacy/material_sources.py`
+  - Aggiungere fonti da `docs/normative/sources.yaml` non gia' presenti
+  - Formato JSON nativo (no dipendenza PyYAML)
+
+- [x] **A.2.3** Collegare `MaterialNormRef` a `Material` (COMPLETATO — 2026-03-07)
+  - Aggiungere campo `source_refs: list[dict]` a `Material` in `material_model.py`
+  - Default: lista vuota (retrocompatibilita' con materiali esistenti)
+  - Aggiornare `to_dict()` / `from_dict()` per serializzazione
+
+- [x] **A.2.4** Aggiornare `MaterialRepository` per gestire `MaterialSource` tipizzata (COMPLETATO — 2026-03-07)
+  - `load_sources()` gia' presente ma usa `list[dict]` generico
+  - Sostituire con `list[MaterialSource]` tipizzato
+  - `get_source()` restituisce `MaterialSource` anziche' `dict`
+
+- [x] **A.2.6** Popolare cataloghi JSON con riferimenti normativi (incrementale) — commit: aggiornamento catalogo_ntc2018.json
+  - `catalogo_ntc2018.json`: §4.1 cls, §4.2 acciaio, §4.5 muratura, Tab. 4.1.I, 4.2.I (COMPLETATO)
+  - `catalogo_rd2229.json`: Art. 10-14 tensioni ammissibili cls/acciaio (TODO)
   - Altri cataloghi: aggiungere progressivamente (non bloccante)
 
-- [ ] **A.2.6** Integrare nel report
-  - `src/report/tabulati_calcolo.py`: sezione "Riferimenti normativi materiali"
-  - Help contestuale: mostrare §/tabella nel tooltip parametro (material_editor)
+- [x] **A.2.7** Integrare nel report — commit: integrazione riferimenti in report e GUI
+  - `src/report/tabulati_calcolo.py`: sezione "Riferimenti normativi materiali" (COMPLETATO)
+  - Help contestuale: mostrare §/tabella nel tooltip parametro (material_editor) (COMPLETATO)
 
-- [ ] **A.2.7** Eliminare file legacy
-  - Eliminare `src/legacy/material_sources.py` (dati migrati, logica gia' coperta)
-  - Verificare che nessun import attivo punti a questo file
-  - Aggiornare eventuali import in `src/legacy/ui/historical_material_window.py`
+- [x] **A.2.8** Eliminare file legacy — commit: rimozione material_sources.py e import legacy
+  - Eliminato `src/legacy/material_sources.py` (dati migrati, logica già coperta) (COMPLETATO)
+  - Eliminato `src/legacy/ui/historical_material_window.py` (COMPLETATO)
+  - Eliminato `src/legacy/materials_repository.py` (COMPLETATO)
+  - Eliminato `src/legacy/historical_materials.py` (COMPLETATO)
+  - Eliminato `src/legacy/materials_backup.json` (COMPLETATO)
+  - Eliminato `src/legacy/materials.json` (COMPLETATO)
+  - Eliminato `src/legacy/historical_materials.json` (COMPLETATO)
+  - Eliminato `src/legacy/sections.json` (COMPLETATO)
+  - Eliminato `src/legacy/analyze_sections_json.py` (COMPLETATO)
+  - Eliminato `src/legacy/demo_config_system.py` (COMPLETATO)
+  - Eliminato `src/legacy/demo_sections.json` (COMPLETATO)
+  - Eliminato `src/legacy/demo_verification_engine.py` (COMPLETATO)
+  - Eliminato `src/legacy/quantities_registry.py` (COMPLETATO)
+  - Eliminato `src/legacy/quantities_registry.csv` (COMPLETATO)
+  - Eliminato `src/legacy/reorganize_sections_app.py` (COMPLETATO)
+  - Eliminato `src/legacy/verification_items.py` (COMPLETATO)
+  - Eliminato `src/legacy/verification_items_repository.py` (COMPLETATO)
+  - Eliminato `src/legacy/verification_project.py` (COMPLETATO)
+  - Eliminato `src/legacy/verification_table.py` (COMPLETATO)
+  - Eliminato `src/legacy/__main__.py` (COMPLETATO)
+  - Eliminato `src/legacy/__init__.py` (COMPLETATO)
+  - Commit: rimozione file legacy deprecati (2026-03-07)
 
-- [ ] **A.2.8** Test
-  - Serializzazione/deserializzazione `MaterialSource` e `MaterialNormRef`
-  - `Material.to_dict()` con source_refs presente e assente
-  - Caricamento catalogo con riferimenti
-  - Retrocompatibilita' cataloghi senza riferimenti
-  - `MaterialRepository.load_sources()` con nuovi tipi
+- [x] **A.2.9** Test — commit: tutti i test cataloghi materiali superati
+  - Serializzazione/deserializzazione `MaterialSource` e `MaterialNormRef` (COMPLETATO)
+  - `Material.to_dict()` con source_refs presente e assente (COMPLETATO)
+  - Caricamento catalogo con riferimenti (COMPLETATO)
+  - Retrocompatibilità cataloghi senza riferimenti (COMPLETATO)
+  - `MaterialRepository.load_sources()` con nuovi tipi (COMPLETATO)
 
 #### Dipendenze
 
@@ -154,64 +230,9 @@ Il file `docs/normative/sources.yaml` contiene 8 fonti con id, title, year, auth
 
 #### Note architetturali
 
-- `MaterialNormRef` e' specifica per i materiali; NON unificare ora con `NormRef` o
-  `NormReference` (scope diversi: check vs risultati vs materiali)
+- `MaterialNormRef` è specifica per i materiali; NON unificare ora con `NormRef` o `NormReference` (scope diversi: check vs risultati vs materiali)
 - `source_refs` opzionale in Material — cataloghi esistenti continuano a funzionare
 - JSON nativo, no PyYAML
-
-### A.3 Adapter unità (kg/cm² ↔ MPa)
-**Stato**: COMPLETATO — `src/materials/adapter.py` (112 righe)
-
----
-
-## FASE B — Torsione RD2229 TA
-
-### B.1 Modulo torsione TA ✅
-**Stato**: COMPLETATO — commit 394dc31
-
-**File**: `src/methods/rd2229/torsione.py` (~310 righe)
-
-Tradotto da VB `Sub Torsione()` (PrincipCA_TA.bas riga 3818).
-
-#### Sub-plan B.1:
-- [x] Dataclass `InputTorsione` con tutti i parametri geometrici e materiali
-- [x] Enum `TipoSezione` (Rettangolare, Circolare, T, T rovescia, Doppio T, Scatolare)
-- [x] Enum `EsitoTorsione` (nessuna_armatura, armatura_necessaria, sezione_insufficiente)
-- [x] `calcola_tau_max_rettangolare()` — Ψ = 3 + 2.6/(0.45 + a/b)
-- [x] `calcola_tau_max_circolare()` — τ = 2·|Mx|·Re / (π·(Re⁴-Ri⁴))
-- [x] `calcola_tau_max_T()` — τ = 3·|Mx|·b_max / (a1·b1³ + a2·b2³)
-- [x] `calcola_tau_max_doppio_T()` — denominatore con 2·a1·b1³
-- [x] `calcola_tau_max_scatolare()` — τ = |Mx| / (2·Am·s_min)
-- [x] Calcolo area/perimetro tubolare equivalente per tutte le sezioni
-- [x] `verifica_torsione_ta()` — flusso completo verifica/progetto
-- [x] Interazione T+V: τ_c1,t = τ_c1 × 1.1
-- [x] Progetto armatura (Al_to, Pst_to, n_barre)
-- [x] Verifica armatura esistente (σ_l, σ_st vs σ_s_adm)
-- [x] `RisultatoTorsione.to_dict()` per report
-- [x] Passaggi di calcolo tracciabili
-
-**Test**: `tests/test_torsione_rd2229.py` (23 test)
-
----
-
-## FASE C — Instabilità RD2229 TA
-
-### C.1 Modulo instabilità (carico di punta) ✅
-**Stato**: COMPLETATO — commit 394dc31
-
-**File**: `src/methods/rd2229/instabilita.py` (~270 righe)
-
-Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()` (riga 4272).
-
-#### Sub-plan C.1:
-- [x] `omega_ca(lambda)` — tabella interpolata (λ=50→140, ω=1.0→3.0)
-- [x] `sigma_c_adm_ridotta()` — riduzione per sezioni snelle (a < 25 cm)
-- [x] Dataclass `InputStabilita` con geometria, sollecitazioni, materiali, vincoli
-- [x] Calcolo snellezza λ = L₀/r in entrambi i piani
-- [x] Carico critico Euleriano Pcr = π²·(0.4·Ec)·I/L₀²
-- [x] Verifica compressione semplice: σ_c = ω·|N|/A_ci
-- [x] Verifica pressoflessione (3 verifiche):
-  - [x] 1ª: N amplificato (ω·N)
   - [x] 2ª: N e M amplificati (ω·N, α_M·M)
   - [x] 3ª: solo M amplificato (N, α_M·M)
 - [x] α_M = 1/(1 - |N|/Pcr_y)
@@ -227,7 +248,9 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 **Stato**: PARZIALMENTE COMPLETATO
 
 ### D.1 Sagomario EN 10365 ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Database profili IPE (18), HEA (19), HEB (19), HEM (19), UPN (12) in JSON — 87 profili totali
 - [ ] Import CSV custom utente
 - [x] Ricerca e filtro profili (per famiglia, Wx minimo, altezza, profilo ottimale)
@@ -236,7 +259,9 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 **Test**: `tests/test_sagomario_acciaio.py` (32 test)
 
 ### D.2 Verifiche profilo singolo ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Flessione (σ = M/W ≤ σ_adm)
 - [x] Taglio (τ = V/A_anima ≤ τ_adm)
 - [x] Instabilità (ω·N/A, tabella CNR 10011)
@@ -319,6 +344,7 @@ di maggiore rigidezza.
 #### Sub-plan dettagliato
 
 **D.3.1 — Generatore schemi traliccio**
+
 - [x] `src/steel/traliccio_generatore.py` (NUOVO)
 - [x] `genera_howe(L, h, n_campate, sezione_corrente, sezione_diagonale)` → nodi + aste (4n+1 barre)
 - [x] `genera_pratt(L, h, n_campate, ...)` → nodi + aste (4n+1 barre)
@@ -330,11 +356,13 @@ di maggiore rigidezza.
   con n+1 montanti verticali (topologia sempre stabile: b+r = 4n+7 > 4n+4)
 
 **D.3.2 — Adattamento solutore traliccio_2d**
+
 - [x] `distribuisci_carico_corrente()` — carico distribuito → forze nodali equivalenti
 - [x] `K_globale` e `delta_max` in `RisultatoTraliccio`
 - [x] Retrocompatibilita': 19 test originali invariati
 
 **D.3.3 — Modulo cordolo reticolare**
+
 - [x] `src/elements/cordolo_reticolare.py` (NUOVO)
 - [x] Dataclass `CordoloReticolare`: schema, profili, L, h, vincoli, collegamento_muro, tipo_estremi
 - [x] `verifica_cordolo_reticolare()` → `RisultatoCordoloReticolare` completo
@@ -342,12 +370,14 @@ di maggiore rigidezza.
 - [x] Enum `SchemaReticolare` (HOWE, PRATT)
 
 **D.3.4 — Verifiche aste del traliccio**
+
 - [x] Verifica compressione + instabilita' biassiale (lambda_in_piano, lambda_fuori_piano)
 - [x] Verifica trazione
 - [x] Verifica collegamento traliccio-muro F3 (tau nodi vs tau_adm)
 - [x] Normativa: TA storica (verifiche_ta.py)
 
 **D.3.5 — Integrazione con cinematica.py**
+
 - [x] `ritegno_sommitale: float = 0.0` aggiunto a tutti i meccanismi fuori piano
 - [x] `M_rib_coeff` aggiunto a `RisultatoCinematica` per calcolo D1
 - [x] `ribaltamento_semplice`, `ribaltamento_composto`, `flessione_orizzontale`,
@@ -355,21 +385,25 @@ di maggiore rigidezza.
 - [x] Retrocompatibilita': 49 test originali invariati
 
 **D.3.6 — Nodo d'angolo (cantonali)**
+
 - [x] `InputNodoAngolo` + `verifica_nodo_angolo()` in `cordolo_reticolare.py`
 - [x] Equilibrio locale: F_risultante = vettoriale F1 + F2
 - [x] Verifica saldatura nodo tramite `verifica_saldatura_ta()`
 
 **D.3.7 — Report e tabulato**
+
 - [x] `sezione_cordolo_reticolare()` in `src/report/tabulati_calcolo.py`
 - [x] Tabella aste ASCII (ID / tipo / L / N / sigma / sfruttamento / esito)
 - [x] Collegamento muro F3, esito finale
 
 **D.3.8 — Test**
+
 - [x] 97 nuovi test (test_sezione_asta: 38, test_traliccio_generatore: 27, test_cordolo_reticolare: 32)
 - [x] Retrocompatibilita': traliccio_2d (19 test) + cinematica_muratura (49 test) tutti verdi
 - [x] Suite completa: 2237 passed (esclusi test_carote e test_por_verifiche pre-esistenti)
 
 **D.3.9 — Tool disegno grafico avanzato (FASE FUTURA)**
+
 - [ ] Disegno intuitivo nodi e aste per configurazione custom
 - [ ] Da implementare dopo D.3.1-D.3.8
 
@@ -402,7 +436,9 @@ di maggiore rigidezza.
 - Il flusso iterativo cinematica ↔ traliccio (Q26c) e' un TODO futuro, non bloccante
 
 ### D.4 Solutore traliccio 2D ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Metodo della rigidezza diretta (Gauss con pivoting parziale)
 - [x] Input nodi + aste + vincoli (cerniera, carrello_x, carrello_y) + carichi
 - [x] Sforzi normali nelle aste (trazione/compressione)
@@ -413,7 +449,9 @@ di maggiore rigidezza.
 **Test**: `tests/test_traliccio_2d.py` (19 test)
 
 ### D.5 Connessioni ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Saldature a cordone d'angolo (frontale, laterale, combinata)
 - [x] Saldature testa a testa (completa penetrazione)
 - [x] Bullonature: taglio (gambo/filetto)
@@ -426,7 +464,9 @@ di maggiore rigidezza.
 **Test**: `tests/test_connessioni_acciaio.py` (24 test)
 
 ### D.6 Modello cordolo (CA + metallico) ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Cordolo CA: sezione, armatura, minimi NTC2018 §7.8.1.6
 - [x] Cordolo metallico: profilo singolo, flessione/taglio TA
 - [x] Verifica flessione e taglio per entrambi i tipi
@@ -435,6 +475,7 @@ di maggiore rigidezza.
 **File**: `src/elements/cordolo.py` (~350 righe)
 
 ### D.7 GUI Qt cordoli
+
 - [ ] Interfaccia selezione profilo
 - [ ] Visualizzazione sezione
 - [ ] Input sollecitazioni
@@ -447,21 +488,27 @@ di maggiore rigidezza.
 **Stato**: PARZIALMENTE COMPLETATO
 
 ### E.1 Compressione + snellezza ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] σ ≤ f_d / γ_M con riduzione snellezza Φ
 - [x] Tabella Φ da NTC2018 Tab 4.5.V (interpolazione bilineare λ×e/t)
 - [x] Eccentricità e/t da momento flettente
 - [x] Fattore vincolo ρ per altezza efficace
 
 ### E.2 Taglio nel piano ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Criterio diagonale (Turnšek-Čačovič) — NTC2018 §7.8.2.2.1
 - [x] Criterio di scorrimento (Mohr-Coulomb: fvk = fvk0 + μ·σ_n)
 - [x] Pressoflessione nel piano — V_pf = (L²×t×σ₀)/(2h₀)×(1-σ₀/(0.85fd))
 - [x] Verifica combinata con ordinamento per V_Rd (criterio più restrittivo)
 
 ### E.3 Fuori piano + ribaltamento (meccanismi locali) ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Ribaltamento semplice (parete ruota alla base)
 - [x] Ribaltamento composto (parete + cuneo sovrastante)
 - [x] Flessione verticale (cerniera a metà altezza, meccanismo a 2 corpi)
@@ -476,7 +523,9 @@ di maggiore rigidezza.
 **Test**: `tests/test_cinematica_muratura.py` (49 test)
 
 ### E.4 Spanciamento ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Verifica snellezza muro λ = h_eff/t ≤ λ_max
 - [x] Limiti configurabili (20 ordinario, 15 esistente, 12 sismico)
 
@@ -484,7 +533,9 @@ di maggiore rigidezza.
 **Test**: `tests/test_muratura_verifiche.py` (34 test)
 
 ### E.5 Catene e paletti ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Tipi piastre (circolare, quadrata, a paletto)
 - [x] Verifica trazione catena (σ = F/A ≤ σ_s_adm)
 - [x] Verifica punzonamento locale piastra (σ_p ≤ fd_mur)
@@ -531,67 +582,55 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 
 #### Sub-plan dettagliato
 
-**E.6.1 — Modulo cantonale.py (meccanismo ribaltamento)**
+**E.6.1 — Ribaltamento cantonale (cuneo 3D)**
 
-- [ ] `src/methods/muratura/cantonale.py` (NUOVO, modulo separato)
-- [ ] Dataclass `InputCantonale`: 2 pareti (h, t, L_distacco), carichi, catene, ritegni
-- [ ] Dataclass `SpintaPuntone`: pendenza, luce, carico_mq OPPURE forza_diretta
-  - Formula A: F_h = q * L / (2 * tan(alpha)) — da carico distribuito
-  - Formula B: F_h = V / tan(alpha) — da forza verticale
-- [ ] Enum `TipoCopertura` (PADIGLIONE, CAPANNA, GENERICA)
-- [ ] `calcola_spinta_puntone(tipo, ...)` → F_h [kg]
-- [ ] `ribaltamento_cantonale(input)` → `RisultatoMeccanismo`
-  - Geometria cuneo 3D proiettata su piano a 45°
-  - Peso cuneo = 0.5 * h * L1_dist * t1 * gamma + 0.5 * h * L2_dist * t2 * gamma
-  - Bracci stabilizzanti e ribaltanti come da schede ReLUIS
-  - Angolo asse rotazione: configurabile (default 45°), auto = arctan(t2/t1)
-  - Contributo catene/tiranti come in cinematica.py (ForzaCatena)
-  - Contributo ritegno cordolo D.3 (opzionale)
-- [ ] `RisultatoCantonale(RisultatoMeccanismo)`: alpha_0, passaggi, tipo="3D"
-- [ ] Aggiungere `RIBALTAMENTO_CANTONALE` a `TipoMeccanismo` in cinematica.py
-- [ ] Integrare in `analisi_tutti_meccanismi()` con flag 3D
+**Stato**: COMPLETATO — commit corrente (Modulo standalone, test passed).
+> **Note operative**: Modularità estrema. Riferimento scelte architetturali in `docs/memory/subplan_E6_cantonali_decisions.md`.
+
+- [x] Analisi fonti normative e letteratura (Circ. n.7/2019 §C8A.4, Schede ReLUIS, Casapulla & Maione 2020, esempi online)
+- [x] Definizione dataclass e input 3D (tutti i parametri configurabili, principali evidenziati) in modulo separato `src/methods/muratura/cantonale.py`
+- [x] Inserimento warning automatici su dati geometrici incoerenti o non plausibili
+- [x] Funzioni di calcolo carichi agenti (peso proprio cuneo, solaio, puntone, catena, cordolo, e altri carichi verticali/orizzontali)
+- [x] Calcolo cinematica ribaltamento 3D (α₀, forze, bracci, momento ribaltante, momento stabilizzante/resistente, con output dettagliato proiettato es. su piano 45°)
+- [x] Gestione tipologie copertura associata: Modello, Enum per copertura (padiglione, capanna, generica) e relativa spinta
+- [x] Gestione contributo cordolo D.3 (ritegno opzionale, abilitabile/disabilitabile, con valore fisso o calcolato dal Modello)
+- [x] Output e serializzazione risultati `RisultatoCantonale` o estensione `RisultatoMeccanismo` (passaggi calcolo, warning in array dedicato, riferimenti normativi presi dalle dataclass)
+- [x] Test standalone (solo test validati: casi presi dalla letteratura, test normativi o esempi online chiari) -> `tests/test_cantonale_muratura.py`
+- [x] Documentazione decisioni architetturali in repository memory (`docs/memory/subplan_E6_cantonali_decisions.md`)
+- [ ] Integrazione futura e opzionale in `analisi_tutti_meccanismi()` (Pianificata per completamento Fase R / Inserimento Globale)
+
+**Dipendenze Esplicite**:
+
+- Dipende da: Fonti normative, `D.3` (cordolo). Nessuna modifica a elementi già creati.
+- Abilita: `E.6.2` (riduzione resistenza angolo), `Q` (report tabulati), interfaccia grafica dedicata futura. (Abilitato già da: D.3, E.3).
 
 **E.6.2 — Riduzione resistenza maschi d'angolo per aperture**
 
-- [ ] `src/methods/muratura/cantonale.py` — funzioni aggiuntive nello stesso modulo
-- [ ] `diagnostica_apertura_angolo(parete, aperture)` → warning/check
-  - Calcola distanza apertura piu' vicina dall'angolo della parete
-  - Soglie: normativa NTC2018 (se presente), regola pratica d_min = max(t, 100 cm),
-    configurabile dall'utente
+**Stato**: COMPLETATO
+**Priorità**: ALTA (Completamento modulo cantonali)
+
+- [x] `src/methods/muratura/cantonale.py` — funzioni aggiuntive nello stesso modulo (mantenere modularità autonoma)
+- [x] `diagnostica_apertura_angolo(parete, aperture)` → warning/check
+  - Calcola distanza apertura più vicina dall'angolo della parete
+  - Soglie: normativa NTC2018 (se presente), regola pratica d_min = max(t, 100 cm), configurabile dall'utente
   - Esito: OK / WARNING / FAIL con messaggio e distanza misurata
-- [ ] `coefficiente_riduzione_angolo(distanza, t, criterio)` → float [0..1]
-  - Riduzione lineare: k = min(distanza / d_min, 1.0)
-  - Criterio selezionabile: taglio V_Rd, ammorsamento alpha_0, entrambi
-- [ ] `flag_maschio_cantonale(maschio, parete)` → bool
-  - Automatico: maschio il cui bordo sinistro == x_ini parete (inizio) o destro == x_fin (fine)
-  - Override manuale tramite campo opzionale `is_cantonale` su Maschio
-- [ ] Integrazione in `discretizza_parete()`:
-  - Maschi d'angolo ricevono automaticamente `is_cantonale = True`
-  - Se apertura ravvicinata: `fattore_riduzione_angolo` calcolato e assegnato
+- [x] `coefficiente_riduzione_angolo(distanza, t, d_min)` → float [0..1]
+  - Riduzione lineare asintotica: limite a k_min (0.2)
+  - Criterio selezionabile: utilità per taglio V_Rd, ammorsamento alpha_0, entrambi
+- [x] Dataclass separata per la Diagnostica Angolo (riduzione coupling con oggetti non ancora consolidati)
+- [x] Integrazione futura/astratta con Modello Globale: predisporre interfacce (flag_maschio_cantonale) isolate in cantonale.py
+- [x] Test standalone su soglie metriche (test_cantonale_riduzione) -> `tests/test_cantonale_muratura.py`
+
 
 **E.6.3 — Spinta puntoni copertura**
-
-- [ ] Calcolo automatico per tetto a padiglione (puntone diagonale + correnti)
-- [ ] Calcolo automatico per tetto a capanna (spinta su timpano)
-- [ ] Input generico: forza F, direzione, punto di applicazione
-- [ ] Integrazione come carico esterno nel meccanismo cantonale
+**Stato**: COMPLETATO e integrato in E.6.1 (`InputSpinta` e enum `TipoCopertura`)
 
 **E.6.4 — Integrazione con cordolo reticolare D.3**
-
-- [ ] Il cordolo D.3 modellato come ritegno sommitale generico (forza H o rigidezza K)
-  - Default: stessa logica di D.3.5 (ritegno_sommitale in cinematica)
-- [ ] Evoluzione: il nodo d'angolo D.3.6 fornisce la forza H specifica al cantonale
-  - Il traliccio ad anello distribuisce le forze ai nodi d'angolo
-  - H_angolo = reazione del nodo d'angolo del traliccio sotto i carichi cinematici
-- [ ] Entrambi gli approcci implementati, selezionabili dall'utente
-- [ ] Note: l'approccio (c) D.3.6 e' piu' preciso ma richiede D.3 completato
+**Stato**: COMPLETATO e integrato in E.6.1 (`ritegno_cordolo_kg`)
 
 **E.6.5 — Test**
+**Stato**: COMPLETATO (vedi 9 test in `tests/test_cantonale_muratura.py`)
 
-- [ ] Ribaltamento cantonale: cuneo simmetrico (2 pareti uguali, alpha_0 noto)
-- [ ] Ribaltamento cantonale: cuneo asimmetrico (spessori diversi)
-- [ ] Angolo asse rotazione: 45° vs auto-calcolato
-- [ ] Spinta puntone: padiglione, capanna, generica
 - [ ] Effetto catena/tirante sul cantonale
 - [ ] Effetto ritegno cordolo D.3
 - [ ] Diagnostica apertura-angolo: OK, WARNING, FAIL
@@ -634,9 +673,11 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 - NTC2018 §7.8.2 — resistenza maschi murari nel piano
 
 ### E.7 Muratura multipiano ✅
+
 **Stato**: COMPLETATO — commit corrente
 
 #### E.7.1 Carichi verticali per aree di influenza ✅
+
 - [x] `CaricoSolaio` — input per parete: G1, G2, Q, luce_sx, luce_dx
 - [x] `CaricoMaschio` — componenti scomposti (peso proprio, solaio G1/G2/Q, superiore)
 - [x] `_area_influenza_maschio()` — metà luce tra maschi adiacenti
@@ -647,6 +688,7 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Test**: `tests/test_carichi_verticali.py` (20 test)
 
 #### E.7.2 Combinazioni personalizzabili ✅
+
 - [x] `CombinazioneCarico` — γ_G1, γ_G2, γ_Q, ψ, attiva/disattiva
 - [x] `GestoreCombinazioni` — CRUD + attiva/disattiva + ripristino default
 - [x] 6 combinazioni default NTC2018 §2.5.3 (SLU sfav/fav, SLE rara/freq/qperm, sismica)
@@ -657,6 +699,7 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Test**: `tests/test_combinazioni_muratura.py` (31 test)
 
 #### E.7.3 Verifiche compressione multipiano ✅
+
 - [x] `Eccentricita` — 4 fonti: geometrica, carico solaio, accidentale, vento/sisma
 - [x] `calcola_eccentricita()` — e_a = max(h_eff/200, 2 cm)
 - [x] `verifica_multipiano()` — Φ(λ, e/t) × fd × A per ogni maschio
@@ -674,7 +717,9 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Stato**: COMPLETATO — commit corrente
 
 ### F.1 Modello edificio + Tabella C8.5.I ✅
+
 **Stato**: COMPLETATO
+
 - [x] `Edificio`, `Piano`, `Parete`, `Apertura` — modello gerarchico
 - [x] `MaterialeMuratura` con fd, tau_0d, fvk0d proprietà derivate (γ_M × FC)
 - [x] `ParametriSismiciEdificio` con spettro elastico/progetto NTC2018 §3.2.3.2.1
@@ -687,7 +732,9 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Test**: `tests/test_modello_edificio.py` (47 test)
 
 ### F.2 Discretizzazione ✅
+
 **Stato**: COMPLETATO
+
 - [x] `Maschio` dataclass con geometria, materiale, N, vincolo, drift
 - [x] `Fascia` dataclass con ha_cordolo, e_biella
 - [x] `discretizza_parete()` — genera maschi/fasce da parete + aperture
@@ -699,7 +746,9 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Test**: `tests/test_discretizzazione.py` (26 test)
 
 ### F.3 Rigidezza + distribuzione forze ✅
+
 **Stato**: COMPLETATO
+
 - [x] `rigidezza_maschio()` — Timoshenko (flessione + taglio), doppio incastro / mensola
 - [x] `rigidezza_fascia()` — analoga, ridotta per biella
 - [x] `CentroRigidezzaPiano` — x_CR, y_CR, K_x, K_y, K_θ, eccentricità
@@ -711,7 +760,9 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Test**: `tests/test_rigidezza.py` (25 test)
 
 ### F.4 Resistenza maschi/fasce ✅
+
 **Stato**: COMPLETATO
+
 - [x] `ResistenzaMaschio` — V_Rd, curva bilineare (k, δ_y, δ_u), `forza_per_spostamento()`, `stato_per_spostamento()`
 - [x] `calcola_resistenza_maschio()` — integra 3 criteri E.2 (diagonale, scorrimento, pressoflessione)
 - [x] `ResistenzaFascia` — con/senza cordolo
@@ -722,7 +773,9 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Test**: `tests/test_resistenza_maschio.py` (21 test)
 
 ### F.5 Analisi pushover ✅
+
 **Stato**: COMPLETATO
+
 - [x] `forze_in_altezza()` — NTC2018 §7.3.4.1 (modo 1 + uniforme)
 - [x] `pushover_piano()` — POR singolo piano incrementale
 - [x] `pushover_multipiano()` — spostamenti proporzionali, criterio collasso
@@ -734,7 +787,9 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Test**: `tests/test_por_analisi.py` (18 test)
 
 ### F.6 Fattore di comportamento q ✅
+
 **Stato**: COMPLETATO
+
 - [x] `ALPHA_U_ALPHA_1_TAB` — tabella NTC2018 Tab. 7.3.II
 - [x] `calcola_fattore_comportamento()` — q = q₀ × K_R
 - [x] Limiti per edifici esistenti (α_u/α_1 ≤ 1.50, Circ. §C8.5.5.1)
@@ -745,7 +800,9 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Test**: `tests/test_fattore_comportamento.py` (22 test)
 
 ### F.7 Verifiche e report ✅
+
 **Stato**: COMPLETATO
+
 - [x] `RigaMaschio`, `TabellaVerificheMaschi` — tabella stile 3Muri/Aedes
 - [x] `formato_testo()` — output ASCII per tabulati
 - [x] `genera_tabella_maschi()` — D/C per ogni maschio
@@ -762,6 +819,7 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Stato**: COMPLETATO
 
 ### G.1 SLU forza inerziale F_a ✅
+
 **Stato**: COMPLETATO (formula e contratto) — PARZIALMENTE per test tipi specifici
 
 **Riferimento normativo**: NTC2018 §7.2.3
@@ -813,6 +871,7 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
   z, H, T_a, T_1 → S_a calcolata internamente via spectrum.py. Backward compat.
 
 ### G.2 SLE compatibilità spostamento ✅
+
 **Stato**: COMPLETATO (formula e contratto) — PARZIALMENTE per test tipi specifici
 
 **Riferimento normativo**: NTC2018 §7.2.3 (drift)
@@ -847,15 +906,18 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
   separatamente — valutare se tenerli o rimuoverli
 
 ### G.3 Storage adapter CRUD ✅
+
 **Completato** — commit 45e4648
 
 ### G.4 Verifiche elementi secondari per normative storiche ✅
+
 **Stato**: COMPLETATO — commit corrente
+
 - [x] Elementi secondari RD2229 — `src/codes/rd2229/secondary_elements/checks.py`
   - Verifica stabilità TA (omega * N / A) per elementi snelli sotto gravità
   - SLE: NOT_APPLICABLE (norma pre-sismica)
 - [x] Elementi secondari DM92/DM96 — `src/codes/dm96/secondary_elements/checks.py`
-  - SLU: F_h = C * beta * W (coefficiente sismico semplificato per zona e piano)
+  - SLU: F_h = C *beta* W (coefficiente sismico semplificato per zona e piano)
   - SLE: drift h/300
   - Modello `SecondaryElementSpecDM96` con zona_sismica, piano, beta
 - [x] Dispatcher multi-norma — `verifications/secondary_elements/dispatcher.py`
@@ -881,6 +943,7 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 ## FASI SUCCESSIVE (PRIORITÀ DECRESCENTE)
 
 ### FASE H — Riorganizzazione methods/
+
 - [ ] Package per norma (rd2229/, ntc2018/, dm96/, ec2/)
 - [ ] Migrazione checks esistenti nei rispettivi package
 
@@ -942,15 +1005,18 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 per 6 norme (RD2229, DM92, DM96, NTC2008, NTC2018, EC2).
 
 #### J.1 — Refactoring BarraArmatura
+
 - [x] Aggiunto `x: float = 0.0` in `src/codes/section_params/omogenizzata.py`
 - [x] Retrocompat verificata (91 test invariati)
 
 #### J.2 — Tipi e sezione omogenizzata biassiale
+
 - [x] `src/codes/pressoflessione/base.py` — PressoflessSpec, PressoflessResult, DominioNMy
 - [x] `calcola_omogenizzata_biassiale()` — A_om, I_x_om, I_y_om, I_xy_om, Wx, Wy
 - [x] `crea_armatura_rettangolare()` — helper layout barre con coordinate (x, y)
 
 #### J.3 — Verifica TA calcestruzzo
+
 - [x] `src/codes/pressoflessione/ta_cls.py`
 - [x] Sovrapposizione elastica: sigma = N/A + Mx*y/Ix + My*x/Iy
 - [x] Bresler TA: (|Mx|/M_Rdx)^alpha + (|My|/M_Rdy)^alpha <= 1
@@ -958,11 +1024,13 @@ per 6 norme (RD2229, DM92, DM96, NTC2008, NTC2018, EC2).
 - [x] Norme: RD2229 Art.29, DM92 §7, DM96 §3.4
 
 #### J.4 — Verifica SLU (NTC2018/NTC2008/EC2)
+
 - [x] `src/codes/pressoflessione/slu.py` — wrapper checks_ntc2018
 - [x] Conversione unita' cm/kg -> mm/kN
 - [x] Norme: NTC2018 §4.1.2.1.3.1, NTC2008, EC2 §5.8.9
 
 #### J.5 — Dominio 3D N-Mx-My
+
 - [x] `src/codes/pressoflessione/dominio.py`
 - [x] `calcola_dominio_3d()` — generazione griglia (N, theta) -> (Mx_Rd, My_Rd)
 - [x] `disegna_dominio_3d()` — surface plot mplot3d
@@ -970,17 +1038,20 @@ per 6 norme (RD2229, DM92, DM96, NTC2008, NTC2018, EC2).
 - [x] `disegna_dominio_2d_nm()` — curva N-M a theta costante
 
 #### J.6 — Instabilita' biassiale
+
 - [x] `src/codes/pressoflessione/instabilita_biassiale.py`
 - [x] `amplifica_momenti_biassiale()` — omega_x, omega_y, Mx_amp, My_amp
 - [x] Riusa `omega_ca()` da `src/methods/rd2229/instabilita.py`
 
 #### J.7 — Dispatcher multinorma
+
 - [x] `src/codes/pressoflessione/dispatcher.py`
 - [x] `calcola_pressoflessione_deviata(spec)` — entry-point unico
 - [x] Routing: TA per RD2229/DM92/DM96, SLU per NTC2018/NTC2008/EC2
 - [x] Amplificazione instabilita' opzionale integrata
 
 #### J.8 — Widget Qt
+
 - [x] `src/gui/widgets/dominio_canvas.py` — DominioNMyCanvas
 - [x] 3 viste: 3D surface, 2D Mx-My, 2D N-M
 - [x] Slider interattivi per N e theta
@@ -989,15 +1060,18 @@ per 6 norme (RD2229, DM92, DM96, NTC2008, NTC2018, EC2).
 **Test**: `tests/test_pressoflessione_deviata.py` (70 test)
 
 ### FASE K — Grafici
+
 - [ ] Sollecitazioni, inviluppi
 - [ ] Diagrammi di interazione
 - [ ] Spostamenti
 
 ### FASE L — Cross-Pozzati (telai piani)
+
 - [ ] Carichi fissi
 - [ ] Predisposizione carichi mobili
 
 ### FASE M — FEM beam 2D
+
 - [ ] scipy sparse
 - [ ] Assemblaggio matrice globale
 
@@ -1061,7 +1135,7 @@ E.3 (cinematica parametri sismici), FASE U (sismica dettagliata).
 - [x] `calcola_CC(cat_suolo, tc_star)` -> coefficiente CC (formula power-law)
 - [x] `calcola_SS(ag_g, F0, cat_suolo)` -> SS Tab. 3.2.V (1 iterazione)
 - [x] `calcola_ST(cat_topografica)` -> ST Tab. 3.2.VI
-- [x] `calcola_alpha_S(ag_g, SS, ST)` -> alpha_S = (ag/g) * SS * ST
+- [x] `calcola_alpha_S(ag_g, SS, ST)` -> alpha_S = (ag/g) *SS* ST
 - [x] `calcola_periodi(TC_star, CC, ag_g)` -> (TB, TC, TD)
 - [x] `spettro_elastico(ag_g, F0, SS, ST, TB, TC, TD, xi, T)` -> Se(T) [m/s2]
 - [x] `spettro_progetto(...)` -> Sd(T) = Se(T)/q [m/s2]
@@ -1118,28 +1192,36 @@ Package per calcolo taglio alla base + distribuzione triangolare ai piani per 7 
 - [x] `tests/test_azioni_sismiche_multinorma.py` — 54 test (8 classi)
 
 ### FASE P — Fondazioni e geotecnica
+
 - [ ] Portanza, cedimenti, pali, muri, liquefazione
 
 ### FASE Q — Report relazione di calcolo professionale
+
 - [ ] Citazione automatica norma/articolo/paragrafo
 - [ ] Confronto tra norme
 
 ### FASE R — Edifici esistenti
+
 - [ ] LC/FC, vulnerabilità, miglioramento/adeguamento
 
 ### FASE S — Normative aggiuntive
+
 - [ ] DM92 verifiche complete, NTC2008 verifiche, EC2/3/8, CNR-DT 200
 
 ### FASE T — Fuoco avanzato
+
 - [ ] Isoterma 500°C, FEM termico
 
 ### FASE U — Sismica dettagliata
+
 - [ ] q, duttilità, gerarchia, nodi
 
 ### FASE V — Solai, Scale
+
 - [ ] Laterocemento, alveolari, rampe
 
 ### FASE W — OCR manuali tecnici
+
 - [ ] Pipeline OCR per Santarella/Giangreco
 
 ---
@@ -1225,17 +1307,28 @@ File di contesto dettagliato per continuita' tra sessioni, in `docs/memory/`:
 
 ## Principi Architetturali (VINCOLI DURI)
 
+> Stato: ATTIVO — commit: [da aggiornare]
+> Ultima revisione: 2026-03-07
+> Questi vincoli sono obbligatori, persistenti e tracciati secondo la governance descritta in .prompt.md e MEMORY.md. Ogni modifica DEVE essere riportata qui e nei file di memory tematici.
+
 1. Modularità estrema — ogni modulo sostituibile senza refactoring globale
 2. Zero duplicazione — archivi centralizzati, unica fonte per ogni parametro
-3. SOLO Qt (PySide6/PyQt6) — legacy Tkinter deprecato
+3. SOLO Qt (PySide6/PyQt6) — legacy Tkinter deprecato, non usare mai Tkinter per codice nuovo
 4. Dropdown + input manuale — sempre entrambi per campi con archivio
 5. Log pervasivo — registro_log collegato a tutto
-6. Help contestuale — stralci normativi, §, formule
-7. Formule nei tabulati — passaggi, risultati, riferimenti normativi
+6. Help contestuale — stralci normativi, §, formule (src/ui/qt/aiuto_contestuale.py)
+7. Formule nei tabulati — passaggi intermedi, risultati, riferimenti normativi
 8. Visualizzazione sezioni — zone tese/compresse in scala
 9. NTC2018 + Circolare n.7/2019 — sempre insieme
-10. No allucinazioni — formula mancante → TODO + chiedi all'utente
-11. Rigore scientifico — formule da normativa/letteratura/VB
-12. UI in italiano — tutto il testo visibile in italiano
-13. Memoria AI nel repository — file di contesto in `docs/memory/`, mai in directory esterne al repo
-14. Aggiornamento memoria dopo ogni modulo — salvare contesto implementativo in `docs/memory/` dopo ogni fase completata
+10. No allucinazioni — formula mancante → TODO + chiedi all'utente, mai inventare
+11. Rigore scientifico — formule da normativa/letteratura/validazione bibliografica
+12. UI in italiano — tutto il testo visibile all'utente in italiano
+13. Lettere greche Unicode — σ, τ, γ, ecc. in docstring e documentazione
+14. Unità di misura fisse — cm geometria, kg/cm² tensioni (storiche), selezionabile via unita_misura.py
+15. Retrocompatibilità — mantenere funzionanti i cataloghi/materiali esistenti
+16. Memoria persistente — tutte le lesson learned, mapping dipendenze, rollback, devono essere riportati in PIANO_LAVORO.md e in docs/memory/
+
+> Ogni nuovo vincolo, modifica o lesson learned va aggiunto qui e dettagliato in docs/memory/ se necessario. Nessuna regola può essere lasciata solo in chat, issue o commenti.
+
+1. Memoria AI nel repository — file di contesto in `docs/memory/`, mai in directory esterne al repo
+2. Aggiornamento memoria dopo ogni modulo — salvare contesto implementativo in `docs/memory/` dopo ogni fase completata
