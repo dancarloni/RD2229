@@ -24,7 +24,10 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional  # noqa: F401 (Optional usato nel file)
+
+if TYPE_CHECKING:
+    from src.codes.ntc2018.spectrum import CategoriaSuolo, CategoriaTopografica
 
 
 G = 981.0  # accelerazione di gravità [cm/s²]
@@ -94,6 +97,41 @@ class ParametriSismici:
 
     # Per cinematica non lineare
     S_De_Ts: float = 0.0         # domanda di spostamento spettrale S_De(T_s) [cm]
+
+
+def parametri_sismici_da_sito(
+    ag_g: float,
+    F0: float,
+    TC_star: float,
+    cat_suolo: "CategoriaSuolo",
+    cat_topografica: "CategoriaTopografica",
+    T1: float = 0.0,
+    q: float = 2.0,
+    FC: float = 1.35,
+) -> "ParametriSismici":
+    """Crea ParametriSismici calcolando S = SS * ST da spectrum.py.
+
+    Evita che il chiamante debba calcolare SS e ST manualmente.
+    Il dataclass ParametriSismici NON viene modificato.
+
+    Args:
+        ag_g:            accelerazione al suolo a_g/g [adimensionale]
+        F0:              fattore di amplificazione spettrale
+        TC_star:         periodo caratteristico TC* da griglia INGV [s]
+        cat_suolo:       CategoriaSuolo (da src.codes.ntc2018.spectrum)
+        cat_topografica: CategoriaTopografica (da src.codes.ntc2018.spectrum)
+        T1:              periodo fondamentale edificio [s] (default 0.0)
+        q:               fattore di struttura [adim.] (default 2.0)
+        FC:              fattore di confidenza (default 1.35 = LC1)
+
+    Returns:
+        ParametriSismici con a_g=ag_g, S=SS*ST calcolato da sito.
+        I campi psi_Z, gamma_modal, S_De_Ts devono essere impostati manualmente.
+    """
+    from src.codes.ntc2018.spectrum import calcola_SS, calcola_ST
+    SS = calcola_SS(ag_g, F0, cat_suolo)
+    ST = calcola_ST(cat_topografica)
+    return ParametriSismici(a_g=ag_g, S=SS * ST, T1=T1, q=q, FC=FC)
 
 
 @dataclass

@@ -38,7 +38,33 @@ def check_slu(inputs: dict[str, Any]) -> dict[str, Any]:
     result = _base_contract()
 
     W_a = float(inputs.get("W_a", 0))
-    S_a = float(inputs.get("S_a", 0))
+
+    # S_a puo' essere fornita direttamente oppure calcolata dai parametri di sito.
+    # Se S_a e' assente ma sono presenti ag_g, F0, TC_star, cat_suolo, cat_topografica,
+    # z, H, T_a, T_1, il modulo calcola S_a internamente tramite spectrum.py.
+    _site_keys = ("ag_g", "F0", "TC_star", "cat_suolo", "cat_topografica", "z", "H", "T_a", "T_1")
+    if inputs.get("S_a") is None and all(k in inputs for k in _site_keys):
+        from ..spectrum import calcola_SS, calcola_ST, calcola_alpha_S
+        from .ta_models import spectral_acceleration_floor
+        ag_g = float(inputs["ag_g"])
+        F0_val = float(inputs["F0"])
+        SS = calcola_SS(ag_g, F0_val, inputs["cat_suolo"])
+        ST = calcola_ST(inputs["cat_topografica"])
+        alpha_S = calcola_alpha_S(ag_g, SS, ST)
+        S_a = spectral_acceleration_floor(
+            float(inputs["z"]),
+            float(inputs["H"]),
+            float(inputs["T_a"]),
+            float(inputs["T_1"]),
+            alpha_S,
+        )
+        result["decision_log"].append(
+            f"S_a calcolata da sito: SS={SS:.4f}, ST={ST:.2f}, "
+            f"alpha_S={alpha_S:.4f} -> S_a={S_a:.4f}"
+        )
+    else:
+        S_a = float(inputs.get("S_a", 0))
+
     gamma_a = float(inputs.get("gamma_a", 1.0))
     q_a = float(inputs.get("q_a", 2.0))
 

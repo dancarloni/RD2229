@@ -1,0 +1,9 @@
+# Griglia sismica INGV (NTC2018 Allegato B)
+#
+# Inserire qui il file griglia_ingv.csv (o griglia_ingv.json).
+# Il file NON e' incluso nel repository per dimensioni (~1.5 MB).
+#
+# Formato CSV atteso:
+#   lat,lon,ag_10,ag_50,ag_475,ag_975,ag_2475,f0_10,...,tc_star_475,...
+#
+# Fonte: INGV — https://esse1.mi.ingv.it/

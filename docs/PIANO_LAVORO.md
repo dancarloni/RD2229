@@ -13,7 +13,7 @@
 > **Riferimento**: `CLAUDE.md` alla radice del repo punta a questo file.
 
 **Ultimo aggiornamento**: 2026-03-06
-**Branch**: `claude/materials-database-structure-Fh726`
+**Branch**: `main`
 
 ---
 
@@ -21,10 +21,10 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~1838 |
+| Test totali | ~2233 |
 | Test falliti | 0 |
-| Moduli implementati | 45+ |
-| Norme coperte | 9 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274) |
+| Moduli implementati | 69+ |
+| Norme coperte | 10 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274, EC8) |
 
 ---
 
@@ -751,10 +751,89 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Stato**: COMPLETATO
 
 ### G.1 SLU forza inerziale F_a ✅
-**Completato** — `checks_ntc2018.py`
+**Stato**: COMPLETATO (formula e contratto) — PARZIALMENTE per test tipi specifici
+
+**Riferimento normativo**: NTC2018 §7.2.3
+
+> **Nota file**: Il modulo reale e' `src/codes/ntc2018/secondary_elements/checks.py`,
+> NON `checks_ntc2018.py` (che riguarda CA NTC2018 e non contiene elementi secondari).
+
+#### G.1 — Implementato
+
+- [x] `src/codes/ntc2018/secondary_elements/checks.py` — `check_slu(inputs)`:
+  F_a = S_a · W_a · γ_a / q_a; verifica F_a ≤ F_Rd (utilisation, esito OK/NON OK)
+- [x] Contratto output obbligatorio: `trace.run_id`, `norm_references`, `decision_log`
+- [x] Gestione assenza F_Rd: solo calcolo F_a senza verifica
+- [x] `src/codes/ntc2018/secondary_elements/models.py` — `SecondaryElementSpec`, `DriftSpec`,
+  `SecondaryElementInput` (alias), metodo `validate()`
+- [x] `src/codes/ntc2018/secondary_elements/__init__.py` — esporta checks, models, storage_adapter
+- [x] `config/calculation_codes/SECONDARY_ELEMENTS.jsoncode` — check `NS_SLU_InertialForce`
+- [x] Gating `influence_on_global_model=True` → NOT_APPLICABLE (in dispatcher)
+- [x] Test: `tests/test_secondary_elements_gating.py` (5 test — contratto, trace, gating,
+  validazione spec, config loader)
+
+#### G.1 — Dipendenze
+
+| Dipende da | Modulo | Stato |
+| --- | --- | --- |
+| Stima T_a + S_a floor | `src/codes/ntc2018/secondary_elements/ta_models.py` (G.5) | COMPLETATO |
+| Dispatcher multi-norma | `verifications/secondary_elements/dispatcher.py` (G.4) | COMPLETATO |
+| Config loader | `config/calculation_codes_loader.py` | COMPLETATO |
+
+#### G.1 — TODO aperti
+
+- [ ] `src/codes/ntc2018/secondary_elements/anchors_capacity.py` — attualmente stub
+  (echo del valore ETA dichiarato, nessun calcolo); implementare verifica ETA reale
+- [ ] `tests/codes/test_secondary_elements_cantilever.py` — placeholder `assert True`,
+  aggiungere test numerici per mensole (F_a, ancoraggio, instabilita')
+- [ ] `tests/codes/test_secondary_elements_chimney.py` — placeholder `assert True`,
+  aggiungere test per ciminiere/parapetti
+- [ ] `tests/codes/test_secondary_elements_partition.py` — placeholder `assert True`,
+  aggiungere test per pareti divisorie (SLE drift dominante)
+- [ ] `tests/codes/test_secondary_elements_signage.py` — placeholder `assert True`,
+  aggiungere test per segnaletica/elementi appesi
+- [x] **G.1.a** Modulo spettro NTC2018 `src/codes/ntc2018/spectrum.py` — COMPLETATO
+  Implementato: CategoriaSuolo, CategoriaTopografica, ClasseUso; calcola_SS(),
+  calcola_ST(), calcola_CC(), calcola_alpha_S(), spettro_elastico(),
+  spettro_progetto(), calcola_S_d_T1(), spettro_da_hazard_row().
+  Test: `tests/test_spettro_ntc2018.py` (47 test).
+- [x] **G.1.b** Integrazione check_slu: calcolo S_a interno da parametri sito
+  Se `S_a` assente e presenti ag_g, F0, TC_star, cat_suolo, cat_topografica,
+  z, H, T_a, T_1 → S_a calcolata internamente via spectrum.py. Backward compat.
 
 ### G.2 SLE compatibilità spostamento ✅
-**Completato** — `checks_ntc2018.py`
+**Stato**: COMPLETATO (formula e contratto) — PARZIALMENTE per test tipi specifici
+
+**Riferimento normativo**: NTC2018 §7.2.3 (drift)
+
+> **Nota file**: Come G.1, implementato in `src/codes/ntc2018/secondary_elements/checks.py`,
+> NON in `checks_ntc2018.py`.
+
+#### Implementato
+
+- [x] `src/codes/ntc2018/secondary_elements/checks.py` — `check_sle(inputs)`:
+  verifica drift ≤ limit (default 0.005 = h/200 per elementi fragili)
+- [x] Gestione source GLOBAL / ESTIMATED / USER; confidence=LOW automatico se ESTIMATED
+- [x] Contratto output obbligatorio: `trace.run_id`, `norm_references`, `decision_log`
+- [x] Gestione assenza drift.value: verifica non eseguita, esito OK per default
+- [x] `config/calculation_codes/SECONDARY_ELEMENTS.jsoncode` — check `NS_SLE_DriftCompatibility`,
+  policy `allow_estimated_drift: true`
+- [x] Test: `tests/test_secondary_elements_gating.py` — `test_estimated_drift_warning`
+  (confidence=LOW con source=ESTIMATED)
+
+#### Dipendenze
+
+| Dipende da | Modulo | Stato |
+|-----------|--------|-------|
+| Stima drift Metodo B | `src/codes/ntc2018/secondary_elements/drift_models.py` (G.5) | COMPLETATO |
+| Dispatcher multi-norma | `verifications/secondary_elements/dispatcher.py` (G.4) | COMPLETATO |
+
+#### TODO ancora da completare
+
+- [ ] Test numerici golden per SLE: drift ok (h/200), drift non ok, limite personalizzato
+  (attualmente solo gating coperto da `test_secondary_elements_gating.py`)
+- [ ] Alias `check_partition` / `check_parapet` presenti nel file ma non testati
+  separatamente — valutare se tenerli o rimuoverli
 
 ### G.3 Storage adapter CRUD ✅
 **Completato** — commit 45e4648
@@ -795,13 +874,108 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 - [ ] Migrazione checks esistenti nei rispettivi package
 
 ### FASE I — Sezioni parametri statici completi
-- [ ] Sezione omogenizzata (cls + n·A_s)
-- [ ] Parametri torsionali completi
-- [ ] Disegno sezione con armature
 
-### FASE J — Pressoflessione deviata
-- [ ] Dominio N-Mx-My
-- [ ] Bresler per sezioni rettangolari
+**Stato**: COMPLETATO — commit `3bed1a7`
+**Test**: 91 test (test_sezione_omogenizzata.py), tutti passati
+
+#### I.1 Rapporto di omogeneizzazione n per norma ✅
+
+- [x] `src/codes/section_params/norme_n.py` — n per RD2229 (8/10/12/15), DM92, DM96, NTC2008, NTC2018, EC2
+- [x] RD2229: opzioni selezionabili 8/10/12/15, default 15
+- [x] NTC2018/NTC2008 §4.1.2.1.4.2: default n=15 (long-term quasi-permanente)
+- [x] DM92/DM96: calcolo automatico E_s/E_c o default 10
+- [x] EC2 §7.4.3: n = E_s/E_c_eff = E_s/(E_c/(1+phi))
+- [x] Precedenza utente (n_user) su tutti
+
+#### I.2 Sezione omogeneizzata integra + fessurata ✅
+
+- [x] `src/codes/section_params/omogenizzata.py`
+- [x] `BarraArmatura(y, A, zona)` — livello armatura
+- [x] `calcola_sezione_omogenizzata()` — A_om, y_G_om, I_om, W_sup, W_inf
+- [x] `calcola_asse_neutro_fessurato()` — analitico (rettangolare, N=0) + iterativo bisect (tutti i tipi)
+- [x] `calcola_tensioni_sle()` — sigma_c, sigma_s per ogni livello armatura
+- [x] `calcola_parametri_sezione_completi()` — pipeline unificata
+- [x] Tutti i tipi di sezione (duck-typed tramite section_fiber.py)
+
+#### I.3 Parametri torsionali ✅ (pre-esistenti)
+
+- [x] J_t, C_w, x_s, y_s implementati in `apps/sections/models/sections.py`
+- [x] Test: `tests/test_section_torsion.py` (27 test esistenti)
+
+#### I.4 Sezione composta acciaio-cls ✅
+
+- [x] `src/codes/section_params/composita.py`
+- [x] `IPE_TABLE` — 18 profili IPE standard (IPE80÷IPE600)
+- [x] `calcola_sezione_composta()` — A_comp, y_G_comp, I_comp, W_a, W_c
+- [x] `calcola_tensioni_sle_composita()` — sigma_a_inf, sigma_a_sup, sigma_c_sup
+
+#### I.5 Disegno sezione c.a. ✅
+
+- [x] `src/codes/section_params/disegno_sezione.py` — matplotlib (headless OK)
+- [x] `disegna_sezione()` — profilo + barre + asse neutro + zona compressa + diagramma tensioni
+- [x] `crea_figura_sezione_sle()` — pipeline da output calcola_parametri_sezione_completi
+- [x] `salva_figura()` — export PNG/PDF/SVG
+- [x] `src/gui/widgets/sezione_canvas.py` — widget Qt (PySide6/PyQt6) con FigureCanvasQTAgg
+
+**File**: `src/codes/section_params/` (5 file), `src/gui/widgets/sezione_canvas.py`
+**Test**: `tests/test_sezione_omogenizzata.py` (91 test)
+
+### FASE J — Pressoflessione deviata multinorma
+
+**Stato**: COMPLETATO — commit `73482f0`
+**Priorita'**: MEDIA
+**Test**: 70 test in `tests/test_pressoflessione_deviata.py`, 0 falliti
+**Retrocompat**: 91 test `test_sezione_omogenizzata.py` invariati
+
+**Obiettivo**: Package `src/codes/pressoflessione/` — verifica e dominio 3D N-Mx-My
+per 6 norme (RD2229, DM92, DM96, NTC2008, NTC2018, EC2).
+
+#### J.1 — Refactoring BarraArmatura
+- [x] Aggiunto `x: float = 0.0` in `src/codes/section_params/omogenizzata.py`
+- [x] Retrocompat verificata (91 test invariati)
+
+#### J.2 — Tipi e sezione omogenizzata biassiale
+- [x] `src/codes/pressoflessione/base.py` — PressoflessSpec, PressoflessResult, DominioNMy
+- [x] `calcola_omogenizzata_biassiale()` — A_om, I_x_om, I_y_om, I_xy_om, Wx, Wy
+- [x] `crea_armatura_rettangolare()` — helper layout barre con coordinate (x, y)
+
+#### J.3 — Verifica TA calcestruzzo
+- [x] `src/codes/pressoflessione/ta_cls.py`
+- [x] Sovrapposizione elastica: sigma = N/A + Mx*y/Ix + My*x/Iy
+- [x] Bresler TA: (|Mx|/M_Rdx)^alpha + (|My|/M_Rdy)^alpha <= 1
+- [x] alpha selezionabile (1.0 conservativo, 4/3 Giangreco)
+- [x] Norme: RD2229 Art.29, DM92 §7, DM96 §3.4
+
+#### J.4 — Verifica SLU (NTC2018/NTC2008/EC2)
+- [x] `src/codes/pressoflessione/slu.py` — wrapper checks_ntc2018
+- [x] Conversione unita' cm/kg -> mm/kN
+- [x] Norme: NTC2018 §4.1.2.1.3.1, NTC2008, EC2 §5.8.9
+
+#### J.5 — Dominio 3D N-Mx-My
+- [x] `src/codes/pressoflessione/dominio.py`
+- [x] `calcola_dominio_3d()` — generazione griglia (N, theta) -> (Mx_Rd, My_Rd)
+- [x] `disegna_dominio_3d()` — surface plot mplot3d
+- [x] `disegna_dominio_2d_mxmy()` — curva Mx-My a N costante
+- [x] `disegna_dominio_2d_nm()` — curva N-M a theta costante
+
+#### J.6 — Instabilita' biassiale
+- [x] `src/codes/pressoflessione/instabilita_biassiale.py`
+- [x] `amplifica_momenti_biassiale()` — omega_x, omega_y, Mx_amp, My_amp
+- [x] Riusa `omega_ca()` da `src/methods/rd2229/instabilita.py`
+
+#### J.7 — Dispatcher multinorma
+- [x] `src/codes/pressoflessione/dispatcher.py`
+- [x] `calcola_pressoflessione_deviata(spec)` — entry-point unico
+- [x] Routing: TA per RD2229/DM92/DM96, SLU per NTC2018/NTC2008/EC2
+- [x] Amplificazione instabilita' opzionale integrata
+
+#### J.8 — Widget Qt
+- [x] `src/gui/widgets/dominio_canvas.py` — DominioNMyCanvas
+- [x] 3 viste: 3D surface, 2D Mx-My, 2D N-M
+- [x] Slider interattivi per N e theta
+
+**File**: `src/codes/pressoflessione/` (7 file), `src/gui/widgets/dominio_canvas.py`
+**Test**: `tests/test_pressoflessione_deviata.py` (70 test)
 
 ### FASE K — Grafici
 - [ ] Sollecitazioni, inviluppi
@@ -816,13 +990,121 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 - [ ] scipy sparse
 - [ ] Assemblaggio matrice globale
 
-### FASE N — Carote cls in sito
-- [ ] 9 formulazioni note
-- [ ] Export Excel
+### FASE N — Carote cls in sito ✅
 
-### FASE O — Griglia sismica INGV
-- [ ] Import dati INGV
-- [ ] Import Edilus
+**Stato**: COMPLETATO — commit `8f52479`
+**Test**: 70 in `tests/test_carote.py`, 0 falliti
+**Retrocompat**: 2233 test suite completa, 0 falliti
+
+**Architettura**: `src/codes/carote/` (9 moduli) + `src/gui/widgets/carote_canvas.py`
+
+- [x] **N.1** `core_sample.py`: CoreSample, CorrectionFactors, ConversionResult (dataclass)
+- [x] **N.2** `formulas.py`: 10 formulazioni (BS1881, ACI214, TR11, RILEM, Masi, Fiore, NTC2018, EN13791, Giacchetti, custom) + custom engine 3 livelli
+- [x] **N.3** `statistics.py`: NTC2018, EN 13791 A/B, Grubbs, Chauvenet, classificazione cls
+- [x] **N.4** `derived_params.py`: f_cm, E_cm, f_ctm, Rck, sigma_c_adm storica
+- [x] **N.5** `analysis.py` + `__init__.py`: pipeline list[CoreSample] -> CoreAnalysisResult
+- [x] **N.6** `integration.py`: LC/FC bridge + registra_materiale_in_situ()
+- [x] **N.7** `report.py`: HTML report + JSON/CSV export
+- [x] **N.8** `plots.py`: 4 grafici matplotlib headless (istogramma, scatter, boxplot, barre)
+- [x] **N.9** `tests/test_carote.py` (70 test) + pytest green
+- [x] **N.10** `carote_canvas.py`: widget Qt (4 viste, combo formulazione)
+- [x] **N.11** Aggiornamento docs (PIANO_LAVORO, PIANO_SVILUPPO_CORRENTE, memory)
+
+### FASE O — Griglia sismica INGV + Spettro NTC2018
+
+**Stato**: PARZIALMENTE COMPLETATO — commit `d6e589a` (O.2 completo; O.1 CSV richiede griglia utente)
+**Priorita'**: ALTA (prerequisito per G.1.a, G.5, POR, elementi secondari, FASE U)
+
+**Obiettivo**: Due sotto-fasi strettamente collegate:
+(O.1) Import pericolosita' sismica dal webservice INGV (o da tabella locale);
+(O.2) Calcolo spettro di risposta NTC2018 dal sito fino a S_a e S_d pronti per le verifiche.
+
+**Nota**: Il modulo O.2 e' un gap critico identificato (2026-03-06) nell'analisi G.1:
+tutti i moduli che usano l'accelerazione sismica (check_slu, spectral_acceleration_floor,
+drift Metodo B, POR, cinematica) ricevono S_a/alpha_S/S_d come parametri esterni.
+Il software dipende attualmente da EdiLus-MS (spectrum_paste_service.py) per ag, F0, TC*
+ma non calcola SS, ST, alpha_S, Se(T), Sd(T) in modo autonomo.
+
+#### O.1 — Import dati pericolosita' sismica INGV
+
+- [x] Import dati INGV da webservice (lat, lon -> ag, F0, TC* per TR) —
+  `src/codes/ntc2018/ingv_hazard.py`: get_hazard_params_ingv(), webservice ESSE1
+- [x] Tabella locale griglia INGV (fallback offline, CSV) —
+  get_hazard_params_csv() con interpolazione bilineare; CSV da fornire dall'utente
+  (placeholder `data/seismic/.gitkeep`)
+- [x] Funzione unificata con routing webservice/CSV —
+  get_hazard_params_site(lat, lon, TR, prefer, csv_path)
+- [ ] File CSV griglia INGV NTC2018 Allegato B (~1.5MB) — da fornire dall'utente
+- [x] Import parametri da EdiLus-MS (gia' in spectrum_paste_service.py — invariato)
+- [x] Validazione e normalizzazione formato output uniforme (Ntc2018HazardRow)
+
+#### O.2 — Modulo spettro NTC2018 (`src/codes/ntc2018/spectrum.py`) ✅
+
+Prerequisito per: G.1.a (check_slu), G.5 (S_d Metodo B), F.1 (POR spettro),
+E.3 (cinematica parametri sismici), FASE U (sismica dettagliata).
+
+- [x] Enum `CategoriaSuolo` (A, B, C, D, E) con SS da Tab. 3.2.V
+- [x] Enum `CategoriaTopografica` (T1, T2, T3, T4) con ST da Tab. 3.2.VI
+- [x] Enum `ClasseUso` (I, II, III, IV) con Cu da Tab. 2.4.II
+- [x] `calcola_VR(vita_nominale, classe_uso)` -> VR = VN * Cu (min 35a)
+- [x] `calcola_CC(cat_suolo, tc_star)` -> coefficiente CC (formula power-law)
+- [x] `calcola_SS(ag_g, F0, cat_suolo)` -> SS Tab. 3.2.V (1 iterazione)
+- [x] `calcola_ST(cat_topografica)` -> ST Tab. 3.2.VI
+- [x] `calcola_alpha_S(ag_g, SS, ST)` -> alpha_S = (ag/g) * SS * ST
+- [x] `calcola_periodi(TC_star, CC, ag_g)` -> (TB, TC, TD)
+- [x] `spettro_elastico(ag_g, F0, SS, ST, TB, TC, TD, xi, T)` -> Se(T) [m/s2]
+- [x] `spettro_progetto(...)` -> Sd(T) = Se(T)/q [m/s2]
+- [x] `calcola_S_d_T1(T_1, ...)` -> S_d [m] per drift Metodo B
+- [x] `spettro_da_hazard_row(row, cat_suolo, cat_topogr.)` -> dict end-to-end
+- [ ] `profilo_spettrale_completo(...)` -> dict con range T (TODO futuro)
+- [x] Integrazione con spectrum_paste_service: Ntc2018HazardRow come input
+- [x] Integrazione con O.1 (INGV): via ingv_hazard.py -> Ntc2018HazardRow -> spettro
+
+#### O.2 — Integrazioni nei moduli esistenti ✅
+
+- [x] `ta_models.py`: +`spectral_acceleration_floor_from_site()` (alpha_S da sito)
+- [x] `checks.py`: +calcolo S_a interno in check_slu se ag_g/F0/TC_star/cat_suolo presenti
+- [x] `cinematica.py`: +`parametri_sismici_da_sito()` factory (S=SS*ST automatico)
+
+#### O.2 — Test ✅
+
+- [x] `tests/test_spettro_ntc2018.py` — 47 test
+  - Valori di riferimento Roma (SLV, cat B/T1): ag=0.168g, F0=2.398, TC*=0.327s
+  - Copertura: VR, SS, ST, CC, periodi, alpha_S, Se, Sd, S_d, end-to-end, integrazioni
+
+#### O.2 — Dipendenze
+
+| Abilitato da O.2 | Modulo | Beneficio |
+|-----------|--------|-------|
+| G.1.a check_slu | `src/codes/ntc2018/secondary_elements/checks.py` | alpha_S calcolato internamente |
+| G.5 drift Metodo B | `src/codes/ntc2018/secondary_elements/drift_models.py` | S_d(T_1) calcolato |
+| F.1 POR spettro | `src/methods/muratura/modello_edificio.py` | spettro da sito invece che manuale |
+| E.3 Cinematica | `src/methods/muratura/cinematica.py` | parametri sismici da sito |
+| FASE U sismica | da implementare | q, duttilita', gerarchia |
+
+#### O.2 — Note normative
+
+- NTC2018 §3.2.3 — Azione sismica: definizione spettro di risposta elastico
+- NTC2018 Tab. 3.2.V — Valori dei parametri SS per le categorie di sottosuolo
+- NTC2018 Tab. 3.2.VI — Valori del coefficiente topografico ST
+- NTC2018 Tab. 2.4.II — Coefficienti Cu per classe d'uso
+- NTC2018 §2.4.1 — Vita di riferimento VR = VN * Cu
+
+#### O.3 — Azioni sismiche multinorma (`src/codes/seismic/`) ✅
+
+**Stato**: COMPLETATO — commit `d6e589a` — 54 test in `test_azioni_sismiche_multinorma.py`
+
+Package per calcolo taglio alla base + distribuzione triangolare ai piani per 7 norme.
+
+- [x] `base.py`: `PianoEdificio`, `distribuzione_triangolare`, `_base_contract`
+- [x] `rd2229.py`: coefficienti storici 0.00/0.05/0.07/0.10 (STATICO_EQUIVALENTE)
+- [x] `dm92.py`: F_h = C*I*eps*W, zone 1-3 (C=0.10/0.07/0.04) — DM 3/6/1981+1992
+- [x] `dm96.py`: idem DM92 con norm_ref DM 16/1/1996
+- [x] `opcm3274.py`: 4 zone ag fisso, F0=2.5, spettro via spectrum.py (SPETTRALE)
+- [x] `ec8.py`: Tipo1/Tipo2, S fisso per cat suolo, F0=2.5 (SPETTRALE)
+- [x] `ntc2008.py`: riusa spectrum.py, norm_ref=NTC2008 §3.2.3 (SPETTRALE)
+- [x] `dispatcher.py`: routing per norma_attiva (RD2229/DM92/DM96/OPCM3274/EC8/NTC2008/NTC2018)
+- [x] `tests/test_azioni_sismiche_multinorma.py` — 54 test (8 classi)
 
 ### FASE P — Fondazioni e geotecnica
 - [ ] Portanza, cedimenti, pali, muri, liquefazione
@@ -909,6 +1191,10 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 | Dispatcher multi-norma elementi secondari | corrente | `verifications/secondary_elements/dispatcher.py` |
 | Stima periodo T_a (4 modelli) + S_a floor NTC2018 | corrente | `src/codes/ntc2018/secondary_elements/ta_models.py` |
 | Stima drift Metodo B + USER + GLOBAL | corrente | `src/codes/ntc2018/secondary_elements/drift_models.py` |
+| Spettro NTC2018 §3.2.3 (SS, ST, CC, Se, Sd) + INGV webservice/CSV | d6e589a | `src/codes/ntc2018/spectrum.py`, `ingv_hazard.py` |
+| Azioni sismiche multinorma (7 norme, forza base + distrib. piani) | d6e589a | `src/codes/seismic/` (8 moduli + dispatcher) |
+| Pressoflessione deviata multinorma (6 norme, dominio 3D, TA+SLU) | 73482f0 | `src/codes/pressoflessione/` (7 moduli) |
+| Carote cls in situ (10 formul., statistiche, LC/FC, report, 70 test) | 8f52479 | `src/codes/carote/` (9 moduli) |
 
 ---
 
