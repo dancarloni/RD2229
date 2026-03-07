@@ -922,7 +922,7 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 
 ### FASE J — Pressoflessione deviata multinorma
 
-**Stato**: COMPLETATO — commit `[pending]`
+**Stato**: COMPLETATO — commit `73482f0`
 **Priorita'**: MEDIA
 **Test**: 70 test in `tests/test_pressoflessione_deviata.py`, 0 falliti
 **Retrocompat**: 91 test `test_sezione_omogenizzata.py` invariati
@@ -992,7 +992,7 @@ per 6 norme (RD2229, DM92, DM96, NTC2008, NTC2018, EC2).
 
 ### FASE N — Carote cls in sito ✅
 
-**Stato**: COMPLETATO — commit `[pending]`
+**Stato**: COMPLETATO — commit `8f52479`
 **Test**: 70 in `tests/test_carote.py`, 0 falliti
 **Retrocompat**: 2233 test suite completa, 0 falliti
 
@@ -1193,6 +1193,8 @@ Package per calcolo taglio alla base + distribuzione triangolare ai piani per 7 
 | Stima drift Metodo B + USER + GLOBAL | corrente | `src/codes/ntc2018/secondary_elements/drift_models.py` |
 | Spettro NTC2018 §3.2.3 (SS, ST, CC, Se, Sd) + INGV webservice/CSV | d6e589a | `src/codes/ntc2018/spectrum.py`, `ingv_hazard.py` |
 | Azioni sismiche multinorma (7 norme, forza base + distrib. piani) | d6e589a | `src/codes/seismic/` (8 moduli + dispatcher) |
+| Pressoflessione deviata multinorma (6 norme, dominio 3D, TA+SLU) | 73482f0 | `src/codes/pressoflessione/` (7 moduli) |
+| Carote cls in situ (10 formul., statistiche, LC/FC, report, 70 test) | 8f52479 | `src/codes/carote/` (9 moduli) |
 
 ---
 
