@@ -249,7 +249,7 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 
 ### D.3 Traliccio reticolare piano — cordolo metallico reticolare
 
-**Stato**: COMPLETATO (commit da aggiornare dopo push)
+**Stato**: COMPLETATO — commit 23f3300
 **Priorita**: ALTA (collegamento diretto con Fase E.3 meccanismi fuori piano muratura)
 
 #### D.3.0 — SezioneAsta (PREREQUISITO per tutte le fasi D.3)
