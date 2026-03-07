@@ -39,6 +39,7 @@ class TipoMeccanismo(str, Enum):
     RIBALTAMENTO_COMPOSTO = "ribaltamento_composto"
     FLESSIONE_VERTICALE = "flessione_verticale"
     FLESSIONE_ORIZZONTALE = "flessione_orizzontale"
+    RIBALTAMENTO_CANTONALE = "ribaltamento_cantonale"  # TODO E.6
 
 
 class PosizioneParete(str, Enum):
@@ -169,8 +170,9 @@ class RisultatoCinematica:
 
     # Dettaglio forze
     forze_stabilizzanti: float = 0.0   # momento stabilizzante [kg·cm]
-    forze_ribaltanti: float = 0.0      # momento ribaltante [kg·cm]
+    forze_ribaltanti: float = 0.0      # momento ribaltante [kg·cm] (= M_rib_coeff)
     contributo_catene: float = 0.0     # momento stabilizzante catene [kg·cm]
+    contributo_ritegno: float = 0.0    # momento stabilizzante ritegno sommitale [kg·cm]
 
     passaggi: list[str] = field(default_factory=list)
 
@@ -198,17 +200,21 @@ def ribaltamento_semplice(
     parete: PareteMuraria,
     sismica: ParametriSismici,
     catene: list[ForzaCatena] | None = None,
+    ritegno_sommitale: float = 0.0,
 ) -> RisultatoCinematica:
     """Meccanismo di ribaltamento semplice — parete che ruota alla base.
 
     Circolare n.7/2019 §C8A.4.1:
-    α₀ = (M_stabilizzante - M_catene_vert) / M_ribaltante
+    α₀ = (M_stabilizzante + M_catene + M_ritegno) / M_ribaltante
 
     Stabilizzante: W × t/2 + N_s × t/2
     Ribaltante: α₀ × (W × h/2 + N_s × h)
     Catene: F_cat × h_cat (stabilizzante orizzontale)
+    Ritegno: H × h  (forza cordolo sommitale × altezza parete)
 
-    La cerniera è alla base della parete.
+    Args:
+        ritegno_sommitale: forza orizzontale H del cordolo in sommità [kg]
+                           (default 0.0 — retrocompatibile)
     """
     passaggi: list[str] = []
     passaggi.append("═══ RIBALTAMENTO SEMPLICE ═══")
@@ -241,14 +247,24 @@ def ribaltamento_semplice(
                 f"M_cat = {M_cat_i:.0f} kg·cm"
             )
 
+    # Contributo ritegno sommitale (cordolo metallico)
+    M_ritegno = ritegno_sommitale * h
+    if ritegno_sommitale > 0:
+        passaggi.append(
+            f"Ritegno sommitale: H={ritegno_sommitale:.0f} kg, "
+            f"M_ritegno = H×h = {M_ritegno:.0f} kg·cm"
+        )
+
     passaggi.append(f"M_stabilizzante = W×t/2 + N_s×t/2 = {M_stab:.0f} kg·cm")
     passaggi.append(f"M_ribaltante (coeff.) = W×h/2 + N_s×h = {M_rib_coeff:.0f} kg·cm")
     if M_catene > 0:
         passaggi.append(f"M_catene (stabilizzante) = {M_catene:.0f} kg·cm")
 
-    # α₀ = (M_stab + M_catene) / M_rib_coeff
-    alpha_0 = (M_stab + M_catene) / M_rib_coeff if M_rib_coeff > 0 else 0.0
-    passaggi.append(f"α₀ = (M_stab + M_catene) / M_rib = {alpha_0:.4f}")
+    # α₀ = (M_stab + M_catene + M_ritegno) / M_rib_coeff
+    alpha_0 = (M_stab + M_catene + M_ritegno) / M_rib_coeff if M_rib_coeff > 0 else 0.0
+    passaggi.append(
+        f"α₀ = (M_stab + M_catene + M_ritegno) / M_rib = {alpha_0:.4f}"
+    )
 
     # Cinematica lineare
     res = _cinematica_lineare(alpha_0, parete, sismica, passaggi)
@@ -256,6 +272,7 @@ def ribaltamento_semplice(
     res.forze_stabilizzanti = M_stab
     res.forze_ribaltanti = M_rib_coeff
     res.contributo_catene = M_catene
+    res.contributo_ritegno = M_ritegno
 
     # Cinematica non lineare
     _cinematica_non_lineare(alpha_0, parete, sismica, res, passaggi)
@@ -274,6 +291,7 @@ def ribaltamento_composto(
     cuneo_angolo: float = 45.0,
     sismica: ParametriSismici = ParametriSismici(),
     catene: list[ForzaCatena] | None = None,
+    ritegno_sommitale: float = 0.0,
 ) -> RisultatoCinematica:
     """Meccanismo di ribaltamento composto — parete + cuneo muratura.
 
@@ -318,10 +336,15 @@ def ribaltamento_composto(
             F_oriz = cat.F * math.cos(math.radians(cat.angolo))
             M_catene += F_oriz * cat.h_applicazione
 
-    alpha_0 = (M_stab + M_catene) / M_rib_coeff if M_rib_coeff > 0 else 0.0
+    # Ritegno sommitale
+    M_ritegno = ritegno_sommitale * (h + cuneo_h) if ritegno_sommitale > 0 else 0.0
+
+    alpha_0 = (M_stab + M_catene + M_ritegno) / M_rib_coeff if M_rib_coeff > 0 else 0.0
 
     passaggi.append(f"M_stab = {M_stab:.0f} kg·cm")
     passaggi.append(f"M_rib (coeff.) = {M_rib_coeff:.0f} kg·cm")
+    if M_ritegno > 0:
+        passaggi.append(f"M_ritegno = {M_ritegno:.0f} kg·cm")
     passaggi.append(f"α₀ = {alpha_0:.4f}")
 
     res = _cinematica_lineare(alpha_0, parete, sismica, passaggi)
@@ -329,6 +352,7 @@ def ribaltamento_composto(
     res.forze_stabilizzanti = M_stab
     res.forze_ribaltanti = M_rib_coeff
     res.contributo_catene = M_catene
+    res.contributo_ritegno = M_ritegno
 
     _cinematica_non_lineare(alpha_0, parete, sismica, res, passaggi)
 
@@ -345,6 +369,7 @@ def flessione_verticale(
     h_cerniera: float | None = None,
     sismica: ParametriSismici = ParametriSismici(),
     catene: list[ForzaCatena] | None = None,
+    ritegno_sommitale: float = 0.0,
 ) -> RisultatoCinematica:
     """Meccanismo di flessione verticale — cerniera a metà altezza.
 
@@ -407,7 +432,15 @@ def flessione_verticale(
                     f"M_cat = {F_oriz * h_rel:.0f} kg·cm"
                 )
 
-    alpha_0 = (M_stab + M_catene) / M_rib_coeff if M_rib_coeff > 0 else 0.0
+    # Ritegno sommitale (braccio = h_sup dalla cerniera intermedia)
+    M_ritegno = ritegno_sommitale * h_sup if h_sup > 0 else 0.0
+    if ritegno_sommitale > 0:
+        passaggi.append(
+            f"Ritegno sommitale: H={ritegno_sommitale:.0f} kg, "
+            f"M_ritegno = H×h_sup = {M_ritegno:.0f} kg·cm"
+        )
+
+    alpha_0 = (M_stab + M_catene + M_ritegno) / M_rib_coeff if M_rib_coeff > 0 else 0.0
 
     passaggi.append(f"M_stab = {M_stab:.0f} kg·cm, M_rib = {M_rib_coeff:.0f} kg·cm")
     passaggi.append(f"α₀ = {alpha_0:.4f}")
@@ -417,6 +450,7 @@ def flessione_verticale(
     res.forze_stabilizzanti = M_stab
     res.forze_ribaltanti = M_rib_coeff
     res.contributo_catene = M_catene
+    res.contributo_ritegno = M_ritegno
 
     # Per la non lineare, usiamo h_sup come altezza di riferimento
     parete_equiv = PareteMuraria(
@@ -440,6 +474,7 @@ def flessione_orizzontale(
     L_libera: float | None = None,
     sismica: ParametriSismici = ParametriSismici(),
     catene: list[ForzaCatena] | None = None,
+    ritegno_sommitale: float = 0.0,
 ) -> RisultatoCinematica:
     """Meccanismo di flessione orizzontale — arco orizzontale.
 
@@ -480,20 +515,26 @@ def flessione_orizzontale(
             F_oriz = cat.F * math.cos(math.radians(cat.angolo))
             M_catene += F_oriz * cat.h_applicazione
 
-    # Con catene: le catene confinano lateralmente e aumentano α₀
-    if M_catene > 0 and W > 0:
-        # Contributo catene: incremento proporzionale
-        alpha_0 = alpha_0_base + M_catene / (W * h / 2)
+    # Ritegno sommitale (forza H in sommità × braccio h)
+    M_ritegno = ritegno_sommitale * h if ritegno_sommitale > 0 else 0.0
+
+    # Con catene/ritegno: incremento proporzionale a W*h/2
+    denom = W * h / 2 if W > 0 else 1.0
+    if M_catene > 0 or M_ritegno > 0:
+        alpha_0 = alpha_0_base + (M_catene + M_ritegno) / denom
     else:
         alpha_0 = alpha_0_base
 
     passaggi.append(f"α₀ (arco) = 2t/L = 2×{t:.0f}/{L_libera:.0f} = {alpha_0_base:.4f}")
     if M_catene > 0:
         passaggi.append(f"α₀ (con catene) = {alpha_0:.4f}")
+    if M_ritegno > 0:
+        passaggi.append(f"M_ritegno = {M_ritegno:.0f} kg·cm, α₀ (con ritegno) = {alpha_0:.4f}")
 
     res = _cinematica_lineare(alpha_0, parete, sismica, passaggi)
     res.meccanismo = TipoMeccanismo.FLESSIONE_ORIZZONTALE.value
     res.contributo_catene = M_catene
+    res.contributo_ritegno = M_ritegno
 
     _cinematica_non_lineare(alpha_0, parete, sismica, res, passaggi)
 
@@ -667,6 +708,7 @@ def analisi_meccanismi_locali(
     cuneo_angolo: float = 45.0,
     h_cerniera: float | None = None,
     L_libera: float | None = None,
+    ritegno_sommitale: float = 0.0,
 ) -> list[RisultatoCinematica]:
     """Esegue tutti e 4 i meccanismi e ritorna risultati ordinati per α₀.
 
@@ -676,16 +718,18 @@ def analisi_meccanismi_locali(
     risultati: list[RisultatoCinematica] = []
 
     # 1. Ribaltamento semplice (sempre)
-    risultati.append(ribaltamento_semplice(parete, sismica, catene))
+    risultati.append(ribaltamento_semplice(parete, sismica, catene, ritegno_sommitale))
 
     # 2. Ribaltamento composto (se cuneo specificato)
     if cuneo_h > 0:
-        risultati.append(ribaltamento_composto(parete, cuneo_h, cuneo_angolo, sismica, catene))
+        risultati.append(ribaltamento_composto(
+            parete, cuneo_h, cuneo_angolo, sismica, catene, ritegno_sommitale
+        ))
 
     # 3. Flessione verticale (sempre)
-    risultati.append(flessione_verticale(parete, h_cerniera, sismica, catene))
+    risultati.append(flessione_verticale(parete, h_cerniera, sismica, catene, ritegno_sommitale))
 
     # 4. Flessione orizzontale (sempre)
-    risultati.append(flessione_orizzontale(parete, L_libera, sismica, catene))
+    risultati.append(flessione_orizzontale(parete, L_libera, sismica, catene, ritegno_sommitale))
 
     return sorted(risultati, key=lambda r: r.alpha_0)

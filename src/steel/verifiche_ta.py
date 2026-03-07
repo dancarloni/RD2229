@@ -13,7 +13,10 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from .sezione_asta import SezioneAsta
 
 from .sagomario import ProfiloAcciaio
 
@@ -407,3 +410,75 @@ def seleziona_profilo_ottimale(
         sagomario.carica_tutti()
 
     return sagomario.profilo_ottimale(Wx_min, famiglia)
+
+
+def verifica_asta_ta(
+    sezione: "SezioneAsta",
+    N: float,
+    L: float,
+    tipo_acciaio: str = "Fe430",
+    beta_inpiano: float = 1.0,
+    beta_fuoripiano: float = 1.0,
+    sigma_adm_override: float | None = None,
+) -> dict:
+    """Verifica asta di traliccio a sforzo assiale (trazione o compressione).
+
+    Per compressione: instabilità biassiale con λ = max(λ_ip, λ_fp).
+
+    Args:
+        sezione:          SezioneAsta (piatto, angolare o profilo standard)
+        N:                sforzo normale [kg] (+ trazione, − compressione)
+        L:                lunghezza libera asta [cm]
+        tipo_acciaio:     tipo acciaio (es. "Fe430")
+        beta_inpiano:     coeff. di vincolo in piano (1.0 per cerniera-cerniera)
+        beta_fuoripiano:  coeff. di vincolo fuori piano (1.0 per cerniera-cerniera)
+        sigma_adm_override: tensione ammissibile override [kg/cm²]
+
+    Returns:
+        dict con chiavi: tipo, sigma, sigma_adm, sfruttamento, verificato,
+                         (se compressione) lambda_ip, lambda_fp, lambda_max, omega, sigma_eff
+    """
+    sigma_adm = sigma_adm_override or SIGMA_ADM_TA.get(tipo_acciaio, 1900.0)
+    sigma = N / sezione.A if sezione.A > 0 else 0.0
+
+    if N > 0:
+        # Trazione pura
+        return {
+            "tipo": "trazione",
+            "N": N,
+            "sigma": sigma,
+            "sigma_adm": sigma_adm,
+            "sfruttamento": abs(sigma) / sigma_adm,
+            "verificato": abs(sigma) <= sigma_adm,
+        }
+    elif N < 0:
+        # Compressione — instabilità biassiale
+        lambda_ip = beta_inpiano * L / sezione.ix if sezione.ix > 0 else 0.0
+        lambda_fp = beta_fuoripiano * L / sezione.iy if sezione.iy > 0 else 0.0
+        lambda_max = max(lambda_ip, lambda_fp)
+        omega = omega_acciaio(lambda_max)
+        sigma_eff = omega * abs(sigma)
+        return {
+            "tipo": "compressione",
+            "N": N,
+            "sigma": sigma,
+            "sigma_adm": sigma_adm,
+            "lambda_ip": lambda_ip,
+            "lambda_fp": lambda_fp,
+            "lambda_max": lambda_max,
+            "omega": omega,
+            "sigma_eff": sigma_eff,
+            "sfruttamento": sigma_eff / sigma_adm,
+            "verificato": sigma_eff <= sigma_adm,
+        }
+    else:
+        return {
+            "tipo": "scarica",
+            "N": 0.0,
+            "sigma": 0.0,
+            "sigma_adm": sigma_adm,
+            "sfruttamento": 0.0,
+            "verificato": True,
+        }
+
+

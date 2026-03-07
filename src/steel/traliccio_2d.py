@@ -15,7 +15,10 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from .sezione_asta import SezioneAsta
 
 
 class TipoVincolo(str, Enum):
@@ -81,6 +84,10 @@ class RisultatoTraliccio:
 
     # Risultati aste
     aste: list[RisultatoAsta]
+
+    # Rigidezza globale e spostamento massimo (D.3.2)
+    K_globale: float = 0.0   # F_tot_y / |uy_max| [kg/cm]
+    delta_max: float = 0.0   # spostamento massimo in Y [cm]
 
     # Diagnostica
     passaggi: list[str] = field(default_factory=list)
@@ -357,6 +364,12 @@ def risolvi_traliccio(
         f"Equilibrio globale: ΣFx={somma_Fx:.4f} kg, ΣFy={somma_Fy:.4f} kg"
     )
 
+    # Rigidezza globale K_globale = F_tot_y / delta_max_y
+    F_tot_y = sum(n.Fy for n in nodi)
+    uy_vals = [abs(sp[1]) for sp in spostamenti.values()]
+    delta_max = max(uy_vals) if uy_vals else 0.0
+    K_globale = abs(F_tot_y) / delta_max if delta_max > 1e-12 else 0.0
+
     return RisultatoTraliccio(
         n_nodi=n_nodi,
         n_aste=n_aste,
@@ -365,6 +378,8 @@ def risolvi_traliccio(
         spostamenti=spostamenti,
         reazioni=reazioni,
         aste=risultati_aste,
+        K_globale=K_globale,
+        delta_max=delta_max,
         convergenza=True,
         passaggi=passaggi,
     )
@@ -417,6 +432,59 @@ def _gauss_solve(A: list[list[float]], b: list[float]) -> Optional[list[float]]:
     return x
 
 
+def distribuisci_carico_corrente(
+    nodi: list[Nodo],
+    id_nodi_corrente: list[int],
+    q_y: float,
+) -> list[Nodo]:
+    """Converte carico distribuito su corrente in forze nodali equivalenti.
+
+    Per carico uniforme: F_nodo = q_y * a, con a = semiampiezza tra nodi adiacenti.
+    I nodi di estremità ricevono metà del contributo del nodo interno.
+
+    Args:
+        nodi:             lista di tutti i nodi del traliccio
+        id_nodi_corrente: id dei nodi appartenenti al corrente caricato (ordinati per x)
+        q_y:              carico per unità di lunghezza in Y [kg/cm]
+
+    Returns:
+        Nuova lista di nodi con Fy aggiornata (non modifica in-place).
+    """
+    import copy
+    nodi_map = {n.id: n for n in nodi}
+    # Copia nodi
+    nodi_out = [copy.copy(n) for n in nodi]
+    out_map = {n.id: n for n in nodi_out}
+
+    # Ordina nodi corrente per x crescente
+    nodi_corrente = sorted(
+        [nodi_map[nid] for nid in id_nodi_corrente if nid in nodi_map],
+        key=lambda n: n.x,
+    )
+    nc = len(nodi_corrente)
+    if nc < 2:
+        return nodi_out
+
+    for i, nd in enumerate(nodi_corrente):
+        # Contributo a sinistra
+        if i > 0:
+            dx_sx = (nd.x - nodi_corrente[i - 1].x) / 2
+        else:
+            dx_sx = 0.0
+        # Contributo a destra
+        if i < nc - 1:
+            dx_dx = (nodi_corrente[i + 1].x - nd.x) / 2
+        else:
+            dx_dx = 0.0
+        out_map[nd.id].Fy += q_y * (dx_sx + dx_dx)
+
+    return nodi_out
+
+
+# TODO D.3.2-ext: supporto molle nodali elastiche (Winkler)
+# k_nodo = k_w * a [kg/cm] aggiunto alla diagonale di K prima di solve
+
+
 def verifica_aste_traliccio(
     risultato: RisultatoTraliccio,
     sigma_adm_traz: float = 1900.0,
@@ -424,6 +492,7 @@ def verifica_aste_traliccio(
     lambda_max: float = 200.0,
     aste_input: list[Asta] | None = None,
     nodi_input: list[Nodo] | None = None,
+    sezioni: "dict[int, SezioneAsta] | None" = None,
 ) -> list[dict]:
     """Verifica le aste del traliccio a trazione e compressione.
 
@@ -434,6 +503,8 @@ def verifica_aste_traliccio(
         lambda_max: snellezza massima ammissibile
         aste_input: lista aste originali (per dati sezione)
         nodi_input: lista nodi originali (per geometria instabilità)
+        sezioni: dict {id_asta: SezioneAsta} — se presente, usa ix/iy reali
+                 per instabilità biassiale. Retrocompatibile: default None.
 
     Returns:
         Lista di dizionari con risultati verifica per ogni asta
@@ -455,23 +526,17 @@ def verifica_aste_traliccio(
             ver["sfruttamento"] = abs(ra.sigma) / sigma_adm_traz
             ver["verificato"] = abs(ra.sigma) <= sigma_adm_traz
         elif ra.N < 0:
-            # Compressione — verifica instabilità se disponibili dati
-            # Snellezza: λ = L/i_min
-            A_asta = None
-            if aste_input:
-                for ai in aste_input:
-                    if ai.id == ra.id_asta:
-                        A_asta = ai
-                        break
-
-            if A_asta and A_asta.A > 0:
-                # Per profili tubolari/compatti: i_min ≈ √(I/A)
-                # Approssimazione: i = 0.3 * dimensione_caratteristica
-                # Per aste di traliccio tipiche usiamo i_min ≈ raggio d'inerzia
-                i_min = math.sqrt(A_asta.A / math.pi)  # raggio equivalente
-                lam = ra.L / i_min if i_min > 0 else 0
+            # Compressione — verifica instabilità
+            if sezioni and ra.id_asta in sezioni:
+                # Instabilità biassiale con dati di sezione reali
+                sez = sezioni[ra.id_asta]
+                lam_ip = ra.L / sez.ix if sez.ix > 0 else 0.0   # in piano
+                lam_fp = ra.L / sez.iy if sez.iy > 0 else 0.0   # fuori piano (governa)
+                lam = max(lam_ip, lam_fp)
                 omega = omega_acciaio(lam)
                 sigma_eff = omega * abs(ra.sigma)
+                ver["lambda_ip"] = lam_ip
+                ver["lambda_fp"] = lam_fp
                 ver["lambda"] = lam
                 ver["omega"] = omega
                 ver["sigma_eff"] = sigma_eff
@@ -479,6 +544,24 @@ def verifica_aste_traliccio(
                 ver["sfruttamento"] = sigma_eff / sigma_adm_comp
                 ver["verificato"] = sigma_eff <= sigma_adm_comp
                 ver["snellezza_ok"] = lam <= lambda_max
+            elif aste_input:
+                # Fallback: aste_input fornite ma senza SezioneAsta
+                A_asta = None
+                for ai in aste_input:
+                    if ai.id == ra.id_asta:
+                        A_asta = ai
+                        break
+                if A_asta and A_asta.A > 0:
+                    # NOTA: senza ix/iy reali usiamo snellezza senza instabilità
+                    # (impossibile calcolare i_min senza la forma della sezione)
+                    ver["sigma_adm"] = sigma_adm_comp
+                    ver["sfruttamento"] = abs(ra.sigma) / sigma_adm_comp
+                    ver["verificato"] = abs(ra.sigma) <= sigma_adm_comp
+                    ver["avviso"] = "i_min non disponibile — verifica senza instabilità"
+                else:
+                    ver["sigma_adm"] = sigma_adm_comp
+                    ver["sfruttamento"] = abs(ra.sigma) / sigma_adm_comp
+                    ver["verificato"] = abs(ra.sigma) <= sigma_adm_comp
             else:
                 ver["sigma_adm"] = sigma_adm_comp
                 ver["sfruttamento"] = abs(ra.sigma) / sigma_adm_comp
@@ -491,3 +574,5 @@ def verifica_aste_traliccio(
         verifiche.append(ver)
 
     return verifiche
+
+

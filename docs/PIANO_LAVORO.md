@@ -249,8 +249,28 @@ Tradotto da VB `Sub VerifStabilitàAstaCA()` (riga 4057) e `Function f_OmegaCA()
 
 ### D.3 Traliccio reticolare piano — cordolo metallico reticolare
 
-**Stato**: TODO
+**Stato**: COMPLETATO (commit da aggiornare dopo push)
 **Priorita**: ALTA (collegamento diretto con Fase E.3 meccanismi fuori piano muratura)
+
+#### D.3.0 — SezioneAsta (PREREQUISITO per tutte le fasi D.3)
+
+**Stato**: COMPLETATO
+
+- [x] `src/steel/sezione_asta.py` (NUOVO)
+  - Dataclass `SezioneAsta`: `A, Ix, Iy, ix, iy, nome, tipo (enum TipoSezioneAsta)`
+  - Enum `TipoSezioneAsta` (PIATTO, ANGOLARE, PROFILO_STANDARD)
+  - `SezioneAsta.da_piatto(b, t)` — orientamento FLAT (b in Y=spessore muro, t in Z=verticale)
+    ix=b/sqrt(12) in-piano, iy=t/sqrt(12) fuori-piano (governa lambda)
+  - `SezioneAsta.da_angolare_pari(b, t)` — calcolo esatto centroide + I
+  - `SezioneAsta.da_profilo(profilo: ProfiloAcciaio)` — wrapper
+  - `to_dict()` / `from_dict()`
+- [x] `data/steel/piatti.json` (NUOVO) — 15 taglie standard serie UNI 5679
+- [x] `data/steel/angolari.json` (NUOVO) — 10 taglie EN 10056-1 L30..L150
+- [x] Refactoring `verifica_aste_traliccio()` in `src/steel/traliccio_2d.py`
+  - Usa `SezioneAsta.ix`/`iy` reali per instabilita' biassiale
+  - lambda_in_piano = L/ix, lambda_fuori_piano = L/iy; omega = omega_acciaio(max)
+- [x] Aggiungere `verifica_asta_ta()` in `src/steel/verifiche_ta.py`
+- [x] Test: `tests/test_sezione_asta.py` — 38 test, tutti verdi
 
 **Obiettivo**: Modulo per tralicci piani in acciaio (piatti saldati/bullonati, angolari,
 profili standard), con caso d'uso primario come **cordolo reticolare orizzontale** su
@@ -299,64 +319,55 @@ di maggiore rigidezza.
 #### Sub-plan dettagliato
 
 **D.3.1 — Generatore schemi traliccio**
-- [ ] `src/steel/traliccio_generatore.py` (NUOVO)
-- [ ] `genera_warren(L, h, n_campate, profilo_corrente, profilo_diagonale)` → nodi + aste
-- [ ] `genera_pratt(L, h, n_campate, ...)` → nodi + aste
-- [ ] Suggerimento profili minimi (pre-dimensionamento) dato N_max stimato
-- [ ] Disegno di anteprima (matplotlib) dello schema generato
-- [ ] Validazione geometrica (angoli diagonali, snellezze limite)
+- [x] `src/steel/traliccio_generatore.py` (NUOVO)
+- [x] `genera_howe(L, h, n_campate, sezione_corrente, sezione_diagonale)` → nodi + aste (4n+1 barre)
+- [x] `genera_pratt(L, h, n_campate, ...)` → nodi + aste (4n+1 barre)
+- [x] `predimensiona_sezione(N_max, L_asta, tipo_acciaio)` — profili minimi
+- [x] `valida_geometria(nodi, aste)` — warning angoli piatti (<20°), snellezze
+- [x] `applica_vincoli_cordolo()` — cerniera / incastro / semi_incastro agli estremi
+- [x] Test: `tests/test_traliccio_generatore.py` — 27 test, tutti verdi
+- NOTE: Schema WARREN eliminato (struttura labile per n>3); sostituito da HOWE e PRATT
+  con n+1 montanti verticali (topologia sempre stabile: b+r = 4n+7 > 4n+4)
 
 **D.3.2 — Adattamento solutore traliccio_2d**
-- [ ] Estendere `src/steel/traliccio_2d.py` per supportare molle distribuite ai nodi
-- [ ] Aggiungere carico distribuito su corrente (convertito in forze nodali equivalenti)
-- [ ] Aggiungere output rigidezza globale del traliccio (K = F_tot / delta_max)
-- [ ] Nessuna modifica all'algoritmo core (Gauss con pivoting)
+- [x] `distribuisci_carico_corrente()` — carico distribuito → forze nodali equivalenti
+- [x] `K_globale` e `delta_max` in `RisultatoTraliccio`
+- [x] Retrocompatibilita': 19 test originali invariati
 
 **D.3.3 — Modulo cordolo reticolare**
-- [ ] `src/elements/cordolo_reticolare.py` (NUOVO)
-- [ ] Dataclass `CordoloReticolare`: schema, profili, L, h, vincoli, collegamento_muro
-- [ ] `da_cinematica(risultato_cinematica)` → carico distribuito F su corrente
-- [ ] Distribuzione F: proporzionale al modo di collasso OPPURE discreta ai nodi
-- [ ] `verifica_cordolo_reticolare()` → risultato completo (aste + nodi + collegamento)
-- [ ] `dimensiona_cordolo_reticolare(alpha_0_target, ...)` → profili minimi
-- [ ] Enum `TipoCollegamentoMuro` (INGHISAGGIO, TASSELLO_CHIMICO, CONNETTORE)
-- [ ] Enum `SchemaReticolare` (WARREN, PRATT, CUSTOM)
+- [x] `src/elements/cordolo_reticolare.py` (NUOVO)
+- [x] Dataclass `CordoloReticolare`: schema, profili, L, h, vincoli, collegamento_muro, tipo_estremi
+- [x] `verifica_cordolo_reticolare()` → `RisultatoCordoloReticolare` completo
+- [x] `dimensiona_cordolo_reticolare()` → ricerca profilo minimo per F_y dato
+- [x] Enum `SchemaReticolare` (HOWE, PRATT)
 
 **D.3.4 — Verifiche aste del traliccio**
-- [ ] Verifica compressione con instabilita' su entrambi i piani (selezionabile)
-- [ ] Verifica trazione
-- [ ] Verifica connessioni ai nodi (saldature / bulloni) tramite `src/steel/connessioni.py`
-- [ ] Verifica collegamento traliccio-muro per tipo selezionato
-- [ ] Normativa selezionabile: NTC2018 §4.2 SLU OPPURE TA storica (verifiche_ta.py)
+- [x] Verifica compressione + instabilita' biassiale (lambda_in_piano, lambda_fuori_piano)
+- [x] Verifica trazione
+- [x] Verifica collegamento traliccio-muro F3 (tau nodi vs tau_adm)
+- [x] Normativa: TA storica (verifiche_ta.py)
 
 **D.3.5 — Integrazione con cinematica.py**
-- [ ] Il cordolo diventa vincolo in sommita' nel modello cinematico (ritegno orizzontale)
-- [ ] `cinematica.py`: aggiungere parametro opzionale `ritegno_sommitale` (forza H o rigidezza K)
-- [ ] Ricalcolo alpha_0 con ritegno → alpha_0 aumenta
-- [ ] Flusso bidirezionale: cinematica → F → traliccio → K → cinematica ricalcola (TODO futuro)
-- [ ] Tutti i meccanismi fuori piano beneficiati (ribaltamento, spanciamento, cuneo d'angolo)
-- [ ] Meccanismi attivabili/disattivabili singolarmente dall'utente
+- [x] `ritegno_sommitale: float = 0.0` aggiunto a tutti i meccanismi fuori piano
+- [x] `M_rib_coeff` aggiunto a `RisultatoCinematica` per calcolo D1
+- [x] `ribaltamento_semplice`, `ribaltamento_composto`, `flessione_orizzontale`,
+      `flessione_verticale`, `analisi_meccanismi_locali`, `analisi_tutti_meccanismi`
+- [x] Retrocompatibilita': 49 test originali invariati
 
 **D.3.6 — Nodo d'angolo (cantonali)**
-- [ ] Verifica equilibrio locale al nodo d'angolo (forze da 2 muri ortogonali)
-- [ ] Integrazione nel modello globale traliccio ad anello (se configurazione anello)
-- [ ] Dettaglio costruttivo: piastra d'angolo, saldature, bulloni
+- [x] `InputNodoAngolo` + `verifica_nodo_angolo()` in `cordolo_reticolare.py`
+- [x] Equilibrio locale: F_risultante = vettoriale F1 + F2
+- [x] Verifica saldatura nodo tramite `verifica_saldatura_ta()`
 
 **D.3.7 — Report e tabulato**
-- [ ] Sezione dedicata nel tabulato di calcolo (`src/report/`)
-- [ ] Tabulato standalone esportabile
-- [ ] Passaggi di calcolo tracciabili (decision_log, norm_references)
-- [ ] Disegno schema traliccio con sforzi nelle aste (matplotlib)
+- [x] `sezione_cordolo_reticolare()` in `src/report/tabulati_calcolo.py`
+- [x] Tabella aste ASCII (ID / tipo / L / N / sigma / sfruttamento / esito)
+- [x] Collegamento muro F3, esito finale
 
 **D.3.8 — Test**
-- [ ] Generazione schema Warren/Pratt (geometria, nodi, aste)
-- [ ] Solutore con molle distribuite e carichi su corrente
-- [ ] Verifica aste (compressione, trazione, instabilita')
-- [ ] Verifica connessioni nodi
-- [ ] Integrazione cinematica: alpha_0 con/senza ritegno
-- [ ] Dimensionamento inverso (profili minimi per alpha_0 target)
-- [ ] Nodo d'angolo (equilibrio locale)
-- [ ] Retrocompatibilita' traliccio_2d (test esistenti invariati)
+- [x] 97 nuovi test (test_sezione_asta: 38, test_traliccio_generatore: 27, test_cordolo_reticolare: 32)
+- [x] Retrocompatibilita': traliccio_2d (19 test) + cinematica_muratura (49 test) tutti verdi
+- [x] Suite completa: 2237 passed (esclusi test_carote e test_por_verifiche pre-esistenti)
 
 **D.3.9 — Tool disegno grafico avanzato (FASE FUTURA)**
 - [ ] Disegno intuitivo nodi e aste per configurazione custom

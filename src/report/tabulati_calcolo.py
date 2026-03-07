@@ -466,3 +466,73 @@ def _centra(testo: str, larghezza: int) -> str:
 def _escape_html(testo: str) -> str:
     """Escapa caratteri speciali HTML."""
     return testo.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def sezione_cordolo_reticolare(risultato: object) -> str:
+    """Tabulato ASCII per la verifica del cordolo metallico reticolare.
+
+    Args:
+        risultato: RisultatoCordoloReticolare (importato dinamicamente per evitare dipendenze circolari)
+
+    Returns:
+        Stringa ASCII del tabulato.
+    """
+    r = risultato
+    linee: list[str] = []
+    SEP = "═" * 72
+    sep = "─" * 72
+
+    linee.append(SEP)
+    linee.append("  CORDOLO METALLICO RETICOLARE — Verifica TA")
+    linee.append(SEP)
+
+    # --- Schema e geometria ---
+    schema = getattr(r, "schema", "?") if not hasattr(r, "schema") else r.schema
+    # Tenta di leggere da cordolo se disponibile (non sempre nel risultato)
+    linee.append(f"  Schema: {getattr(r, 'schema', 'N/D')}")
+    linee.append(f"  Convergenza solutore: {'SÌ' if r.convergenza else 'NO'}")
+    linee.append(sep)
+
+    # --- Risultati globali ---
+    linee.append("  RISULTATI GLOBALI")
+    linee.append(f"  K_globale    = {r.K_globale:.2f} kg/cm")
+    linee.append(f"  δ_max        = {r.delta_max:.4f} cm")
+    linee.append(f"  N_max (comp) = {r.N_max_compressione:.1f} kg")
+    linee.append(f"  N_max (traz) = {r.N_max_trazione:.1f} kg")
+    linee.append(f"  F_ritegno    = {r.F_ritegno_disponibile:.1f} kg")
+    linee.append(sep)
+
+    # --- Tabella aste ---
+    linee.append("  VERIFICHE ASTE")
+    linee.append(f"  {'ID':>4}  {'Tipo':<12}  {'L[cm]':>7}  {'N[kg]':>9}  {'σ[kg/cm²]':>10}  {'Sfrutt':>7}  {'Esito':<12}")
+    linee.append("  " + "-" * 68)
+    for v in r.verifiche_aste:
+        id_asta = v.get("id_asta", "?")
+        tipo = v.get("tipo", "?")
+        L = v.get("L", 0.0)
+        N = v.get("N", 0.0)
+        sigma = v.get("sigma", 0.0)
+        sfrutt = v.get("sfruttamento", 0.0)
+        esito = "VERIF." if v.get("verificato", False) else "NON VER."
+        linee.append(
+            f"  {id_asta:>4}  {tipo:<12}  {L:>7.1f}  {N:>9.1f}  {sigma:>10.2f}  {sfrutt:>7.3f}  {esito:<12}"
+        )
+    linee.append(sep)
+
+    # --- Collegamento muro ---
+    vc = r.verifica_collegamento
+    if isinstance(vc, dict):
+        linee.append("  COLLEGAMENTO MURO (F3 — inghisaggio)")
+        linee.append(f"  A_tot ancoraggi = {vc.get('A_tot', 0.0):.3f} cm²")
+        linee.append(f"  τ_nodo          = {vc.get('tau', 0.0):.2f} kg/cm²")
+        linee.append(f"  τ_adm           = {vc.get('tau_adm', 0.0):.2f} kg/cm²")
+        esito_col = "VERIFICATO" if vc.get("verificato", False) else "NON VERIFICATO"
+        linee.append(f"  Esito           = {esito_col}")
+    linee.append(sep)
+
+    # --- Esito finale ---
+    esito_fin = "✓ VERIFICATO" if r.verificato else "✗ NON VERIFICATO"
+    linee.append(f"  ESITO FINALE: {esito_fin}")
+    linee.append(SEP)
+
+    return "\n".join(linee)
