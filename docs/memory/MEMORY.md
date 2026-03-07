@@ -15,6 +15,7 @@
 | `subplan_D3_traliccio.md` | Cordolo reticolare orizzontale: Q&A completo, decisioni, architettura, dipendenze, file da creare/modificare |
 | `subplan_E6_cantonali.md` | Ribaltamento cantonale + riduzione resistenza aperture: Q&A, decisioni, formule, letteratura |
 | `subplan_A2_material_source.md` | MaterialSource strutturata: analisi legacy, 3 entita' parallele, migrazione dati |
+| `subplan_fase_J.md` | FASE J: pressoflessione deviata multinorma (6 norme), dominio 3D, TA+SLU, instabilita' biassiale, 70 test |
 | `codebase_map.md` | Mappa moduli muratura/acciaio con file, righe chiave, interfacce tra moduli |
 
 ## Vincolo: posizione file memoria

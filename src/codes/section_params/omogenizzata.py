@@ -30,11 +30,19 @@ from typing import Any
 
 @dataclass
 class BarraArmatura:
-    """Singolo livello di armatura nella sezione."""
+    """Singolo livello di armatura nella sezione.
+
+    Attributi:
+        y: distanza dal lembo compresso [cm]
+        A: area totale barre a questo livello [cm²]
+        zona: "tesa" | "compressa" (informativo)
+        x: posizione orizzontale dal baricentro sezione [cm] (0 = centrata)
+    """
 
     y: float       # distanza dal lembo compresso [cm]
     A: float       # area totale barre [cm²]
     zona: str = "tesa"  # "tesa" | "compressa" (informativo, non usato nel calcolo)
+    x: float = 0.0  # posizione orizzontale dal baricentro [cm]
 
 
 # ---------------------------------------------------------------------------

@@ -284,7 +284,7 @@ src/codes/seismic/
 | D.3 | Traliccio reticolare piano (cordolo muratura) | Sub-plan pronto, da implementare |
 | A.2 | MaterialSource strutturata | Sub-plan pronto, da implementare |
 | N | Carote cls in sito (9 formulazioni) | Da implementare |
-| J | Pressoflessione deviata (Bresler, N-Mx-My) | Da implementare |
+| J | Pressoflessione deviata multinorma (6 norme, dominio 3D, TA+SLU) | COMPLETATO — commit `[pending]` |
 | I | Parametri statici sezioni completi | COMPLETATO — commit `3bed1a7` |
 | L | Cross-Pozzati telai piani | Da implementare |
 | R | Edifici esistenti LC/FC, vulnerabilita | Dipende da N |
@@ -330,3 +330,31 @@ Modulo da creare: `src/codes/ntc2018/spectrum.py` (sub-plan completo in FASE O d
 - Asse neutro fessurato: formula analitica per rettangolare+N=0+singola fila, bisect generale
 - Duck typing su section_type tramite section_fiber.py (stessa interfaccia per tutti i tipi)
 - Disegno matplotlib separato da Qt (nessun backend forzato); Qt canvas via FigureCanvasQTAgg
+
+---
+
+## FASE J — Pressoflessione deviata multinorma (COMPLETATO)
+
+**Stato**: COMPLETATO — commit `[pending]`
+**Test**: 70 test in `tests/test_pressoflessione_deviata.py`, 0 falliti
+**Retrocompat**: 91 test `test_sezione_omogenizzata.py` invariati
+
+### Attivita completate
+
+- `src/codes/section_params/omogenizzata.py`: aggiunto `x: float = 0.0` a BarraArmatura (retrocompat)
+- `src/codes/pressoflessione/base.py`: PressoflessSpec, PressoflessResult, DominioNMy, omogenizzata biassiale
+- `src/codes/pressoflessione/ta_cls.py`: sovrapposizione elastica + Bresler TA (RD2229/DM92/DM96)
+- `src/codes/pressoflessione/slu.py`: wrapper SLU checks_ntc2018 (NTC2018/NTC2008/EC2)
+- `src/codes/pressoflessione/dominio.py`: dominio 3D + 3 funzioni matplotlib
+- `src/codes/pressoflessione/instabilita_biassiale.py`: amplificazione omega biassiale
+- `src/codes/pressoflessione/dispatcher.py`: entry-point unico multinorma
+- `src/gui/widgets/dominio_canvas.py`: widget Qt interattivo (3 viste, slider N/theta)
+
+### Decisioni progettuali
+
+- Codice esistente (checks_rd2229, checks_ntc2018) non modificato: nuovo package e' motore puro parallelo
+- BarraArmatura estesa con x=0.0 (backward-compatible)
+- Sezione omogenizzata biassiale: I_y_c via integrazione strip b(y)^3/12
+- Duck typing su tutti i tipi sezione via section_fiber.py
+- SLU delega a check_pressoflessione_slu (no duplicazione codice)
+- Instabilita' riusa omega_ca() da instabilita.py (no copia)

@@ -920,9 +920,62 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **File**: `src/codes/section_params/` (5 file), `src/gui/widgets/sezione_canvas.py`
 **Test**: `tests/test_sezione_omogenizzata.py` (91 test)
 
-### FASE J — Pressoflessione deviata
-- [ ] Dominio N-Mx-My
-- [ ] Bresler per sezioni rettangolari
+### FASE J — Pressoflessione deviata multinorma
+
+**Stato**: COMPLETATO — commit `[pending]`
+**Priorita'**: MEDIA
+**Test**: 70 test in `tests/test_pressoflessione_deviata.py`, 0 falliti
+**Retrocompat**: 91 test `test_sezione_omogenizzata.py` invariati
+
+**Obiettivo**: Package `src/codes/pressoflessione/` — verifica e dominio 3D N-Mx-My
+per 6 norme (RD2229, DM92, DM96, NTC2008, NTC2018, EC2).
+
+#### J.1 — Refactoring BarraArmatura
+- [x] Aggiunto `x: float = 0.0` in `src/codes/section_params/omogenizzata.py`
+- [x] Retrocompat verificata (91 test invariati)
+
+#### J.2 — Tipi e sezione omogenizzata biassiale
+- [x] `src/codes/pressoflessione/base.py` — PressoflessSpec, PressoflessResult, DominioNMy
+- [x] `calcola_omogenizzata_biassiale()` — A_om, I_x_om, I_y_om, I_xy_om, Wx, Wy
+- [x] `crea_armatura_rettangolare()` — helper layout barre con coordinate (x, y)
+
+#### J.3 — Verifica TA calcestruzzo
+- [x] `src/codes/pressoflessione/ta_cls.py`
+- [x] Sovrapposizione elastica: sigma = N/A + Mx*y/Ix + My*x/Iy
+- [x] Bresler TA: (|Mx|/M_Rdx)^alpha + (|My|/M_Rdy)^alpha <= 1
+- [x] alpha selezionabile (1.0 conservativo, 4/3 Giangreco)
+- [x] Norme: RD2229 Art.29, DM92 §7, DM96 §3.4
+
+#### J.4 — Verifica SLU (NTC2018/NTC2008/EC2)
+- [x] `src/codes/pressoflessione/slu.py` — wrapper checks_ntc2018
+- [x] Conversione unita' cm/kg -> mm/kN
+- [x] Norme: NTC2018 §4.1.2.1.3.1, NTC2008, EC2 §5.8.9
+
+#### J.5 — Dominio 3D N-Mx-My
+- [x] `src/codes/pressoflessione/dominio.py`
+- [x] `calcola_dominio_3d()` — generazione griglia (N, theta) -> (Mx_Rd, My_Rd)
+- [x] `disegna_dominio_3d()` — surface plot mplot3d
+- [x] `disegna_dominio_2d_mxmy()` — curva Mx-My a N costante
+- [x] `disegna_dominio_2d_nm()` — curva N-M a theta costante
+
+#### J.6 — Instabilita' biassiale
+- [x] `src/codes/pressoflessione/instabilita_biassiale.py`
+- [x] `amplifica_momenti_biassiale()` — omega_x, omega_y, Mx_amp, My_amp
+- [x] Riusa `omega_ca()` da `src/methods/rd2229/instabilita.py`
+
+#### J.7 — Dispatcher multinorma
+- [x] `src/codes/pressoflessione/dispatcher.py`
+- [x] `calcola_pressoflessione_deviata(spec)` — entry-point unico
+- [x] Routing: TA per RD2229/DM92/DM96, SLU per NTC2018/NTC2008/EC2
+- [x] Amplificazione instabilita' opzionale integrata
+
+#### J.8 — Widget Qt
+- [x] `src/gui/widgets/dominio_canvas.py` — DominioNMyCanvas
+- [x] 3 viste: 3D surface, 2D Mx-My, 2D N-M
+- [x] Slider interattivi per N e theta
+
+**File**: `src/codes/pressoflessione/` (7 file), `src/gui/widgets/dominio_canvas.py`
+**Test**: `tests/test_pressoflessione_deviata.py` (70 test)
 
 ### FASE K — Grafici
 - [ ] Sollecitazioni, inviluppi
