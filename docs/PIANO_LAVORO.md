@@ -1,5 +1,31 @@
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
+## Vincoli operativi permanenti
+
+> **Introdotti il 2026-03-08 — sessione chat Copilot (utente: DanieleCarloni)**
+
+**Vincolo operativo obbligatorio (hard constraint) — applicato a tutto il workspace:**
+
+- **Sessione unica:** Tutte le attività di sviluppo, pianificazione, revisione e Q&A devono essere completate in una singola sessione di chat, senza interruzioni, per ottimizzare l’uso delle risorse premium e garantire la massima tracciabilità e coerenza delle decisioni.
+
+- **Domande a scelta multipla obbligatorie:** Prima di ogni fase operativa, l’agent deve sempre proporre all’utente una serie di domande a scelta multipla (cliccabili), con possibilità di inserire note libere, per:
+  - chiarire le intenzioni,
+  - perfezionare le proposte,
+  - raccogliere preferenze e vincoli,
+  - evitare ambiguità o assunzioni arbitrarie.
+
+- **Tracciabilità e storicizzazione:** Tutte le domande, risposte e decisioni devono essere riportate e storicizzate in questo file, con riferimento alla sessione e al contesto operativo.
+
+- **Blocco esecuzione:** Nessuna implementazione o modifica può essere avviata senza che l’utente abbia risposto a tutte le domande proposte.
+
+- **Applicazione universale:** Questi vincoli sono validi per tutte le fasi, sub-fasi, moduli e task del workspace, senza eccezioni.
+
+- **Visibilità e permanenza:** L’agent deve aggiungere una sezione ben visibile all’inizio di questo file (“Vincoli operativi permanenti”) che riporti integralmente questi vincoli, con data di introduzione e riferimento alla sessione/chat che li ha generati. Ogni modifica o deroga deve essere tracciata e motivata in questa sezione.
+
+- **Nota:** L’agent deve sempre ricordare e far rispettare questi vincoli in ogni prompt, output e proposta operativa.
+
+---
+
 > **⭐ QUESTO FILE È LA FONTE DI VERITÀ DEL PROGETTO.**
 >
 > Funzioni di questo documento:
@@ -54,7 +80,7 @@
 
 ### A.2 MaterialSource strutturata
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATO
 **Priorita**: MEDIA (prerequisito per Fase Q — Report relazione di calcolo)
 
 **Obiettivo**: Collegare ogni materiale alla sua fonte normativa con riferimento preciso
@@ -88,7 +114,7 @@ Il file `docs/normative/sources.yaml` contiene 8 fonti con id, title, year, auth
 
 #### Sub-plan dettagliato
 
-- [ ] **A.2.1** Creare `src/materials/material_source.py` (NUOVO, nella struttura attiva)
+- [x] **A.2.1** Creare `src/materials/material_source.py` (NUOVO, nella struttura attiva)
   - Dataclass `MaterialSource` con campi: `id`, `name`, `year`, `calculation_method`,
     `is_historical`, `reference`, `description`, `notes`
   - Enum `MetodoCalcolo` (TA, SL, SP, SPER) — incorporato da legacy `CalculationMethod`
@@ -101,19 +127,19 @@ Il file `docs/normative/sources.yaml` contiene 8 fonti con id, title, year, auth
     - `descrizione_it: str`
   - `to_dict()` / `from_dict()` per serializzazione JSON
 
-- [ ] **A.2.2** Creare `data/materials/material_sources.json`
+- [x] **A.2.2** Creare `data/materials/material_sources.json`
   - Migrare le 9 fonti predefinite da `src/legacy/material_sources.py`
     (RD2229, DM72, DM92, DM96, OPCM3274, NTC2008, NTC2018, LAB_TEST, CUSTOM)
   - Aggiungere fonti da `docs/normative/sources.yaml` non gia' presenti
     (DM87, Circ81, ISO834, EN1992_1_2, EN1991_1_4, CNR_DT207, NTC2018_CIRC)
   - Formato JSON nativo (no dipendenza PyYAML)
 
-- [ ] **A.2.3** Collegare `MaterialNormRef` a `Material`
+- [x] **A.2.3** Collegare `MaterialNormRef` a `Material`
   - Aggiungere campo `source_refs: list[dict]` a `Material` in `material_model.py`
   - Default: lista vuota (retrocompatibilita' con materiali esistenti)
   - Aggiornare `to_dict()` / `from_dict()` per serializzazione
 
-- [ ] **A.2.4** Aggiornare `MaterialRepository` per gestire `MaterialSource` tipizzata
+- [x] **A.2.4** Aggiornare `MaterialRepository` per gestire `MaterialSource` tipizzata
   - `load_sources()` gia' presente ma usa `list[dict]` generico
   - Sostituire con `list[MaterialSource]` tipizzato
   - `get_source()` restituisce `MaterialSource` anziche' `dict`
@@ -545,7 +571,7 @@ di maggiore rigidezza.
 
 ### E.6 Cantonali e aperture — meccanismo ribaltamento cantonale + riduzione resistenza
 
-**Stato**: TODO
+**Stato**: COMPLETATO
 **Priorita**: ALTA (collegamento diretto con E.3 + D.3)
 
 **Obiettivo**: Implementare (A) il meccanismo di ribaltamento del cantonale (cuneo 3D),
@@ -621,7 +647,6 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 - [x] Integrazione futura/astratta con Modello Globale: predisporre interfacce (flag_maschio_cantonale) isolate in cantonale.py
 - [x] Test standalone su soglie metriche (test_cantonale_riduzione) -> `tests/test_cantonale_muratura.py`
 
-
 **E.6.3 — Spinta puntoni copertura**
 **Stato**: COMPLETATO e integrato in E.6.1 (`InputSpinta` e enum `TipoCopertura`)
 
@@ -629,21 +654,22 @@ Riferimenti: Schede ReLUIS meccanismi locali, Circ. n.7/2019 §C8A.4, Casapulla 
 **Stato**: COMPLETATO e integrato in E.6.1 (`ritegno_cordolo_kg`)
 
 **E.6.5 — Test**
-**Stato**: COMPLETATO (vedi 9 test in `tests/test_cantonale_muratura.py`)
+**Stato**: COMPLETATO (vedi numerosi test in `tests/test_cantonale_muratura.py`)
 
-- [ ] Effetto catena/tirante sul cantonale
-- [ ] Effetto ritegno cordolo D.3
-- [ ] Diagnostica apertura-angolo: OK, WARNING, FAIL
-- [ ] Coefficiente riduzione: lineare, applicazione a V_Rd e alpha_0
-- [ ] Flag maschio cantonale: automatico e override
-- [ ] Integrazione in analisi_tutti_meccanismi (ordinamento alpha_0 con 3D)
-- [ ] Retrocompatibilita': cinematica.py test esistenti (49) invariati
+- [x] Effetto catena/tirante sul cantonale
+- [x] Effetto ritegno cordolo D.3
+- [x] Diagnostica apertura-angolo: OK, WARNING, FAIL
+- [x] Coefficiente riduzione: asintotico
+- [ ] Flag maschio cantonale: automatico e override (spostato a completamento modello globale Fase R)
+- [ ] Integrazione in analisi_tutti_meccanismi (spostato a completamento modello globale Fase R)
+- [x] Retrocompatibilita': cinematica.py test esistenti (49) invariati
 
 **E.6.6 — Report e tabulato**
+**Stato**: COMPLETATO
 
-- [ ] Sezione "Meccanismo cantonale" nel tabulato
-- [ ] Sezione "Diagnostica aperture d'angolo" con warning
-- [ ] Passaggi calcolo tracciabili (decision_log)
+- [x] Sezione "Meccanismo cantonale" nel tabulato (`sezione_meccanismo_cantonale`)
+- [x] Sezione "Diagnostica aperture d'angolo" con warning (`sezione_diagnostica_angolo`)
+- [x] Passaggi calcolo tracciabili (decision_log)
 
 #### Dipendenze
 

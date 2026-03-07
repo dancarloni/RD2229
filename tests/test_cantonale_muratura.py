@@ -116,3 +116,23 @@ def test_diagnostica_angolo():
     assert res3.is_ok == False
     assert res3.coeff_riduzione_k == 0.20
     assert res3.status == 'FAIL'
+
+def test_report_estrazione():
+    from src.methods.muratura.cantonale import InputDiagnosticaAngolo, calcola_resistenza_residua_angolo, TipoSogliaApertura, InputCantonale, esegui_verifica_cantonale
+    from src.report.tabulati_calcolo import sezione_meccanismo_cantonale, sezione_diagnostica_angolo
+    
+    # Check cinematica report
+    inp = InputCantonale(h_cm=300, t1_cm=40, t2_cm=40, L1_dist_cm=150, L2_dist_cm=150)
+    res = esegui_verifica_cantonale(inp)
+    report_text = sezione_meccanismo_cantonale(res)
+    assert 'RIBALTAMENTO CANTONALE 3D' in report_text
+    assert 'Moltiplicatore collasso alpha_0' in report_text
+    assert 'PASSAGGI DI CALCOLO:' in report_text
+    
+    # Check diagnostica
+    inp_diag = InputDiagnosticaAngolo(distanza_apertura_cm=50.0, spessore_parete_cm=40.0, tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC)
+    res_diag = calcola_resistenza_residua_angolo(inp_diag)
+    report_diag_text = sezione_diagnostica_angolo(res_diag)
+    assert 'DIAGNOSTICA APERTURE' in report_diag_text
+    assert 'Stato diagnostica: WARNING' in report_diag_text
+    assert 'LOG DECISIONALE:' in report_diag_text

@@ -18,6 +18,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from .material_source import MaterialSource
 from .material_model import (
     Material,
     crea_acciaio_ntc2018,
@@ -38,7 +39,7 @@ class MaterialRepository:
 
     def __init__(self) -> None:
         self._materials: dict[str, Material] = {}
-        self._sources: list[dict[str, Any]] = []
+        self._sources: list[MaterialSource] = []
 
     # --- CRUD ---
 
@@ -217,24 +218,25 @@ class MaterialRepository:
             return 0
 
         with open(sources_path, encoding="utf-8") as f:
-            self._sources = json.load(f)
+            dati = json.load(f)
+            self._sources = [MaterialSource.from_dict(item) for item in dati]
 
         logger.info("Caricate %d fonti normative da %s", len(self._sources), sources_path)
         return len(self._sources)
 
-    def get_sources(self) -> list[dict[str, Any]]:
+    def get_sources(self) -> list[MaterialSource]:
         """Restituisce il catalogo fonti normative caricato."""
         return list(self._sources)
 
-    def get_source(self, source_id: str) -> dict[str, Any] | None:
+    def get_source(self, source_id: str) -> MaterialSource | None:
         """Restituisce una fonte normativa per ID.
 
         Parametri:
             source_id: Identificatore della fonte (es. "NTC2018", "RD2229").
         """
         for src in self._sources:
-            if src.get("id") == source_id:
-                return dict(src)
+            if src.id == source_id:
+                return src
         return None
 
     # --- Caricamento cataloghi ---

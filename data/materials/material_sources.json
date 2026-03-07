@@ -1,0 +1,162 @@
+[
+  {
+    "id": "RD2229",
+    "name": "Regio Decreto 2229/1939",
+    "year": 1939,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "RD 2229/1939",
+    "description": "Norme per il calcolo del cemento armato in Italia, base storica per edifici esistenti.",
+    "notes": "Art. 10-14 tensioni ammissibili, materiali storici."
+  },
+  {
+    "id": "DM72",
+    "name": "DM 30/05/1972",
+    "year": 1972,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "DM 30/05/1972",
+    "description": "Norme tecniche per il calcolo, l'esecuzione e il collaudo delle strutture in cemento armato normale e precompresso e per le strutture metalliche.",
+    "notes": "Materiali: cls, acciaio, tensioni ammissibili."
+  },
+  {
+    "id": "DM92",
+    "name": "DM 14/02/1992",
+    "year": 1992,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "DM 14/02/1992",
+    "description": "Norme tecniche per il calcolo, l'esecuzione e il collaudo delle strutture in cemento armato, normale e precompresso e per le strutture metalliche.",
+    "notes": "Materiali: cls, acciaio, tensioni ammissibili."
+  },
+  {
+    "id": "DM96",
+    "name": "DM 09/01/1996",
+    "year": 1996,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "DM 09/01/1996",
+    "description": "Norme tecniche per il calcolo, l'esecuzione e il collaudo delle strutture in cemento armato, normale e precompresso e per le strutture metalliche.",
+    "notes": "Materiali: cls, acciaio, tensioni ammissibili."
+  },
+  {
+    "id": "OPCM3274",
+    "name": "OPCM 3274/2003",
+    "year": 2003,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "OPCM 3274/2003",
+    "description": "Ordinanza PCM per la verifica e il miglioramento sismico degli edifici esistenti.",
+    "notes": "Materiali: cls, acciaio, tensioni ammissibili, γ_c=1.60, γ_s=1.15."
+  },
+  {
+    "id": "NTC2008",
+    "name": "NTC 2008",
+    "year": 2008,
+    "calculation_method": "SL",
+    "is_historical": false,
+    "reference": "DM 14/01/2008",
+    "description": "Norme Tecniche per le Costruzioni 2008.",
+    "notes": "Materiali: cls, acciaio, legno, muratura."
+  },
+  {
+    "id": "NTC2018",
+    "name": "NTC 2018",
+    "year": 2018,
+    "calculation_method": "SL",
+    "is_historical": false,
+    "reference": "DM 17/01/2018",
+    "description": "Norme Tecniche per le Costruzioni 2018.",
+    "notes": "Materiali: cls, acciaio, legno, muratura."
+  },
+  {
+    "id": "LAB_TEST",
+    "name": "Prova di laboratorio",
+    "year": 0,
+    "calculation_method": "SPER",
+    "is_historical": false,
+    "reference": "Prova sperimentale",
+    "description": "Dati ricavati da prove di laboratorio su campioni reali.",
+    "notes": "Valori sperimentali, non normati."
+  },
+  {
+    "id": "CUSTOM",
+    "name": "Personalizzato",
+    "year": 0,
+    "calculation_method": "SPER",
+    "is_historical": false,
+    "reference": "Definito dall'utente",
+    "description": "Fonte personalizzata inserita dall'utente.",
+    "notes": "Compilazione manuale."
+  },
+  {
+    "id": "DM87",
+    "name": "DM 20/11/1987",
+    "year": 1987,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "DM 20/11/1987",
+    "description": "Norme tecniche per la progettazione, esecuzione e collaudo degli edifici in muratura e per il loro consolidamento.",
+    "notes": "Materiali storici muratura."
+  },
+  {
+    "id": "Circ81",
+    "name": "Circolare n. 21745 del 30/07/1981",
+    "year": 1981,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "Circ. 30/07/1981 n. 21745",
+    "description": "Istruzioni per l'applicazione della normativa tecnica per la riparazione ed il rinforzo degli edifici in muratura.",
+    "notes": "Muratura storica."
+  },
+  {
+    "id": "ISO834",
+    "name": "ISO 834-1:1999",
+    "year": 1999,
+    "calculation_method": "SP",
+    "is_historical": false,
+    "reference": "ISO 834-1",
+    "description": "Fire resistance tests – Elements of building construction.",
+    "notes": "Curve d'incendio standard."
+  },
+  {
+    "id": "EN1992_1_2",
+    "name": "EN 1992-1-2:2004",
+    "year": 2004,
+    "calculation_method": "SL",
+    "is_historical": false,
+    "reference": "EN 1992-1-2",
+    "description": "Design of concrete structures – Structural fire design.",
+    "notes": "Fuoco tabellare e analitico."
+  },
+  {
+    "id": "EN1991_1_4",
+    "name": "EN 1991-1-4:2005",
+    "year": 2005,
+    "calculation_method": "SL",
+    "is_historical": false,
+    "reference": "EN 1991-1-4",
+    "description": "Eurocode 1: Actions on structures – Wind actions.",
+    "notes": "Vento e aerodinamica."
+  },
+  {
+    "id": "CNR_DT207",
+    "name": "CNR-DT 207 R1/2018",
+    "year": 2018,
+    "calculation_method": "SP",
+    "is_historical": false,
+    "reference": "CNR-DT 207 R1/2018",
+    "description": "Istruzioni per la valutazione delle azioni e degli effetti del vento sulle costruzioni.",
+    "notes": "Linee guida tecniche vento."
+  },
+  {
+    "id": "NTC2018_CIRC",
+    "name": "Circolare n. 7 del 21/01/2019",
+    "year": 2019,
+    "calculation_method": "SL",
+    "is_historical": false,
+    "reference": "Circ. 21/01/2019 n. 7",
+    "description": "Istruzioni per l'applicazione delle NTC 2018.",
+    "notes": "Applicativa NTC2018."
+  }
+]

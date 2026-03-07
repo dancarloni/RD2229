@@ -162,6 +162,7 @@ class Material:
 
     # --- Note e metadati ---
     note: str = ""
+    source_refs: list[dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Inizializza Poisson di default e calcola i derivati."""
@@ -518,6 +519,7 @@ class Material:
             "E": self.E,
             "nu": self.nu,
             "note": self.note,
+            "source_refs": self.source_refs,
         }
 
         if self.famiglia == "calcestruzzo":

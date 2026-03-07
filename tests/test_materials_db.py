@@ -290,7 +290,7 @@ class TestPersistenzaJSON:
         assert n > 0
         ntc = repo.get_source("NTC2018")
         assert ntc is not None
-        assert ntc["year"] == 2018
+        assert ntc.year == 2018
 
 
 # =====================================================================

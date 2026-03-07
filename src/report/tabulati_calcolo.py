@@ -536,3 +536,134 @@ def sezione_cordolo_reticolare(risultato: object) -> str:
     linee.append(SEP)
 
     return "\n".join(linee)
+def sezione_meccanismo_cantonale(risultato: object) -> str:
+    r = risultato
+    linee = []
+    SEP = '═' * 72
+    sep = '─' * 72
+    linee.append(SEP)
+    linee.append('  RIBALTAMENTO CANTONALE 3D — Verifica Cinematica (Fase E.6.1)')
+    linee.append(SEP)
+
+    # Dati riepilogativi
+    esito = 'VERIFICATO' if getattr(r, 'is_verificato', False) else 'NON VERIFICATO'
+    linee.append(f'  Esito verifica: {esito}')
+    if hasattr(r, 'alpha_0'):
+        linee.append(f'  Moltiplicatore collasso alpha_0 = {r.alpha_0:.4f}')
+    if hasattr(r, 'peso_cuneo_kg'):
+        linee.append(f'  Peso cuneo cinematico V_c = {r.peso_cuneo_kg:.1f} kg')
+    if hasattr(r, 'momento_ribaltante_kg_cm'):
+        linee.append(f'  M_ribaltante = {r.momento_ribaltante_kg_cm:.1f} kg*cm')
+        linee.append(f'  M_stabilizzante = {r.momento_stabilizzante_kg_cm:.1f} kg*cm')
+    linee.append(sep)
+
+    # Lista passaggi calcolo
+    passaggi = getattr(r, 'passaggi_calcolo', [])
+    if passaggi:
+        linee.append('  PASSAGGI DI CALCOLO:')
+        for p in passaggi:
+            linee.append(f'   - {p}')
+        linee.append(sep)
+
+    # Warnings
+    warnings = getattr(r, 'warnings', [])
+    if warnings:
+        linee.append('  WARNINGS E LIMITAZIONI:')
+        for w in warnings:
+            linee.append(f'   ! {w}')
+        linee.append(sep)
+
+    return '\n'.join(linee)
+
+def sezione_diagnostica_angolo(risultato: object) -> str:
+    r = risultato
+    linee = []
+    SEP = '═' * 72
+    sep = '─' * 72
+    linee.append(SEP)
+    linee.append('  DIAGNOSTICA APERTURE D\'ANGOLO — Riduzione Cantonale (Fase E.6.2)')
+    linee.append(SEP)
+
+    status = getattr(r, 'status', 'N/D')
+    k = getattr(r, 'coeff_riduzione_k', 1.0)
+    d = getattr(r, 'distanza_minima_richiesta_cm', 0.0)
+
+    linee.append(f'  Stato diagnostica: {status}')
+    linee.append(f'  Distanza minima richiesta (d_min) = {d:.1f} cm')
+    linee.append(f'  Coefficiente di riduzione (k)     = {k:.3f}')
+    linee.append(sep)
+
+    passaggi = getattr(r, 'passaggi_calcolo', [])
+    if passaggi:
+        linee.append('  LOG DECISIONALE:')
+        for p in passaggi:
+            linee.append(f'   - {p}')
+        linee.append(sep)
+
+    return '\n'.join(linee)
+
+def sezione_meccanismo_cantonale(risultato: object) -> str:
+    r = risultato
+    linee = []
+    SEP = '═' * 72
+    sep = '─' * 72
+    linee.append(SEP)
+    linee.append('  RIBALTAMENTO CANTONALE 3D — Verifica Cinematica (Fase E.6.1)')
+    linee.append(SEP)
+
+    # Dati riepilogativi
+    esito = 'VERIFICATO' if getattr(r, 'is_verificato', False) else 'NON VERIFICATO'
+    linee.append(f'  Esito verifica: {esito}')
+    if hasattr(r, 'alpha_0'):
+        linee.append(f'  Moltiplicatore collasso alpha_0 = {r.alpha_0:.4f}')
+    if hasattr(r, 'peso_cuneo_kg'):
+        linee.append(f'  Peso cuneo cinematico V_c = {r.peso_cuneo_kg:.1f} kg')
+    if hasattr(r, 'momento_ribaltante_kg_cm'):
+        linee.append(f'  M_ribaltante = {r.momento_ribaltante_kg_cm:.1f} kg*cm')
+        linee.append(f'  M_stabilizzante = {r.momento_stabilizzante_kg_cm:.1f} kg*cm')
+    linee.append(sep)
+
+    # Lista passaggi calcolo
+    passaggi = getattr(r, 'passaggi_calcolo', [])
+    if passaggi:
+        linee.append('  PASSAGGI DI CALCOLO:')
+        for p in passaggi:
+            linee.append(f'   - {p}')
+        linee.append(sep)
+
+    # Warnings
+    warnings = getattr(r, 'warnings', [])
+    if warnings:
+        linee.append('  WARNINGS E LIMITAZIONI:')
+        for w in warnings:
+            linee.append(f'   ! {w}')
+        linee.append(sep)
+
+    return '\n'.join(linee)
+
+def sezione_diagnostica_angolo(risultato: object) -> str:
+    r = risultato
+    linee = []
+    SEP = '═' * 72
+    sep = '─' * 72
+    linee.append(SEP)
+    linee.append('  DIAGNOSTICA APERTURE D\'ANGOLO — Riduzione Cantonale (Fase E.6.2)')
+    linee.append(SEP)
+
+    status = getattr(r, 'status', 'N/D')
+    k = getattr(r, 'coeff_riduzione_k', 1.0)
+    d = getattr(r, 'distanza_minima_richiesta_cm', 0.0)
+
+    linee.append(f'  Stato diagnostica: {status}')
+    linee.append(f'  Distanza minima richiesta (d_min) = {d:.1f} cm')
+    linee.append(f'  Coefficiente di riduzione (k)     = {k:.3f}')
+    linee.append(sep)
+
+    passaggi = getattr(r, 'passaggi_calcolo', [])
+    if passaggi:
+        linee.append('  LOG DECISIONALE:')
+        for p in passaggi:
+            linee.append(f'   - {p}')
+        linee.append(sep)
+
+    return '\n'.join(linee)
