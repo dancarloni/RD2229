@@ -16,6 +16,7 @@
 | `subplan_E6_cantonali.md` | Ribaltamento cantonale + riduzione resistenza aperture: Q&A, decisioni, formule, letteratura |
 | `subplan_A2_material_source.md` | MaterialSource strutturata: analisi legacy, 3 entita' parallele, migrazione dati |
 | `subplan_fase_J.md` | FASE J: pressoflessione deviata multinorma (6 norme), dominio 3D, TA+SLU, instabilita' biassiale, 70 test |
+| `subplan_fase_N.md` | FASE N: carote cls in situ, 10 formulazioni, statistiche NTC2018/EN13791, parametri derivati, LC/FC, report HTML, grafici, widget Qt |
 | `codebase_map.md` | Mappa moduli muratura/acciaio con file, righe chiave, interfacce tra moduli |
 
 ## Vincolo: posizione file memoria
@@ -33,4 +34,4 @@
 - Domande: usare formato a scelta multipla, l'utente risponde con lettere
 - Modularita': massima, ogni modulo sostituibile senza refactoring globale
 - Formule mancanti: TODO + chiedere all'utente, mai inventare
-- Test: pytest, ~2093 test attuali, 0 falliti
+- Test: pytest, ~2233 test attuali, 0 falliti

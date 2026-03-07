@@ -21,9 +21,9 @@
 
 | Indicatore | Valore |
 |---|---|
-| Test totali | ~2093 |
+| Test totali | ~2233 |
 | Test falliti | 0 |
-| Moduli implementati | 59+ |
+| Moduli implementati | 69+ |
 | Norme coperte | 10 (RD2229, DM72, DM87, DM92, DM96, NTC2008, NTC2018, Circ81, OPCM3274, EC8) |
 
 ---
@@ -990,9 +990,25 @@ per 6 norme (RD2229, DM92, DM96, NTC2008, NTC2018, EC2).
 - [ ] scipy sparse
 - [ ] Assemblaggio matrice globale
 
-### FASE N — Carote cls in sito
-- [ ] 9 formulazioni note
-- [ ] Export Excel
+### FASE N — Carote cls in sito ✅
+
+**Stato**: COMPLETATO — commit `[pending]`
+**Test**: 70 in `tests/test_carote.py`, 0 falliti
+**Retrocompat**: 2233 test suite completa, 0 falliti
+
+**Architettura**: `src/codes/carote/` (9 moduli) + `src/gui/widgets/carote_canvas.py`
+
+- [x] **N.1** `core_sample.py`: CoreSample, CorrectionFactors, ConversionResult (dataclass)
+- [x] **N.2** `formulas.py`: 10 formulazioni (BS1881, ACI214, TR11, RILEM, Masi, Fiore, NTC2018, EN13791, Giacchetti, custom) + custom engine 3 livelli
+- [x] **N.3** `statistics.py`: NTC2018, EN 13791 A/B, Grubbs, Chauvenet, classificazione cls
+- [x] **N.4** `derived_params.py`: f_cm, E_cm, f_ctm, Rck, sigma_c_adm storica
+- [x] **N.5** `analysis.py` + `__init__.py`: pipeline list[CoreSample] -> CoreAnalysisResult
+- [x] **N.6** `integration.py`: LC/FC bridge + registra_materiale_in_situ()
+- [x] **N.7** `report.py`: HTML report + JSON/CSV export
+- [x] **N.8** `plots.py`: 4 grafici matplotlib headless (istogramma, scatter, boxplot, barre)
+- [x] **N.9** `tests/test_carote.py` (70 test) + pytest green
+- [x] **N.10** `carote_canvas.py`: widget Qt (4 viste, combo formulazione)
+- [x] **N.11** Aggiornamento docs (PIANO_LAVORO, PIANO_SVILUPPO_CORRENTE, memory)
 
 ### FASE O — Griglia sismica INGV + Spettro NTC2018
 

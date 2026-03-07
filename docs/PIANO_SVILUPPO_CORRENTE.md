@@ -28,6 +28,7 @@ con nuovi moduli, previa approvazione.
 | G.3 | Elementi secondari — Storage adapter CRUD | COMPLETATO |
 | G.4 | Elementi secondari DM96/DM92 + RD2229 (40 test) | COMPLETATO |
 | G.5 | Stima T_a (4 modelli) + drift Metodo B (37 test) | COMPLETATO |
+| N | Carote cls in situ (10 formul., statistiche, derivati, LC/FC, report, 70 test) | COMPLETATO |
 
 ---
 
@@ -358,3 +359,60 @@ Modulo da creare: `src/codes/ntc2018/spectrum.py` (sub-plan completo in FASE O d
 - Duck typing su tutti i tipi sezione via section_fiber.py
 - SLU delega a check_pressoflessione_slu (no duplicazione codice)
 - Instabilita' riusa omega_ca() da instabilita.py (no copia)
+
+---
+
+## FASE N — Carote cls in sito (COMPLETATO)
+
+**Stato**: COMPLETATO
+**Test**: 70 in `tests/test_carote.py`, 0 falliti
+**Obiettivo**: Modulo per il calcolo della resistenza del calcestruzzo in situ a partire
+da prove su carote, con 10 formulazioni di conversione, analisi statistica completa,
+parametri derivati, integrazione LC/FC e archivio materiali, report HTML, grafici matplotlib
+e widget Qt.
+
+### Architettura
+
+```text
+src/codes/carote/
+  __init__.py              — re-export
+  core_sample.py           — CoreSample, CorrectionFactors, ConversionResult
+  formulas.py              — 10 formulazioni + custom engine (3 livelli)
+  statistics.py            — NTC2018, EN 13791 A/B, Grubbs, Chauvenet, classificazione
+  derived_params.py        — E_cm, f_ctm, Rck, sigma_c_adm storica
+  analysis.py              — Pipeline: list[CoreSample] -> CoreAnalysisResult
+  integration.py           — LC/FC bridge + registra_materiale_in_situ()
+  report.py                — HTML report + JSON/CSV export
+  plots.py                 — matplotlib headless (istogramma, scatter, boxplot, barre)
+
+src/gui/widgets/carote_canvas.py  — Qt widget (4 viste, combo formulazione)
+tests/test_carote.py              — ~66 test
+```
+
+### Decisioni da Q&A
+
+- Unita' interne: MPa. Conversione a kg/cm² solo ai confini.
+- 10 formulazioni: BS1881, ACI214, TR11, RILEM, Masi, Fiore, NTC2018, EN13791, Giacchetti, custom
+- Fattori correzione: predefiniti per formulazione + override utente
+- Custom formula: 3 livelli (moltiplicatore, parametrica, espressione Python sandboxed)
+- Statistiche: tutti calcolati e presentati simultaneamente con grafici
+- Parametri derivati: f_cm, E_cm, f_ctm, Rck, sigma_c_adm
+- LC/FC: entrambi i flussi (standalone + integrato)
+- Materiale: Material(famiglia="calcestruzzo") con nota in-situ
+- Export: JSON/CSV + HTML report
+- GUI: widget Qt con 4 grafici + combo formulazione
+- Scope: carote cls + predisposizione stub muratura
+
+### Sub-plan
+
+- [x] **N.1** `core_sample.py`: CoreSample, CorrectionFactors, ConversionResult
+- [x] **N.2** `formulas.py`: 10 formulazioni + custom engine 3 livelli
+- [x] **N.3** `statistics.py`: NTC2018, EN 13791 A/B, Grubbs, Chauvenet, classificazione
+- [x] **N.4** `derived_params.py`: f_cm, E_cm, f_ctm, Rck, sigma_c_adm
+- [x] **N.5** `analysis.py` + `__init__.py`: pipeline principale
+- [x] **N.6** `integration.py`: LC/FC bridge + registrazione materiale
+- [x] **N.7** `report.py`: HTML + JSON/CSV export
+- [x] **N.8** `plots.py`: 4 grafici matplotlib headless
+- [x] **N.9** `tests/test_carote.py` (70 test) + pytest green
+- [x] **N.10** `carote_canvas.py`: widget Qt (4 viste)
+- [x] **N.11** Aggiornamento docs
