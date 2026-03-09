@@ -16,3 +16,4 @@ pip-tools
 shapely
 
 jsonschema
+scipy
