@@ -7,7 +7,6 @@ Gruppi: CoreSample, Formulas, Statistics, DerivedParams, Analysis,
 from __future__ import annotations
 
 import json
-import math
 import os
 import tempfile
 
@@ -718,13 +717,8 @@ class TestWidget:
 class TestPackage:
     def test_init_import(self):
         from src.codes.carote import (
-            CoreAnalysisResult,
-            CoreSample,
-            CorrectionFactors,
-            DerivedConcreteParams,
             FORMULATIONS,
-            analizza_carote,
-            converti_tutti,
+            CoreSample,
         )
 
         assert len(FORMULATIONS) >= 10

@@ -27,19 +27,14 @@ Riferimenti:
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from typing import Optional
 
+from .carichi_fissi import calcola_mip_asta, mip_cedimento
 from .modello_telaio import (
     AstaTelaio,
     ModelloTelaio,
-    NodoTelaio,
-    TipoAsta,
-    TipoVincoloEsterno,
 )
-from .carichi_fissi import calcola_mip_asta, mip_cedimento
-
 
 # ==============================================================================
 # STRUTTURE DATI RISULTATO

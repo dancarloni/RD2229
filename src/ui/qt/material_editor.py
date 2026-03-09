@@ -19,7 +19,7 @@ import logging
 from typing import Any
 
 try:
-    from PyQt6.QtCore import Qt
+    from PyQt6.QtCore import Qt  # noqa: F401
     from PyQt6.QtCore import pyqtSignal as Signal
     from PyQt6.QtWidgets import (
         QComboBox,
@@ -37,7 +37,7 @@ try:
         QWidget,
     )
 except ImportError:  # pragma: no cover
-    from PySide6.QtCore import Qt, Signal
+    from PySide6.QtCore import Signal
     from PySide6.QtWidgets import (
         QComboBox,
         QDoubleSpinBox,

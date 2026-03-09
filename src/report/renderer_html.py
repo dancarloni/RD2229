@@ -13,7 +13,6 @@ Unità di misura: kg/cm², cm, cm², cm⁴, kg/m³.
 import datetime
 from typing import Any
 
-
 _CSS = """\
 body { font-family: 'Segoe UI', Arial, sans-serif; margin: 2em; color: #222; }
 h1 { color: #1a3a5c; border-bottom: 2px solid #1a3a5c; padding-bottom: .3em; }

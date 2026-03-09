@@ -24,7 +24,6 @@ import dataclasses
 import logging
 import math
 from dataclasses import dataclass
-from typing import Any
 
 from src.wind.models import BuildingGeom, StructureGeom, WindSite
 from src.wind.outputs import WindResults

@@ -5,9 +5,6 @@ from __future__ import annotations
 import math
 import os
 
-import pytest
-
-
 # ======================================================================
 # SECTION REGISTRY
 # ======================================================================
@@ -22,8 +19,8 @@ class TestSectionRegistry:
 
     def test_register_and_get(self):
         from src.calc.section_registry import (
-            register_section,
             get_section_metadata,
+            register_section,
         )
         register_section("test-1", {"area_cm2": 100.0})
         meta = get_section_metadata("test-1")
@@ -31,12 +28,12 @@ class TestSectionRegistry:
         assert meta["area_cm2"] == 100.0
 
     def test_register_empty_id_ignored(self):
-        from src.calc.section_registry import register_section, list_sections
+        from src.calc.section_registry import list_sections, register_section
         register_section("", {"area_cm2": 1.0})
         assert "" not in list_sections()
 
     def test_list_sections(self):
-        from src.calc.section_registry import register_section, list_sections
+        from src.calc.section_registry import list_sections, register_section
         register_section("a", {})
         register_section("b", {})
         ids = list_sections()
@@ -45,9 +42,9 @@ class TestSectionRegistry:
 
     def test_remove_section(self):
         from src.calc.section_registry import (
+            get_section_metadata,
             register_section,
             remove_section,
-            get_section_metadata,
         )
         register_section("rm-me", {"x": 1})
         assert remove_section("rm-me") is True
@@ -56,9 +53,9 @@ class TestSectionRegistry:
 
     def test_clear_registry(self):
         from src.calc.section_registry import (
-            register_section,
             clear_registry,
             list_sections,
+            register_section,
         )
         register_section("x", {})
         clear_registry()
@@ -116,8 +113,8 @@ class TestSectionRegistry:
 
     def test_load_sections_from_legacy(self):
         from src.calc.section_registry import (
-            load_sections_from_legacy,
             get_section_metadata,
+            load_sections_from_legacy,
         )
         legacy_path = os.path.join(
             os.path.dirname(__file__), "..", "src", "legacy", "sections.json"
@@ -155,8 +152,8 @@ class TestShearAreaRegistry:
 
     def test_kappa_defaults(self):
         from src.calc.shear_area_registry import (
-            DEFAULT_KAPPA,
             CIRCLE_KAPPA,
+            DEFAULT_KAPPA,
             HOLLOW_CIRCLE_KAPPA,
             KAPPA_DEFAULTS,
         )
@@ -168,7 +165,7 @@ class TestShearAreaRegistry:
         assert KAPPA_DEFAULTS["CIRCULAR_HOLLOW"] == HOLLOW_CIRCLE_KAPPA
 
     def test_get_default_kappa(self):
-        from src.calc.shear_area_registry import get_default_kappa, DEFAULT_KAPPA
+        from src.calc.shear_area_registry import DEFAULT_KAPPA, get_default_kappa
         assert get_default_kappa("RECTANGULAR") == DEFAULT_KAPPA
         assert get_default_kappa("UNKNOWN_TYPE") == DEFAULT_KAPPA
 
@@ -199,7 +196,7 @@ class TestShearAreaRegistry:
         assert abs(Asy - 800.0) < 0.01
 
     def test_compute_shear_area_circular(self):
-        from src.calc.shear_area_registry import compute_shear_area, CIRCLE_KAPPA
+        from src.calc.shear_area_registry import CIRCLE_KAPPA, compute_shear_area
 
         class FakeCircle:
             shape_id = "circle"
@@ -226,7 +223,7 @@ class TestShearAreaRegistry:
         assert abs(Asy - 1000.0) < 0.01
 
     def test_compute_shear_area_fallback(self):
-        from src.calc.shear_area_registry import compute_shear_area, DEFAULT_KAPPA
+        from src.calc.shear_area_registry import DEFAULT_KAPPA, compute_shear_area
 
         class FakeUnknown:
             shape_id = "some_unknown"
@@ -238,8 +235,8 @@ class TestShearAreaRegistry:
 
     def test_compute_shear_area_kappa_defaults_for_section_type(self):
         from src.calc.shear_area_registry import (
-            compute_shear_area,
             HOLLOW_CIRCLE_KAPPA,
+            compute_shear_area,
         )
 
         class FakeHollow:
@@ -275,7 +272,7 @@ class TestCodeRegistry:
         clear_registry()
 
     def test_register_and_get_code(self):
-        from src.codes.code_registry import register_code, get_code
+        from src.codes.code_registry import get_code, register_code
         register_code("TEST", {"gamma_c": 1.5}, {"general": {"title": "Test"}})
         entry = get_code("TEST")
         assert entry is not None
@@ -283,12 +280,12 @@ class TestCodeRegistry:
         assert entry["clauses"]["general"]["title"] == "Test"
 
     def test_register_empty_name_ignored(self):
-        from src.codes.code_registry import register_code, list_codes
+        from src.codes.code_registry import list_codes, register_code
         register_code("", {"x": 1}, {})
         assert "" not in list_codes()
 
     def test_get_code_param(self):
-        from src.codes.code_registry import register_code, get_code_param
+        from src.codes.code_registry import get_code_param, register_code
         register_code("N", {"gamma_c": 1.5, "nested": {"val": 42}}, {})
         assert get_code_param("N", "gamma_c") == 1.5
         assert get_code_param("N", "nested.val") == 42
@@ -296,7 +293,7 @@ class TestCodeRegistry:
         assert get_code_param("NOCODE", "x", -1) == -1
 
     def test_get_code_clause(self):
-        from src.codes.code_registry import register_code, get_code_clause
+        from src.codes.code_registry import get_code_clause, register_code
         register_code("E", {}, {
             "materials": {"concrete": {"limit_states": [{"id": "ULS"}]}}
         })
@@ -307,7 +304,7 @@ class TestCodeRegistry:
         assert get_code_clause("NOCODE", "x") is None
 
     def test_list_codes(self):
-        from src.codes.code_registry import register_code, list_codes
+        from src.codes.code_registry import list_codes, register_code
         register_code("A", {}, {})
         register_code("B", {}, {})
         codes = list_codes()
@@ -315,7 +312,7 @@ class TestCodeRegistry:
         assert "B" in codes
 
     def test_clear_registry(self):
-        from src.codes.code_registry import register_code, clear_registry, list_codes
+        from src.codes.code_registry import clear_registry, list_codes, register_code
         register_code("X", {}, {})
         clear_registry()
         assert list_codes() == []

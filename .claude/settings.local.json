@@ -13,7 +13,13 @@
       "Bash(python -m pip install:*)",
       "Bash(cd:*)",
       "Bash(ls -la /c/Users/danca/workspaces/RD2229/docs/MEGAPLAN/*SECONDARY*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git -C \"c:/Users/danca/workspaces/RD2229\" log --oneline bdd8c6a -1)",
+      "Bash(git -C \"c:/Users/danca/workspaces/RD2229\" log --oneline edddc19 -1)",
+      "Bash(git -C \"c:/Users/danca/workspaces/RD2229\" log --oneline --all)",
+      "Bash(gh run list --limit 10)",
+      "Bash(gh run view 22875304172 --log-failed)",
+      "Bash(gh run view 22875304169 --log-failed)"
     ]
   }
 }

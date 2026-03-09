@@ -11,19 +11,15 @@ from src.steel.connessioni import (
     A_GAMBO_BULLONE,
     A_RES_BULLONE,
     BETA_W,
-    ClasseBullone,
     F_UB,
     F_YB,
+    ClasseBullone,
     InputBullone,
     InputSaldatura,
-    RisultatoBullone,
-    RisultatoSaldatura,
-    TipoCollegamentoBullonato,
     TipoSaldatura,
     verifica_bullone_ta,
     verifica_saldatura_ta,
 )
-
 
 # ═══════════════════════ SALDATURE ═══════════════════════
 

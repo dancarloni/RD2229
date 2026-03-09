@@ -15,12 +15,10 @@ from src.methods.muratura.fattore_comportamento import (
     ALPHA_U_ALPHA_1_TAB,
     RegolaritaAltezza,
     RegolaritaPianta,
-    RisultatoFattoreQ,
     TipoEdificio,
     TipoMuraturaQ,
     calcola_fattore_comportamento,
 )
-
 
 # ═══════════════════════════════════════════════════════════
 #  Tabella α_u/α_1

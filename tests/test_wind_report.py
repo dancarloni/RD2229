@@ -15,10 +15,10 @@ from src.wind.outputs import (
     ZoneForce,
 )
 from src.wind.report import (
+    generate_force_summary_table,
+    generate_summary_table,
     wind_results_to_dict,
     wind_results_to_json,
-    generate_summary_table,
-    generate_force_summary_table,
 )
 
 

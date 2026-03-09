@@ -4,24 +4,23 @@ Subfase L.10 — test_cross_pozzati.py.
 Benchmark numerici da Santarella e Pozzati con verifica equilibrio.
 """
 
-import math
 import pytest
 
 from src.methods.rd2229.telaio.cross_pozzati import calcola_cross_pozzati
 from src.methods.rd2229.telaio.modello_telaio import (
     AstaTelaio,
+    CaricoAsta,
     ModelloTelaio,
     NodoTelaio,
     PianoTelaio,
     RilascioEstremita,
     SezioneTelaio,
     TipoAsta,
+    TipoCarico,
     TipoRilascioInterno,
     TipoVincoloEsterno,
     VincoloEsterno,
 )
-from src.methods.rd2229.telaio.carichi_fissi import mip_uniforme
-from src.methods.rd2229.telaio.modello_telaio import CaricoAsta, TipoCarico
 
 
 def _sez(b: float, h: float, E: float = 300000.0) -> SezioneTelaio:

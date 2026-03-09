@@ -3,7 +3,6 @@
 Verifica caricamento, ricerca e proprietà profili IPE, HEA, HEB, HEM, UPN.
 """
 
-import math
 from pathlib import Path
 
 import pytest

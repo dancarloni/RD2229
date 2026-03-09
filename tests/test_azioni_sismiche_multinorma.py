@@ -25,14 +25,13 @@ Valori di riferimento:
 import pytest
 
 from src.codes.seismic.base import PianoEdificio, distribuzione_triangolare
-from src.codes.seismic.rd2229 import RD2229_COEFF, calcola_azione_sismica_rd2229
+from src.codes.seismic.dispatcher import NORME_SUPPORTATE, calcola_azione_sismica
 from src.codes.seismic.dm92 import calcola_azione_sismica_dm92
 from src.codes.seismic.dm96 import calcola_azione_sismica_dm96
-from src.codes.seismic.opcm3274 import ZONE_AG, TC_STAR_OPCM, calcola_azione_sismica_opcm3274
-from src.codes.seismic.ec8 import EC8_TYPE1, EC8_TYPE2, calcola_azione_sismica_ec8
+from src.codes.seismic.ec8 import calcola_azione_sismica_ec8
 from src.codes.seismic.ntc2008 import calcola_azione_sismica_ntc2008
-from src.codes.seismic.dispatcher import calcola_azione_sismica, NORME_SUPPORTATE
-
+from src.codes.seismic.opcm3274 import calcola_azione_sismica_opcm3274
+from src.codes.seismic.rd2229 import calcola_azione_sismica_rd2229
 
 # ---------------------------------------------------------------------------
 # Fixture comuni

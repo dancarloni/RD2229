@@ -1,7 +1,6 @@
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from enum import Enum
 from typing import List, Optional, Tuple
 
 
@@ -412,7 +411,7 @@ class InputDiagnosticaAngolo:
     distanza_apertura_cm: float
     spessore_parete_cm: float
     tipo_soglia: TipoSogliaApertura = TipoSogliaApertura.NORMATIVA_NTC
-    # Parametri per modalità alternative (ignorati se NORMATIVA_NTC)
+    # Parametri per modalitÃ  alternative (ignorati se NORMATIVA_NTC)
     alpha_moltiplicatore_t: float = 1.5  # Usato se tipo_soglia == PARAMETRICA
     d_min_utente_cm: float = 100.0       # Usato se tipo_soglia == UTENTE
     # Modello di riduzione con asintoto minimo (Safe lower bound)
@@ -464,7 +463,7 @@ def calcola_resistenza_residua_angolo(input_diag: InputDiagnosticaAngolo) -> Ris
         passaggi.append(f'Distanza reale {d_eff:.1f} cm >= {d_min:.1f} cm limite. Nessuna penalizzazione.')
     else:
         is_ok = False
-        # Limitazione a soglia asintotica k_min per evitare labilità totale (B2)
+        # Limitazione a soglia asintotica k_min per evitare labilitÃ  totale (B2)
         k_lineare = d_eff / d_min if d_min > 0 else 1.0
         k = max(input_diag.k_min_resistenza, k_lineare)
         status = 'FAIL' if k <= input_diag.k_min_resistenza else 'WARNING'

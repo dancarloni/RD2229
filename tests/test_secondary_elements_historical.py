@@ -9,12 +9,10 @@ Verifica le funzionalita implementate in G.4:
 from __future__ import annotations
 
 import pytest
-from typing import Any
 
 # ---------------------------------------------------------------------------
 # DM96 — Modelli
 # ---------------------------------------------------------------------------
-
 from src.codes.dm96.secondary_elements.models import (
     COEFFICIENTE_SISMICO_C,
     SecondaryElementSpecDM96,
@@ -65,8 +63,8 @@ class TestDM96Models:
 # ---------------------------------------------------------------------------
 
 from src.codes.dm96.secondary_elements.checks import (
-    check_slu_dm96,
     check_sle_dm96,
+    check_slu_dm96,
 )
 
 
@@ -180,8 +178,8 @@ class TestDM96CheckSLE:
 # ---------------------------------------------------------------------------
 
 from src.codes.rd2229.secondary_elements.checks import (
-    check_slu_rd2229,
     check_sle_rd2229,
+    check_slu_rd2229,
     check_stabilita_ta,
 )
 

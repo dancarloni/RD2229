@@ -10,19 +10,17 @@ Verifica:
 
 import pytest
 
+from src.methods.muratura.discretizzazione import Maschio, TipoVincolo
+from src.methods.muratura.modello_edificio import MaterialeMuratura
+from src.methods.muratura.por_analisi import CurvaPushover, PuntoPushover
 from src.methods.muratura.por_verifiche import (
     RigaMaschio,
     TabellaVerificheMaschi,
-    RiepilogoRischio,
     calcola_riepilogo_rischio,
     genera_tabella_maschi,
     plot_curva_pushover,
 )
-from src.methods.muratura.discretizzazione import Maschio, TipoVincolo
-from src.methods.muratura.modello_edificio import MaterialeMuratura
-from src.methods.muratura.resistenza import ResistenzaMaschio, StatoMaschio
-from src.methods.muratura.por_analisi import CurvaPushover, PuntoPushover
-
+from src.methods.muratura.resistenza import ResistenzaMaschio
 
 # ═══════════════════════════════════════════════════════════
 #  Fixtures
@@ -350,7 +348,7 @@ class TestPlotPushover:
         fig = plot_curva_pushover(curva, mostra=False)
         # Se matplotlib è installato, deve ritornare una figura
         try:
-            import matplotlib
+            import matplotlib  # noqa: F401
             assert fig is not None
         except ImportError:
             assert fig is None

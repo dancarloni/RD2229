@@ -11,7 +11,11 @@ from __future__ import annotations
 
 from src.core_calculus.core.materials import (
     Concrete as CoreConcrete,
+)
+from src.core_calculus.core.materials import (
     Material as CoreMaterial,
+)
+from src.core_calculus.core.materials import (
     Steel as CoreSteel,
 )
 from src.materials.material_model import Material

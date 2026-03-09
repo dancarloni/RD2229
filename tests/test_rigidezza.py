@@ -8,15 +8,14 @@ Test per:
 - Distribuzione forze sui maschi
 """
 
-import math
 import pytest
 
-from src.methods.muratura.modello_edificio import MaterialeMuratura
 from src.methods.muratura.discretizzazione import (
     Fascia,
     Maschio,
     TipoVincolo,
 )
+from src.methods.muratura.modello_edificio import MaterialeMuratura
 from src.methods.muratura.rigidezza import (
     CHI_RETTANGOLARE,
     assembla_matrice_piano,

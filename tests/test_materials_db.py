@@ -5,7 +5,6 @@ Testa material_model, material_repo e validation.
 
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 from pathlib import Path
@@ -16,7 +15,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from materials.material_model import (
     Material,
-    ParametroDerivato,
     crea_acciaio_ntc2018,
     crea_calcestruzzo_ntc2018,
     crea_muratura_ntc2018,

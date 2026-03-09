@@ -53,8 +53,12 @@ except ImportError:
     _MPL_QT_AVAILABLE = False
     _QT_AVAILABLE = False
 
+from src.grafici.inviluppi import (
+    InviluppoSollecitazioni,
+    grafico_inviluppo,
+    inviluppo_sollecitazioni,
+)
 from src.grafici.sollecitazioni import DiagrammaSollecitazioni, grafico_sollecitazioni
-from src.grafici.inviluppi import InviluppoSollecitazioni, grafico_inviluppo, inviluppo_sollecitazioni
 from src.gui.widgets._export_mixin import ExportMixin
 
 

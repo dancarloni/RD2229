@@ -15,7 +15,7 @@ import logging
 import sys
 from typing import Any
 
-from ..actions.action_repo import get_action, list_actions, list_actions_for_norm
+from ..actions.action_repo import get_action, list_actions_for_norm
 from ..codes.code_registry import bootstrap_codes
 from ..elements.element_repo import ElementRepository
 from ..elements.resolve_inputs import resolve_verification_inputs

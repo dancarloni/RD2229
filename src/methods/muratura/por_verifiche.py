@@ -18,15 +18,12 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from src.methods.muratura.discretizzazione import Maschio
-from src.methods.muratura.resistenza import (
-    ResistenzaMaschio,
-    StatoMaschio,
-)
 from src.methods.muratura.por_analisi import (
     CurvaPushover,
-    RisultatoPOR,
 )
-
+from src.methods.muratura.resistenza import (
+    ResistenzaMaschio,
+)
 
 # ═══════════════════════════════════════════════════════════
 #  Riga tabella maschi

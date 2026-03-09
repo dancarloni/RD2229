@@ -16,46 +16,83 @@ Unita': cm geometria, kg forze, kg/cm² tensioni.
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 from typing import Optional
 
 try:
-    from PyQt6.QtCore import Qt, QRectF, QPointF
-    from PyQt6.QtGui import QColor, QPainter, QPen, QBrush, QFont
+    from PyQt6.QtCore import QPointF, QRectF, Qt
+    from PyQt6.QtGui import QBrush, QColor, QFont, QPainter, QPen
     from PyQt6.QtWidgets import (
-        QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
-        QGroupBox, QComboBox, QDoubleSpinBox, QSpinBox,
-        QTableWidget, QTableWidgetItem, QHeaderView,
-        QLineEdit, QPushButton, QLabel, QTextEdit,
-        QFileDialog, QSizePolicy, QMessageBox, QStackedWidget,
-        QScrollArea, QFrame,
+        QComboBox,
+        QDoubleSpinBox,
+        QFileDialog,
+        QFormLayout,
+        QFrame,
+        QGroupBox,
+        QHBoxLayout,
+        QHeaderView,
+        QLabel,
+        QLineEdit,
+        QMessageBox,
+        QPushButton,
+        QScrollArea,
+        QSizePolicy,
+        QSpinBox,
+        QStackedWidget,
+        QTableWidget,
+        QTableWidgetItem,
+        QTabWidget,
+        QTextEdit,
+        QVBoxLayout,
+        QWidget,
     )
     _PYQT6 = True
 except ImportError:
-    from PySide6.QtCore import Qt, QRectF, QPointF  # type: ignore[no-redef]
-    from PySide6.QtGui import QColor, QPainter, QPen, QBrush, QFont  # type: ignore[no-redef]
+    from PySide6.QtCore import QPointF, QRectF, Qt  # type: ignore[no-redef]
+    from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen  # type: ignore[no-redef]
     from PySide6.QtWidgets import (  # type: ignore[no-redef]
-        QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
-        QGroupBox, QComboBox, QDoubleSpinBox, QSpinBox,
-        QTableWidget, QTableWidgetItem, QHeaderView,
-        QLineEdit, QPushButton, QLabel, QTextEdit,
-        QFileDialog, QSizePolicy, QMessageBox, QStackedWidget,
-        QScrollArea, QFrame,
+        QComboBox,
+        QDoubleSpinBox,
+        QFileDialog,
+        QFormLayout,
+        QFrame,
+        QGroupBox,
+        QHBoxLayout,
+        QHeaderView,
+        QLabel,
+        QLineEdit,
+        QMessageBox,
+        QPushButton,
+        QScrollArea,
+        QSizePolicy,
+        QSpinBox,
+        QStackedWidget,
+        QTableWidget,
+        QTableWidgetItem,
+        QTabWidget,
+        QTextEdit,
+        QVBoxLayout,
+        QWidget,
     )
     _PYQT6 = False
 
-from src.steel.sagomario import SagomarioAcciaio, ProfiloAcciaio
 from src.elements.cordolo import (
-    CordoloCA, CordoloMetallico, Cordolo,
-    TipoCordolo, PosizioneCordolo, verifica_cordolo,
+    Cordolo,
+    CordoloCA,
+    CordoloMetallico,
+    PosizioneCordolo,
+    TipoCordolo,
+    verifica_cordolo,
 )
 from src.elements.cordolo_reticolare import (
-    CordoloReticolare, SchemaReticolare, verifica_cordolo_reticolare,
+    CordoloReticolare,
+    SchemaReticolare,
+    verifica_cordolo_reticolare,
 )
+from src.report.tabulati_calcolo import TabulatoCalcolo
+from src.steel.sagomario import ProfiloAcciaio, SagomarioAcciaio
 from src.steel.sezione_asta import SezioneAsta
 from src.steel.verifiche_ta import SIGMA_ADM_TA
-from src.report.tabulati_calcolo import TabulatoCalcolo
 
 try:
     from src.core.registro_log import registro as _registro
@@ -751,7 +788,9 @@ class CordoliWidget(QWidget):
         self._wx_min.textChanged.connect(self._filtra_tabella)
         self._h_min.textChanged.connect(self._filtra_tabella)
         self._h_max.textChanged.connect(self._filtra_tabella)
-        self.tabella_profili.currentRowChanged.connect(self._on_profilo_selezionato)
+        self.tabella_profili.currentCellChanged.connect(
+            lambda row, _col, _prev_row, _prev_col: self._on_profilo_selezionato(row)
+        )
         self.btn_importa_csv.clicked.connect(self._importa_csv)
         self.btn_genera_template.clicked.connect(self._genera_template)
         self.btn_calcola.clicked.connect(self._esegui_calcolo)
@@ -763,6 +802,7 @@ class CordoliWidget(QWidget):
         idx = _TIPI_CORDOLO.index(tipo)
         self._stack_sel.setCurrentIndex(idx)
         self._aggiorna_visibilita_tab3()
+        self.combo_famiglia.setVisible(tipo == "Metallico")
         self._profilo_corrente = None
         self._info_profilo.aggiorna(None)
         self._vis.aggiorna_metallico(None)

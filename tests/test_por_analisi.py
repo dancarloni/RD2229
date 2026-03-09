@@ -8,29 +8,24 @@ Test per:
 - Analisi completa (2 dir × 2 distr)
 """
 
-import math
 import pytest
 
+from src.methods.muratura.discretizzazione import Maschio, TipoVincolo
 from src.methods.muratura.modello_edificio import (
     ConfigPOR,
     MaterialeMuratura,
-    ParametriSismiciEdificio,
-)
-from src.methods.muratura.discretizzazione import Maschio, TipoVincolo
-from src.methods.muratura.resistenza import (
-    ResistenzaMaschio,
-    calcola_resistenza_maschio,
 )
 from src.methods.muratura.por_analisi import (
     CurvaPushover,
-    PuntoPushover,
-    RisultatoPOR,
     TipoDistribuzione,
     analisi_por_completa,
     bilinearizza_curva,
     forze_in_altezza,
     pushover_multipiano,
     pushover_piano,
+)
+from src.methods.muratura.resistenza import (
+    calcola_resistenza_maschio,
 )
 
 

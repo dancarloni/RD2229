@@ -28,17 +28,11 @@ from dataclasses import dataclass, field
 from src.methods.rd2229.telaio.combinazioni_rd2229 import InviluppoSollecitazioniAsta
 from src.methods.rd2229.telaio.modello_telaio import AstaTelaio, ModelloTelaio, TipoAsta
 from src.methods.rd2229.telaio.verifiche_telaio import (
-    ArmaturaSezioneSemplice,
     N_PILASTRO_KG,
     SIGMA_C_ADM_DEFAULT,
     SIGMA_S_ADM_DEFAULT,
+    ArmaturaSezioneSemplice,
     _MaterialeProxy,
-    _SezioneProxy,
-    _T_FLESSIONE,
-    _T_MINIMI,
-    _T_PRESSOFLESSIONE,
-    _T_TAGLIO,
-    verifica_sezione_ta,
 )
 
 # ==============================================================================

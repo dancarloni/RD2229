@@ -53,9 +53,9 @@ def calcola_azione_sismica_ntc2008(
         CategoriaSuolo,
         CategoriaTopografica,
         calcola_CC,
+        calcola_periodi,
         calcola_SS,
         calcola_ST,
-        calcola_periodi,
         spettro_elastico,
     )
 

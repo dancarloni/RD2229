@@ -6,14 +6,14 @@ Unità: cm geometria, cm² aree, cm⁴ inerzie, kg/m massa.
 from __future__ import annotations
 
 import math
+
 import pytest
 
 from src.steel.sezione_asta import (
     SezioneAsta,
     TipoSezioneAsta,
-    CatalogoSezioni,
-    carica_catalogo_piatti,
     carica_catalogo_angolari,
+    carica_catalogo_piatti,
 )
 from src.steel.verifiche_ta import verifica_asta_ta
 

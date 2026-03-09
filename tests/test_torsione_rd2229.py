@@ -11,7 +11,6 @@ import pytest
 from src.methods.rd2229.torsione import (
     EsitoTorsione,
     InputTorsione,
-    RisultatoTorsione,
     TipoSezione,
     calcola_tau_max_circolare,
     calcola_tau_max_doppio_T,

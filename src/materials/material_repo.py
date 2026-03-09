@@ -16,9 +16,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any
 
-from .material_source import MaterialSource
 from .material_model import (
     Material,
     crea_acciaio_ntc2018,
@@ -26,6 +24,7 @@ from .material_model import (
     crea_legno_ntc2018,
     crea_muratura_ntc2018,
 )
+from .material_source import MaterialSource
 from .validation import validate_material
 
 logger = logging.getLogger(__name__)

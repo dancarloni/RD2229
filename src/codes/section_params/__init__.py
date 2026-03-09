@@ -4,15 +4,15 @@ Re-esporta le interfacce principali.
 """
 
 from .composita import (
-    DatiIPE,
     IPE_TABLE,
+    DatiIPE,
     calcola_sezione_composta,
     calcola_tensioni_sle_composita,
 )
 from .norme_n import (
     NORME_SUPPORTATE,
-    NormaHnParams,
     RD2229_N_OPTIONS,
+    NormaHnParams,
     get_n_for_norm,
 )
 from .omogenizzata import (

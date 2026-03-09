@@ -15,7 +15,6 @@ from src.methods.muratura.verifiche_multipiano import (
     verifica_multipiano,
 )
 
-
 # ═══════════════════════════════════════════════════════════
 #  Fixtures
 # ═══════════════════════════════════════════════════════════

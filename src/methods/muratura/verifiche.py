@@ -18,7 +18,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class TipoMuratura(str, Enum):

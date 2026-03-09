@@ -10,9 +10,17 @@ Test per:
 - Determinazione vincoli maschi
 """
 
-import math
 import pytest
 
+from src.methods.muratura.discretizzazione import (
+    Fascia,
+    Maschio,
+    TipoVincolo,
+    calcola_N_gravitazionale,
+    determina_vincoli_maschi,
+    discretizza_parete,
+    discretizza_piano,
+)
 from src.methods.muratura.modello_edificio import (
     Apertura,
     MaterialeMuratura,
@@ -20,17 +28,6 @@ from src.methods.muratura.modello_edificio import (
     Piano,
     TipoApertura,
 )
-from src.methods.muratura.discretizzazione import (
-    Fascia,
-    Maschio,
-    TipoElemento,
-    TipoVincolo,
-    calcola_N_gravitazionale,
-    determina_vincoli_maschi,
-    discretizza_parete,
-    discretizza_piano,
-)
-
 
 # ═══════════════════════════════════════════════════════════
 #  Fixture comune

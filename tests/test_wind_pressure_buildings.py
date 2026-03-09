@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import pytest
 
-from src.wind.pressure_coefficients import (
-    get_wall_cpe,
-    get_all_wall_cpe,
-    get_flat_roof_cpe,
-    get_pitched_roof_cpe,
-    compute_building_pressure_zones,
-)
 from src.wind.internal_pressure import (
-    compute_cpi_simplified,
     compute_cpi_detailed,
     compute_cpi_dominant_opening,
+    compute_cpi_simplified,
     get_cpi_values,
 )
 from src.wind.models import InternalPressureConfig
+from src.wind.pressure_coefficients import (
+    compute_building_pressure_zones,
+    get_all_wall_cpe,
+    get_flat_roof_cpe,
+    get_pitched_roof_cpe,
+    get_wall_cpe,
+)
 
 
 class TestWallCpe:

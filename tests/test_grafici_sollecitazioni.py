@@ -1,16 +1,13 @@
 """Test per src/grafici/sollecitazioni.py e src/grafici/inviluppi.py."""
 
-import math
 
-import numpy as np
 import pytest
 
-from src.grafici.sollecitazioni import DiagrammaSollecitazioni, grafico_sollecitazioni
 from src.grafici.inviluppi import (
-    InviluppoSollecitazioni,
-    inviluppo_sollecitazioni,
     grafico_inviluppo,
+    inviluppo_sollecitazioni,
 )
+from src.grafici.sollecitazioni import DiagrammaSollecitazioni, grafico_sollecitazioni
 
 matplotlib = pytest.importorskip("matplotlib")
 

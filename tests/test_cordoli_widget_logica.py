@@ -7,11 +7,11 @@ producano output compatibile con TabulatoCalcolo, indipendentemente dalla GUI.
 import pytest
 
 from src.elements.cordolo import (
+    Cordolo,
     CordoloCA,
     CordoloMetallico,
-    Cordolo,
-    TipoCordolo,
     PosizioneCordolo,
+    TipoCordolo,
     verifica_cordolo,
 )
 from src.elements.cordolo_reticolare import (
@@ -19,10 +19,9 @@ from src.elements.cordolo_reticolare import (
     SchemaReticolare,
     verifica_cordolo_reticolare,
 )
+from src.report.tabulati_calcolo import TabulatoCalcolo
 from src.steel.sagomario import SagomarioAcciaio
 from src.steel.sezione_asta import SezioneAsta
-from src.report.tabulati_calcolo import TabulatoCalcolo
-
 
 # ─── Helpers ────────────────────────────────────────────────────────────────
 

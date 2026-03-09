@@ -23,7 +23,6 @@ Riferimenti:
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -31,10 +30,8 @@ from src.methods.muratura.discretizzazione import (
     Fascia,
     Maschio,
     TipoVincolo,
-    RisultatoDiscretizzazione,
     _direzione_maschio,
 )
-
 
 # Fattore forma taglio per sezione rettangolare
 CHI_RETTANGOLARE = 1.2

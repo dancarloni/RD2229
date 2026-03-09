@@ -24,18 +24,20 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
+from ..steel.connessioni import InputSaldatura, verifica_saldatura_ta
 from ..steel.sezione_asta import SezioneAsta
 from ..steel.traliccio_2d import (
-    risolvi_traliccio, verifica_aste_traliccio,
     distribuisci_carico_corrente,
+    risolvi_traliccio,
+    verifica_aste_traliccio,
 )
 from ..steel.traliccio_generatore import (
-    genera_howe, genera_pratt,
     applica_vincoli_cordolo,
+    genera_howe,
+    genera_pratt,
     valida_geometria,
 )
 from ..steel.verifiche_ta import SIGMA_ADM_TA
-from ..steel.connessioni import InputSaldatura, verifica_saldatura_ta
 
 
 class SchemaReticolare(str, Enum):
@@ -365,7 +367,7 @@ def dimensiona_cordolo_reticolare(
     Returns:
         CordoloReticolare dimensionato, oppure None se nessuna combinazione verifica
     """
-    from ..steel.sezione_asta import carica_catalogo_piatti, carica_catalogo_angolari
+    from ..steel.sezione_asta import carica_catalogo_angolari, carica_catalogo_piatti
 
     cat_c = (carica_catalogo_angolari() if famiglia_corrente.upper() == "ANGOLARE"
              else carica_catalogo_piatti())

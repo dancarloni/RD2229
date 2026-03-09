@@ -16,7 +16,6 @@ from src.elements.cordolo import (
     verifica_cordolo,
 )
 
-
 # ═══════════════════ Cordolo CA ═══════════════════
 
 class TestCordoloCA:

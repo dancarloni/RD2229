@@ -5,19 +5,18 @@ from __future__ import annotations
 import pytest
 
 from src.wind.special_structures import (
-    get_canopy_cp,
-    get_canopy_multibay_factor,
-    compute_canopy_pressures,
     compute_canopy_application_point,
+    compute_canopy_pressures,
     compute_shelter_pressures,
-    get_sign_cf,
     compute_sign_force,
     compute_sign_zone_pressures,
-    get_solar_panel_cp,
     compute_solar_pressures,
+    get_canopy_cp,
+    get_canopy_multibay_factor,
     get_freestanding_wall_cp,
+    get_sign_cf,
+    get_solar_panel_cp,
 )
-
 
 # ===========================================================================
 # Tettoie

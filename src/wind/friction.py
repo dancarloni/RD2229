@@ -12,7 +12,6 @@ Tre classi di rugosità superficiale:
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from src.wind.models import FRICTION_CLASSES
 from src.wind.outputs import FrictionForce

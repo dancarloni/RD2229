@@ -17,8 +17,7 @@ from src.core_calculus.lc_fc_adjustments import (
 )
 
 if TYPE_CHECKING:
-    from src.materials.material_model import Material
-    from src.materials.material_repo import MaterialRepository
+    pass
 
 # MPa -> kg/cm²
 _MPA_TO_KG_CM2 = 1.0 / 0.0980665

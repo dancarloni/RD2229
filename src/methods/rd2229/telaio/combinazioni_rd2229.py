@@ -27,8 +27,7 @@ from typing import Optional
 
 from .modello_telaio import CaricoAsta, ModelloTelaio, TipoCarico
 from .sisma_telaio import ForzeSismicheTelaio, calcola_forze_sismiche
-from .solver_telaio import RisultatoCasoCarico, SollecitazioniAsta, calcola_caso_carico
-
+from .solver_telaio import RisultatoCasoCarico, calcola_caso_carico
 
 # ==============================================================================
 # STRUTTURE DATI

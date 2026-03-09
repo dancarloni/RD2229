@@ -4,15 +4,12 @@ Verifica calcolo sollecitazioni (M/V/N) da momenti Cross.
 Subfase L.10.
 """
 
-import math
-import pytest
 
 from src.methods.rd2229.telaio.modello_telaio import (
     AstaTelaio,
     CaricoAsta,
     ModelloTelaio,
     NodoTelaio,
-    PianoTelaio,
     RilascioEstremita,
     SezioneTelaio,
     TipoAsta,
@@ -23,7 +20,6 @@ from src.methods.rd2229.telaio.modello_telaio import (
 )
 from src.methods.rd2229.telaio.solver_telaio import (
     calcola_caso_carico,
-    calcola_sollecitazioni_trave,
 )
 
 

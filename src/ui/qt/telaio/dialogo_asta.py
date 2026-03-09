@@ -15,7 +15,7 @@ try:
         QLineEdit,
         QListWidget,
         QPushButton,
-        QSpinBox,
+        QSpinBox,  # noqa: F401
         QTabWidget,
         QVBoxLayout,
         QWidget,
@@ -33,7 +33,6 @@ except ImportError:
         QLineEdit,
         QListWidget,
         QPushButton,
-        QSpinBox,
         QTabWidget,
         QVBoxLayout,
         QWidget,
@@ -329,7 +328,6 @@ class DialogoAsta(QDialog):
         h = self._spin_h.value()
         E = self._spin_E.value()
         gamma = self._spin_gamma.value()
-        import math
         I = b * h**3 / 12.0
         A = b * h
         Wx = b * h**2 / 6.0

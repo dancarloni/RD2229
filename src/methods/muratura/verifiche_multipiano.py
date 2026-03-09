@@ -21,13 +21,11 @@ Riferimenti:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from src.methods.muratura.carichi_verticali import CaricoMaschio
 from src.methods.muratura.combinazioni_muratura import GestoreCombinazioni
 from src.methods.muratura.discretizzazione import Maschio
 from src.methods.muratura.verifiche import interpola_phi
-
 
 # ═══════════════════════════════════════════════════════════
 #  Eccentricità

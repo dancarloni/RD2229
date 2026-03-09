@@ -10,7 +10,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-
 # Coefficienti sismici C per zona e importanza (DM96 §3.2)
 # Zona: 1 (alta sismicita), 2 (media), 3 (bassa)
 COEFFICIENTE_SISMICO_C: dict[int, float] = {

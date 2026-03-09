@@ -12,7 +12,6 @@ from src.methods.muratura.carichi_verticali import (
 from src.methods.muratura.discretizzazione import Maschio
 from src.methods.muratura.modello_edificio import MaterialeMuratura
 
-
 # ═══════════════════════════════════════════════════════════
 #  Fixtures
 # ═══════════════════════════════════════════════════════════

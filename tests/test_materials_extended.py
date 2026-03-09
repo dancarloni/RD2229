@@ -10,14 +10,12 @@ import pytest
 from src.materials import (
     Material,
     MaterialRepository,
-    MaterialValidationError,
     crea_acciaio_ntc2018,
     crea_calcestruzzo_ntc2018,
     crea_legno_ntc2018,
     crea_muratura_ntc2018,
     validate_material,
 )
-
 
 # ===========================================================================
 # Factory legno
@@ -220,8 +218,8 @@ class TestCataloghi:
 
 class TestAdapter:
     def test_concrete_to_core(self):
-        from src.materials.adapter import material_to_core
         from src.core_calculus.core.materials import Concrete as CoreConcrete
+        from src.materials.adapter import material_to_core
 
         cls = crea_calcestruzzo_ntc2018("C25/30")
         core = material_to_core(cls)
@@ -231,8 +229,8 @@ class TestAdapter:
         assert core.gamma_c == pytest.approx(1.50)
 
     def test_steel_to_core(self):
-        from src.materials.adapter import material_to_core
         from src.core_calculus.core.materials import Steel as CoreSteel
+        from src.materials.adapter import material_to_core
 
         acc = crea_acciaio_ntc2018("B450C")
         core = material_to_core(acc)
@@ -259,8 +257,8 @@ class TestAdapter:
         assert back.f_yk == pytest.approx(original.f_yk, rel=0.01)
 
     def test_masonry_to_core_generic(self):
-        from src.materials.adapter import material_to_core
         from src.core_calculus.core.materials import Material as CoreMaterial
+        from src.materials.adapter import material_to_core
 
         mur = crea_muratura_ntc2018("mattoni_pieni", "M10")
         core = material_to_core(mur)

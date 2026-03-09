@@ -4,8 +4,6 @@ import json
 import os
 import tempfile
 
-import pytest
-
 from src.elements.element_model import Constraint, Element, LoadCase
 from src.elements.element_repo import ElementRepository
 from src.elements.resolve_inputs import resolve_verification_inputs
@@ -14,7 +12,6 @@ from src.report.renderer_html import HTMLReportRenderer
 from src.report.renderer_md import MarkdownReportRenderer
 from src.report.renderer_pdf import PDFReportRenderer
 from src.tools.export_results import export_to_csv, export_to_json, results_to_table
-
 
 # ===================================================================
 # LoadCase

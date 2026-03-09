@@ -19,7 +19,6 @@ from typing import Any
 
 from src.codes.section_params.omogenizzata import BarraArmatura
 
-
 # ---------------------------------------------------------------------------
 # Dataclass di input/output
 # ---------------------------------------------------------------------------

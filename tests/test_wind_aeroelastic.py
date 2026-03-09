@@ -5,18 +5,15 @@ from __future__ import annotations
 import pytest
 
 from src.wind.aeroelastic import (
-    STROUHAL_NUMBERS,
-    GALLOPING_SUSCEPTIBLE_SECTIONS,
+    AeroelasticCheckResult,
+    GallopingResult,
+    VortexSheddingResult,
+    check_aeroelastic_effects,
+    check_galloping,
+    check_vortex_shedding,
     compute_critical_wind_speed,
     get_strouhal_number,
-    check_vortex_shedding,
-    check_galloping,
-    check_aeroelastic_effects,
-    VortexSheddingResult,
-    GallopingResult,
-    AeroelasticCheckResult,
 )
-
 
 # ===========================================================================
 # Velocità critica e Strouhal

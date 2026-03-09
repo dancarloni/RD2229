@@ -8,18 +8,18 @@ Copertura:
 """
 
 import math
+
 import pytest
 
+from src.codes.ntc2018.secondary_elements.drift_models import (
+    estimate_drift_global,
+    estimate_drift_metodo_b,
+    estimate_drift_user,
+)
 from src.codes.ntc2018.secondary_elements.ta_models import (
     estimate_ta,
     spectral_acceleration_floor,
 )
-from src.codes.ntc2018.secondary_elements.drift_models import (
-    estimate_drift_metodo_b,
-    estimate_drift_user,
-    estimate_drift_global,
-)
-
 
 # ===========================================================================
 # estimate_ta

@@ -13,7 +13,6 @@ I coefficienti sono caricati da data/wind/coefficients/ con override utente.
 from __future__ import annotations
 
 import logging
-import math
 from typing import Any
 
 from src.wind.zone_loader import load_coefficient_file

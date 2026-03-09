@@ -17,15 +17,23 @@ try:
 
     try:
         from PySide6.QtWidgets import (
-            QComboBox, QHBoxLayout, QLabel, QSizePolicy,
-            QVBoxLayout, QWidget,
+            QComboBox,
+            QHBoxLayout,
+            QLabel,
+            QSizePolicy,
+            QVBoxLayout,
+            QWidget,
         )
         _QT_AVAILABLE = True
     except ImportError:
         try:
             from PyQt6.QtWidgets import (
-                QComboBox, QHBoxLayout, QLabel, QSizePolicy,
-                QVBoxLayout, QWidget,
+                QComboBox,
+                QHBoxLayout,
+                QLabel,
+                QSizePolicy,
+                QVBoxLayout,
+                QWidget,
             )
             _QT_AVAILABLE = True
         except ImportError:

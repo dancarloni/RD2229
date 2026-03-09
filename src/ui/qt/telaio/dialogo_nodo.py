@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 try:
-    from PyQt6.QtCore import Qt
+    from PyQt6.QtCore import Qt  # noqa: F401
     from PyQt6.QtWidgets import (
         QComboBox,
         QDialog,
@@ -18,7 +18,6 @@ try:
         QWidget,
     )
 except ImportError:
-    from PySide6.QtCore import Qt
     from PySide6.QtWidgets import (
         QComboBox,
         QDialog,

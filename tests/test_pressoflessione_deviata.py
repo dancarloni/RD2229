@@ -24,20 +24,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.codes.section_params.omogenizzata import BarraArmatura
-
 from src.codes.pressoflessione.base import (
     DominioNMy,
-    PressoflessResult,
     PressoflessSpec,
     calcola_omogenizzata_biassiale,
     crea_armatura_rettangolare,
-)
-from src.codes.pressoflessione.ta_cls import (
-    calcola_M_Rd_ta,
-    verifica_bresler_ta,
-    verifica_pressofless_ta_cls,
-    verifica_sovrapposizione_elastica,
 )
 from src.codes.pressoflessione.dispatcher import (
     NORME,
@@ -45,14 +36,20 @@ from src.codes.pressoflessione.dispatcher import (
     NORME_TA,
     calcola_pressoflessione_deviata,
 )
+from src.codes.pressoflessione.dominio import (
+    _m_rd_bresler,
+    calcola_dominio_3d,
+)
 from src.codes.pressoflessione.instabilita_biassiale import (
     amplifica_momenti_biassiale,
 )
-from src.codes.pressoflessione.dominio import (
-    calcola_dominio_3d,
-    _m_rd_bresler,
+from src.codes.pressoflessione.ta_cls import (
+    calcola_M_Rd_ta,
+    verifica_bresler_ta,
+    verifica_pressofless_ta_cls,
+    verifica_sovrapposizione_elastica,
 )
-
+from src.codes.section_params.omogenizzata import BarraArmatura
 
 # ===========================================================================
 # Fixtures

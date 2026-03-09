@@ -7,14 +7,13 @@ I test di calcolo dominio (calcola_dominio_3d) sono coperti dalla suite Fase J.
 import pytest
 
 from src.grafici.interazione import (
-    PuntoLavoro,
-    DominioFactory,
-    sovrapponi_punto_lavoro,
-    _normalizza_norma,
-    _NORME_TA,
     _NORME_SLU,
+    _NORME_TA,
+    DominioFactory,
+    PuntoLavoro,
+    _normalizza_norma,
+    sovrapponi_punto_lavoro,
 )
-
 
 # ---------------------------------------------------------------------------
 # PuntoLavoro
@@ -116,8 +115,8 @@ class TestSovrappontiPuntoLavoro:
     matplotlib = pytest.importorskip("matplotlib")
 
     def test_disegna_senza_errori(self):
+
         import matplotlib.pyplot as plt
-        import math
 
         fig, ax = plt.subplots()
         ax.plot([0, 100000], [0, -50000], "r-")  # dominio finto
@@ -134,8 +133,8 @@ class TestSovrappontiPuntoLavoro:
 
     def test_proiezione_theta_zero(self):
         """Con θ=0, M_proiettato = |Mx·cos(0)| + |My·sin(0)| = Mx."""
+
         import matplotlib.pyplot as plt
-        import math
 
         fig, ax = plt.subplots()
         p = PuntoLavoro(N_Ed_kg=0.0, Mx_Ed_kgcm=50000.0, My_Ed_kgcm=30000.0)
@@ -144,8 +143,9 @@ class TestSovrappontiPuntoLavoro:
 
     def test_proiezione_theta_90gradi(self):
         """Con θ=π/2, M_proiettato = |Mx·cos(90)| + |My·sin(90)| = My."""
-        import matplotlib.pyplot as plt
         import math
+
+        import matplotlib.pyplot as plt
 
         fig, ax = plt.subplots()
         p = PuntoLavoro(N_Ed_kg=0.0, Mx_Ed_kgcm=0.0, My_Ed_kgcm=70000.0)

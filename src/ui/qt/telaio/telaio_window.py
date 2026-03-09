@@ -18,60 +18,54 @@ from typing import Optional
 
 try:
     from PyQt6.QtCore import Qt
+    from PyQt6.QtGui import QAction, QIcon  # noqa: F401
     from PyQt6.QtWidgets import (
         QComboBox,
         QDialog,
         QDockWidget,
         QFileDialog,
-        QGroupBox,
+        QGroupBox,  # noqa: F401
         QHBoxLayout,
         QLabel,
         QMainWindow,
-        QMenu,
-        QMenuBar,
+        QMenu,  # noqa: F401
+        QMenuBar,  # noqa: F401
         QMessageBox,
         QPushButton,
-        QScrollArea,
-        QSizePolicy,
-        QSplitter,
+        QScrollArea,  # noqa: F401
+        QSizePolicy,  # noqa: F401
+        QSplitter,  # noqa: F401
         QStatusBar,
-        QTabWidget,
         QTableWidget,
         QTableWidgetItem,
+        QTabWidget,
         QTextEdit,
         QToolBar,
         QVBoxLayout,
         QWidget,
     )
-    from PyQt6.QtGui import QAction, QIcon
 except ImportError:
     from PySide6.QtCore import Qt
+    from PySide6.QtGui import QAction
     from PySide6.QtWidgets import (
         QComboBox,
         QDialog,
         QDockWidget,
         QFileDialog,
-        QGroupBox,
         QHBoxLayout,
         QLabel,
         QMainWindow,
-        QMenu,
-        QMenuBar,
         QMessageBox,
         QPushButton,
-        QScrollArea,
-        QSizePolicy,
-        QSplitter,
         QStatusBar,
-        QTabWidget,
         QTableWidget,
         QTableWidgetItem,
+        QTabWidget,
         QTextEdit,
         QToolBar,
         QVBoxLayout,
         QWidget,
     )
-    from PySide6.QtGui import QAction, QIcon
 
 from src.methods.rd2229.telaio.armature_telaio import proponi_armature_telaio
 from src.methods.rd2229.telaio.canvas_telaio import CanvasTelaio, ModalitaCanvas
@@ -84,10 +78,6 @@ from src.methods.rd2229.telaio.modello_telaio import (
     ModelloTelaio,
     NodoTelaio,
     PianoTelaio,
-    RilascioEstremita,
-    SezioneTelaio,
-    TipoAsta,
-    TipoRilascioInterno,
     TipoVincoloEsterno,
     VincoloEsterno,
 )

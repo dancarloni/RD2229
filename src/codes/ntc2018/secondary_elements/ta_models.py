@@ -180,7 +180,7 @@ def spectral_acceleration_floor_from_site(
     Returns:
         S_a: accelerazione spettrale al piano (adimensionale, rapporto a g)
     """
-    from ..spectrum import calcola_SS, calcola_ST, calcola_alpha_S  # lazy import
+    from ..spectrum import calcola_alpha_S, calcola_SS, calcola_ST  # lazy import
 
     SS = calcola_SS(ag_g, F0, cat_suolo)
     ST = calcola_ST(cat_topografica)

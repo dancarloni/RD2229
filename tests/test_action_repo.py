@@ -5,19 +5,17 @@ import math
 import pytest
 
 from src.actions.action_repo import (
-    ACTION_REPOSITORY,
     FlexureCheck,
     PressFlexureCheck,
+    ShearCheck,
     SLECrackingCheck,
     SLEStressCheck,
-    ShearCheck,
     TorsionCheck,
     get_action,
     list_actions,
     list_actions_for_norm,
     register_action,
 )
-
 
 # ===================================================================
 # Repository

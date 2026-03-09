@@ -7,12 +7,12 @@ import pytest
 from src.steel.sezione_asta import SezioneAsta
 from src.steel.traliccio_2d import TipoVincolo
 from src.steel.traliccio_generatore import (
+    applica_vincoli_cordolo,
     genera_howe,
     genera_pratt,
-    applica_vincoli_cordolo,
     n_campate_default,
-    valida_geometria,
     predimensiona_sezione,
+    valida_geometria,
 )
 
 

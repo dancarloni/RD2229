@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import math
 from types import SimpleNamespace
 
 import pytest
 
 from src.core_calculus.contracts import CalcInput, SingleCheckResult, VerificationTemplate
-
 
 # ======================================================================
 # HELPER
@@ -412,11 +410,11 @@ class TestSecondaryElements:
 
     def test_storage_adapter(self):
         from src.codes.ntc2018.secondary_elements.storage_adapter import (
-            save_secondary_element,
-            load_secondary_element,
-            list_secondary_elements,
-            delete_secondary_element,
             clear_storage,
+            delete_secondary_element,
+            list_secondary_elements,
+            load_secondary_element,
+            save_secondary_element,
         )
         clear_storage()
 
@@ -441,9 +439,9 @@ class TestSecondaryElements:
 
     def test_storage_custom_id(self):
         from src.codes.ntc2018.secondary_elements.storage_adapter import (
-            save_secondary_element,
-            load_secondary_element,
             clear_storage,
+            load_secondary_element,
+            save_secondary_element,
         )
         clear_storage()
         rid = save_secondary_element({"id": "my-elem", "type": "partition"})

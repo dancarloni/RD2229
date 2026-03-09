@@ -7,9 +7,9 @@ Espone le API pubbliche dei sottomoduli:
 - spostamenti    : DiagrammaSpostamenti, SolutoreAnalitico, SolutoreFEM, grafico_spostamenti
 """
 
+from .interazione import DominioFactory, PuntoLavoro, sovrapponi_punto_lavoro
+from .inviluppi import InviluppoSollecitazioni, grafico_inviluppo, inviluppo_sollecitazioni
 from .sollecitazioni import DiagrammaSollecitazioni, grafico_sollecitazioni
-from .inviluppi import InviluppoSollecitazioni, inviluppo_sollecitazioni, grafico_inviluppo
-from .interazione import PuntoLavoro, DominioFactory, sovrapponi_punto_lavoro
 from .spostamenti import (
     DiagrammaSpostamenti,
     ISolutoreSpostamenti,

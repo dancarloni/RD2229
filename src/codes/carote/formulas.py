@@ -12,7 +12,7 @@ from __future__ import annotations
 import math
 from typing import Any, Callable
 
-from src.codes.carote.core_sample import ConversionResult, CorrectionFactors, CoreSample
+from src.codes.carote.core_sample import ConversionResult, CoreSample, CorrectionFactors
 
 # ---------------------------------------------------------------------------
 # Tabelle k_ld per formulazioni a lookup

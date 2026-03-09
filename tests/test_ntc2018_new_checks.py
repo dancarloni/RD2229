@@ -6,13 +6,11 @@ proprietà torsionali sezioni, per sezioni rettangolari, circolari, T, cave.
 
 from __future__ import annotations
 
-import math
 from types import SimpleNamespace
 
 import pytest
 
 from src.core_calculus.contracts import CalcInput, NormReference, VerificationTemplate
-
 
 # ---------------------------------------------------------------------------
 # Helper: template e materiali fittizi

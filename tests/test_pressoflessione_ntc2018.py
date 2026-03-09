@@ -11,9 +11,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.core_calculus.contracts import CalcInput, VerificationTemplate, NormReference
+from src.core_calculus.contracts import CalcInput, NormReference, VerificationTemplate
 from src.methods.ntc2018.checks import check_pressoflessione_slu
-
 
 # ---------------------------------------------------------------------------
 # Helper: template e materiali fittizi

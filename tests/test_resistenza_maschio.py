@@ -6,23 +6,20 @@ Test per:
 - Stato maschio per spostamento
 """
 
-import math
 import pytest
 
-from src.methods.muratura.modello_edificio import MaterialeMuratura
 from src.methods.muratura.discretizzazione import (
     Fascia,
     Maschio,
     TipoVincolo,
 )
+from src.methods.muratura.modello_edificio import MaterialeMuratura
 from src.methods.muratura.resistenza import (
-    ResistenzaMaschio,
     StatoMaschio,
     calcola_resistenza_fascia,
     calcola_resistenza_maschio,
     calcola_resistenze_piano,
 )
-from src.methods.muratura.rigidezza import rigidezza_maschio
 
 
 @pytest.fixture

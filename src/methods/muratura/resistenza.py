@@ -21,23 +21,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from src.methods.muratura.discretizzazione import (
     Fascia,
     Maschio,
     TipoVincolo,
 )
-from src.methods.muratura.rigidezza import rigidezza_maschio, rigidezza_fascia
+from src.methods.muratura.rigidezza import rigidezza_fascia, rigidezza_maschio
 from src.methods.muratura.verifiche import (
-    CriterioTaglio,
     InputTaglio,
-    RisultatoTaglio,
     taglio_diagonale,
     taglio_pressoflessione,
     taglio_scorrimento,
 )
-
 
 # ═══════════════════════════════════════════════════════════
 #  Stato maschio nella pushover

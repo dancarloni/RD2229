@@ -6,14 +6,13 @@ import pytest
 
 from src.wind.outputs import PressureZoneResults, ZoneForce
 from src.wind.resultant_forces import (
-    compute_zone_force,
+    compute_base_moment,
     compute_resultant_forces,
+    compute_zone_force,
+    forces_to_calc_input,
     sum_horizontal_forces,
     sum_vertical_forces,
-    compute_base_moment,
-    forces_to_calc_input,
 )
-
 
 # ===========================================================================
 # compute_zone_force

@@ -17,7 +17,7 @@ import logging
 from typing import Any
 
 try:
-    from PyQt6.QtCore import Qt, QTimer
+    from PyQt6.QtCore import Qt, QTimer  # noqa: F401
     from PyQt6.QtWidgets import (
         QComboBox,
         QFileDialog,
@@ -26,13 +26,13 @@ try:
         QLineEdit,
         QPushButton,
         QSizePolicy,
-        QSplitter,
+        QSplitter,  # noqa: F401
         QTextEdit,
         QVBoxLayout,
         QWidget,
     )
 except ImportError:  # pragma: no cover
-    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtCore import QTimer
     from PySide6.QtWidgets import (
         QComboBox,
         QFileDialog,
@@ -41,7 +41,6 @@ except ImportError:  # pragma: no cover
         QLineEdit,
         QPushButton,
         QSizePolicy,
-        QSplitter,
         QTextEdit,
         QVBoxLayout,
         QWidget,

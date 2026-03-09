@@ -38,21 +38,19 @@ from dataclasses import dataclass, field
 from typing import Any
 
 try:
-    from PyQt6.QtCore import Qt, QPointF, QRectF
-    from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF, QFont
+    from PyQt6.QtCore import QPointF, QRectF, Qt  # noqa: F401
+    from PyQt6.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPolygonF
     from PyQt6.QtWidgets import (
-        QHBoxLayout,
+        QHBoxLayout,  # noqa: F401
         QSizePolicy,
-        QVBoxLayout,
+        QVBoxLayout,  # noqa: F401
         QWidget,
     )
 except ImportError:  # pragma: no cover
-    from PySide6.QtCore import Qt, QPointF, QRectF
-    from PySide6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF, QFont
+    from PySide6.QtCore import QPointF, Qt
+    from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPolygonF
     from PySide6.QtWidgets import (
-        QHBoxLayout,
         QSizePolicy,
-        QVBoxLayout,
         QWidget,
     )
 

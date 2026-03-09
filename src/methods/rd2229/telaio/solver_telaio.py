@@ -17,9 +17,9 @@ Riferimenti:
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 
+from .cross_pozzati import DatiCross, calcola_cross_pozzati
 from .modello_telaio import (
     AstaTelaio,
     CaricoAsta,
@@ -27,8 +27,6 @@ from .modello_telaio import (
     TipoAsta,
     TipoCarico,
 )
-from .cross_pozzati import DatiCross, calcola_cross_pozzati
-
 
 # ==============================================================================
 # STRUTTURE DATI RISULTATO

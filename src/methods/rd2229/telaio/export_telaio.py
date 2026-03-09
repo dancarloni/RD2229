@@ -23,9 +23,7 @@ from __future__ import annotations
 
 import html as html_mod
 import math
-from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any
 
 from src.methods.rd2229.telaio.armature_telaio import (
     ArmaturaSezioneSemplice,
@@ -34,24 +32,19 @@ from src.methods.rd2229.telaio.armature_telaio import (
 )
 from src.methods.rd2229.telaio.combinazioni_rd2229 import (
     InviluppoSollecitazioniAsta,
-    RisultatoCombinazioni,
 )
-from src.methods.rd2229.telaio.cross_pozzati import DatiCross, RigaIterazioneCross
+from src.methods.rd2229.telaio.cross_pozzati import DatiCross
 from src.methods.rd2229.telaio.modello_telaio import (
-    AstaTelaio,
     ModelloTelaio,
     TipoRilascioInterno,
     TipoVincoloEsterno,
-    VincoloEsterno,
 )
 from src.methods.rd2229.telaio.solver_telaio import (
     RisultatoCasoCarico,
-    SollecitazioniAsta,
 )
 from src.methods.rd2229.telaio.verifiche_telaio import (
     RisultatoVerificaAsta,
     riepilogo_verifiche,
-    semaforo_asta,
 )
 
 # ==============================================================================

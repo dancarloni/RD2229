@@ -2,26 +2,23 @@
 
 from __future__ import annotations
 
-import math
-
 import pytest
 
 from src.wind.cnr_dt207 import (
     CscdDetailedResult,
-    compute_turbulence_intensity,
-    compute_integral_length_scale,
-    compute_background_factor,
-    compute_spectral_density,
     compute_aerodynamic_admittance,
-    compute_resonance_factor,
+    compute_background_factor,
+    compute_integral_length_scale,
     compute_peak_factor,
+    compute_resonance_factor,
+    compute_spectral_density,
     compute_structural_factor,
     compute_structural_factor_detailed,
+    compute_turbulence_intensity,
     enrich_results_with_cnr_dt207,
 )
 from src.wind.models import BuildingGeom, StructureGeom, WindSite
 from src.wind.outputs import WindResults
-
 
 # ===========================================================================
 # Intensità di turbolenza

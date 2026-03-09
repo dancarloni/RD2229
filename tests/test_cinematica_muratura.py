@@ -6,7 +6,6 @@ verticale, flessione orizzontale) + cinematica lineare/non lineare.
 Riferimenti: NTC2018 §C8A.4, Circolare n.7/2019.
 """
 
-import math
 
 import pytest
 
@@ -16,7 +15,6 @@ from src.methods.muratura.cinematica import (
     ParametriSismici,
     PareteMuraria,
     PosizioneParete,
-    RisultatoCinematica,
     TipoMeccanismo,
     analisi_meccanismi_locali,
     flessione_orizzontale,
@@ -24,7 +22,6 @@ from src.methods.muratura.cinematica import (
     ribaltamento_composto,
     ribaltamento_semplice,
 )
-
 
 # ═══════════════════ Fixture ═══════════════════
 

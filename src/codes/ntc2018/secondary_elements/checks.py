@@ -44,7 +44,7 @@ def check_slu(inputs: dict[str, Any]) -> dict[str, Any]:
     # z, H, T_a, T_1, il modulo calcola S_a internamente tramite spectrum.py.
     _site_keys = ("ag_g", "F0", "TC_star", "cat_suolo", "cat_topografica", "z", "H", "T_a", "T_1")
     if inputs.get("S_a") is None and all(k in inputs for k in _site_keys):
-        from ..spectrum import calcola_SS, calcola_ST, calcola_alpha_S
+        from ..spectrum import calcola_alpha_S, calcola_SS, calcola_ST
         from .ta_models import spectral_acceleration_floor
         ag_g = float(inputs["ag_g"])
         F0_val = float(inputs["F0"])

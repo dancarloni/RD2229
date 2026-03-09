@@ -3,10 +3,8 @@
 Subfase L.10.
 """
 
-import pytest
 
 from src.methods.rd2229.telaio.combinazioni_rd2229 import (
-    InviluppoSollecitazioniAsta,
     calcola_tutte_le_combinazioni,
     combinazioni_attive,
 )

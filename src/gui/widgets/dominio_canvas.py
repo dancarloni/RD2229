@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.grafici.interazione import PuntoLavoro, DominioFactory, sovrapponi_punto_lavoro
+from src.grafici.interazione import DominioFactory, PuntoLavoro, sovrapponi_punto_lavoro
 from src.gui.widgets._export_mixin import ExportMixin
 
 # Importazione opzionale Qt + matplotlib backend
@@ -20,19 +20,35 @@ try:
     from matplotlib.figure import Figure
 
     try:
-        from PySide6.QtWidgets import (
-            QCheckBox, QComboBox, QFileDialog, QHBoxLayout, QLabel,
-            QPushButton, QSizePolicy, QSlider, QVBoxLayout, QWidget,
-        )
         from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import (
+            QCheckBox,
+            QComboBox,
+            QFileDialog,
+            QHBoxLayout,
+            QLabel,
+            QPushButton,
+            QSizePolicy,
+            QSlider,
+            QVBoxLayout,
+            QWidget,
+        )
         _QT_AVAILABLE = True
     except ImportError:
         try:
-            from PyQt6.QtWidgets import (
-                QCheckBox, QComboBox, QFileDialog, QHBoxLayout, QLabel,
-                QPushButton, QSizePolicy, QSlider, QVBoxLayout, QWidget,
-            )
             from PyQt6.QtCore import Qt
+            from PyQt6.QtWidgets import (
+                QCheckBox,
+                QComboBox,
+                QFileDialog,
+                QHBoxLayout,
+                QLabel,
+                QPushButton,
+                QSizePolicy,
+                QSlider,
+                QVBoxLayout,
+                QWidget,
+            )
             _QT_AVAILABLE = True
         except ImportError:
             _QT_AVAILABLE = False
@@ -202,6 +218,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
 
         def _draw_2d_nm(self, dom: Any) -> None:
             import math
+
             import numpy as np
 
             theta_deg = self._slider_theta.value()

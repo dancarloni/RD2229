@@ -32,26 +32,15 @@ from typing import Optional
 
 from src.methods.muratura.discretizzazione import (
     Maschio,
-    Fascia,
-    RisultatoDiscretizzazione,
 )
 from src.methods.muratura.modello_edificio import (
     ConfigPOR,
-    Edificio,
-    Piano,
     ParametriSismiciEdificio,
 )
 from src.methods.muratura.resistenza import (
     ResistenzaMaschio,
     StatoMaschio,
-    calcola_resistenza_maschio,
 )
-from src.methods.muratura.rigidezza import (
-    calcola_centro_rigidezza,
-    distribuisci_forza_piano,
-    rigidezza_maschio,
-)
-
 
 # ═══════════════════════════════════════════════════════════
 #  Distribuzione forze in altezza

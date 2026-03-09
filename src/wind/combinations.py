@@ -12,8 +12,6 @@ Le combinazioni sono opzionali e attivate solo se richiesto.
 from __future__ import annotations
 
 import logging
-from dataclasses import field
-from typing import Any
 
 from src.wind.outputs import PressureZoneResults, WindCombination, ZoneForce
 

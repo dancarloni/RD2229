@@ -36,39 +36,40 @@
 | Fase | Stato | %   | Ultimo commit | Dettaglio                |
 |------|-------|-----|---------------|--------------------------|
 | A    | ✅    | 100 | a0f05aa       | [piano_fase_A.md](piano_fase_A.md) |
-| B    | ✅    | 100 | ...           | [piano_fase_B.md](piano_fase_B.md) |
-| C    | ✅    | 100 | ...           | [piano_fase_C.md](piano_fase_C.md) |
-| D    | ✅    | 100 | corrente      | [piano_fase_D.md](piano_fase_D.md) |
-| E    | ✅    | 100 | ...           | [piano_fase_E.md](piano_fase_E.md) |
-| F    | ✅    | 100 | ...           | [piano_fase_F.md](piano_fase_F.md) |
-| G    | ✅    | 100 | ...           | [piano_fase_G.md](piano_fase_G.md) |
-| H    | ✅    | 100 | corrente      | [piano_fase_H.md](piano_fase_H.md) |
+| B    | ✅    | 100 | bdd8c6a       | [piano_fase_B.md](piano_fase_B.md) |
+| C    | ✅    | 100 | c24f6f2       | [piano_fase_C.md](piano_fase_C.md) |
+| D    | ✅    | 100 | 368910a       | [piano_fase_D.md](piano_fase_D.md) |
+| E    | ✅    | 100 | 0b9a83d       | [piano_fase_E.md](piano_fase_E.md) |
+| F    | ✅    | 100 | 1b5e32d       | [piano_fase_F.md](piano_fase_F.md) |
+| G    | ✅    | 100 | 394dc31       | [piano_fase_G.md](piano_fase_G.md) |
+| H    | ✅    | 100 | 99aaf55       | [piano_fase_H.md](piano_fase_H.md) |
 | I    | ✅    | 100 | 3bed1a7       | [piano_fase_I.md](piano_fase_I.md) |
 | J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
-| K    | ✅    | 100 | corrente      | [piano_fase_K.md](piano_fase_K.md) |
-| L    | ✅    | 100 | corrente      | [piano_fase_L.md](piano_fase_L.md) |
-| M    | ⬜    | 0   | ...           | [piano_fase_M.md](piano_fase_M.md) |
+| K    | ✅    | 100 | 23f60cf       | [piano_fase_K.md](piano_fase_K.md) |
+| L    | ✅    | 100 | f041b45       | [piano_fase_L.md](piano_fase_L.md) |
+| M    | ⬜    | 0   | —             | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
-| O    | ✅    | 100 | corrente      | [piano_fase_O.md](piano_fase_O.md) |
-| P    | ⬜    | 0   | ...           | [piano_fase_P.md](piano_fase_P.md) |
-| Q    | ⬜    | 0   | ...           | [piano_fase_Q.md](piano_fase_Q.md) |
-| R    | ⬜    | 0   | ...           | [piano_fase_R.md](piano_fase_R.md) |
-| S    | ⬜    | 0   | ...           | [piano_fase_S.md](piano_fase_S.md) |
-| T    | ⬜    | 0   | ...           | [piano_fase_T.md](piano_fase_T.md) |
-| U    | ⬜    | 0   | ...           | [piano_fase_U.md](piano_fase_U.md) |
-| V    | ⬜    | 0   | ...           | [piano_fase_V.md](piano_fase_V.md) |
-| W    | ⬜    | 0   | ...           | [piano_fase_W.md](piano_fase_W.md) |
+| O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) |
+| P    | ⬜    | 0   | —             | [piano_fase_P.md](piano_fase_P.md) |
+| Q    | ⬜    | 0   | —             | [piano_fase_Q.md](piano_fase_Q.md) |
+| R    | ⬜    | 0   | —             | [piano_fase_R.md](piano_fase_R.md) |
+| S    | ⬜    | 0   | —             | [piano_fase_S.md](piano_fase_S.md) |
+| T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) |
+| U    | ⬜    | 0   | —             | [piano_fase_U.md](piano_fase_U.md) |
+| V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) |
+| W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) |
 
 ---
 
 ## Attività completate
 
-| Data       | Fase | Subfase | Commit   | Note sintetica |
-|------------|------|---------|----------|---------------|
-| 2026-03-07 | A    | A.2.9   | a0f05aa  | Test cataloghi materiali superati |
-| ...        | ...  | ...     | ...      | ...           |
-| 2026-03-08 | Q    | Q.0     | ...      | Storicizzazione domande/risposte/decisioni in [piano_fase_Q.md](docs/piano_fase_Q.md) — % completamento: 0% |
-| 2026-03-09 | K    | K.1–K.4 | corrente | Fase K completa: grafici, inviluppi, dominio interazione, spostamenti, export HTML |
+| Data       | Fase | Subfase   | Commit  | Note sintetica                                                                                              |
+|------------|------|-----------|---------|-------------------------------------------------------------------------------------------------------------|
+| 2026-03-07 | A    | A.2.9     | a0f05aa | Test cataloghi materiali superati                                                                           |
+| ...        | ...  | ...       | ...     | ...                                                                                                         |
+| 2026-03-08 | Q    | Q.0       | —       | Storicizzazione domande/risposte/decisioni in [piano_fase_Q.md](piano_fase_Q.md) — % completamento: 0%      |
+| 2026-03-09 | K    | K.1–K.4   | 23f60cf | Fase K completa: grafici, inviluppi, dominio interazione, spostamenti, export HTML                          |
+| 2026-03-09 | L    | L.1–L.10  | f041b45 | Fase L completa: telai piani Cross-Pozzati, GUI Qt, 40 test                                                 |
 
 ---
 

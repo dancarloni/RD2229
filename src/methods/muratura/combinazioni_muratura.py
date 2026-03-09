@@ -20,9 +20,7 @@ Riferimenti:
 
 from __future__ import annotations
 
-import copy
-from dataclasses import dataclass, field
-
+from dataclasses import dataclass
 
 # ═══════════════════════════════════════════════════════════
 #  Coefficienti ψ per categoria d'uso (NTC2018 Tab. 2.5.I)

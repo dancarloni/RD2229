@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import asdict
 from datetime import date
 from typing import Any
 
@@ -173,10 +172,7 @@ def wind_results_to_dict(
         ]
         # Riepilogo forze
         from src.wind.resultant_forces import (
-            compute_base_moment,
             forces_to_calc_input,
-            sum_horizontal_forces,
-            sum_vertical_forces,
         )
         friction_total = sum(fr.F_fr_kN for fr in results.friction_forces)
         report["force_summary"] = forces_to_calc_input(

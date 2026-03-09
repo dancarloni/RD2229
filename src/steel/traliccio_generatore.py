@@ -34,9 +34,8 @@ from __future__ import annotations
 import math
 from typing import Optional
 
-from .traliccio_2d import Nodo, Asta, TipoVincolo
 from .sezione_asta import SezioneAsta
-
+from .traliccio_2d import Asta, Nodo, TipoVincolo
 
 # ═══════════════════════════════════════════════════════════
 #  Topologia base comune a Howe e Pratt
@@ -357,7 +356,7 @@ def predimensiona_sezione(
     Returns:
         SezioneAsta minima verificante, oppure None
     """
-    from .sezione_asta import carica_catalogo_piatti, carica_catalogo_angolari
+    from .sezione_asta import carica_catalogo_angolari, carica_catalogo_piatti
     from .verifiche_ta import verifica_asta_ta
 
     if famiglia.upper() == "ANGOLARE":
@@ -392,8 +391,8 @@ def disegna_schema_traliccio(
     try:
         import matplotlib
         matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
         import matplotlib.patches as mpatches
+        import matplotlib.pyplot as plt
     except ImportError:
         return None
 

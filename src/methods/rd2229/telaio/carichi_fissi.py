@@ -19,11 +19,7 @@ Unità: kg [forze], cm [geometria], kg·cm [momenti].
 
 from __future__ import annotations
 
-import math
-from typing import Optional
-
 from .modello_telaio import AstaTelaio, CaricoAsta, TipoCarico
-
 
 # ==============================================================================
 # FORMULE MIP ELEMENTARI

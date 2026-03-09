@@ -7,9 +7,9 @@ Definisce:
 Tutto in italiano, Unicode per simboli, serializzazione JSON nativa.
 """
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 
 class MetodoCalcolo(str, Enum):

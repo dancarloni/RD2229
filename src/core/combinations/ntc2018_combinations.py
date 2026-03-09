@@ -18,7 +18,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 # Coefficienti parziali NTC2018 Tab. 2.6.I (valori default, sovrascrivibili)
 DEFAULT_GAMMA = {
     "gamma_G1": 1.3,       # permanenti strutturali (sfavorevole)

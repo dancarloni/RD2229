@@ -2,9 +2,7 @@ import pytest
 
 from src.methods.muratura.cantonale import (
     InputCantonale,
-    InputCatenaCantonale,
     InputSpinta,
-    PosizioneSpinta,
     RisultatoCantonale,
     TipoCopertura,
     esegui_verifica_cantonale,
@@ -98,7 +96,11 @@ def test_cinematica_base():
 
 
 def test_diagnostica_angolo():
-    from src.methods.muratura.cantonale import InputDiagnosticaAngolo, calcola_resistenza_residua_angolo, TipoSogliaApertura
+    from src.methods.muratura.cantonale import (
+        InputDiagnosticaAngolo,
+        TipoSogliaApertura,
+        calcola_resistenza_residua_angolo,
+    )
     # Test 1: NTC2018 (should be max(t, 100))
     inp1 = InputDiagnosticaAngolo(distanza_apertura_cm=120.0, spessore_parete_cm=40.0, tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC)
     res1 = calcola_resistenza_residua_angolo(inp1)
@@ -118,8 +120,14 @@ def test_diagnostica_angolo():
     assert res3.status == 'FAIL'
 
 def test_report_estrazione():
-    from src.methods.muratura.cantonale import InputDiagnosticaAngolo, calcola_resistenza_residua_angolo, TipoSogliaApertura, InputCantonale, esegui_verifica_cantonale
-    from src.report.tabulati_calcolo import sezione_meccanismo_cantonale, sezione_diagnostica_angolo
+    from src.methods.muratura.cantonale import (
+        InputCantonale,
+        InputDiagnosticaAngolo,
+        TipoSogliaApertura,
+        calcola_resistenza_residua_angolo,
+        esegui_verifica_cantonale,
+    )
+    from src.report.tabulati_calcolo import sezione_diagnostica_angolo, sezione_meccanismo_cantonale
     
     # Check cinematica report
     inp = InputCantonale(h_cm=300, t1_cm=40, t2_cm=40, L1_dist_cm=150, L2_dist_cm=150)

@@ -11,22 +11,21 @@ Test per:
 """
 
 import math
+
 import pytest
 
 from src.methods.muratura.modello_edificio import (
+    FC_DA_LC,
     Apertura,
     ConfigPOR,
     Edificio,
-    FC_DA_LC,
     LivelloConoscenza,
     MaterialeMuratura,
-    Parete,
     ParametriSismiciEdificio,
+    Parete,
     Piano,
     TipoApertura,
-    TipoDiaframma,
 )
-
 
 # ═══════════════════════════════════════════════════════════
 #  MaterialeMuratura

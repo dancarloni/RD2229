@@ -8,7 +8,6 @@ dalle pressioni e dalle aree tributarie. Output mappabile a CalcInput
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from src.wind.outputs import PressureZoneResults, ZoneForce
 

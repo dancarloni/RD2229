@@ -20,12 +20,14 @@ from enum import Enum, auto
 from typing import Optional
 
 try:
-    from PyQt6.QtCore import QPointF, QRectF, Qt, pyqtSignal as Signal
+    from PyQt6.QtCore import QPointF, QRectF, Qt  # noqa: F401
+    from PyQt6.QtCore import pyqtSignal as Signal
     from PyQt6.QtGui import (
         QBrush,
         QColor,
         QFont,
         QPainter,
+        QPainterPath,
         QPen,
         QTransform,
         QWheelEvent,
@@ -34,30 +36,28 @@ try:
         QGraphicsEllipseItem,
         QGraphicsItem,
         QGraphicsLineItem,
-        QGraphicsPathItem,
+        QGraphicsPathItem,  # noqa: F401
         QGraphicsScene,
         QGraphicsTextItem,
         QGraphicsView,
         QWidget,
     )
-    from PyQt6.QtGui import QPainterPath
 except ImportError:
-    from PySide6.QtCore import QPointF, QRectF, Qt, Signal
+    from PySide6.QtCore import Qt, Signal
     from PySide6.QtGui import (
         QBrush,
         QColor,
         QFont,
         QPainter,
+        QPainterPath,
         QPen,
         QTransform,
         QWheelEvent,
-        QPainterPath,
     )
     from PySide6.QtWidgets import (
         QGraphicsEllipseItem,
         QGraphicsItem,
         QGraphicsLineItem,
-        QGraphicsPathItem,
         QGraphicsScene,
         QGraphicsTextItem,
         QGraphicsView,
@@ -71,7 +71,6 @@ from src.methods.rd2229.telaio.modello_telaio import (
     TipoAsta,
     TipoVincoloEsterno,
 )
-
 
 # ==============================================================================
 # ENUMERAZIONI

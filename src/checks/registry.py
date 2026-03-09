@@ -345,6 +345,7 @@ def _build_default_registry() -> CheckRegistry:
     # --- Wind ---
     def _compute_wind_ntc2018(inputs: dict) -> dict:
         import dataclasses
+
         from src.wind.models import BuildingGeom, WindSite
         from src.wind.ntc2018 import run_ntc2018_wind
 
@@ -384,8 +385,9 @@ def _build_default_registry() -> CheckRegistry:
 
     def _compute_wind_en1991(inputs: dict) -> dict:
         import dataclasses
-        from src.wind.models import BuildingGeom, WindSite
+
         from src.wind.ec1991_1_4 import run_en1991_1_4_wind
+        from src.wind.models import BuildingGeom, WindSite
 
         site = WindSite(
             terrain_category=inputs.get("terrain_category", "II"),

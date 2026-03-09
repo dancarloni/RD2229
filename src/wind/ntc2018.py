@@ -221,8 +221,8 @@ def run_ntc2018_wind(
     # Pressioni sulle zone dell'edificio (se dimensioni disponibili)
     pressure_zones = []
     if building.width_m > 0 and building.depth_m > 0:
-        from src.wind.pressure_coefficients import compute_building_pressure_zones
         from src.wind.outputs import PressureZoneResults
+        from src.wind.pressure_coefficients import compute_building_pressure_zones
 
         q_at_h = profile[-1].q_kN_m2 if profile else q_b
         zones_data = compute_building_pressure_zones(

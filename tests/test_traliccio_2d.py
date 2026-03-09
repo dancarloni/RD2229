@@ -10,12 +10,10 @@ import pytest
 from src.steel.traliccio_2d import (
     Asta,
     Nodo,
-    RisultatoTraliccio,
     TipoVincolo,
     risolvi_traliccio,
     verifica_aste_traliccio,
 )
-
 
 # ═══════════════════ Fixture ═══════════════════
 

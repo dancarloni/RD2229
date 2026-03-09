@@ -8,14 +8,13 @@ from pathlib import Path
 
 import pytest
 
-from src.steel.sagomario import ProfiloAcciaio, SagomarioAcciaio
+from src.steel.sagomario import SagomarioAcciaio
 from src.steel.verifiche_ta import (
     BETA_VINCOLI,
     E_ACCIAIO,
-    FYK_ACCIAIO,
     G_ACCIAIO,
-    InputVerificaAcciaio,
     SIGMA_ADM_TA,
+    InputVerificaAcciaio,
     TipoAcciaio,
     VincoloEstremita,
     omega_acciaio,

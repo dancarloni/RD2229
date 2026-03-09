@@ -10,18 +10,19 @@ Caso golden principale:
 from __future__ import annotations
 
 import math
+
 import pytest
 
-from src.steel.sezione_asta import SezioneAsta
 from src.elements.cordolo_reticolare import (
     CordoloReticolare,
-    SchemaReticolare,
     InputNodoAngolo,
+    SchemaReticolare,
     calcola_F_ritegno,
-    verifica_cordolo_reticolare,
     dimensiona_cordolo_reticolare,
+    verifica_cordolo_reticolare,
     verifica_nodo_angolo,
 )
+from src.steel.sezione_asta import SezioneAsta
 
 
 @pytest.fixture

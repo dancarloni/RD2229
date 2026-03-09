@@ -19,13 +19,13 @@ from src.codes.ntc2018.spectrum import (
     CategoriaSuolo,
     CategoriaTopografica,
     ClasseUso,
-    calcola_CC,
-    calcola_S_d_T1,
-    calcola_ST,
-    calcola_SS,
-    calcola_VR,
     calcola_alpha_S,
+    calcola_CC,
     calcola_periodi,
+    calcola_S_d_T1,
+    calcola_SS,
+    calcola_ST,
+    calcola_VR,
     spettro_da_hazard_row,
     spettro_elastico,
     spettro_progetto,
@@ -148,7 +148,6 @@ class TestCalcolaCC:
 
     def test_categoria_C(self):
         # CC = 1.05 * 0.327^(-0.33)
-        import math
         cc = 1.05 * (0.327 ** -0.33)
         assert calcola_CC(CategoriaSuolo.C, 0.327) == pytest.approx(cc, rel=1e-3)
 

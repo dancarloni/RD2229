@@ -70,9 +70,9 @@ def calcola_azione_sismica_opcm3274(
         CategoriaSuolo,
         CategoriaTopografica,
         calcola_CC,
+        calcola_periodi,
         calcola_SS,
         calcola_ST,
-        calcola_periodi,
         spettro_elastico,
     )
 

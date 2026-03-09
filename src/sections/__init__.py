@@ -8,14 +8,16 @@ from apps.sections.geometry_model import (
     CoreData,
     EllipseData,
     SectionGeometry,
+)
+from apps.sections.geometry_model import (
     SectionProperties as GeometrySectionProperties,
 )
 from apps.sections.models.sections import (
     CircularHollowSection,
     CircularSection,
     CSection,
-    ISection,
     InvertedTSection,
+    ISection,
     LSection,
     PiSection,
     RectangularHollowSection,

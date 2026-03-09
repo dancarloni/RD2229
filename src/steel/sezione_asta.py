@@ -16,7 +16,7 @@ Unità: cm per geometrie, cm² per aree, cm⁴ per inerzie, kg/m per massa.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Optional

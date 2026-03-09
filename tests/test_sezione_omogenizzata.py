@@ -19,6 +19,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from src.codes.section_params.composita import (
+    IPE_TABLE,
+    calcola_sezione_composta,
+    calcola_tensioni_sle_composita,
+)
 from src.codes.section_params.norme_n import (
     RD2229_N_OPTIONS,
     get_n_for_norm,
@@ -30,12 +35,6 @@ from src.codes.section_params.omogenizzata import (
     calcola_sezione_omogenizzata,
     calcola_tensioni_sle,
 )
-from src.codes.section_params.composita import (
-    IPE_TABLE,
-    calcola_sezione_composta,
-    calcola_tensioni_sle_composita,
-)
-
 
 # ---------------------------------------------------------------------------
 # Helper mock sezione rettangolare

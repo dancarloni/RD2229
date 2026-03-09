@@ -6,7 +6,6 @@ materiali con i parametri attesi per ciascuna norma.
 
 import pytest
 
-from src.materials.material_model import Material
 from src.materials.material_repo import MaterialRepository
 
 

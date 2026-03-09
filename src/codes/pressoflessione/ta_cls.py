@@ -16,8 +16,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.codes.section_params.omogenizzata import BarraArmatura
-
 from .base import (
     PressoflessResult,
     PressoflessSpec,

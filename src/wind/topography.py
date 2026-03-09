@@ -15,8 +15,8 @@ Tipologie topografiche supportate:
 
 from __future__ import annotations
 
-import math
 import logging
+import math
 
 from src.wind.models import TopographyParams
 

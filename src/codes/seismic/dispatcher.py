@@ -122,9 +122,9 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
         CategoriaSuolo,
         CategoriaTopografica,
         calcola_CC,
+        calcola_periodi,
         calcola_SS,
         calcola_ST,
-        calcola_periodi,
         spettro_elastico,
     )
     from .base import _base_contract, distribuzione_triangolare

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from src.wind.models import TopographyParams
 from src.wind.topography import compute_topography_factor
 

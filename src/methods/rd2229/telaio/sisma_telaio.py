@@ -20,7 +20,6 @@ from dataclasses import dataclass
 
 from .modello_telaio import ModelloTelaio, PianoTelaio
 
-
 # Coefficienti sismici per zona (da src/codes/seismic/rd2229.py)
 _COEFF_SISMICI: dict[str, float] = {
     "non_sismico": 0.00,
@@ -188,7 +187,6 @@ def aggiorna_forze_piani(
             descrizione=piano.descrizione,
         ))
     # Crea nuovo modello con piani aggiornati
-    from dataclasses import replace
     return ModelloTelaio(
         nome=modello.nome,
         nodi=modello.nodi,

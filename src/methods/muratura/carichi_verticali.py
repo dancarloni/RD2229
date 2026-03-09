@@ -22,12 +22,9 @@ Riferimenti:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
 from src.methods.muratura.discretizzazione import Maschio
-from src.methods.muratura.modello_edificio import Piano
-
 
 # ═══════════════════════════════════════════════════════════
 #  Modello carichi solaio

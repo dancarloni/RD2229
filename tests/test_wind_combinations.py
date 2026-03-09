@@ -4,26 +4,25 @@ from __future__ import annotations
 
 import pytest
 
-from src.wind.outputs import PressureZoneResults, ZoneForce
 from src.wind.combinations import generate_wind_combinations
-from src.wind.resultant_forces import (
-    compute_zone_force,
-    compute_resultant_forces,
-    sum_horizontal_forces,
-    compute_base_moment,
-    forces_to_calc_input,
-)
 from src.wind.friction import (
-    get_friction_coefficient,
-    compute_friction_force,
     compute_building_friction,
+    compute_friction_force,
+    get_friction_coefficient,
+)
+from src.wind.outputs import PressureZoneResults, ZoneForce
+from src.wind.resultant_forces import (
+    compute_base_moment,
+    compute_resultant_forces,
+    compute_zone_force,
+    forces_to_calc_input,
+    sum_horizontal_forces,
 )
 from src.wind.shielding import (
     compute_shielding_factor,
     compute_solar_row_shielding,
     compute_urban_shielding,
 )
-
 
 # ===========================================================================
 # Combinazioni

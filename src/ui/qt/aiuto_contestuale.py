@@ -49,7 +49,7 @@ try:
     from PyQt6.QtCore import Qt
     from PyQt6.QtWidgets import (
         QLabel,
-        QScrollArea,
+        QScrollArea,  # noqa: F401
         QSizePolicy,
         QTextEdit,
         QVBoxLayout,
@@ -59,7 +59,6 @@ except ImportError:  # pragma: no cover
     from PySide6.QtCore import Qt
     from PySide6.QtWidgets import (
         QLabel,
-        QScrollArea,
         QSizePolicy,
         QTextEdit,
         QVBoxLayout,

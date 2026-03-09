@@ -16,10 +16,8 @@ from src.methods.section_fiber import (
     compute_section_area,
     get_section_height,
     get_section_width,
-    height_at_horizontal,
     width_at_depth,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helper: creare sezioni mock con SimpleNamespace

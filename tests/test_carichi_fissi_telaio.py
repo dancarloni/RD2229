@@ -4,7 +4,6 @@ Subfase L.10: test unitari per carichi_fissi.py.
 Toleranza: 0.1% (errore ammissibile formule TA storiche).
 """
 
-import math
 import pytest
 
 from src.methods.rd2229.telaio.carichi_fissi import (
@@ -15,15 +14,6 @@ from src.methods.rd2229.telaio.carichi_fissi import (
     mip_triangolare_crescente,
     mip_triangolare_decrescente,
     mip_uniforme,
-)
-from src.methods.rd2229.telaio.modello_telaio import (
-    AstaTelaio,
-    CaricoAsta,
-    RilascioEstremita,
-    SezioneTelaio,
-    TipoAsta,
-    TipoCarico,
-    TipoRilascioInterno,
 )
 
 TOL = 1e-3  # 0.1%

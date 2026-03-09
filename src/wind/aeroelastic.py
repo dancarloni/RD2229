@@ -11,9 +11,7 @@ verifica. L'implementazione completa richiede dati modali della struttura.
 from __future__ import annotations
 
 import logging
-import math
 from dataclasses import dataclass, field
-from typing import Any
 
 logger = logging.getLogger(__name__)
 

@@ -3,12 +3,10 @@
 Verifica con casi noti e limiti normativi NTC2018 §4.5.
 """
 
-import math
 
 import pytest
 
 from src.methods.muratura.verifiche import (
-    CriterioTaglio,
     InputCompressione,
     InputSpanciamento,
     InputTaglio,
@@ -22,7 +20,6 @@ from src.methods.muratura.verifiche import (
     verifica_spanciamento,
     verifica_taglio_piano,
 )
-
 
 # ═══════════════════ Coefficiente Φ ═══════════════════
 

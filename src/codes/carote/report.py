@@ -5,7 +5,6 @@ from __future__ import annotations
 import csv
 import json
 import logging
-from typing import Any
 
 from src.codes.carote.analysis import CoreAnalysisResult
 

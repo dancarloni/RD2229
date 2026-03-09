@@ -5,13 +5,12 @@ from __future__ import annotations
 import pytest
 
 from src.wind.internal_pressure import (
-    compute_cpi_simplified,
     compute_cpi_detailed,
     compute_cpi_dominant_opening,
+    compute_cpi_simplified,
     get_cpi_values,
 )
 from src.wind.models import InternalPressureConfig
-
 
 # ===========================================================================
 # compute_cpi_simplified

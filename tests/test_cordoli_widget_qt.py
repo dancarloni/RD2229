@@ -6,23 +6,21 @@ Se Qt non e' disponibile i test vengono saltati automaticamente.
 
 import pytest
 
-# Skip dell'intero modulo se Qt non e' disponibile
-_qt = pytest.importorskip(
-    "PyQt6",
-    reason="PyQt6 non disponibile — skip test Qt",
-)
-
-# Verifica secondaria PySide6
+# Skip dell'intero modulo se ne' PyQt6 ne' PySide6 sono disponibili
 try:
-    from PyQt6.QtWidgets import QApplication
+    import PyQt6  # noqa: F401
 except ImportError:
     try:
-        from PySide6.QtWidgets import QApplication  # type: ignore[no-redef]
+        import PySide6  # noqa: F401
     except ImportError:
         pytest.skip("Ne' PyQt6 ne' PySide6 disponibili", allow_module_level=True)
 
-from src.ui.qt.cordoli_widget import CordoliWidget
+try:
+    from PyQt6.QtWidgets import QApplication  # noqa: F401
+except ImportError:
+    pass  # type: ignore[no-redef]
 
+from src.ui.qt.cordoli_widget import CordoliWidget
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -47,19 +45,19 @@ class TestCordoliWidgetQt:
     def test_tipo_iniziale_metallico(self, widget):
         """Il tipo iniziale deve essere Metallico."""
         assert widget.combo_tipo.currentText() == "Metallico"
-        assert widget.combo_famiglia.isVisible()
+        assert not widget.combo_famiglia.isHidden()
 
     def test_cambio_tipo_ca_nasconde_combo_famiglia(self, widget, qtbot):
         """Passando a CA, combo_famiglia deve sparire."""
         widget.combo_tipo.setCurrentText("CA")
         qtbot.waitSignal(widget.combo_tipo.currentTextChanged, timeout=500)
-        assert not widget.combo_famiglia.isVisible()
+        assert widget.combo_famiglia.isHidden()
 
     def test_cambio_tipo_reticolare_nasconde_combo_famiglia(self, widget, qtbot):
         """Passando a Reticolare, combo_famiglia deve sparire."""
         widget.combo_tipo.setCurrentText("Reticolare")
         qtbot.waitSignal(widget.combo_tipo.currentTextChanged, timeout=500)
-        assert not widget.combo_famiglia.isVisible()
+        assert widget.combo_famiglia.isHidden()
 
     def test_tabella_profili_popolata(self, widget):
         """La tabella deve avere profili dopo l'inizializzazione."""

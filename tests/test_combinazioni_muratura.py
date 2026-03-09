@@ -3,13 +3,12 @@
 import pytest
 
 from src.methods.muratura.combinazioni_muratura import (
-    CombinazioneCarico,
-    GestoreCombinazioni,
     PSI_0,
     PSI_1,
     PSI_2,
+    CombinazioneCarico,
+    GestoreCombinazioni,
 )
-
 
 # ═══════════════════════════════════════════════════════════
 #  Coefficienti ψ

@@ -82,9 +82,9 @@ def get_hazard_params_ingv(lat: float, lon: float, TR: int) -> Ntc2018HazardRow:
         ValueError: se lat/lon fuori dall'Italia.
     """
     try:
-        import urllib.request
-        import urllib.parse
         import json
+        import urllib.parse
+        import urllib.request
     except ImportError as e:
         raise IOError(f"Modulo urllib non disponibile: {e}") from e
 
