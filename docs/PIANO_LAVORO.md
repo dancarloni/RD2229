@@ -24,7 +24,7 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | ~2343   |
+| Test totali        | ~2383   |
 | Test falliti       | 0       |
 | Moduli implementati| 78+     |
 | Norme coperte      | 10      |
@@ -46,7 +46,7 @@
 | I    | ✅    | 100 | 3bed1a7       | [piano_fase_I.md](piano_fase_I.md) |
 | J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
 | K    | ✅    | 100 | corrente      | [piano_fase_K.md](piano_fase_K.md) |
-| L    | ⬜    | 0   | ...           | [piano_fase_L.md](piano_fase_L.md) |
+| L    | ✅    | 100 | corrente      | [piano_fase_L.md](piano_fase_L.md) |
 | M    | ⬜    | 0   | ...           | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
 | O    | ✅    | 100 | corrente      | [piano_fase_O.md](piano_fase_O.md) |
