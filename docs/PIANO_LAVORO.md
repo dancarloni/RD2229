@@ -24,7 +24,7 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | ~2278   |
+| Test totali        | ~2316   |
 | Test falliti       | 0       |
 | Moduli implementati| 71+     |
 | Norme coperte      | 10      |
@@ -49,7 +49,7 @@
 | L    | ⬜    | 0   | ...           | [piano_fase_L.md](piano_fase_L.md) |
 | M    | ⬜    | 0   | ...           | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
-| O    | 🟡    | 60  | d6e589a       | [piano_fase_O.md](piano_fase_O.md) |
+| O    | ✅    | 100 | corrente      | [piano_fase_O.md](piano_fase_O.md) |
 | P    | ⬜    | 0   | ...           | [piano_fase_P.md](piano_fase_P.md) |
 | Q    | ⬜    | 0   | ...           | [piano_fase_Q.md](piano_fase_Q.md) |
 | R    | ⬜    | 0   | ...           | [piano_fase_R.md](piano_fase_R.md) |

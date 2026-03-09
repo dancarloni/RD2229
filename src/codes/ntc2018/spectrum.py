@@ -321,6 +321,70 @@ def spettro_progetto(
     return spettro_elastico(ag_g, F0, SS, ST, TB, TC, TD, 5.0, T) / q
 
 
+def profilo_spettrale_completo(
+    ag_g: float,
+    F0: float,
+    SS: float,
+    ST: float,
+    TB: float,
+    TC: float,
+    TD: float,
+    xi: float = 5.0,
+    T_max: float | None = None,
+    n_punti: int = 200,
+) -> list[tuple[float, float]]:
+    """Profilo spettrale completo Se(T) per T in [0, T_max] — NTC2018 §3.2.3.2.1.
+
+    Genera una lista di punti (T, Se) che copre tutti e 4 i rami dello spettro
+    elastico orizzontale, con punti aggiuntivi sulle discontinuita' TB, TC, TD.
+
+    Distribuzione punti:
+      - 0 a TB:   n/5 punti  (ramo crescente)
+      - TB a TC:  n/10 punti (plateau)
+      - TC a TD:  n/3 punti  (ramo decrescente 1/T)
+      - TD a T_max: n/3 punti (ramo decrescente 1/T^2)
+      - Punti esatti: 0, TB, TC, TD, T_max
+
+    Args:
+        ag_g: accelerazione al suolo a_g/g [adimensionale].
+        F0: fattore di amplificazione spettrale.
+        SS: coefficiente stratigrafico.
+        ST: coefficiente topografico.
+        TB, TC, TD: periodi caratteristici [s] (da calcola_periodi).
+        xi: smorzamento viscoso [%] (default 5.0).
+        T_max: periodo massimo [s] (default: max(4.0, 2*TD)).
+        n_punti: numero totale di punti (default 200).
+
+    Returns:
+        Lista di tuple (T [s], Se [m/s^2]) ordinata per T crescente.
+    """
+    import numpy as _np
+
+    if T_max is None:
+        T_max = max(4.0, 2.0 * TD)
+
+    n = max(n_punti, 20)
+
+    # Costruzione punti T con densita' variabile per ciascun ramo
+    n1 = max(4, n // 5)
+    n2 = max(3, n // 10)
+    n3 = max(n // 3, 10)
+    n4 = max(n // 3, 10)
+
+    t_ramo0 = _np.linspace(0.0, TB, n1, endpoint=False).tolist()
+    t_ramo1 = _np.linspace(TB, TC, n2, endpoint=False).tolist()
+    t_ramo2 = _np.linspace(TC, TD, n3, endpoint=False).tolist()
+    t_ramo3 = _np.linspace(TD, T_max, n4).tolist()
+
+    # Aggiungi punti esatti di transizione + T=0
+    t_speciali = [0.0, TB, TC, TD, T_max]
+
+    tutti = t_ramo0 + t_ramo1 + t_ramo2 + t_ramo3 + t_speciali
+    t_all = sorted({round(t, 8) for t in tutti if 0.0 <= t <= T_max})
+
+    return [(t, spettro_elastico(ag_g, F0, SS, ST, TB, TC, TD, xi, t)) for t in t_all]
+
+
 def calcola_S_d_T1(
     T_1: float,
     ag_g: float,

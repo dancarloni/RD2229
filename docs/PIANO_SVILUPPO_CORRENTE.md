@@ -29,6 +29,31 @@ con nuovi moduli, previa approvazione.
 | G.4 | Elementi secondari DM96/DM92 + RD2229 (40 test) | COMPLETATO |
 | G.5 | Stima T_a (4 modelli) + drift Metodo B (37 test) | COMPLETATO |
 | N | Carote cls in situ (10 formul., statistiche, derivati, LC/FC, report, 70 test) | COMPLETATO |
+| O | Griglia sismica INGV + Spettro NTC2018 (nearest-neighbor, interp. log-lineare TR, profilo_spettrale_completo) | COMPLETATO |
+
+---
+
+## FASE O — Griglia sismica INGV + Spettro NTC2018 (completamento)
+
+**Stato**: COMPLETATO — 2026-03-09
+**Test totali post-completamento**: 2316 (+ 38 da questa sessione)
+
+### Sessione 2026-03-09 — Q&A e decisioni
+
+| Q | Risposta | Decisione |
+|---|----------|-----------|
+| Q-O1 CSV griglia INGV | A (file fornito: docs/spettri2008.csv) | Copiato in data/seismic/griglia_ingv.csv |
+| Q-O2 profilo_spettrale_completo | A (implementa subito, tutti i branch) | Implementato in spectrum.py con numpy linspace |
+| Q-O3 aggiornamento doc | B (PIANO_LAVORO.md + PIANO_SVILUPPO_CORRENTE.md) | Aggiornati entrambi |
+
+### Note tecniche
+
+- CSV spettri2008.csv: griglia irregolare (~10.751 punti), ag in [m/s^2] (non in [g])
+  Conversione: ag_g = T{TR}ag / 9.81
+- Interpolazione spaziale: **nearest-neighbor** (bilinear non applicabile su griglia irregolare)
+- Interpolazione temporale TR: **log-lineare** (NTC2018 §3.2.1)
+- TR disponibili: [30, 50, 72, 101, 140, 201, 475, 975, 2475]
+- profilo_spettrale_completo(): curva completa Sa(T) per T in [0, T_max], punti esatti su TB/TC/TD
 
 ---
 
