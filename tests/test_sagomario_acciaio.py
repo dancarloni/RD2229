@@ -254,3 +254,121 @@ class TestEsportazione:
         s2 = SagomarioAcciaio()
         n = s2.carica_da_json(out)
         assert n == sagomario.count()
+
+
+# ───────────────────────── Import CSV custom ─────────────────────────
+
+_CSV_PROFILO_VALIDO = (
+    "nome,famiglia,h,b,tw,tf,r,A,massa_kg_m,Ix,Wx,Wpl_x,ix,Iy,Wy,Wpl_y,iy,It,Iw,hi,d,AL\n"
+    "IPE200_custom,CUSTOM,20.0,10.0,0.56,0.85,1.20,28.5,22.4,"
+    "1943.0,194.0,221.0,8.26,142.0,28.5,44.6,2.24,6.98,13000.0,18.3,15.9,0.0\n"
+)
+
+
+class TestCSVImport:
+    def test_genera_template_csv(self, tmp_path):
+        out = tmp_path / "template.csv"
+        SagomarioAcciaio.genera_template_csv(out)
+
+        assert out.exists()
+        contenuto = out.read_text(encoding="utf-8")
+        # Header con tutti i campi obbligatori
+        assert "nome,famiglia,h,b" in contenuto
+        assert "massa_kg_m" in contenuto
+        # Riga esempio presente
+        assert "IPE200_custom" in contenuto
+        # Righe commento
+        assert contenuto.startswith("#")
+
+    def test_carica_da_csv_valido(self, tmp_path):
+        csv_path = tmp_path / "profili.csv"
+        csv_path.write_text(_CSV_PROFILO_VALIDO, encoding="utf-8")
+
+        s = SagomarioAcciaio()
+        n, warnings = s.carica_da_csv(csv_path, custom_dir=tmp_path)
+
+        assert n == 1
+        assert warnings == []
+        p = s.get("IPE200_custom")
+        assert p is not None
+        assert p.famiglia == "CUSTOM"
+        assert p.h == pytest.approx(20.0)
+        assert p.Wx == pytest.approx(194.0)
+
+    def test_carica_da_csv_sovrascrittura_warning(self, tmp_path):
+        # Prepara sagomario con IPE 200 originale
+        s = SagomarioAcciaio()
+        s.carica_tutti(DATA_DIR)
+        massa_originale = s.get("IPE 200").massa_kg_m  # type: ignore[union-attr]
+
+        # CSV con stesso nome "IPE 200" ma massa diversa
+        csv_content = (
+            "nome,famiglia,h,b,tw,tf,r,A,massa_kg_m,Ix,Wx,Wpl_x,ix,Iy,Wy,Wpl_y,iy\n"
+            "IPE 200,CUSTOM,20.0,10.0,0.56,0.85,1.20,28.5,99.9,"
+            "1943.0,194.0,221.0,8.26,142.0,28.5,44.6,2.24\n"
+        )
+        csv_path = tmp_path / "sovrascrittura.csv"
+        csv_path.write_text(csv_content, encoding="utf-8")
+
+        n, warnings = s.carica_da_csv(csv_path, custom_dir=tmp_path)
+
+        assert n == 1
+        assert len(warnings) == 1
+        assert "sovrascrittura" in warnings[0].lower() or "già presente" in warnings[0]
+        # Il profilo è stato aggiornato
+        assert s.get("IPE 200").massa_kg_m == pytest.approx(99.9)  # type: ignore[union-attr]
+        assert s.get("IPE 200").massa_kg_m != massa_originale  # type: ignore[union-attr]
+
+    def test_carica_da_csv_campo_mancante(self, tmp_path):
+        # CSV senza colonna "h"
+        csv_content = (
+            "nome,famiglia,b,tw,tf,r,A,massa_kg_m,Ix,Wx,Wpl_x,ix,Iy,Wy,Wpl_y,iy\n"
+            "Profilo1,CUSTOM,10.0,0.56,0.85,1.20,28.5,22.4,"
+            "1943.0,194.0,221.0,8.26,142.0,28.5,44.6,2.24\n"
+        )
+        csv_path = tmp_path / "mancante.csv"
+        csv_path.write_text(csv_content, encoding="utf-8")
+
+        s = SagomarioAcciaio()
+        n, warnings = s.carica_da_csv(csv_path, custom_dir=tmp_path)
+
+        assert n == 0
+        assert len(warnings) == 1
+        assert "h" in warnings[0]
+
+    def test_carica_da_csv_range_fisici(self, tmp_path):
+        # h = -5.0 non ammesso
+        csv_content = (
+            "nome,famiglia,h,b,tw,tf,r,A,massa_kg_m,Ix,Wx,Wpl_x,ix,Iy,Wy,Wpl_y,iy\n"
+            "Profilo1,CUSTOM,-5.0,10.0,0.56,0.85,1.20,28.5,22.4,"
+            "1943.0,194.0,221.0,8.26,142.0,28.5,44.6,2.24\n"
+        )
+        csv_path = tmp_path / "range.csv"
+        csv_path.write_text(csv_content, encoding="utf-8")
+
+        s = SagomarioAcciaio()
+        n, warnings = s.carica_da_csv(csv_path, custom_dir=tmp_path)
+
+        assert n == 0
+        assert len(warnings) == 1
+        assert "h" in warnings[0]
+        assert ">" in warnings[0] or "0" in warnings[0]
+
+    def test_persistenza_custom_json(self, tmp_path):
+        csv_path = tmp_path / "profili.csv"
+        csv_path.write_text(_CSV_PROFILO_VALIDO, encoding="utf-8")
+
+        # Primo sagomario: carica e salva
+        s1 = SagomarioAcciaio()
+        n, _ = s1.carica_da_csv(csv_path, custom_dir=tmp_path)
+        assert n == 1
+
+        # Verifica che sagomario_custom.json esista
+        custom_json = tmp_path / "sagomario_custom.json"
+        assert custom_json.exists()
+
+        # Secondo sagomario: ricarica da directory con solo il custom JSON
+        s2 = SagomarioAcciaio()
+        n2 = s2.carica_tutti(tmp_path)
+        assert n2 >= 1
+        assert s2.get("IPE200_custom") is not None

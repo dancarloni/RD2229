@@ -4,12 +4,12 @@
 
 ### D.1 Sagomario EN 10365
 
-**Stato**: COMPLETATO — commit corrente
+**Stato**: COMPLETATO
 
 - [x] Database profili IPE (18), HEA (19), HEB (19), HEM (19), UPN (12) in JSON — 87 profili totali
-- [ ] Import CSV custom utente
+- [x] Import CSV custom utente — `carica_da_csv()` + `genera_template_csv()` in sagomario.py
 - [x] Ricerca e filtro profili (per famiglia, Wx minimo, altezza, profilo ottimale)
-- [x] Test: tests/test_sagomario_acciaio.py (32 test)
+- [x] Test: tests/test_sagomario_acciaio.py (38 test — 32 esistenti + 6 TestCSVImport)
 
 ### D.2 Verifiche profilo singolo
 
@@ -69,16 +69,77 @@
 
 ### D.7 GUI Qt cordoli
 
-- [ ] Interfaccia selezione profilo
-- [ ] Visualizzazione sezione
-- [ ] Input sollecitazioni
-- [ ] Output verifiche
+**Stato**: COMPLETATO — 2026-03-09
+
+#### Architettura decisa (2026-03-09)
+- Tipo finestra: **QWidget embeddabile** (inseribile in MainWindow futura)
+- Navigazione: **QTabWidget** — 4 tab, salto libero
+- Visualizzazione sezione: **QPainter custom**
+- Tipi cordolo gestiti: **metallico + CA + reticolare** (tutti e tre)
+- Output: **QTextEdit video + esportazione HTML** via modulo report centralizzato
+- Test: logica di business + pytest-qt per componenti chiave
+
+#### Struttura tab prevista
+```
+CordoliWidget (QWidget embeddabile)
+├── Tab 1: Selezione Profilo
+│   ├── Combo famiglia (stringa libera)
+│   ├── Combo tipo cordolo (metallico | CA | reticolare)
+│   ├── Tabella profili QTableWidget sortable
+│   ├── Filtri: Wx_min, h_min/h_max
+│   └── Bottone "Importa CSV custom"
+├── Tab 2: Visualizzazione Sezione
+│   ├── QPainter sezione trasversale
+│   └── Tabella proprietà (h, b, A, Ix, Wx, …)
+├── Tab 3: Input Sollecitazioni
+│   ├── Posizione cordolo (sommitale | intermedio | fondazione)
+│   ├── M, V, N + materiale (σ_adm da archivio)
+│   └── Per reticolare: schema traliccio + carichi
+└── Tab 4: Output Verifiche
+    ├── QTextEdit risultati formattati
+    ├── Stato globale (VERIFICATO / NON VERIFICATO)
+    └── Bottone "Esporta HTML"
+```
+
+#### Checklist implementazione
+- [x] `src/ui/qt/cordoli_widget.py` — QWidget principale con 4 tab
+- [x] Tab 1: selezione profilo + importa CSV (Metallico) / form completo (CA, Reticolare)
+- [x] Tab 2: QPainter sezione IPE/HEA/HEB/HEM/UPN + CA + reticolare
+- [x] Tab 3: input sollecitazioni (Metallico) — nascosto per CA/Reticolare
+- [x] Tab 4: output via TabulatoCalcolo centralizzato (ASCII + HTML)
+- [x] Registrazione auto-discovery in `src/ui/qt/__init__.py`
+- [x] Test logica: `tests/test_cordoli_widget_logica.py` (10 test)
+- [x] Test UI: `tests/test_cordoli_widget_qt.py` (skip se Qt non disponibile)
 
 ---
 
 ## Storicizzazione domande/risposte e decisioni
 
-Tutte le domande, risposte e decisioni relative alla Fase D sono riportate qui, con riferimenti a commit e date.
+### Sessione 2026-03-09
+
+#### D.1 — Import CSV custom utente
+
+| Domanda | Risposta |
+|---------|----------|
+| D.1.a Famiglia | Stringa libera — qualsiasi valore accettato |
+| D.1.b Conflitti nome | Sovrascrittura + warning nel log |
+| D.1.c Validazione | Range fisici (h>0, Wx>0, tf>0, ecc.) |
+| D.1.d Persistenza | `data/steel/sagomario_custom.json` (caricato automaticamente) |
+
+#### D.7 — GUI Qt cordoli
+
+| Domanda | Risposta |
+|---------|----------|
+| D.7.1 Tipo finestra | QWidget embeddabile |
+| D.7.2 Navigazione | QTabWidget (4 tab, salto libero) |
+| D.7.3 Vis. sezione | QPainter custom |
+| D.7.4 Tipi cordolo | Tutti e tre: metallico + CA + reticolare |
+| D.7.5 Output | QTextEdit video + HTML, via modulo report centralizzato |
+| D.7.6 Test | Logica di business + pytest-qt sui componenti chiave |
+
+**Vincolo architetturale D.7.5**: ogni modulo di calcolo produce un dizionario
+(`passaggi_calcolo`, `risultati`) compatibile con `src/report/`. La GUI non ha
+logica di formattazione propria.
 
 ---
 

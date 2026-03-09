@@ -10,11 +10,20 @@ Unità: cm per lunghezze, cm² per aree, cm³ per moduli resistenti,
 
 from __future__ import annotations
 
+import csv
 import json
+import logging
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 from pathlib import Path
 from typing import Optional
+
+try:
+    from src.core.registro_log import registro as _registro
+except ImportError:
+    _registro = None  # ambienti headless / test
+
+_logger = logging.getLogger(__name__)
 
 
 class FamigliaProfilo(str, Enum):
@@ -90,11 +99,37 @@ class ProfiloAcciaio:
         return c / self.tf if self.tf > 0 else 0.0
 
 
+# ── Costanti per import CSV ──────────────────────────────────────────────────
+
+_CAMPI_OBBLIGATORI: tuple[str, ...] = (
+    "nome", "famiglia", "h", "b", "tw", "tf", "r",
+    "A", "massa_kg_m", "Ix", "Wx", "Wpl_x", "ix",
+    "Iy", "Wy", "Wpl_y", "iy",
+)
+_CAMPI_OPZIONALI: tuple[str, ...] = ("It", "Iw", "hi", "d", "AL")
+_POSITIVI: frozenset[str] = frozenset(
+    "h b tw tf r A massa_kg_m Ix Wx Wpl_x ix Iy Wy Wpl_y iy".split()
+)
+
+_TEMPLATE_CSV_HEADER = """\
+# Template importazione profili acciaio custom — RD2229
+# Compilare una riga per profilo. Righe che iniziano con # sono ignorate.
+# Campi obbligatori: nome, famiglia, h, b, tw, tf, r, A, massa_kg_m, Ix, Wx, Wpl_x, ix, Iy, Wy, Wpl_y, iy
+# Campi opzionali (default=0): It, Iw, hi, d, AL
+# Unita': lunghezze cm | aree cm2 | moduli cm3 | inerzie cm4 | ingobbamento cm6 | massa kg/m
+# Famiglia: stringa libera (IPE, HEA, CUSTOM, L_100x100, piatto_20x5, ecc.)
+# ATTENZIONE: nomi gia' presenti nel sagomario vengono sovrascritti con warning nel log
+nome,famiglia,h,b,tw,tf,r,A,massa_kg_m,Ix,Wx,Wpl_x,ix,Iy,Wy,Wpl_y,iy,It,Iw,hi,d,AL
+IPE200_custom,CUSTOM,20.0,10.0,0.56,0.85,1.20,28.5,22.4,1943.0,194.0,221.0,8.26,142.0,28.5,44.6,2.24,6.98,13000.0,18.3,15.9,0.0
+"""
+
+
 class SagomarioAcciaio:
     """Repository profili in acciaio con ricerca e filtraggio."""
 
     def __init__(self) -> None:
         self._profili: dict[str, ProfiloAcciaio] = {}
+        self._custom_names: set[str] = set()
 
     def count(self) -> int:
         return len(self._profili)
@@ -185,3 +220,124 @@ class SagomarioAcciaio:
         data = [p.to_dict() for p in self.tutti()]
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
+
+    # ── CSV custom ───────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _valida_riga_csv(
+        riga: dict[str, str], numero_riga: int
+    ) -> tuple[Optional[ProfiloAcciaio], Optional[str]]:
+        """Valida una riga CSV e restituisce (ProfiloAcciaio, None) o (None, errore)."""
+        # Campi obbligatori presenti
+        for campo in _CAMPI_OBBLIGATORI:
+            if campo not in riga:
+                return None, f"riga {numero_riga}: campo obbligatorio '{campo}' mancante"
+
+        # Conversione numerica
+        valori: dict[str, float] = {}
+        for campo in _CAMPI_OBBLIGATORI[2:]:  # skip "nome" e "famiglia"
+            raw = riga.get(campo, "").strip()
+            try:
+                valori[campo] = float(raw)
+            except ValueError:
+                return None, f"riga {numero_riga}: campo '{campo}' non numerico: '{raw}'"
+
+        for campo in _CAMPI_OPZIONALI:
+            raw = riga.get(campo, "0").strip() or "0"
+            try:
+                valori[campo] = float(raw)
+            except ValueError:
+                valori[campo] = 0.0
+
+        # Range fisici: tutti i campi in _POSITIVI devono essere > 0
+        for campo in _POSITIVI:
+            if valori.get(campo, 0.0) <= 0.0:
+                return None, (
+                    f"riga {numero_riga}: campo '{campo}' deve essere > 0, "
+                    f"trovato {valori.get(campo, 0.0)}"
+                )
+
+        dati = {
+            "nome": riga["nome"].strip(),
+            "famiglia": riga.get("famiglia", "CUSTOM").strip(),
+            **valori,
+        }
+        return ProfiloAcciaio.from_dict(dati), None
+
+    def _salva_custom(self, directory: Optional[Path] = None) -> None:
+        """Salva i profili custom in sagomario_custom.json."""
+        if not self._custom_names:
+            return
+        if directory is None:
+            directory = Path(__file__).parent.parent.parent / "data" / "steel"
+        directory = Path(directory)
+        directory.mkdir(parents=True, exist_ok=True)
+        custom = [
+            self._profili[nome].to_dict()
+            for nome in sorted(self._custom_names)
+            if nome in self._profili
+        ]
+        dest = directory / "sagomario_custom.json"
+        with open(dest, "w", encoding="utf-8") as f:
+            json.dump(custom, f, indent=2, ensure_ascii=False)
+
+    def carica_da_csv(
+        self,
+        path: str | Path,
+        custom_dir: str | Path | None = None,
+    ) -> tuple[int, list[str]]:
+        """Carica profili custom da file CSV.
+
+        Args:
+            path: Percorso del file CSV.
+            custom_dir: Directory dove salvare sagomario_custom.json.
+                        Se None usa la directory data/steel/ di default.
+
+        Returns:
+            (n_caricati, lista_warnings)
+        """
+        path = Path(path)
+        warnings: list[str] = []
+        n = 0
+
+        with open(path, encoding="utf-8", newline="") as f:
+            righe_filtrate = (r for r in f if not r.lstrip().startswith("#"))
+            reader = csv.DictReader(righe_filtrate)
+            for i, riga in enumerate(reader, start=2):
+                profilo, errore = self._valida_riga_csv(riga, i)
+                if errore:
+                    warnings.append(errore)
+                    continue
+                assert profilo is not None
+                if profilo.nome in self._profili:
+                    msg = f"Profilo '{profilo.nome}' già presente — sovrascrittura"
+                    warnings.append(msg)
+                    _logger.warning("sagomario: %s", msg)
+                    if _registro is not None:
+                        try:
+                            _registro.operazione(
+                                modulo="sagomario",
+                                operazione=msg,
+                                livello="WARNING",
+                            )
+                        except Exception:
+                            pass
+                self._profili[profilo.nome] = profilo
+                self._custom_names.add(profilo.nome)
+                n += 1
+
+        if custom_dir is not None:
+            self._salva_custom(Path(custom_dir))
+        else:
+            self._salva_custom()
+        return n, warnings
+
+    @staticmethod
+    def genera_template_csv(path: str | Path) -> None:
+        """Genera un file CSV template auto-esplicativo per l'import custom.
+
+        Args:
+            path: Percorso di destinazione del file template.
+        """
+        path = Path(path)
+        path.write_text(_TEMPLATE_CSV_HEADER, encoding="utf-8")

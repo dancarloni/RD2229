@@ -11,3 +11,4 @@ from .report_viewer import *
 from .section_manager import *
 from .aiuto_contestuale import *
 from .visualizzatore_sezione import *
+from .cordoli_widget import *
