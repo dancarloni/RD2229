@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from src.core_calculus.contracts import CalcInput, VerificationTemplate
 from src.core_calculus.normative_registry import get_fire_templates
 from src.core_calculus.validation_engine import validate_calc_input
-from src.methods.checks_fire_dm96 import (
+from src.methods.dm96.fire import (
     FireVerificationConfig,
     check_fire_resistance_beam_cap,
     check_fire_resistance_beam_rc,

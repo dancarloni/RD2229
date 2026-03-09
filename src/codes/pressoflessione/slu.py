@@ -75,7 +75,7 @@ def verifica_pressofless_slu(spec: PressoflessSpec) -> PressoflessResult:
     Returns:
         PressoflessResult con bresler_value SLU.
     """
-    from src.methods.checks_ntc2018 import check_pressoflessione_slu
+    from src.methods.ntc2018.checks import check_pressoflessione_slu
 
     if spec.f_ck_MPa is None or spec.f_yk_MPa is None:
         return PressoflessResult(

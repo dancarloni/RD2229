@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 from src.core_calculus.contracts import CalcInput
 from src.core_calculus.normative_registry import get_ntc2018_templates
-from src.methods.checks_ntc2018 import (
+from src.methods.ntc2018.checks import (
     check_flessione_slu_rett,
     check_minimi_armatura_flessione_slu,
     check_minimi_armatura_taglio_slu,

@@ -132,27 +132,27 @@ class TestTorsionProperties:
 
 class TestTorsioneSLU:
     def test_zero_torsion(self):
-        from src.methods.checks_ntc2018 import check_torsione_slu
+        from src.methods.ntc2018.checks import check_torsione_slu
         ci = _calc_input(Mz=0.0)
         res = check_torsione_slu(ci, _template("torsione"))
         assert res.ok is True
         assert res.utilisation == pytest.approx(0.0)
 
     def test_section_none(self):
-        from src.methods.checks_ntc2018 import check_torsione_slu
+        from src.methods.ntc2018.checks import check_torsione_slu
         ci = _calc_input(section=None, Mz=10.0)
         res = check_torsione_slu(ci, _template("torsione"))
         assert res.ok is False
 
     def test_material_none(self):
-        from src.methods.checks_ntc2018 import check_torsione_slu
+        from src.methods.ntc2018.checks import check_torsione_slu
         ci = _calc_input(material=None, Mz=10.0)
         res = check_torsione_slu(ci, _template("torsione"))
         assert res.ok is False
 
     def test_moderate_torsion_rect(self):
         """Torsione moderata su rettangolare → ok."""
-        from src.methods.checks_ntc2018 import check_torsione_slu
+        from src.methods.ntc2018.checks import check_torsione_slu
         ci = _calc_input(
             section=_rect(300, 500),
             Mz=5.0,  # kNm, modesto
@@ -165,7 +165,7 @@ class TestTorsioneSLU:
 
     def test_excessive_torsion(self):
         """Torsione eccessiva su sezione piccola → non ok."""
-        from src.methods.checks_ntc2018 import check_torsione_slu
+        from src.methods.ntc2018.checks import check_torsione_slu
         ci = _calc_input(
             section=_rect(150, 200),
             Mz=50.0,  # molto alto per sezione piccola
@@ -177,7 +177,7 @@ class TestTorsioneSLU:
 
     def test_torsion_with_shear_interaction(self):
         """Torsione + taglio → interazione verificata."""
-        from src.methods.checks_ntc2018 import check_torsione_slu
+        from src.methods.ntc2018.checks import check_torsione_slu
         ci = _calc_input(
             section=_rect(300, 500),
             Mz=5.0, Tx=50.0,
@@ -189,7 +189,7 @@ class TestTorsioneSLU:
 
     def test_rect_hollow_torsion(self):
         """Sezione cava: buona per torsione."""
-        from src.methods.checks_ntc2018 import check_torsione_slu
+        from src.methods.ntc2018.checks import check_torsione_slu
         ci = _calc_input(
             section=_rect_hollow(400, 600, 40),
             Mz=20.0,
@@ -206,21 +206,21 @@ class TestTorsioneSLU:
 
 class TestTensioniSLE:
     def test_zero_loads(self):
-        from src.methods.checks_ntc2018 import check_tensioni_sle
+        from src.methods.ntc2018.checks import check_tensioni_sle
         ci = _calc_input(Mx=0.0, N=0.0)
         res = check_tensioni_sle(ci, _template("tensioni_esercizio", "SLE"))
         assert res.ok is True
         assert res.utilisation == pytest.approx(0.0)
 
     def test_section_none(self):
-        from src.methods.checks_ntc2018 import check_tensioni_sle
+        from src.methods.ntc2018.checks import check_tensioni_sle
         ci = _calc_input(section=None, Mx=50.0)
         res = check_tensioni_sle(ci, _template("tensioni_esercizio", "SLE"))
         assert res.ok is False
 
     def test_moderate_bending_rect(self):
         """Flessione moderata → tensioni entro limiti."""
-        from src.methods.checks_ntc2018 import check_tensioni_sle
+        from src.methods.ntc2018.checks import check_tensioni_sle
         ci = _calc_input(
             section=_rect(300, 500),
             Mx=30.0,  # kNm, modesto per questa sezione
@@ -235,7 +235,7 @@ class TestTensioniSLE:
 
     def test_high_bending_fails(self):
         """Flessione alta con poca armatura → tensione acciaio troppo alta."""
-        from src.methods.checks_ntc2018 import check_tensioni_sle
+        from src.methods.ntc2018.checks import check_tensioni_sle
         ci = _calc_input(
             section=_rect(200, 300),
             Mx=100.0,  # alto per sezione piccola
@@ -252,20 +252,20 @@ class TestTensioniSLE:
 
 class TestFessurazioneSLE:
     def test_zero_moment(self):
-        from src.methods.checks_ntc2018 import check_fessurazione_sle
+        from src.methods.ntc2018.checks import check_fessurazione_sle
         ci = _calc_input(Mx=0.0)
         res = check_fessurazione_sle(ci, _template("fessurazione", "SLE"))
         assert res.ok is True
 
     def test_section_none(self):
-        from src.methods.checks_ntc2018 import check_fessurazione_sle
+        from src.methods.ntc2018.checks import check_fessurazione_sle
         ci = _calc_input(section=None, Mx=50.0)
         res = check_fessurazione_sle(ci, _template("fessurazione", "SLE"))
         assert res.ok is False
 
     def test_moderate_cracking_ok(self):
         """Fessure entro limite 0.3mm."""
-        from src.methods.checks_ntc2018 import check_fessurazione_sle
+        from src.methods.ntc2018.checks import check_fessurazione_sle
         ci = _calc_input(
             section=_rect(300, 500),
             Mx=30.0,
@@ -278,7 +278,7 @@ class TestFessurazioneSLE:
 
     def test_excessive_cracking(self):
         """Fessure eccessive con poca armatura."""
-        from src.methods.checks_ntc2018 import check_fessurazione_sle
+        from src.methods.ntc2018.checks import check_fessurazione_sle
         ci = _calc_input(
             section=_rect(200, 300),
             Mx=80.0,  # alto
@@ -290,7 +290,7 @@ class TestFessurazioneSLE:
 
     def test_w_k_positive(self):
         """w_k deve essere positivo con momento non nullo."""
-        from src.methods.checks_ntc2018 import check_fessurazione_sle
+        from src.methods.ntc2018.checks import check_fessurazione_sle
         ci = _calc_input(
             section=_rect(300, 500),
             Mx=50.0,
@@ -306,13 +306,13 @@ class TestFessurazioneSLE:
 
 class TestDeformazioniSLE:
     def test_zero_moment(self):
-        from src.methods.checks_ntc2018 import check_deformazioni_sle
+        from src.methods.ntc2018.checks import check_deformazioni_sle
         ci = _calc_input(Mx=0.0, extra={"span_mm": 5000.0})
         res = check_deformazioni_sle(ci, _template("deformazioni", "SLE"))
         assert res.ok is True
 
     def test_missing_span(self):
-        from src.methods.checks_ntc2018 import check_deformazioni_sle
+        from src.methods.ntc2018.checks import check_deformazioni_sle
         ci = _calc_input(Mx=50.0)
         res = check_deformazioni_sle(ci, _template("deformazioni", "SLE"))
         assert res.ok is False
@@ -320,7 +320,7 @@ class TestDeformazioniSLE:
 
     def test_moderate_deflection_ok(self):
         """Freccia entro L/250."""
-        from src.methods.checks_ntc2018 import check_deformazioni_sle
+        from src.methods.ntc2018.checks import check_deformazioni_sle
         ci = _calc_input(
             section=_rect(300, 500),
             Mx=30.0,
@@ -335,7 +335,7 @@ class TestDeformazioniSLE:
 
     def test_long_span_fails(self):
         """Luce lunga con sezione piccola → freccia eccessiva."""
-        from src.methods.checks_ntc2018 import check_deformazioni_sle
+        from src.methods.ntc2018.checks import check_deformazioni_sle
         ci = _calc_input(
             section=_rect(200, 300),
             Mx=50.0,
@@ -347,14 +347,14 @@ class TestDeformazioniSLE:
         assert res.details["delta_mm"] > 0
 
     def test_section_none(self):
-        from src.methods.checks_ntc2018 import check_deformazioni_sle
+        from src.methods.ntc2018.checks import check_deformazioni_sle
         ci = _calc_input(section=None, Mx=50.0, extra={"span_mm": 5000.0})
         res = check_deformazioni_sle(ci, _template("deformazioni", "SLE"))
         assert res.ok is False
 
     def test_creep_amplification(self):
         """Freccia con creep > senza creep."""
-        from src.methods.checks_ntc2018 import check_deformazioni_sle
+        from src.methods.ntc2018.checks import check_deformazioni_sle
         ci_no_creep = _calc_input(
             section=_rect(300, 500),
             Mx=30.0, As=10.0, d=45.0,

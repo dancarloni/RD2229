@@ -12,7 +12,7 @@ from types import SimpleNamespace
 import pytest
 
 from src.core_calculus.contracts import CalcInput, VerificationTemplate, NormReference
-from src.methods.checks_ntc2018 import check_pressoflessione_slu
+from src.methods.ntc2018.checks import check_pressoflessione_slu
 
 
 # ---------------------------------------------------------------------------

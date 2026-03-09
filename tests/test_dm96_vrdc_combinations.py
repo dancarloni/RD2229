@@ -47,7 +47,7 @@ def _make_calc_input(**kwargs) -> CalcInput:
 
 class TestFessurazioneSLE:
     def test_missing_w_amm(self):
-        from src.methods.checks_dm96 import check_fessurazione_sle_dm96
+        from src.methods.dm96.checks import check_fessurazione_sle_dm96
         ci = _make_calc_input(As=10.0, d=45.0, Mx=80.0)
         tpl = _make_template()
         result = check_fessurazione_sle_dm96(ci, tpl)
@@ -55,7 +55,7 @@ class TestFessurazioneSLE:
         assert "w_amm" in result.messages_it[0].lower() or "non specificata" in result.messages_it[0].lower()
 
     def test_crack_width_calculation(self):
-        from src.methods.checks_dm96 import check_fessurazione_sle_dm96
+        from src.methods.dm96.checks import check_fessurazione_sle_dm96
         ci = _make_calc_input(As=10.0, d=45.0, Mx=50.0)
         tpl = _make_template(extra_params={"w_amm_mm": 0.4})
         result = check_fessurazione_sle_dm96(ci, tpl)
@@ -65,7 +65,7 @@ class TestFessurazioneSLE:
         assert result.details["w_k_mm"] >= 0
 
     def test_high_moment_fails(self):
-        from src.methods.checks_dm96 import check_fessurazione_sle_dm96
+        from src.methods.dm96.checks import check_fessurazione_sle_dm96
         ci = _make_calc_input(As=2.0, d=45.0, Mx=200.0)
         tpl = _make_template(extra_params={"w_amm_mm": 0.1})
         result = check_fessurazione_sle_dm96(ci, tpl)
@@ -74,7 +74,7 @@ class TestFessurazioneSLE:
         assert result.utilisation > 0
 
     def test_no_section_error(self):
-        from src.methods.checks_dm96 import check_fessurazione_sle_dm96
+        from src.methods.dm96.checks import check_fessurazione_sle_dm96
         ci = CalcInput(section=None, material=_make_material())
         tpl = _make_template(extra_params={"w_amm_mm": 0.3})
         result = check_fessurazione_sle_dm96(ci, tpl)
@@ -88,14 +88,14 @@ class TestFessurazioneSLE:
 
 class TestDeformazioniSLE:
     def test_missing_params(self):
-        from src.methods.checks_dm96 import check_deformazioni_sle_dm96
+        from src.methods.dm96.checks import check_deformazioni_sle_dm96
         ci = _make_calc_input(Mx=50.0)
         tpl = _make_template()
         result = check_deformazioni_sle_dm96(ci, tpl)
         assert result.ok is False
 
     def test_deflection_calculation(self):
-        from src.methods.checks_dm96 import check_deformazioni_sle_dm96
+        from src.methods.dm96.checks import check_deformazioni_sle_dm96
         ci = _make_calc_input(As=10.0, d=45.0, Mx=30.0)
         tpl = _make_template(extra_params={"span_mm": 6000.0, "deflection_limit_ratio": 250})
         result = check_deformazioni_sle_dm96(ci, tpl)
@@ -105,7 +105,7 @@ class TestDeformazioniSLE:
         assert result.details["delta_amm_mm"] == 24.0  # 6000/250
 
     def test_short_span_passes(self):
-        from src.methods.checks_dm96 import check_deformazioni_sle_dm96
+        from src.methods.dm96.checks import check_deformazioni_sle_dm96
         ci = _make_calc_input(As=15.0, d=45.0, Mx=10.0)
         tpl = _make_template(extra_params={"span_mm": 3000.0, "deflection_limit_ratio": 250})
         result = check_deformazioni_sle_dm96(ci, tpl)
@@ -119,7 +119,7 @@ class TestDeformazioniSLE:
 
 class TestTorsioneSLU:
     def test_zero_torsion(self):
-        from src.methods.checks_dm96 import check_torsione_slu_dm96
+        from src.methods.dm96.checks import check_torsione_slu_dm96
         ci = _make_calc_input(Mz=0.0)
         tpl = _make_template()
         result = check_torsione_slu_dm96(ci, tpl)
@@ -127,7 +127,7 @@ class TestTorsioneSLU:
         assert result.utilisation == 0.0
 
     def test_torsion_with_value(self):
-        from src.methods.checks_dm96 import check_torsione_slu_dm96
+        from src.methods.dm96.checks import check_torsione_slu_dm96
         ci = _make_calc_input(Mz=10.0)
         tpl = _make_template()
         result = check_torsione_slu_dm96(ci, tpl)
@@ -145,7 +145,7 @@ class TestTorsioneSLU:
 
 class TestPunzonamentoSLU:
     def test_punching_calculation(self):
-        from src.methods.checks_dm96 import check_punzonamento_slu_dm96
+        from src.methods.dm96.checks import check_punzonamento_slu_dm96
         # Piastra 200mm, pilastro 300x300, N=200kN
         section = _make_section(width_mm=300, height_mm=200)
         ci = _make_calc_input(section=section, N=200.0, As=8.0, d=17.0)
@@ -157,7 +157,7 @@ class TestPunzonamentoSLU:
         assert "v_Rd_c_MPa" in result.details
 
     def test_no_section(self):
-        from src.methods.checks_dm96 import check_punzonamento_slu_dm96
+        from src.methods.dm96.checks import check_punzonamento_slu_dm96
         ci = CalcInput(section=None, material=_make_material())
         tpl = _make_template()
         result = check_punzonamento_slu_dm96(ci, tpl)
@@ -171,14 +171,14 @@ class TestPunzonamentoSLU:
 
 class TestInstabilitaSLU:
     def test_missing_l0(self):
-        from src.methods.checks_dm96 import check_instabilita_compressione_slu_dm96
+        from src.methods.dm96.checks import check_instabilita_compressione_slu_dm96
         ci = _make_calc_input(N=500.0, Mx=20.0, As=12.0)
         tpl = _make_template()
         result = check_instabilita_compressione_slu_dm96(ci, tpl)
         assert result.ok is False  # l_0 mancante
 
     def test_short_column(self):
-        from src.methods.checks_dm96 import check_instabilita_compressione_slu_dm96
+        from src.methods.dm96.checks import check_instabilita_compressione_slu_dm96
         # lambda = l_0 / (min(b,h)/sqrt(12)) = 2000 / (300/3.464) = 23 < 75
         ci = _make_calc_input(N=500.0, Mx=20.0, As=12.0)
         tpl = _make_template(extra_params={"l_0_mm": 2000.0})
@@ -187,7 +187,7 @@ class TestInstabilitaSLU:
         assert result.details["lambda"] < 75
 
     def test_slender_column(self):
-        from src.methods.checks_dm96 import check_instabilita_compressione_slu_dm96
+        from src.methods.dm96.checks import check_instabilita_compressione_slu_dm96
         # Pilastro snello: sezione piccola, l_0 grande
         section = _make_section(width_mm=200, height_mm=200)
         ci = _make_calc_input(section=section, N=300.0, Mx=10.0, As=8.0, d=17.0)

@@ -24,9 +24,9 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | ~2233   |
+| Test totali        | ~2278   |
 | Test falliti       | 0       |
-| Moduli implementati| 69+     |
+| Moduli implementati| 71+     |
 | Norme coperte      | 10      |
 
 ---
@@ -38,11 +38,11 @@
 | A    | ✅    | 100 | a0f05aa       | [piano_fase_A.md](piano_fase_A.md) |
 | B    | ✅    | 100 | ...           | [piano_fase_B.md](piano_fase_B.md) |
 | C    | ✅    | 100 | ...           | [piano_fase_C.md](piano_fase_C.md) |
-| D    | 🟡    | 75  | 23f3300       | [piano_fase_D.md](piano_fase_D.md) |
+| D    | ✅    | 100 | corrente      | [piano_fase_D.md](piano_fase_D.md) |
 | E    | ✅    | 100 | ...           | [piano_fase_E.md](piano_fase_E.md) |
 | F    | ✅    | 100 | ...           | [piano_fase_F.md](piano_fase_F.md) |
 | G    | ✅    | 100 | ...           | [piano_fase_G.md](piano_fase_G.md) |
-| H    | 🟡    | 50  | ...           | [piano_fase_H.md](piano_fase_H.md) |
+| H    | ✅    | 100 | corrente      | [piano_fase_H.md](piano_fase_H.md) |
 | I    | ✅    | 100 | 3bed1a7       | [piano_fase_I.md](piano_fase_I.md) |
 | J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
 | K    | ⬜    | 0   | ...           | [piano_fase_K.md](piano_fase_K.md) |

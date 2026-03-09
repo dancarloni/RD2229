@@ -15,7 +15,7 @@ from dataclasses import dataclass
 
 from src.core_calculus.contracts import CalcInput, VerificationTemplate
 from src.core_calculus.normative_registry import get_dm96_templates
-from src.methods.checks_dm96 import (
+from src.methods.dm96.checks import (
     check_deformazioni_sle_dm96,
     check_fessurazione_sle_dm96,
     check_flessione_slu_dm96,

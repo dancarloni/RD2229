@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from src.core_calculus.contracts import CalcInput
 from src.core_calculus.normative_registry import get_rd2229_templates
-from src.methods.checks_rd2229 import check_pressoflessione_deviata_ta_concrete
+from src.methods.rd2229.checks import check_pressoflessione_deviata_ta_concrete
 
 
 @dataclass

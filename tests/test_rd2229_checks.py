@@ -19,7 +19,7 @@ from dataclasses import dataclass
 import pytest
 
 from src.core_calculus.contracts import CalcInput
-from src.methods.checks_rd2229 import (
+from src.methods.rd2229.checks import (
     check_flessione_ta_rett,
     check_minimi_armatura_ta,
     check_pressoflessione_deviata_ta_concrete,
