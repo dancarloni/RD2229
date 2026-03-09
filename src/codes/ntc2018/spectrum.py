@@ -420,7 +420,7 @@ def calcola_S_d_T1(
 # ---------------------------------------------------------------------------
 
 def spettro_da_hazard_row(
-    row: "Ntc2018HazardRow",
+    row: Ntc2018HazardRow,
     cat_suolo: CategoriaSuolo,
     cat_topografica: CategoriaTopografica,
     xi: float = 5.0,

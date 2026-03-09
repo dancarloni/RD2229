@@ -88,7 +88,7 @@ def carica_help_yaml(nome_modulo: str) -> dict[str, Any] | None:
 
     try:
         import yaml
-        with open(percorso, "r", encoding="utf-8") as f:
+        with open(percorso, encoding="utf-8") as f:
             return yaml.safe_load(f)
     except ImportError:
         # Fallback: leggi come testo se PyYAML non disponibile
@@ -101,7 +101,7 @@ def carica_help_yaml(nome_modulo: str) -> dict[str, Any] | None:
 
 def _carica_help_testo(percorso: Path) -> dict[str, Any]:
     """Caricamento fallback: legge il file come testo semplice."""
-    with open(percorso, "r", encoding="utf-8") as f:
+    with open(percorso, encoding="utf-8") as f:
         contenuto = f.read()
     return {"titolo": percorso.stem, "testo_grezzo": contenuto}
 

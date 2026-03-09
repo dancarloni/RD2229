@@ -14,7 +14,6 @@ Subfase L.9 del modulo telai piani RD 2229/39.
 from __future__ import annotations
 
 import json
-from typing import Optional
 
 try:
     from PyQt6.QtCore import Qt
@@ -88,7 +87,7 @@ from src.methods.rd2229.telaio.verifiche_telaio import verifica_completa_telaio
 class TelaioWindow(QMainWindow):
     """Finestra principale per il calcolo di telai piani Cross-Pozzati."""
 
-    def __init__(self, parent: Optional[QWidget] = None, **context):
+    def __init__(self, parent: QWidget | None = None, **context):
         super().__init__(parent)
         self.setWindowTitle("Telai Piani — Cross-Pozzati (RD 2229/39)")
         self.setMinimumSize(1200, 700)

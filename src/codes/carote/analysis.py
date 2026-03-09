@@ -6,7 +6,7 @@ Orchestratore che applica formulazioni, statistiche e parametri derivati.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from src.codes.carote.core_sample import ConversionResult, CoreSample
@@ -95,7 +95,7 @@ def analizza_carote(
             derived={},
             best_estimate=None,
             passaggi_calcolo=["Nessuna carota fornita"],
-            timestamp=datetime.now(tz=timezone.utc).isoformat(),
+            timestamp=datetime.now(tz=UTC).isoformat(),
         )
 
     passaggi: list[str] = [f"Analisi di {len(samples)} carote"]
@@ -152,5 +152,5 @@ def analizza_carote(
         derived=derived,
         best_estimate=best,
         passaggi_calcolo=passaggi,
-        timestamp=datetime.now(tz=timezone.utc).isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
     )

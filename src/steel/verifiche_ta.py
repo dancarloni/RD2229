@@ -13,7 +13,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .sezione_asta import SezioneAsta
@@ -389,7 +389,7 @@ def seleziona_profilo_ottimale(
     Mx: float,
     tipo_acciaio: str = "Fe430",
     sagomario: object | None = None,
-) -> Optional[ProfiloAcciaio]:
+) -> ProfiloAcciaio | None:
     """Seleziona il profilo più leggero che verifica la flessione semplice.
 
     Args:
@@ -413,7 +413,7 @@ def seleziona_profilo_ottimale(
 
 
 def verifica_asta_ta(
-    sezione: "SezioneAsta",
+    sezione: SezioneAsta,
     N: float,
     L: float,
     tipo_acciaio: str = "Fe430",

@@ -128,7 +128,7 @@ def test_report_estrazione():
         esegui_verifica_cantonale,
     )
     from src.report.tabulati_calcolo import sezione_diagnostica_angolo, sezione_meccanismo_cantonale
-    
+
     # Check cinematica report
     inp = InputCantonale(h_cm=300, t1_cm=40, t2_cm=40, L1_dist_cm=150, L2_dist_cm=150)
     res = esegui_verifica_cantonale(inp)
@@ -136,7 +136,7 @@ def test_report_estrazione():
     assert 'RIBALTAMENTO CANTONALE 3D' in report_text
     assert 'Moltiplicatore collasso alpha_0' in report_text
     assert 'PASSAGGI DI CALCOLO:' in report_text
-    
+
     # Check diagnostica
     inp_diag = InputDiagnosticaAngolo(distanza_apertura_cm=50.0, spessore_parete_cm=40.0, tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC)
     res_diag = calcola_resistenza_residua_angolo(inp_diag)

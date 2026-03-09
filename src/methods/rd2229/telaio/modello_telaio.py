@@ -321,7 +321,7 @@ class SezioneTelaio:
         h: float,
         E: float = 300_000.0,
         gamma: float = 2.5e-3,
-    ) -> "SezioneTelaio":
+    ) -> SezioneTelaio:
         """Crea una sezione rettangolare con proprietà calcolate automaticamente.
 
         Args:
@@ -677,7 +677,7 @@ class ModelloTelaio:
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ModelloTelaio":
+    def from_dict(cls, d: dict) -> ModelloTelaio:
         """Ricostruisce il modello da un dict (es. da JSON)."""
         def _vincolo(v: dict) -> VincoloEsterno:
             return VincoloEsterno(

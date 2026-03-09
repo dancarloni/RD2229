@@ -28,7 +28,6 @@ Riferimenti:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from .carichi_fissi import calcola_mip_asta, mip_cedimento
 from .modello_telaio import (
@@ -510,7 +509,7 @@ def analisi_sway_unitario_piano(
     )
 
 
-def _risolvi_gauss(A: list[list[float]], b: list[float]) -> Optional[list[float]]:
+def _risolvi_gauss(A: list[list[float]], b: list[float]) -> list[float] | None:
     """Risolve sistema lineare A·x = b con eliminazione di Gauss (pivoting parziale).
 
     Args:
@@ -727,7 +726,7 @@ def esegui_correzione_sway(
 
 def calcola_cross_pozzati(
     modello: ModelloTelaio,
-    forze_orizzontali_per_piano: Optional[dict[int, float]] = None,
+    forze_orizzontali_per_piano: dict[int, float] | None = None,
     includi_peso_proprio: bool = True,
     tolleranza: float = 0.5,
     max_iter: int = 200,

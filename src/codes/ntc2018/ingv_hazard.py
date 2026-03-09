@@ -35,7 +35,6 @@ import csv as _csv_mod
 import math
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 from .spectrum_paste_service import Ntc2018HazardRow
 
@@ -86,7 +85,7 @@ def get_hazard_params_ingv(lat: float, lon: float, TR: int) -> Ntc2018HazardRow:
         import urllib.parse
         import urllib.request
     except ImportError as e:
-        raise IOError(f"Modulo urllib non disponibile: {e}") from e
+        raise OSError(f"Modulo urllib non disponibile: {e}") from e
 
     _valida_coordinate(lat, lon)
 
@@ -102,7 +101,7 @@ def get_hazard_params_ingv(lat: float, lon: float, TR: int) -> Ntc2018HazardRow:
         with urllib.request.urlopen(url, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except Exception as e:
-        raise IOError(
+        raise OSError(
             f"Webservice INGV non raggiungibile ({url}): {e}. "
             "Usare get_hazard_params_csv() con griglia locale."
         ) from e
@@ -185,7 +184,7 @@ def _carica_csv_griglia(csv_path: Path) -> list[tuple[float, float, dict]]:
     return points
 
 
-def _invalida_cache_csv(csv_path: Optional[Path] = None) -> None:
+def _invalida_cache_csv(csv_path: Path | None = None) -> None:
     """Invalida la cache CSV (utile nei test)."""
     if csv_path is None:
         _csv_cache.clear()
@@ -285,7 +284,7 @@ def get_hazard_params_site(
     try:
         row = get_hazard_params_ingv(lat, lon, TR)
         return row, HazardSource.INGV_WEBSERVICE
-    except IOError:
+    except OSError:
         row = get_hazard_params_csv(lat, lon, TR, csv_path)
         return row, HazardSource.LOCAL_CSV
 
@@ -344,7 +343,7 @@ def _cerca_punto_piu_vicino(
     tc_key = f"T{TR}Tc"
 
     best_dist2 = float("inf")
-    best_row: Optional[dict] = None
+    best_row: dict | None = None
 
     for (plat, plon, row) in points:
         d2 = (plat - lat) ** 2 + (plon - lon) ** 2

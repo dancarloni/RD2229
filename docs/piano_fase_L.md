@@ -1,9 +1,14 @@
 # Fase L — Telai Piani Cross-Pozzati (RD 2229/39)
 
-**Stato**: COMPLETATO
-**Commit**: `f041b45`
-**Data completamento**: 2026-03-09
-**Test aggiunti**: 40 (totale progetto dopo: 2383)
+## Stato e metadati
+
+| Campo | Valore |
+| --- | --- |
+| **Stato** | ✅ COMPLETATO |
+| **Commit** | `f041b45` |
+| **Data completamento** | 2026-03-09 |
+| **Test aggiunti** | 40 (totale progetto dopo: 2383) |
+| **Norma/e di riferimento** | RD 2229/1939, Pozzati vol.II, Santarella vol.II |
 
 ---
 

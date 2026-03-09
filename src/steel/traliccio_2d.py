@@ -15,7 +15,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .sezione_asta import SezioneAsta
@@ -385,7 +385,7 @@ def risolvi_traliccio(
     )
 
 
-def _gauss_solve(A: list[list[float]], b: list[float]) -> Optional[list[float]]:
+def _gauss_solve(A: list[list[float]], b: list[float]) -> list[float] | None:
     """Risolve sistema lineare Ax=b con eliminazione di Gauss e pivoting parziale.
 
     Ritorna None se la matrice è singolare.
@@ -492,7 +492,7 @@ def verifica_aste_traliccio(
     lambda_max: float = 200.0,
     aste_input: list[Asta] | None = None,
     nodi_input: list[Nodo] | None = None,
-    sezioni: "dict[int, SezioneAsta] | None" = None,
+    sezioni: dict[int, SezioneAsta] | None = None,
 ) -> list[dict]:
     """Verifica le aste del traliccio a trazione e compressione.
 

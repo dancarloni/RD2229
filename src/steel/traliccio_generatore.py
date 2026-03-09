@@ -32,7 +32,6 @@ Unità: cm per geometria, kg per forze.
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 from .sezione_asta import SezioneAsta
 from .traliccio_2d import Asta, Nodo, TipoVincolo
@@ -163,7 +162,7 @@ def genera_pratt(
     n_campate: int,
     sezione_corrente: SezioneAsta,
     sezione_diagonale: SezioneAsta,
-    sezione_montante: Optional[SezioneAsta] = None,
+    sezione_montante: SezioneAsta | None = None,
 ) -> tuple[list[Nodo], list[Asta]]:
     """Genera schema Pratt con n_campate pannelli.
 
@@ -340,7 +339,7 @@ def predimensiona_sezione(
     tipo_acciaio: str = "Fe430",
     famiglia: str = "PIATTO",
     lambda_max: float = 200.0,
-) -> Optional[SezioneAsta]:
+) -> SezioneAsta | None:
     """Cerca il profilo minimo (G1) per N_max e L_asta dati.
 
     Itera su piatti.json o angolari.json in ordine di A crescente.
@@ -379,7 +378,7 @@ def disegna_schema_traliccio(
     nodi: list[Nodo],
     aste: list[Asta],
     N_aste: dict[int, float] | None = None,
-) -> "object":
+) -> object:
     """Genera anteprima matplotlib del traliccio (headless).
 
     Colori aste: rosso = compressione, blu = trazione, grigio = scarica.

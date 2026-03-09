@@ -321,7 +321,7 @@ def taglio_diagonale(inp: InputTaglio) -> RisultatoTaglio:
     sigma_0 = inp.N / A if A > 0 else 0.0
     tau_0d = inp.tau_0 / inp.gamma_M
 
-    passaggi.append(f"Criterio diagonale (Turnšek-Čačovič)")
+    passaggi.append("Criterio diagonale (Turnšek-Čačovič)")
     passaggi.append(f"Pannello: L={inp.L:.0f}×t={inp.t:.0f}×h={inp.h:.0f} cm")
     passaggi.append(f"σ₀ = N/(L×t) = {inp.N:.0f}/{A:.0f} = {sigma_0:.2f} kg/cm²")
     passaggi.append(f"τ₀d = τ₀/γ_M = {inp.tau_0:.2f}/{inp.gamma_M:.1f} = {tau_0d:.3f} kg/cm²")
@@ -382,7 +382,7 @@ def taglio_scorrimento(inp: InputTaglio) -> RisultatoTaglio:
     fvk = inp.fvk0 + inp.mu * sigma_n
     fvd = fvk / inp.gamma_M
 
-    passaggi.append(f"Criterio scorrimento (Mohr-Coulomb)")
+    passaggi.append("Criterio scorrimento (Mohr-Coulomb)")
     passaggi.append(f"σ_n = N/(L×t) = {sigma_n:.2f} kg/cm²")
     passaggi.append(f"fvk = fvk0 + μ×σ_n = {inp.fvk0:.3f} + {inp.mu}×{sigma_n:.2f} = {fvk:.3f} kg/cm²")
     passaggi.append(f"fvd = fvk/γ_M = {fvk:.3f}/{inp.gamma_M:.1f} = {fvd:.4f} kg/cm²")
@@ -424,7 +424,7 @@ def taglio_pressoflessione(inp: InputTaglio) -> RisultatoTaglio:
     sigma_0 = inp.N / A if A > 0 else 0.0
     h0 = inp.psi * inp.h  # altezza di taglio
 
-    passaggi.append(f"Criterio pressoflessione (schiacciamento)")
+    passaggi.append("Criterio pressoflessione (schiacciamento)")
     passaggi.append(f"σ₀ = {sigma_0:.2f} kg/cm², fd = {inp.fd:.1f} kg/cm²")
     passaggi.append(f"h₀ = ψ×h = {inp.psi}×{inp.h:.0f} = {h0:.0f} cm")
 
@@ -535,7 +535,7 @@ def verifica_spanciamento(inp: InputSpanciamento) -> RisultatoSpanciamento:
     lam = h_eff / inp.t if inp.t > 0 else float("inf")
     verificato = lam <= inp.lambda_max
 
-    passaggi.append(f"Verifica spanciamento (snellezza fuori piano)")
+    passaggi.append("Verifica spanciamento (snellezza fuori piano)")
     passaggi.append(f"h_eff = ρ×h = {inp.rho}×{inp.h:.0f} = {h_eff:.0f} cm")
     passaggi.append(f"λ = h_eff/t = {h_eff:.0f}/{inp.t:.0f} = {lam:.1f}")
     passaggi.append(

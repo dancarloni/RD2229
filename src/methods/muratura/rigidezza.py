@@ -24,7 +24,6 @@ Riferimenti:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from src.methods.muratura.discretizzazione import (
     Fascia,
@@ -464,7 +463,7 @@ def distribuisci_forza_piano(
 def _risolvi_3x3(
     K: list[list[float]],
     F: list[float],
-) -> Optional[list[float]]:
+) -> list[float] | None:
     """Risolve sistema 3×3 K·u = F con eliminazione di Gauss.
 
     Returns:
@@ -506,7 +505,7 @@ def _risolvi_3x3(
 def _risolvi_2x2(
     K: list[list[float]],
     F: list[float],
-) -> Optional[list[float]]:
+) -> list[float] | None:
     """Risolve sistema 2×2 K·u = F."""
     det = K[0][0] * K[1][1] - K[0][1] * K[1][0]
     if abs(det) < 1e-12:

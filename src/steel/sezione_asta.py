@@ -19,7 +19,6 @@ import math
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 
 class TipoSezioneAsta(str, Enum):
@@ -185,7 +184,7 @@ class CatalogoSezioni:
             count += 1
         return count
 
-    def get(self, nome: str) -> Optional[SezioneAsta]:
+    def get(self, nome: str) -> SezioneAsta | None:
         return self._sezioni.get(nome)
 
     def tutti(self) -> list[SezioneAsta]:

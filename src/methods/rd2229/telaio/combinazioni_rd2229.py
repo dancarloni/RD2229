@@ -23,7 +23,6 @@ Unità: kg [forze], cm [geometria], kg·cm [momenti].
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from .modello_telaio import CaricoAsta, ModelloTelaio, TipoCarico
 from .sisma_telaio import ForzeSismicheTelaio, calcola_forze_sismiche
@@ -129,7 +128,7 @@ class RisultatoCombinazioni:
     combinazioni_attive: list[str]
     risultati_per_caso: dict[str, RisultatoCasoCarico]
     inviluppo: dict[int, InviluppoSollecitazioniAsta]
-    forze_sismiche: Optional[ForzeSismicheTelaio]
+    forze_sismiche: ForzeSismicheTelaio | None
     passaggi: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
@@ -299,7 +298,7 @@ def calcola_tutte_le_combinazioni(
     passaggi.append(f"Combinazioni attive: {', '.join(combos)}")
 
     # ---- Forze sismiche ----
-    forze_sismiche: Optional[ForzeSismicheTelaio] = None
+    forze_sismiche: ForzeSismicheTelaio | None = None
     if any(c in combos for c in _COMBO_SISMICI):
         forze_sismiche = calcola_forze_sismiche(modello)
         passaggi.extend(forze_sismiche.passaggi)

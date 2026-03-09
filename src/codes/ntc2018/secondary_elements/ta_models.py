@@ -157,8 +157,8 @@ def spectral_acceleration_floor_from_site(
     ag_g: float,
     F0: float,
     TC_star: float,
-    cat_suolo: "CategoriaSuolo",
-    cat_topografica: "CategoriaTopografica",
+    cat_suolo: CategoriaSuolo,
+    cat_topografica: CategoriaTopografica,
 ) -> float:
     """Calcola S_a al piano computando alpha_S dai parametri di sito.
 

@@ -22,7 +22,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from ..steel.connessioni import InputSaldatura, verifica_saldatura_ta
 from ..steel.sezione_asta import SezioneAsta
@@ -195,7 +194,7 @@ def _verifica_collegamento_f3(
 def verifica_cordolo_reticolare(
     cordolo: CordoloReticolare,
     F_y: float,
-    sigma_adm: Optional[float] = None,
+    sigma_adm: float | None = None,
 ) -> RisultatoCordoloReticolare:
     """Verifica completa cordolo reticolare sotto forza sismica F_y.
 
@@ -348,7 +347,7 @@ def dimensiona_cordolo_reticolare(
     tipo_acciaio: str = "Fe430",
     famiglia_corrente: str = "PIATTO",
     famiglia_diagonale: str = "PIATTO",
-) -> Optional[CordoloReticolare]:
+) -> CordoloReticolare | None:
     """G1 — Dimensionamento automatico del cordolo reticolare.
 
     Cerca il profilo minimo (per A crescente) per corrente e diagonale

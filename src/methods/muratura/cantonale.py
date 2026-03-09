@@ -1,7 +1,6 @@
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Tuple
 
 
 class TipoCopertura(Enum):
@@ -42,7 +41,7 @@ class InputSpinta:
     forza_diretta_H_kg: float = 0.0  # Forza orizzontale diretta (se GENERICA)
     forza_diretta_V_kg: float = 0.0  # Forza verticale diretta (se GENERICA)
 
-    def calcola_forze(self) -> Tuple[float, float, List[str]]:
+    def calcola_forze(self) -> tuple[float, float, list[str]]:
         """
         Calcola e restituisce la tupla (H, V) in [kg] della spinta,
         insieme ai passaggi intermedi di calcolo.
@@ -101,20 +100,20 @@ class InputCantonale:
     L2_dist_cm: float  # Distanza di distacco sulla parete 2, misurata dallo spigolo interno
     gamma_muratura_kg_cm3: float = 0.0018  # Peso specifico muratura (default 1800 kg/m3)
 
-    spinta_copertura: Optional[InputSpinta] = None
+    spinta_copertura: InputSpinta | None = None
     posizione_spinta: PosizioneSpinta = PosizioneSpinta.SPIGOLO_INTERNO
     ritegno_cordolo_kg: float = 0.0  # Contributo facoltativo cordolo orizzontale (fase D.3)
 
     # Parametri cinematici generici
-    angolo_ribaltamento_beta_gradi: Optional[float] = (
+    angolo_ribaltamento_beta_gradi: float | None = (
         None  # Se None, asse di rotazione ortogonale a bisettrice fessure
     )
 
     # Altri carichi e azioni interne
     sovraccarico_verticale_vertice_kg: float = 0.0
-    catene: List[InputCatenaCantonale] = field(default_factory=list)  # Modello analitico D2
+    catene: list[InputCatenaCantonale] = field(default_factory=list)  # Modello analitico D2
 
-    def valida_geometria(self) -> List[str]:
+    def valida_geometria(self) -> list[str]:
         """
         Esegue i controlli geometrici per la validità cinematica,
         strutturale o formale del modello e restituisce eventuali warning.
@@ -158,8 +157,8 @@ class RisultatoCantonale:
     momento_ribaltante_kg_cm: float
     momento_stabilizzante_kg_cm: float
     peso_cuneo_kg: float
-    passaggi_calcolo: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    passaggi_calcolo: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -381,8 +380,8 @@ class RisultatoCantonale:
     momento_ribaltante_kg_cm: float
     momento_stabilizzante_kg_cm: float
     peso_cuneo_kg: float
-    passaggi_calcolo: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    passaggi_calcolo: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -424,8 +423,8 @@ class RisultatoDiagnosticaAngolo:
     status: str          # 'OK', 'WARNING', 'FAIL'
     distanza_minima_richiesta_cm: float
     coeff_riduzione_k: float   # [k_min, 1.0]
-    passaggi_calcolo: List[str]
-    
+    passaggi_calcolo: list[str]
+
     def to_dict(self) -> dict:
         return {
             'is_ok': self.is_ok,

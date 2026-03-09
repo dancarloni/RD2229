@@ -31,7 +31,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from src.methods.muratura.modello_edificio import (
     Apertura,
@@ -88,7 +87,7 @@ class Maschio:
     x_fin_locale: float = 0.0   # coordinata locale fine lungo la parete [cm]
 
     # Materiale
-    materiale: Optional[MaterialeMuratura] = None
+    materiale: MaterialeMuratura | None = None
 
     # Carichi verticali
     N_gravitazionale: float = 0.0  # sforzo normale da carichi gravitazionali [kg]
@@ -168,7 +167,7 @@ class Fascia:
     id_maschio_dx: int = -1      # maschio a destra
 
     # Materiale
-    materiale: Optional[MaterialeMuratura] = None
+    materiale: MaterialeMuratura | None = None
 
     # Cordolo accoppiato (auto-detect da E.5)
     ha_cordolo: bool = False

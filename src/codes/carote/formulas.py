@@ -10,7 +10,8 @@ Formulazioni: BS1881, ACI214, TR11, RILEM1979, MASI2005, FIORE2008,
 from __future__ import annotations
 
 import math
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from src.codes.carote.core_sample import ConversionResult, CoreSample, CorrectionFactors
 
@@ -169,7 +170,7 @@ def converti_bs1881(
     """BS 1881:Part 120 — tabella k_ld."""
     k_ld = _interp_table(_BS1881_KLD, sample.ld_ratio)
     passaggi = [
-        f"Formulazione: BS 1881:Part 120",
+        "Formulazione: BS 1881:Part 120",
         f"L/D = {sample.ld_ratio:.2f} -> k_ld = {k_ld:.4f} (tabella)",
     ]
     factors = _build_factors(sample, k_ld, overrides)
@@ -187,7 +188,7 @@ def converti_aci214(
     else:
         k_ld = 2.0 / (1.04 + 0.04 * ld)
         formula = f"k_ld = 2/(1.04+0.04*{ld:.2f}) = {k_ld:.4f}"
-    passaggi = [f"Formulazione: ACI 214.4R-10", formula]
+    passaggi = ["Formulazione: ACI 214.4R-10", formula]
     factors = _build_factors(sample, k_ld, overrides)
     return _make_result(sample, "ACI214", factors, passaggi)
 
@@ -198,7 +199,7 @@ def converti_tr11(
     """Concrete Society Technical Report 11 — tabella k_ld."""
     k_ld = _interp_table(_TR11_KLD, sample.ld_ratio)
     passaggi = [
-        f"Formulazione: Concrete Society TR11",
+        "Formulazione: Concrete Society TR11",
         f"L/D = {sample.ld_ratio:.2f} -> k_ld = {k_ld:.4f} (tabella)",
     ]
     factors = _build_factors(sample, k_ld, overrides)
@@ -211,7 +212,7 @@ def converti_rilem1979(
     """RILEM NDT 2 (1979) — tabella k_ld."""
     k_ld = _interp_table(_RILEM_KLD, sample.ld_ratio)
     passaggi = [
-        f"Formulazione: RILEM NDT 2 (1979)",
+        "Formulazione: RILEM NDT 2 (1979)",
         f"L/D = {sample.ld_ratio:.2f} -> k_ld = {k_ld:.4f} (tabella)",
     ]
     factors = _build_factors(sample, k_ld, overrides)
@@ -225,7 +226,7 @@ def converti_masi2005(
     ld = sample.ld_ratio
     k_ld = 0.667 + 0.167 * ld
     passaggi = [
-        f"Formulazione: Masi A. (2005)",
+        "Formulazione: Masi A. (2005)",
         f"k_ld = 0.667 + 0.167*{ld:.2f} = {k_ld:.4f}",
     ]
     factors = _build_factors(sample, k_ld, overrides)
@@ -242,7 +243,7 @@ def converti_fiore2008(
     ld = sample.ld_ratio
     k_ld = 0.634 + 0.183 * ld
     passaggi = [
-        f"Formulazione: Fiore et al. (2008)",
+        "Formulazione: Fiore et al. (2008)",
         f"k_ld = 0.634 + 0.183*{ld:.2f} = {k_ld:.4f}",
     ]
     factors = _build_factors(sample, k_ld, overrides)
@@ -255,7 +256,7 @@ def converti_ntc2018(
     """NTC2018 + Circolare n.7/2019 §C8.5.3 — tabella k_ld."""
     k_ld = _interp_table(_NTC2018_KLD, sample.ld_ratio)
     passaggi = [
-        f"Formulazione: NTC2018 + Circ.7/2019 §C8.5.3",
+        "Formulazione: NTC2018 + Circ.7/2019 §C8.5.3",
         f"L/D = {sample.ld_ratio:.2f} -> k_ld = {k_ld:.4f} (tabella)",
     ]
     factors = _build_factors(sample, k_ld, overrides)
@@ -268,7 +269,7 @@ def converti_en13791(
     """EN 13791:2019 — tabella k_ld da annesso."""
     k_ld = _interp_table(_EN13791_KLD, sample.ld_ratio)
     passaggi = [
-        f"Formulazione: EN 13791:2019",
+        "Formulazione: EN 13791:2019",
         f"L/D = {sample.ld_ratio:.2f} -> k_ld = {k_ld:.4f} (tabella)",
     ]
     factors = _build_factors(sample, k_ld, overrides)
@@ -285,7 +286,7 @@ def converti_giacchetti(
     ld = sample.ld_ratio
     k_ld = 0.650 + 0.175 * ld
     passaggi = [
-        f"Formulazione: Giacchetti R. et al.",
+        "Formulazione: Giacchetti R. et al.",
         f"k_ld = 0.650 + 0.175*{ld:.2f} = {k_ld:.4f}",
     ]
     factors = _build_factors(sample, k_ld, overrides)

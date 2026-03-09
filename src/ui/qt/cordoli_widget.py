@@ -17,7 +17,6 @@ Unita': cm geometria, kg forze, kg/cm² tensioni.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 try:
     from PyQt6.QtCore import QPointF, QRectF, Qt
@@ -118,10 +117,10 @@ _POSIZIONE_MAP = {
 class _SezioneVisualizzatore(QWidget):
     """Disegno QPainter della sezione trasversale del cordolo."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._tipo = "placeholder"
-        self._profilo: Optional[ProfiloAcciaio] = None
+        self._profilo: ProfiloAcciaio | None = None
         self._ca_params: dict = {}
         self._ret_params: dict = {}
         self.setMinimumSize(280, 200)
@@ -130,7 +129,7 @@ class _SezioneVisualizzatore(QWidget):
             QSizePolicy.Policy.Expanding,
         )
 
-    def aggiorna_metallico(self, profilo: Optional[ProfiloAcciaio]) -> None:
+    def aggiorna_metallico(self, profilo: ProfiloAcciaio | None) -> None:
         self._tipo = "metallico"
         self._profilo = profilo
         self.update()
@@ -335,7 +334,7 @@ class _TabellaProfiloInfo(QWidget):
         ("It [cm⁴]", "It"), ("massa [kg/m]", "massa_kg_m"),
     ]
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         layout = QFormLayout(self)
         layout.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
@@ -345,7 +344,7 @@ class _TabellaProfiloInfo(QWidget):
             layout.addRow(etichetta, lbl)
             self._labels[attr] = lbl
 
-    def aggiorna(self, profilo: Optional[ProfiloAcciaio]) -> None:
+    def aggiorna(self, profilo: ProfiloAcciaio | None) -> None:
         for attr, lbl in self._labels.items():
             if profilo is None:
                 lbl.setText("—")
@@ -359,7 +358,7 @@ class _TabellaProfiloInfo(QWidget):
 class _InputSollecitazioni(QWidget):
     """Form input sollecitazioni — usato solo per tipo Metallico."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
 
@@ -426,7 +425,7 @@ class _InputSollecitazioni(QWidget):
 class _OutputVerifiche(QWidget):
     """Tab output: testo ASCII + etichetta esito + esporta HTML."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
 
@@ -451,7 +450,7 @@ class _OutputVerifiche(QWidget):
         self._btn_html.clicked.connect(self._esporta_html)
         layout.addWidget(self._btn_html)
 
-        self._tabulato: Optional[TabulatoCalcolo] = None
+        self._tabulato: TabulatoCalcolo | None = None
 
     def mostra_risultato(self, tabulato: TabulatoCalcolo, verificato: bool) -> None:
         self._tabulato = tabulato
@@ -489,7 +488,7 @@ class _OutputVerifiche(QWidget):
 class _FormCA(QWidget):
     """Form completo per cordolo CA (parametri + sollecitazioni)."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -568,7 +567,7 @@ class _FormCA(QWidget):
 class _FormReticolare(QWidget):
     """Form completo per cordolo reticolare (geometria + carichi)."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -647,14 +646,14 @@ class _FormReticolare(QWidget):
 class CordoliWidget(QWidget):
     """Widget embeddabile per verifica cordoli metallici, CA e reticolari."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._sagomario = SagomarioAcciaio()
         self._sagomario.carica_tutti()
         self._tipo_corrente = "Metallico"
-        self._profilo_corrente: Optional[ProfiloAcciaio] = None
+        self._profilo_corrente: ProfiloAcciaio | None = None
         self._mappa_righe: dict[int, ProfiloAcciaio] = {}
-        self._tabulato: Optional[TabulatoCalcolo] = None
+        self._tabulato: TabulatoCalcolo | None = None
 
         self._init_ui()
         self._connetti_segnali()
@@ -1061,6 +1060,6 @@ MODULE_SPEC = {
 }
 
 
-def create_module(master: Optional[QWidget] = None, **context) -> CordoliWidget:
+def create_module(master: QWidget | None = None, **context) -> CordoliWidget:
     """Factory per auto-discovery moduli Qt."""
     return CordoliWidget(parent=master)

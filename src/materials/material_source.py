@@ -9,7 +9,6 @@ Tutto in italiano, Unicode per simboli, serializzazione JSON nativa.
 
 from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Optional
 
 
 class MetodoCalcolo(str, Enum):
@@ -53,9 +52,9 @@ class MaterialSource:
 class MaterialNormRef:
     norma_id: str
     articolo: str
-    tabella: Optional[str] = None
-    formula: Optional[str] = None
-    parametro: Optional[str] = None
+    tabella: str | None = None
+    formula: str | None = None
+    parametro: str | None = None
     descrizione_it: str = ""
 
     def to_dict(self) -> dict:

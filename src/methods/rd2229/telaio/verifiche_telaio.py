@@ -255,7 +255,7 @@ class ArmaturaSezioneSemplice:
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ArmaturaSezioneSemplice":
+    def from_dict(cls, d: dict) -> ArmaturaSezioneSemplice:
         a = cls(id_asta=d["id_asta"], posizione=d["posizione"])
         for k, v in d.items():
             if hasattr(a, k):

@@ -12,8 +12,9 @@ Norme SLU (stati limite ultimi):  NTC2008, NTC2018
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 

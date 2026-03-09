@@ -78,7 +78,7 @@ def disegna_sezione(
     mostra_legenda: bool = True,
     diam_barra_cm: float = 1.2,
     figsize: tuple[float, float] = (10.0, 7.0),
-) -> "Figure":
+) -> Figure:
     """Genera una figura matplotlib con il disegno della sezione in c.a.
 
     Args:
@@ -237,7 +237,7 @@ def _disegna_diagramma_tensioni(
     ax.legend(fontsize=7)
 
 
-def salva_figura(fig: "Figure", percorso: str, dpi: int = 150) -> None:
+def salva_figura(fig: Figure, percorso: str, dpi: int = 150) -> None:
     """Salva la figura in un file (PNG, PDF, SVG, ...)."""
     if not _HAS_MPL:
         raise ImportError("matplotlib non disponibile")
@@ -253,7 +253,7 @@ def crea_figura_sezione_sle(
     norma: str = "",
     titolo: str | None = None,
     figsize: tuple[float, float] = (10.0, 7.0),
-) -> "Figure":
+) -> Figure:
     """Crea figura completa da output di calcola_parametri_sezione_completi.
 
     Args:

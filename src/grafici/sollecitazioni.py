@@ -63,7 +63,7 @@ class DiagrammaSollecitazioni:
         n_punti: int = 20,
         etichetta: str = "",
         norma: str = "",
-    ) -> "DiagrammaSollecitazioni":
+    ) -> DiagrammaSollecitazioni:
         """Costruisce un diagramma lineare dagli estremi (per trave).
 
         Valido per carichi distribuiti uniformi o con variazione lineare.
@@ -89,7 +89,7 @@ class DiagrammaSollecitazioni:
         risultato: dict[str, Any],
         L_cm: float,
         n_punti: int = 20,
-    ) -> "DiagrammaSollecitazioni":
+    ) -> DiagrammaSollecitazioni:
         """Adapter: estrae domanda (M_Ed, T_Ed, N_Ed) da un risultato checks.
 
         Compatibile con il contratto standard dei moduli checks_*:

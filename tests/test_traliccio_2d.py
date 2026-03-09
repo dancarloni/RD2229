@@ -49,7 +49,7 @@ def _traliccio_triangolare():
 
 
 def _traliccio_warren():
-    """Traliccio Warren (tipo Pratt) a 4 pannelli.
+    r"""Traliccio Warren (tipo Pratt) a 4 pannelli.
 
     0───2───4───6───8
     |\ /|\ /|\ /|\ /|

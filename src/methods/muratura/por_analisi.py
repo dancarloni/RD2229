@@ -28,7 +28,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from src.methods.muratura.discretizzazione import (
     Maschio,
@@ -486,7 +485,7 @@ class RisultatoPOR:
     curve: list[CurvaPushover] = field(default_factory=list)
 
     # Curva governante (V_base minore)
-    curva_governante: Optional[CurvaPushover] = None
+    curva_governante: CurvaPushover | None = None
 
     # Indice di rischio sismico
     zeta_E: float = 0.0             # PGA_capacità / PGA_domanda
@@ -509,7 +508,7 @@ def analisi_por_completa(
     quote: list[float],
     piani_ordinati: list[int],
     config: ConfigPOR,
-    sismica: Optional[ParametriSismiciEdificio] = None,
+    sismica: ParametriSismiciEdificio | None = None,
     dimensione_x: float = 0.0,
     dimensione_y: float = 0.0,
 ) -> RisultatoPOR:

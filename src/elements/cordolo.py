@@ -18,7 +18,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class TipoCordolo(str, Enum):
@@ -168,8 +167,8 @@ class Cordolo:
     V: float = 0.0                   # taglio [kg]
 
     # Dettaglio tipo
-    ca: Optional[CordoloCA] = None
-    metallico: Optional[CordoloMetallico] = None
+    ca: CordoloCA | None = None
+    metallico: CordoloMetallico | None = None
 
 
 @dataclass

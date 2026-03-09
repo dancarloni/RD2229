@@ -19,7 +19,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 # ═══════════════════════════════════════════════════════════
 #  Enumerazioni
@@ -196,7 +195,7 @@ class Parete:
     x_fin: float = 0.0          # coordinata x fine [cm]
     y_fin: float = 0.0          # coordinata y fine [cm]
     spessore: float = 30.0      # spessore parete [cm]
-    materiale: Optional[MaterialeMuratura] = None
+    materiale: MaterialeMuratura | None = None
     aperture: list[Apertura] = field(default_factory=list)
 
     @property
@@ -481,7 +480,7 @@ class Edificio:
         """Massa sismica totale [kg]."""
         return sum(p.massa for p in self.piani)
 
-    def piano_per_id(self, id_piano: int) -> Optional[Piano]:
+    def piano_per_id(self, id_piano: int) -> Piano | None:
         """Cerca un piano per id."""
         for p in self.piani:
             if p.id_piano == id_piano:

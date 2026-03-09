@@ -16,7 +16,6 @@ import logging
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 try:
     from src.core.registro_log import registro as _registro
@@ -160,7 +159,7 @@ class SagomarioAcciaio:
             total += self.carica_da_json(f)
         return total
 
-    def get(self, nome: str) -> Optional[ProfiloAcciaio]:
+    def get(self, nome: str) -> ProfiloAcciaio | None:
         """Cerca profilo per nome esatto (es. 'IPE 200')."""
         return self._profili.get(nome)
 
@@ -203,7 +202,7 @@ class SagomarioAcciaio:
 
     def profilo_ottimale(
         self, Wx_min: float, famiglia: str | None = None
-    ) -> Optional[ProfiloAcciaio]:
+    ) -> ProfiloAcciaio | None:
         """Ritorna il profilo più leggero con Wx >= Wx_min."""
         candidati = self.cerca_per_Wx_minimo(Wx_min, famiglia)
         if not candidati:
@@ -226,7 +225,7 @@ class SagomarioAcciaio:
     @staticmethod
     def _valida_riga_csv(
         riga: dict[str, str], numero_riga: int
-    ) -> tuple[Optional[ProfiloAcciaio], Optional[str]]:
+    ) -> tuple[ProfiloAcciaio | None, str | None]:
         """Valida una riga CSV e restituisce (ProfiloAcciaio, None) o (None, errore)."""
         # Campi obbligatori presenti
         for campo in _CAMPI_OBBLIGATORI:
@@ -264,7 +263,7 @@ class SagomarioAcciaio:
         }
         return ProfiloAcciaio.from_dict(dati), None
 
-    def _salva_custom(self, directory: Optional[Path] = None) -> None:
+    def _salva_custom(self, directory: Path | None = None) -> None:
         """Salva i profili custom in sagomario_custom.json."""
         if not self._custom_names:
             return

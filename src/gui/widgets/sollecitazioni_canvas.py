@@ -11,7 +11,7 @@ Richiede: PySide6 o PyQt6 + matplotlib[backend_qt]
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 try:
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas

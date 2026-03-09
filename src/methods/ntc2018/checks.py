@@ -1272,7 +1272,7 @@ def check_torsione_slu(
         f"Sezione: tipo {getattr(section, 'section_type', '?')}",
         f"Materiali: f_ck={f_ck:.0f} MPa, f_yk={f_yk:.0f} MPa",
         "",
-        f"Proprietà torsionali:",
+        "Proprietà torsionali:",
         f"  A_k = {A_k:.0f} mm²  (area nucleo)",
         f"  u_k = {u_k:.0f} mm   (perimetro nucleo)",
         f"  t_ef = {t_ef:.1f} mm  (spessore efficace)",

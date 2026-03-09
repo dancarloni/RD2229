@@ -3,7 +3,7 @@
 ## Stato e metadati
 
 | Campo | Valore |
-|---|---|
+| --- | --- |
 | **Stato** | ✅ COMPLETATO |
 | **Commit** | `a0f05aa` |
 | **Data completamento** | 2026-03-07 |
@@ -38,7 +38,7 @@ Il sistema dei materiali segue le prescrizioni delle normative storiche:
 
 ### Conversioni critiche
 
-```
+```text
 1 kg/cm² = 0.0980665 MPa        (src/materials/adapter.py)
 E_c RD2229 = 550000 · σ_c28 / (σ_c28 + 200)   [kg/cm²]
 E_cm NTC2018 = 22000 · (fcm/10)^0.3            [MPa]
@@ -47,7 +47,7 @@ E_cm NTC2018 = 22000 · (fcm/10)^0.3            [MPa]
 
 ### Struttura MaterialSource
 
-```
+```text
 MaterialSource
 ├── id_sorgente     (es. "ntc2018_tab_C3_1")
 ├── norma           (Enum Norma)
@@ -74,7 +74,7 @@ A.1 — Cataloghi JSON (9 norme, 97 materiali)
 ## Dipendenze da moduli esistenti
 
 | Modulo | File | Utilizzo in Fase A |
-|---|---|---|
+| --- | --- | --- |
 | `src/materials/material_repository.py` | Repository materiali | Aggiornato per gestire `MaterialSource` tipizzata |
 | `src/core/unita_misura.py` | Sistema unità | Selettore kg/cm² ↔ MPa per output |
 | `src/materials/adapter.py` | Conversioni unità | Conversioni automatiche tra sistemi |
@@ -84,7 +84,7 @@ A.1 — Cataloghi JSON (9 norme, 97 materiali)
 ## Riferimenti normativi e bibliografici
 
 | Riferimento | Utilizzo |
-|---|---|
+| --- | --- |
 | **RD 2229/1939** art.1-5 | Tensioni ammissibili cls, acciaio dolce/semiduro/duro |
 | **DM 30/05/1972** | Materiali cls per costruzioni ordinarie |
 | **DM 20/11/1987** (muratura) | f_d, f_vk0, E_m per muratura |
@@ -170,7 +170,7 @@ tests/
 ## File creati/modificati
 
 | File | Righe | Descrizione |
-|---|---|---|
+| --- | --- | --- |
 | `data/materials/catalogo_*.json` | ~20-50 cad. | 9 cataloghi materiali per norma |
 | `data/materials/material_sources.json` | ~60 | 9 fonti normative migrate |
 | `src/materials/material_source.py` | ~80 | `MaterialSource`, `TipoFonte`, serializzazione |
@@ -183,7 +183,7 @@ tests/
 ## Decisioni architetturali
 
 | Decisione | Motivazione |
-|---|---|
+| --- | --- |
 | Cataloghi separati per norma (9 JSON) | Ogni catalogo è manutenibile indipendentemente; aggiunta di nuove norme non richiede modifica degli altri |
 | `MaterialSource` come entità separata (non inline in `Material`) | Una stessa fonte può essere condivisa da più materiali; evita duplicazione dei metadati |
 | Unità primarie kg/cm² nei cataloghi RD2229/DM72/DM92/DM96 | Fedeltà storica; conversione a MPa solo per output su richiesta |
@@ -194,7 +194,7 @@ tests/
 ## Bug corretti durante lo sviluppo
 
 | Bug | File | Descrizione |
-|---|---|---|
+| --- | --- | --- |
 | Encoding UTF-8 in JSON muratura | `catalogo_dm87_muratura.json` | Caratteri accentati (è, à) causavano errore su Windows; risolto con `encoding="utf-8"` esplicito |
 
 ---
@@ -204,7 +204,7 @@ tests/
 ### Sessione 2026-03-07
 
 | Domanda | Risposta | Decisione |
-|---|---|---|
+| --- | --- | --- |
 | Schema catalogo: uno per norma o unico? | Un file per norma | 9 JSON separati, più manutenibili |
 | Unità nei cataloghi storici (RD2229, DM72…)? | kg/cm² storici | Mantiene fedeltà con la norma originale |
 | `MaterialSource`: inline o entità separata? | Entità separata | Riduce duplicazione, permette riuso cross-norma |

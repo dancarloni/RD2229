@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import math
 from enum import Enum, auto
-from typing import Optional
 
 try:
     from PyQt6.QtCore import QPointF, QRectF, Qt  # noqa: F401
@@ -123,22 +122,22 @@ class CanvasTelaio(QGraphicsView):
     nodo_richiesto = Signal(float, float)  # x_cm, y_cm (coordinate telaio)
     asta_richiesta = Signal(int, int)      # id_nodo_i, id_nodo_j
 
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
 
-        self._modello: Optional[ModelloTelaio] = None
+        self._modello: ModelloTelaio | None = None
         self._modalita = ModalitaCanvas.SELEZIONE
         self._scala = SCALA_CM_PX
         self._griglia_cm = 50.0      # passo griglia in cm
         self._mostra_griglia = True
 
         # Stato inserimento asta
-        self._primo_nodo_id: Optional[int] = None
+        self._primo_nodo_id: int | None = None
 
         # Overlay diagrammi: "M" | "V" | "N" | None
-        self._overlay_tipo: Optional[str] = None
+        self._overlay_tipo: str | None = None
         self._overlay_scala = 1.0   # scala amplificazione
 
         # Configurazione view
@@ -170,7 +169,7 @@ class CanvasTelaio(QGraphicsView):
         else:
             self.setDragMode(QGraphicsView.DragMode.NoDrag)
 
-    def imposta_overlay(self, tipo: Optional[str], scala: float = 1.0) -> None:
+    def imposta_overlay(self, tipo: str | None, scala: float = 1.0) -> None:
         """Imposta overlay diagrammi sollecitazioni: "M" | "V" | "N" | None."""
         self._overlay_tipo = tipo
         self._overlay_scala = scala
@@ -419,7 +418,7 @@ class CanvasTelaio(QGraphicsView):
                     self.asta_cliccata.emit(id_val)
                 break
 
-    def _trova_nodo_vicino(self, x_cm: float, y_cm: float, tol_cm: float = 30.0) -> Optional[int]:
+    def _trova_nodo_vicino(self, x_cm: float, y_cm: float, tol_cm: float = 30.0) -> int | None:
         """Trova il nodo più vicino a (x_cm, y_cm) entro la tolleranza."""
         if not self._modello:
             return None

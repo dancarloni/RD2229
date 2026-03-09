@@ -104,12 +104,12 @@ def parametri_sismici_da_sito(
     ag_g: float,
     F0: float,
     TC_star: float,
-    cat_suolo: "CategoriaSuolo",
-    cat_topografica: "CategoriaTopografica",
+    cat_suolo: CategoriaSuolo,
+    cat_topografica: CategoriaTopografica,
     T1: float = 0.0,
     q: float = 2.0,
     FC: float = 1.35,
-) -> "ParametriSismici":
+) -> ParametriSismici:
     """Crea ParametriSismici calcolando S = SS * ST da spectrum.py.
 
     Evita che il chiamante debba calcolare SS e ST manualmente.

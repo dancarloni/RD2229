@@ -15,7 +15,6 @@ Riferimenti:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from src.methods.muratura.discretizzazione import Maschio
 from src.methods.muratura.por_analisi import (
@@ -274,7 +273,7 @@ def plot_curva_pushover(
     curva: CurvaPushover,
     salva_path: str | None = None,
     mostra: bool = False,
-) -> Optional[object]:
+) -> object | None:
     """Genera il grafico della curva pushover con bilineare sovrapposta.
 
     Args:
