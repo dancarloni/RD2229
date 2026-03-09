@@ -14,5 +14,9 @@
   },
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
-  }
+  },
+  "pylint.enabled": false,
+  "python.linting.pylintEnabled": false,
+  "ruff.enable": true,
+  "ruff.lint.enable": true
 }
