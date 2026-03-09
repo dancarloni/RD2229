@@ -6,12 +6,12 @@ Testa material_model, material_repo e validation.
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from materials.material_model import (
@@ -23,7 +23,6 @@ from materials.material_model import (
 )
 from materials.material_repo import MaterialRepository
 from materials.validation import validate_material
-
 
 # =====================================================================
 # Test Material Model
