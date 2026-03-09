@@ -1,0 +1,29 @@
+{
+  "version": "0.2",
+  "language": "it-IT,en",
+  "dictionaries": ["it-it", "en_US", "project-words"],
+  "dictionaryDefinitions": [
+    {
+      "name": "project-words",
+      "path": ".cspell/project-words.txt",
+      "addWords": true
+    }
+  ],
+  "ignorePaths": [
+    "node_modules",
+    ".venv",
+    ".git",
+    "visual_basic",
+    "tests_legacy",
+    "deprecated",
+    "src/legacy",
+    "*.min.js",
+    "package-lock.json",
+    "*.lock",
+    "data/**/*.json",
+    "docs/_generated/**",
+    ".cspell/**"
+  ],
+  "words": [],
+  "flagWords": []
+}
