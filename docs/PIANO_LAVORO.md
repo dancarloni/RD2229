@@ -35,29 +35,29 @@
 
 | Fase | Stato | %   | Ultimo commit | Dettaglio                |
 |------|-------|-----|---------------|--------------------------|
-| A    | ✅    | 100 | a0f05aa       | [piano_fase_A.md](docs/piano_fase_A.md) |
-| B    | ✅    | 100 | ...           | [piano_fase_B.md](docs/piano_fase_B.md) |
-| C    | ✅    | 100 | ...           | [piano_fase_C.md](docs/piano_fase_C.md) |
-| D    | 🟡    | 75  | 23f3300       | [piano_fase_D.md](docs/piano_fase_D.md) |
-| E    | ✅    | 100 | ...           | [piano_fase_E.md](docs/piano_fase_E.md) |
-| F    | ✅    | 100 | ...           | [piano_fase_F.md](docs/piano_fase_F.md) |
-| G    | ✅    | 100 | ...           | [piano_fase_G.md](docs/piano_fase_G.md) |
-| H    | 🟡    | 50  | ...           | [piano_fase_H.md](docs/piano_fase_H.md) |
-| I    | ✅    | 100 | 3bed1a7       | [piano_fase_I.md](docs/piano_fase_I.md) |
-| J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](docs/piano_fase_J.md) |
-| K    | ⬜    | 0   | ...           | [piano_fase_K.md](docs/piano_fase_K.md) |
-| L    | ⬜    | 0   | ...           | [piano_fase_L.md](docs/piano_fase_L.md) |
-| M    | ⬜    | 0   | ...           | [piano_fase_M.md](docs/piano_fase_M.md) |
-| N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](docs/piano_fase_N.md) |
-| O    | 🟡    | 60  | d6e589a       | [piano_fase_O.md](docs/piano_fase_O.md) |
-| P    | ⬜    | 0   | ...           | [piano_fase_P.md](docs/piano_fase_P.md) |
-| Q    | ⬜    | 0   | ...           | [piano_fase_Q.md](docs/piano_fase_Q.md) |
-| R    | ⬜    | 0   | ...           | [piano_fase_R.md](docs/piano_fase_R.md) |
-| S    | ⬜    | 0   | ...           | [piano_fase_S.md](docs/piano_fase_S.md) |
-| T    | ⬜    | 0   | ...           | [piano_fase_T.md](docs/piano_fase_T.md) |
-| U    | ⬜    | 0   | ...           | [piano_fase_U.md](docs/piano_fase_U.md) |
-| V    | ⬜    | 0   | ...           | [piano_fase_V.md](docs/piano_fase_V.md) |
-| W    | ⬜    | 0   | ...           | [piano_fase_W.md](docs/piano_fase_W.md) |
+| A    | ✅    | 100 | a0f05aa       | [piano_fase_A.md](piano_fase_A.md) |
+| B    | ✅    | 100 | ...           | [piano_fase_B.md](piano_fase_B.md) |
+| C    | ✅    | 100 | ...           | [piano_fase_C.md](piano_fase_C.md) |
+| D    | 🟡    | 75  | 23f3300       | [piano_fase_D.md](piano_fase_D.md) |
+| E    | ✅    | 100 | ...           | [piano_fase_E.md](piano_fase_E.md) |
+| F    | ✅    | 100 | ...           | [piano_fase_F.md](piano_fase_F.md) |
+| G    | ✅    | 100 | ...           | [piano_fase_G.md](piano_fase_G.md) |
+| H    | 🟡    | 50  | ...           | [piano_fase_H.md](piano_fase_H.md) |
+| I    | ✅    | 100 | 3bed1a7       | [piano_fase_I.md](piano_fase_I.md) |
+| J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
+| K    | ⬜    | 0   | ...           | [piano_fase_K.md](piano_fase_K.md) |
+| L    | ⬜    | 0   | ...           | [piano_fase_L.md](piano_fase_L.md) |
+| M    | ⬜    | 0   | ...           | [piano_fase_M.md](piano_fase_M.md) |
+| N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
+| O    | 🟡    | 60  | d6e589a       | [piano_fase_O.md](piano_fase_O.md) |
+| P    | ⬜    | 0   | ...           | [piano_fase_P.md](piano_fase_P.md) |
+| Q    | ⬜    | 0   | ...           | [piano_fase_Q.md](piano_fase_Q.md) |
+| R    | ⬜    | 0   | ...           | [piano_fase_R.md](piano_fase_R.md) |
+| S    | ⬜    | 0   | ...           | [piano_fase_S.md](piano_fase_S.md) |
+| T    | ⬜    | 0   | ...           | [piano_fase_T.md](piano_fase_T.md) |
+| U    | ⬜    | 0   | ...           | [piano_fase_U.md](piano_fase_U.md) |
+| V    | ⬜    | 0   | ...           | [piano_fase_V.md](piano_fase_V.md) |
+| W    | ⬜    | 0   | ...           | [piano_fase_W.md](piano_fase_W.md) |
 
 ---
 
