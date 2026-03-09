@@ -3,6 +3,7 @@ User: Sei un assistente di sviluppo per un ingegnere strutturista che lavora con
 
 🎯 OBIETTIVO
 Nel repository corrente sono già presenti molti file, inclusi file relativi a NTC2018 e parti di interfaccia Tkinter. Voglio che tu:
+
 - analizzi in modo leggero la struttura del repository
 - proponga una architettura modulare chiara
 - organizzi e/o produca:
@@ -35,6 +36,7 @@ Esegui una ricognizione **non esaustiva** del repository, limitandoti a:
     - archivio dati
 
 ⚠️ Importante per ridurre il carico e l’uso di risorse:
+
 - Non analizzare tutti i file in dettaglio.
 - Basati principalmente su:
   - nomi delle cartelle
@@ -43,6 +45,7 @@ Esegui una ricognizione **non esaustiva** del repository, limitandoti a:
 - Se ritieni necessario aprire molti file, **fermati e chiedimi prima quali file puoi analizzare**.
 
 📤 Output atteso del PASSO 1:
+
 - Breve riassunto del progetto (solo le parti rilevanti per NTC2018 + Tkinter).
 - Elenco raggruppato dei file in quattro aree:
   1. logica NTC2018
@@ -83,11 +86,13 @@ In base a quanto hai trovato, proponi una **architettura modulare** in Python co
    - Nessun riferimento diretto a Tkinter in questi moduli.
 
 Proponi:
+
 - una struttura di cartelle (esempio: `core_ntc/`, `gui/`, `config/`, `storage/`)
 - i nomi dei moduli Python (ad es. `core_ntc/combinazioni.py`, `gui/main_window.py`, `config/settings.py`, `storage/project_repo.py`)
 - le responsabilità principali di ogni modulo.
 
 📤 Output atteso del PASSO 2:
+
 - alberatura delle cartelle proposta
 - elenco dei moduli con una breve descrizione (1–2 righe) per ognuno
 - suggerimenti su quali file esistenti spostare o rifattorizzare nei nuovi moduli.
@@ -123,6 +128,7 @@ Quando inizi l’implementazione:
 ---
 
 🔒 VINCOLI GENERALI (per un uso più “leggero” e controllato)
+
 - Non generare l’intero progetto in un’unica risposta.
 - Non introdurre nuove librerie pesanti se non strettamente necessario, e solo dopo avermelo proposto (ad es. per logging, config avanzata, ecc.).
 - Limita la lettura del repository ai file realmente necessari e, se possibile, chiedimi prima quali cartelle/file esplorare in dettaglio.
@@ -135,6 +141,7 @@ Quando inizi l’implementazione:
 
 Ora esegui il PASSO 1:
 analizza in modo leggero il repository e restituisci:
+
 - il riassunto del progetto
 - la classificazione dei file nelle quattro aree: NTC2018, GUI Tkinter, configurazione, archivio/dati.
 
@@ -153,6 +160,7 @@ Leggere [](file:///c%3A/workspaces/RD2229/RD2229/src/methods/checks_ntc2018.py#1
 ## PASSO 1 — Ricognizione leggera (NTC2018 + Tkinter) 🔎
 
 Breve sintesi del progetto (solo parti rilevanti)
+
 - Questo repository è un framework di verifiche strutturali con:
   - un **core di calcolo** ben separato (core_calculus, methods) che contiene motore di verifica, formule e controlli (tra cui supporto per **NTC2018**);
   - una **UI Tkinter** (package sections + vecchie copie in app_module) per input, gestione materiali/sezioni e esecuzione rapide delle verifiche;
@@ -163,6 +171,7 @@ Breve sintesi del progetto (solo parti rilevanti)
 Classificazione (file/percorsi chiave — non esaustiva)
 
 1) Logica NTC2018 (core di calcolo, controlli normativi)
+
 - checks_ntc2018.py — implementazioni (parziali/placeholder) delle verifiche SLU/SLE/TA per NTC2018.  
 - verification_engine.py — engine che orchestri calcoli (TA / SLU / SLE) e carica configurazioni.  
 - verification_core.py — primitive/strutture dati per verifiche (NeutralAxis, StressState, ecc.).  
@@ -170,24 +179,28 @@ Classificazione (file/percorsi chiave — non esaustiva)
 - material_sources.py & `config/historical_materials/*` — mapping proprietà materiali (NTC2018 incluso).  
 - Script di esempio: demo_verification_engine.py.
 
-2) GUI Tkinter (finestre, dialog, controller)
+1) GUI Tkinter (finestre, dialog, controller)
+
 - main_window.py, module_selector.py — finestra principale / launcher.  
 - frc_verification_window.py, frc_manager.py, historical_main_window.py — dialog per verifiche/materiali.  
 - section_graphics.py — renderer / trasformazioni per canvas (usato dai test/demo).  
 - Legacy / compat: `libs/app_module/ui/*` (versioni storiche della GUI, usate per compatibilità/tests).
 
-3) Configurazione (parametri normativi e loader)
+1) Configurazione (parametri normativi e loader)
+
 - calculation_codes_loader.py — loader per TA/SLU/SLE (`.jsoncode`).  
 - historical_materials_loader.py — loader per fonti materiali (RD2229, NTC2008, **NTC2018**).  
 - `config/calculation_codes/*.jsoncode`, `config/historical_materials/*.jsoncode` — dati normativi/materiali.  
 - Documentazione/demo: README.md, demo_config_system.py.
 
-4) Archivio / salvataggio dati
+1) Archivio / salvataggio dati
+
 - storage.py — import/export CSV (SectionGeometry ↔ CSV).  
 - sec_repository, sections.json, materials.json, historical_materials.json — repository dati / file persistenti.  
 - Test e helper: test_storage.py, utility in `softw_components/*` (alcuni duplicati già rimossi/shimmati).
 
 Osservazioni sull’organizzazione attuale (ricognizione leggera)
+
 - Separazione logica vs GUI: buona — il core non importa Tkinter; la GUI chiama il core/engine.  
 - Configurazione: esiste un sistema JSON/YAML‑like (`.jsoncode`) e loader dedicati — integrabile con NTC2018.  
 - Archiviazione: moduli per CSV/JSON già presenti e testati.  
@@ -229,69 +242,81 @@ OBIETTIVO DI QUESTA SESSIONE:
 LISTA DI MACRO-AREE DA COPRIRE (roadmap):
 
 A. Architettura software modulare:
-   - definizione di un’interfaccia generale per moduli normativi (CodeModule, con funzioni tipo check_slu, check_sle, check_seismic, ecc.);
-   - riorganizzazione del codice NTC2018 (es. checks_ntc2018.py) in un package dedicato (codes/ntc2018/…);
-   - design di un sistema di configurazione estensibile per parametri normativi NTC2018 (γ, ψ, combinazioni, parametri di materiale, ecc.);
-   - previsione di hook e interfacce per futuri moduli di norma (NTC2008, Eurocodici, ecc.).
+
+- definizione di un’interfaccia generale per moduli normativi (CodeModule, con funzioni tipo check_slu, check_sle, check_seismic, ecc.);
+- riorganizzazione del codice NTC2018 (es. checks_ntc2018.py) in un package dedicato (codes/ntc2018/…);
+- design di un sistema di configurazione estensibile per parametri normativi NTC2018 (γ, ψ, combinazioni, parametri di materiale, ecc.);
+- previsione di hook e interfacce per futuri moduli di norma (NTC2008, Eurocodici, ecc.).
 
 B. Azioni e combinazioni:
-   - catalogo delle azioni permanenti, variabili, sismiche e accidentali secondo NTC2018;
-   - generazione di combinazioni di carico per SLU e SLE (rare, frequenti, quasi permanenti), configurabili via .jsoncode;
-   - API chiare per la produzione di combinazioni da passare al motore di verifica (verification_engine).
+
+- catalogo delle azioni permanenti, variabili, sismiche e accidentali secondo NTC2018;
+- generazione di combinazioni di carico per SLU e SLE (rare, frequenti, quasi permanenti), configurabili via .jsoncode;
+- API chiare per la produzione di combinazioni da passare al motore di verifica (verification_engine).
 
 C. Materiali e modelli costitutivi:
-   - riuso e razionalizzazione del sistema attuale (material_sources, config/historical_materials);
-   - estensione strutturata per:
-     - calcestruzzo armato (classi, parametri f_ck, f_cd, f_ctm, ecc.);
-     - acciaio per c.a. e per carpenteria;
-     - muratura, legno, geotecnica, ecc. come livelli successivi (anche solo pianificati);
-   - mantenimento del vincolo: per ora si usano solo materiali e sezioni già presenti nel repository, predisponendo però i punti di estensione.
+
+- riuso e razionalizzazione del sistema attuale (material_sources, config/historical_materials);
+- estensione strutturata per:
+  - calcestruzzo armato (classi, parametri f_ck, f_cd, f_ctm, ecc.);
+  - acciaio per c.a. e per carpenteria;
+  - muratura, legno, geotecnica, ecc. come livelli successivi (anche solo pianificati);
+- mantenimento del vincolo: per ora si usano solo materiali e sezioni già presenti nel repository, predisponendo però i punti di estensione.
 
 D. Verifiche per elementi in calcestruzzo armato:
-   - travi (SLU: flessione, taglio, torsione, interazione N-M; SLE: fessurazione, deformazioni, tensioni limite);
-   - pilastri (SLU: dominio N–M, instabilità/secondo ordine; SLE: tensioni e deformazioni);
-   - solai/piastra e fondazioni a piastra (flessione e punzonamento, SLE di freccia e fessurazione);
-   - fondazioni (plinti, travi rovesce) con richiamo al modulo geotecnico.
+
+- travi (SLU: flessione, taglio, torsione, interazione N-M; SLE: fessurazione, deformazioni, tensioni limite);
+- pilastri (SLU: dominio N–M, instabilità/secondo ordine; SLE: tensioni e deformazioni);
+- solai/piastra e fondazioni a piastra (flessione e punzonamento, SLE di freccia e fessurazione);
+- fondazioni (plinti, travi rovesce) con richiamo al modulo geotecnico.
 
 E. Verifiche per elementi in acciaio:
-   - classificazione delle sezioni;
-   - verifiche di resistenza di sezione (trazione, compressione, flessione, taglio, presso-flessione);
-   - instabilità (buckling, instabilità latero-torsionale);
-   - pianificazione dei moduli per i collegamenti (anche solo come stub iniziali).
+
+- classificazione delle sezioni;
+- verifiche di resistenza di sezione (trazione, compressione, flessione, taglio, presso-flessione);
+- instabilità (buckling, instabilità latero-torsionale);
+- pianificazione dei moduli per i collegamenti (anche solo come stub iniziali).
 
 F. Strutture in legno:
-   - pianificazione di verifiche per flessione, trazione, compressione, instabilità;
-   - gestione dei parametri k_mod, k_def, classi di servizio;
-   - verifiche dei collegamenti (chiodi, bulloni, viti) come estensione futura.
+
+- pianificazione di verifiche per flessione, trazione, compressione, instabilità;
+- gestione dei parametri k_mod, k_def, classi di servizio;
+- verifiche dei collegamenti (chiodi, bulloni, viti) come estensione futura.
 
 G. Strutture in muratura:
-   - muratura nuova: resistenza a compressione, taglio nel piano, flessione fuori piano, meccanismi locali;
-   - muratura esistente: livelli di conoscenza, fattori di confidenza, meccanismi locali e globali, safety index.
+
+- muratura nuova: resistenza a compressione, taglio nel piano, flessione fuori piano, meccanismi locali;
+- muratura esistente: livelli di conoscenza, fattori di confidenza, meccanismi locali e globali, safety index.
 
 H. Geotecnica:
-   - fondazioni superficiali: capacità portante, scorrimento, ribaltamento, cedimenti;
-   - fondazioni profonde (pali): portanza e cedimenti, anche solo come pianificazione modulare;
-   - interfaccia tra modulo strutturale e modulo geotecnico.
+
+- fondazioni superficiali: capacità portante, scorrimento, ribaltamento, cedimenti;
+- fondazioni profonde (pali): portanza e cedimenti, anche solo come pianificazione modulare;
+- interfaccia tra modulo strutturale e modulo geotecnico.
 
 I. Sismica globale:
-   - parametri sismici NTC2018 (spettri, categoria di sottosuolo e topografica);
-   - analisi statica equivalente e, in prospettiva, modale;
-   - verifiche globali: drift, elementi non strutturali, gerarchia delle resistenze.
+
+- parametri sismici NTC2018 (spettri, categoria di sottosuolo e topografica);
+- analisi statica equivalente e, in prospettiva, modale;
+- verifiche globali: drift, elementi non strutturali, gerarchia delle resistenze.
 
 L. Edifici esistenti:
-   - obiettivi (miglioramento, adeguamento);
-   - definizione di indici di sicurezza (ζ_E) e modalità di calcolo domanda/capacità;
-   - pianificazione dell’integrazione con moduli muratura e c.a. esistente.
+
+- obiettivi (miglioramento, adeguamento);
+- definizione di indici di sicurezza (ζ_E) e modalità di calcolo domanda/capacità;
+- pianificazione dell’integrazione con moduli muratura e c.a. esistente.
 
 M. UI Tkinter e workflow:
-   - schermate per selezione norma, tipo di verifica, materiale, sezione;
-   - riutilizzo delle GUI esistenti per definizione di sezioni e materiali;
-   - flusso utente: definizione sezioni/materiali → definizione azioni/combinazioni → scelta verifica → risultati.
+
+- schermate per selezione norma, tipo di verifica, materiale, sezione;
+- riutilizzo delle GUI esistenti per definizione di sezioni e materiali;
+- flusso utente: definizione sezioni/materiali → definizione azioni/combinazioni → scelta verifica → risultati.
 
 N. Validazione, test, demo e documentazione:
-   - strategia di test (unit, integrazione) per ogni modulo di verifica;
-   - demo di utilizzo dell’engine NTC2018;
-   - aggiornamento documentazione (README, esempi).
+
+- strategia di test (unit, integrazione) per ogni modulo di verifica;
+- demo di utilizzo dell’engine NTC2018;
+- aggiornamento documentazione (README, esempi).
 
 COSA VOGLIO DA TE ORA:
 
@@ -312,8 +337,8 @@ COSA VOGLIO DA TE ORA:
 
 Inizia presentando la struttura del piano (indice delle fasi) e poi vai in dettaglio.
 
-
 GitHub Copilot: ## Indice del piano (strutturato per fasi) 📋
+
 1. Fase 0 — Preparazione e consolidamento (scoping, test‑hygiene)  
 2. Fase 1 — API normativa & packaging NTC2018 (CodeModule)  
 3. Fase 2 — Azioni e combinazioni (motore combinazioni configurabile)  
@@ -330,6 +355,7 @@ GitHub Copilot: ## Indice del piano (strutturato per fasi) 📋
 ---
 
 ## Panoramica rapida (TL;DR) 💡
+
 - Primo obiettivo: consolidare un package `codes/ntc2018` + interfaccia `CodeModule` che espone check SLU/SLE/sismici; riusare checks_ntc2018.py e `VerificationEngine`.  
 - Priorità iniziale: completare verifiche CA (flessione, taglio, N–M) e generatore combinazioni configurabile; aggiornare configurazione `config/*` per NTC2018.  
 - UI: estendere selettore norma + pannello combinazioni; mantenere separazione core/GUI.  
@@ -338,6 +364,7 @@ GitHub Copilot: ## Indice del piano (strutturato per fasi) 📋
 ---
 
 ## Fase 0 — Preparazione e consolidamento (High)
+
 Obiettivo: ridurre rumore e definire punto di partenza pulito.
 
 - Sotto‑attività
@@ -351,6 +378,7 @@ Obiettivo: ridurre rumore e definire punto di partenza pulito.
 ---
 
 ## Fase 1 — API normativa & packaging NTC2018 (CodeModule) (High)
+
 Obiettivo: definire interfaccia comune per tutti i moduli normativi.
 
 - Sotto‑attività
@@ -366,6 +394,7 @@ Obiettivo: definire interfaccia comune per tutti i moduli normativi.
 ---
 
 ## Fase 2 — Azioni & combinazioni (High)
+
 Obiettivo: motore combinazioni conforme NTC2018, configurabile via `.jsoncode`.
 
 - Sotto‑attività
@@ -380,6 +409,7 @@ Obiettivo: motore combinazioni conforme NTC2018, configurabile via `.jsoncode`.
 ---
 
 ## Fase 3 — Materiali e modelli costitutivi (High)
+
 Obiettivo: stabilire registry e adapter materiali NTC2018.
 
 - Sotto‑attività
@@ -393,6 +423,7 @@ Obiettivo: stabilire registry e adapter materiali NTC2018.
 ---
 
 ## Fase 4 — Verifiche per calcestruzzo armato (RC) — PRIORITÀ MASSIMA
+
 Obiettivo: implementare controlli NTC2018 per elementi CA (progressivo, test-driven).
 
 - Sotto‑attività per travi (prima iterazione)
@@ -414,6 +445,7 @@ Obiettivo: implementare controlli NTC2018 per elementi CA (progressivo, test-dri
 ---
 
 ## Fase 5 — Sismica globale (NTC2018) (High)
+
 Obiettivo: implementare parametri sismici NTC2018 e analisi statica equivalente.
 
 - Sotto‑attività
@@ -428,6 +460,7 @@ Obiettivo: implementare parametri sismici NTC2018 e analisi statica equivalente.
 ---
 
 ## Fase 6 — Acciaio, Legno, Muratura (Medium)
+
 Obiettivo: design modulare + primi check per acciaio.
 
 - Sotto‑attività (acc. prima)
@@ -440,6 +473,7 @@ Obiettivo: design modulare + primi check per acciaio.
 ---
 
 ## Fase 7 — Geotecnica (Medium)
+
 Obiettivo: definire interfaccia tra strutturale e geotecnico.
 
 - Sotto‑attività
@@ -451,6 +485,7 @@ Obiettivo: definire interfaccia tra strutturale e geotecnico.
 ---
 
 ## Fase 8 — Edifici esistenti (Medium)
+
 Obiettivo: procedure di adeguamento / indici (ζ_E).
 
 - Sotto‑attività
@@ -462,6 +497,7 @@ Obiettivo: procedure di adeguamento / indici (ζ_E).
 ---
 
 ## Fase 9 — UI Tkinter e workflow (High, incrementale)
+
 Obiettivo: integrare scelta norma, combinazioni e risultati.
 
 - Sotto‑attività (iteration 1 → MVP)
@@ -476,6 +512,7 @@ Obiettivo: integrare scelta norma, combinazioni e risultati.
 ---
 
 ## Fase 10 — Validazione, test, demo, documentazione (High)
+
 Obiettivo: garantire correttezza normativa e facilità d’uso.
 
 - Sotto‑attività
@@ -490,12 +527,14 @@ Obiettivo: garantire correttezza normativa e facilità d’uso.
 ---
 
 ## Fase 11 — Release & CI (Medium)
+
 - Aggiornare CI per includere: matrix (python versions), test coverage, warnings-as-errors optional.  
 - Tag/release note e guida migrazione per utenti (shim deprecations).
 
 ---
 
 ## Priorità sintetica (alta → bassa)
+
 - Alta: Fase 1, 2, 3, 4, 9, 10, 5  
 - Media: Fase 6, 7, 8, 11  
 - Bassa: estensioni aggiuntive materiale/collegamenti
@@ -503,6 +542,7 @@ Obiettivo: garantire correttezza normativa e facilità d’uso.
 ---
 
 ## Dipendenze chiave (riassunto)
+
 - `CodeModule API` (Fase 1) → requisito per tutte le verifiche modulari.  
 - calculation_codes aggiornato → necessario per combinazioni e sismica.  
 - `material registry` (Fase 3) → usato da engine e checks.  
@@ -511,6 +551,7 @@ Obiettivo: garantire correttezza normativa e facilità d’uso.
 ---
 
 ## Cosa è realistico implementare SUBITO in questa sessione (valore massimo)
+
 - Disegno dettagliato `CodeModule` + mapping file/funzioni da refattorizzare (documento + TODO list).  
 - Specifica `config/calculation_codes/NTC2018.jsoncode` (skeleton) e lista parametri obbligatori.  
 - Lista di check prioritari per CA con riferimenti normativi e test‑cases numerici da aggiungere.  
@@ -520,6 +561,7 @@ Obiettivo: garantire correttezza normativa e facilità d’uso.
 ---
 
 ## Acceptance criteria (per ogni fase)
+
 - API pulita e documentata (`CodeModule`); engine può usare moduli normativi tramite registry.  
 - Ogni nuova verifica ha unit test con riferimenti normativi e benchmark numerico.  
 - Nessun codice normativo dentro i callback GUI; GUI chiama solo API pubbliche del core.  
@@ -529,6 +571,7 @@ Obiettivo: garantire correttezza normativa e facilità d’uso.
 ---
 
 ## Rischi & mitigazioni
+
 - Rischio: regressioni numeriche dovute a refactor → mitigate con test numerici di riferimento.  
 - Rischio: duplicazione logica tra `methods/` e core_calculus → mitigare consolidando in Core e usando shims temporanei.  
 - Rischio: aspettative normative incomplete → usare step incrementali e documentare TODO normativi.
@@ -536,6 +579,7 @@ Obiettivo: garantire correttezza normativa e facilità d’uso.
 ---
 
 ## Consegne e milestones (suggerite)
+
 - Milestone 1 (2–3 sprint): Fase 0–4 + UI minimo per SLU flessione/travi + tests.  
 - Milestone 2 (2 sprint): Sismica (Fase 5) + combinazioni complete + demo.  
 - Milestone 3 (2–3 sprint): Estensioni materiali e moduli secondari + documentazione completa.
@@ -543,6 +587,7 @@ Obiettivo: garantire correttezza normativa e facilità d’uso.
 ---
 
 ## Checklist compatta (usa come TODO rapido)
+
 - [ ] Fase 0 — test baseline verde  
 - [ ] Fase 1 — definire `CodeModule` + packaging `src/codes/ntc2018`  
 - [ ] Fase 2 — motore combinazioni + config NTC2018  
@@ -555,6 +600,7 @@ Obiettivo: garantire correttezza normativa e facilità d’uso.
 ---
 
 ## Versione estesa (task-by-task — riepilogo per esecuzione)
+
 Per ogni fase ho predisposto: obiettivo, sotto‑task, file esistenti da riusare, criteri di accettazione e test da scrivere. (Posso consegnare il dettaglio file‑per‑file e il set di test‑case se vuoi che proceda alla fase successiva del piano.)
 
 ---
@@ -569,12 +615,14 @@ IMPORTANTE (promemoria): rimani sempre e solo in "modalità Plan". Non generare 
 A partire dal piano che hai già prodotto (con Fasi 0–11, in particolare la Fase 4 sulle verifiche per calcestruzzo armato), voglio che tu lo ESTENDA includendo in modo esplicito e strutturato le verifiche per elementi strutturali privi di specifica armatura a taglio, come previsto dal Capitolo 4 delle NTC2018.
 
 Obiettivo dell’incremento:
+
 - Estendere la Fase 4 (Verifiche RC) per coprire non solo il taglio con armatura trasversale, ma anche:
   - la verifica V_Rd,c per elementi SENZA armatura a taglio;
   - tutte le condizioni di applicabilità previste dal Cap. 4 NTC2018 (limiti geometrici, percentuali di armatura longitudinale, effetti di N, ecc.);
   - i controlli associati di tipo SLE (fessurazione) quando non sono presenti staffe specifiche.
 
 Aggiornamenti richiesti alla Fase 4:
+
 1. Mantieni quanto già previsto (flessione, minimi di armatura, taglio CON armatura, interazione N–M, ecc.), ma aggiungi un nuovo blocco di sotto-attività per:
 
    "Taglio SENZA armatura trasversale (V_Rd,c) per elementi RC secondo Cap. 4 NTC2018"
@@ -616,6 +664,7 @@ Aggiornamenti richiesti alla Fase 4:
    - le verifiche a taglio senza armatura fanno parte del “core” RC secondo NTC2018, quindi devono essere considerate entro le prime milestone.
 
 Formato di output richiesto:
+
 - NON riscrivere l’intero piano da zero.
 - Fornisci:
   1) un breve riepilogo di come si modifica la Fase 4 (paragrafi aggiornati);
@@ -627,14 +676,15 @@ Ricorda ancora: non generare codice, non proporre implementazioni in Python; rim
 
 PROMPT INCREMENTALE SUL PIANO PRECEDENTE (MODULO ELEMENTI STRUTTURALI SECONDARI — SOLO PLAN)
 
-IMPORTANTE (promemoria): rimani sempre e solo in "modalità Plan". 
-Non generare codice. 
-Non proporre implementazioni operative (funzioni Python, classi, Tkinter code, ecc.). 
+IMPORTANTE (promemoria): rimani sempre e solo in "modalità Plan".
+Non generare codice.
+Non proporre implementazioni operative (funzioni Python, classi, Tkinter code, ecc.).
 Limita la tua attività esclusivamente alla pianificazione: fasi, sotto-task, architettura, API, GUI da progettare, file di config/registro, dipendenze e criteri di accettazione.
 
 CONTESTO DI PARTENZA:
 
 Hai già prodotto un piano strutturato per fasi (Fase 0–11) per l’implementazione NTC2018 nel framework, con:
+
 - CodeModule NTC2018,
 - combinazioni,
 - materiali,
@@ -672,15 +722,17 @@ OBIETTIVO DI QUESTO INCREMENTO:
 RICHIESTA DETTAGLIATA DI PIANIFICAZIONE:
 
 A. Architettura del modulo “elementi strutturali secondari”
-   - Progetta a livello di piano un nuovo modulo (es. codes/ntc2018/secondary_elements) che:
-     - definisce tipi di elementi secondari (enum, classi concettuali);
-     - espone nuove verifiche tramite CodeModule NTC2018 (es. check_secondary_*).
-   - Indica:
-     - quali API devono essere aggiunte a CodeModule per questi elementi;
-     - come il VerificationEngine deve orchestrare questi check (solo a livello di design, non codice).
+
+- Progetta a livello di piano un nuovo modulo (es. codes/ntc2018/secondary_elements) che:
+  - definisce tipi di elementi secondari (enum, classi concettuali);
+  - espone nuove verifiche tramite CodeModule NTC2018 (es. check_secondary_*).
+- Indica:
+  - quali API devono essere aggiunte a CodeModule per questi elementi;
+  - come il VerificationEngine deve orchestrare questi check (solo a livello di design, non codice).
 
 B. Sistemi di calcolo per ciascun tipo di elemento secondario
    Per ognuna delle seguenti categorie, definisci i sotto-task di pianificazione:
+
    1) Tramezzi / partizioni interne:
       - criteri di modellazione sotto azione sismica (forze equivalenti, drift, ecc.);
       - campi di validità delle verifiche;
@@ -706,61 +758,66 @@ B. Sistemi di calcolo per ciascun tipo di elemento secondario
       - schema statico, carichi, modalità di verifica.
 
    Per ogni categoria, il piano deve:
-   - definire le verifiche da coprire (flessione, taglio, instabilità, deformabilità, ecc.);
-   - indicare se la fonte principale è NTC2018 o Eurocodice;
-   - indicare eventuali “limiti di responsabilità” del modulo (es. avvisi se fuori campo di applicazione).
+
+- definire le verifiche da coprire (flessione, taglio, instabilità, deformabilità, ecc.);
+- indicare se la fonte principale è NTC2018 o Eurocodice;
+- indicare eventuali “limiti di responsabilità” del modulo (es. avvisi se fuori campo di applicazione).
 
 C. Integrazione con Eurocodici
-   - Pianifica come integrare sistematicamente gli Eurocodici per:
-     - le verifiche degli elementi strutturali secondari;
-     - tutte le altre parti NTC2018 dove la norma rinvia a “formule disponibili altrove”.
-   - Il piano deve specificare:
-     - per quali tipologie di verifica si attinge a EC2/EC3/EC8 (senza riportare formule, ma solo a livello concettuale);
-     - come documentare, all’interno del software, la fonte normativa (es. codici di riferimento, note nei report di verifica).
+
+- Pianifica come integrare sistematicamente gli Eurocodici per:
+  - le verifiche degli elementi strutturali secondari;
+  - tutte le altre parti NTC2018 dove la norma rinvia a “formule disponibili altrove”.
+- Il piano deve specificare:
+  - per quali tipologie di verifica si attinge a EC2/EC3/EC8 (senza riportare formule, ma solo a livello concettuale);
+  - come documentare, all’interno del software, la fonte normativa (es. codici di riferimento, note nei report di verifica).
 
 D. Sistemi di calcolo, GUI e file di registro/archivio (SEMPRE SOLO PIANIFICAZIONE)
-   - Sistemi di calcolo:
-     - definisci, a livello di design, quali nuovi “CalculationTemplate”/“VerificationTemplate” servono per gli elementi secondari;
-     - specifica quali dati di input sono necessari (geometria, fissità, carichi, parametri normativi);
-     - come questi template si integrano con l’engine esistente.
-   - GUI (Tkinter):
-     - progetta nuovi pannelli/finestre per:
-       - la definizione degli elementi secondari (tipo elemento, schema statico, fissità);
-       - l’assegnazione dei carichi e delle combinazioni;
-       - la visualizzazione dei risultati e dei messaggi normativi (NTC2018 + Eurocodice).
-     - riuso di pattern UI esistenti (menu norma, editor sezioni e materiali, ecc.).
-   - File di registro, archivio e configurazione:
-     - pianifica la struttura dei nuovi file di config/registro (es. config/codes/ntc2018/secondary_elements.jsoncode);
-     - definisci le voci minime da salvare:
-       - tipo elemento secondario;
-       - schema di vincolo;
-       - sorgente normativa (NTC/EC);
-       - parametri di calcolo specifici;
-       - risultati sintetici per reporting.
-     - prevedi come archiviare/salvare:
-       - set di elementi secondari associati ad un progetto;
-       - eventuali librerie di “tipi standard” (es. tramezzo tipo, insegna tipo, camino tipo).
+
+- Sistemi di calcolo:
+  - definisci, a livello di design, quali nuovi “CalculationTemplate”/“VerificationTemplate” servono per gli elementi secondari;
+  - specifica quali dati di input sono necessari (geometria, fissità, carichi, parametri normativi);
+  - come questi template si integrano con l’engine esistente.
+- GUI (Tkinter):
+  - progetta nuovi pannelli/finestre per:
+    - la definizione degli elementi secondari (tipo elemento, schema statico, fissità);
+    - l’assegnazione dei carichi e delle combinazioni;
+    - la visualizzazione dei risultati e dei messaggi normativi (NTC2018 + Eurocodice).
+  - riuso di pattern UI esistenti (menu norma, editor sezioni e materiali, ecc.).
+- File di registro, archivio e configurazione:
+  - pianifica la struttura dei nuovi file di config/registro (es. config/codes/ntc2018/secondary_elements.jsoncode);
+  - definisci le voci minime da salvare:
+    - tipo elemento secondario;
+    - schema di vincolo;
+    - sorgente normativa (NTC/EC);
+    - parametri di calcolo specifici;
+    - risultati sintetici per reporting.
+  - prevedi come archiviare/salvare:
+    - set di elementi secondari associati ad un progetto;
+    - eventuali librerie di “tipi standard” (es. tramezzo tipo, insegna tipo, camino tipo).
 
 E. Inserimento nel piano esistente (Fasi 0–11)
-   - Indica chiaramente:
-     - se questo modulo va inserito come:
-       - una nuova Fase (es. “Fase 6bis — Elementi strutturali secondari”), oppure
-       - una sotto-sezione di una Fase esistente (es. estensione di Fase 6 o Fase 4/5).
-   - Aggiorna:
-     - dipendenze (richiede CodeModule NTC2018, combinazioni, materiali, ecc.);
-     - priorità (es. media/alta a seconda della combinazione con la sismica e l’uso pratico);
-     - impatto su UI e sulle pipeline di verifica.
+
+- Indica chiaramente:
+  - se questo modulo va inserito come:
+    - una nuova Fase (es. “Fase 6bis — Elementi strutturali secondari”), oppure
+    - una sotto-sezione di una Fase esistente (es. estensione di Fase 6 o Fase 4/5).
+- Aggiorna:
+  - dipendenze (richiede CodeModule NTC2018, combinazioni, materiali, ecc.);
+  - priorità (es. media/alta a seconda della combinazione con la sismica e l’uso pratico);
+  - impatto su UI e sulle pipeline di verifica.
 
 F. Checklist compatta e criteri di accettazione
-   - Aggiungi voci esplicite nella checklist compatta, ad es.:
-     - “Modulo elementi strutturali secondari (Cap. 7.2 NTC2018 + Eurocodici) — design completato”
-     - “GUI per definizione/verifica elementi secondari — design completato”
-     - “Config/registry per elementi secondari — schema definito”
-   - Aggiorna i criteri di accettazione:
-     - ogni tipo di elemento secondario ha:
-       - un sistema di calcolo definito;
-       - le fonti normative (NTC vs EC) chiaramente indicate;
-       - il flusso di input/output previsto (core + GUI + storage) descritto.
+
+- Aggiungi voci esplicite nella checklist compatta, ad es.:
+  - “Modulo elementi strutturali secondari (Cap. 7.2 NTC2018 + Eurocodici) — design completato”
+  - “GUI per definizione/verifica elementi secondari — design completato”
+  - “Config/registry per elementi secondari — schema definito”
+- Aggiorna i criteri di accettazione:
+  - ogni tipo di elemento secondario ha:
+    - un sistema di calcolo definito;
+    - le fonti normative (NTC vs EC) chiaramente indicate;
+    - il flusso di input/output previsto (core + GUI + storage) descritto.
 
 FORMATO DI OUTPUT RICHIESTO:
 
@@ -781,7 +838,7 @@ Ribadisco: non generare codice, non proporre implementazioni Python/Tkinter; res
 PROMPT INCREMENTALE SUL PIANO PRECEDENTE (MIGLIORAMENTO GUI + CALCOLO + REGISTRY + STORAGE — SOLO PLAN)
 
 IMPORTANTE (promemoria): rimani sempre e solo in "modalità Plan".
-Non generare codice. 
+Non generare codice.
 Non proporre implementazioni operative (Python, classi, Tkinter, file JSON).
 Limita l’attività alla pianificazione: fasi, sotto-task, architettura, API, GUI, registry, storage, dipendenze, criteri di accettazione.
 
@@ -789,6 +846,7 @@ CONTESTO DI PARTENZA:
 Abbiamo già stabilito un piano completo per NTC2018, con moduli incrementali (RC, combinazioni, CodeModule, elementi secondari, ecc.).
 Il repository contiene già strumenti di calcolo per normative precedenti (RD2229, Tensioni Ammissibili DM ’92 e DM ’96).
 Sono già presenti:
+
 - GUI Tkinter parziali (sections, frc_verification_window, storico materiali),
 - sistemi di storage (JSON, CSV),
 - sistemi di calcolo “storici” integrati tramite loader,
@@ -813,84 +871,90 @@ Voglio che venga esteso il piano precedente includendo un’analisi dettagliata 
 RICHIESTE DI PIANIFICAZIONE:
 
 A. ANALISI DEL REPOSITORY E MAPPATURA DEI PUNTI DI INTERVENTO
-   - Effettua a livello concettuale una “mappa di dipendenze”:
-     - moduli GUI esistenti;
-     - moduli di calcolo esistenti (NTC, RD2229, DM ’92, DM ’96);
-     - storage esistenti (materials.json, sections.json, historical_materials.json, .jsoncode);
-     - registry loader (calculation_codes_loader, historical_materials_loader).
-   - Identifica:
-     - duplicazioni da consolidare,
-     - moduli che necessitano unificazioni o refactor non invasivi,
-     - collegamenti fragili/rigidi da sostituire con API più pulite.
+
+- Effettua a livello concettuale una “mappa di dipendenze”:
+  - moduli GUI esistenti;
+  - moduli di calcolo esistenti (NTC, RD2229, DM ’92, DM ’96);
+  - storage esistenti (materials.json, sections.json, historical_materials.json, .jsoncode);
+  - registry loader (calculation_codes_loader, historical_materials_loader).
+- Identifica:
+  - duplicazioni da consolidare,
+  - moduli che necessitano unificazioni o refactor non invasivi,
+  - collegamenti fragili/rigidi da sostituire con API più pulite.
 
 B. MIGLIORAMENTO E INTEGRAZIONE DELLE GUI
-   - Analizza TUTTE le GUI presenti nel repository:
-     - section GUI,
-     - materials GUI,
-     - frc_verification_window,
-     - historical GUIs,
-     - selettori vari.
-   - Pianifica:
-     - un’estensione coerente del selettore di norma (in tutte le GUI rilevanti),
-     - standardizzazione del flusso input → engine → result,
-     - UI per editor parametri normativi (quando ammesso),
-     - miglioramento del form per combinazioni,
-     - miglioramento dei flussi per:
-       - sezioni,
-       - materiali,
-       - carichi,
-       - assegnazione verifiche,
-       - visualizzazione risultati.
-   - Proponi (solo a livello di design):
-     - dove aggiungere pannelli,
-     - quali controlli unificare,
-     - come migliorare l’esperienza dell’utente,
-     - come evitare duplicazioni tra vecchie e nuove GUI.
+
+- Analizza TUTTE le GUI presenti nel repository:
+  - section GUI,
+  - materials GUI,
+  - frc_verification_window,
+  - historical GUIs,
+  - selettori vari.
+- Pianifica:
+  - un’estensione coerente del selettore di norma (in tutte le GUI rilevanti),
+  - standardizzazione del flusso input → engine → result,
+  - UI per editor parametri normativi (quando ammesso),
+  - miglioramento del form per combinazioni,
+  - miglioramento dei flussi per:
+    - sezioni,
+    - materiali,
+    - carichi,
+    - assegnazione verifiche,
+    - visualizzazione risultati.
+- Proponi (solo a livello di design):
+  - dove aggiungere pannelli,
+  - quali controlli unificare,
+  - come migliorare l’esperienza dell’utente,
+  - come evitare duplicazioni tra vecchie e nuove GUI.
 
 C. MIGLIORAMENTO DEI FILE DI CALCOLO, REGISTRY E STORAGE
-   - Prevedi per ogni tipo di file:
-     - historical_materials.json → come integrarlo con materiali NTC2018, senza romperlo;
-     - calculation_codes/*.jsoncode → come estenderli per:
-       - collegamenti con Eurocodice,
-       - moduli secondari,
-       - moduli NTC2018 RC e non-RC;
-     - storage sezioni → estendere senza perdere retrocompatibilità.
-   - Pianifica aggiornamenti senza riscrittura delle normative storiche:
-     - RD2229,
-     - tensioni ammissibili DM ’92 / DM ’96,
-     - mantenere i vecchi loader ma aggiungere nuove chiavi/config di espansione.
-   - Pianifica un “registry unificato” dei moduli normativi:
-     - uno strato neutro sopra RD2229/DM’92/DM’96/NTC2018.
+
+- Prevedi per ogni tipo di file:
+  - historical_materials.json → come integrarlo con materiali NTC2018, senza romperlo;
+  - calculation_codes/*.jsoncode → come estenderli per:
+    - collegamenti con Eurocodice,
+    - moduli secondari,
+    - moduli NTC2018 RC e non-RC;
+  - storage sezioni → estendere senza perdere retrocompatibilità.
+- Pianifica aggiornamenti senza riscrittura delle normative storiche:
+  - RD2229,
+  - tensioni ammissibili DM ’92 / DM ’96,
+  - mantenere i vecchi loader ma aggiungere nuove chiavi/config di espansione.
+- Pianifica un “registry unificato” dei moduli normativi:
+  - uno strato neutro sopra RD2229/DM’92/DM’96/NTC2018.
 
 D. INTEGRAZIONE E ARMONIZZAZIONE TRA LE NORME
-   - Pianifica l’aggiornamento dell’Engine per:
-     - lavorare via CodeModule anche con RD2229, DM ’92, DM ’96;
-     - definire template comuni per:
-       - input,
-       - output,
-       - parametri,
-       - formati di verifica.
-   - Pianifica cosa va fatto per:
-     - non riscrivere i calcoli storici,
-     - ma esporli tramite API più coerenti,
-     - riorganizzando solo i collegamenti.
+
+- Pianifica l’aggiornamento dell’Engine per:
+  - lavorare via CodeModule anche con RD2229, DM ’92, DM ’96;
+  - definire template comuni per:
+    - input,
+    - output,
+    - parametri,
+    - formati di verifica.
+- Pianifica cosa va fatto per:
+  - non riscrivere i calcoli storici,
+  - ma esporli tramite API più coerenti,
+  - riorganizzando solo i collegamenti.
 
 E. ORGANIZZAZIONE DELLE DIPENDENZE E GESTIONE DEI CAMBIAMENTI
-   - Se un miglioramento richiede modifiche a:
-     - loader,
-     - registry,
-     - collegamenti GUI → Engine,
-     - dipendenze tra moduli,
+
+- Se un miglioramento richiede modifiche a:
+  - loader,
+  - registry,
+  - collegamenti GUI → Engine,
+  - dipendenze tra moduli,
      pianifica queste modifiche in modo:
-       - funzionale,
-       - non distruttivo,
-       - incrementale,
-       - atomico per fase.
-   - Specifica una matrice:
-     - “rischio vs impatto vs priorità” dei cambiamenti.
+    - funzionale,
+    - non distruttivo,
+    - incrementale,
+    - atomico per fase.
+- Specifica una matrice:
+  - “rischio vs impatto vs priorità” dei cambiamenti.
 
 F. OUTPUT DELLA PIANIFICAZIONE
    Fornisci:
+
    1. una nuova sezione da inserire nel piano principale (es. “Fase 12 — Modernizzazione GUI + Registry + Storage” oppure sotto-fase della Fase 9 o Fase 1, a tua scelta motivata);
    2. l’elenco completo dei sotto-task raggruppati in:
       - Analisi del repository,
@@ -904,6 +968,7 @@ F. OUTPUT DELLA PIANIFICAZIONE
 Ricorda: non generare codice, non proporre implementazioni in Python/Tkinter; resta esclusivamente in modalità Plan.
 
 GitHub Copilot: ## Dove si inserisce l’incremento
+
 - Inserimento principale: **estensione della Fase 4** (Verifiche RC) per includere esplicitamente il controllo del taglio *senza armatura trasversale* (V_Rd,c) — **priorità: ALTA**.  
 - Nuovo modulo per elementi secondari: aggiungere **“Fase 6bis — Elementi strutturali secondari”** (modulo separato sotto `codes/ntc2018/secondary_elements`) — **priorità: MEDIA‑ALTA** (importante per implicazioni sismiche e pratiche di progetto).  
 - Modernizzazione GUI / registry / storage: inserirla come **Fase 12 — Modernizzazione GUI + Registry + Storage** (collegamento diretto a Fasi 1–4 & 6bis) — **priorità: ALTA** per usabilità e integrazione.
@@ -911,6 +976,7 @@ GitHub Copilot: ## Dove si inserisce l’incremento
 ---
 
 ## Sintesi: cosa cambia nella Fase 4 (breve)
+
 - Mantieni tutte le sotto‑attività già pianificate (flessione, minimi armatura, taglio *con* staffe, N–M, SLE).  
 - Aggiungi un nuovo blocco organizzato e prioritario: **Taglio SENZA armatura trasversale (V_Rd,c)** con modellazione, criteri di applicabilità, controlli SLE associati (fessurazione) e test dedicati.  
 - Esporre nuovi check nel CodeModule NTC2018 (es.: `RC_SLU_VRDc_NoStirrups`, `RC_SLE_Cracking_NoStirrups`).
@@ -958,6 +1024,7 @@ GitHub Copilot: ## Dove si inserisce l’incremento
 ---
 
 ## Test cases proposti per V_Rd,c (descrizioni — **numerici di input solo come esempi di test**, outcome atteso)
+
 - Test A — PASS (within capacity)
   - Beam rect.: b=300 mm, d=450 mm, f_ck=30 MPa, ρ_l=0.015, σ_cp=0 MPa, V_Ed=60 kN → EXPECT: OK (V_Ed ≤ V_Rd,c)
 - Test B — FAIL (overload)
@@ -974,6 +1041,7 @@ GitHub Copilot: ## Dove si inserisce l’incremento
 ---
 
 ## Deliverable (Fase 4 — aggiornato)
+
 - Nuovi checks esposti tramite CodeModule NTC2018:
   - `RC_SLU_VRDc_NoStirrups` (SLU shear capacity without stirrups)
   - `RC_SLE_Cracking_NoStirrups` (SLE crack serviceability when no stirrups)
@@ -985,11 +1053,13 @@ GitHub Copilot: ## Dove si inserisce l’incremento
 ---
 
 ## Aggiornamento checklist compatta (riga da aggiungere)
+
 - [ ] **Fase 4 — Taglio SENZA armatura trasversale (V_Rd,c) — verifiche, SLE fessurazione e test** (PRIORITÀ: ALTA)
 
 ---
 
 ## Estensioni ai criteri di accettazione (Fase 4)
+
 - `RC_SLU_VRDc_NoStirrups` deve:
   - restituire chiaramente OK/NOT_OK/NOT_APPLICABLE con messaggi normativi e riferimenti;  
   - coprire tutte le condizioni di applicabilità indicate in NTC2018 (limiti geometrici, ρ_l, σ_cp);  
@@ -1003,10 +1073,12 @@ GitHub Copilot: ## Dove si inserisce l’incremento
 ---
 
 ## Nuova sezione: Fase 6bis — “Elementi strutturali secondari” (overview)
+
 - Posizionamento: **Fase 6bis** (dopo Fase 6 — Acciaio), integrate con Fasi 1–5 per dipendenze normative e sismiche.  
 - Priorità: **MEDIA‑ALTA** (importante per valutazioni sismiche e pratica progettuale; non blocca core RC ma rilevante per consegne clienti).
 
 ### Architettura del modulo (alto livello)
+
 - Package: `src/codes/ntc2018/secondary_elements` (implementazione `CodeModule` per secondary elements).  
 - Componenti chiave (plan only):
   - `SecondaryElementType` (enum concettuale: PARTITION, SIGNAGE, CANTILEVER, CHIMNEY, PARAPET, etc.)  
@@ -1015,11 +1087,13 @@ GitHub Copilot: ## Dove si inserisce l’incremento
   - Registry per “tipi standard” (salvabili in storage come librerie).
 
 ### API (da aggiungere a `CodeModule`)
+
 - `available_secondary_types() -> list[str]`  
 - `run_secondary_check(check_id: str, spec: SecondaryElementSpec, CalcInput) -> SingleCheckResult`  
 - `list_secondary_templates()` (per UI presets)
 
 ### Orchestrazione (VerificationEngine — design)
+
 - Engine consulta `CodeModule` per `available_checks()`; per elementi secondari usa `run_secondary_check` passando spec + combinazioni generate; engine include i risultati in `VerificationResult` con tag `secondary_element`.
 
 ---
@@ -1064,11 +1138,13 @@ Nota: per ogni voce sotto riportare — (A) modello statico, (B) verifiche da co
    - C: principalmente formule standard (NTC applicabile), integrare EC dove NTC non specifica dettagli.
 
 Per ogni categoria:
+
 - definire `CalculationTemplate` (input fields), `VerificationTemplate` (check ids), e `storage schema` per salvataggio.
 
 ---
 
 ## Integrazione con Eurocodici (policy di progetto)
+
 - Regola generale: **usare NTC2018 se espressa**; dove NTC rinvia o non fornisce espressioni numeriche implementare la soluzione **documentando chiaramente** la fonte EC (EC2, EC3, EC8) o standard di supporto (anchor codes, fatigue standards).  
 - Piano operativo (non‑codice):
   - mappare per ogni check la fonte normativa (campo `norm_reference` nell’output);  
@@ -1078,7 +1154,9 @@ Per ogni categoria:
 ---
 
 ## GUI & storage per elementi secondari (pianificazione)
+
 ### GUI (Tkinter) — pannelli previsti
+
 - `SecondaryElement Editor` (in ui):
   - selezione `element_type`, definizione geometria minima, fissità, carichi assegnati, attach points;  
   - presets/libreria elementi standard;  
@@ -1088,6 +1166,7 @@ Per ogni categoria:
 - Riuso: integrare i nuovi pannelli nel flusso esistente (menu norma, project manager, storage).
 
 ### Storage / registry (schema plan)
+
 - `config/codes/ntc2018/secondary_elements.jsoncode` — registrare templates, limiti di validità e parametri standard.  
 - Project storage entries:
   - `secondary_elements` array per progetto con item fields: `id`, `type`, `spec`, `norm_source`, `results` (summary), `created_from_template`.  
@@ -1096,6 +1175,7 @@ Per ogni categoria:
 ---
 
 ## Inserimento nel piano esistente & dipendenze
+
 - Posizionamento: aggiungere **Fase 6bis** subito dopo Fase 6 (Acciaio).  
 - Dipendenze:
   - obbligatorie: Fase 1 (CodeModule API), Fase 2 (Combinazioni), Fase 3 (Materials), Fase 5 (Sismica) per elementi sensibili a sisma.  
@@ -1105,6 +1185,7 @@ Per ogni categoria:
 ---
 
 ## Checklist compatta — nuove righe da aggiungere
+
 - [ ] **Fase 4 — Taglio SENZA armatura trasversale (V_Rd,c) — verifiche e test** (ALTA)  
 - [ ] **Fase 6bis — Modulo elementi strutturali secondari (Cap. 7.2 NTC2018 + EC fallback)** (MEDIA‑ALTA)  
 - [ ] **Fase 12 — Modernizzazione GUI + Registry + Storage** (ALTA)
@@ -1112,6 +1193,7 @@ Per ogni categoria:
 ---
 
 ## Criteri di accettazione (aggiunte / estensioni)
+
 - Per tutti i nuovi checks (V_Rd,c e secondary elements):
   - API: disponibili in `CodeModule.available_checks()` e invocabili tramite `VerificationEngine` (contract documentato).  
   - Output: struttura `SingleCheckResult` completa di `norm_references`, `messages_it`, `utilisation`, `details`.  
@@ -1122,6 +1204,7 @@ Per ogni categoria:
 ---
 
 ## Rischi specifici e mitigazioni (sintesi)
+
 - Rischio: ambiguità normativa NTC sulle formule → mitigazione: usare EC come “fallback” con rinvio esplicito nel report.  
 - Rischio: aumento complessità UI → mitigazione: design modulare, riuso componenti UI esistenti, feature‑toggles.  
 - Rischio: comportamenti out‑of‑scope → mitigazione: `NOT_APPLICABLE` + warning ben documentati.
@@ -1129,6 +1212,7 @@ Per ogni categoria:
 ---
 
 ## Prossimi passi raccomandati (plan‑only)
+
 1. Redigere SPEC formale per `RC_SLU_VRDc_NoStirrups` e `RC_SLE_Cracking_NoStirrups` (inputs, outputs, norme di riferimento, casi test).  
 2. Definire `SecondaryElementSpec` schema e mappare 3‑4 tipi prioritari (mensola, insegna, tramezzo, camino) con i relativi `VerificationTemplate`.  
 3. Aggiornare la documentazione del `CodeModule` per includere i nuovi check e i fallback EC.  
@@ -1139,18 +1223,21 @@ Per ogni categoria:
 Se vuoi procedo con il passo successivo di pianificazione: preparo (Plan only) la SPEC dettagliata per il check `RC_SLU_VRDc_NoStirrups` (input/output/casi di test e normative di riferimento) oppure la SPEC del `SecondaryElementSpec` per gli elementi prioritari — indicami quale preferisci che formalizzi adesso (solo plan).
 
 AGISCI COME:
+
 - ingegnere strutturista con esperienza in NTC2018 e Eurocodici (EC2, EC3, EC8);
 - architetto software Python;
 - assistente di pianificazione (PLAN-ONLY), NON generatore di codice.
 
 CONTESTO (REPO LOCALE):
 Sto lavorando su un framework di calcolo strutturale in Python con:
+
 - motore di verifica separato dalla GUI (core_calculus, verification_engine, verification_core, methods);
 - moduli normativi esistenti (NTC2018, RD2229, DM ’92, DM ’96) integrati tramite loader e file .jsoncode;
 - GUI Tkinter per definizione sezioni, materiali e avvio verifiche (es. main_window, frc_verification_window, historical_main_window, ecc.);
 - sistemi di storage (JSON/CSV) per sezioni, materiali, historical_materials, calculation_codes.
 
 In precedenti passaggi di pianificazione ho già:
+
 - introdotto il concetto di CodeModule per ciascuna norma;
 - pianificato un modulo per NTC2018 (RC + combinazioni + elementi secondari);
 - impostato l’idea di avere moduli separati per NTC2018, ma riusando materiali/sezioni esistenti e rispettando la separazione core/GUI.
@@ -1226,6 +1313,7 @@ Per ciascuna categoria voglio che tu definisca, a livello di PIANO:
      - come mantenere compatibilità con i sistemi storici (RD2229, DM ’92, DM ’96) senza riscriverli.
 
 MODALITÀ DI RISPOSTA (PLAN INCREMENTALE):
+
 - NON voglio codice.
 - NON voglio che tu modifichi o riscriva concettualmente RD2229 / DM ’92 / DM ’96.
 - Voglio invece:
@@ -1240,26 +1328,29 @@ MODALITÀ DI RISPOSTA (PLAN INCREMENTALE):
   4) Eventuali avvertenze/limitazioni (ad es. campi di applicabilità degli schemi semplificati) da tenere presenti nel progetto del modulo.
 
 Ribadisco: resta in modalità di ANALISI & PIANIFICAZIONE, senza produrre codice, ma sfrutta sia:
+
 - il repository locale aperto in VS Code,
 - sia le risorse disponibili su Internet (testi NTC2018, parti rilevanti degli Eurocodici, articoli tecnici affidabili),
 per proporre un piano robusto e coerente.
-
 
 Tip: You can undo Copilot's changes to any point by clicking Restore Checkpoint.
 
 AGISCI COME:
+
 - ingegnere strutturista con esperienza in NTC2018 e Eurocodici (EC2, EC3, EC8);
 - architetto software Python;
 - assistente di pianificazione (PLAN-ONLY), NON generatore di codice.
 
 CONTESTO (REPO LOCALE):
 Sto lavorando su un framework di calcolo strutturale in Python con:
+
 - motore di verifica separato dalla GUI (core_calculus, verification_engine, verification_core, methods);
 - moduli normativi esistenti (NTC2018, RD2229, DM ’92, DM ’96) integrati tramite loader e file .jsoncode;
 - GUI Tkinter per definizione sezioni, materiali e avvio verifiche (es. main_window, frc_verification_window, historical_main_window, ecc.);
 - sistemi di storage (JSON/CSV) per sezioni, materiali, historical_materials, calculation_codes.
 
 In precedenti passaggi di pianificazione ho già:
+
 - introdotto il concetto di CodeModule per ciascuna norma;
 - pianificato un modulo per NTC2018 (RC + combinazioni + elementi secondari);
 - impostato l’idea di avere moduli separati per NTC2018, ma riusando materiali/sezioni esistenti e rispettando la separazione core/GUI.
@@ -1335,6 +1426,7 @@ Per ciascuna categoria voglio che tu definisca, a livello di PIANO:
      - come mantenere compatibilità con i sistemi storici (RD2229, DM ’92, DM ’96) senza riscriverli.
 
 MODALITÀ DI RISPOSTA (PLAN INCREMENTALE):
+
 - NON voglio codice.
 - NON voglio che tu modifichi o riscriva concettualmente RD2229 / DM ’92 / DM ’96.
 - Voglio invece:
@@ -1349,11 +1441,13 @@ MODALITÀ DI RISPOSTA (PLAN INCREMENTALE):
   4) Eventuali avvertenze/limitazioni (ad es. campi di applicabilità degli schemi semplificati) da tenere presenti nel progetto del modulo.
 
 Ribadisco: resta in modalità di ANALISI & PIANIFICAZIONE, senza produrre codice, ma sfrutta sia:
+
 - il repository locale aperto in VS Code,
 - sia le risorse disponibili su Internet (testi NTC2018, parti rilevanti degli Eurocodici, articoli tecnici affidabili),
 per proporre un piano robusto e coerente.
 
 AGISCI COME:
+
 - ingegnere strutturista esperto NTC2018 §7.2 e EN 1998‑1 (Eurocodice 8),
 - architetto software Python,
 - assistente di pianificazione (PLAN ONLY).
@@ -1369,6 +1463,7 @@ OBIETTIVO DI QUESTA SESSIONE:
 Voglio sviluppare un modulo completo per la verifica degli ELEMENTI NON STRUTTURALI SISMICI secondo NTC 2018 §7.2 con integrazione delle formulazioni mancanti tratte da EUROCODICE 8 (EN 1998‑1).
 
 Il modulo deve:
+
 - definire modelli di calcolo per ogni categoria di elemento non strutturale,
 - individuare le parti di NTC2018 applicabili e dove ricorrere all’EC8,
 - definire input richiesti (massa, quota, rigidezza, ancoraggi, schema statico),
@@ -1380,6 +1475,7 @@ Il modulo deve:
 
 CONTESTO (REPOSITORY):
 Lavoro in un framework di calcolo strutturale Python con:
+
 - core_calculus, verification_engine, verification_core,
 - file norms .jsoncode (calculation_codes),
 - GUI Tkinter (materiali, sezioni, verifiche),
@@ -1390,38 +1486,43 @@ FONTE NORMATIVA — DA ANALIZZARE (LINK):
 Usa queste fonti online per estrarre indicazioni normative e modelli di calcolo applicabili agli elementi non strutturali:
 
 NTC 2018 — Capitolo 7:
+
 - Testo Gazzetta Ufficiale (cap. 7, §7.2 elementi non strutturali):  
-  https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG  [1](https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG)
-- Estratto Cap.7 PDF: https://www.studiopetrillo.com/files/ntc2018/cap7.pdf  [2](https://www.studiopetrillo.com/files/ntc2018/cap7.pdf)
-- Ulteriore estratto NTC2018 Cap.7: https://www.bertolinoengineering.it/wp-content/uploads/2024/08/NTC2018_cap7.pdf  [3](https://www.bertolinoengineering.it/wp-content/uploads/2024/08/NTC2018_cap7.pdf)
+  <https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG>  [1](https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG)
+- Estratto Cap.7 PDF: <https://www.studiopetrillo.com/files/ntc2018/cap7.pdf>  [2](https://www.studiopetrillo.com/files/ntc2018/cap7.pdf)
+- Ulteriore estratto NTC2018 Cap.7: <https://www.bertolinoengineering.it/wp-content/uploads/2024/08/NTC2018_cap7.pdf>  [3](https://www.bertolinoengineering.it/wp-content/uploads/2024/08/NTC2018_cap7.pdf)
 
 Approfondimenti sugli elementi non strutturali (NTC):
+
 - “Elementi non strutturali in zona sismica, NTC 2008 vs NTC 2018”:  
-  https://www.ingenio-web.it/articoli/elementi-costruttivi-non-strutturali-negli-edifici-in-c-a-in-zona-sismica-cosa-cambia-con-le-ntc-2018/  [4](https://www.ingenio-web.it/articoli/elementi-costruttivi-non-strutturali-negli-edifici-in-c-a-in-zona-sismica-cosa-cambia-con-le-ntc-2018/)
+  <https://www.ingenio-web.it/articoli/elementi-costruttivi-non-strutturali-negli-edifici-in-c-a-in-zona-sismica-cosa-cambia-con-le-ntc-2018/>  [4](https://www.ingenio-web.it/articoli/elementi-costruttivi-non-strutturali-negli-edifici-in-c-a-in-zona-sismica-cosa-cambia-con-le-ntc-2018/)
 - “Verifiche elementi non strutturali – quadro completo”:  
-  https://ediltecnico.it/verifiche-elementi-non-strutturali/  [5](https://ediltecnico.it/verifiche-elementi-non-strutturali/)
+  <https://ediltecnico.it/verifiche-elementi-non-strutturali/>  [5](https://ediltecnico.it/verifiche-elementi-non-strutturali/)
 - “Dettagli tecnici elementi non strutturali (NTC 2018)”:  
-  https://www.bmigroup.com/it/intervenire-sul-tetto/progettare-il-tetto/sismico/verifica-vulnerabilita-sismica-ntc/  [6](https://www.bmigroup.com/it/intervenire-sul-tetto/progettare-il-tetto/sismico/verifica-vulnerabilita-sismica-ntc/)
+  <https://www.bmigroup.com/it/intervenire-sul-tetto/progettare-il-tetto/sismico/verifica-vulnerabilita-sismica-ntc/>  [6](https://www.bmigroup.com/it/intervenire-sul-tetto/progettare-il-tetto/sismico/verifica-vulnerabilita-sismica-ntc/)
 
 EUROCODICE 8 — ELEMENTI NON STRUTTURALI:
+
 - Testo completo EN 1998‑1 (PDF):  
-  https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf  [7](https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf)
+  <https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf>  [7](https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf)
 - Guida Prota “Seismic forces on non-structural members (EC8 4.3.5)”:  
-  https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members  [8](https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members)
+  <https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members>  [8](https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members)
 - White paper: “Non-Structural Member Forces EC8”:  
-  https://protasoftware.com/white-paper/non-structural-member-forces-ec8/  [9](https://protasoftware.com/white-paper/non-structural-member-forces-ec8/)
+  <https://protasoftware.com/white-paper/non-structural-member-forces-ec8/>  [9](https://protasoftware.com/white-paper/non-structural-member-forces-ec8/)
 - JRC Worked Examples – EC8:  
-  https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-worked_examples-main_only.pdf  [10](https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-Worked_examples-main_only.pdf)
+  <https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-worked_examples-main_only.pdf>  [10](https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-Worked_examples-main_only.pdf)
 
 ESEMPI NUMERICI PER TEST DI VALIDAZIONE:
+
 - Verifica tamponature con spettri di piano (NTC2018 + Circ. 2019):  
-  https://biblus.acca.it/la-verifica-delle-tamponature-secondo-le-nuove-ntc-2018-e-la-circolare-2019/  [11](https://biblus.acca.it/la-verifica-delle-tamponature-secondo-le-nuove-ntc-2018-e-la-circolare-2019/)
+  <https://biblus.acca.it/la-verifica-delle-tamponature-secondo-le-nuove-ntc-2018-e-la-circolare-2019/>  [11](https://biblus.acca.it/la-verifica-delle-tamponature-secondo-le-nuove-ntc-2018-e-la-circolare-2019/)
 - Esempio EC8 di calcolo forze su elementi non strutturali (Prota):  
-  https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members  [8](https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members)
+  <https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members>  [8](https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members)
 - EC8 worked examples – drift e componenti fragili:  
-  https://www.slideshare.net/slideshow/ec8-seismic-designofbuildingsworkedexamples/48158324  [12](https://www.slideshare.net/slideshow/ec8-seismic-designofbuildingsworkedexamples/48158324)
+  <https://www.slideshare.net/slideshow/ec8-seismic-designofbuildingsworkedexamples/48158324>  [12](https://www.slideshare.net/slideshow/ec8-seismic-designofbuildingsworkedexamples/48158324)
 
 CATEGORIE DI ELEMENTI NON STRUTTURALI DA INCLUDERE:
+
 - tramezzi e tamponature (fragili/semirigide),
 - parapetti, comignoli, camini,
 - elementi a mensola, insegne, pannelli,
@@ -1469,6 +1570,7 @@ CHE COSA VOGLIO DA TE (SOLO PLAN):
    - per ogni test indica: input reali da estrarre, output atteso, riferimento alla fonte.
 
 FORMATO DI RISPOSTA
+
 - Non riscrivere il codice.
 - Produci un output ordinato in sezioni:
   1) architettura modulo,
@@ -1483,6 +1585,7 @@ FORMATO DI RISPOSTA
 Rimani SEMPRE in modalità PLAN.
 
 AGISCI COME:
+
 - ingegnere strutturista con esperienza in NTC2018 e Eurocodici (EC2, EC3, EC8);
 - architetto software Python;
 - assistente di pianificazione (PLAN ONLY), NON generatore di codice.
@@ -1496,12 +1599,14 @@ Fornisci solo: analisi, piano tecnico, task, dipendenze, criteri di validazione.
 
 CONTESTO (REPO LOCALE / FRAMEWORK):
 Sto lavorando su un framework di calcolo strutturale in Python con:
+
 - motore di verifica separato dalla GUI (core_calculus, verification_engine, verification_core, methods);
 - moduli normativi esistenti (NTC2018, RD2229, DM ’92, DM ’96) integrati tramite loader e file .jsoncode;
 - GUI Tkinter per definizione sezioni, materiali e avvio verifiche (es. main_window, frc_verification_window, historical_main_window, ecc.);
 - sistemi di storage (JSON/CSV) per sezioni, materiali, historical_materials, calculation_codes.
 
 In precedenti passaggi di pianificazione ho già:
+
 - introdotto il concetto di CodeModule per ciascuna norma;
 - pianificato un modulo per NTC2018 (RC + combinazioni + elementi secondari);
 - impostato l’idea di avere moduli separati per NTC2018, riusando materiali/sezioni esistenti e rispettando la separazione core/GUI.
@@ -1510,6 +1615,7 @@ OBIETTIVO DI QUESTA SESSIONE:
 Voglio sviluppare un modulo completo per la verifica degli ELEMENTI NON STRUTTURALI / SECONDARI in zona sismica secondo NTC 2018 §7.2, con integrazione delle formulazioni mancanti tratte da EUROCODICE 8 (EN 1998‑1).
 
 Il modulo deve:
+
 - definire modelli di calcolo per ogni categoria di elemento non strutturale;
 - individuare le parti di NTC2018 applicabili e dove ricorrere a EC8;
 - definire input richiesti (massa, quota, rigidezza, ancoraggi, schema statico);
@@ -1522,40 +1628,45 @@ Il modulo deve:
 FONTE NORMATIVA — LINK DA ANALIZZARE:
 
 NTC 2018 — Capitolo 7 (azioni sismiche, §7.2 elementi non strutturali/secondari):
+
 - Testo Gazzetta Ufficiale (cap. 7, §7.2):
-  https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG
+  <https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG>
 - Estratto Cap.7 PDF (Studio Petrillo):
-  https://www.studiopetrillo.com/files/ntc2018/cap7.pdf
+  <https://www.studiopetrillo.com/files/ntc2018/cap7.pdf>
 - Ulteriore estratto NTC2018 Cap.7 (Bertolino Engineering):
-  https://www.bertolinoengineering.it/wp-content/uploads/2024/08/NTC2018_cap7.pdf
+  <https://www.bertolinoengineering.it/wp-content/uploads/2024/08/NTC2018_cap7.pdf>
 
 Approfondimenti NTC su elementi non strutturali:
+
 - “Elementi non strutturali in zona sismica, NTC 2008 vs NTC 2018”:
-  https://www.ingenio-web.it/articoli/elementi-costruttivi-non-strutturali-negli-edifici-in-c-a-in-zona-sismica-cosa-cambia-con-le-ntc-2018/
+  <https://www.ingenio-web.it/articoli/elementi-costruttivi-non-strutturali-negli-edifici-in-c-a-in-zona-sismica-cosa-cambia-con-le-ntc-2018/>
 - “Verifiche elementi non strutturali – quadro completo”:
-  https://ediltecnico.it/verifiche-elementi-non-strutturali/
+  <https://ediltecnico.it/verifiche-elementi-non-strutturali/>
 - “Dettagli tecnici elementi non strutturali (NTC 2018)”:
-  https://www.bmigroup.com/it/intervenire-sul-tetto/progettare-il-tetto/sismico/verifica-vulnerabilita-sismica-ntc/
+  <https://www.bmigroup.com/it/intervenire-sul-tetto/progettare-il-tetto/sismico/verifica-vulnerabilita-sismica-ntc/>
 
 EUROCODICE 8 — ELEMENTI NON STRUTTURALI:
+
 - Testo completo EN 1998‑1 (PDF):
-  https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf
+  <https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf>
 - Guida Prota “Seismic forces on non-structural members (EC8 4.3.5)”:
-  https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members
+  <https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members>
 - White paper: “Non-Structural Member Forces EC8”:
-  https://protasoftware.com/white-paper/non-structural-member-forces-ec8/
+  <https://protasoftware.com/white-paper/non-structural-member-forces-ec8/>
 - JRC Worked Examples – EC8 (drift, spostamenti, componenti non strutturali fragili):
-  https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-worked_examples-main_only.pdf
+  <https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-worked_examples-main_only.pdf>
 
 ESEMPI NUMERICI PER TEST DI VALIDAZIONE:
+
 - Verifica tamponature con spettri di piano (NTC2018 + Circolare 2019):
-  https://biblus.acca.it/la-verifica-delle-tamponature-secondo-le-nuove-ntc-2018-e-la-circolare-2019/
+  <https://biblus.acca.it/la-verifica-delle-tamponature-secondo-le-nuove-ntc-2018-e-la-circolare-2019/>
 - Esempio EC8 di calcolo forze su elementi non strutturali (Prota):
-  https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members
+  <https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members>
 - EC8 worked examples – drift e componenti fragili (slide):
-  https://www.slideshare.net/slideshow/ec8-seismic-designofbuildingsworkedexamples/48158324
+  <https://www.slideshare.net/slideshow/ec8-seismic-designofbuildingsworkedexamples/48158324>
 
 CATEGORIE DI ELEMENTI NON STRUTTURALI / SECONDARI DA CONSIDERARE:
+
 - tramezzi / tamponature (fragili o semirigide);
 - parapetti, camini, comignoli, elementi fuori piano;
 - elementi a mensola (insegne, pannelli, parapetti a sbalzo);
@@ -1628,6 +1739,7 @@ CHE COSA VOGLIO DA TE (SOLO PIANIFICAZIONE):
      - indica quale output atteso confrontare (forza, drift, esito OK/KO).
 
 MODALITÀ DI RISPOSTA:
+
 - NON riscrivere o proporre codice.
 - NON modificare concettualmente RD2229 / DM ’92 / DM ’96 (puoi solo pianificare l’integrazione).
 - Produci un output ordinato in sezioni:
@@ -1649,6 +1761,7 @@ Oltre a quanto già richiesto, voglio che tu, Copilot, sviluppi una comprensione
 
 1) TEORIA DI BASE (DA ANALIZZARE E ASSUMERE NEL PIANO)
 Integra nella pianificazione i principi fondamentali di:
+
 - risposta degli elementi non strutturali alla domanda sismica (massa, quota, amplificazione locale);
 - verifica tramite spettri di piano secondo NTC2018 + Circolare e EC8;
 - criteri di danno, drift ammissibile, stato limite di sicurezza e funzionalità;
@@ -1657,16 +1770,16 @@ Integra nella pianificazione i principi fondamentali di:
 
 Assicurati che la pianificazione software tenga conto di queste basi concettuali in modo coerente con:
 NTC 2018 (Capitolo 7.2)  
-https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG
+<https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG>
 
 EC8 (EN 1998-1, forze su componenti non strutturali, §4.3.5 e drift)  
-https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf
+<https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf>
 
 Esempi applicativi EC8:  
-https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members  
-https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-worked_examples-main_only.pdf
+<https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members>  
+<https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-worked_examples-main_only.pdf>
 
-2) SISTEMA DI INPUT COMUNE — FATTORI CHIAVE
+1) SISTEMA DI INPUT COMUNE — FATTORI CHIAVE
 Nel piano devi definire un **sistema unificato di input**, condiviso da tutti i moduli (NTC2018, RC, elementi secondari, elementi non strutturali, DM ’92, DM ’96).  
 Questo sistema deve includere:
 
@@ -1678,13 +1791,15 @@ Questo sistema deve includere:
 - parametri di massa, posizione (quota z), rigidezza, comportamento fuori piano.
 
 Richiedo che il piano illustri come:
+
 - questi input vengono centralizzati,
 - come alimentano TUTTI i moduli,
 - come evitare duplicazioni,
 - come condividere i dati tra GUI diverse e tra moduli diversi.
 
-3) SISTEMA DI OUTPUT COMUNE
+1) SISTEMA DI OUTPUT COMUNE
 Definisci in pianificazione un sistema unico di output per TUTTE le verifiche, con:
+
 - esito (OK/KO),
 - margine di sicurezza,
 - combinazione critica,
@@ -1692,8 +1807,9 @@ Definisci in pianificazione un sistema unico di output per TUTTE le verifiche, c
 - riferimento normativo (NTC2018, EC8, DM, ecc.),
 - eventuali warning su condizioni di applicabilità.
 
-4) GUI INTERCONNESSE
+1) GUI INTERCONNESSE
 Nel piano stabilisci che tutte le GUI devono:
+
 - utilizzare lo stesso sistema di input centralizzato (nessun duplicato per sezioni, materiali, azioni sismiche);
 - condividere archivi comuni (materials.json, sections.json, calculation_codes);
 - usare la stessa logica di validazione (input obbligatori, warning normativi);
@@ -1701,33 +1817,38 @@ Nel piano stabilisci che tutte le GUI devono:
 - prevedere un sistema di navigazione coerente (selettore norma → selettore modulo → definizione elementi → lanci verifica).
 
 Chiedo inoltre che tu pianifichi:
+
 - quali GUI devono essere “centralizzate” (es. editor materiali, editor sezioni),
 - quali GUI vanno estese (pannello combinazioni),
 - quali GUI devono essere nuove ma basate su pattern esistenti.
 
-5) MODULARITÀ ESTREMA + RIUTILIZZO
+1) MODULARITÀ ESTREMA + RIUTILIZZO
 Nel piano devi esplicitare:
+
 - la struttura modulare ideale (es. codes/ntc2018/secondary_elements, codes/ntc2018/nonstructural, ecc.);
 - come i template di calcolo e i registry si integrano in modo plug‑in;
 - come mantenere retro‑compatibilità con DM92, DM96, RD2229 senza duplicare logiche;
 - come i nuovi moduli erediteranno input e output standard senza customizzazioni ridondanti.
 
-6) ARCHIVI E STORAGE COMUNI
+1) ARCHIVI E STORAGE COMUNI
 Richiedo di pianificare:
+
 - un archivio unificato per definire elementi (anche secondari e non strutturali), con un unico schema dati;
 - un sistema di serializzazione coerente (JSON/CSV),
 - mapping stabile tra GUI → input comune → engine → output comune → storage.
 
-7) COSTRUZIONE DELLA TEORIA “SOFTWARE-READY”
+1) COSTRUZIONE DELLA TEORIA “SOFTWARE-READY”
 Voglio che tu espliciti, nella pianificazione:
+
 - quali blocchi teorici sono necessari per ricostruire gli algoritmi (non il codice!),
 - quali parametri devono essere esplicitamente richiesti dall’utente,
 - quali parametri devono essere inferiti dall’engine,
 - quali limiti normativi devono essere controllati all’ingresso (campo di validità delle formule NTC/EC8),
 - quali vincoli devono essere verificati prima del calcolo (massa minima, spessore minimo, tipo di ancoraggio, regole di drift).
 
-8) RISULTATO ATTESO
+1) RISULTATO ATTESO
 Come output di questo prompt incrementale, voglio che tu produca:
+
 - un approfondimento del piano esistente,
 - una sezione dedicata alla teoria e agli input comuni,
 - un elenco di adattamenti necessari per rendere le GUI integrate e riutilizzabili,
@@ -1740,6 +1861,7 @@ Sintesi esecutiva
 Posizionamento: integrare il modulo NTC §7.2 + EC8 (non‑strutturali/secondari) come componente di Fase 6bis (dipende da Fase 1/2/3/5).
 Obiettivo tecnico: fornire spec, API e file di configurazione per calcolare Fa/Ta, valutare SLU/SLE/SLV per non‑structural/secondary elements e integrare i risultati nel VerificationEngine usando CodeModule (documentato e testato).
 Questo documento è esclusivamente PLAN — nessun codice, solo specifiche, input/output, GUI, storage, test e criteri di accettazione.
+
 1) Teoria di base — principi da codificare nel progetto
 Risposta sismica: la domanda su un elemento non‑strutturale è funzione primaria di massa (Wa), quota z (amplificazione), periodo proprio Ta e spettro di piano Se(Ta,z).
 Formula operativa (policy): Fa ≈ Sa(Ta,z) * Wa / qa — Sa ricavato da spettro di piano (NTC circolare §C7.2 / EC8 §4.3.5). qa e γa da tabelle normative.
@@ -1876,6 +1998,7 @@ PROMPT INCREMENTALE – SPEC SecondaryElementSpec (SOLO PLAN, NESSUN CODICE)
 
 CONTESTO:
 Hai già prodotto un piano per il modulo NTC2018 §7.2 + EC8 relativo agli elementi non strutturali/secondari, con:
+
 - modelli di calcolo per tramezzi, tamponature, parapetti, mensole, insegne, elementi sospesi, ecc.;
 - integrazione con VerificationEngine e CodeModule NTC2018;
 - GUI dedicate e storage JSON/CSV;
@@ -1885,12 +2008,14 @@ ORA voglio che ti concentri ESCLUSIVAMENTE su:
 👉 definire in modo formale e dettagliato lo SPEC di un oggetto di input comune chiamato **SecondaryElementSpec**, che rappresenta un ELEMENTO NON STRUTTURALE/SECONDARIO nel software.
 
 IMPORTANTE:
+
 - Rimani SEMPRE in modalità PLAN.
 - NON generare codice (nessuna classe Python, nessuno snippet Tkinter, nessun JSON effettivo).
 - Lavora solo a livello di **specifica**: nomi di campi, tipi, unità di misura, vincoli, mapping verso GUI/Engine/Storage.
 
 OBIETTIVO DEL PROMPT:
 Costruire una specifica completa di **SecondaryElementSpec** che:
+
 - sia sufficiente a descrivere tutti i tipi di elementi non strutturali/secondari previsti dal piano (tamponature, parapetti, insegne, mensole, elementi sospesi, ecc.);
 - sia riutilizzabile da TUTTI i moduli normativi (NTC2018, EC8, eventualmente DM/RD);
 - sia compatibile con:
@@ -1971,6 +2096,7 @@ PROMPT INCREMENTALE – SPEC Check “NS_SLV_SecondaryElement” (SOLO PLAN, NES
 
 CONTESTO:
 Hai già:
+
 - un piano per il modulo NTC2018 §7.2 + EC8 per elementi non strutturali/secondari;
 - definito (nel prompt precedente) lo SPEC di SecondaryElementSpec, schema di input comune per tutti gli elementi secondari;
 - definito un SingleCheckResult/VerificationResult concettuale.
@@ -1981,6 +2107,7 @@ ORA voglio che tu definisca, in modalità PLAN, lo SPEC di UNA verifica specific
    Scopo: verificare la sicurezza sismica allo SLV di un elemento non strutturale/secondario (stabilità, espulsione, ancoraggio) utilizzando la domanda Fa derivata da NTC §7.2 + EC8 (EN 1998‑1, §4.3.5 e simili).
 
 IMPORTANTE:
+
 - SOLO pianificazione, nessun codice.
 - Niente classi Python, niente funzioni; solo specifiche di:
   - scopo,
@@ -2393,8 +2520,8 @@ Documentare quale metodo è stato usato (NTC vs EC8).
 CALCOLO DELLA DOMANDA SISMICA Fa
 
 Formula base (policy selezionabile):
-EC8 default: Fa = Sa(Ta,z) * Wa / qa
-Se versione normativa richiede γa: Fa = Sa(Ta,z) * Wa * γa / qa
+EC8 default: Fa = Sa(Ta,z) *Wa / qa
+Se versione normativa richiede γa: Fa = Sa(Ta,z)* Wa * γa / qa
 Applicare comportamento qa e importanza γa (da spec o da config).
 TRASDUZIONE DOMANDA IN EFFETTI LOCALI
 
@@ -2443,12 +2570,12 @@ details: campo strutturato per traceability (which method used for Sa, Ta estima
 suggested_actions: breve elenco (es. “increase anchors”, “model element in global analysis”, “add ties to structure”)
 Integrazione risultato: VerificationEngine inserisce il SingleCheckResult in VerificationResult.secondary e nel project.secondary_elements[].results.
 
-6) Integrazione con VerificationEngine / CodeModule
+1) Integrazione con VerificationEngine / CodeModule
 Esposizione: CodeModule.available_checks() include NS_SLV_SecondaryElement.
 Invocazione: VerificationEngine chiama run_secondary_check("NS_SLV_SecondaryElement", SecondaryElementSpec, CalcContext).
 Reuse: la funzione è parametrica rispetto a element_type; flusso centrale (Sa/Ta/Fa) è comune, poi branch‑per‑type per mapping domanda→effetto→capacity.
 Shared utilities (design): centralizzare calcolo Sa(Ta,z), stima Ta, e validazione; check specifici invocano queste utility via API interne al CodeModule.
-7) GUI / UX (design)
+2) GUI / UX (design)
 Quando l’utente esegue NS_SLV_SecondaryElement mostrare:
 Sintesi risultato (OK/NOT_OK/NOT_APPLICABLE) con colore e percentuale utilisation.
 Box “Domanda” con Fa, Ta, Sa(Ta,z), combinazione critica.
@@ -2457,7 +2584,7 @@ Normative applied (badge): es. NTC2018 §7.3.6.2 / EN1998‑1 §4.3.5.
 Trace log (espandibile) con passi calcolo (Ta estimation method, Sa source, qa/γa values).
 Suggested mitigations (actionable text).
 UX rules: errori bloccanti mostrati come dialog; warnings non bloccanti evidenziati ma consentono proseguire.
-8) Test di validazione (casi consigliati)
+3) Test di validazione (casi consigliati)
 Per ogni test indicare: spec fields (essenziali), CalcContext, expected outcome (qualitativo/normativo).
 
 Test A — Tamponatura (BibLus / NTC Circolare)
@@ -2480,7 +2607,7 @@ Input: element_type=PARAPET but CalcContext missing site_ag.
 Expected: ERROR / validation block with message "site_ag required for SLV checks".
 Acceptance tolerances: numerical comparisons to reference examples within ±5–10% (document per test); logic outcomes (OK/NOT_OK/NOT_APPLICABLE) must match source expectations.
 
-9) Checklist finale per il check NS_SLV_SecondaryElement
+1) Checklist finale per il check NS_SLV_SecondaryElement
  Definito check_id e descrizione formale
  Mappati tutti gli input richiesti su SecondaryElementSpec + CalcContext
  Specificata la logica di calcolo (Ta → Sa → Fa → demand→capacity → esito) e i punti di fallback NTC→EC8
@@ -2493,6 +2620,7 @@ Vuoi che formalizzi ora (plan‑only) il documento di test‑fixture per il Test
 PROMPT INCREMENTALE MASTER (ESPANSIONE COMPLETA, SOLO PLAN)
 
 IMPORTANTE (RIBADITO):
+
 - Rimani SEMPRE e SOLO in modalità PLAN.
 - NON generare codice Python.
 - NON creare file.
@@ -2541,12 +2669,14 @@ Voglio che tu PRENDA TUTTO IL PIANO/SPEC CHE HAI GIÀ PRODUtTO e lo ESPANDA ulte
 - rischi e limiti di applicabilità.
 
 Non devi riscrivere tutto da zero, ma:
+
 - raffinare,
 - completare i punti rimasti generici,
 - risolvere eventuali ambiguità,
 - evidenziare più chiaramente le scelte progettuali.
 
 ————————————————————————
+
 1) APPROFONDIMENTO TEORICO (TUTTE LE AREE)
 ————————————————————————
 
@@ -2820,7 +2950,7 @@ Drift & serviceability thresholds ← requires: geometry, stiffness E, floor sys
 Anchorage demand ← requires: anchor_positions, anchor_type, anchor_capacity_ref.
 Tutti i campi devono essere esposti dal sistema di input comune (vedi sezione 2 successiva).
 
-4) Sistema di input comune — mappa & gerarchia (concept)
+1) Sistema di input comune — mappa & gerarchia (concept)
 4.A Base / gerarchia degli schemi (concettuale)
 BaseElementSpec (campi comuni)
 id, name, type, material_id, geometry (L,h,s,area), mass_Wa, z_elevation, support_type, influence_on_global_model, schema_version.
@@ -2841,14 +2971,14 @@ support/anchor: {support_type, anchor_type, anchor_capacity_ref}
 historical_materials.json → material lookup (material_id)
 sections.json / SectionGeometry → geometry templates (geometry_profile_ref)
 calculation_codes → store qa, γa tables and default parameters per norma
-5) Sistema di output comune (VerificationResultItem)
+2) Sistema di output comune (VerificationResultItem)
 Struttura generica (concept)
 check_id, element_id, module (e.g. NTC2018), norm_references, esito, utilisation, critical_combination_id, demand (map), capacity (map), messages, details, timestamp, solver_version.
 Adattabilità
 demand e capacity sono mappe estensibili (chiavi tipiche: Fa, Ta, Sa, VEd, MEd, anchor_forces, drift_mm).
 messages contiene warning/ERROR codes + human text + normative pointer.
 Tutti i VerificationResultItem vanno salvati in VerificationResult (aggregato per elemento e per progetto).
-6) Architettura software consolidata (package map + responsabilità)
+3) Architettura software consolidata (package map + responsabilità)
 Proposta di package‑map (conceptual)
 
 core_calculus — numeriche di base, SectionGeometry, section_calculations
@@ -2865,7 +2995,7 @@ scripts & tests — demos and test suites
 config — calculation_codes_loader.py, historical_materials_loader.py, jsoncode files
 storage/ or storage.py — import/export, project persistence
 Adaptation layer for legacy
-src/codes/* includes adapter shims that expose legacy modules (libs/* or softw_components/*) via the CodeModule contract without duplication.
+src/codes/*includes adapter shims that expose legacy modules (libs/* or softw_components/*) via the CodeModule contract without duplication.
 7) GUI interconnesse — visione globale e riuso
 Core central panels (single source)
 Materials Editor — single canonical editor (used by RC, steel, secondary)
@@ -2991,7 +3121,7 @@ Drift & serviceability thresholds ← requires: geometry, stiffness E, floor sys
 Anchorage demand ← requires: anchor_positions, anchor_type, anchor_capacity_ref.
 Tutti i campi devono essere esposti dal sistema di input comune (vedi sezione 2 successiva).
 
-4) Sistema di input comune — mappa & gerarchia (concept)
+1) Sistema di input comune — mappa & gerarchia (concept)
 4.A Base / gerarchia degli schemi (concettuale)
 BaseElementSpec (campi comuni)
 id, name, type, material_id, geometry (L,h,s,area), mass_Wa, z_elevation, support_type, influence_on_global_model, schema_version.
@@ -3012,14 +3142,14 @@ support/anchor: {support_type, anchor_type, anchor_capacity_ref}
 historical_materials.json → material lookup (material_id)
 sections.json / SectionGeometry → geometry templates (geometry_profile_ref)
 calculation_codes → store qa, γa tables and default parameters per norma
-5) Sistema di output comune (VerificationResultItem)
+2) Sistema di output comune (VerificationResultItem)
 Struttura generica (concept)
 check_id, element_id, module (e.g. NTC2018), norm_references, esito, utilisation, critical_combination_id, demand (map), capacity (map), messages, details, timestamp, solver_version.
 Adattabilità
 demand e capacity sono mappe estensibili (chiavi tipiche: Fa, Ta, Sa, VEd, MEd, anchor_forces, drift_mm).
 messages contiene warning/ERROR codes + human text + normative pointer.
 Tutti i VerificationResultItem vanno salvati in VerificationResult (aggregato per elemento e per progetto).
-6) Architettura software consolidata (package map + responsabilità)
+3) Architettura software consolidata (package map + responsabilità)
 Proposta di package‑map (conceptual)
 
 core_calculus — numeriche di base, SectionGeometry, section_calculations
@@ -3036,7 +3166,7 @@ scripts & tests — demos and test suites
 config — calculation_codes_loader.py, historical_materials_loader.py, jsoncode files
 storage/ or storage.py — import/export, project persistence
 Adaptation layer for legacy
-src/codes/* includes adapter shims that expose legacy modules (libs/* or softw_components/*) via the CodeModule contract without duplication.
+src/codes/*includes adapter shims that expose legacy modules (libs/* or softw_components/*) via the CodeModule contract without duplication.
 7) GUI interconnesse — visione globale e riuso
 Core central panels (single source)
 Materials Editor — single canonical editor (used by RC, steel, secondary)

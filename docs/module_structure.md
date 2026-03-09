@@ -87,6 +87,7 @@ graph LR
 ## Guida per Sviluppatori: Aggiungere un Nuovo Modulo
 
 1. Crea `modules/<nome_modulo>.py` con struttura standard:
+
    ```python
    MODULE_SPEC = {
        "key": "nome_modulo",
@@ -98,6 +99,7 @@ graph LR
        # Implementa la logica per avviare il modulo
        return ModuleWindow(master)
    ```
+
 2. Il selector lo rileverà automaticamente (nessuna modifica manuale).
 3. Aggiungi test in `tests/test_<nome>.py`.
 4. Aggiorna questa documentazione se necessario.

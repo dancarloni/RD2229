@@ -76,6 +76,7 @@ def rotate_inertia(Ix, Iy, Ixy, theta_rad):
 ```
 
 **Proprietà Calcolate**:
+
 - Inerzie locali (assi principali non ruotati): ix_local, iy_local, ixy_local
 - Inerzie globali (dopo rotazione): ix, iy, ixy (salvate in SectionProperties)
 
@@ -121,12 +122,14 @@ class RectangleElement:
 ### SECTION_DEFINITIONS Aggiornato
 
 Aggiunte 10 nuove voci con:
+
 - Classe di riferimento
 - Campi di input
 - Tooltip esplicativi
 - Etichette in italiano
 
 Esempio:
+
 ```python
 "Ad L": {
     "class": LSection,
@@ -144,6 +147,7 @@ Esempio:
 ### Campo Angolo di Rotazione
 
 Aggiunto widget:
+
 ```python
 # Campo per angolo di rotazione (comune a tutte le sezioni)
 rotation_frame = tk.Frame(self.left_frame)
@@ -185,6 +189,7 @@ def _rotate_point(x, y, cx, cy, angle_deg):
 ### Metodi di Disegno Aggiunti
 
 Implementati per tutte le nuove sezioni:
+
 - `_draw_l_section()`
 - `_draw_i_section()`
 - `_draw_pi_section()`
@@ -195,6 +200,7 @@ Implementati per tutte le nuove sezioni:
 - `_draw_v_section()`
 
 Modificati metodi esistenti per usare rotazione:
+
 - `_draw_rectangle()` → ora usa `_draw_rotated_polygon()`
 - `_draw_t_section()` → ora usa `_draw_rotated_polygon()`
 - `_draw_circle()` → nessun effetto visivo rotazione per circolare piena
@@ -236,6 +242,7 @@ CSV_HEADERS = [
 ### Mappatura Campi
 
 Nuove sezioni usano campi esistenti quando possibile:
+
 - LSection: `flange_thickness` → t_horizontal, `web_thickness` → t_vertical
 - CircularHollowSection: `diameter` → outer_diameter, `web_thickness` → thickness
 - Etc.
@@ -249,20 +256,23 @@ Nuove sezioni usano campi esistenti quando possibile:
 ### Test Implementati (8 test, tutti ✅ PASSANTI)
 
 #### TestNewSectionTypes
+
 1. **test_l_section_basic** - Verifica area sezione L (36 cm²)
 2. **test_i_section_basic** - Verifica area I (96 cm²) e simmetria
 3. **test_circular_hollow_section** - Verifica formula π(R²_out - R²_in)
 4. **test_rectangular_hollow_section** - Verifica sottrazione sezioni
 
 #### TestRotationInertia
+
 5. **test_rotation_function** - Verifica rotate_inertia:
    - Rotazione 0° → invariata
    - Rotazione 90° → scambio Ix/Iy
-6. **test_rectangular_section_with_rotation** - Verifica rotazione 45° su rettangolo
+2. **test_rectangular_section_with_rotation** - Verifica rotazione 45° su rettangolo
 
 #### TestEdgeCasesNewSections
+
 7. **test_invalid_dimensions_l_section** - ValueError su dimensioni negative
-8. **test_circular_hollow_thickness_too_large** - ValueError su spessore > diametro
+2. **test_circular_hollow_thickness_too_large** - ValueError su spessore > diametro
 
 ### Risultati Esecuzione
 
@@ -288,6 +298,7 @@ OK ✅
 ## 🔍 Verifica Requisiti
 
 ### ✅ Aggiunta nuove tipologie di sezione
+
 - [x] LSection
 - [x] PiSection
 - [x] ISection
@@ -300,6 +311,7 @@ OK ✅
 - [x] InvertedVSection
 
 ### ✅ Calcolo proprietà
+
 - [x] Area
 - [x] Baricentro (x_G, y_G)
 - [x] Inerzie assi principali (Ix_local, Iy_local, Ixy_local)
@@ -309,6 +321,7 @@ OK ✅
 - [x] Nocciolo ed ellisse
 
 ### ✅ Angolo di rotazione
+
 - [x] Attributo rotation_angle_deg in Section
 - [x] Calcolo inerzie globali ruotate
 - [x] Applicazione rotazione alla grafica
@@ -316,6 +329,7 @@ OK ✅
 - [x] Salvataggio in CSV
 
 ### ✅ GUI
+
 - [x] Tutte le tipologie selezionabili
 - [x] Pannelli input specifici per ogni tipo
 - [x] Etichette chiare in italiano con UDM
@@ -323,6 +337,7 @@ OK ✅
 - [x] Campo angolo di rotazione
 
 ### ✅ Coerenza sistema
+
 - [x] CSV format compatibile (aggiunto 1 campo)
 - [x] Repository invariato
 - [x] Section Manager funziona con nuove sezioni
@@ -330,6 +345,7 @@ OK ✅
 - [x] Logging DEBUG implementato
 
 ### ✅ Formule e calcoli
+
 - [x] Scomposizione in rettangoli elementari
 - [x] Teorema di Steiner (trasporto inerzie)
 - [x] Rototrasformazione tensore inerzia
@@ -340,11 +356,13 @@ OK ✅
 ## 🚀 Come Testare
 
 ### Test Automatizzati
+
 ```powershell
 python -m unittest tests.test_new_sections -v
 ```
 
 ### Test Manuale GUI
+
 1. Avvia applicazione: `python -m sections_app.app`
 2. Seleziona tipologia (es. "Ad L")
 3. Inserisci dimensioni
@@ -357,18 +375,21 @@ python -m unittest tests.test_new_sections -v
 ### Esempi di Test
 
 #### Sezione ad L
+
 ```python
 LSection(name="L90x90x10", width=9.0, height=9.0,
          t_horizontal=1.0, t_vertical=1.0, rotation_angle_deg=45.0)
 ```
 
 #### Sezione ad I
+
 ```python
 ISection(name="HEA200", flange_width=20.0, flange_thickness=1.0,
          web_height=18.0, web_thickness=0.6, rotation_angle_deg=30.0)
 ```
 
 #### Circolare cava
+
 ```python
 CircularHollowSection(name="Tubo", outer_diameter=10.0,
                       thickness=0.5, rotation_angle_deg=0.0)

@@ -13,7 +13,6 @@ KB_NTC2018_ANALISI.md
 IMPLEMENTAZIONE_NTC2018_VERIFICHE_CAP4_CAP7.md
 Ogni verifica qui contenuta è formalmente e rigidamente classificata come CAPITOLO 4.
 
-
 1. Regole vincolanti di ambito (CAPITOLO 4)
 
 tutte le verifiche sono SLE;
@@ -23,8 +22,7 @@ combinazioni di carico solo SLE (rara / frequente / quasi‑permanente);
 analisi lineare elastica coerente con KB_NTC2018_ANALISI.
 Ogni violazione di queste regole rende la verifica NON CONFORME.
 
-
-2. Tipologie di verifiche SLE implementate
+1. Tipologie di verifiche SLE implementate
 Rientrano in questo STEP:
 
 SLE – limitazione delle tensioni nel c.a.
@@ -35,13 +33,11 @@ Tutte le verifiche restituiscono un VerificationResult con:
 capitolo_ntc = CAP_4
 riferimento normativo §4.1 NTC2018
 
-
-3. Classe base SLE (CAP_4)
+1. Classe base SLE (CAP_4)
 
 from verification_base import VerificationBase
 from verification_result import VerificationResult, VerificationStatus, NormativeReference
 from ntc_capitolo import NTCCapitol
-
 
 class SLEBaseCAP4(VerificationBase):
     """
@@ -49,9 +45,6 @@ class SLEBaseCAP4(VerificationBase):
     """
 
     CAPITOLO = NTCCapitol.CAP_4
-
-
-
 
 4. Verifica SLE – Limitazione delle tensioni
 Riferimento normativo: NTC2018 §4.1.4 – Stati Limite di Esercizio
@@ -94,9 +87,6 @@ class SLETensioniCA(SLEBaseCAP4):
             capitolo_ntc=self.CAPITOLO,
         )
 
-
-
-
 5. Verifica SLE – Fessurazione
 Riferimento normativo: NTC2018 §4.1.4 – Controllo della fessurazione
 
@@ -137,9 +127,6 @@ class SLEFessurazioneCA(SLEBaseCAP4):
             ),
             capitolo_ntc=self.CAPITOLO,
         )
-
-
-
 
 6. Verifica SLE – Deformazioni
 Riferimento normativo: NTC2018 §4.1.4 – Limitazione delle deformazioni
@@ -182,15 +169,11 @@ class SLEDeformazioniCA(SLEBaseCAP4):
             capitolo_ntc=self.CAPITOLO,
         )
 
-
-
-
 7. Esempio di utilizzo nel motore di verifica
 
 engine.add_verification(SLETensioniCA(sigma_ed=8.5, sigma_lim=10.0))
 engine.add_verification(SLEFessurazioneCA(w_ed=0.25, w_lim=0.30))
 engine.add_verification(SLEDeformazioniCA(delta_ed=18.0, delta_lim=20.0))
-
 
 Tutti i risultati:
 
@@ -198,20 +181,17 @@ sono CAPITOLO 4;
 sono SLE;
 sono automaticamente separabili dalle verifiche sismiche.
 
-
-8. Collegamenti con STEP successivi
+1. Collegamenti con STEP successivi
 Questo file è obbligatorio per:
 
 generazione relazione di calcolo SLE (CAP_4);
 confronto SLU/SLE;
 validazione preliminare prima di verifiche sismiche (CAP_7).
 
-
-9. Stato dell’implementazione
+1. Stato dell’implementazione
 ✅ STEP 2 completato nel canvas ✅ Verifiche SLE c.a. operative ✅ Distinzione CAP_4 formalizzata ✅ Pronto per:
 
 STEP 3 – Motore combinazioni NTC2018
 STEP 4 – ζE edifici esistenti (CAP_7)
-
 
 Questo file è vincolante per tutte le verifiche SLE in calcestruzzo armato – NTC2018 Capitolo 4.

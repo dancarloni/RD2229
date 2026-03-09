@@ -12,6 +12,7 @@
 ## Architettura 3 file
 
 ### File 1: `carichi_verticali.py` (~280 righe)
+
 Modello carichi e distribuzione sui maschi.
 
 - `CaricoSolaio` dataclass: G1, G2, Q, luce_sx, luce_dx, id_parete, id_piano
@@ -22,6 +23,7 @@ Modello carichi e distribuzione sui maschi.
   - Sostituisce/migliora `calcola_N_gravitazionale()` di discretizzazione.py
 
 ### File 2: `combinazioni_muratura.py` (~250 righe)
+
 Combinazioni di carico personalizzabili.
 
 - `CombinazioneCarico` dataclass: nome, gamma_G1, gamma_G2, gamma_Q, psi_0, attiva, predefinita
@@ -35,6 +37,7 @@ Combinazioni di carico personalizzabili.
   - `calcola_N_combinato()`: N_Ed = γ_G1×G1 + γ_G2×G2 + γ_Q×ψ₀×Q
 
 ### File 3: `verifiche_multipiano.py` (~300 righe)
+
 Verifica compressione + fuori piano, piano per piano.
 
 - `Eccentricita` dataclass: e_geom, e_carico, e_accidentale, e_vento, e_totale

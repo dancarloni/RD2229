@@ -4,7 +4,6 @@ Status: NORMA VIGENTE – KB DI SECONDO LIVELLO (NTC2018)
 Ruolo nella Knowledge Base: definisce in modo vincolante i tipi di analisi strutturale ammessi, i criteri di scelta, le ipotesi di validità e le relazioni tra analisi, metodo di calcolo e verifiche secondo le NTC 2018.
 Questo file è subordinato a KB_NTC2018.md e opera in coordinamento con KB_NTC2018_AZIONI.md e KB_NTC2018_SISMICA.md.
 
-
 1. Riferimenti normativi
 
 Norma principale: D.M. 17/01/2018 – NTC 2018
@@ -14,8 +13,7 @@ Capitoli di riferimento:§2 – Sicurezza e prestazioni attese
 Circolare applicativa: Circ. 21/01/2019 n. 7
 Ogni scelta di analisi deve essere citabile a livello di paragrafo normativo.
 
-
-2. Principi generali dell’analisi strutturale
+1. Principi generali dell’analisi strutturale
 Le NTC 2018 richiedono che l’analisi strutturale:
 
 rappresenti in modo adeguato il comportamento reale della struttura;
@@ -30,8 +28,7 @@ l’analisi è sempre distinta dalla verifica;
 i metodi di calcolo sono norma‑agnostici;
 la norma consuma i risultati dell’analisi.
 
-
-3. Tipi di analisi ammessi
+1. Tipi di analisi ammessi
 Le NTC 2018 ammettono le seguenti categorie di analisi:
 3.1 Analisi lineare elastica
 Caratteristiche:
@@ -47,7 +44,6 @@ telai in c.a. ordinari;
 strutture regolari;
 uso del Metodo di Cross o FEM lineare.
 
-
 3.2 Analisi lineare con ridistribuzione
 Caratteristiche:
 
@@ -59,7 +55,6 @@ Nel software:
 la ridistribuzione deve essere:dichiarata;
 parametrizzata;
 tracciata in relazione.
-
 
 3.3 Analisi non lineare
 Comprende:
@@ -75,8 +70,7 @@ analisi sismiche avanzate;
 livelli di conoscenza elevati.
 Queste analisi sono fuori dallo scope immediato del Metodo di Cross.
 
-
-4. Analisi in funzione dello Stato Limite
+1. Analisi in funzione dello Stato Limite
 4.1 SLU
 Per gli Stati Limite Ultimi:
 
@@ -85,7 +79,6 @@ Per gli Stati Limite Ultimi:
 l’analisi deve essere coerente con:combinazioni SLU;
 ipotesi di duttilità (in sismica).
 
-
 4.2 SLE
 Per gli Stati Limite di Esercizio:
 
@@ -93,8 +86,7 @@ l’analisi è generalmente lineare elastica;
 si utilizzano combinazioni SLE (rara, frequente, quasi‑permanente);
 non si applicano coefficienti γ sulle azioni.
 
-
-5. Analisi sismica (rinvio)
+1. Analisi sismica (rinvio)
 Le analisi sismiche possono essere:
 
 statica equivalente;
@@ -102,8 +94,7 @@ dinamica modale;
 non lineare.
 Questo file non entra nel dettaglio delle analisi sismiche, che sono trattate in KB_NTC2018_SISMICA.md.
 
-
-6. Metodo di Cross nell’ambito NTC 2018
+1. Metodo di Cross nell’ambito NTC 2018
 Il Metodo di Cross può essere utilizzato nelle NTC 2018 se:
 
 l’analisi è lineare elastica;
@@ -116,8 +107,7 @@ Cross è un metodo di analisi, non una norma;
 produce effetti interni;
 è consumato dai moduli di verifica SLU/SLE.
 
-
-7. Coerenza modello – analisi – verifica
+1. Coerenza modello – analisi – verifica
 Principi vincolanti:
 
 il modello strutturale usato per l’analisi deve essere:coerente con quello di verifica;
@@ -126,8 +116,7 @@ serializzabile;
 non è ammesso:cambiare modello tra SLU e SLE senza dichiarazione;
 usare analisi diverse per confronti normativi non espliciti.
 
-
-8. Relazione di calcolo
+1. Relazione di calcolo
 La relazione deve sempre indicare:
 
 tipo di analisi utilizzata;
@@ -137,8 +126,7 @@ riferimento normativo (capitolo/paragrafo);
 limiti di validità dell’analisi.
 L’assenza di tali informazioni rende la verifica non difendibile.
 
-
-9. Regole di utilizzo nel software
+1. Regole di utilizzo nel software
 Nel software:
 
 il tipo di analisi è una scelta esplicita dell’utente;
@@ -147,8 +135,7 @@ le verifiche rifiutano risultati incompatibili con l’analisi scelta;
 Copilot non può:cambiare tipo di analisi automaticamente;
 introdurre assunzioni non dichiarate.
 
-
-10. Confronto con normative a TA
+1. Confronto con normative a TA
 Il confronto con analisi a tensioni ammissibili:
 
 è ammesso solo in modalità comparativa;
@@ -156,14 +143,12 @@ richiede stesso modello strutturale;
 deve essere dichiarato esplicitamente in relazione.
 È vietato qualsiasi uso ibrido.
 
-
-11. Criteri di accettazione
+1. Criteri di accettazione
 Questa KB è conforme se:
 
 ogni analisi è coerente con NTC2018;
 il Metodo di Cross è correttamente inquadrato;
 non esistono ambiguità tra analisi e verifica;
 la relazione di calcolo è integralmente ricostruibile.
-
 
 Questo file fa parte integrante e vincolante della Knowledge Base NTC2018.

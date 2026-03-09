@@ -9,7 +9,6 @@ non contiene logica di orchestrazione;
 non contiene calcolo di sollecitazioni;
 istanzia esclusivamente verifiche RD2229, secondo quanto definito in VERIFICHE_RD2229.md.
 
-
 1. Ruolo della VerificationFactoryRD2229
 Nel sistema multi‑normativo:
 
@@ -18,13 +17,9 @@ il binding GUI ↔ Core seleziona la factory corretta;
 la VerificationFactoryRD2229:costruisce le verifiche compatibili con RD2229;
 restituisce oggetti pronti per il VerificationEngine.
 
-
 La factory non decide se una verifica è necessaria: si limita a crearla quando richiesta.
 
-
-
-
-2. Collegamenti vincolanti
+1. Collegamenti vincolanti
 Questo file è valido solo se sono presenti:
 
 VERIFICHE_RD2229.md
@@ -33,8 +28,7 @@ VerificationEngine
 VerificationResult
 ProjectModel
 
-
-3. Tipologie di verifiche istanziate
+1. Tipologie di verifiche istanziate
 La factory RD2229 deve poter creare le seguenti verifiche:
 
 pressoflessione semplice e composta;
@@ -44,8 +38,7 @@ compressione semplice;
 trazione semplice (solo se ammessa).
 Ogni verifica è a tensioni ammissibili.
 
-
-4. Interfaccia della VerificationFactoryRD2229
+1. Interfaccia della VerificationFactoryRD2229
 La factory deve esporre un’interfaccia coerente con il binding GUI ↔ core.
 
 class VerificationFactoryRD2229:
@@ -62,10 +55,7 @@ class VerificationFactoryRD2229:
         """
         raise NotImplementedError
 
-
-
-
-5. Implementazione concettuale
+1. Implementazione concettuale
 File di riferimento
 
 core/verification/factories/verification_factory_rd2229.py
@@ -81,7 +71,6 @@ from core.verification.rd2229.verifiche import (
     verifica_compressione_rd2229,
     verifica_trazione_rd2229,
 )
-
 
 class VerificationFactoryRD2229:
 
@@ -113,9 +102,6 @@ class VerificationFactoryRD2229:
 
         return verifiche
 
-
-
-
 6. Integrazione con il binding GUI ↔ Core
 Nel file GUI_VERIFICATION_ENGINE_BINDING.md (già creato), la selezione della factory avviene come segue:
 
@@ -124,11 +110,9 @@ if project_model.normativa_attiva == 'RD2229':
 elif project_model.normativa_attiva == 'NTC2018':
     factory = VerificationFactoryNTC2018()
 
-
 Il VerificationEngine rimane immutato.
 
-
-7. Output della factory
+1. Output della factory
 Ogni verifica restituita:
 
 è un oggetto VerificationResult;
@@ -141,10 +125,7 @@ riferimento normativo R.D. 2229/1939;
 
 capitolo_ntc = NTCCapitol.RD2229
 
-
-
-
-8. Regole di sicurezza normativa
+1. Regole di sicurezza normativa
 La factory RD2229:
 
 non genera verifiche sismiche;
@@ -154,9 +135,7 @@ non accetta combinazioni sismiche;
 genera solo verifiche compatibili con la normativa storica.
 Ogni uso improprio deve essere bloccato a livello di GUI o binding.
 
-
-9. Stato finale
+1. Stato finale
 ✅ VerificationFactory RD2229 definita ✅ Coerente con VERIFICHE_RD2229.md ✅ Integrata nell’architettura multi‑normativa ✅ Pronta per implementazione reale del core
-
 
 Questo file è vincolante per l’implementazione della VerificationFactory secondo il R.D. 2229/1939.

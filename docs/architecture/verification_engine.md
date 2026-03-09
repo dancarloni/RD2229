@@ -1,6 +1,7 @@
 # Verification Engine — Architecture
 
 ## Overview
+
 The verification engine provides multi-norm structural verification for
 RC elements (beams, columns, walls) using an adapter pattern. Each norm
 (NTC2018, RD2229, etc.) is implemented as an independent adapter.
@@ -8,37 +9,48 @@ RC elements (beams, columns, walls) using an adapter pattern. Each norm
 ## Components
 
 ### CalcInput / CalcOutput (contracts.py)
+
 Pure domain data types. `CalcInput` carries element geometry, material,
 actions, and normative context. `CalcOutput` aggregates per-check results
 with JSON-serializable output.
 
 ### ElementRole (contracts.py)
+
 Enum: `PRIMARY`, `SECONDARY`, `UNDETERMINED`. Determines the verification
 profile applied.
 
 ### NormAdapter (adapters/base.py)
+
 Abstract base class with:
+
 - `applicability(CalcInput) → EligibilityResult`
 - `verify(CalcInput) → CalcOutput`
 
 ### Ntc2018Adapter (adapters/ntc2018_adapter.py)
+
 ULS checks per NTC 2018 §4.1.2:
+
 - Pressoflessione retta (bending + axial)
 - Taglio (shear, concrete only)
 
 ### Rd2229Adapter (adapters/rd2229_adapter.py)
+
 TA checks per R.D. 2229/1939:
+
 - Pressoflessione retta (elastic method)
 - Taglio (allowable shear stress)
 
 ### VerifierManager (verifier_manager.py)
+
 Orchestrates adapter selection, auto-classification, and bulk verification.
 
 ### classify_element (classification.py)
+
 Configurable rule-based classification of elements as primary/secondary
 per NTC2018 §7.2.3.
 
 ## JSON Output Example
+
 ```json
 {
   "element_name": "Trave T1",
@@ -64,6 +76,7 @@ per NTC2018 §7.2.3.
 ```
 
 ## Extending with New Adapters
+
 1. Create a new class inheriting from `NormAdapter`
 2. Implement `norm_code`, `description_it`, `applicability()`, `verify()`
 3. Register with `VerifierManager.register_adapter()`

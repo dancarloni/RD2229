@@ -29,6 +29,7 @@ SECTION_DEFINITIONS = {
 ```
 
 **Componenti di ogni tipologia:**
+
 - `"class"`: Classe del modello (es. `RectangularSection`)
 - `"fields"`: Lista di tuple `(nome_campo, label_visualizzata)`
 - `"tooltip"`: Descrizione generale della sezione (opzionale)
@@ -59,6 +60,7 @@ def _on_section_change(self, _event=None) -> None:
 ```
 
 **Funzionalità:**
+
 - Richiama `_create_inputs()` per ricostruire i campi
 - Resetta la modalità editing se attiva
 - Pulisce output e grafica precedenti
@@ -105,6 +107,7 @@ def _create_inputs(self) -> None:
 ```
 
 **Logica:**
+
 1. Distrugge tutti i widget esistenti
 2. Legge la definizione dalla tipologia corrente
 3. Crea dinamicamente Label + Entry per ogni campo
@@ -141,6 +144,7 @@ def _validate_float_input(self, value: str) -> bool:
 ```
 
 **Funzionalità:**
+
 - Accetta solo numeri
 - Massimo 1 cifra decimale (es. `25.5` ✅, `25.55` ❌)
 - Validazione in tempo reale durante la digitazione
@@ -183,6 +187,7 @@ def _create_tooltip(self, widget: tk.Widget, text: str) -> None:
 ## 📋 Esempio Pratico: Campi Visualizzati per Ogni Tipologia
 
 ### **Sezione Rettangolare**
+
 ```
 ┌─────────────────────────────────┐
 │ Larghezza b (cm)  [_________]   │  ← Tooltip: "Larghezza della base..."
@@ -191,6 +196,7 @@ def _create_tooltip(self, widget: tk.Widget, text: str) -> None:
 ```
 
 ### **Sezione Circolare**
+
 ```
 ┌─────────────────────────────────┐
 │ Diametro D (cm)   [_________]   │  ← Tooltip: "Diametro del cerchio..."
@@ -198,6 +204,7 @@ def _create_tooltip(self, widget: tk.Widget, text: str) -> None:
 ```
 
 ### **Sezione a T**
+
 ```
 ┌─────────────────────────────────┐
 │ Larghezza ala bf (cm)    [____] │  ← Tooltip: "Larghezza dell'ala..."
@@ -210,6 +217,7 @@ def _create_tooltip(self, widget: tk.Widget, text: str) -> None:
 ## 🔧 Come Aggiungere una Nuova Tipologia di Sezione
 
 ### Step 1: Creare il Modello
+
 In `src/rd2229/sections_app/models/sections.py`:
 
 ```python
@@ -237,6 +245,7 @@ class ISection(Section):
 ```
 
 ### Step 2: Aggiungere a SECTION_DEFINITIONS
+
 In `src/rd2229/sections_app/ui/main_window.py`:
 
 ```python
@@ -262,6 +271,7 @@ SECTION_DEFINITIONS = {
 ```
 
 ### Step 3: Implementare il Disegno (Opzionale)
+
 In `main_window.py`, nel metodo `_draw_section`:
 
 ```python
@@ -278,6 +288,7 @@ def _draw_i_section(self, section: ISection, transform) -> None:
 ```
 
 ### Step 4: Testare
+
 1. Avviare l'applicazione
 2. Selezionare la nuova tipologia dalla ComboBox
 3. Verificare che i campi si aggiornino correttamente
@@ -286,17 +297,20 @@ def _draw_i_section(self, section: ISection, transform) -> None:
 ## 📏 Vincoli e Convenzioni
 
 ### Unità di Misura
+
 - **Tutte le dimensioni sono in cm** (centimetri)
 - **Formato numerico**: float con **massimo 1 cifra decimale**
   - ✅ Validi: `25`, `30.5`, `100.0`
   - ❌ Non validi: `25.55`, `30.125`
 
 ### Validazione Input
+
 - La validazione avviene **in tempo reale** durante la digitazione
 - Solo numeri positivi (la validazione del segno positivo avviene al momento del calcolo)
 - La funzione `_validate_float_input` impedisce l'inserimento di valori non conformi
 
 ### Tooltip
+
 - Ogni campo può avere un tooltip esplicativo
 - I tooltip appaiono al passaggio del mouse
 - Sfondo giallo chiaro (`#ffffe0`) per visibilità
@@ -304,19 +318,25 @@ def _draw_i_section(self, section: ISection, transform) -> None:
 ## 🐛 Troubleshooting
 
 ### Problema: I campi non si aggiornano al cambio tipologia
+
 **Soluzione**: Verificare che:
+
 1. Il binding `<<ComboboxSelected>>` sia presente
 2. `_on_section_change` chiami effettivamente `_create_inputs()`
 3. Non ci siano eccezioni nel log
 
 ### Problema: La validazione non funziona
+
 **Soluzione**: Verificare che:
+
 1. `validatecommand` sia correttamente configurato nell'Entry
 2. Il metodo `_validate_float_input` sia registrato con `self.register()`
 3. Il parametro `validate="key"` sia presente
 
 ### Problema: I tooltip non appaiono
+
 **Soluzione**: Verificare che:
+
 1. `_create_tooltip` sia chiamato per ogni widget
 2. Il testo del tooltip sia presente in `field_tooltips`
 3. Gli eventi `<Enter>` e `<Leave>` siano correttamente bindati
@@ -338,6 +358,7 @@ Il sistema è progettato per essere facilmente estendibile:
 4. **Tooltip personalizzati**: Aggiungere voci in `"field_tooltips"`
 
 L'architettura separa chiaramente:
+
 - **Modello** (dati e calcoli) → `sections.py`
 - **Vista** (interfaccia grafica) → `main_window.py`
 - **Configurazione** (definizioni tipologie) → `SECTION_DEFINITIONS`

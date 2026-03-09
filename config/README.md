@@ -7,6 +7,7 @@ The `.jsoncode` configuration system provides modular access to calculation para
 ### Installation
 
 No installation needed - the configuration system is built-in. Configuration files are located in:
+
 - `config/calculation_codes/` - Calculation method parameters (TA, SLU, SLE)
 - `config/historical_materials/` - Material properties (RD2229, DM92, NTC2008, NTC2018)
 
@@ -37,11 +38,13 @@ print(f"C25/30 concrete: fck = {c25['fck']} MPa")
 ### Available Configurations
 
 **Calculation Codes:**
+
 - `TA` - Tensioni Ammissibili (Allowable stress method, RD2229/DM92 compatible)
 - `SLU` - Stato Limite Ultimo (Ultimate limit state, NTC2008/2018)
 - `SLE` - Stato Limite Esercizio (Serviceability limit state, NTC2008/2018)
 
 **Material Sources:**
+
 - `RD2229` - Royal Decree 2229/39 (1939-1972) - Technical units (kg/cm²)
 - `DM92` - DM 1992-1996 - SI units (MPa)
 - `NTC2008` - NTC 2008 standards - SI units (MPa)
@@ -99,6 +102,7 @@ fck_kgcm2 = 25 * factors['MPa_to_kg_cm2']  # 254.9 kg/cm²
 ### Examples
 
 See `demo_config_system.py` for complete working examples of:
+
 - Loading all calculation codes
 - Accessing safety coefficients and limits
 - Working with historical materials (RD2229)
@@ -132,6 +136,7 @@ To add a new standard or material source:
 ### Support
 
 For questions or issues:
+
 - Check the documentation in `docs/CONFIG_JSONCODE_SYSTEM.md`
 - Review examples in `demo_config_system.py`
 - Run the test suite in `tests/test_config_loaders.py`

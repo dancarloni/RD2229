@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.0] - 2026-02-08 - Complete Architecture Restructuring
 
 ### Added - New Modular Architecture
+
 - **Created `/src/` package structure** with complete modular organization
 - **Created `/src/legacy/`** directory containing all original project files preserved unchanged
 - **Created modular packages:**
@@ -19,6 +20,7 @@ All notable changes to this project will be documented in this file.
   - `src/tests/` - Test suite for all new modules
 
 ### Added - Core Modules (STUB S2 Implementation)
+
 - **Shear Area Registry** (`src/calc/shear_area_registry.py`)
   - Registry system for shear area calculations (A_sx, A_sy)
   - Support for section-specific strategies
@@ -47,16 +49,19 @@ All notable changes to this project will be documented in this file.
   - Template files for both formats
 
 ### Added - Configuration System
+
 - `src/config/units.yml` - Unit system configuration (cm, cm², kg/cm², etc.)
 - `src/config/numerics.yml` - Numerical precision and tolerances
 - `src/config/app.yml` - Application settings and defaults
 - `src/config/features.yml` - Feature flags for incremental development
 
 ### Added - Tools and CLI
+
 - `src/tools/verify_cli.py` - Command-line interface for running verifications
 - `src/tools/export_results.py` - Export utilities for JSON/CSV formats
 
 ### Added - Test Suite
+
 - `test_shear_area.py` - Tests for shear area calculation registry
 - `test_code_routing.py` - Tests for normative code registry
 - `test_resolve_inputs.py` - Tests for input resolution system
@@ -65,6 +70,7 @@ All notable changes to this project will be documented in this file.
 - `test_elements_repo.py` - Tests for element repository
 
 ### Documentation
+
 - All modules created as **STUB S2** with:
   - Extensive docstrings (Italian language, matching project standards)
   - Clear TODO markers for Copilot Plan expansion
@@ -73,12 +79,14 @@ All notable changes to this project will be documented in this file.
   - Integration points clearly defined
 
 ### Migration Notes
+
 - **All original files preserved** in `src/legacy/` without modification
 - **No breaking changes** to existing functionality
 - **Backward compatibility** maintained through legacy imports
 - **Incremental adoption** - new modules can be progressively implemented
 
 ### Technical Details
+
 - **Unit System:** All calculations use cm (length), cm² (area), cm⁴ (inertia), kg/cm² (stress), kg/m³ (density)
 - **No implicit conversions:** Unit consistency enforced throughout
 - **Modular design:** Each package has single responsibility
@@ -86,4 +94,5 @@ All notable changes to this project will be documented in this file.
 - **Configuration-driven:** YAML configs for all system parameters
 
 ## Unreleased
+
 - Quality & architecture overhaul: refactor into `src/` layout, add typing, tests, docs, and CI improvements.

@@ -9,7 +9,6 @@ inserimento delle sollecitazioni (N, Tx, Ty, Mx, My, Mz);
 esecuzione delle verifiche tramite il core già sviluppato (CAP_4 / CAP_7).
 La GUI resta orchestratore: nessuna formula, nessuna norma applicata in GUI.
 
-
 1. Archivi (read‑only) e requisiti
 1.1 Archivio Materiali
 
@@ -28,8 +27,7 @@ armature (se c.a.): diametri, posizioni, copriferro;
 asse locali.
 Regola: la sezione è indipendente dalla normativa; la normativa governa solo le verifiche.
 
-
-2. View: Sezioni & Materiali (SezioniMaterialiView)
+1. View: Sezioni & Materiali (SezioniMaterialiView)
 
 ┌──────────── SEZIONI E MATERIALI ────────────┐
 │ Materiale                                   │
@@ -45,13 +43,10 @@ Regola: la sezione è indipendente dalla normativa; la normativa governa solo le
 │ [ Assegna a elemento ▶ ]                    │
 └─────────────────────────────────────────────┘
 
-
-
 Selezione da archivio (no editing manuale delle proprietà).
 L’assegnazione aggiorna ProjectModel.sezione e ProjectModel.materiale.
 
-
-3. View: Normativa e Verifiche (NormativaVerificheView)
+1. View: Normativa e Verifiche (NormativaVerificheView)
 
 ┌──────────── NORMATIVA E VERIFICHE ────────────┐
 │ Normativa di verifica:                         │
@@ -71,14 +66,12 @@ L’assegnazione aggiorna ProjectModel.sezione e ProjectModel.materiale.
 │ [ Applica ▶ ]                                 │
 └──────────────────────────────────────────────┘
 
-
 Regole hard:
 
 CAP_7 abilitabile solo se il workflow lo consente (vedi STEP precedenti).
 Le verifiche si attivano automaticamente in base a normativa + ambito.
 
-
-4. View: Sollecitazioni (SollecitazioniView)
+1. View: Sollecitazioni (SollecitazioniView)
 
 ┌──────────── SOLLECITAZIONI DI PROGETTO ────────────┐
 │ Sistema di riferimento: Locale                     │
@@ -95,14 +88,12 @@ Le verifiche si attivano automaticamente in base a normativa + ambito.
 │ [ Valida input ]   [ Esegui verifiche ▶ ]          │
 └───────────────────────────────────────────────────┘
 
-
 Note tecniche:
 
 Le sollecitazioni sono effetti interni (output analisi o input manuale controllato).
 La GUI non trasforma le sollecitazioni.
 
-
-5. Esecuzione verifiche (binding al core)
+1. Esecuzione verifiche (binding al core)
 Alla pressione di Esegui verifiche:
 
 La GUI costruisce il contesto di verifica:sezione + materiale (da archivi);
@@ -114,8 +105,7 @@ eventuali verifiche di capacità/gerarchia;
 aggiornamento ProjectModel.verifiche_*.
 Riceve solo VerificationResult.
 
-
-6. View: Risultati (RisultatiView)
+1. View: Risultati (RisultatiView)
 
 ┌──────────── RISULTATI VERIFICHE ────────────┐
 │ Verifica                     Esito   Ed/Rd │
@@ -127,22 +117,17 @@ Riceve solo VerificationResult.
 │ [ Dettagli ]   [ Invia a relazione ▶ ]        │
 └──────────────────────────────────────────────┘
 
-
-
 Vista tabellare + dettagli per singola verifica.
 Colonna Capitolo NTC sempre visibile.
 
-
-7. Integrazione con la Relazione di Calcolo
+1. Integrazione con la Relazione di Calcolo
 
 La GUI seleziona quali verifiche includere.
 Passa i VerificationResult al ReportBuilder.
 La relazione usa il template:
 RELAZIONE_DI_CALCOLO_NTC2018_TEMPLATE_OPERATIVO.md.
 
-
-
-8. Modello dati – Estensioni
+1. Modello dati – Estensioni
 
 class ProjectModel:
     ...
@@ -151,18 +136,13 @@ class ProjectModel:
     self.sollecitazioni = {}
     self.normativa_verifica = None
 
-
-
-
-9. Regole di sicurezza normativa (GUI)
+1. Regole di sicurezza normativa (GUI)
 
 impossibile eseguire verifiche senza sezione e materiale;
 impossibile eseguire CAP_7 senza prerequisiti;
 impossibile esportare relazione senza risultati validi.
 
-
-10. Stato
+1. Stato
 ✅ Archivi integrati concettualmente ✅ Pannello verifiche completo ✅ Flusso coerente con NTC2018 ✅ Pronto per implementazione Tkinter reale
-
 
 Questo file è vincolante per l’implementazione GUI delle verifiche di sezione secondo NTC2018.

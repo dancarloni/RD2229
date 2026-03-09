@@ -34,6 +34,7 @@ python -m pytest -q
 ### Why This Is Required
 
 Linting/import errors that don't appear locally can cause CI failures on GitHub due to:
+
 - Environment differences (tool versions, Python versions, dependencies)
 - Commands not executed locally before push
 - Local caches masking errors
@@ -60,4 +61,3 @@ This will run linting/formatting checks automatically before each commit. Howeve
 - Run `pytest -q` for the standard test suite.
 - Property tests use `hypothesis` and are executed in CI.
 - GUI tests (Tkinter/Qt) are in `tests_legacy/` and `tests/legacy_qt/` and are **not** run in CI.
-

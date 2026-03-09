@@ -15,6 +15,7 @@ Session 6 successfully refined the three PARTIAL RD 2229/1939 checks by leveragi
 - ✅ **Taglio TA**: PARTIAL → **PARTIAL+ (improved clarity)** (messages enhanced)
 
 **Test Results:**
+
 - 21/22 tests passing (95.5%) ✅
 - 2 new tests added and passing ✅
 - 1 pre-existing edge case test still failing (same as Session 5)
@@ -60,10 +61,12 @@ Session 6 successfully refined the three PARTIAL RD 2229/1939 checks by leveragi
    - Updated `notes_it` to reflect completion
 
 **Files Modified:**
+
 - `src/methods/checks_rd2229.py` (~135 lines modified)
 - `src/core_calculus/normative_registry.py` (~15 lines)
 
 **Example Output:**
+
 ```
 === VERIFICA MINIMI ARMATURA LONGITUDINALE - RD 2229/39 ===
 
@@ -123,10 +126,12 @@ Implementazione completa con distinzione travi/pilastri secondo Art. 16.
    - Updated `notes_it` with ✓ IMPLEMENTATO marker
 
 **Files Modified:**
+
 - `src/methods/checks_rd2229.py` (~50 lines modified)
 - `src/core_calculus/normative_registry.py` (~10 lines)
 
 **Example Output:**
+
 ```
 === VERIFICA A PRESSOFLESSIONE METODO TA - RD 2229/39 ===
 
@@ -145,6 +150,7 @@ Riduzione per sezioni snelle (Art. 16 RD 2229/39):
 ```
 
 **What Remains TODO:**
+
 - Buckling check for slender columns (λ > 15)
 - **BLOCCO:** Requires `l₀` (free buckling length) not available in CalcInput
 - Cannot be implemented without structural global information
@@ -177,10 +183,12 @@ Riduzione per sezioni snelle (Art. 16 RD 2229/39):
    - Mentions usability for preliminary evaluations
 
 **Files Modified:**
+
 - `src/methods/checks_rd2229.py` (~15 lines modified)
 - `src/core_calculus/normative_registry.py` (~5 lines)
 
 **Example Output:**
+
 ```
 === VERIFICA A TAGLIO METODO TA - RD 2229/39 ===
 
@@ -213,6 +221,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 ```
 
 **Why Still PARTIAL:**
+
 - No historical TA shear formula available in codebase
 - No stirrup contribution calculation (TA method differs from modern SLU)
 - No compression strut (biella compressa) verification
@@ -229,10 +238,12 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 **Purpose:** Verify beam/column distinction works correctly
 
 **Test Cases:**
+
 1. **Beam** (N=0): As=3.0 cm² → **PASS** (min=2.25 cm²)
 2. **Column** (N=-200 kN): As=3.0 cm² → **FAIL** (min=4.5 cm²)
 
 **Assertions:**
+
 - ✅ Beam with As=3.0 passes
 - ✅ Column with As=3.0 fails
 - ✅ Messages show "trave" or "pilastro"
@@ -248,6 +259,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 **Purpose:** Verify slenderness reduction is calculated and applied
 
 **Test Cases:**
+
 1. **Slender section** (b=20 cm < 25 cm):
    - Expected reduction: 1 - 0.03 × (25 - 20) = 0.85
    - ✅ Messages mention "Riduzione per sezioni snelle"
@@ -283,6 +295,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 **Pre-existing Tests:** 19/20 passing (same as Session 5)
 
 **Failing Test (Pre-existing):**
+
 - `test_flessione_ta_non_ok`: Edge case where stress is exactly at limit (utilisation=1.0)
   - Expected: ok=False
   - Actual: ok=True (stress exactly meets limit)
@@ -294,6 +307,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 ## Summary of Changes
 
 ### Files Created (1 file)
+
 | File | Lines | Description |
 |------|-------|-------------|
 | `Session_6_Result_Summary_RD2229_Refinement.md` | ~500 | This result summary |
@@ -320,6 +334,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 | rd2229_ta_minimi_armatura_long | ⚠️ PARTIAL | ✅ **COMPLETE** | +Beam/column distinction |
 
 **Summary:**
+
 - Session 5: **1 COMPLETE, 3 PARTIAL**
 - Session 6: **2 COMPLETE, 1 IMPROVED PARTIAL, 1 PARTIAL+**
 
@@ -328,6 +343,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 ## Technical Quality Metrics
 
 ### Code Quality
+
 - ✅ Zero lint errors (ruff check passed)
 - ✅ All functions have type hints
 - ✅ Italian docstrings and messages throughout
@@ -336,6 +352,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 - ✅ NO-INVENTION POLICY strictly followed
 
 ### Test Coverage
+
 - ✅ 21/22 tests passing (95.5%)
 - ✅ 2 new tests added and passing
 - ✅ Comprehensive coverage of OK/NON-OK cases
@@ -343,6 +360,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 - ✅ Tests cover slenderness reduction
 
 ### Normative Compliance
+
 - ✅ Used only existing functions and formulas
 - ✅ Beam/column distinction from `compute_long_rebar_limits_ta()`
 - ✅ Slenderness formula from RD2229.jsoncode
@@ -412,15 +430,15 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 
 ### Low Priority
 
-3. **Circular Sections TA**
+1. **Circular Sections TA**
    - Stress computation for circular/hollow sections
    - Integration with circular rebar helper
 
-4. **T-Beam Sections TA**
+2. **T-Beam Sections TA**
    - Flanged sections stress computation
    - Effective flange width
 
-5. **Resolve Edge Case Test**
+3. **Resolve Edge Case Test**
    - `test_flessione_ta_non_ok` boundary condition
    - Stress exactly at limit → should fail but passes
 
@@ -465,12 +483,14 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 ## Comparison: Session 5 vs Session 6
 
 ### Session 5 (Initial Implementation)
+
 - **Goal:** Implement RD 2229/1939 TA checks from scratch
 - **Result:** 1 COMPLETE, 3 PARTIAL
 - **Tests:** 19/20 passing (95%)
 - **Status:** Foundation established
 
 ### Session 6 (Refinement)
+
 - **Goal:** Reduce PARTIAL status using existing code
 - **Result:** 2 COMPLETE, 1 IMPROVED PARTIAL, 1 PARTIAL+
 - **Tests:** 21/22 passing (95.5%)
@@ -483,16 +503,19 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 ## Next Session Recommendations
 
 **Option A: Complete Pressoflessione (if l₀ can be added)**
+
 - Add `l₀` parameter to CalcInput
 - Implement buckling check for λ > 15
 - Move to COMPLETE status
 
 **Option B: Research and Implement Complete Taglio**
+
 - Research historical literature (Santarella, RD 2229 circulars)
 - Implement Art. 21 complete formula
 - Add stirrup contribution calculation
 
 **Option C: Add NTC 2008 Support**
+
 - Follow template pattern from RD 2229
 - Implement SLU/SLE checks for modern structures
 - Parallel normative support
@@ -510,6 +533,7 @@ Verifica: 3.78 / 22.40 = 0.169 ✓ OK
 ## Acknowledgments
 
 Session 6 completed all planned priorities within a single session:
+
 - Priority 1: Minimi Armatura (COMPLETE) ✅
 - Priority 2: Pressoflessione (IMPROVED PARTIAL) ✅
 - Priority 3: Taglio (PARTIAL+ clarity) ✅
@@ -517,6 +541,7 @@ Session 6 completed all planned priorities within a single session:
 - Lint: Zero errors ✅
 
 **Architecture maturity:**
+
 - Template pattern working well
 - NO-INVENTION POLICY effective
 - Test infrastructure robust

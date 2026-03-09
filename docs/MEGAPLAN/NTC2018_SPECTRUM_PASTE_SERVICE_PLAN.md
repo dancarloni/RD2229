@@ -1,6 +1,7 @@
 # NTC2018 — Spectrum Paste Service (EdiLus‑MS) — PLAN‑ONLY
 
 > **Obiettivo**: introdurre nel software un servizio “Spettro NTC2018” che **non calcola** la pericolosità di base, ma consente di:
+>
 > 1) impostare **Classe edificio/uso**, **Vita Nominale (VN)**, **Periodo di Riferimento (VR)**;
 > 2) fare **paste in blocco** della tabella testuale proveniente da EdiLus‑MS;
 > 3) parsare e salvare i parametri **Tr, ag/g, F0, Tc\*** per gli stati limite.
@@ -30,6 +31,7 @@
 ## 2) Deliverable (cosa creare)
 
 ### 2.1 Documenti MEGAPLAN (repository)
+
 Creare/aggiornare i seguenti file:
 
 1) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_SERVICE_PLAN.md`  
@@ -46,6 +48,7 @@ Creare/aggiornare i seguenti file:
 ## 3) Scopo del servizio (MVP)
 
 ### 3.1 Funzioni richieste (MVP)
+
 - Inserimento controllato di:
   - `class_of_use` (I–IV)
   - `vita_nominale_years`
@@ -57,6 +60,7 @@ Creare/aggiornare i seguenti file:
   - `project.seismic_inputs.ntc2018_hazard_profile`
 
 ### 3.2 Funzioni esplicitamente NON richieste (oggi)
+
 - Calcolo/interpolazione della pericolosità (ag, F0, Tc* da coordinate)
 - Scraping/integrazione web
 - Calcolo numerico completo dello spettro Sa(T) (opzionale in fase successiva)
@@ -64,7 +68,9 @@ Creare/aggiornare i seguenti file:
 ---
 
 ## 4) Modello dati (overview)
+
 La struttura dati “profilo” deve includere:
+
 - metadati di input (classe uso, VN, VR, label sito facoltativa)
 - `raw_paste` integrale
 - righe parsate (4 stati limite)
@@ -91,9 +97,11 @@ La struttura dati “profilo” deve includere:
 ## 6) UI (Thin) — “Parametri sismici NTC2018 (Paste)”
 
 ### 6.1 Collocazione
+
 - Inserire come pannello/scheda in **Impostazioni progetto → Azioni sismiche (NTC2018)**.
 
 ### 6.2 Componenti minimi
+
 - Dropdown `class_of_use` (I–IV) coerente con EdiLus‑MS. [1](http://ntc.archliving.it/2019/02/18/capitolo-7-progettazione-per-azioni-sismiche/)
 - Input numerici VN e VR. [1](http://ntc.archliving.it/2019/02/18/capitolo-7-progettazione-per-azioni-sismiche/)
 - Input facoltativo `site_label`
@@ -105,6 +113,7 @@ La struttura dati “profilo” deve includere:
 ---
 
 ## 7) Persistenza (singolo profilo) — requisiti
+
 - Il project model deve contenere `project.seismic_inputs.ntc2018_hazard_profile`.
 - Il repository/adapter deve garantire round‑trip:
   - nessuna perdita di `raw_paste`
@@ -113,6 +122,7 @@ La struttura dati “profilo” deve includere:
 ---
 
 ## 8) Test (minimi e vincolanti)
+
 - Unit test parser:
   - decimali con punto → OK
   - decimali con virgola → OK (normalizzazione)
@@ -124,7 +134,9 @@ La struttura dati “profilo” deve includere:
 ---
 
 ## 9) Checklist di chiusura PLAN
+
 Il PLAN è considerato chiuso quando:
+
 - [ ] Sono presenti i tre file MEGAPLAN (PLAN + SPEC + AUTOMATION)
 - [ ] Percorso servizio e persistenza sono riportati come VINCOLANTI
 - [ ] Sono definiti: schema dati, regole parsing, UI minima, test minimi

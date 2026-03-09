@@ -1,23 +1,28 @@
 # E.6 — Cantonali e Aperture
+
 # Contesto completo per implementazione futura
 
 ## Scope (3 sotto-problemi, 2 in E.6)
 
 ### A) Ribaltamento del cantonale (meccanismo 3D) — PRIORITA' ALTA
+
 Un cuneo di muratura delimitato da fratture diagonali a ~45° nelle due pareti
 concorrenti si stacca e ribalta. Tipico di tetti a padiglione con puntoni
 spingenti. L'asse di rotazione e' perpendicolare al piano a 45° tra le pareti.
 
 ### B) Riduzione resistenza maschi d'angolo per aperture — PRIORITA' ALTA
+
 Apertura (porta/finestra) posizionata vicino all'angolo riduce la sezione
 del maschio d'angolo e peggiora l'ammorsamento tra pareti ortogonali.
 
 ### C) Apertura nuovi vani in pareti portanti — FASE SEPARATA (Fase R)
+
 Confronto rigidezza/resistenza prima/dopo, telaio cerchiatura. NON in E.6.
 
 ## Decisioni Q&A complete (2 round, 16 domande)
 
 ### Ribaltamento cantonale
+
 - Modellazione: modello semplificato 2D (proiezione cuneo su piano a 45°),
   come fanno 3Muri e PRO_CineM. Modello 3D completo come TODO futuro.
 - Geometria cuneo: selezione 2 pareti dal modello + input diretto (entrambi)
@@ -28,13 +33,15 @@ Confronto rigidezza/resistenza prima/dopo, telaio cerchiatura. NON in E.6.
   catena, cordolo D.3)
 
 ### Spinta puntoni copertura
+
 - 2 formulazioni automatiche:
-  - Formula A: F_h = q * L / (2 * tan(alpha)) — da carico distribuito al m²
+  - Formula A: F_h = q *L / (2* tan(alpha)) — da carico distribuito al m²
   - Formula B: F_h = V / tan(alpha) — da forza verticale nota
 - Input generico: forza F diretta con direzione e punto di applicazione
 - Tipologie: padiglione, capanna, generica (tutte supportate)
 
 ### Riduzione resistenza aperture vicino angolo
+
 - Diagnostica distanza apertura-angolo con 3 livelli di soglia:
   - Normativa NTC2018 (se presente vincolo esplicito — da verificare)
   - Regola pratica: d_min = max(t_muro, 100 cm)
@@ -45,6 +52,7 @@ Confronto rigidezza/resistenza prima/dopo, telaio cerchiatura. NON in E.6.
 - Flag maschio cantonale: automatico con override manuale
 
 ### Integrazione con altri moduli
+
 - TipoMeccanismo: aggiungere RIBALTAMENTO_CANTONALE in cinematica.py
 - Incluso in analisi_tutti_meccanismi() con flag "3D" per distinguerlo
 - Collegamento D.3: default = cordolo come ritegno generico (D.3.5);
@@ -54,6 +62,7 @@ Confronto rigidezza/resistenza prima/dopo, telaio cerchiatura. NON in E.6.
 ## Formule chiave
 
 ### Peso cuneo d'angolo (proiezione 2D su piano a 45°)
+
 ```
 # Due pareti concorrenti con distacco diagonale
 L1_dist = lunghezza distacco sulla parete 1 [cm]
@@ -72,6 +81,7 @@ theta = 45° (default) oppure arctan(t2/t1) (auto)
 ```
 
 ### Spinta puntone
+
 ```
 # Formula A — da carico distribuito
 F_h = q_mq * L_puntone / (2 * tan(alpha_pendenza))  [kg]
@@ -81,6 +91,7 @@ F_h = V_puntone / tan(alpha_pendenza)  [kg]
 ```
 
 ### Coefficiente riduzione angolo
+
 ```
 d = distanza apertura piu' vicina dall'angolo [cm]
 d_min = max(t_muro, 100)  [cm]  # default, configurabile
@@ -92,6 +103,7 @@ alpha_0_ridotto = alpha_0 * k  # riduzione ammorsamento
 ```
 
 ### Moltiplicatore di collasso cantonale (schema ReLUIS)
+
 ```
 # Equilibrio alla rotazione attorno alla cerniera alla base del cuneo
 # Asse di rotazione a theta gradi tra le due pareti
@@ -135,13 +147,15 @@ alpha_0 = M_stab / M_rib  # (coefficiente per forze sismiche)
 ## Riferimenti normativi e letteratura
 
 ### Normativa
+
 - Circ. n.7/2019 §C8A.4.1 — cinematica lineare meccanismi locali
 - NTC2018 §7.8.2 — resistenza maschi murari nel piano
 - NTC2018 §8.4.1 — interventi locali (per Fase R, non E.6)
 
 ### Letteratura
+
 - **Schede ReLUIS** — meccanismi di collasso locali (ribaltamento cantonale)
-  URL: https://www.geostrutture.eu/images/download/ministero/reluismeccanismi.pdf
+  URL: <https://www.geostrutture.eu/images/download/ministero/reluismeccanismi.pdf>
   Contengono: geometria cuneo, formule alpha_0, bracci, schemi grafici
 
 - **Casapulla & Maione (2020)** — rocking analysis of corner mechanisms
@@ -155,10 +169,11 @@ alpha_0 = M_stab / M_rib  # (coefficiente per forze sismiche)
   Riduzione h_eff per aperture vicine, angolo di diffusione sforzi
 
 - **Universita' di Pisa** — dispense meccanismi locali
-  URL: https://docenti.ing.unipi.it/~a005843/Costruzioni%20in%20zona%20sismica/12-3G-ANALISI-MECCANISMI-LOCALI.pdf
+  URL: <https://docenti.ing.unipi.it/~a005843/Costruzioni%20in%20zona%20sismica/12-3G-ANALISI-MECCANISMI-LOCALI.pdf>
   L'angolo del cuneo dipende dalla qualita' muraria: aumenta con muratura migliore
 
 ### Software di riferimento
+
 - 3Muri: definisce blocchi diagonali + cerniera a 45°
 - PRO_CineM (2S.I.): analisi cinematismi con cantonali
 - FaTANext: meccanismi locali con analisi lineare/non lineare

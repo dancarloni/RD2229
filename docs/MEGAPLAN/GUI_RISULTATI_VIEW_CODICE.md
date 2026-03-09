@@ -10,7 +10,6 @@ legge esclusivamente i dati dal ProjectModel;
 è compatibile con CAP_4 e CAP_7;
 è progettata per l’invio diretto dei risultati alla relazione di calcolo.
 
-
 1. Responsabilità della RisultatiView
 La RisultatiView deve:
 
@@ -22,8 +21,7 @@ rapporto Ed/Rd (se applicabile);
 consentire l’aggiornamento sincrono dopo l’esecuzione delle verifiche;
 non modificare in alcun modo i risultati.
 
-
-2. Dipendenze (vincolanti)
+1. Dipendenze (vincolanti)
 Questa View presuppone l’esistenza di:
 
 ProjectModelverifiche_cap4: list[VerificationResult]
@@ -32,12 +30,10 @@ VerificationResult
 VerificationStatus
 NTCCapitol
 
-
-3. Codice – gui/views/risultati.py
+1. Codice – gui/views/risultati.py
 
 import tkinter as tk
 from tkinter import ttk
-
 
 class RisultatiView(ttk.Frame):
     """
@@ -119,9 +115,6 @@ class RisultatiView(ttk.Frame):
                 ),
             )
 
-
-
-
 4. Integrazione con main.py
 Nel file GUI_MAIN_PY_NAVIGAZIONE.md, la View è già correttamente istanziata:
 
@@ -130,26 +123,21 @@ self.views["risultati"] = RisultatiView(
     self.project_model,
 )
 
-
 Dopo l’esecuzione delle verifiche:
 
 self.verification_binding.run_verifications()
 self.show_view("risultati")
 
-
 l’utente può aggiornare la tabella tramite il pulsante Aggiorna risultati ▶.
 
-
-5. Regole di sicurezza normativa
+1. Regole di sicurezza normativa
 
 nessuna modifica dei risultati è consentita;
 nessuna verifica viene eseguita dalla View;
 i risultati sono sempre marcati con il Capitolo NTC;
 la View non interpreta l’esito (nessuna logica OK/NO).
 
-
-6. Stato finale
+1. Stato finale
 ✅ View risultati completa ✅ Allineata al ProjectModel ✅ Integrata nel workflow GUI ✅ Pronta per esportazione in relazione di calcolo
-
 
 Questo file è vincolante per la visualizzazione dei risultati di verifica nel software NTC2018.

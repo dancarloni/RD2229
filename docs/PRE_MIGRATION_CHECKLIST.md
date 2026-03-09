@@ -31,4 +31,5 @@
    - Eliminare ogni riferimento residuo a tkinter/ttk nei moduli attivi.
 
 10. **Comunicazione**
-   - Notificare il team della migrazione e delle nuove entrypoint GUI.
+
+- Notificare il team della migrazione e delle nuove entrypoint GUI.

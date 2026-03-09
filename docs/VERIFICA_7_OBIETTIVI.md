@@ -9,6 +9,7 @@ Data: 4 febbraio 2026
 **File**: `sections_app/ui/section_manager.py` - `SectionManager._build_ui()`
 
 **Implementazione**:
+
 ```python
 # Calcola larghezza finestra sommando le colonne + margini
 try:
@@ -23,6 +24,7 @@ except Exception as e:
 ```
 
 **Effetto**:
+
 - ✅ Finestra si apre con larghezza calcolata (~1825 px)
 - ✅ Se non possibile evitare scrollbar, mantiene comunque buone dimensioni
 - ✅ Fallback su 1600×550 se calcolo fallisce
@@ -34,6 +36,7 @@ except Exception as e:
 **File**: `sections_app/ui/section_manager.py` - dizionario `header_labels`
 
 **Implementazione** (tutte le colonne):
+
 ```python
 header_labels: Dict[str, str] = {
     # Dimensioni geometriche
@@ -89,6 +92,7 @@ header_labels: Dict[str, str] = {
 **File**: `sections_app/ui/main_window.py` - `save_section()` metodo
 
 **Logica implementata**:
+
 ```python
 if self.editing_section_id is None:
     # Modalità NUOVA sezione
@@ -103,6 +107,7 @@ else:
 ```
 
 **Flusso completo**:
+
 1. Section Manager → seleziona sezione → clicca "Modifica"
 2. MainWindow apre con `editing_section_id = section.id`
 3. Modifica parametri geometrici
@@ -112,6 +117,7 @@ else:
 7. **Nessuna nuova sezione creata** ✅
 
 **Label di stato**:
+
 ```python
 # Mostra visualmente se siamo in "modifica" o "nuova"
 "Modalità: Modifica sezione '{name}'\nID: {id_short}..."
@@ -124,6 +130,7 @@ else:
 **File**: `sections_app/ui/main_window.py` - `save_section()` metodo
 
 **Logica**:
+
 ```python
 # Calcola proprietà automaticamente se assenti o se parametri sono cambiati
 try:
@@ -155,10 +162,12 @@ except Exception as e:
 ## ✅ OBIETTIVO 5: Mantenere import/export CSV invariati
 
 **File**:
+
 - `sections_app/services/repository.py` - `CsvSectionSerializer`
 - `sections_app/models/sections.py` - `Section.to_dict()`
 
 **Verifica**:
+
 - ✅ CSV_HEADERS immutato: 25 campi
 - ✅ `export_to_csv()` usa sempre `section.to_dict()`
 - ✅ `import_from_csv()` usa `create_section_from_dict()`
@@ -172,6 +181,7 @@ except Exception as e:
 **File**: `sections_app/services/repository.py`
 
 **Metodo `update_section` implementato**:
+
 ```python
 def update_section(self, section_id: str, updated_section: Section) -> None:
     """Aggiorna una sezione esistente.
@@ -207,12 +217,14 @@ def update_section(self, section_id: str, updated_section: Section) -> None:
 ```
 
 **Logging a DEBUG**: ✅ Implementato per:
+
 - Update vs add
 - ID della sezione
 - Conflitti di chiavi logiche
 - Errori di non trovato
 
 **Effetto**:
+
 - ✅ Update chiaramente separato da add
 - ✅ Nessun duplicato creato
 - ✅ Ordine mantenuto coerente
@@ -223,10 +235,12 @@ def update_section(self, section_id: str, updated_section: Section) -> None:
 ## ✅ OBIETTIVO 7: Sincronizzazione interfaccia dopo add/update/delete
 
 **File**:
+
 - `sections_app/ui/section_manager.py` - `reload_sections_in_treeview()`
 - `sections_app/ui/main_window.py` - `save_section()` con reload
 
-### Metodo reload implementato:
+### Metodo reload implementato
+
 ```python
 def reload_sections_in_treeview(self) -> None:
     """Public API: ricarica tutte le sezioni nel treeview (chiamabile dopo add/update/delete)."""
@@ -234,7 +248,8 @@ def reload_sections_in_treeview(self) -> None:
     self._refresh_table()
 ```
 
-### Integrazione in save_section:
+### Integrazione in save_section
+
 ```python
 # Se il manager è aperto, ricarica la tabella
 mgr = getattr(self, "section_manager", None)
@@ -250,7 +265,8 @@ else:
         self.section_manager = None
 ```
 
-### Integrazione in _delete_section:
+### Integrazione in _delete_section
+
 ```python
 def _delete_section(self) -> None:
     section = self._get_selected_section()
@@ -270,6 +286,7 @@ def _delete_section(self) -> None:
 ```
 
 **Effetto**: ✅ Treeview sempre sincronizzato dopo:
+
 - **add_section** → MainWindow ricarica manager
 - **update_section** → MainWindow ricarica manager
 - **delete_section** → Section Manager ricarica direttamente
@@ -279,6 +296,7 @@ def _delete_section(self) -> None:
 ## 📋 Logging a DEBUG implementato
 
 Aggiunti log in punti cruciali:
+
 ```
 ✅ update_section: "Updating section {id} with {section}"
 ✅ update_section: "Sezione aggiornata: {id}"
@@ -326,6 +344,7 @@ Aggiunti log in punti cruciali:
 ## 🚀 Comportamento finale integrato
 
 ### Nuova sezione
+
 1. MainWindow in modalità "Nuova sezione"
 2. Compila parametri, clicca "Salva nell'archivio"
 3. Sistema calcola proprietà automaticamente
@@ -333,6 +352,7 @@ Aggiunti log in punti cruciali:
 5. Section Manager (se aperto) si ricarica automaticamente
 
 ### Modifica sezione
+
 1. Section Manager → seleziona sezione → clicca "Modifica"
 2. MainWindow apre con `editing_section_id = section.id`
 3. Modifica parametri geometrici
@@ -343,12 +363,14 @@ Aggiunti log in punti cruciali:
 8. Label mostra "Modalità: Modifica sezione 'Nome' ID: xxx..."
 
 ### Eliminazione sezione
+
 1. Section Manager → seleziona sezione → clicca "Elimina"
 2. Chiede conferma
 3. Elimina da repository
 4. Treeview si aggiorna rimuovendo la riga
 
 ### Import/Export CSV
+
 - Continua a funzionare invariato
 - Tutti i 25 campi esportati/importati
 - Log dettagliato di ogni operazione

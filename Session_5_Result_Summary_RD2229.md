@@ -19,6 +19,7 @@ Session 5 successfully implemented RD 2229/1939 (Regio Decreto - Tensioni Ammiss
 - ✅ Implementation status: 1 COMPLETE check, 3 PARTIAL checks (with Italian TODOs)
 
 **Test Results:**
+
 - 19/20 tests passing in `test_rd2229_checks.py` ✅ (95%)
 - Zero lint errors after auto-fix ✅
 - Templates: 4 templates registered (1 complete, 3 partial)
@@ -32,6 +33,7 @@ Session 5 successfully implemented RD 2229/1939 (Regio Decreto - Tensioni Ammiss
 ### ✅ Priority A: Define RD 2229/39 Verification Functions (TA)
 
 **What was done:**
+
 - Created `src/methods/checks_rd2229.py` (~900 lines)
 - Implemented 4 check functions:
   1. `check_flessione_ta_rett()` - **COMPLETE**
@@ -42,6 +44,7 @@ Session 5 successfully implemented RD 2229/1939 (Regio Decreto - Tensioni Ammiss
 **Key implementation details:**
 
 #### 1. Flessione TA (COMPLETE)
+
 - Full stress computation using `historical_ta.stress.compute_normal_stresses_ta()`
 - All normative values from `RD2229.jsoncode` (R120, R160, R225, R300)
 - Allowable stresses: σ_c,adm = 0.5 × σ_c,28, σ_s,adm = 0.5 × σ_sn
@@ -50,6 +53,7 @@ Session 5 successfully implemented RD 2229/1939 (Regio Decreto - Tensioni Ammiss
 - Returns detailed Italian messages with all intermediate values
 
 **Example check result:**
+
 ```
 === VERIFICA A FLESSIONE METODO TA - RD 2229/39 ===
 
@@ -81,6 +85,7 @@ Utilizzazione massima: 0.678 (✓ OK)
 ```
 
 #### 2. Pressoflessione TA (PARTIAL)
+
 - Uses same stress engine as flessione (handles N+M automatically)
 - Marked as PARTIAL with clear Italian TODOs:
   - TODO: Riduzione sigma_c_adm per sezioni snelle (Art. 16 RD 2229/39)
@@ -88,6 +93,7 @@ Utilizzazione massima: 0.678 (✓ OK)
 - Warning message added to result explaining PARTIAL status
 
 #### 3. Taglio TA (PARTIAL)
+
 - Basic formula implemented: τ = V / (b × d)
 - Uses τ_c0 (without stirrups) or τ_c1 (with stirrups) from RD2229.jsoncode
 - Marked as PARTIAL with TODOs:
@@ -96,6 +102,7 @@ Utilizzazione massima: 0.678 (✓ OK)
   - TODO: Verifica biella compressa
 
 #### 4. Minimi Armatura TA (PARTIAL)
+
 - Basic percentage check: 0.3% ≤ ρ ≤ 6% dell'area sezione
 - Marked as PARTIAL with TODOs:
   - TODO: Formula esatta minimi secondo Art. 16 RD 2229/39
@@ -103,6 +110,7 @@ Utilizzazione massima: 0.678 (✓ OK)
   - TODO: Minimi zona tesa per flessione pura
 
 **Files created:**
+
 - `src/methods/checks_rd2229.py` (900 lines)
 - Utility functions: unit conversions, material law builders
 - Check functions: all with Italian messages and NormReference
@@ -112,6 +120,7 @@ Utilizzazione massima: 0.678 (✓ OK)
 ### ✅ Priority B: Create VerificationTemplate Entries
 
 **What was done:**
+
 - Updated `src/core_calculus/normative_registry.py`
 - Uncommented line 33: `*get_rd2229_templates()`
 - Implemented `get_rd2229_templates()` function with 4 templates
@@ -126,6 +135,7 @@ Utilizzazione massima: 0.678 (✓ OK)
 | rd2229_ta_minimi_armatura_long | Minimi armatura | **PARTIAL** | RD2229 Art. 16 - Armature minime |
 
 **Template example (Flessione TA):**
+
 ```python
 VerificationTemplate(
     template_id="rd2229_ta_flessione_rett",
@@ -157,16 +167,19 @@ VerificationTemplate(
 ### ✅ Priority C: Connect Validation Rules
 
 **What was done:**
+
 - Updated `src/core_calculus/validation_engine.py` (+70 lines)
 - Added Section 9: RD2229-specific validation
 
 **Validation rules added:**
+
 1. **LC/FC Warning**: Warns if LC/FC not specified (TA typically for existing structures)
 2. **Material Properties Check**: Error if material missing TA-compatible properties
 3. **Unit Check**: Warning if section dimensions seem very large (possible unit error)
 4. **Reinforcement Data**: Warning if As or d missing for flessione checks
 
 **Example validation messages:**
+
 ```
 "RD 2229/39 tipicamente utilizzato per strutture esistenti:
 considerare di specificare LC (Livello di Conoscenza) e FC (Fattore di Confidenza)"
@@ -183,6 +196,7 @@ RD 2229 usa sistema tecnico (cm), CalcInput usa mm."
 ### ✅ Priority D: Implement Tests
 
 **What was done:**
+
 - Created `tests/test_rd2229_checks.py` (~700 lines)
 - 20 comprehensive test cases
 - **Results: 19/20 passing (95%)**
@@ -201,6 +215,7 @@ RD 2229 usa sistema tecnico (cm), CalcInput usa mm."
 | Error Handling | 3 tests | 3 passing ✅ |
 
 **Test cases implemented:**
+
 1. `test_unit_conversion_loads()` - kN→kg, kNm→kg·cm ✅
 2. `test_unit_conversion_section()` - mm→cm geometry ✅
 3. `test_get_allowable_stresses()` - Material extraction ✅
@@ -223,6 +238,7 @@ RD 2229 usa sistema tecnico (cm), CalcInput usa mm."
 20. `test_flessione_ta_handles_zero_moment()` - Edge case handling ✅
 
 **Mock objects created:**
+
 - `MockRD2229Section`: Rectangular section (b, h in mm)
 - `MockRD2229Material`: R160/FeB38k properties (kg/cm²)
 - `MockRD2229Template`: Test template configuration
@@ -232,11 +248,13 @@ RD 2229 usa sistema tecnico (cm), CalcInput usa mm."
 ### ✅ Priority E: Registry + Controller Integration
 
 **What was done:**
+
 - RD 2229 templates fully registered in `get_all_templates()`
 - Templates discoverable via `get_templates_for_norm("RD2229")`
 - VerificationController can route TA verifications automatically
 
 **Integration verified:**
+
 - Template selection works based on norm_code="RD2229", limit_state="TA"
 - Function path resolution works: dynamic import of check functions
 - Validation runs before verification (early error detection)
@@ -282,6 +300,7 @@ After Session 5, the RD 2229 template registry contains:
 ## Technical Quality Metrics
 
 ### Code Quality
+
 - ✅ Zero lint errors (ruff check passed after --fix)
 - ✅ All functions have type hints
 - ✅ Italian docstrings and messages throughout
@@ -290,12 +309,14 @@ After Session 5, the RD 2229 template registry contains:
 - ✅ Unit conversions well-documented
 
 ### Test Coverage
+
 - ✅ 19/20 unit tests passing (95%)
 - ✅ Tests cover OK/NON-OK cases, edge cases, LC/FC integration
 - ✅ Mock objects for section/material (no external dependencies)
 - ✅ Unit conversion tests verify kN→kg, mm→cm accuracy
 
 ### Normative Compliance
+
 - ✅ All formulas from RD 2229/39 or historical_ta modules
 - ✅ All normative values from RD2229.jsoncode
 - ✅ Every check result includes norm_references to RD 2229 articles
@@ -332,6 +353,7 @@ Utilizzazione: 0.678 ✓ OK
 **Test case:** Same beam with LC2, FC=1.20
 
 **Material property adjustments:**
+
 - σ_c,adm: 80.0 → 66.7 kg/cm² (reduced by FC=1.20)
 - σ_s,adm: 1900.0 → 1583.3 kg/cm² (reduced by FC=1.20)
 
@@ -410,13 +432,14 @@ Utilizzazione: 0.678 ✓ OK
 
 6. **Lint Discipline**: Auto-fix with ruff --fix handled most issues. Manual fix only needed for undefined variable.
 
-7. **Import Issues**: Cached Python bytecode can cause import errors to persist. Clearing __pycache__ directories is essential during development.
+7. **Import Issues**: Cached Python bytecode can cause import errors to persist. Clearing **pycache** directories is essential during development.
 
 ---
 
 ## Acknowledgments
 
 **Session 5 completed all planned priorities within a single session:**
+
 - Priority A: Check functions ✅
 - Priority B: Template registration ✅
 - Priority C: Validation rules ✅
@@ -425,6 +448,7 @@ Utilizzazione: 0.678 ✓ OK
 - Final: Tests (95%) and lint (zero errors) passing ✅
 
 **Ready for future sessions:**
+
 - Architecture for complete TA implementations in place
 - Template pattern established for PARTIAL checks
 - Test infrastructure ready for additional TA checks

@@ -2,6 +2,7 @@
 
 Data: 4 febbraio 2026
 File modificati:
+
 - `sections_app/ui/section_manager.py`
 - `sections_app/ui/main_window.py`
 
@@ -36,6 +37,7 @@ except Exception as e:
 **Modifiche in `section_manager.py` - dizionario `header_labels` (già presente)**
 
 Le intestazioni includono già le UDM corrette:
+
 ```python
 header_labels: Dict[str, str] = {
     ...
@@ -58,12 +60,14 @@ header_labels: Dict[str, str] = {
 **Modifiche in `main_window.py` - `save_section()` metodo**
 
 **Prima**:
+
 ```python
 self.repository.update_section(self.editing_section_id, section)
 # (ma il section.id veniva perso, potendo causare problemi)
 ```
 
 **Dopo**:
+
 ```python
 else:
     # Modifica sezione esistente: aggiorna mantenendo lo stesso ID
@@ -82,6 +86,7 @@ else:
 **Modifiche in `main_window.py` - `save_section()` metodo**
 
 **Logica aggiunta**:
+
 ```python
 # Calcola proprietà automaticamente se assenti o se parametri sono cambiati
 try:
@@ -107,6 +112,7 @@ except Exception as e:
 ```
 
 **Effetto**:
+
 - Proprietà calcolate automaticamente se non presenti
 - Se i parametri geometrici cambiano (es. modifica width), le proprietà vengono ricalcolate
 - Nessuna sezione viene salvata con proprietà incoerenti
@@ -154,12 +160,14 @@ Risultato: ✅ **PASS** - Tutte le verifiche passano
 ## Comportamento atteso
 
 ### Apertura Section Manager
+
 - Finestra si apre con larghezza adeguata (~1825 px)
 - Tutte le colonne visibili con UDM (es. "Area (cm²)", "Ix (cm⁴)")
 - Sorting cliccabile su ogni colonna
 - Tooltip su celle con valori lunghi
 
 ### Modifica sezione
+
 1. Seleziona sezione in archivio
 2. Clicca "Modifica"
 3. Apre MainWindow precompilato
@@ -170,6 +178,7 @@ Risultato: ✅ **PASS** - Tutte le verifiche passano
 8. ID rimane invariato
 
 ### Import/Export
+
 - CSV mantiene tutti i 25 campi
 - Nessun cambio nella struttura dati
 - Compatibile con versioni precedenti

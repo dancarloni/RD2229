@@ -3,7 +3,9 @@
 Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md`.
 
 ## Flusso 1 — Creazione progetto + setup norma
+
 Input:
+
 - nome progetto
 - norma attiva
 - metadati minimi
@@ -18,7 +20,9 @@ Estensioni plugin:
 - hook `on_project_created`
 
 ## Flusso 2 — Definizione entità di modello
+
 Input:
+
 - materiali, sezioni, elementi
 - load case + combinazioni
 Output:
@@ -33,7 +37,9 @@ Estensioni plugin:
 - validator per categorie specifiche (es. secondari, incendio)
 
 ## Flusso 3 — Esecuzione verifica + report + persistenza risultati
+
 Input:
+
 - check request (elemento, combinazione, check_code)
 - parametri normativi caricati da `.jsoncode`
 Output:
@@ -49,9 +55,11 @@ Estensioni plugin:
 - nuovo formato report
 
 ## LOCKED
+
 - Pipeline minima end-to-end deve essere ripetibile headless.
 - Ogni esecuzione produce trace verificabile.
 
 ## OPEN
+
 - Orchestrazione asincrona multi-run.
 - Scheduling batch.

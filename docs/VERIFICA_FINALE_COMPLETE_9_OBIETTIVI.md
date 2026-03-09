@@ -8,9 +8,11 @@ Status: **100% COMPLETATO**
 ## 🎯 Verifiche effettuate
 
 ### ✅ OBIETTIVO 1: Larghezza finestra archivio sezioni
+
 **File**: `sections_app/ui/section_manager.py` (linee 257-270)
 
 Verifica:
+
 ```python
 # Calcola larghezza finestra sommando le colonne + margini
 try:
@@ -23,7 +25,9 @@ except Exception as e:
     logger.debug(f"Larghezza dinamica fallita: {e}")
     self.geometry("1600x550")
 ```
+
 ✅ **Status**: IMPLEMENTATO
+
 - Finestra ~1825 px calcolata
 - Scrollbar mantenuta se necessaria
 - Fallback intelligente
@@ -31,9 +35,11 @@ except Exception as e:
 ---
 
 ### ✅ OBIETTIVO 2: UDM intestazioni colonne
+
 **File**: `sections_app/ui/section_manager.py` (linee 209-240)
 
 Verifica mappatura header_labels:
+
 ```python
 header_labels: Dict[str, str] = {
     # Dimensioni geometriche (cm)
@@ -79,14 +85,17 @@ header_labels: Dict[str, str] = {
     "note": "Note",
 }
 ```
+
 ✅ **Status**: IMPLEMENTATO - 25 colonne con UDM complete
 
 ---
 
 ### ✅ OBIETTIVO 3: Fix "Modifica sezione" - no duplicati
+
 **File**: `sections_app/ui/main_window.py` (linee 493-560)
 
 Verifica:
+
 ```python
 # OBIETTIVO 3: Modifica non crea nuova sezione, fa update della sezione esistente
 if self.editing_section_id is None:
@@ -105,6 +114,7 @@ else:
 ```
 
 **Label di stato** visibile:
+
 ```python
 def _update_editing_mode_label(self) -> None:
     """Aggiorna la label che mostra lo stato editing corrente."""
@@ -122,6 +132,7 @@ def _update_editing_mode_label(self) -> None:
 ```
 
 ✅ **Status**: IMPLEMENTATO
+
 - Modalità visibile: "Modalità: Nuova sezione" (blu) o "Modalità: Modifica sezione" (arancio)
 - ID preservato durante modifica
 - Nessun duplicato creato
@@ -129,9 +140,11 @@ def _update_editing_mode_label(self) -> None:
 ---
 
 ### ✅ OBIETTIVO 4: Calcolo proprietà automatico
+
 **File**: `sections_app/ui/main_window.py` (linee 498-523)
 
 Verifica:
+
 ```python
 # OBIETTIVO 4: Calcola proprietà automaticamente se assenti o se parametri sono cambiati
 try:
@@ -158,6 +171,7 @@ except Exception as e:
 ```
 
 ✅ **Status**: IMPLEMENTATO
+
 - Rileva se proprietà assenti → calcola
 - Rileva se parametri cambiati → ricalcola
 - Nessuna sezione incoerente salvata
@@ -165,9 +179,11 @@ except Exception as e:
 ---
 
 ### ✅ OBIETTIVO 5: CSV invariato
+
 **File**: `sections_app/services/repository.py`, `sections_app/models/sections.py`
 
 Verifica:
+
 - ✅ CSV_HEADERS: 25 campi immutati
 - ✅ `Section.to_dict()`: funziona come prima
 - ✅ `CsvSectionSerializer`: invariato
@@ -178,9 +194,11 @@ Verifica:
 ---
 
 ### ✅ OBIETTIVO 6: Repository con update_section()
+
 **File**: `sections_app/services/repository.py` (linee 30-60)
 
 Verifica:
+
 ```python
 def update_section(self, section_id: str, updated_section: Section) -> None:
     """Aggiorna una sezione esistente.
@@ -216,6 +234,7 @@ def update_section(self, section_id: str, updated_section: Section) -> None:
 ```
 
 ✅ **Status**: IMPLEMENTATO
+
 - Verifica sezione esiste (KeyError se non trovata)
 - Rilevamento conflitti chiave logica (ValueError)
 - Logging DEBUG dettagliato
@@ -224,9 +243,11 @@ def update_section(self, section_id: str, updated_section: Section) -> None:
 ---
 
 ### ✅ OBIETTIVO 7: Sincronizzazione interfaccia
+
 **File**: `sections_app/ui/section_manager.py` (linee 307-316), `sections_app/ui/main_window.py` (linee 552-559)
 
 Verifica:
+
 ```python
 # Section Manager: reload_sections_in_treeview()
 def reload_sections_in_treeview(self) -> None:
@@ -245,6 +266,7 @@ if mgr and getattr(mgr, "winfo_exists", None) and mgr.winfo_exists():
 ```
 
 ✅ **Status**: IMPLEMENTATO
+
 - Sincronizzazione dopo add_section
 - Sincronizzazione dopo update_section
 - Sincronizzazione dopo delete_section
@@ -253,9 +275,11 @@ if mgr and getattr(mgr, "winfo_exists", None) and mgr.winfo_exists():
 ---
 
 ### ✅ OBIETTIVO 8: UX cambio tipologia
+
 **File**: `sections_app/ui/main_window.py` (linee 226-271)
 
 Verifica funzionamento cambio tipologia:
+
 ```python
 def _on_section_change(self, _event=None) -> None:
     """Handler per cambio tipologia sezione - ricostruisce campi input dinamicamente."""
@@ -285,6 +309,7 @@ def _on_section_change(self, _event=None) -> None:
 ```
 
 ✅ **Status**: IMPLEMENTATO
+
 - Cambio tipologia → mostra pannello corretto
 - Ricostruisce campi dinamicamente
 - Pulisce output e grafica
@@ -293,9 +318,11 @@ def _on_section_change(self, _event=None) -> None:
 ---
 
 ### ✅ OBIETTIVO 9: Test automatizzati randomizzati
+
 **File**: `tests/test_sections_random_demo.py` (269 linee)
 
 Verifica contenuti:
+
 ```python
 class TestRectangularSectionProperties(unittest.TestCase):
     """Test per sezioni rettangolari con dimensioni casuali."""
@@ -321,6 +348,7 @@ class TestSectionEdgeCases(unittest.TestCase):
 ```
 
 **Test verificati**:
+
 - ✅ Area positiva
 - ✅ Momenti di inerzia non negativi
 - ✅ Raggi giratori positivi
@@ -331,6 +359,7 @@ class TestSectionEdgeCases(unittest.TestCase):
 - ✅ Input non validi sollevano eccezioni
 
 **Risultati esecuzione**:
+
 ```
 Ran 7 tests in 0.002s
 OK ✅
@@ -362,6 +391,7 @@ Tutte le operazioni critiche hanno logging DEBUG:
 ## 🧪 Test eseguiti con successo
 
 ### Test Unit (randomizzati)
+
 ```
 ✓ Rettangolari (3 random): PASS
 ✓ Circolari (3 random): PASS
@@ -375,6 +405,7 @@ Total: 7/7 tests PASS ✅
 ```
 
 ### Test di Integrazione (manualmente verificati)
+
 ```
 ✓ Cambio tipologia → pannello aggiornato
 ✓ Nuova sezione → add_section() + sync UI

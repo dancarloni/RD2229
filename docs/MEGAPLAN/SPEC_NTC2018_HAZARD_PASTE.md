@@ -1,14 +1,13 @@
 
 SPEC — NTC2018 Hazard Paste (EdiLus‑MS) — PLAN‑ONLY
 
-
 Scopo: specificare in modo vincolante lo schema dati, le validazioni minime e le regole di parsing del testo incollato dalla tabella EdiLus‑MS (parametri di pericolosità sismica) per uso NTC2018.
 
-
-0. Contesto e fonti
+1. Contesto e fonti
 
 La sorgente esterna è EdiLus‑MS (ACCA), che restituisce una tabella copiabile come testo con colonne Tr[anni], ag/g, F0, Tc\* e righe per gli stati limite (Operatività, Danno, Salvaguardia Vita, Prevenzione Collasso).
 Questo modulo non calcola l’interpolazione della pericolosità di base; importa e normalizza dati forniti dall’applicativo esterno.
+
 1. Decisioni vincolanti (Fase PLAN)
 
 Percorso canonico servizio: src/codes/ntc2018/spectrum_paste_service.py (VINCOLANTE).
@@ -43,11 +42,9 @@ Danno
 Salvaguardia Vita
 Prevenzione Collasso
 
-
 Nota: l’input utente dichiara che la tabella incollata contiene esattamente tutte le etichette; il parser non deve inventare mapping alternativi.
 
-
-4. Regole di parsing (deterministiche)
+1. Regole di parsing (deterministiche)
 4.1 Pre‑clean
 
 Normalizzare fine riga \r\n → \n.
@@ -64,6 +61,7 @@ Il parser deve ignorare intestazioni/righe non candidate (es. titoli colonna).
 4.4 Estrazione numeri
 
 Da ogni riga candidata estrarre nell’ordine i primi 4 numeri:
+
 1) Tr (anni)  2) ag/g  3) F0  4) Tc* (s)
 
 Se una riga contiene più di 4 numeri: usare i primi 4 e aggiungere messaggio WARNING.
@@ -89,11 +87,9 @@ parse_edilus_ms_table(raw_paste: str) -> (parsed_rows, messages, quality)
 build_profile(class_of_use, vita_nominale_years, vr_years, site_label, raw_paste) -> Ntc2018HazardProfile
 get_hazard_params(profile, limit_state_label) -> (tr_years, ag_g, f0, tc_star_s)
 
-
 In questa fase non è richiesto generare lo spettro Sa(T). Si prepara solo la base dati coerente con NTC2018 per integrazioni future.
 
-
-7. Criteri di accettazione (SPEC)
+1. Criteri di accettazione (SPEC)
 
 Il parser riconosce correttamente le 4 etichette §3 e produce 4 righe valide quando presenti.
 Il parser accetta sia . che , come separatore decimale senza perdita informativa.

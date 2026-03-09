@@ -92,6 +92,7 @@ Il file JSON contiene un array di sezioni con tutte le loro proprietà:
 Inizializza il repository e carica le sezioni dal file JSON se esiste.
 
 **Parametri**:
+
 - `json_file` (str, opzionale): Percorso del file JSON. Default: `"sections.json"`
 
 ### `load_from_file() -> None`
@@ -99,6 +100,7 @@ Inizializza il repository e carica le sezioni dal file JSON se esiste.
 Carica tutte le sezioni dal file JSON.
 
 **Comportamento**:
+
 - Se il file non esiste, il repository rimane vuoto
 - Se il file esiste, carica tutte le sezioni
 - Registra errori a livello DEBUG/WARNING
@@ -108,6 +110,7 @@ Carica tutte le sezioni dal file JSON.
 Salva tutte le sezioni nel file JSON.
 
 **Comportamento**:
+
 - Crea il file se non esiste
 - Crea la directory se non esiste
 - Sovrascrive il file se esiste
@@ -166,15 +169,19 @@ repo = SectionRepository(json_file="my_custom_sections.json")
 ## Gestione degli errori
 
 ### File JSON non esiste
+
 - ✅ **Comportamento**: Repository inizia vuoto, salva il primo file JSON automaticamente
 
 ### File JSON corrotto
+
 - ✅ **Comportamento**: Registra errore, repository rimane vuoto, prossimo salvataggio sovrascrive il file corrotto
 
 ### Directory non esiste
+
 - ✅ **Comportamento**: Viene creata automaticamente durante il salvataggio
 
 ### Permessi insufficienti
+
 - ⚠️ **Comportamento**: Registra errore, operazione continua in memoria (ma non persiste)
 
 ## Esempi

@@ -120,46 +120,38 @@ Aggiungo ora il supporto `MODULE_SPEC` nel registry esistente mantenendo retroco
 
 Generating patch (49 lines) in [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/plugin_registry.py)
 
-
 ```
 
 ```
-
 
 Created [](file:///c%3A/Users/danca/workspaces/RD2229/config/calculation_codes/MVP_PLACEHOLDER.jsoncode)
 
 Generating patch (49 lines) in [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/mvp/plugins.py)
 
-
 ```
 
 ```
-
 
 Generating patch (9 lines) in [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/mvp/pipeline.py)
 
-
 ```
 
 ```
-
 
 Created [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/mvp/contracts.py)
 
 Generating patch (22 lines) in [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/mvp/engine.py)
 
-
 ```
 
 ```
-
 
 Generating patch (13 lines) in [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/mvp/__init__.py)
 
-
 ```
 
 ```
+
 Ora aggiungo i test minimi richiesti (round-trip SQLite, invarianti, migrazione schema, trace contract, end-to-end headless) mantenendoli indipendenti dal resto della suite.
 
 Created [](file:///c%3A/Users/danca/workspaces/RD2229/tests/test_mvp_sqlite_roundtrip.py)
@@ -191,23 +183,27 @@ Starting: *Summarize files commands decisions* (7/7)
 Completed: *Summarize files commands decisions* (7/7)
 
 **Esito**
+
 - Completate le 4 fasi richieste: normalizzazione requisiti da AGGREGAZIONE.md, SPEC LOCKED, MVP SQLite+pipeline, test minimi.
 - MVP implementato in modulo isolato mvp con separazione `Model/Engine/Repository/Config`.
 - Plugin/discovery esteso mantenendo retrocompatibilità API esistenti.
 
 **File creati/modificati**
+
 - Documentazione: ARCHITECTURE.md, SPEC_01_Domain_Model.md, SPEC_01A_Domain_Model_Insufficienze.md, SPEC_02_Flows.md, SPEC_03_DataLayer_SQLite.md, SPEC_04_Plugins_and_jsoncode.md, SPEC_05_VBA_Migration_and_TestStrategy.md.
 - Config: MVP_PLACEHOLDER.jsoncode.
-- Core MVP: models.py, sqlite_store.py, repositories.py, jsoncode_loader.py, engine.py, contracts.py, plugins.py, pipeline.py, __init__.py.
+- Core MVP: models.py, sqlite_store.py, repositories.py, jsoncode_loader.py, engine.py, contracts.py, plugins.py, pipeline.py, **init**.py.
 - Plugin registry esteso: plugin_registry.py.
 - Test aggiunti: test_mvp_sqlite_roundtrip.py, test_mvp_domain_invariants.py, test_mvp_schema_migration.py, test_mvp_result_trace_contract.py, test_mvp_end_to_end.py.
 
 **Verifica eseguita**
+
 - Nuovi test MVP: `6 passed, 0 failed`.
 - Regressione mirata esistente (`plugin_registry`/`project_store`): `2 passed, 0 failed`.
 - Suite completa: `508 passed, 2 failed` per issue preesistente di import package `rd2229` in test_app_launch.py e test_entrypoint_no_pyside.py (non introdotto dal nuovo MVP).
 
 **Comandi demo e test**
+
 ```powershell
 python -c "from src.rd2229.mvp.pipeline import run_mvp_demo; print(run_mvp_demo('tmp/mvp_demo.db','config/calculation_codes/MVP_PLACEHOLDER.jsoncode'))"
 pytest -q tests/test_mvp_sqlite_roundtrip.py tests/test_mvp_domain_invariants.py tests/test_mvp_schema_migration.py tests/test_mvp_result_trace_contract.py tests/test_mvp_end_to_end.py
@@ -215,6 +211,7 @@ pytest -q
 ```
 
 **Decisioni best-judgment documentate**
+
 - SQLite come persistenza primaria MVP con migrazione `PRAGMA user_version` + metadata.
 - `MODULE_SPEC` aggiunto al registry esistente senza rompere `register/get/list_plugins`.
 - Verifica MVP “placeholder dichiarata” con trace obbligatorio (`run_id`, `norm_references[]`) e TODO normativi espliciti, senza inventare valori di norma.

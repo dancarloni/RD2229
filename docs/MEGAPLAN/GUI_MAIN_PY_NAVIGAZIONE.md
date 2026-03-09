@@ -10,7 +10,6 @@ navigazione tra le View GUI;
 gestione centralizzata dello stato del progetto.
 Il file è vincolante e collega tutti i moduli già creati nel canvas.
 
-
 1. Ruolo di main.py
 main.py è:
 
@@ -21,8 +20,7 @@ viene mantenuta la navigazione;
 viene condiviso il ProjectModel.
 Nessuna logica normativa o di calcolo è implementata qui.
 
-
-2. Dipendenze (coerenti con i file nel canvas)
+1. Dipendenze (coerenti con i file nel canvas)
 Questo main.py presuppone l’esistenza dei seguenti file/moduli:
 
 project_model.py
@@ -31,28 +29,30 @@ gui/views/sollecitazioni.py
 gui/views/risultati.py
 gui/binding/verification_engine_binding.py
 
-
-3. Codice – main.py
+1. Codice – main.py
 
 import tkinter as tk
 from tkinter import ttk, messagebox
 
 # --- Model
+
 from project_model import ProjectModel
 
 # --- Repository (archivi esistenti)
+
 from repositories.materiali_repository import MaterialiRepository
 from repositories.sezioni_repository import SezioniRepository
 
 # --- GUI Views
+
 from gui.views.sezioni_materiali import SezioniMaterialiView
 from gui.views.sollecitazioni import SollecitazioniView
 from gui.views.risultati import RisultatiView
 
 # --- Binding GUI ↔ Core
+
 from gui.binding.verification_engine_binding import VerificationEngineBinding
 from core.verification.verification_factory import VerificationFactory
-
 
 class MainApplication(tk.Tk):
     """Applicazione principale GUI NTC2018."""
@@ -165,32 +165,25 @@ class MainApplication(tk.Tk):
         except Exception as e:
             messagebox.showerror("Errore", str(e))
 
-
 if __name__ == "__main__":
     app = MainApplication()
     app.mainloop()
 
-
-
-
-4. Logica di navigazione (riassunto)
+1. Logica di navigazione (riassunto)
 
 Sidebar → navigazione tra le View
 ProjectModel → stato condiviso
 VerificationEngineBinding → unico punto di esecuzione verifiche
 RisultatiView → sola lettura risultati
 
-
-5. Regole di sicurezza implementate
+1. Regole di sicurezza implementate
 
 nessuna View accede direttamente al core;
 nessuna View crea o interpreta risultati;
 le verifiche non possono essere eseguite senza dati minimi;
 il flusso è completamente tracciabile.
 
-
-6. Stato finale
+1. Stato finale
 ✅ main.py completo ✅ Navigazione GUI funzionante ✅ Collegamento a tutte le View ✅ Pronto per esecuzione reale Tkinter
-
 
 Questo file è vincolante per l’avvio e la navigazione dell’applicazione GUI NTC2018.

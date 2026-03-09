@@ -3,7 +3,6 @@ KB_DM_1996_TA – D.M. 9 gennaio 1996 (Tensioni Ammissibili)
 Status: NORMA STORICA AVANZATA – UTILIZZO CONSENTITO COME NORMA PRIMARIA O DI CONFRONTO
 Ruolo nella Knowledge Base: ultima e più evoluta normativa italiana basata sul criterio delle tensioni ammissibili per strutture in cemento armato, immediatamente precedente al passaggio concettuale agli stati limite.
 
-
 1. Identità normativa
 
 Titolo ufficiale: Decreto Ministeriale 9 gennaio 1996 – Norme tecniche per il calcolo, l’esecuzione ed il collaudo delle strutture in cemento armato, normale e precompresso
@@ -13,8 +12,7 @@ per verifiche a tensioni ammissibili evolute;
 per confronti tecnico‑normativi con NTC2018;
 in ambito di consulenza tecnica e valutazioni di sicurezza.
 
-
-2. Campo di applicazione
+1. Campo di applicazione
 Il DM 09/01/1996 si applica a:
 
 strutture in cemento armato ordinario;
@@ -34,8 +32,7 @@ verifiche di edifici esistenti progettati secondo DM96;
 confronto DM92 ↔ DM96 ↔ NTC2018;
 analisi di sicurezza con approccio storico coerente.
 
-
-3. Ipotesi fondamentali
+1. Ipotesi fondamentali
 Il DM 1996 si fonda sulle seguenti ipotesi:
 
 comportamento elastico lineare dei materiali;
@@ -50,8 +47,7 @@ stati limite di esercizio;
 progettazione in capacità;
 criteri di duttilità.
 
-
-4. Prescrizioni di calcolo
+1. Prescrizioni di calcolo
 Il DM 1996 prescrive che:
 
 l’analisi strutturale sia elastica lineare;
@@ -67,8 +63,7 @@ il metodo di analisi (Cross, elastico, FEM lineare) è esterno alla norma;
 la norma consuma tensioni ed effetti interni;
 l’esito è espresso come OK / NOT_OK / NOT_APPLICABLE.
 
-
-5. Limiti normativi
+1. Limiti normativi
 Il DM 1996 introduce:
 
 valori ammissibili ulteriormente aggiornati rispetto al DM92;
@@ -81,8 +76,7 @@ ogni limite è modellato come entità normativa KB‑driven;
 ogni valore deve essere citabile (capitolo/paragrafo);
 la mancanza di una prescrizione genera NOT_APPLICABLE.
 
-
-6. Rinvii e integrazioni
+1. Rinvii e integrazioni
 Il DM 1996:
 
 non rinvia formalmente agli Eurocodici;
@@ -95,8 +89,7 @@ DM 1992;
 NTC2018 (solo a fini comparativi e dichiarati);
 Eurocodici (solo come supporto tecnico esplicito, non automatico).
 
-
-7. Citazioni puntuali
+1. Citazioni puntuali
 Ogni riferimento al DM 09/01/1996 nella relazione di calcolo deve indicare:
 
 Norma: D.M. 09/01/1996
@@ -104,13 +97,9 @@ Capitolo / Paragrafo applicato
 Eventuale comma o tabella
 Formato concettuale consigliato:
 
-
 “Verifica eseguita secondo D.M. 09/01/1996, criterio delle tensioni ammissibili, § …”
 
-
-
-
-8. Uso nella relazione di calcolo
+1. Uso nella relazione di calcolo
 Quando il DM 1996 è utilizzato:
 
 deve essere dichiarato come norma primaria;
@@ -118,8 +107,7 @@ devono essere esplicitate le ipotesi elastiche;
 non devono essere introdotti criteri SLU/SLE;
 ogni confronto con NTC2018 deve essere separato, motivato e dichiarato.
 
-
-9. Integrazione con il software
+1. Integrazione con il software
 Nel framework:
 
 DM 1996 è esposto come CodeModule TA avanzato;
@@ -132,8 +120,7 @@ usare esclusivamente questo file come fonte normativa DM96;
 non introdurre coefficienti agli stati limite;
 segnalare TODO in caso di prescrizioni non presenti.
 
-
-10. Limiti di responsabilità
+1. Limiti di responsabilità
 Il DM 1996 non è idoneo per:
 
 progettazione di nuove strutture secondo normativa vigente;
@@ -142,14 +129,12 @@ progettazione in capacità;
 valutazioni di duttilità e comportamento post‑elastico.
 Il software deve segnalare tali casi come OUT_OF_SCOPE.
 
-
-11. Criteri di accettazione
+1. Criteri di accettazione
 Questa KB è conforme se:
 
 ogni verifica DM96 richiama questo file;
 ogni limite è tracciabile a un riferimento normativo;
 la relazione di calcolo è ricostruibile a posteriori;
 non esistono contaminazioni con criteri agli stati limite.
-
 
 Questo file fa parte integrante e vincolante della Knowledge Base normativa del progetto.

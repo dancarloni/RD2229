@@ -1,4 +1,5 @@
 **0) Executive Summary**
+
 - Stato corrente coerente con la direzione architetturale: SPEC LOCKED presenti, MVP isolato su SQLite attivo, test MVP verdi.
 - È confermata la strategia B: accettare temporaneamente 2 test rossi preesistenti, ma formalizzando blocco, workaround e criteri di uscita.
 - Priorità ora: trasformare il lavoro in backlog eseguibile in batch da Agent, con stream A–E indipendenti ma sequenziati.
@@ -10,6 +11,7 @@
 - Output sotto include due bozze complete pronte da incollare in docs/specs/PLAN_NEXT_IMPLEMENTATION.md e docs/specs/BLOCKERS.md.
 
 **1) Stato LOCKED vs OPEN**
+
 - **LOCKED**
 - Offline mono-utente, un progetto alla volta.
 - Separazione Model/Engine/Persistence/UI.
@@ -25,6 +27,7 @@
 - Scelta stream E (E1 Reportistica vs E2 Launcher integration) come priorità immediata.
 
 **2) Sezione A — Packaging / import / entrypoint**
+
 - **Scopo**
 - Rendere robusto avvio/import (`rd2229`, `python -m rd2229`, test runner) e chiudere i 2 blocker.
 - **Task**
@@ -32,7 +35,7 @@
 - Consolidare entrypoint runtime/test (CLI, Qt app, fallback no-PySide).
 - Definire policy unica di esecuzione test locali/CI.
 - **File toccati (pianificati)**
-- pyproject.toml, pytest.ini, test_app_launch.py, test_entrypoint_no_pyside.py, __main__.py, app.py.
+- pyproject.toml, pytest.ini, test_app_launch.py, test_entrypoint_no_pyside.py, **main**.py, app.py.
 - **Acceptance Criteria**
 - I 2 test rossi passano in ambiente standard CI senza workaround manuali.
 - `python -m rd2229` e script `rd2229` coerenti su exit code e messaggi.
@@ -42,6 +45,7 @@
 - Rischio fix fragile lato test-only → mitigare privilegiando root cause packaging.
 
 **3) Sezione B — MVP meno placeholder**
+
 - **Scopo**
 - Introdurre 1 verifica minima (semi-reale) al posto del puro placeholder, mantenendo tracciabilità legale.
 - **Task**
@@ -59,6 +63,7 @@
 - Rischio rottura compatibilità test esistenti → mitigare con doppio path (legacy placeholder + real-min).
 
 **4) Sezione C — Migrazione VBA (macro bandiera)**
+
 - **Scopo**
 - Avviare migrazione credibile e verificabile con una macro pilota ad alto valore.
 - **Task**
@@ -76,6 +81,7 @@
 - Rischio dipendenza da Excel non replicabile → mitigare con snapshot input/output statici.
 
 **5) Sezione D — Plugin/MODULE_SPEC + `.jsoncode`**
+
 - **Scopo**
 - Rendere contratti plugin/config rigorosi e verificabili.
 - **Task**
@@ -93,6 +99,7 @@
 - Rischio breaking change plugin → mitigare con compat versioning policy.
 
 **6) Sezione E — Quinto stream (2 opzioni)**
+
 - **E1 (raccomandata prudente): Reportistica e audit trail**
 - **Scopo**: standardizzare result contract + export JSON/HTML/PDF con metadati di audit.
 - **File**: reporting, SPEC_05_VBA_Migration_and_TestStrategy.md, nuovi test reporting.
@@ -106,15 +113,17 @@
 - **Raccomandazione**: partire da E1 per chiudere audit/compliance prima dell’integrazione UI.
 
 **7) Sequenza consigliata (Roadmap 1..N)**
+
 - 1) Stream A: chiusura blocker import/entrypoint e allineamento test runtime.
-- 2) Stream D: hardening MODULE_SPEC + `.jsoncode` validation/provenance.
-- 3) Stream B: verifica semi-reale + trace completo con TODO normativi.
-- 4) Stream C: macro bandiera + golden baseline.
-- 5) Stream E1 (raccomandata): report/audit standardizzati.
-- 6) Regressione full suite + consolidamento docs LOCKED/OPEN.
-- 7) Solo dopo: eventuale E2 launcher integration.
+- 1) Stream D: hardening MODULE_SPEC + `.jsoncode` validation/provenance.
+- 1) Stream B: verifica semi-reale + trace completo con TODO normativi.
+- 1) Stream C: macro bandiera + golden baseline.
+- 1) Stream E1 (raccomandata): report/audit standardizzati.
+- 1) Regressione full suite + consolidamento docs LOCKED/OPEN.
+- 1) Solo dopo: eventuale E2 launcher integration.
 
 **8) Checklist PR/commit (>=3 commit logici)**
+
 - **Commit 1 — `packaging+tests-hardening`**
 - Scope: stream A + aggiornamento blocker state.
 - Exit: 2 test rossi chiusi o formalmente confinati con workaround deterministico.
@@ -132,6 +141,7 @@
 - Exit: output standard con metadati audit.
 
 **9) Test strategy (mirati + regressione)**
+
 - **Per A**
 - Mirati: test_app_launch.py, test_entrypoint_no_pyside.py.
 - Regressione: smoke Qt + `pytest -q` completo.
@@ -308,6 +318,7 @@
 ```
 
 **Domande bloccanti (max 7, multiple-choice)**
+
 - 1) Priorità stream E?
 - A) E1 Reportistica/Audit (raccomandata)
 - B) E2 Launcher Integration
@@ -315,35 +326,35 @@
 - D) Nessuna nel prossimo ciclo
 - E) Altro
 
-- 2) Chiusura blocker A in questo ciclo?
+- 1) Chiusura blocker A in questo ciclo?
 - A) Obbligatoria prima di ogni altro stream (raccomandata prudente)
 - B) Dopo stream D
 - C) Dopo stream B
 - D) In ciclo successivo
 - E) Altro
 
-- 3) Macro bandiera VBA: criterio primario di scelta?
+- 1) Macro bandiera VBA: criterio primario di scelta?
 - A) Maggior frequenza d’uso (raccomandata)
 - B) Maggior rischio numerico
 - C) Maggior impatto commerciale
 - D) Più facile da migrare
 - E) Altro
 
-- 4) Livello rigore `.jsoncode` subito?
+- 1) Livello rigore `.jsoncode` subito?
 - A) Minimo obbligatorio + warning (raccomandata)
 - B) Strict schema completo immediato
 - C) Solo validazione sintattica
 - D) Nessuna validazione addizionale
 - E) Altro
 
-- 5) Policy TODO normativi in stream B?
+- 1) Policy TODO normativi in stream B?
 - A) Obbligatori con etichetta `TODO(NTC/EC/RD): ...` (raccomandata)
 - B) Facoltativi
 - C) Solo nei documenti, non nel trace
 - D) Rimandare al ciclo compliance
 - E) Altro
 
-- 6) Strategia commit?
+- 1) Strategia commit?
 - A) 5 commit (uno per stream principale, raccomandata)
 - B) 3 commit compressi
 - C) 1 mega commit

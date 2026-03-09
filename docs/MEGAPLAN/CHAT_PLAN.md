@@ -3,15 +3,16 @@ e gli incrementi. Analizzalo e generami UN Master Plan unico, senza duplicazioni
 compresso ma completo, secondo queste regole: [...]
 (PLAN ONLY, no code)
 
-
 GitHub Copilot: ## Master Plan consolidato — Integrazione NTC2018 (PLAN‑ONLY, senza codice) ✅
 
 ### Executive summary
+
 Sintesi compatta: creare un package `codes/ntc2018` + interfaccia `CodeModule` che espone controlli SLU/SLE/sismici, implementare le verifiche *calcestruzzo armato* (incluso il controllo di taglio **senza** staffe — V_Rd,c), aggiungere un modulo per **elementi secondari** (Cap. 7.2), modernizzare GUI/registry/storage e garantire test e CI. Tutto modulare, riuso massimo del codice esistente e separazione netta Core / GUI.
 
 ---
 
 ## Roadmap sintetica (fasi compatte)
+
 1. Fase 0 — Preparazione & test baseline  
 2. Fase 1 — API normativa: definire `CodeModule` (contract)  
 3. Fase 2 — Azioni & combinazioni (generator configurabile NTC2018)  
@@ -30,6 +31,7 @@ Sintesi compatta: creare un package `codes/ntc2018` + interfaccia `CodeModule` c
 ---
 
 ## Moduli chiave & responsabilità
+
 - `codes/ntc2018` (CodeModule NTC2018): esposizione `available_checks()`, `run_check(id, input)`, `list_templates()`  
 - `core/combinations`: generatore combinazioni NTC2018 → produce `LoadCase` per `VerificationEngine`  
 - `core/materials` (adapter): mapping `material_code` → `MaterialProperties` (reuse material_sources.py)  
@@ -40,6 +42,7 @@ Sintesi compatta: creare un package `codes/ntc2018` + interfaccia `CodeModule` c
 ---
 
 ## Fase 4 (RC) — estensione obbligatoria: Taglio senza armatura (V_Rd,c) — dettagli essenziali 🔧
+
 Obiettivo: implementare checks concettuali e test per elementi senza staffe.
 
 - Output richiesto dal check (contract):
@@ -59,6 +62,7 @@ Test‑cases (golden): PASS, FAIL, NOT_APPLICABLE, effetto assiale, SLE cracking
 ---
 
 ## Modulo “Elementi strutturali secondari” (Fase 6bis) — overview
+
 Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta.
 
 - Package: `codes/ntc2018/secondary_elements`  
@@ -74,6 +78,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## CodeModule — scelte di contratto (sintesi)
+
 - Metodi pubblici (plan-only): `available_checks()`, `run_check(check_id, CalcInput)`, `available_templates()`, `validate_input(schema)`  
 - Risposta standard: `{status, value, utilisation, steps[], norm_references[], messages[]}`  
 - `VerificationEngine` invoca checks tramite `CodeModule` (nessuna dipendenza diretta su file di implementazione)
@@ -81,6 +86,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## GUI / registry / storage — principi di intervento
+
 - GUI: aggiunta selector norma, editor combinazioni e pannelli risultati; callbacks senza logica normativa.  
 - Storage: estendere `projects` JSON con `secondary_elements[]` e `templates/secondary_elements/*.json`  
 - Backward compatibility: mantenere shims per RD2229/DM92/DM96; feature‑toggle per nuove funzioni.
@@ -88,6 +94,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Testing, validazione e documentazione
+
 - Per ogni check: unit tests + integration tests + 3+ golden numeric cases con tolleranze documentate.  
 - Acceptance: test‑suite verde + documentazione `docs/NTC2018.md` con riferimenti e decision flowcharts.  
 - Coverage target: >90% per nuovi moduli normativi.
@@ -95,6 +102,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Deliverables principali (per milestone)
+
 - API `CodeModule` specificata e documentata  
 - `codes/ntc2018` with RC checks incl. `V_Rd,c` (specs + tests)  
 - `codes/ntc2018/secondary_elements` (specs + templates)  
@@ -105,6 +113,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Acceptance criteria (essenziali)
+
 - Tutti i checks esposti da `CodeModule.available_checks()` e invocabili via `VerificationEngine`.  
 - `RC_SLU_VRDc_NoStirrups` e `RC_SLE_Cracking_NoStirrups`: OK/NOT_OK/NOT_APPLICABLE + normative refs + 3 golden tests.  
 - `SecondaryElementSpec` supporta min. 4 template e persistence in project storage.  
@@ -113,6 +122,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Rischi principali & mitigazioni
+
 - Ambiguità normativa → mitigare con fallback EC e tag `norm_reference`.  
 - Regressioni numeriche → mitigare con golden examples e test automatici.  
 - UI complexity → MVP + progressive enhancement, feature‑toggles.
@@ -120,6 +130,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Checklist compatta (azione immediata)
+
 - [ ] Test baseline verde (Fase 0)  
 - [ ] SPEC `CodeModule` (Fase 1)  
 - [ ] Combinatore NTC2018 + spectrum generator (Fase 2 / 5)  
@@ -131,6 +142,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Prossimi passi raccomandati (scegliere 1)
+
 1. Formalizzo la SPEC dettagliata per `RC_SLU_VRDc_NoStirrups` (input/output/casi test + norm refs).  
 2. Redigo lo schema `SecondaryElementSpec` + 4 template prioritari (mensola, insegna, tramezzo, camino).  
 3. Scrivo la SPEC contrattuale del `CodeModule` (API + risposta standard + mapping dei checks esistenti).
@@ -148,6 +160,7 @@ Creazione di [](file:///c%3A/workspaces/RD2229/RD2229/docs/MEGAPLAN/MEGAPLAN_NTC
 File creato: MEGAPLAN_NTC2018_MasterPlan.md
 
 Prossimi passi consigliati:
+
 1. Vuoi che formalizzi ora la SPEC dettagliata per `RC_SLU_VRDc_NoStirrups` (input/output/casi test)?  
 2. Oppure preferisci che prepari lo schema `SecondaryElementSpec` con 4 template prioritari?
 
@@ -163,7 +176,7 @@ Ran terminal command: $Out = 'docs/MEGAPLAN/tree_no_dot_cache.txt'
 "Workspace: $PWD" | Out-File $Out -Encoding utf8
 function Write-Tree {
   param($path, $prefix)
-  $items = Get-ChildItem -LiteralPath $path -Force | Where-Object { ($_.PSIsContainer -and ($_.Name -notmatch '(^\.|cache)')) -or -not $_.PSIsContainer } | Sort-Object @{Expression={$_.PSIsContainer};Descending=$true}, Name
+  $items = Get-ChildItem -LiteralPath $path -Force | Where-Object { ($*.PSIsContainer -and ($_.Name -notmatch '(^\.|cache)')) -or -not $*.PSIsContainer } | Sort-Object @{Expression={$_.PSIsContainer};Descending=$true}, Name
   for ($i=0; $i -lt $items.Count; $i++) {
     $item = $items[$i]
     $isLast = ($i -eq $items.Count - 1)
@@ -177,8 +190,10 @@ function Write-Tree {
     }
   }
 }
+
 # write root
-"$($PWD.Path.Split('\\')[-1])/" | Out-File $Out -Append -Encoding utf8
+
+"$($PWD.Path.Split['\\'](-1))/" | Out-File $Out -Append -Encoding utf8
 Write-Tree $PWD.Path ''
 "Saved: $Out" | Out-Host
 
@@ -206,8 +221,10 @@ function Write-Tree {
     }
   }
 }
+
 # write root name and tree
-"$($PWD.Path.Split('\\')[-1])/" | Out-File $Out -Append -Encoding utf8
+
+"$($PWD.Path.Split['\\'](-1))/" | Out-File $Out -Append -Encoding utf8
 Write-Tree $PWD.Path ''
 "Saved: $Out" | Out-Host
 
@@ -226,8 +243,8 @@ with open(out, 'w', encoding='utf8') as f:
             depth = 0
         else:
             depth = rel.count(os.sep) + 1
-            f.write('    ' * (depth-1) + os.path.basename(dirpath) + '/\n')
-        indent = '    ' * depth
+            f.write('    ' *(depth-1) + os.path.basename(dirpath) + '/\n')
+        indent = '    '* depth
         for dn in sorted([d for d in dirnames if not (d.startswith('.') or 'cache' in d.lower())]):
             f.write(indent + dn + '/\n')
         for fn in sorted(filenames):
@@ -242,10 +259,12 @@ Leggere [](file:///c%3A/workspaces/RD2229/RD2229/docs/MEGAPLAN/tree_no_dot_cache
 File creato: tree_no_dot_cache.txt
 
 Cosa ho fatto:
+
 - Generato un albero del workspace escludendo cartelle il cui nome inizia con `.` o contiene `cache`.
 - Salvato il risultato in tree_no_dot_cache.txt.
 
 Se vuoi:
+
 - Posso aggiornare il file per escludere altre directory (es. `build`, `dist`) — dimmi quali.  
 - Posso aggiungere la visualizzazione in formato `tree` con connettori ASCII invece dell'indentazione.
 
@@ -255,10 +274,10 @@ GitHub Copilot: Una domanda posta (Formato)
 
 Creo un Markdown leggibile e un JSON strutturato (entrambi esclusi `.*/cache`) in MEGAPLAN per garantire che M365 Copilot possa interpretare facilmente l'albero del repository. Procedo a generarli.
 
-`pylanceRunCodeSnippet` eseguito 
+`pylanceRunCodeSnippet` eseguito
 Completed with input: {
   "workspaceRoot": "c:\\workspaces\\RD2229\\RD2229",
-  "codeSnippet": "import os, json\n\nroot = os.getcwd()\n\ndef is_excluded_dir(name):\n    return name.startswith('.') or 'cache' in name.lower()\n\ndef build_tree(path):\n    node = {'name': os.path.basename(path) or path, 'type': 'dir', 'children': []}\n    try:\n        entries = sorted(os.listdir(path))\n    except PermissionError:\n        return node\n    for e in entries:\n        full = os.path.join(path, e)\n        if os.path.isdir(full):\n            if is_excluded_dir(e):\n                continue\n            node['children'].append(build_tree(full))\n        else:\n            node['children'].append({'name': e, 'type': 'file'})\n    return node\n\nroot_tree = build_tree(root)\n\n# Markdown summary (expand to depth 3), point to full JSON for details\nMAX_MD_DEPTH = 3\n\ndef md_lines(node, depth=0):\n    lines = []\n    indent = '  ' * depth\n    if node['type'] == 'dir':\n        lines.append(f\"{indent}- **{node['name']}/**\")\n        if depth < MAX_MD_DEPTH:\n            for child in node['children']:\n                if child['type'] == 'dir':\n                    lines.extend(md_lines(child, depth + 1))\n                else:\n                    lines.append('  ' * (depth + 1) + f\"- `{child['name']}`\")\n        else:\n            dir_count = sum(1 for c in node['children'] if c['type'] == 'dir')\n            file_count = sum(1 for c in node['children'] if c['type'] == 'file')\n            lines.append('  ' * (depth + 1) + f\"- _{dir_count} dirs, {file_count} files — see JSON for full tree_\")\n    return lines\n\nmd = []\nmd.append('# Project tree (filtered) — formato compatibile M365 Copilot')\nmd.append('\\n**Filtro applicato:** esclusi i nomi di cartelle che iniziano con `.` e quelli contenenti `cache`.')\nmd.append('\\n**Nota:** la rappresentazione completa è fornita nel blocco JSON sottostante e nel file `tree_no_dot_cache.json`.')\nmd.append('\\n## Sommario (Markdown, espanso fino a profondità 3)\\n')\nmd.extend(md_lines(root_tree, 0))\nmd.append('\\n---\\n')\nmd.append('## JSON (struttura completa)')\nmd.append('```json')\nmd.append(json.dumps(root_tree, ensure_ascii=False, indent=2))\nmd.append('```\\n')\n\nmd_text = '\\n'.join(md)\n\n# write files\nmd_path = os.path.join('docs','MEGAPLAN','tree_for_m365.md')\njson_path = os.path.join('docs','MEGAPLAN','tree_no_dot_cache.json')\nwith open(md_path, 'w', encoding='utf8') as f:\n    f.write(md_text)\nwith open(json_path, 'w', encoding='utf8') as f:\n    json.dump(root_tree, f, ensure_ascii=False, indent=2)\n\nprint('WROTE:', md_path, json_path)\n",
+  "codeSnippet": "import os, json\n\nroot = os.getcwd()\n\ndef is_excluded_dir(name):\n    return name.startswith('.') or 'cache' in name.lower()\n\ndef build_tree(path):\n    node = {'name': os.path.basename(path) or path, 'type': 'dir', 'children': []}\n    try:\n        entries = sorted(os.listdir(path))\n    except PermissionError:\n        return node\n    for e in entries:\n        full = os.path.join(path, e)\n        if os.path.isdir(full):\n            if is_excluded_dir(e):\n                continue\n            node['children'].append(build_tree(full))\n        else:\n            node['children'].append({'name': e, 'type': 'file'})\n    return node\n\nroot_tree = build_tree(root)\n\n# Markdown summary (expand to depth 3), point to full JSON for details\nMAX_MD_DEPTH = 3\n\ndef md_lines(node, depth=0):\n    lines = []\n    indent = '  ' *depth\n    if node['type'] == 'dir':\n        lines.append(f\"{indent}- **{node['name']}/**\")\n        if depth < MAX_MD_DEPTH:\n            for child in node['children']:\n                if child['type'] == 'dir':\n                    lines.extend(md_lines(child, depth + 1))\n                else:\n                    lines.append('  '* (depth + 1) + f\"- `{child['name']}`\")\n        else:\n            dir_count = sum(1 for c in node['children'] if c['type'] == 'dir')\n            file_count = sum(1 for c in node['children'] if c['type'] == 'file')\n            lines.append('  ' * (depth + 1) + f\"- *{dir_count} dirs, {file_count} files — see JSON for full tree*\")\n    return lines\n\nmd = []\nmd.append('# Project tree (filtered) — formato compatibile M365 Copilot')\nmd.append('\\n**Filtro applicato:** esclusi i nomi di cartelle che iniziano con `.` e quelli contenenti `cache`.')\nmd.append('\\n**Nota:** la rappresentazione completa è fornita nel blocco JSON sottostante e nel file `tree_no_dot_cache.json`.')\nmd.append('\\n## Sommario (Markdown, espanso fino a profondità 3)\\n')\nmd.extend(md_lines(root_tree, 0))\nmd.append('\\n---\\n')\nmd.append('## JSON (struttura completa)')\nmd.append('```json')\nmd.append(json.dumps(root_tree, ensure_ascii=False, indent=2))\nmd.append('```\\n')\n\nmd_text = '\\n'.join(md)\n\n# write files\nmd_path = os.path.join('docs','MEGAPLAN','tree_for_m365.md')\njson_path = os.path.join('docs','MEGAPLAN','tree_no_dot_cache.json')\nwith open(md_path, 'w', encoding='utf8') as f:\n    f.write(md_text)\nwith open(json_path, 'w', encoding='utf8') as f:\n    json.dump(root_tree, f, ensure_ascii=False, indent=2)\n\nprint('WROTE:', md_path, json_path)\n",
   "workingDirectory": "c:\\workspaces\\RD2229\\RD2229",
   "timeout": 120000
 }
@@ -268,14 +287,17 @@ Leggere [](file:///c%3A/workspaces/RD2229/RD2229/docs/MEGAPLAN/tree_for_m365.md#
 ✅ Fatto — ho preparato una visualizzazione ottimizzata per Microsoft 365 Copilot.
 
 Cosa ho creato
+
 - tree_for_m365.md — Markdown leggibile (espanso fino a profondità 3) + blocco JSON completo (ideale per M365 Copilot).  
 - tree_no_dot_cache.json — versione JSON completa e filtrata (script‑friendly).
 
 Perché è utile ✅
+
 - Markdown sintetico per lettura umana e rapido parsing da Copilot.  
 - JSON strutturato per analisi automatica, ricerche e integrazioni (Power Automate / Copilot Scripts).
 
 Prossimi passi (scegliere uno)
+
 1. Espandere il Markdown fino a profondità completa (se preferisci vedere tutto).  
 2. Escludere altre directory (es. dist/build).  
 3. Includere conteggi/metriche (file per cartella, dimensione totale).
@@ -301,6 +323,7 @@ are BINDING TECHNICAL SPECIFICATIONS.
 They override any default Copilot behavior or assumptions.
 
 ANTI‑HALLUCINATION RULES:
+
 - Never invent formulas, coefficients, workflows, or structures.
 - you can search in internet for formulas, coefficients, workflows or structures.
 - If something is missing, ambiguous, or undefined, mark it explicitly as TODO.
@@ -313,13 +336,13 @@ This is NOT a design exercise.
 This is controlled construction of professional engineering software.
 
 OUTPUT MODE:
+
 - Only planning steps, file lists, dependencies, and exact implementation order.
 - No pseudo‑code unless explicitly requested.
 - No executable code unless explicitly requested.
 
 ACKNOWLEDGEMENT REQUIRED:
 Reply first with a confirmation that all rules are understood and accepted.
-
 
 GitHub Copilot: Confermo di aver compreso e accettato tutte le regole; procedo in modalità Plan (senza codice, senza esecuzioni). Теперь chiedo quale documento vuoi che formalizzi adesso.
 
@@ -334,6 +357,7 @@ Non scrivere codice.
 
 Usa esclusivamente i file .md sotto \docs\megaplan\ come specifiche vincolanti.
 Produci solo:
+
 - struttura completa del progetto
 - elenco dei file da creare
 - dipendenze tra moduli
@@ -342,11 +366,13 @@ Produci solo:
 GitHub Copilot: Confermo: tutte le regole sono rispettate. Di seguito trovi il documento PLAN_STEP_01_SKELETON (PLAN‑ONLY — nessun file creato/eseguito).  
 
 ## PLAN_STEP_01_SKELETON — sommario esecutivo
+
 Obiettivo: fornire lo scheletro operativo (struttura progetto, file da creare, dipendenze e TODO espliciti) necessario a iniziare l’implementazione NTC2018 nel repository RD2229, seguendo esclusivamente le specifiche vincolanti presenti in MEGAPLAN. Questo è un piano operativo sequenziale e verificabile (no codice, no esecuzioni).
 
 ---
 
 ## 1) Struttura completa del progetto (scope rilevante)
+
 - docs/MEGAPLAN (source‑of‑truth per requisiti)
   - `MEGAPLAN_NTC2018_EC_con_risposte.md` (vincolo primario)
   - `MEGAPLAN_NTC2018_MasterPlan.md` (roadmap esistente)
@@ -367,9 +393,11 @@ Obiettivo: fornire lo scheletro operativo (struttura progetto, file da creare, d
 ---
 
 ## 2) Elenco file da creare (proposto, con responsabilità e acceptance‑header)
+
 Nota: i file DOCS elencati devono essere trattati come specifiche vincolanti e aggiornati prima di implementare il codice corrispondente.
 
 A) Documentazione / SPEC (docs/MEGAPLAN) — da aggiungere/modificare
+
 - `PLAN_STEP_01_SKELETON.md` — questo documento (formalizzazione del piano).  
 - `SPEC_RC_SLU_VRDc_NoStirrups.md` — SPEC plan‑only per `RC_SLU_VRDc_NoStirrups` (input/output, casi test, applicability rules, norm_refs/TODO).  
 - `SPEC_SecondaryElementSpec.md` — schema `SecondaryElementSpec` + 4 template prioritari (mensola, insegna, tramezzo, camino) + limiti d’uso.  
@@ -377,6 +405,7 @@ A) Documentazione / SPEC (docs/MEGAPLAN) — da aggiungere/modificare
 - `TEST_PLAN_NTC2018.md` — elenco dei golden examples con link ai test fixtures e tolleranze.
 
 B) Codice (skeleton file list — da implementare successivamente)
+
 - `src/codes/ntc2018/__init__.py` — package entry
 - `src/codes/ntc2018/code_module.py` — adapter `CodeModule` (registrazione checks) — interface only (no logic in plan)
 - `src/codes/ntc2018/checks_vrdc.py` — check concept for V_Rd,c (stub + tests planned)
@@ -388,6 +417,7 @@ B) Codice (skeleton file list — da implementare successivamente)
 - `tests/codes/test_secondary_elements.py` — unit tests for templates
 
 C) Config / storage (schema files)
+
 - `config/calculation_codes/NTC2018.jsoncode` — extend (parameters for sismica, combinations)
 - `config/codes/ntc2018/secondary_elements.jsoncode` — templates registry
 - project storage schema: add `secondary_elements` array (document change in `docs/MEGAPLAN/IMPLEMENTAZIONE_PERSISTENZA.md`)
@@ -395,6 +425,7 @@ C) Config / storage (schema files)
 ---
 
 ## 3) Dipendenze tra moduli (diagramma testuale e regole)
+
 - Principio: Core (calcoli) non dipende dalla GUI. GUI → VerificationEngine → CodeModule → core materials/combinations.
 - Dipendenze principali (dirette):
   1. `src/codes/ntc2018/*`  depends on `src/core/*` (materials, verification types, contracts)
@@ -408,6 +439,7 @@ C) Config / storage (schema files)
 ---
 
 ## 4) Ordine di implementazione (sequenza esatta — PRIORITÀ e gating)
+
 1. Preparazione (gate: tests baseline verde)
    - Deliverable: `CodeModule_CONTRACT.md`, `TEST_PLAN_NTC2018.md`
    - Acceptance: `VerificationEngine` può invocare stubs attraverso il contract
@@ -437,6 +469,7 @@ C) Config / storage (schema files)
 ---
 
 ## 5) TODO espliciti (aree non completamente definite nelle MEGAPLAN)
+
 - TODO-NTC-VRDc-FORMULA — definire esatta formula e coefficienti per `V_Rd,c` (riferimento: paragrafo NTC2018 pertinente o EC2 se NTC rinvia). Documento target: `SPEC_RC_SLU_VRDc_NoStirrups.md`.  
 - TODO-SLE-WMAX — specificare criteri e valori limite per controllo fessurazione (SLE) quando non ci sono staffe; definire w_max o criterio qualitativo. Documento target: `SPEC_RC_SLU_VRDc_NoStirrups.md`.  
 - TODO-SECONDARY-MODELS — per ciascun template (mensola, insegna, tramezzo, camino) indicare modello semplificato, limiti di applicabilità e fonte normativa (NTC2018 §7.2 o EC fallback). Documento target: `SPEC_SecondaryElementSpec.md`.  
@@ -449,18 +482,21 @@ C) Config / storage (schema files)
 ---
 
 ## 6) Output atteso / Acceptance gating per questa fase iniziale
+
 - `CodeModule_CONTRACT.md`, `SPEC_RC_SLU_VRDc_NoStirrups.md`, `SPEC_SecondaryElementSpec.md`, `TEST_PLAN_NTC2018.md` devono esistere e essere approvati prima di aprire PR di implementazione.  
 - Ogni SPEC deve contenere: input schema, output schema, applicability rules, list of golden tests, normative references (o TODO se mancante).
 
 ---
 
 ## 7) Rischi operativi immediati
+
 - Mancanza di riferimenti normativi espliciti nelle MEGAPLAN → blocco per calcoli concreti (mitigazione: marcare TODO e usare EC come fallback documentato).  
 - Ambiguità su limiti d’applicabilità (es. sezioni non rettangolari) → inserire regole `NOT_APPLICABLE` e test.
 
 ---
 
 ## 8) Prossimi passi immediati (scegliere 1)
+
 - A: Formalizzo `SPEC_RC_SLU_VRDc_NoStirrups.md` (input/output + test fixtures + TODO normativi) — raccomandato (ALTA).  
 - B: Formalizzo `SPEC_SecondaryElementSpec.md` con 4 template prioritari (mensola, insegna, tramezzo, camino).  
 - C: Formalizzo `CodeModule_CONTRACT.md` (API + response schema + example stubs).
@@ -472,11 +508,13 @@ User: B
 GitHub Copilot: Confermo: resto in modalità Plan (nessun codice, nessuna modifica). Di seguito trovi la SPEC formale per `SecondaryElementSpec` — struttura operativa, file da creare, dipendenze e TODO espliciti (PLAN‑ONLY).
 
 ## SPEC_SecondaryElementSpec.md — sommario
+
 Scopo: definire schema, template e contratti di verifica per gli **elementi strutturali secondari** (NTC2018 §7.2 + fallback EC). Copre 4 template prioritari: **mensola (cantilever)**, **insegna/pannello sospeso**, **tramezzo/partizione non portante**, **camino/comignolo**.
 
 ---
 
 ## 1) Dove inserire (file e posizione)
+
 - SPEC doc (da creare): `docs/MEGAPLAN/SPEC_SecondaryElementSpec.md`
 - Config/template registry: `config/codes/ntc2018/secondary_elements.jsoncode`
 - Core API exposure: `codes/ntc2018/secondary_elements` (package)
@@ -486,6 +524,7 @@ Scopo: definire schema, template e contratti di verifica per gli **elementi stru
 ---
 
 ## 2) Struttura logica del `SecondaryElementSpec` (schema essenziale)
+
 - id: string (unique)
 - type: enum {CANTILEVER, SIGNAGE, PARTITION, CHIMNEY, OTHER}
 - geometry: object {width, height, thickness, length, diameter, span, ...}
@@ -502,6 +541,7 @@ Scopo: definire schema, template e contratti di verifica per gli **elementi stru
 ## 3) Per‑template: modello statico, input minimi, checks richiesti, limiti di applicabilità
 
 A) Mensola (CANTILEVER)
+
 - Modello statico: travetto a mensola (incastro alla base) carichi puntuali/distribuiti; supporto modellabile come incastro o cerniera con molaggio rotazionale.
 - Input minimi: length, section (b×h), material, anchor (embedment_depth), Gk/Qk positions.
 - Checks da effettuare:
@@ -514,6 +554,7 @@ A) Mensola (CANTILEVER)
 - Test fixtures: PASS (small load), FAIL (overload moment), NOT_APPLICABLE (unsupported embedment).
 
 B) Insegna / pannello sospeso (SIGNAGE)
+
 - Modello statico: cantilever or hung panel; dominant action = wind pressure; discrete anchors.
 - Input minimi: panel area, mass, number_of_anchors, anchor_positions, wind_exposure
 - Checks:
@@ -525,6 +566,7 @@ B) Insegna / pannello sospeso (SIGNAGE)
 - Test fixtures: PASS (small sign, multiple anchors), FAIL (wind > anchor capacity), DYNAMIC_TODO.
 
 C) Tramezzo / partizione non portante (PARTITION)
+
 - Modello statico: pannello soggetto a fuori‑piano (wind/seismic) e collegamenti puntuali; modellazione come trave/pannello.
 - Input minimi: height, length, thickness, attachment conditions (top/bottom), material, mass
 - Checks:
@@ -536,6 +578,7 @@ C) Tramezzo / partizione non portante (PARTITION)
 - Test fixtures: PASS (anchored partition), FAIL (inadequate anchors), NOT_APPLICABLE (large span).
 
 D) Camino / comignolo (CHIMNEY)
+
 - Modello statico: colonna snella verticale (cantilever) soggetta a vento, sisma, auto‑peso; possibile instabilità globale.
 - Input minimi: total_height, diameter/width, thickness, material, base_fixity, axial_load, wind_profile
 - Checks:
@@ -550,6 +593,7 @@ D) Camino / comignolo (CHIMNEY)
 ---
 
 ## 4) Output / risultato delle verifiche (response schema)
+
 - `check_id` (string)
 - `status` ∈ {OK, NOT_OK, NOT_APPLICABLE, WARNING}
 - `utilisation` (0..1) where applicable
@@ -562,6 +606,7 @@ D) Camino / comignolo (CHIMNEY)
 ---
 
 ## 5) File da creare (documenti + artefatti tecnici — PLAN‑ONLY)
+
 - `docs/MEGAPLAN/SPEC_SecondaryElementSpec.md` (this SPEC — authoritative)
 - `docs/MEGAPLAN/TEST_PLAN_SECONDARY_ELEMENTS.md` (golden cases per template)
 - `config/codes/ntc2018/secondary_elements.jsoncode` (template registry skeleton)
@@ -572,6 +617,7 @@ D) Camino / comignolo (CHIMNEY)
 ---
 
 ## 6) Dipendenze tra moduli (testuale, ordine di integrazione)
+
 - `VerificationEngine` ← invokes → `CodeModule(ntc2018)` ← uses → `secondary_elements` checks  
 - `secondary_elements` checks → require → `core/combinations` (for seismic/wind load generation)  
 - `secondary_elements` checks → use → `core/materials` (material properties loader)  
@@ -579,6 +625,7 @@ D) Camino / comignolo (CHIMNEY)
 - GUI `secondary_element_editor` → depends on → `VerificationEngine` API only (no computation in GUI)
 
 Sequenza implementativa raccomandata:
+
 1. SPEC doc + TEST_PLAN (acceptance gate)
 2. config/template skeleton (jsoncode)
 3. Data model & persistence (project schema)
@@ -590,6 +637,7 @@ Sequenza implementativa raccomandata:
 ---
 
 ## 7) Acceptance criteria (per modulo secondary_elements)
+
 - SPEC document approvato in MEGAPLAN.
 - Per ogni template: almeno 3 golden tests (PASS/FAIL/NOT_APPLICABLE) documentati.
 - `CodeModule.available_checks()` espone template ids for secondary elements.
@@ -599,6 +647,7 @@ Sequenza implementativa raccomandata:
 ---
 
 ## 8) TODO espliciti (aree non definite / vietate dall’anti‑hallucination)
+
 - TODO‑SE1: definire limiti numerici di applicabilità (slenderness ratios, span limits, minimum embedment depths) — fonte: NTC2018 §7.2 or EC fallback. (SPEC must mark these as TODO)
 - TODO‑SE2: specificare valori e formule per anchor capacity checks (pull‑out/steel embedment partial factors) — normative source required.
 - TODO‑SE3: SLE criteria (deflection limits, crack widths) for partitions and cantilevers — define w_max or serviceability criteria.
@@ -609,6 +658,7 @@ Sequenza implementativa raccomandata:
 ---
 
 ## 9) Test plan (high‑level)
+
 - Per template: implement unit tests for
   - nominal PASS case,
   - overload FAIL case,
@@ -619,6 +669,7 @@ Sequenza implementativa raccomandata:
 ---
 
 ## 10) Implementazione: passi immediati (prossimi step di Plan)
+
 1. Redigere e approvare `docs/MEGAPLAN/SPEC_SecondaryElementSpec.md` (includere TODO‑SE*).  
 2. Preparare `TEST_PLAN_SECONDARY_ELEMENTS.md` con golden fixtures (numeric values marked TBD if normative source missing).  
 3. Creare `secondary_elements.jsoncode` (skeleton templates only).  
@@ -634,11 +685,13 @@ User: risolviamo tutti i todo espliciti
 GitHub Copilot: Confermo: resto in modalità Plan. Di seguito trovi un piano operativo completo e verificabile per risolvere TUTTI i TODO espliciti identificati nelle SPEC (PLAN‑ONLY — nessuna esecuzione o modifica di file).
 
 ## Panoramica rapida
+
 Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd,c senza inventare formule — ogni TODO sarà risolto attingendo a fonti normative dichiarate (NTC2018, Eurocodici) o marcato come *decisione documentata/TODO* quando la norma non fornisce indicazioni numeriche. Output: SPEC aggiornate, test golden, file di configurazione e checklist di PR.
 
 ---
 
 ## Principi di soluzione (vincoli)
+
 - Non inventare formule: ogni formula/coefficiente deve essere tratto da NTC2018 o da una norma/standard citata (EC2/EC1/EC8 ecc.).  
 - Se la norma non definisce un valore, la SPEC deve marcare il comportamento come TODO/DECISION_REQUIRED e proporre fallback documentato.  
 - Ogni TODO risolto genera: SPEC aggiornate, almeno 3 test fixtures (golden), implementazione test‑first (stub → tests), e PR con reviewer tecnico (ing. strutturista).
@@ -648,6 +701,7 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 ## Elenco TODO e piano di risoluzione (per ogni TODO: task, file da aggiornare, test, acceptance)
 
 1) TODO-NTC-VRDc-FORMULA — V_Rd,c (taglio senza staffe)
+
 - Tasks:
   1. Recuperare testo normativo (NTC2018 § pertinente; se NTC rimanda → usare EC2 §6.x o paragrafo equivalente).  
   2. Estrarre formula e coefficienti (documentare esattamente la fonte e la versione).  
@@ -664,7 +718,8 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 - Priorità: Alta
 - Stima: 1–2 working days (research + SPEC + test fixtures)
 
-2) TODO-SLE-WMAX — criteri SLE (fessurazione / w_max)
+1) TODO-SLE-WMAX — criteri SLE (fessurazione / w_max)
+
 - Tasks:
   1. Identificare in NTC2018 o Circolare valori limiti per larghezza fessura o criteri di servizio (se NTC non li definisce, usare EC2 guidance or Italian Circolare).  
   2. Definire procedure di valutazione SLE per elementi senza staffe (output qualitativo + valore w_max o indicatore di exceed).  
@@ -678,7 +733,8 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 - Priorità: Alta
 - Stima: 1 working day
 
-3) TODO-SECONDARY-MODELS / TODO-SE1..SE6 — elementi secondari (mensola, insegna, tramezzo, camino)
+1) TODO-SECONDARY-MODELS / TODO-SE1..SE6 — elementi secondari (mensola, insegna, tramezzo, camino)
+
 - Tasks (per ciascun template):
   1. Individuare paragrafi NTC2018 §7.2 e riferimenti EC utili (EC1 wind, EC8 seismic, EC2 for concrete elements) per ogni comportamento richiesto.  
   2. Definire limiti di applicabilità numerici (slenderness, span limits, embedment_min). Se NTC non dà numeri, definire fallback EC o marcare come DECISION_REQUIRED.  
@@ -695,7 +751,8 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 - Priorità: Alta (mensola, insegna, tramezzo, camino prima; altri template secondari dopo)
 - Stima: 3–5 working days (ricerca normativa + SPEC + test plan)
 
-4) TODO-CONTRACT-EXAMPLES — esempi `VerificationResult`
+1) TODO-CONTRACT-EXAMPLES — esempi `VerificationResult`
+
 - Tasks:
   1. Definire 3 esempi di `VerificationResult` JSON (SLU OK, SLU FAIL, NOT_APPLICABLE) per `RC_SLU_VRDc_NoStirrups` e per almeno 2 secondary templates.  
   2. Inserire esempi in `docs/MEGAPLAN/CodeModule_CONTRACT.md`.
@@ -707,7 +764,8 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 - Priorità: Medium
 - Stima: 0.5–1 day
 
-5) TODO-COVERAGE-THRESHOLD
+1) TODO-COVERAGE-THRESHOLD
+
 - Tasks:
   1. Stabilire soglia coverage per nuovi moduli (proposta già presente: **>= 90%** per nuovi moduli normativi).  
   2. Documentare soglia in `docs/MEGAPLAN/TEST_PLAN_NTC2018.md` e aggiornare CI (test job) per enforcement.
@@ -720,7 +778,8 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 - Priorità: Medium
 - Stima: 0.5 day
 
-6) TODO-VALIDATION-BENCHMARKS — raccolta golden cases
+1) TODO-VALIDATION-BENCHMARKS — raccolta golden cases
+
 - Tasks:
   1. Compilare una tabella di benchmark: sorgente (norma/libro), input, expected output, tolerance.  
   2. Popolare `docs/MEGAPLAN/TEST_PLAN_NTC2018.md` e collegare ai test fixtures.
@@ -732,7 +791,8 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 - Priorità: High
 - Stima: 2–3 days (ricerca e validazione)
 
-7) TODO-SE2 / TODO‑SE4 / TODO‑SE5 (anchor capacity, wind coeffs, interaction models)
+1) TODO-SE2 / TODO‑SE4 / TODO‑SE5 (anchor capacity, wind coeffs, interaction models)
+
 - Tasks:
   1. Per anchor capacities: estrarre norme di riferimento (EN anchors, CEN reports, national annex); definire check e parametri.  
   2. Per wind coefficients: usare EC1 o NTC2018 indicazioni; definire quando serve analisi dinamica e quando modello statico è accettabile.  
@@ -746,7 +806,8 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 - Priority: High for anchors & V–M; Medium for dynamic wind amplification
 - Stima: 2–4 days (ricerca normativa + SPEC)
 
-8) QA/CI TODO: detect remaining TODO tokens automatically
+1) QA/CI TODO: detect remaining TODO tokens automatically
+
 - Tasks:
   1. Add a CI job that scans `docs/MEGAPLAN/*.md` for `TODO|TBD` tokens and fails the merge if present (optionally allow approved exceptions).  
   2. Document exception process in MEGAPLAN.
@@ -762,6 +823,7 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 ---
 
 ## Sequenza operativa consigliata (ordine esatto di esecuzione)
+
 1. Kickoff research: assign structural engineer(s) and standards researcher (collect NTC2018/EC references).  
 2. Produce/approve updated SPEC documents:
    - `SPEC_RC_SLU_VRDc_NoStirrups.md` (include TODOs resolved where possible)  
@@ -779,6 +841,7 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 ---
 
 ## Checklist finale (per chiudere tutti i TODO)
+
 - [ ] Assegnare responsabili per ogni TODO (ing./dev/QA).  
 - [ ] Raccogliere e citare fonti normative per V_Rd,c, w_max, anchors, wind coeffs, interaction models.  
 - [ ] Aggiornare SPEC (`SPEC_RC_SLU_VRDc_NoStirrups.md`, `SPEC_SecondaryElementSpec.md`) con riferimenti e formule (quando disponibili).  
@@ -790,12 +853,14 @@ Obiettivo: chiudere tutti i TODO nelle SPEC NTC2018 / SecondaryElements / RC_VRd
 ---
 
 ## Decision points / Items requiring tua approvazione
+
 - Confermi che usiamo **EC2/EC1/EC8** come fallback quando NTC2018 è incompleto? (raccomandato e già previsto nei megaplans)  
 - Vuoi che io formalizzi subito i documenti SPEC aggiornati (PLAN‑ONLY) seguendo le risposte normative raccolte?  
 
 ---
 
 Se approvi, procedo a formalizzare (PLAN‑ONLY) i documenti SPEC aggiornati in questo ordine:  
+
 1) `SPEC_RC_SLU_VRDc_NoStirrups.md` (alta priorità)  
 2) `TEST_PLAN_NTC2018.md` (benchmark/golden cases)  
 3) `SPEC_SecondaryElementSpec.md` (integro i TODO risolti)
@@ -807,6 +872,7 @@ User: aggiungi agli elementi secondari la gui relativa, e per quanto riguarda do
 GitHub Copilot: Status: ricevuto — preparo il piano operativo (PLAN‑ONLY) per aggiungere la GUI degli elementi secondari e per documentare in MEGAPLAN la GUI completa con il supporto alle verifiche `NTC2018`, `DM96`, `RD2229`.
 
 ## 1) Obiettivo sintetico
+
 - Aggiungere l’interfaccia utente per la gestione/verifica degli **elementi secondari** (editor, template, esecuzione check, risultati).  
 - Documentare e specificare **tutta la GUI** nel MEGAPLAN includendo il mapping e il supporto alle verifiche `NTC2018`, `DM96`, `RD2229`.  
 - Garantire separazione netta: GUI = delega; tutta la logica normativa rimane nel core/CodeModule.
@@ -814,6 +880,7 @@ GitHub Copilot: Status: ricevuto — preparo il piano operativo (PLAN‑ONLY) pe
 ---
 
 ## 2) Deliverable (cosa produrre — PLAN‑ONLY)
+
 - GUI artefatti da progettare (file da creare/modificare — elenco esatto)
 - Documentazione MEGAPLAN da aggiornare/creare
 - Dipendenze funzionali e sequenza di implementazione
@@ -823,7 +890,9 @@ GitHub Copilot: Status: ricevuto — preparo il piano operativo (PLAN‑ONLY) pe
 ---
 
 ## 3) File da creare / modificare (preciso, percorso relativo)
+
 A — GUI (codebase — MVVM/view widgets / app-level)
+
 - Create: `app/ui/secondary_element_window.py` — finestra principale editor/runner (MVP)
 - Create: `app/ui/secondary_element_editor.py` — form di input (geometry, attachments, loads, template picker)
 - Create: `app/ui/secondary_element_results.py` — pannello risultati step‑by‑step + normative
@@ -832,21 +901,25 @@ A — GUI (codebase — MVVM/view widgets / app-level)
 - Modify: `app/ui/frc_manager.py` — integrare persistenza template `secondary_elements`
 
 B — GUI (reusable widgets in core GUI package)
+
 - Create: `src/gui/widgets/secondary_element_widgets.py` — preview geometry, anchor diagram, load editor
 - Create: `src/gui/widgets/norm_selector.py` — dropdown norma che legge `config/calculation_codes/*`
 - Modify: `src/gui/section_gui.py` / `src/gui/materials_gui.py` — expose compact APIs per selezione se già presenti
 
 C — Tests (GUI + integration stubs)
+
 - Create: `tests/gui/test_secondary_editor.py` — unit tests logica widget (no formulas)
 - Create: `tests/integration/test_gui_verification_flow.py` — E2E scenario: select norm → create secondary element → run check → expect result status
 - Create: `tests/gui/test_norm_selector.py` — ensure UI shows available norms from config
 
 D — Config / Storage / Persistence
+
 - Modify/Create: `config/codes/ntc2018/secondary_elements.jsoncode` — registry templates (skeleton)
 - Modify: project storage schema doc (`docs/MEGAPLAN/IMPLEMENTAZIONE_PERSISTENZA.md`) — add `secondary_elements[]`
 - Modify: sec_repository/project model (document plan only) — add fields for saved secondary elements
 
 E — Docs MEGAPLAN
+
 - Update: `PLAN_GUI.md` — aggiungere workflow completo GUI + wireframes
 - Create: `GUI_VERIFICATION_SUPPORT.md` — mapping GUI ↔ `NTC2018|DM96|RD2229` checks (checkbox matrix)
 - Update/Create: `SPEC_SecondaryElementSpec.md` — includere wireframes e mapping GUI controls → spec fields
@@ -856,6 +929,7 @@ E — Docs MEGAPLAN
 ---
 
 ## 4) Mapping GUI → Core (contratti & chiamate)
+
 - `Norma selector` (GUI) → reads `config/calculation_codes/*` and sets `calculation_code` in session.
 - `Editor (Secondary)` → builds `SecondaryElementSpec` (schema documented in `SPEC_SecondaryElementSpec.md`) and calls `VerificationEngine` via `create_verification_engine(calculation_code)` + `engine.perform_verification(SecondaryElementSpec, check_id)`.
 - `Run verification` (GUI) → asynchronous call to `VerificationEngine` (show spinner); on completion show `VerificationResult.steps[]`, `norm_references[]`, `messages[]`.
@@ -865,6 +939,7 @@ E — Docs MEGAPLAN
 ---
 
 ## 5) Wireframes / UX (MVP — descrizione)
+
 - Main flow (screens):
   1. `Main Window` — norma dropdown + “New secondary element” button + “Open saved” list.
   2. `Secondary Element Editor` — tabs: General, Geometry, Attachments, Loads, Templates. Live preview (simple schematic), validation badges.
@@ -877,6 +952,7 @@ E — Docs MEGAPLAN
 ---
 
 ## 6) Dipendenze e ordine di implementazione (step‑by‑step)
+
 1. Docs gating: update PLAN_GUI.md and `SPEC_SecondaryElementSpec.md` (wireframes + schema) — Acceptance: doc review completed.
 2. Add `secondary_elements.jsoncode` skeleton + project storage schema doc — Acceptance: loader returns skeleton.
 3. Implement UI widgets skeleton (`secondary_element_editor.py`, `secondary_element_results.py`, `secondary_element_window.py`) — Acceptance: screens present and validate input only (no calc).
@@ -891,6 +967,7 @@ E — Docs MEGAPLAN
 ---
 
 ## 7) Test plan — scenari obbligatori (nominativi test)
+
 - `GUI-SEC-001_CreateAndSaveTemplate` — create secondary element, save template, reload → validate fields match.
 - `GUI-SEC-002_Run_VRdC_NTC2018` — Norma=NTC2018, run `RC_SLU_VRDc_NoStirrups` → expect `VerificationResult` with `norm_references` containing `NTC2018`.
 - `GUI-SEC-003_Run_Sample_DM96` — Norma=DM96, run a DM96 check (e.g., pre‑existing `checks_dm96.py`) → expect result from DM96 pipeline.
@@ -903,6 +980,7 @@ Each test must reference SPEC and `TEST_PLAN_SECONDARY_ELEMENTS.md`.
 ---
 
 ## 8) Acceptance criteria (GUI + docs + verification support)
+
 - GUI: user can create, edit, save, load secondary elements and templates; run checks for `NTC2018`, `DM96`, `RD2229`; results show `steps[]` and `norm_references[]`.
 - Docs: PLAN_GUI.md, `GUI_VERIFICATION_SUPPORT.md`, `SPEC_SecondaryElementSpec.md`, `TEST_PLAN_SECONDARY_ELEMENTS.md` updated and approved.
 - Core contract: `VerificationEngine` + `CodeModule` must expose `available_checks()` and accept `SecondaryElementSpec` payloads — if missing, add TODO (see next).
@@ -911,6 +989,7 @@ Each test must reference SPEC and `TEST_PLAN_SECONDARY_ELEMENTS.md`.
 ---
 
 ## 9) TODO espliciti / decision points (documentare e risolvere prima dell’implementazione)
+
 - TODO-GUI-API: verificare/esporre l’API del `VerificationEngine` per accettare `SecondaryElementSpec` — se non esiste, SPEC andare a `CodeModule_CONTRACT.md` (implementerà `run_secondary_check`).
 - TODO-GUI-WIRE: decidere se il `secondary_element` editor viene inserito in ui o `src/gui` (proposta: core widgets in `src/gui/widgets`, app windows in ui).
 - TODO‑NORMS-MAPPING: mappare esattamente quali `check_id` di `checks_ntc2018.py`, `checks_dm96.py`, `checks_rd2229.py` sono rilevanti per secondary elements — compilare `GUI_VERIFICATION_SUPPORT.md`.
@@ -921,6 +1000,7 @@ Each test must reference SPEC and `TEST_PLAN_SECONDARY_ELEMENTS.md`.
 ---
 
 ## 10) Stima & priorità
+
 - Priority: HIGH for `secondary element GUI` + `docs update` + `norm selector` (core user flows).  
 - Effort estimate (implementation, after SPEC approval):
   - Docs update & SPEC: 1–2 days  
@@ -932,12 +1012,14 @@ Each test must reference SPEC and `TEST_PLAN_SECONDARY_ELEMENTS.md`.
 ---
 
 ## 11) Prossimi step raccomandati (azione immediata)
+
 1. Approvare le scelte di file e il posizionamento ui vs `src/gui`.  
 2. Aggiornare PLAN_GUI.md con gli screen flows proposti (io formalizzo il testo PLAN‑ONLY se vuoi).  
 3. Creare `GUI_VERIFICATION_SUPPORT.md` con la mappatura iniziale (io posso redigerla PLAN‑ONLY).  
 4. Assegnare owner per `TODO-GUI-API` (dev che aggiorna `CodeModule_CONTRACT.md`) e `TODO‑NORMS‑MAPPING` (ing. strutturista).
 
 Vuoi che formalizzi subito (PLAN‑ONLY) uno dei seguenti documenti?
+
 - A: `docs/MEGAPLAN/GUI_VERIFICATION_SUPPORT.md` (mappatura dettagliata GUI ↔ checks per NTC2018/DM96/RD2229)  
 - B: `app/ui/secondary_element_window.py` — **spec document** (dettagli componenti UI e field bindings) da inserire in `SPEC_SecondaryElementSpec.md`  
 - C: Aggiornamento test plan `TEST_PLAN_SECONDARY_ELEMENTS.md` (golden cases + GUI scenarios)
@@ -953,6 +1035,7 @@ tudo ux definisci messaggi standard
 GitHub Copilot: Status: ricevuto — preparo il piano operativo per risolvere TUTTI i TODO (PLAN‑ONLY). Di seguito trovi: decisioni vincolanti, file da creare/modificare, passo‑per‑passo per chiudere ogni TODO, ricerca normativa pianificata e i messaggi UX standard definiti.  
 
 ## Sintesi decisionale (what changed)
+
 - Gli **elementi secondari** avranno:
   - GUI propria in `src/gui/secondary_elements` (wireframe + widget).  
   - Moduli di calcolo propri in `src/codes/ntc2018/secondary_elements`.  
@@ -964,7 +1047,9 @@ GitHub Copilot: Status: ricevuto — preparo il piano operativo per risolvere TU
 ---
 
 ## Struttura progetto / file (esatti — da creare o aggiornare)
+
 Documentazione (docs/MEGAPLAN — SOURCE OF TRUTH)
+
 - `docs/MEGAPLAN/SPEC_SecondaryElementSpec.md` (aggiorna/chiude TODO)  
 - `docs/MEGAPLAN/SPEC_RC_SLU_VRDc_NoStirrups.md` (colmare TODO‑VRDc)  
 - `docs/MEGAPLAN/GUI_VERIFICATION_SUPPORT.md` (mappatura norme ↔ checks)  
@@ -972,31 +1057,37 @@ Documentazione (docs/MEGAPLAN — SOURCE OF TRUTH)
 - PLAN_GUI.md (wireframes aggiornati)
 
 Codice — GUI (wire & widgets in src/gui)
+
 - `src/gui/secondary_elements/window.py` — window / flow controller (editor → run → results)  
 - `src/gui/secondary_elements/editor.py` — form fields binder → `SecondaryElementSpec`  
 - `src/gui/secondary_elements/results_view.py` — visualizzazione `VerificationResult` (steps + norms)  
 - `src/gui/widgets/norm_selector.py` — shared norm selector (reads `config/calculation_codes/*`)
 
 Codice — Calcolo & API (core)
+
 - `src/codes/ntc2018/secondary_elements/__init__.py` — package entry  
 - `src/codes/ntc2018/secondary_elements/models.py` — `SecondaryElementSpec` datamodel (schema only)  
 - `src/codes/ntc2018/secondary_elements/checks.py` — check identifiers and orchestration (no formulas in Plan)  
 - `src/codes/ntc2018/secondary_elements/storage_adapter.py` — persistence adapter (project storage integration)
 
 Storage / Config
+
 - `config/codes/ntc2018/secondary_elements.jsoncode` — templates registry skeleton  
 - Project schema update: add `secondary_elements[]` to project storage (document in `IMPLEMENTAZIONE_PERSISTENZA.md`)
 
 Tests
+
 - `tests/gui/test_secondary_editor.py`  
 - `tests/codes/test_secondary_elements_{cantilever,signage,partition,chimney}.py` (golden fixtures)
 
 Docs + Contract
+
 - `docs/MEGAPLAN/CodeModule_CONTRACT.md` — extend contract with `run_secondary_check` / `available_secondary_types()` entries
 
 ---
 
 ## TODOs: azioni concrete per chiuderli (per ognuno: azione, file, acceptance)
+
 1. TODO‑NTC‑VRDc‑FORMULA  
    - Azione: reperire e citare la formula NTC2018 o (se rimando) EC2; aggiornare `SPEC_RC_SLU_VRDc_NoStirrups.md`.  
    - Test: 5 golden numeric cases inseriti in `TEST_PLAN_NTC2018.md`.  
@@ -1040,9 +1131,11 @@ Docs + Contract
 ---
 
 ## Ricerca normativa e web‑examples (piano di analisi — chi, cosa, dove cercare)
+
 Obiettivo: reperire testi/formule/esempi utili per chiudere i TODO normativi.
 
 Fonti prioritarie da esaminare (ordine):
+
 1. NTC2018 (testo ufficiale) — cercare §7.2 (elementi secondari), sezioni su acciai/CA/azionamenti.  
 2. Circolare esplicativa NTC2018 — paragrafi che dettagliano i criteri di verifica SLE/SLU.  
 3. Eurocodici:
@@ -1055,6 +1148,7 @@ Fonti prioritarie da esaminare (ordine):
 6. Accademia / testi tecnici (CNR, university lecture notes) e esempi calcolati pubblici (per golden tests)
 
 Estrazione operativa per ciascuna fonte:
+
 - identificare articoli/paragrafi utili e trascriverli come `norm_reference` in SPEC  
 - copiare esempi numerici ufficiali e usarli come golden tests (citare fonte)  
 - se norma è incompleta, documentare fallback EC e motivazione
@@ -1065,6 +1159,7 @@ Acceptance: ogni TODO normativo ha almeno una referenza primaria (citazione) in 
 ---
 
 ## UX — Messaggi standard (italiano) — canonici e remediation hints
+
 - OK  
   - Titolo: `Verifica superata`  
   - Testo breve: `Esito: OK — i parametri sono conformi alla normativa selezionata.`
@@ -1113,6 +1208,7 @@ Acceptance: ogni TODO normativo ha almeno una referenza primaria (citazione) in 
 ---
 
 ## Dipendenze critiche e ordine operativo (step esatto per chiudere TODO e consegnare GUI)
+
 1. APPROVAZIONE DOCS: aggiornare `SPEC_SecondaryElementSpec.md` e `SPEC_RC_SLU_VRDc_NoStirrups.md` con i campi e i TODO risolti parzialmente (research placeholders).  
 2. RICERCA NORMATIVA: eseguire ricerca su fonti elencate → produrre tabelle di riferimento (norm_ref → formula/esempio).  
 3. AGGIORNAMENTO SPEC con riferimenti normativi ufficiali e golden tests.  
@@ -1127,6 +1223,7 @@ Acceptance: ogni TODO normativo ha almeno una referenza primaria (citazione) in 
 ---
 
 ## Acceptance finale (come verificare che “tutti i TODO” sono risolti)
+
 - Nessun `TODO` token rimanente in `docs/MEGAPLAN/*.md` (o eccezioni approvate).  
 - SPEC aggiornate con riferimenti normativi primari o fallback EC chiaramente motivato.  
 - Golden tests definiti e tracciati in `TEST_PLAN_*`.  
@@ -1136,6 +1233,7 @@ Acceptance: ogni TODO normativo ha almeno una referenza primaria (citazione) in 
 ---
 
 ## Prossimi step raccomandati (scelta rapida)
+
 - A — Avvio ricerca normativa e compilazione tabella norme→formule→esempi (raccomandato).  
 - B — Redazione immediata delle SPEC aggiornate (`SPEC_SecondaryElementSpec.md` + `SPEC_RC_SLU_VRDc_NoStirrups.md`) usando placeholders per i riferimenti mancanti (poi si sostituiscono).  
 - C — Disegno wireframe UI dettagliato (file `src/gui/secondary_elements` spec) — pronto per review UX.
@@ -1146,31 +1244,17 @@ User: A
 
 GitHub Copilot: Collect normative references, formulas and authoritative examples for V_Rd,c, SLE w_max, anchors, wind coeffs, V–M interaction, secondary elements. Produce a structured markdown report with citations and TODOs.
 
-
+Fetched 2 resources
 
 Fetched 2 resources
 
-
-
 Fetched 2 resources
 
-
-
 Fetched 2 resources
-
-
-
-Fetched 2 resources
-
-
 
 Fetched 3 resources
 
-
-
 Fetched 3 resources
-
-
 
 Fetched 3 resources
 
@@ -1181,8 +1265,6 @@ Espressione regolare `elementi secondari|Elementi secondari|§ 7.2|7.2 Elementi 
 Espressione regolare `EN 1992-1-1|Eurocode 2|EC2|EN1992|v_rd,c|VRd,c` (`**/*.{md,py,txt,json}`) ricercata, 200 risultati
 
 Espressione regolare `taglio|V_Rd,c|V_Rd|VRd|taglio senza|fessur|elementi secondari '7.2'` (`**/*.{md,py,txt}`) ricercata, 200 risultati
-
-
 
 Fetched 2 resources
 
@@ -1205,6 +1287,7 @@ Status: procedo a chiudere i TODO (PLAN‑ONLY). Di seguito trovi le azioni conc
 ---
 
 ## 1) Stato riepilogativo dei TODO
+
 - Risolti (plan‑level): definizione dei campi, mapping norma→check, GUI/archivio separati, messaggi UX standard.  
 - Rimangono da chiudere (richiedono estrazione da norme o datasheet): valori numerici NA (γ_c ecc.), tabelle w_max (DM96/Circolare), formule EN/ETA copiate testualmente, ETA/datasheet per ancoraggi, cp‑tables da NA per vento, esempi numerici certificati.  
 - Azione generale: per ogni TODO “normativo” servono copia/estratto ufficiale (NTC2018/Circolare, EN/NA, ETA) — indicato sotto.
@@ -1212,6 +1295,7 @@ Status: procedo a chiudere i TODO (PLAN‑ONLY). Di seguito trovi le azioni conc
 ---
 
 ## 2) Azioni operative immediate (ordine esatto per chiudere i TODO)
+
 1. Ottenere / allegare le fonti ufficiali: NTC2018 (+Circolare n.7/2019), EN1992‑1‑1, EN1992‑4, EN1991‑1‑4, National Annex (Italia).  
    - Deliverable: PDF/estratti citabili nella cartella `docs/MEGAPLAN/sources/` (owner: you / standards librarian).
 2. Aggiornare `docs/MEGAPLAN/SPEC_RC_SLU_VRDc_NoStirrups.md` con la formula EC2 (§6.2) e definizioni; inserire 3–5 golden test inputs (owner: ing. strutturista).  
@@ -1223,6 +1307,7 @@ Status: procedo a chiudere i TODO (PLAN‑ONLY). Di seguito trovi le azioni conc
 ---
 
 ## 3) Test fixtures (inputs da includere adesso — output calcolare secondo le norme citate)
+
 - VRDc (golden cases — inserire questi input nei test; expected value → calcolare da EN1992‑1‑1 §6.2)
   - Case A (PASS): b=300 mm, d=450 mm, f_ck=30 MPa, ρ_l=0.015, σ_cp=0 MPa, V_Ed=60 kN  
   - Case B (FAIL): same geometry, V_Ed=200 kN  
@@ -1268,6 +1353,7 @@ D) `GUI_VERIFICATION_SUPPORT.md` — normative mapping (excerpt)
 ---
 
 ## 5) UX / GUI: file + behavior (reminder, checked off in plan)
+
 - GUI widgets: `src/gui/secondary_elements/editor.py` → must expose the fields in `SecondaryElementSpec`.  
 - Save/load → `project.secondary_elements[]`.  
 - Run → `VerificationEngine.run_check(check_id, SecondaryElementSpec)` and display `steps[]` + `norm_references[]`.  
@@ -1276,6 +1362,7 @@ D) `GUI_VERIFICATION_SUPPORT.md` — normative mapping (excerpt)
 ---
 
 ## 6) Who does what & estimated effort
+
 - Engineering (extract normative clauses, compute golden outputs, approve SPEC): 2–4 days  
 - Procurement / Supplier (ETA for anchors): 1–3 days (depends on vendor)  
 - Dev (add test fixtures, CI TODO scan, create GUI wireframes): 3–7 days (MVP)  
@@ -1284,6 +1371,7 @@ D) `GUI_VERIFICATION_SUPPORT.md` — normative mapping (excerpt)
 ---
 
 ## 7) Acceptance criteria to mark each TODO CLOSED
+
 - `VRd,c` TODO closed when `SPEC_RC_SLU_VRDc_NoStirrups.md` contains verbatim EC2 clause or exact citation + computed golden test expected values added to `TEST_PLAN_NTC2018.md`.  
 - `SLE w_max` TODO closed when DM96/Circolare table is pasted into SLE SPEC and golden SLE tests added.  
 - `Anchors` TODO closed when ETA datasheet(s) and at least one worked example are attached to SPEC.  
@@ -1294,6 +1382,7 @@ D) `GUI_VERIFICATION_SUPPORT.md` — normative mapping (excerpt)
 ---
 
 ## 8) Immediate next action (pick one)
+
 - [ ] I formalizzo ora il contenuto completo di `SPEC_RC_SLU_VRDc_NoStirrups.md` (incluso blocco formula EC2 e placeholders NA) — tu confermi e io produco il testo PLAN‑ONLY.  
 - [ ] Oppure: preferisci che prima tu recuperi i PDF NA / DM96 / ETAs (io fornisco il testo SPEC solo dopo)?
 
@@ -1306,6 +1395,7 @@ GitHub Copilot: Confermo: procedo a COMPLETARE i TODO in modalità Plan (nessuna
 ---
 
 ## 1) Stato generale — cosa è stato risolto ora
+
 - Risolti (plan‑level): definizione completa di `SecondaryElementSpec`, mapping norma→check, GUI wire in `src/gui`, messaggi UX standard, scelta metodo V_Rd,c (EC2).  
 - Chiusure parziali: VRd,c formula e test fixtures con valori calcolati (assunzione γ_c=1.5 — TODO: conferma NA).  
 - Rimangono documentati come TODO soltanto gli estratti testuali da norme/ETA che richiedono copie/valori ufficiali (vedi sezione "Elementi da verificare").
@@ -1313,9 +1403,11 @@ GitHub Copilot: Confermo: procedo a COMPLETARE i TODO in modalità Plan (nessuna
 ---
 
 ## 2) SPEC da incollare (testo pronto — PLAN‑ONLY)
+
 Aggiungi o aggiorna i seguenti file in MEGAPLAN con i blocchi sottostanti.
 
 - File: `docs/MEGAPLAN/SPEC_RC_SLU_VRDc_NoStirrups.md` (sezione principale da inserire)
+
 > **Fonte normativa:** EN 1992‑1‑1 §6.2 (Eurocode 2). NTC2018 rimanda a EC2 per espressioni dettagliate.  
 > **Formula (EC2 — riferimento):**  
 > v_rd,c = [C_Rd,c · k · (100 · ρ_l · f_ck)^(1/3) + k1 · σ_cp] · b_w · d  
@@ -1323,6 +1415,7 @@ Aggiungi o aggiorna i seguenti file in MEGAPLAN con i blocchi sottostanti.
 > **Applicabilità:** restituisce `NOT_APPLICABLE` per d o ρ_l fuori dai limiti EC2; segnala se sezione non‑rettangolare o condizioni di bordo non standard.  
 > **Output richiesti:** status (OK/NOT_OK/NOT_APPLICABLE), utilisation (V_Ed/V_Rd,c), V_Rd,c [kN], v_min [kN], norm_references[], messages[].  
 > **Esempi (golden fixtures — da usare nei test):**  
+>
 > - Case A (PASS): b=300 mm, d=450 mm, f_ck=30 MPa, ρ_l=0.015, σ_cp=0 MPa, V_Ed=60 kN → V_Rd,c ≈ **96.0 kN** (assunzione γ_c=1.5) → status = OK.  
 > - Case B (FAIL): same geometry, V_Ed=200 kN → status = NOT_OK.  
 > - Case C (NOT_APPLICABLE): d < normative_min (es. d=80 mm) → status = NOT_APPLICABLE.  
@@ -1330,19 +1423,23 @@ Aggiungi o aggiorna i seguenti file in MEGAPLAN con i blocchi sottostanti.
 > **TODO (normativo):** incollare testo originale EN1992‑1‑1 §6.2 e confermare `γ_c` e parametri dalla National Annex italiana.
 
 - File: `docs/MEGAPLAN/SPEC_RC_SLE_Cracking.md` (SLE aggiunta)
+
 > **Riferimento:** EN1992‑1‑1 §7.3 (crack widths); DM96 / Circolare 617/2009 per tabella w_max (Italia).  
 > **Output SLE:** w_calculated, w_max (classe esposizione), pass/fail.  
 > **Recommended defaults (documentare/finalizzare con DM96):** suggerire w_max ≈ 0.2–0.3 mm a seconda di classe di servizio — **TODO**: inserire tabella DM96/Circolare.  
 > **Test:** includere 1 EC2 worked example e 1 DM96 example (numeric).
 
 - File: `docs/MEGAPLAN/SPEC_SecondaryElementSpec.md` (estratto per template)
+
 > Per ciascun `type` (CANTILEVER, SIGNAGE, PARTITION, CHIMNEY) definire: modello statico, campi obbligatori (`geometry`, `material_code`, `attachments[]`, `loads{Gk,Qk,wind,seismic}`), checks richiesti (SLU bending, SLU shear/anchors, SLE deflection/cracking, seismic anchors).  
 > Esempio sintetico (CANTILEVER): `checks`: `secondary_cantilever_moment`, `secondary_cantilever_shear`, `secondary_cantilever_anchor`, `secondary_cantilever_deflection`.  
 > **Test fixtures** (input) forniti nella sezione Test plan qui sotto.  
 > **TODO**: incollare testo NTC2018 §7.2 (Circolare NTC) come reference.
 
 - File: `docs/MEGAPLAN/GUI_VERIFICATION_SUPPORT.md` (mapping norma→check)
+
 > Mappa ogni check su fonte normativa principale:  
+>
 > - `RC_SLU_VRDc_NoStirrups` → EN1992‑1‑1 §6.2 (NTC2018 reference)  
 > - `RC_SLE_Cracking_NoStirrups` → EN1992‑1‑1 §7.3 + DM96 (ITA)  
 > - `secondary_signage_anchor` → EN1992‑4 + ETA (manufacturer)  
@@ -1351,7 +1448,8 @@ Aggiungi o aggiorna i seguenti file in MEGAPLAN con i blocchi sottostanti.
 
 ---
 
-## 3) Test plan & fixtures (da aggiungere in `docs/MEGAPLAN/TEST_PLAN_SECONDARY_ELEMENTS.md` e tests) 
+## 3) Test plan & fixtures (da aggiungere in `docs/MEGAPLAN/TEST_PLAN_SECONDARY_ELEMENTS.md` e tests)
+
 - VRd,c (unit tests)
   - Case A (PASS): inputs (vedi SPEC). Expected: status=OK, V_Rd,c ≈ **96.0 kN**, utilisation ≈ 0.625. *Assumption: γ_c=1.5 (confirm NA).*  
   - Case B (FAIL): expected status=NOT_OK.  
@@ -1367,6 +1465,7 @@ Aggiungi o aggiorna i seguenti file in MEGAPLAN con i blocchi sottostanti.
 ---
 
 ## 4) File list da aggiornare (esatto)
+
 - docs/MEGAPLAN/SPEC_RC_SLU_VRDc_NoStirrups.md (ADD: formula, applicability, golden tests)  
 - docs/MEGAPLAN/SPEC_RC_SLE_Cracking.md (ADD: SLE rules + TODO DM96 table)  
 - docs/MEGAPLAN/SPEC_SecondaryElementSpec.md (UPDATE: templates + GUI bindings)  
@@ -1378,6 +1477,7 @@ Aggiungi o aggiorna i seguenti file in MEGAPLAN con i blocchi sottostanti.
 ---
 
 ## 5) Elementi ancora marcati TODO (azione richiesta)
+
 - TODO‑A: **Copia verbatim** EN1992‑1‑1 §6.2 and §7.3 into SPEC (owner: you / standards librarian). — *Blocking:* final numeric constants for tests (confirm γ_c from NA).  
 - TODO‑B: **DM96 / Circolare** — paste w_max table into SLE SPEC (owner: you / standards librarian).  
 - TODO‑C: **Anchor ETAs** (manufacturer datasheets) — attach ETA and add manufacturer example (owner: procurement).  
@@ -1387,6 +1487,7 @@ Aggiungi o aggiorna i seguenti file in MEGAPLAN con i blocchi sottostanti.
 ---
 
 ## 6) Acceptance criteria (per considerare i TODO “chiusi”)
+
 - SPEC files contengono formule/clauses o riferimenti primari e i golden tests numerici (o i dati ETA allegati).  
 - Nessun `TODO` token rimane in `docs/MEGAPLAN/*.md` eccetto eccezioni approvate.  
 - I test‑fixtures che dipendono da norme paywalled contengono il riferimento al documento allegato.  
@@ -1395,6 +1496,7 @@ Aggiungi o aggiorna i seguenti file in MEGAPLAN con i blocchi sottostanti.
 ---
 
 ## 7) Prossimi passi immediati (azione raccomandata)
+
 1. Carica/fornisci i PDF NA/EN/ETA (NTC2018 Circolare, EN1992‑1‑1, EN1991‑1‑4, EN1992‑4, ETAs) nella cartella `docs/MEGAPLAN/sources/` — così completo i riferimenti verbatim e chiudiamo i TODO normativi.  
 2. Conferma `γ_c` da NA italiana (per VRd,c) — poi sostituisco l’assunzione e aggiorno i test numerici.  
 3. Vuoi che generi ora i contenuti finali dei file `SPEC_*` (testi completi pronti da incollare)? (Rispondi “Sì — genera SPEC” o carica le fonti e poi genero.)
@@ -1415,6 +1517,7 @@ Perfetto — risposte ricevute e salvate. Procedo con queste decisioni (Plan‑o
 - Per vento includerò i valori del National Annex italiano come predefiniti, ma saranno configurabili dalla GUI.
 
 Prossimo passo: genero i testi SPEC aggiornati (PRONTI‑TO‑PASTE) per
+
 1) `SPEC_RC_SLU_VRDc_NoStirrups.md` (inclusi formule EC2 riassunte, test fixtures con i valori calcolati usando γ_c=1.5 come default, e nota su configurabilità NA), e  
 2) `SPEC_SecondaryElementSpec.md` (inclusi template, GUI bindings, esempi produttore per ancoraggi e valori SLE provvisori).
 
@@ -1443,6 +1546,7 @@ Lettura [](file:///c%3A/workspaces/RD2229/RD2229/docs/MEGAPLAN/KB_NTC2018.md)
 ## Analisi e piano di integrazione KB → architettura modulare (PLAN‑ONLY)
 
 Breve sintesi: le Knowledge Base (KB_RD2229_1939.md, KB_DM_1992_TA.md, KB_DM_1996_TA.md, `KB_NTC2018*.md`) sono presenti e ben strutturate; servono però:
+
 - tabelle numeriche e esempi concreti (valori ammissibili, tabelle w_max, ETA anchor examples),
 - una rappresentazione machine‑readable della KB,
 - un adattamento modulare dei CodeModule esistenti (RD2229/DM92/DM96) e la registrazione chiara nel motore di verifica e nella GUI.  
@@ -1452,6 +1556,7 @@ Di seguito trovi: risultati dell’audit, gap/TODO prioritari, architettura prop
 ---
 
 ## 1) Risultati audit KB (cosa c'è / cosa manca)
+
 - Esistenti e conformi alla struttura richiesta:  
   - KB_RD2229_1939.md — buona copertura concettuale, manca tabella valori numerici (σ_adm, tabelle materiali).  
   - KB_DM_1992_TA.md — descrittivo, manca elenco numerico limitazioni/valori.  
@@ -1469,6 +1574,7 @@ Di seguito trovi: risultati dell’audit, gap/TODO prioritari, architettura prop
 ---
 
 ## 2) Decisione di integrazione (vincoli)
+
 - Tenere la KB MD come fonte umana vincolante; aggiungere file machine‑readable (JSON/YAML) per uso runtime.  
 - Ogni norma diventa un `CodeModule` isolato e registrato nel `VerificationEngine` tramite `VerificationFactory<Norma>`.  
 - Retro‑compatibilità: preservare `TA` behavior corrente; fornire shims che delegano alle nuove CodeModule.
@@ -1476,6 +1582,7 @@ Di seguito trovi: risultati dell’audit, gap/TODO prioritari, architettura prop
 ---
 
 ## 3) Architettura proposta (testuale)
+
 - Knowledge Base (human MD) + KB JSON (machine)
   - MD: `docs/MEGAPLAN/KB_*.md` (authoritative)
   - JSON: `config/kb/rd2229.json`, `config/kb/dm1996.json`, `config/kb/dm1992.json`
@@ -1490,6 +1597,7 @@ Di seguito trovi: risultati dell’audit, gap/TODO prioritari, architettura prop
 ## 4) Implementazione — passi, ordine e file esatti (priorità → esatto ordine operativo)
 
 Fase 0 — KB audit & machine KB (HIGH)
+
 1. Add numeric tables & examples to KB MD (authoritative)
    - Update KB_RD2229_1939.md — add allowable stresses table (σ_c_adm, σ_s_adm) + example calculation
    - Update KB_DM_1992_TA.md — add tables
@@ -1503,58 +1611,66 @@ Fase 0 — KB audit & machine KB (HIGH)
 
 Fase 1 — CodeModule per norma (HIGH)
 3. Create CodeModule packages (adapter/shims)
-   - Files to create:
-     - `src/codes/rd2229/__init__.py`
-     - `src/codes/rd2229/code_module.py` (implements `available_checks()`/`run_check()`)
-     - `src/codes/dm1996/__init__.py`
-     - `src/codes/dm1996/code_module.py`
-     - `src/codes/dm1992/__init__.py`
-     - `src/codes/dm1992/code_module.py`
-   - Adapter behavior: reuse existing `verifications/rd2229/*` functions; read KB JSON for thresholds
-   - Acceptance: unit tests call `run_check()` and get `VerificationResultItem` with `norm_references`
+
+- Files to create:
+  - `src/codes/rd2229/__init__.py`
+  - `src/codes/rd2229/code_module.py` (implements `available_checks()`/`run_check()`)
+  - `src/codes/dm1996/__init__.py`
+  - `src/codes/dm1996/code_module.py`
+  - `src/codes/dm1992/__init__.py`
+  - `src/codes/dm1992/code_module.py`
+- Adapter behavior: reuse existing `verifications/rd2229/*` functions; read KB JSON for thresholds
+- Acceptance: unit tests call `run_check()` and get `VerificationResultItem` with `norm_references`
 
 Fase 2 — Engine & factory wiring (HIGH)
 4. VerificationFactory & registry
-   - File: `src/core_calculus/core/verification_factories.py` (add `VerificationFactoryRD2229`, `VerificationFactoryDM1996`, `VerificationFactoryDM1992`)
-   - Update `create_verification_engine()` (or add `create_verification_engine_for_norm(norm_code)`) in verification_engine.py to select factory by `project_model.normativa_attiva`
-   - Acceptance: Engine can run checks for `RD2229`, `DM96`, `DM92` via same API
+
+- File: `src/core_calculus/core/verification_factories.py` (add `VerificationFactoryRD2229`, `VerificationFactoryDM1996`, `VerificationFactoryDM1992`)
+- Update `create_verification_engine()` (or add `create_verification_engine_for_norm(norm_code)`) in verification_engine.py to select factory by `project_model.normativa_attiva`
+- Acceptance: Engine can run checks for `RD2229`, `DM96`, `DM92` via same API
 
 Fase 3 — KB → runtime & tests (HIGH)
 5. KB loader & validation
-   - File: `src/core_calculus/kb_loader.py` (load JSON, validate fields, expose API `get_kb_limit(norm, key)`)
-   - Tests: `tests/kb/test_kb_loader.py`
-   - Acceptance: KB JSON schema validated; MD ↔ JSON consistency test
+
+- File: `src/core_calculus/kb_loader.py` (load JSON, validate fields, expose API `get_kb_limit(norm, key)`)
+- Tests: `tests/kb/test_kb_loader.py`
+- Acceptance: KB JSON schema validated; MD ↔ JSON consistency test
 
 Fase 4 — GUI + ProjectModel (HIGH)
 6. GUI normative selector & UI mapping
-   - Files to modify/create:
-     - `src/gui/widgets/norm_selector.py` (widget)
-     - `app/ui/module_selector.py` (add RD2229/DM92/DM96 entries)
-     - PLAN_GUI.md (update with norm mapping)
-   - Acceptance: UI dropdown selects `project_model.normativa_attiva`; VerificationEngine invoked with selected norm
+
+- Files to modify/create:
+  - `src/gui/widgets/norm_selector.py` (widget)
+  - `app/ui/module_selector.py` (add RD2229/DM92/DM96 entries)
+  - PLAN_GUI.md (update with norm mapping)
+- Acceptance: UI dropdown selects `project_model.normativa_attiva`; VerificationEngine invoked with selected norm
 
 Fase 5 — Migrate existing TA checks & flesh stubs (MEDIUM)
 7. Replace stubs with KB-driven values
-   - Update tensioni_ammissibili.py to read `config/kb/rd2229.json` (or deprecate stub and use `src/codes/rd2229/code_module.py` adaptor)
-   - Add unit tests: `tests/verifications/test_rd2229_tensioni.py` (golden numbers)
-   - Acceptance: RD2229 checks return values matching KB tables
+
+- Update tensioni_ammissibili.py to read `config/kb/rd2229.json` (or deprecate stub and use `src/codes/rd2229/code_module.py` adaptor)
+- Add unit tests: `tests/verifications/test_rd2229_tensioni.py` (golden numbers)
+- Acceptance: RD2229 checks return values matching KB tables
 
 Fase 6 — Tests, CI, docs final (HIGH)
 8. Tests & CI
-   - Unit tests for each CodeModule (`tests/codes/test_rd2229_*`, `test_dm1996_*`, `test_dm1992_*`)
-   - Integration tests: `tests/integration/test_norm_switching.py` (compare same element under NTC2018 vs RD2229/DM96)
-   - CI: add KB‑consistency check (no TODO tokens), coverage thresholds for new modules
-   - Acceptance: all tests green, CI enforces KB completeness
+
+- Unit tests for each CodeModule (`tests/codes/test_rd2229_*`, `test_dm1996_*`, `test_dm1992_*`)
+- Integration tests: `tests/integration/test_norm_switching.py` (compare same element under NTC2018 vs RD2229/DM96)
+- CI: add KB‑consistency check (no TODO tokens), coverage thresholds for new modules
+- Acceptance: all tests green, CI enforces KB completeness
 
 ---
 
 ## 5) Dipendenze critiche (ordine obbligatorio)
+
 - KB MD updated → KB JSON created → KB loader implemented → CodeModule reads KB → Engine wiring → GUI hook → Tests.
 - Non procedere con CodeModule finale finché KB JSON + loader non validate i valori (garanzia traceability).
 
 ---
 
 ## 6) Mappatura file (esatto elenco da creare/modificare)
+
 - Create/modify (high priority)
   - KB_RD2229_1939.md (add numeric tables & examples)  ← TODO-A
   - KB_DM_1992_TA.md (add numeric tables)          ← TODO‑A
@@ -1573,6 +1689,7 @@ Fase 6 — Tests, CI, docs final (HIGH)
 ---
 
 ## 7) Criteri di accettazione (per la consegna)
+
 - KB: ogni `KB_*.md` contiene tabelle numeriche obbligatorie o rimanda esplicitamente alla fonte; corrispondente `config/kb/*.json` esiste e passa validazione.  
 - Engine: selezionando `project_model.normativa_attiva` == `RD2229|DM1996|DM1992` le verifiche chiamano il `CodeModule` corretto e producono `VerificationResultItem` conforme a `PLAN_OUTPUT_COMUNE`.  
 - GUI: norma selezionabile, elenco checks aggiornato per la norma selezionata; comparazione normativa possibile.  
@@ -1582,6 +1699,7 @@ Fase 6 — Tests, CI, docs final (HIGH)
 ---
 
 ## 8) Rischi principali & mitigazioni
+
 - Rischio: inconsistenze tra KB MD e KB JSON → mitigare con test automatici di coerenza (MD→JSON mapping check).  
 - Rischio: norme storiche mancano di esempi numerici → mitigare creando “golden examples” riconciliabili (documentare sorgente).  
 - Rischio: breaking change nella GUI/engine → mantenere shims e feature‑toggle per rollout graduale.
@@ -1589,6 +1707,7 @@ Fase 6 — Tests, CI, docs final (HIGH)
 ---
 
 ## 9) Checklist rapida (uso operativo)
+
 - [ ] Aggiornare KB_RD2229_1939.md con tabelle numeriche (σ_adm, materiali)  
 - [ ] Creare `config/kb/rd2229.json` (machine KB)  
 - [ ] Implementare `src/core_calculus/kb_loader.py` + tests  
@@ -1601,6 +1720,7 @@ Fase 6 — Tests, CI, docs final (HIGH)
 ---
 
 ## 10) Prossimi step raccomandati (scegliere 1)
+
 - A — Comincio formalmente l’elenco di aggiornamenti KB MD (KB_RD2229_1939.md, KB_DM_1996_TA.md, KB_DM_1992_TA.md) con le tabelle numericamente richieste (PLAN‑ONLY).  
 - B — Preparo gli schemi JSON per la Knowledge Base (`config/kb/*.json`) e lo schema JSON‑validator (PLAN‑ONLY).  
 - C — Formalizzo la API `CodeModule` contract e la `VerificationFactory` (PLAN‑ONLY) mapping per RD2229/DM96/DM92.
@@ -1614,9 +1734,11 @@ GitHub Copilot: Status: ricevuto — fornisco tre piani esecutivi (PLAN‑A, PLA
 ---
 
 ## PLAN‑A — KB MD: completare le Knowledge Base storiche e NTC (chiusura TODO‑A / TODO‑B)
+
 TL;DR — Riempire i file KB con le tabelle numeriche e gli esempi mancanti (RD2229, DM92, DM96, SLE w_max per NTC), allegare sorgenti in `docs/MEGAPLAN/sources/` e rimuovere i TODO testuali dai MD.
 
 Steps
+
 1. Identificare gap e location nei file KB (audit): aggiornare KB_RD2229_1939.md, KB_DM_1992_TA.md, KB_DM_1996_TA.md, `KB_NTC2018*.md`.
 2. Raccogliere fonti italiane disponibili (DM, Circolare NTC, RD2229) e salvare estratti in `docs/MEGAPLAN/sources/` (PDF o scansione).
 3. Aggiungere tabelle normative in ciascun KB:
@@ -1626,11 +1748,13 @@ Steps
 5. Rimuovere/convertire i token `TODO` in entrate KB o, se non disponibile, lasciare `TODO` con azione chiarissima (es. “attach ETA for anchor X”).
 
 Files to update/create
+
 - Update: KB_RD2229_1939.md, KB_DM_1992_TA.md, KB_DM_1996_TA.md, KB_NTC2018.md (e sezioni correlate)
 - Create: `docs/MEGAPLAN/sources/` (placeholders per PDF/estratti)
 - Update: `docs/MEGAPLAN/TEST_PLAN_NTC2018.md` (aggiungi golden examples riferiti alle KB)
 
 Verification
+
 - MD lint OK; nessun `TODO` non giustificato rimane nei file KB.
 - Per ogni nuova tabella, aggiungere una riga di test che verifica la presenza della chiave corrispondente nel JSON KB (Plan‑B).
 Acceptance
@@ -1641,9 +1765,11 @@ Estimate: 1–2 working days (ricerca + aggiornamento SPEC).
 ---
 
 ## PLAN‑B — Machine KB: schema JSON + loader (chiusura TODO‑A → abilita runtime)
+
 TL;DR — Modellare e serializzare le KB in JSON (`config/kb/*.json`), creare loader/validator e test di coerenza MD↔JSON.
 
 Steps
+
 1. Definire schema JSON obbligatorio (schema fields): `material_classes`, `allowable_stresses`, `w_max_by_class`, `anchors_defaults`, `norm_references`, `applicability_limits`.
 2. Implementare i file KB machine:
    - `config/kb/rd2229.json`
@@ -1657,16 +1783,19 @@ Steps
 5. Wire minimal runtime read-only access (read‑only KB) — no logic change to calculation modules yet.
 
 Files to create
+
 - `config/kb/rd2229.json`, `config/kb/dm1996.json`, `config/kb/dm1992.json`
 - Doc: `docs/MEGAPLAN/K B_JSON_SCHEMA.md` (describe JSON fields)
 - Tests: `tests/kb/*`
 - (Plan‑only) API spec: `docs/MEGAPLAN/K B_LOADER_CONTRACT.md`
 
 Verification
+
 - Loader returns expected numeric values for sample queries.
 - MD ↔ JSON consistency: tests confirm every MD table row has corresponding JSON key.
 
 Dependencies
+
 - Requires PLAN‑A completed (MD authoritative content → JSON source).
 Acceptance
 - KB JSON files validate against schema; loader unit tests green.
@@ -1676,9 +1805,11 @@ Estimate: 1–2 working days (schema design + JSON authoring + tests).
 ---
 
 ## PLAN‑C — CodeModule contract & VerificationFactory (chiusura TODO‑C / integrazione multi‑norma)
+
 TL;DR — Definire il contratto `CodeModule` (API + output schema per `VerificationResultItem`), implementare `VerificationFactory` registry e creare adapter skeleton per `RD2229/DM96/DM92` che leggono la KB JSON; aggiornare l’engine per selezione norma.
 
 Steps
+
 1. SPEC: scrivere `CodeModule_CONTRACT.md` (metodi pubblici, error codes, `VerificationResultItem` exact fields per `PLAN_OUTPUT_COMUNE.md`).
 2. Implementazione architettonica (skeletons, plan‑only list):
    - New packages: `src/codes/rd2229/`, `src/codes/dm1996/`, `src/codes/dm1992/` (each implements contract).
@@ -1693,6 +1824,7 @@ Steps
    - Ensure `gui/views/selezione_normativa.py` sets `project_model.normativa_attiva` and `VerificationEngineBinding` routes to correct factory per `GUI_SELEZIONE_NORMATIVA.md`.
 
 Files to create/modify
+
 - Create: `docs/MEGAPLAN/CodeModule_CONTRACT.md`
 - Create skeletons: `src/codes/rd2229/code_module.py`, `src/codes/dm1996/code_module.py`, `src/codes/dm1992/code_module.py`
 - Create: `src/core_calculus/core/verification_factories.py`
@@ -1700,6 +1832,7 @@ Files to create/modify
 - Tests: `tests/*` as above
 
 Verification
+
 - Engine can run a `CodeModule` check for `RD2229` and return a `VerificationResultItem` that:
   - contains `norma: 'RD2229'`
   - contains `norm_references` pointing to KB_RD2229_1939.md
@@ -1707,6 +1840,7 @@ Verification
 - Integration test comparing results NTC2018 vs RD2229 executes and returns deterministic items.
 
 Decisions
+
 - CodeModule contract enforces single output schema (per `PLAN_OUTPUT_COMUNE.md`).
 - Existing verification implementations remain unchanged until adapters are available (shim strategy).
 
@@ -1715,6 +1849,7 @@ Estimate: 3–5 working days (spec + skeletons + tests + wiring).
 ---
 
 ## Sequenza obbligatoria (priorità)
+
 1. PLAN‑A (KB MD updates) — authoritative source for all downstream work  
 2. PLAN‑B (KB JSON + loader) — enable runtime consumption of KB  
 3. PLAN‑C (CodeModule + factory) — integrate norms into engine & GUI
@@ -1722,6 +1857,7 @@ Estimate: 3–5 working days (spec + skeletons + tests + wiring).
 ---
 
 ## Final checklist (pre‑PR)
+
 - [ ] `docs/MEGAPLAN/KB_*.md` updated (no TODOs except approved exceptions)  
 - [ ] `config/kb/*.json` created and validated by tests  
 - [ ] `CodeModule_CONTRACT.md` reviewed and accepted  
@@ -1731,6 +1867,7 @@ Estimate: 3–5 working days (spec + skeletons + tests + wiring).
 ---
 
 Vuoi che formalizzi ora (PLAN‑ONLY) il contenuto di uno dei seguenti artefatti prima di iniziare l'implementazione?  
+
 - A1: blocco tabellare pronto da incollare per KB_RD2229_1939.md (valori ammissibili)  
 - B1: JSON‑schema proposto per `config/kb/*.json`  
 - C1: `CodeModule_CONTRACT.md` (firma API + response schema)
@@ -1750,9 +1887,11 @@ Status: ricevuto — fornisco i tre artefatti richiesti (A1, B1, C1) e linee gui
 ---
 
 ## A1 — KB block per KB_RD2229_1939.md (tabella pronta da incollare) ✅
+
 Inserisci questo blocco nella sezione “Prescrizioni di calcolo” / tabelle del file KB_RD2229_1939.md.
 
 ### Tabella: proprietà storiche RD2229 (unità: kg/cm² o come indicato)
+
 | Classe / id | σ_c,28 (kg/cm²) | σ_c (tensione ammissibile, kg/cm²) | E_c (kg/cm²) | τ_c0 (servizio) | τ_c1 (max) | γ_c (≈ fck/σ_c) |
 |-------------:|:---------------:|:-----------------------------------:|:------------:|:---------------:|:----------:|:---------------:|
 | RD2229_CLS_120_N | 120.0 | 35.0 | 250000 | 4.0 | 14.0 | 3.0 |
@@ -1763,6 +1902,7 @@ Inserisci questo blocco nella sezione “Prescrizioni di calcolo” / tabelle de
 | RD2229_CLS_120_LP | 120.0 | 35.0 | 200000 | 6.0 | 16.0 | 3.0 |
 
 Nota per lo SPEC:
+
 - Queste voci provengono dall’implementazione storica presente in historical_materials.py (fonte RD2229 nel repo).  
 - Aggiungi riferimento testuale: “Valori storici ricavati da historical_materials.py (RD2229 examples) — verificare con documento originale se necessario.”
 
@@ -1771,9 +1911,11 @@ TODO (KB_RD2229): inserire la citazione documento ufficiale RD2229/39 o scansion
 ---
 
 ## B1 — JSON‑schema proposto per `config/kb/*.json` (machine KB) 🔧
+
 File target: `config/kb/rd2229.json`, `config/kb/dm1996.json`, `config/kb/dm1992.json`
 
 Schema (alto livello — da trasformare in JSON‑Schema formale):
+
 - root: object
   - meta: { code_name: string, description: string, standard_reference: string, unit_system: string }
   - material_classes: object (key = class id) → object {
@@ -1796,6 +1938,7 @@ Schema (alto livello — da trasformare in JSON‑Schema formale):
   - examples: array of { id: string, input: object, expected: object, reference: string }
 
 Snippet di esempio (da inserire in `config/kb/rd2229.json`):
+
 ```json
 {
   "meta": { "code_name": "RD2229", "unit_system": "historical (kg/cm2)" },
@@ -1810,7 +1953,9 @@ Snippet di esempio (da inserire in `config/kb/rd2229.json`):
   ]
 }
 ```
+
 Acceptance rules:
+
 - Every MD KB entry must have a corresponding JSON key (testable).
 - `applicability_limits` must include the minimal gating values used by checks (e.g. `min_d_mm`, `min_rho_l`).
 
@@ -1821,9 +1966,11 @@ TODO (B1): finalizzare JSON Schema formale (Draft‑07) e creare `src/core_calcu
 ## C1 — `CodeModule_CONTRACT.md` (API contract + response schema) — pronto da incollare 📜
 
 ### Scopo
+
 Definire il contratto obbligatorio che ogni `CodeModule` (norma) deve esporre per essere utilizzato dal `VerificationEngine` e dalla GUI.
 
 ### API pubbliche (metodi obbligatori)
+
 - `available_checks() -> list[str]`  
   - Restituisce gli `check_id` disponibili per il modulo (es. `RC_SLU_VRDc_NoStirrups`, `RC_SLE_Cracking_NoStirrups`, `secondary_cantilever_moment`).
 
@@ -1842,11 +1989,13 @@ Definire il contratto obbligatorio che ogni `CodeModule` (norma) deve esporre pe
   - Lista di riferimenti normativi usati per quel check.
 
 ### Input payload (shape richiesto)
+
 - Deve aderire a `BaseElementSpec` / `SecondaryElementSpec` (vedi `PLAN_INPUT_COMUNE.md` / `SPEC_SecondaryElementSpec.md`).
 - Un esempio minimo per `run_check`:
   - `{ "element_id": "E1", "type": "CANTILEVER", "geometry": {...}, "material": {"code":"C25_30"}, "loads": {...}, "metadata": {"norm":"NTC2018"} }`
 
 ### VerificationResultItem (unico schema di output — conforme a `PLAN_OUTPUT_COMUNE.md`)
+
 - `check_id`: string
 - `element_id`: string
 - `norma`: string (es. `NTC2018`, `RD2229`)
@@ -1862,6 +2011,7 @@ Definire il contratto obbligatorio che ogni `CodeModule` (norma) deve esporre pe
 - `metadata`: { calculation_code_version: string, timestamp: ISO8601 }
 
 ### Error / validation codes (standard)
+
 - `ERR_INVALID_INPUT` — input schema non valido
 - `ERR_OUT_OF_SCOPE` — `NOT_APPLICABLE` with explanation
 - `ERR_MISSING_KB` — required KB entry missing
@@ -1869,7 +2019,9 @@ Definire il contratto obbligatorio che ogni `CodeModule` (norma) deve esporre pe
 Include these codes in `messages[]`.
 
 ### Example response (contract illustration — plan‑only)
+
 - For `RC_SLU_VRDc_NoStirrups` (example values computed per EC2 with γ_c=1.5):
+
 ```json
 {
   "check_id":"RC_SLU_VRDc_NoStirrups",
@@ -1889,6 +2041,7 @@ Include these codes in `messages[]`.
 ```
 
 ### Contract rules / expectations
+
 - **Idempotence**: same input → same output (deterministic); stateful external calls must be avoided.
 - **Traceability**: every numeric result must reference `norm_references` (clause or KB entry).
 - **Applicability gating**: checks must return `NOT_APPLICABLE` (with reason) when input out of KB limits.
@@ -1896,6 +2049,7 @@ Include these codes in `messages[]`.
 - **Unit / regression tests**: each `check_id` must include at least 3 golden examples (PASS/FAIL/NOT_APPLICABLE).
 
 ### Testing contract (required tests for each CodeModule)
+
 - `test_available_checks_present()`  
 - `test_validate_input_rejects_bad_schema()`  
 - `test_run_check_golden_cases()` (3 fixtures)  
@@ -1904,6 +2058,7 @@ Include these codes in `messages[]`.
 ---
 
 ## GUI: linee guida per interfacce professionali in Python (sintesi operativa)
+
 - Framework consigliato per MVP (coerente con progetto): **Tkinter + ttk + ttkbootstrap** (compatibilità + look moderno).  
 - Per UI “professionale” alternativa: **PySide6/Qt** se serve look enterprise o layout complessi.
 - Componenti chiave da realizzare in `src/gui/widgets/`:
@@ -1927,6 +2082,7 @@ Include these codes in `messages[]`.
 ---
 
 ## Next actions & owners (immediato)
+
 - You / Standards owner: approve and copy the KB table (A1) into KB_RD2229_1939.md.  
 - Dev / Data engineer: create `config/kb/*.json` per B1 and implement `kb_loader` tests.  
 - Architect / Lead dev: accept `CodeModule_CONTRACT.md` and scaffold `src/codes/*` adapters (C1).  
@@ -1935,6 +2091,7 @@ Include these codes in `messages[]`.
 ---
 
 Vuoi che generi ora i file MD completi per:
+
 - KB_RD2229_1939.md (A1 inserito + nota),  
 - `docs/MEGAPLAN/K B_JSON_SCHEMA.md` (B1 formale),  
 - `docs/MEGAPLAN/CodeModule_CONTRACT.md` (C1 formale) — tutti PLAN‑ONLY e pronti per review?
@@ -1946,6 +2103,7 @@ GitHub Copilot: 4 domande poste (Norme, Costanti, Ancoraggi, GUI)
 Perfetto — grazie per le risposte. Procedo con le attività successive basate sulle tue scelte (PLAN‑ONLY).  
 
 Prossimi passi che preparo subito (scegliendo l'ordine consigliato):
+
 1. Genero i file SPEC completi aggiornati usando le fonti pubbliche e i defaults concordati (gamma_c=1.5, gamma_s=1.15, w_max 0.2–0.3 mm) — includerò note “configurabile in GUI”.  
 2. Produco il JSON‑schema e un esempio `config/kb/rd2229.json` + loader contract (plan‑only).  
 3. Redigo il `CodeModule_CONTRACT.md` definitivo e lo appendo ai piani di test.  
@@ -1967,7 +2125,7 @@ Prossimo: aggiorno PLAN dettagliato per Cross + Fire (tasks, file, test, dipende
 
 User: considera che sotto MEGAPLAN hai molti riferimenti utili per valutare la forma finale del progetto. In particolare devono essere ben funzionanti le gui grafiche per inserimento dati, impostazione del calcolo, verifica, report. Aggiorna il plan in questa unica sessione, senza mai uscire dalla singola sessione di plan
 
-GitHub Copilot: 
+GitHub Copilot:
 
 User: @agent Riprova
 
@@ -2070,6 +2228,7 @@ Status: aggiorno il piano nella stessa sessione Plan, includendo GUI grafiche co
 Obiettivo: consolidare un’architettura modulare multi‑norma con GUI professionale e coerente, mantenendo KB come fonte unica, un input schema unico e output schema unico (`VerificationResultItem`), e predisponendo i moduli futuri (Cross e Incendio) senza contaminazioni normative.
 
 **Sintesi**
+
 - GUI unica e professionale: flusso completo “Norma → Metodo Analisi → Input → Verifica → Risultati → Report”.
 - Core multi‑norma: `CodeModule` + `VerificationFactory` per NTC2018, RD2229, DM92, DM96; KB come sorgente normativa unica.
 - Moduli futuri: Metodo di Cross (Pozzati) e Incendio (L1+L2) già previsti in architettura, con punti di integrazione espliciti nel ProjectModel, binding, GUI e output/report.
@@ -2078,6 +2237,7 @@ Obiettivo: consolidare un’architettura modulare multi‑norma con GUI professi
 ---
 
 ### **Steps**
+
 1. **Allineamento vincoli e conflitti GUI/ProjectModel**  
    - Consolidare il campo unico di normativa attiva nel `ProjectModel` (attualmente `normativa_attiva` vs `normativa_verifica` nei documenti).  
    - Aggiornare i file vincolanti che descrivono il flusso:  
@@ -2148,6 +2308,7 @@ Obiettivo: consolidare un’architettura modulare multi‑norma con GUI professi
 ---
 
 ### **Verification**
+
 - Verificare consistenza campo norma attiva in tutti i file GUI + binding.  
 - Verificare che `VerificationResultItem` sia l’unica fonte per report e GUI risultati.  
 - Verificare che GUI non contenga formule o decisioni normative.  
@@ -2156,6 +2317,7 @@ Obiettivo: consolidare un’architettura modulare multi‑norma con GUI professi
 ---
 
 ### **Decisions (registrate)**
+
 - GUI professionale: Tkinter + ttkbootstrap.  
 - Metodo di Cross: implementazione production‑level secondo Pozzati (norm‑agnostic).  
 - Incendio: MVP L1+L2 (tabellare + sezione efficace).  
@@ -2164,6 +2326,7 @@ Obiettivo: consolidare un’architettura modulare multi‑norma con GUI professi
 ---
 
 ## Prossimi step operativi (scegliere ordine di lavoro)
+
 1. Aggiornare i file GUI vincolanti (workflow completo con norma/metodo analisi/incendio).  
 2. Allineare `ProjectModel` e `VerificationEngineBinding` (campo norma unica).  
 3. Consolidare KB storiche (RD2229/DM92/DM96) con tabelle e riferimenti.  
@@ -2224,6 +2387,7 @@ GitHub Copilot: Perfetto, continuo il plan secondo l’ordine concordato (1→4)
 ---
 
 ## TODO residui (espliciti, con chiusura prevista)
+
 - Uniformare campo normativa attiva tra GUI e ProjectModel (Step 2).  
 - Inserire valori tabellari storici nelle KB (Step 3).  
 - Inserire riferimenti incendio in output/report (Step 4).  
@@ -2232,6 +2396,7 @@ GitHub Copilot: Perfetto, continuo il plan secondo l’ordine concordato (1→4)
 ---
 
 ## Prossimi passi immediati (ordine 1→4 già confermato)
+
 1) Aggiornare PLAN_GUI e GUI workflow (Step 1).  
 2) Allineare ProjectModel e Binding (Step 2).  
 3) Consolidare KB TA storiche (Step 3).  
@@ -2245,6 +2410,7 @@ Formalizza SOLO lo STEP 1:
 “GUI workflow completo (norma → metodo → input → verifica → risultati → report)”.
 
 Limiti vincolanti:
+
 - Nessuna anticipazione di Step 2, 3 o 4.
 - Nessuna modifica concettuale a ProjectModel o core.
 - Aggiorna SOLO i file di GUI e workflow indicati per Step 1.
@@ -2258,6 +2424,7 @@ GitHub Copilot: Status: formalizzo SOLO lo STEP 1 — “GUI workflow completo (
 ---
 
 ## Sintesi breve ✅
+
 Obiettivo STEP 1 — rendere la GUI un workflow professionale, guidato e bloccante (Norma → Metodo → Input → Verifica → Risultati → Report), mantenendo GUI “thin” (nessuna logica normativa) e senza toccare il core o il ProjectModel. Tutte le nuove regole e i controlli sono documentati nei file GUI indicati.
 
 ---
@@ -2265,33 +2432,40 @@ Obiettivo STEP 1 — rendere la GUI un workflow professionale, guidato e bloccan
 ## File → modifiche richieste (solo SPEC, plan‑only)
 
 1) PLAN_GUI.md  
+
 - Aggiungere: flusso canonico dettagliato con gating step‑by‑step, UX rules, widget required list (norm selector, method selector UI, input validators, run button, results table, report preview).  
 - Specifica: la selezione “Metodo analisi” è una proprietà GUI **locale** (non modifica ProjectModel/core) fino a integrazione futura.  
 - Acceptance: documento descrittivo aggiornato e approvato; wireframe checklist presente.
 
-2) GUI_MAIN_PY_NAVIGAZIONE.md  
+1) GUI_MAIN_PY_NAVIGAZIONE.md  
+
 - Aggiungere: nuovo sidebar item/sequence order reflecting workflow; ensure "Run verifications" disabled until preconditions met; document spinner/progress expectations and error handling.  
 - Acceptance: main navigation shows steps in order and documents precondition gating.
 
-3) GUI_SELEZIONE_NORMATIVA.md  
+1) GUI_SELEZIONE_NORMATIVA.md  
+
 - Aggiungere: explicit UX that Norma selection is mandatory and is the first gating control; describe visual state (badge showing current Norma); list disabled controls when no Norma selected.  
 - Acceptance: normative selector behavior and blocking rules fully specified.
 
-4) GUI_VERIFICATION_ENGINE_BINDING.md  
+1) GUI_VERIFICATION_ENGINE_BINDING.md  
+
 - Aggiungere: GUI pre‑run checklist (validate inputs, normative selected, method selected UI flag); binding must refuse run request with clear error messages if checklist fails. (NO changes al core API: binding continua a chiamare engine con current ProjectModel.)  
 - Acceptance: binding preconditions enumerated; sample error messages provided.
 
-5) GUI_RISULTATI_VIEW_CODICE.md  
+1) GUI_RISULTATI_VIEW_CODICE.md  
+
 - Aggiungere: results table enhancements — filters (by norma, stato limite), utilisation bar visual, checkbox per inclusion in report, detail pane with `VerificationResult.steps[]` + `norm_references[]`.  
 - Acceptance: results view presents read‑only data only from `VerificationResultItem` and supports selection for report.
 
-6) GUI_RISULTATI_TO_RELAZIONE_BINDING.md  
+1) GUI_RISULTATI_TO_RELAZIONE_BINDING.md  
+
 - Aggiungere: mapping UI → ReportBuilder (which fields are passed, handling of NOT_APPLICABLE, export behavior). Document that report builder reads only ProjectModel.verifiche_in_relazione (no recalculation).  
 - Acceptance: mapping table present; behavior for empty selection and export defined.
 
 ---
 
 ## Interfaccia utente (wireframe & widgets — descrizione)
+
 - Header: Norma corrente badge + small legend.  
 - Stepper (left sidebar or top): 1) Norma → 2) Metodo (UI only) → 3) Input (Sezioni/Materiali) → 4) Impostazioni calcolo/Combinazioni → 5) Esegui Verifiche → 6) Risultati → 7) Report.  
 - Key widgets:
@@ -2305,6 +2479,7 @@ Obiettivo STEP 1 — rendere la GUI un workflow professionale, guidato e bloccan
 ---
 
 ## Gating rules / validation (GUI only)
+
 - Cannot run verifications unless:
   - Norma is selected (mandatory)  
   - All mandatory input fields validated (per `PLAN_INPUT_COMUNE.md`)  
@@ -2315,6 +2490,7 @@ Obiettivo STEP 1 — rendere la GUI un workflow professionale, guidato e bloccan
 ---
 
 ## Test cases (GUI / acceptance) — add to test plan
+
 - GUI‑WF‑001: Attempt to run without Norma → expect error dialog "Selezionare una normativa" and run button disabled.  
 - GUI‑WF‑002: Method selector changes only UI state; ProjectModel unchanged.  
 - GUI‑WF‑003: Save inputs → inputs validated; Run button enabled.  
@@ -2327,6 +2503,7 @@ Each test must assert GUI does not perform calculations itself and that all nume
 ---
 
 ## UX messages (required in GUI spec)
+
 - Pre‑run block: "Selezionare una normativa" / "Dati di input incompleti: [campo1, campo2]".  
 - Run in progress: "Esecuzione verifiche… (cancel per interrompere)".  
 - Post‑run success: "Verifiche eseguite correttamente."  
@@ -2335,6 +2512,7 @@ Each test must assert GUI does not perform calculations itself and that all nume
 ---
 
 ## Criteri di accettazione (file‑by‑file)
+
 - `PLAN_GUI.md`: workflow steps + gating rules added; reviewed and accepted by product owner.  
 - `GUI_MAIN_PY_NAVIGAZIONE.md`: navigation updated to reflect workflow order; run button behavior documented.  
 - `GUI_SELEZIONE_NORMATIVA.md`: selector behavior and blocking rules documented and consistent with `PLAN_GUI.md`.  
@@ -2347,6 +2525,7 @@ Acceptance verification: manual walkthrough + automated GUI tests (see Test case
 ---
 
 ## Deliverables STEP 1 (plan‑only)
+
 - Updated SPEC sections in the six GUI files above (content as described).  
 - Wireframe + widget list (documented in `PLAN_GUI.md`).  
 - GUI acceptance tests (6 test cases) added to test plan.  
@@ -2362,6 +2541,7 @@ Procedi ora a generare SOLO i contenuti PLAN‑ONLY da incollare nei file MD
 elencati nello STEP 1 (uno per uno).
 
 Vincoli:
+
 - Rimani nella stessa sessione di PLAN.
 - Nessun codice.
 - Nessuna anticipazione di Step 2, 3 o 4.
@@ -2375,11 +2555,13 @@ Ho rispettato i vincoli: niente codice, niente anticipazioni su Step 2–4, ness
 ## PLAN_GUI.md — GUI workflow completo (Norma → Metodo → Input → Verifica → Risultati → Report)
 
 ### Scopo
+
 Definire in modo vincolante il workflow GUI che guida l’utente attraverso: selezione normativa, impostazione del calcolo, inserimento dati, esecuzione delle verifiche, lettura dei risultati e generazione della relazione. La GUI è un orchestratore: non contiene formule né logica normativa.
 
 ---
 
 ### TL;DR (flusso canonico)
+
 1. Seleziona Norma (obbligatorio)
 2. Seleziona Metodo di analisi (UI flag, non modifica il core)
 3. Inserisci / assegna Sezione e Materiale
@@ -2391,6 +2573,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### Requisiti vincolanti (hard rules)
+
 - GUI non esegue calcoli: richieste di calcolo inviate al VerificationEngine tramite il binding.  
 - Input/Output conformi ai piani `PLAN_INPUT_COMUNE.md` e `PLAN_OUTPUT_COMUNE.md`.  
 - Nessuna logica normativa in GUI; tutte le regole normative riferite alla KB.  
@@ -2400,6 +2583,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### Validazione & gating (UI‑level)
+
 - Run button abilitato solo se: Norma selezionata AND sezione/materiale assegnati AND almeno una sollecitazione valida.  
 - Disabilitazione contestuale: elementi UI incompatibili con la Norma vengono disabilitati (es. CAP_7 non attivabile per RD2229).  
 - Pre‑run checklist: validazione sintattica + business rules minime; errori mostrati in modal dialog con lista campi mancanti.
@@ -2407,6 +2591,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### Componenti / Views obbligatorie (responsabilità)
+
 - NormSelector (top/header) — selezione Norma, mostra badge Norma corrente.  
 - MethodSelector (UI flag) — scelta metodo analisi **UI only** (non cambia ProjectModel); visual indicator only.  
 - SezioniMaterialiView — selezione archivio materiali/sezioni (read‑only properties shown).  
@@ -2419,6 +2604,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### UX rules (behavioural)
+
 - Status colours: green (util ≤ 0.8), amber (0.8–1.0), red (>1.0).  
 - Long‑running tasks: run in background thread; show progress + cancel; results updated on completion.  
 - Error handling: friendly modal + copyable log id; non‑blocking warnings shown inline in detail pane.  
@@ -2428,6 +2614,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### Messages standard (copy‑ready)
+
 - INPUT_INVALID: "Dati di input mancanti o non validi: [campo1, campo2]"  
 - NO_NORMA_SELECTED: "Selezionare una normativa prima di eseguire le verifiche."  
 - RUN_IN_PROGRESS: "Esecuzione verifiche… (clicca Annulla per interrompere)"  
@@ -2438,6 +2625,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### RisultatiView — dettagli UX & data contract
+
 - Mostra esclusivamente dati da `VerificationResultItem`.  
 - Colonne minime: verifica, capitolo/norma, stato limite, esito, utilisation.  
 - Righe selezionabili per inclusione in `ProjectModel.verifiche_in_relazione`.  
@@ -2448,6 +2636,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### Report (preview & export)
+
 - GUI espone anteprima Markdown generata dal ReportBuilder (no ricalcoli).  
 - Export: Markdown, PDF (via renderer), CSV (lista verifiche).  
 - Regole: se nessuna verifica selezionata → include tutte le verifiche eseguite; se selezionate → include solo quelle.
@@ -2455,6 +2644,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### Acceptance criteria (GUI tests — pass/fail)
+
 - GUI‑WF‑001 Norma obbligatoria: tentativo di run senza Norma → Run disabilitato e appare NO_NORMA_SELECTED.  
 - GUI‑WF‑002 Input validation: salvando sezione/materiale incompleti appare INPUT_INVALID e Run rimane disabilitato.  
 - GUI‑WF‑003 Esecuzione: Run avvia spinner; al termine RisultatiView è popolata con items provenienti da VerificationEngine (read‑only).  
@@ -2465,6 +2655,7 @@ Definire in modo vincolante il workflow GUI che guida l’utente attraverso: sel
 ---
 
 ### Deliverables (per questo STEP)
+
 - Aggiornamento testuale di `PLAN_GUI.md` con le sezioni sopra.  
 - Wireframe checklist (component list + gating rules).  
 - Test list (acceptance cases) pronta per automazione GUI.
@@ -2479,6 +2670,7 @@ Procedi ora a generare SOLO i contenuti PLAN‑ONLY per
 GUI_MAIN_PY_NAVIGAZIONE.md.
 
 Vincoli invariati:
+
 - stessa sessione di PLAN
 - nessun codice
 - nessuna anticipazione di Step 2, 3 o 4
@@ -2489,11 +2681,13 @@ GitHub Copilot: Status: preparo il contenuto PLAN‑ONLY per `GUI_MAIN_PY_NAVIGA
 ## GUI_MAIN_PY_NAVIGAZIONE.md — Specifica vincolante (PLAN‑ONLY)
 
 ### Scopo
+
 Definire in modo vincolante il comportamento, le regole UX e i criteri di accettazione della finestra principale (entry‑point) e della navigazione tra le view nell’applicazione GUI. La main window orchestra il workflow utente (Norma → Metodo → Input → Verifica → Risultati → Report) senza contenere logica normativa o calcoli.
 
 ---
 
 ### Responsabilità principali (non negoziabili)
+
 - Esporre il workflow stepper e la navigazione tra le View; mantenere un unico `ProjectModel` condiviso.  
 - Gestire lo stato UI (view active, badge Norma, metodo UI flag, abilitazioni/disabilitazioni).  
 - Innescare l’esecuzione delle verifiche tramite il binding `VerificationEngineBinding` (solo invocation).  
@@ -2503,6 +2697,7 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### Layout & componenti chiave (descrizione)
+
 - Header: titolo applicazione + `Norma` badge (mostra `project_model.normativa_attiva`) + `Metodo` indicator (UI‑flag).  
 - Sidebar (workflow stepper verticale): Step 1 Norma → Step 2 Metodo → Step 3 Sezioni&Materiali → Step 4 Sollecitazioni → Step 5 Esegui → Step 6 Risultati → Step 7 Report. Ogni step mostra stato (incomplete / ready / done).  
 - Main container: area che ospita le View (`SezioniMaterialiView`, `SollecitazioniView`, `RisultatiView`, `ReportView`, ecc.).  
@@ -2512,6 +2707,7 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### Navigazione e comportamenti UX obbligatori
+
 - Flusso lineare guidato: l’utente può navigare liberamente tra le View ma il pulsante `Esegui verifiche` rimane disabilitato finché i prerequisiti non sono soddisfatti.  
 - Stepper visuale: ciascun step mostra icona/stato; click su uno step porta alla View corrispondente.  
 - Stato Norma: cambio Norma attiva richiede conferma se esistono risultati eseguiti — modal: “Cambiando Norma i risultati esistenti potrebbero non essere più applicabili. Confermare?” (opzioni: Cancel / Proceed — Proceed mantiene risultati ma disabilita azioni incompatibili).  
@@ -2526,6 +2722,7 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### Preconditions (UI validation rules)
+
 - Norma selected: mandatory. Message: `NO_NORMA_SELECTED`.  
 - Material/Section assigned: mandatory. Message: `INPUT_INVALID` (lista campi).  
 - At least one load case present: mandatory.  
@@ -2534,6 +2731,7 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### Long‑running tasks & cancellation
+
 - `Esegui` runs async; UI must:
   - show cancellable modal or status progress bar
   - prevent multiple concurrent runs (disable Run while running)
@@ -2543,12 +2741,14 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### Error handling / messaging (UX rules)
+
 - Use consistent message catalog (see PLAN_GUI): `INPUT_INVALID`, `NO_NORMA_SELECTED`, `RUN_IN_PROGRESS`, `RUN_SUCCESS`, `RUN_FAILED`, `NOT_APPLICABLE_NOTICE`.  
 - All modals include an actionable hint (e.g., “Apri Sezioni” or “Mostra log”) and a reference code for diagnostics.
 
 ---
 
 ### Accessibility & Keyboard Shortcuts
+
 - Keyboard navigation for stepper and primary actions (Tab/Shift+Tab, Enter to activate Run, Esc to cancel modals).  
 - All interactive controls must have labels/tooltips and be reachable by keyboard.  
 - Color usage must be contrast‑friendly and not the sole indicator of status.
@@ -2556,6 +2756,7 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### Non‑functional UI constraints
+
 - Responsiveness: main UI must remain responsive during runs (no blocking main thread).  
 - Minimal latency for navigation (view swapping < 100 ms perceived).  
 - Visual consistency with project theme (ttkbootstrap recommended).
@@ -2563,6 +2764,7 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### Acceptance criteria (file‑level tests / UX checks)
+
 - NAV‑001 — Stepper integrity: clicking each step opens the corresponding View and updates stepper state.  
 - NAV‑002 — Run gating: Run remains disabled until Norma + Section + Loads valid; attempt to run earlier shows `INPUT_INVALID` modal.  
 - NAV‑003 — Norma change: changing Norma with existing results raises confirmation modal and disables incompatible actions.  
@@ -2574,6 +2776,7 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### File‑level content to add (exact places in `GUI_MAIN_PY_NAVIGAZIONE.md`)
+
 - Section “Role of main.py”: expand to include stepper and gating logic (UI spec only).  
 - Section “Layout”: add header badge for Norma + Method indicator and footer status bar spec.  
 - Section “Actions main”: replace generic Run behavior with the gating and async/cancel spec above.  
@@ -2582,6 +2785,7 @@ Definire in modo vincolante il comportamento, le regole UX e i criteri di accett
 ---
 
 ### Deliverables (per questo file)
+
 - `GUI_MAIN_PY_NAVIGAZIONE.md` updated with the SPEC above (only textual spec, no code).  
 - Acceptance test list (NAV‑001..NAV‑007) appended to the file.
 
@@ -2595,6 +2799,7 @@ Procedi ora a generare SOLO i contenuti PLAN‑ONLY per
 GUI_SELEZIONE_NORMATIVA.md.
 
 Vincoli invariati:
+
 - stessa sessione di PLAN
 - nessun codice
 - nessuna anticipazione di Step 2, 3 o 4
@@ -2605,14 +2810,17 @@ GitHub Copilot: Status: preparo il contenuto PLAN‑ONLY da incollare in `GUI_SE
 ## GUI_SELEZIONE_NORMATIVA.md — Specifica vincolante (PLAN‑ONLY)
 
 Scopo  
+
 - Definire in modo vincolante il comportamento, l’aspetto UX e i criteri di accettazione della view che permette la scelta della normativa di verifica.  
 - La view è esclusivamente un’interfaccia: seleziona `project_model.normativa_attiva` e abilita/disabilita le scelte successive in GUI. Non contiene logica normativa né modifica il core.
 
 Contesto d’uso (posizione nel workflow)  
+
 - Prima azione obbligatoria del workflow GUI: Norma → Metodo → Input → Verifica → Risultati → Report.  
 - Deve essere visibile sempre in testa al flow e accessibile via sidebar/ProjectWizard.
 
 Normative supportate (iniziali)
+
 - NTC2018 — Stati limite (SLU / SLE / sismica)  
 - R.D. 2229/1939 — Tensioni ammissibili (legacy)  
 - DM 1992 — Tensioni ammissibili (storico)  
@@ -2620,6 +2828,7 @@ Normative supportate (iniziali)
 Nota: elenco estendibile tramite KB; la GUI legge le opzioni da `config/calculation_codes/*` (no logica normativa nella view).
 
 Comportamento richiesto (vincoli UX)
+
 - Norma è un campo obbligatorio: nessuna operazione di verifica è possibile prima della selezione.  
 - Modalità di selezione: radio group o dropdown con descrizione breve + "?" tooltip che apre KB pertinente.  
 - Badge Norma corrente: sempre visibile nell’header e nella sidebar stepper.  
@@ -2631,27 +2840,32 @@ Comportamento richiesto (vincoli UX)
 - Informazioni di supporto: link diretto al KB della norma prescelta (apre `docs/MEGAPLAN/KB_*.md`).
 
 Validazione & precondizioni
+
 - La view deve impedire l’esecuzione delle verifiche se `project_model.normativa_attiva` è null/empty.  
 - Quando una norma è selezionata, il binding GUI → core deve poter leggere `project_model.normativa_attiva` (nessuna modifica concettuale al ProjectModel).  
 - La view segnala errori di selezione tramite codice `NO_NORMA_SELECTED`.
 
 Messaggistica standard (short texts)
+
 - NO_NORMA_SELECTED: "Selezionare una normativa prima di procedere."  
 - NORMA_CHANGED_WITH_RESULTS: "Sono presenti risultati eseguiti. Cambiando normativa alcune verifiche potrebbero non essere più applicabili. Confermi?"  
 - NORMA_NOT_SUPPORT_CAP7: "Questa normativa non supporta CAP_7 (sismica)."  
 - HELP_KB_LINK: "Apri knowledge base (norma)".
 
 Accessibilità & UX rules
+
 - Tutti i controlli sono accessibili via tastiera; radio/dropdown supportano selezione con frecce + Invio.  
 - Tooltip e link KB sono leggibili da screen‑reader.  
 - Colori e contrasto rispettano linee guida accessibilità; non usare colore come unica informazione.
 
 Edge cases & safe behavior
+
 - Se utente procede al cambio norma con risultati esistenti, lasciare i risultati ma visualizzare chiaramente quali sono incompatibili (flag `NOT_APPLICABLE` / warning nel ResultsView).  
 - Non tentare di convertire o migrare risultati tra norme automaticamente.  
 - Se la GUI riceve una norma non riconosciuta dal KB, mostra `Unsupported norm` con link per fallback/documentazione.
 
 Criteri di accettazione (test UX)
+
 - NS‑001 (mandatory selection): aprire l’app e tentare di eseguire verifiche senza aver selezionato una norma → `Run` disabilitato; appare NO_NORMA_SELECTED.  
 - NS‑002 (change‑with‑results): con risultati già presenti, cambiare norma → appare modal NORMA_CHANGED_WITH_RESULTS; scegliendo Proceed UI applica blocchi ma non cancella risultati.  
 - NS‑003 (compatibility): selezionando RD2229 la GUI disabilita controlli CAP_7/sismica e mostra NORMA_NOT_SUPPORT_CAP7.  
@@ -2660,10 +2874,12 @@ Criteri di accettazione (test UX)
 - NS‑006 (no core change): selezione aggiorna `project_model.normativa_attiva` ma non cambia logica del core (smoke check: binding still uses ProjectModel as before).
 
 Deliverable per questa vista (SPEC only)
+
 - Aggiornare `GUI_SELEZIONE_NORMATIVA.md` con i comportamenti qui descritti (component list, messages, gating, acceptance tests).  
 - Aggiungere 6 test UX (NS‑001 .. NS‑006) alla test plan GUI.
 
 Note operative
+
 - La view deve leggere le opzioni normative da `config/calculation_codes/*` e dall’KB (no hardcoding nella view).  
 - Tutte le decisioni normative restano nella KB / CodeModule; la GUI limita soltanto l’accesso alle opzioni non applicabili.
 
@@ -2677,6 +2893,7 @@ Procedi ora a generare SOLO i contenuti PLAN‑ONLY per
 GUI_VERIFICATION_ENGINE_BINDING.md.
 
 Vincoli invariati:
+
 - stessa sessione di PLAN
 - nessun codice
 - nessuna anticipazione di Step 2, 3 o 4
@@ -2687,7 +2904,9 @@ GitHub Copilot: Status: preparo il contenuto PLAN‑ONLY per `GUI_VERIFICATION_E
 ## GUI — VerificationEngine Binding (SPEC, PLAN‑ONLY)
 
 ### Scopo
+
 Definire in modo vincolante il comportamento dell’oggetto `VerificationEngineBinding` che collega la GUI (`ProjectModel`) al `VerificationEngine`. La binding‑layer:
+
 - valida i prerequisiti GUI;
 - costruisce/verifica le richieste (tramite la `VerificationFactory`);
 - invoca il `VerificationEngine`;
@@ -2697,6 +2916,7 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### Flusso operativo (alto livello) 🔁
+
 1. Utente clicca `Esegui verifiche` nella GUI.  
 2. GUI chiama `VerificationEngineBinding.run_verifications()`.  
 3. Binding esegue prerequisiti/validazione (v. elenco).  
@@ -2709,6 +2929,7 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### Preconditions / Validazioni (binding‑level)
+
 - Norma selezionata (`project_model.normativa_attiva`) — otherwise block.  
 - Sezione e Materiale assegnati — otherwise `INPUT_INVALID`.  
 - Almeno una sollecitazione valida presente — otherwise `INPUT_INVALID`.  
@@ -2720,6 +2941,7 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### UX rules & visual feedback (binding interactions)
+
 - Run button: disabled until preconditions pass.  
 - On run: show cancellable progress indicator (spinner + status message).  
 - On cancel: binding requests engine cancel and shows "Esecuzione annullata dall’utente".  
@@ -2730,6 +2952,7 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### Messages & error codes (standardized)
+
 - `NO_NORMA_SELECTED` — norma mancante  
 - `INPUT_INVALID` — campi mancanti/errati (lista)  
 - `ERR_FACTORY_FAILED` — factory non ha potuto costruire le verifiche  
@@ -2740,6 +2963,7 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### Partial / edge behaviors
+
 - If `VerificationFactory` yields checks for multiple capitoli, binding routes results to the correct `ProjectModel` lists (CAP_4, CAP_7, RD2229).  
 - Do not delete pre‑existing results on re‑run; replace only the results produced by the current run (traceable via `run_id` in metadata).  
 - If binding detects `NOT_APPLICABLE` for an entire set, present clear remediation message in UI (e.g., missing data / outside KB limits).
@@ -2747,6 +2971,7 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### Logging & traceability (UX + diagnostics)
+
 - Each run must generate a `run_id` logged and returned in any UI error modal.  
 - Binding logs: start time, end time, number of verifications dispatched, exceptions (no sensitive data).  
 - `VerificationResultItem.metadata` must include `calculation_code_version` and `run_id` for traceability.
@@ -2754,6 +2979,7 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### Contract expectations (binding ↔ factory ↔ engine)
+
 - Binding expects `VerificationFactory` to return "ready‑to‑execute" verification descriptors (no transformation by GUI).  
 - Binding passes descriptors unchanged to `VerificationEngine` and stores returned `VerificationResultItem[]` in `ProjectModel`.  
 - Binding does not perform or infer normative decisions.
@@ -2761,6 +2987,7 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### Acceptance criteria & GUI tests (binding‑specific)
+
 - BE‑001 (Preconditions): calling `run_verifications()` without Norma/Section/Loads → method rejects and UI shows `INPUT_INVALID` modal.  
 - BE‑002 (Factory absence): `VerificationFactory` returns empty list → UI shows `INFO_NO_CHECKS`; no engine call issued.  
 - BE‑003 (Happy path): with valid inputs `run_verifications()` triggers engine, `ProjectModel.verifiche_*` updated, and `RisultatiView` displays results.  
@@ -2771,11 +2998,13 @@ La binding‑layer NON esegue calcoli normativi né contiene regole normative.
 ---
 
 ### Test data & observability
+
 - Each acceptance test must assert: correct UI message, presence of `run_id` in logs/metadata, correct population of `ProjectModel.verifiche_*`, and no calculations performed in view layer.
 
 ---
 
 ### Deliverables (per questa SPEC)
+
 - Updated `GUI_VERIFICATION_ENGINE_BINDING.md` containing the sections above.  
 - Acceptance test list (BE‑001 .. BE‑006) appended to test plan.
 
@@ -2789,6 +3018,7 @@ Procedi ora a generare SOLO i contenuti PLAN‑ONLY per
 GUI_RISULTATI_VIEW_CODICE.md.
 
 Vincoli invariati:
+
 - stessa sessione di PLAN
 - nessun codice
 - nessuna anticipazione di Step 2, 3 o 4
@@ -2799,11 +3029,13 @@ GitHub Copilot: Status: genero il contenuto PLAN‑ONLY da incollare in `GUI_RIS
 ## GUI_RISULTATI_VIEW_CODICE.md — Specifica vincolante (PLAN‑ONLY)
 
 ### Scopo
+
 Definire la View di sola‑lettura che visualizza i `VerificationResultItem` prodotti dal motore di verifica. La view è l’unica interfaccia visiva per esplorare/esportare i risultati e selezionare le verifiche da includere nella relazione. Nessuna logica normativa o calcolo nella View; tutti i numeri provengono da `VerificationResultItem`.
 
 ---
 
 ### Principi vincolanti
+
 - Solo lettura: la View non modifica dati di calcolo né ricalcola valori.  
 - Single source of truth: leggi esclusivamente da `ProjectModel.verifiche_*` / `VerificationResultItem`.  
 - Tracciabilità: ogni riga mostra riferimenti normativi (norma + capitolo/paragrafo).  
@@ -2812,6 +3044,7 @@ Definire la View di sola‑lettura che visualizza i `VerificationResultItem` pro
 ---
 
 ### Layout & componenti principali
+
 - Header: filtro rapido (norma, stato limite, esito), ricerca testuale (check_id / element_id).  
 - Main: tabella (sortable + paginata) con colonne minime e utilisation bar.  
 - Right/Bottom pane: dettaglio selezionato (steps[], norm_references[], messages[], export single).  
@@ -2821,6 +3054,7 @@ Definire la View di sola‑lettura che visualizza i `VerificationResultItem` pro
 ---
 
 ### Tabella — colonne obbligatorie (orderable/filterable)
+
 - Checkbox (inclusione per report)  
 - `Verifica` (human label: `reference.paragrafo`)  
 - `Elemento` (`element_id`)  
@@ -2834,6 +3068,7 @@ Definire la View di sola‑lettura che visualizza i `VerificationResultItem` pro
 ---
 
 ### Detail pane (per la riga selezionata)
+
 - Visualizzazione `steps[]` in ordine numerico (test‑friendly, copyable).  
 - `norm_references[]` with clickable anchor to KB/MD (opens docs).  
 - `messages[]` (warnings, NOT_APPLICABLE reason, remediation hints).  
@@ -2842,6 +3077,7 @@ Definire la View di sola‑lettura che visualizza i `VerificationResultItem` pro
 ---
 
 ### Visual encoding & rules
+
 - Utilisation bar thresholds: green ≤0.8, amber 0.8–1.0, red >1.0.  
 - Iconography: OK (check), NOT_OK (cross), WARNING (exclamation), NOT_APPLICABLE (dash/info).  
 - Tooltip content: short explanation + link “Ulteriori dettagli” → detail pane.  
@@ -2850,6 +3086,7 @@ Definire la View di sola‑lettura che visualizza i `VerificationResultItem` pro
 ---
 
 ### Interactions / UX behaviour
+
 - Selecting checkbox updates `ProjectModel.verifiche_in_relazione` (GUI action only).  
 - Double‑click on a row opens the detail pane and scrolls to `steps[]`.  
 - Filters applied client‑side (no core calls).  
@@ -2859,6 +3096,7 @@ Definire la View di sola‑lettura che visualizza i `VerificationResultItem` pro
 ---
 
 ### Messages & error handling
+
 - `NOT_APPLICABLE` row shows tooltip: reason and KB link.  
 - If `VerificationResultItem` missing `norm_references[]`, display warning and attach `TODO: add norm_reference` badge (for KB maintenance).  
 - Export failures show `ERROR_INTERNAL` with log id.
@@ -2866,18 +3104,21 @@ Definire la View di sola‑lettura che visualizza i `VerificationResultItem` pro
 ---
 
 ### Accessibility & keyboard
+
 - Keyboard: Up/Down navigate rows; Enter opens detail pane; Space toggles checkbox; Ctrl+E = Export selected.  
 - All icons have ARIA labels; contrast and font sizes meet accessibility thresholds.
 
 ---
 
 ### Performance expectations
+
 - Table must handle up to 500 items without perceptible UI lag (pagination/virtualization required).  
 - Detail pane rendering must be instantaneous for any selected row.
 
 ---
 
 ### Acceptance criteria (GUI tests)
+
 - RV‑001: Table renders `VerificationResultItem[]` exactly as provided (no transformations).  
 - RV‑002: Utilisation colour thresholds and numeric values match `VerificationResultItem.utilisation`.  
 - RV‑003: Checkbox inclusion correctly updates `ProjectModel.verifiche_in_relazione` (selection roundtrip).  
@@ -2890,11 +3131,13 @@ Definire la View di sola‑lettura che visualizza i `VerificationResultItem` pro
 ---
 
 ### Test data recommendations
+
 - Create at least 3 `VerificationResultItem` fixtures: OK (util 0.6), Borderline (util 0.95, WARNING), NOT_APPLICABLE (with message and missing KB ref). Use these in automated GUI tests.
 
 ---
 
 ### Deliverables for this SPEC
+
 - Updated `GUI_RISULTATI_VIEW_CODICE.md` containing only the above (rules + acceptance + UX).  
 - Acceptance test list (RV‑001..RV‑008) appended to the GUI test suite.
 
@@ -2904,6 +3147,7 @@ Vuoi che proceda ora con l’ultimo file dello STEP 1 (`GUI_RISULTATI_TO_RELAZIO
 
 User: Genera il contenuto PLAN‑ONLY di GUI_RISULTATI_TO_RELAZIONE_BINDING.md,
 coerente con:
+
 - GUI_RISULTATI_VIEW_CODICE.md
 - REPORT_BUILDER_NTC2018
 - REPORT_BUILDER_RD2229
@@ -2942,6 +3186,7 @@ Obiettivo: garantire tracciabilità, nessun ricalcolo, selezione controllata dei
 ---
 
 ### Specifica sintetica (contratto)
+
 - Scopo: la GUI espone selezione e preview; la generazione del documento è delegata esclusivamente al `ReportBuilder` corrispondente alla `project_model.normativa_attiva`.  
 - Responsabilità:
   - `RisultatiView`: sola lettura dei valori; offre **modalità estesa** per la selezione di quali verifiche includere in relazione; aggiorna solo `ProjectModel.verifiche_in_relazione`.
@@ -2958,6 +3203,7 @@ Obiettivo: garantire tracciabilità, nessun ricalcolo, selezione controllata dei
 ---
 
 ### UX — regole di interazione (behavior / microcopy)
+
 - Modalità e controlli
   - Modalità base: la `RisultatiView` rimane *read‑only*; tutte le verifiche eseguite sono incluse automaticamente nella relazione.
   - Modalità estesa (toggle “Seleziona risultati”): mostra una casella `Includi` per ogni riga (checkbox), plus controllo `Seleziona tutto / Deseleziona tutto`.
@@ -2978,6 +3224,7 @@ Obiettivo: garantire tracciabilità, nessun ricalcolo, selezione controllata dei
 ---
 
 ### Validazioni / regole vincolanti (hard rules)
+
 - Nessuna operazione di ricalcolo o modifica numerica eseguita dalla GUI o dal ReportBuilder.
 - Non è permesso includere in relazione verifiche non eseguite.
 - Non mescolare voci non omogenee per normativa/engine; se presenti, il builder rifiuta la generazione.
@@ -2987,6 +3234,7 @@ Obiettivo: garantire tracciabilità, nessun ricalcolo, selezione controllata dei
 ---
 
 ### Mappatura dati (visual → report)
+
 - Campo VerificationResult → uso in report:
   - `reference.paragrafo` → titolo voce
   - `capitolo_ntc` → sezione (CAP_4 / CAP_7)
@@ -2999,7 +3247,9 @@ Obiettivo: garantire tracciabilità, nessun ricalcolo, selezione controllata dei
 ---
 
 ### Criteri di accettazione (testabili)
+
 Functional (unit / integration)
+
 1. Dato `project_model` con `normativa_attiva == 'NTC2018'` e 3 VerificationResult validi, quando si esegue `Genera relazione`, allora `ReportBuilderNTC2018` ritorna Markdown che:
    - include header con "NTC2018";
    - contiene 3 sezioni di verifica con i campi Ed, Rd e ratio formattato a 3 decimali.
@@ -3009,16 +3259,19 @@ Functional (unit / integration)
 5. Se l’utente seleziona/deseleziona checkbox, `ProjectModel.verifiche_in_relazione` riflette esattamente la selezione (persistenza verificabile dopo salvataggio/caricamento progetto).
 
 UX / E2E
+
 1. Workflow: esegui verifiche → mostra Risultati → (opzionale) entra in Modalità estesa → seleziona voci → `Anteprima` mostra il Markdown corretto → `Genera relazione` abilita l’export.  
 2. Pulsante `Genera relazione` è disabilitato se non esistono verifiche incluse; abilitato immediatamente dopo la prima selezione.
 3. La preview è leggibile, con separazione visiva per CAP_4 / CAP_7 e conteggio voci incluso.
 
 Non‑functional
+
 - Generazione Markdown per fino a 200 verifiche deve completarsi in tempo percepibile (< 2s su macchina di sviluppo tipica).
 
 ---
 
 ### Casi d’errore e messaggi (standardizzati)
+
 - "Esegui le verifiche prima di generare la relazione" — quando non ci sono verifiche eseguite.
 - "Verifica non eseguita — impossibile includere" — per checkbox disabilitata.
 - "Normativa attiva non compatibile con il ReportBuilder selezionato" — errore builder (testabile).
@@ -3027,12 +3280,14 @@ Non‑functional
 ---
 
 ### Verifiche di conformità con file esistenti
+
 - Coerente con GUI_RISULTATI_VIEW_CODICE.md: view rimane read‑only; selezione è funzione di estensione; ratio in view è a 3 decimali.
 - Coerente con REPORT_BUILDER_NTC2018_CODE.md e REPORT_BUILDER_RD2229.md: GUI delega la generazione al builder corretto; nessun ricalcolo nel builder; mapping dei campi rispettato.
 
 ---
 
 ### Acceptance checklist (da validare in PR)
+
 - [ ] `RisultatiView` offre selezione persistente e aggiorna `ProjectModel.verifiche_in_relazione`.
 - [ ] `Genera relazione` valida stato/esecuzione/normativa prima della chiamata al builder.
 - [ ] `ReportBuilderNTC2018` / `ReportBuilderRD2229` ricevono solo dati immutati e producono Markdown coerente.
@@ -3042,6 +3297,7 @@ Non‑functional
 ---
 
 Decisione principale
+
 - Persistenza della selezione in `ProjectModel.verifiche_in_relazione` (scelta: tracciabilità e ricostruibilità nel tempo).
 
 ---
@@ -3068,6 +3324,7 @@ TL;DR — Manteniamo la regola che la selezione per la relazione è sempre basat
 ---
 
 ### Modifiche chiave (sintesi)
+
 - Selezione per report = univocamente da `ProjectModel.verifiche_in_relazione`. L’“inclusione automatica” è un comportamento predefinito configurabile (non una regola fissa).
 - Gestione `NOT_APPLICABLE`: default = inclusione consentita con warning; blocco solo se la policy di progetto lo richiede.
 - `ratio` è fonte‑of‑truth: usare `VerificationResultItem.ratio`; la GUI può soltanto *format‑display* (3 decimali).
@@ -3078,18 +3335,22 @@ TL;DR — Manteniamo la regola che la selezione per la relazione è sempre basat
 ### Specifica aggiornata (sezioni rilevanti)
 
 #### Principio fondamentale (invariato)
+
 - La Relazione di Calcolo NON ricalcola nulla. Input esclusivo: `VerificationResult` già validati.
 
 #### Autorità della selezione
+
 - La selezione dei risultati da inserire in relazione è sempre governata da `ProjectModel.verifiche_in_relazione`.
 - L’opzione “Includi automaticamente tutte le verifiche eseguite” è un *default configurabile* (es. `project_settings.report.inclusion_default = 'auto' | 'manual'`). Non è più un comportamento rigido del view.
 
 #### Policy per risultati `N.A.` (NOT_APPLICABLE)
+
 - Default project policy: `na_handling = 'warn'` → consentire inclusione ma evidenziare con warning.
 - Alternative configurabili: `na_handling = 'block'` (impedisce inclusione/generazione) o `'allow'` (inclusione senza warning).
 - La GUI riflette la policy (checkbox disabilitata se `block`, checkbox abilitata + icona warning se `warn`).
 
 #### Tracciabilità estesa (obbligatoria)
+
 - `ProjectModel` deve esporre:
   - `verifiche_in_relazione`: lista autorevole per il builder
   - `norm_references[]`: elenco stringhe (normative citate) inserite nell’header del report
@@ -3097,11 +3358,13 @@ TL;DR — Manteniamo la regola che la selezione per la relazione è sempre basat
 - Il ReportBuilder inserisce `run_id` e `norm_references[]` nell’intestazione Markdown e in metadata (audit trail).
 
 #### Fonte del Ratio
+
 - `ratio` deve essere letto da `VerificationResultItem.ratio`.  
 - La GUI applica solo formattazione testuale a 3 decimali (es.: display / Markdown: `0.732`).
 - È vietato derivare `ratio` nella view o ricalcolarlo per la relazione.
 
 #### Ruoli GUI vs Builder (coerenza)
+
 - `RisultatiView` espone selezione (modale estesa) e salva l’esatta lista in `ProjectModel.verifiche_in_relazione`.
 - `ReportBuilder` esegue un’ultima validazione policy‑driven (rispettando `project_settings.report.*`) ma NON modifica i dati.
 - Se la policy richiede blocco (es. `na_handling == 'block'`) il builder rifiuta e fornisce messaggio diagnostico coerente con l’UI.
@@ -3109,6 +3372,7 @@ TL;DR — Manteniamo la regola che la selezione per la relazione è sempre basat
 ---
 
 ### UX / controllo comportamentale (concretezza)
+
 - Modalità base: tutte le verifiche eseguite *possono* essere incluse automaticamente solo se `inclusion_default == 'auto'`; altrimenti l’utente seleziona manualmente.
 - NOT_APPLICABLE: riga con `status == N.A.` mostra icona ⚠️ e tooltip:
   - Default: "Verifica N.A. — inclusione consentita (configurazione: avviso)."
@@ -3121,6 +3385,7 @@ TL;DR — Manteniamo la regola che la selezione per la relazione è sempre basat
 ---
 
 ### Mappatura dati aggiornata (visual → report)
+
 - `VerificationResult.reference.paragrafo` → titolo voce
 - `capitolo_ntc` → sezione (CAP_4 / CAP_7)
 - `demand` → Ed
@@ -3133,6 +3398,7 @@ TL;DR — Manteniamo la regola che la selezione per la relazione è sempre basat
 ---
 
 ### Policy‑driven validation (sostituisce i blocchi rigidi)
+
 - Le regole di inclusione/generazione sono determinate dalle impostazioni di progetto (`project_settings.report.*`).
 - Comportamento predefinito (safe): inclusione automatica permessa, `N.A.` provoca solo warning.
 - Se il team richiede rigore, impostare `na_handling = 'block'` e `inclusion_default = 'manual'`.
@@ -3140,7 +3406,9 @@ TL;DR — Manteniamo la regola che la selezione per la relazione è sempre basat
 ---
 
 ### Criteri di accettazione (aggiornati e testabili)
+
 Functional
+
 - FA1: Se `ProjectModel.verifiche_in_relazione` contiene 3 verification (normativa NTC2018), `ReportBuilderNTC2018.build()` produce Markdown con header contenente `run_id` e `norm_references[]`, e 3 voci con `ratio` uguale a `VerificationResultItem.ratio` formattato a 3 decimali.
 - FA2: Default behavior (policy `'warn'`): voce `status == N.A.` è selezionabile ma genera un avviso in UI; builder include la voce con marcatura di avviso.
 - FA3: Se `project_settings.report.na_handling == 'block'`, il builder rifiuta la generazione se `verifiche_in_relazione` contiene voci `N.A.`; UI e test devono mostrare messaggio coerente.
@@ -3148,15 +3416,18 @@ Functional
 - FA5: `ratio` mostrato nella UI e riportato nel Markdown corrisponde esattamente al valore `VerificationResultItem.ratio` formattato (verificare che UI non esegua calcolo).
 
 Traceability / Metadata
+
 - T1: Il Markdown generato contiene header con `run_id`, `generated_on` e `norm_references[]`.
 - T2: Le selezioni salvate in `ProjectModel.verifiche_in_relazione` sopravvivono a save/load progetto.
 
 Non‑functional
+
 - N1: Generazione Markdown (fino a 200 verifiche) completata in < 2s.
 
 ---
 
 ### Messaggi d’errore / microcopy (standard)
+
 - "Esegui le verifiche prima di generare la relazione"
 - "Verifica non eseguita — inclusione consentita (configurazione: avviso)"
 - "Inclusione di verifiche N.A. bloccata dalla policy di progetto"
@@ -3166,6 +3437,7 @@ Non‑functional
 ---
 
 ### Acceptance checklist (da verificare in PR / test)
+
 - [ ] `ProjectModel.verifiche_in_relazione` è l’unica fonte per la generazione del report
 - [ ] `inclusion_default` è configurabile e rispetta il comportamento UI
 - [ ] `na_handling` default = `warn`; opzioni `block`/`allow` testate
@@ -3176,6 +3448,7 @@ Non‑functional
 ---
 
 Decisione principale
+
 - Conversione delle regole rigide in *policy configurabili* (default safe = inclusione automatica consentita + warning per `N.A.`). Persistenza e tracciabilità tramite `verifiche_in_relazione`, `norm_references[]` e `run_id`.
 
 ---
@@ -3193,13 +3466,11 @@ Formule EC2/NTC riassunte (non derivate in GUI).
 Test fixtures con valori calcolati usando γc = 1.5 come default, esplicitando che è configurabile.
 Applicabilità chiara + gestione NOT_APPLICABLE policy‑driven (default warn).
 
-
 SecondaryElementSpec:
 
 Template di verifica (struttura dati/contratto).
 GUI bindings coerenti con VerificationResultItem e ProjectModel.
 Esempi produttore (ancoraggi) come esempi illustrativi, con valori SLE provvisori chiaramente marcati (TODO/placeholder).
-
 
 Tracciabilità: riferimenti normativi espliciti; nessun ricalcolo in GUI; source‑of‑truth nei risultati.
 Chiarezza: ogni assunzione marcata; TODO dove servono dati normativi definitivi.
@@ -3207,6 +3478,7 @@ Chiarezza: ogni assunzione marcata; TODO dove servono dati normativi definitivi.
 Puoi procedere.
 
 GitHub Copilot: Status: preparo due SPEC (PLAN‑ONLY + PRONTI‑TO‑PASTE) per
+
 1) V_Rd,c (taglio senza armatura) e 2) Secondary Element Spec.  
 Prossimo passo: fornisco i due file Markdown completi, pronti da incollare — nessun codice, solo specifiche, test‑fixtures e TODO.
 
@@ -3215,6 +3487,7 @@ Prossimo passo: fornisco i due file Markdown completi, pronti da incollare — n
 ## 1) V_Rd,c — taglio senza staffatura (SPEC + PRONTI‑TO‑PASTE) ✅
 
 ### PLAN‑ONLY — cosa, perché, vincoli principali
+
 - Scopo: definire la specifica della verifica V_Rd,c (shear resistance **without shear reinforcement**) per il core (calcolo) e i test‑fixtures per la suite di verifica.  
 - Vincoli obbligatori:
   - GUI: nessun calcolo; sola presentazione/format‑display (ratio a 3 decimali).
@@ -3228,7 +3501,8 @@ Prossimo passo: fornisco i due file Markdown completi, pronti da incollare — n
 ---
 
 ### Formula riassunta (da implementare nel core — sintesi)
-- v_rd,c = [C_Rd,c * k * (100·ρ_l·f_ck)^(1/3) + k1·σ_cp]   (N/mm²)
+
+- v_rd,c = [C_Rd,c *k* (100·ρ_l·f_ck)^(1/3) + k1·σ_cp]   (N/mm²)
   - C_Rd,c = 0.18 / γc  (γc default = 1.5)
   - k = 1 + sqrt(200 / d)  (d in mm), limitato a max 2.0
   - k1 ≈ 0.15
@@ -3240,12 +3514,14 @@ Prossimo passo: fornisco i due file Markdown completi, pronti da incollare — n
 ---
 
 ### SLE — fessurazione (policy)
+
 - SLE fessurazione: verifiche di crack width devono essere eseguite dal core usando combinazioni di servizio (quasi‑permanenti) secondo EC2/NTC.  
 - GUI mostra `sle.crack_width` (mm) e `sle.w_lim` (mm) prese dal KB/progetto; default policy = warn se w_calc > w_lim; `na_handling` applicabile anche qui.
 
 ---
 
 ### Applicabilità & NOT_APPLICABLE handling
+
 - Applicabile a: travi/solette monodirezionali senza staffe, sezioni regolari (non deep beams/strut‑and‑tie), condizioni in cui il metodo EC2 è valido.
 - Non applicabile (NOT_APPLICABLE) quando: esistono staffe, sezioni non conformi ai presupposti EC2, o dati mancanti.  
 - Comportamento UI: default = inclusione consentita + warning per NA; blocco generazione solo se `project_settings.report.na_handling == 'block'`.
@@ -3253,21 +3529,25 @@ Prossimo passo: fornisco i due file Markdown completi, pronti da incollare — n
 ---
 
 ### Test‑fixtures (γc = 1.5 used — configurable)
+
 - Nota: tutti i fixtures usano γc = 1.5 (esplicitare nel test); test implementer può passare valore diverso per coprire casi.
 - Esempi (valori calcolati — vedi formula sopra)
 
 1) Example A — tipico beam (no axial)
+
 - Inputs: b_w=300 mm, d=500 mm, f_ck=30 MPa, A_sl=2×Ø20 → 628.32 mm², N_ed=0 kN, γc=1.5  
 - Calcoli (riassunto): ρ_l=0.0041888; k=1.6325; (100·ρ_l·f_ck)^(1/3)≈2.325  
 - Risultato: v_rd,c ≈ 0.455 N/mm² → V_Rd,c ≈ 68.32 kN  
 - Test: Ed_example = 50.0 kN → ratio = 0.732 → status = OK
 
-2) Example B — bassa capacità (no axial)
+1) Example B — bassa capacità (no axial)
+
 - Inputs: b_w=250 mm, d=400 mm, f_ck=25 MPa, A_sl=3×Ø16 → 603.19 mm², N_ed=0 kN, γc=1.5  
 - Risultato: V_Rd,c ≈ 50.64 kN  
 - Test: Ed_example = 60.0 kN → ratio = 1.185 → status = NOT OK
 
-3) Example C — compressive axial beneficial
+1) Example C — compressive axial beneficial
+
 - Inputs: come Example A + N_ed = 300 kN compressive, A_c≈300×600=180000 mm² → σ_cp≈1.667 MPa  
 - Risultato: V_Rd,c ≈ 105.82 kN  
 - Test: Ed_example = 100.0 kN → ratio ≈ 0.945 → status = OK
@@ -3277,6 +3557,7 @@ Prossimo passo: fornisco i due file Markdown completi, pronti da incollare — n
 ---
 
 ### Criteri di accettazione (testabili)
+
 - CA1: Core produce `VerificationResultItem` con `capacity == V_Rd,c` e `ratio == Ed / V_Rd,c`; GUI mostra ratio a 3 decimali.
 - CA2: Fixtures A/B/C passano/fail come indicato.
 - CA3: `γc` default = 1.5 ma è parametro di progetto (test con γc ≠ 1.5).
@@ -3286,6 +3567,7 @@ Prossimo passo: fornisco i due file Markdown completi, pronti da incollare — n
 ---
 
 ### Assunzioni & TODO
+
 - TODO: inserire i riferimenti esatti di clausola EC2 e NTC2018 nel KB.
 - TODO: definire comportamento esatto per σ_cp negativo (seguire EC2/NTC).
 - Assunzione: area cilindrica delle barre calcolata come input `A_sl` — core deve normalizzare.
@@ -3293,6 +3575,7 @@ Prossimo passo: fornisco i due file Markdown completi, pronti da incollare — n
 ---
 
 ### PRONTI‑TO‑PASTE — contenuto Markdown (file suggerito: `SPEC_RC_SLU_VRDc_NoStirrups.md`)
+
 ```markdown
 RC_SLU – V_Rd,c (Taglio senza armatura)  
 Status: SPEC (PLAN‑ONLY) — NO CODE
@@ -3309,6 +3592,7 @@ Status: SPEC (PLAN‑ONLY) — NO CODE
 ## 2) Secondary Element Spec — elementi secondari (Cap. 7.2) ✅
 
 ### PLAN‑ONLY — cosa deve contenere la SPEC
+
 - Scopo: definire il contratto dati, i binding GUI ↔ core e i casi di verifica per gli elementi secondari (parapetti, mensole, ancoraggi, cordoli, ecc.), inclusi esempi di controlli per ancoraggi (produttore).
 - Vincoli obbligatori:
   - GUI non calcola; raccoglie input strutturati e invia al core; `VerificationResultItem` è sorgente‑di‑verità.
@@ -3320,6 +3604,7 @@ Status: SPEC (PLAN‑ONLY) — NO CODE
 ---
 
 ### Template di verifica (struttura dati / contratto)
+
 - Input (SecondaryElementInput)
   - `id` (string)
   - `type` (enum: "parapet","copertina","corrimano","anchor","edge_beam",...)
@@ -3336,6 +3621,7 @@ Status: SPEC (PLAN‑ONLY) — NO CODE
 ---
 
 ### GUI bindings (mapping & UX rules)
+
 - Editor fields ↔ ProjectModel:
   - `SecondaryElementEditor` salva in `ProjectModel.secondary_elements[]` l’oggetto `SecondaryElementInput`.
   - Validazioni: unità obbligatorie, valori positivi, presenza `run_id`/`norm_references[]` per output.
@@ -3347,6 +3633,7 @@ Status: SPEC (PLAN‑ONLY) — NO CODE
 ---
 
 ### Esempi produttore (ancoraggi) — ILLUSTRATIVI, SLE placeholders
+
 - Esempio A — Anchor X (illustrative only)
   - `product_id`: "AnchorX‑M10"
   - Rk_tensile (characteristic): 50 kN (ES: placeholder — **TODO: sostituire con ETA**)
@@ -3358,12 +3645,14 @@ Status: SPEC (PLAN‑ONLY) — NO CODE
 ---
 
 ### Tracciabilità & metadati
+
 - Ogni `VerificationResultItem` deve includere `trace.run_id` e `trace.norm_references[]`.
 - GUI anteprima e Relazione devono stampare `run_id` e `norm_references[]` per audit trail.
 
 ---
 
 ### Criteri di accettazione (testabili)
+
 - S1: `SecondaryElementInput` viene serializzato in `ProjectModel.secondary_elements[]` e roundtrippato su save/load.
 - S2: Per un anchor example con `Rk=50 kN` e `Ed=30 kN`, `VerificationResultItem.capacity == 50 kN`, `ratio == 0.60`, `status == OK`.
 - S3: Se `manufacturer_data` mancante, il core usa metodi di progetto (fallback) e segnala `notes`.
@@ -3373,6 +3662,7 @@ Status: SPEC (PLAN‑ONLY) — NO CODE
 ---
 
 ### Assunzioni & TODO
+
 - TODO: raccogliere ETAs dei produttori per i dati degli ancoraggi; contrassegnare i campioni attuali come placeholder.
 - TODO: mappare esatto riferimento NTC2018 Cap.7.2 → inserire clausole nel KB.
 - Assunzione: tutte le verifiche degli elementi secondari sono eseguite dal core e restituiscono `VerificationResultItem` coerenti con lo schema del progetto.
@@ -3380,6 +3670,7 @@ Status: SPEC (PLAN‑ONLY) — NO CODE
 ---
 
 ### PRONTI‑TO‑PASTE — contenuto Markdown (file suggerito: `CONFIG_NTC2018_SECONDARY_ELEMENTS_SPEC.md`)
+
 ```markdown
 CONFIG NTC2018 — Secondary Elements Spec (Cap. 7.2)  
 Status: SPEC (PLAN‑ONLY) — Template di verifica & GUI binding
@@ -3394,6 +3685,7 @@ Status: SPEC (PLAN‑ONLY) — Template di verifica & GUI binding
 ---
 
 🎯 Prossimi passi consigliati (se vuoi che proceda dopo approvazione):
+
 1. Inserire i testi pronti‑to‑paste nei file indicati sotto MEGAPLAN.  
 2. Aggiornare il KB con clausole EC2/NTC esatte (TODO richiesto).  
 3. Creare unit tests che consumano i fixtures numeric sopra.
@@ -3401,7 +3693,6 @@ Status: SPEC (PLAN‑ONLY) — Template di verifica & GUI binding
 ---
 
 Se vuoi, preparo ora le versioni finali complete (testo Markdown esteso pronto‑to‑paste) per entrambi i file e le salvo in MEGAPLAN — confermi che proceda?
-
 
 Status: creating the core MEGAPLAN documents first (manifest, application report, CodeModule contract, and test plan). Next step: add config and source skeletons.
 
@@ -3425,7 +3716,7 @@ PLAN_GUI_SECONDARY_ELEMENTS.md — wire + file mapping (GUI thin) ✅
 Creati skeleton (solo docstring / API / TODO) per:
 config (NTC2018 JSONcode skeletons)
 ntc2018 (package, CodeModule skeleton, checks stubs, secondary_elements package)
-src/gui/secondary_elements/* (window, editor, results_view) + widgets
+src/gui/secondary_elements/*(window, editor, results_view) + widgets
 src/core/* adapters (combinations, materials) — SKELETONS
 Aggiunti test‑placeholder in tests (unit + GUI + integration placeholders)
 Verificato che i placeholder/TODO rimangono in tutti i punti dove il piano lo richiede (grep TODO eseguito)
@@ -3436,7 +3727,7 @@ Eseguiti i test: pytest eseguito con successo (placeholder tests → pass/skip).
 docs/MEGAPLAN/{MANIFEST_APPLICAZIONE.md, APPLICATION_REPORT.md, CodeModule_CONTRACT.md, TEST_PLAN_NTC2018.md}
 NTC2018.jsoncode
 secondary_elements.jsoncode
-src/codes/ntc2018/* (skeletons)
+src/codes/ntc2018/*(skeletons)
 src/gui/secondary_elements/{editor.py,window.py,results_view.py}
 src/gui/widgets/{secondary_element_widgets.py,norm_selector.py}
 tests/... (placeholders)

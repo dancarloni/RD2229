@@ -9,7 +9,6 @@ KB_NTC2018_AZIONI.md (azioni e combinazioni);
 KB_NTC2018_ANALISI.md (tipi di analisi);
 KB_NTC2018_CA.md (verifiche di resistenza per c.a.).
 
-
 1. Riferimenti normativi
 
 Norma principale: D.M. 17/01/2018 – NTC 2018
@@ -19,8 +18,7 @@ Capitoli di riferimento:§8 – Costruzioni esistenti
 Circolare applicativa: Circ. 21/01/2019 n. 7
 Ogni valutazione deve essere citabile a livello di capitolo/paragrafo.
 
-
-2. Ambito di applicazione
+1. Ambito di applicazione
 Le presenti disposizioni si applicano a:
 
 edifici e opere esistenti;
@@ -33,8 +31,7 @@ strutture in calcestruzzo armato;
 strutture in acciaio;
 muratura (per quanto di competenza, con rinvio a KB dedicate).
 
-
-3. Obiettivi della valutazione
+1. Obiettivi della valutazione
 La valutazione della sicurezza mira a:
 
 stimare il livello di sicurezza dell’opera;
@@ -43,8 +40,7 @@ supportare la scelta del tipo di intervento;
 produrre un esito tecnico‑legalmente difendibile.
 L’esito non coincide necessariamente con il rispetto integrale delle NTC per nuove costruzioni.
 
-
-4. Livelli di conoscenza (LC)
+1. Livelli di conoscenza (LC)
 Le NTC 2018 definiscono tre livelli di conoscenza:
 4.1 LC1 – Conoscenza limitata
 
@@ -63,8 +59,7 @@ indagini estese;
 alta affidabilità dei parametri.
 Il livello di conoscenza deve essere dichiarato esplicitamente.
 
-
-5. Fattori di confidenza (FC)
+1. Fattori di confidenza (FC)
 A ciascun livello di conoscenza è associato un fattore di confidenza FC che:
 
 riduce le resistenze di progetto;
@@ -76,8 +71,7 @@ FC è funzione esclusiva del LC;
 non può essere scelto arbitrariamente;
 deve essere tracciabile in relazione.
 
-
-6. Indice di sicurezza ζE
+1. Indice di sicurezza ζE
 6.1 Definizione
 L’indice di sicurezza ζE esprime il rapporto tra:
 
@@ -94,8 +88,7 @@ calcolato;
 motivato;
 riportato in relazione.
 
-
-7. Tipologie di intervento
+1. Tipologie di intervento
 7.1 Interventi locali
 
 non modificano il comportamento globale;
@@ -112,8 +105,7 @@ rende la struttura conforme ai livelli di sicurezza delle nuove costruzioni;
 richiede ζE ≥ 1.0;
 è obbligatorio nei casi previsti dalla norma.
 
-
-8. Analisi strutturale per edifici esistenti
+1. Analisi strutturale per edifici esistenti
 Le analisi possono essere:
 
 lineari elastiche;
@@ -126,8 +118,7 @@ tipologia strutturale;
 obiettivo dell’intervento.
 Il tipo di analisi deve essere coerente con KB_NTC2018_ANALISI.md.
 
-
-9. Uso di normative precedenti (TA)
+1. Uso di normative precedenti (TA)
 È ammesso:
 
 utilizzare verifiche TA come supporto conoscitivo;
@@ -137,8 +128,7 @@ Non è ammesso:
 sostituire la verifica NTC con TA;
 mescolare criteri TA e SLU/SLE.
 
-
-10. Relazione di calcolo
+1. Relazione di calcolo
 La relazione deve includere:
 
 descrizione dell’opera e dello stato di fatto;
@@ -149,8 +139,7 @@ tipo di intervento;
 riferimenti normativi puntuali.
 Ogni scelta deve essere motivata e tracciabile.
 
-
-11. Regole di utilizzo nel software
+1. Regole di utilizzo nel software
 Nel framework:
 
 LC, FC e ζE sono parametri espliciti;
@@ -159,14 +148,12 @@ uso di FC incoerenti;
 Copilot deve:rifiutare verifiche prive di ζE;
 segnalare TODO in caso di dati insufficienti.
 
-
-12. Criteri di accettazione
+1. Criteri di accettazione
 Questa KB è conforme se:
 
 consente valutazioni complete degli edifici esistenti;
 distingue chiaramente tra interventi locali, miglioramento e adeguamento;
 ogni parametro è tracciabile;
 la relazione di calcolo è difendibile in sede tecnica e legale.
-
 
 Questo file fa parte integrante e vincolante della Knowledge Base NTC2018.

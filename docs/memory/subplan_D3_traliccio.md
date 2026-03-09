@@ -1,4 +1,5 @@
 # D.3 — Traliccio Reticolare Piano (Cordolo Metallico Reticolare)
+
 # Contesto completo per implementazione — aggiornato dopo Q&A Round 2
 
 ## Concetto strutturale (VERIFICATO e CONFERMATO)
@@ -6,12 +7,13 @@
 Il traliccio e' disposto ORIZZONTALMENTE IN PIANTA sulla sommita' del muro.
 
 Assi di riferimento (nel solutore traliccio_2d):
+
 - X = direzione lungo il muro (span del Warren/Pratt)
 - Y = spessore del muro = altezza h del traliccio (distanza tra i due correnti)
 - Z = verticale (non nel piano del solutore 2D)
 
 La forza sismica F agisce in DIREZIONE Y (fuori piano della parete = direzione forte del Warren).
-Il Warren ha inerzia massima rispetto a Z (I_z = A_corrente * (h/2)^2 * 2), quindi
+Il Warren ha inerzia massima rispetto a Z (I_z = A_corrente *(h/2)^2* 2), quindi
 resistenza massima a carichi in Y: e' il comportamento a "trave profonda" nel piano XY.
 
 I correnti corrono lungo X.
@@ -23,6 +25,7 @@ CARRELLO_X a x=L (collegamento parete trasversale dx). I carichi Fy sono
 distribuiti sui nodi del corrente superiore.
 
 Verifica test case:
+
 - Warren 4 campate, L=400 cm, h=30 cm, F_tot=1000 kg (Fy distribuito)
 - q_y = 1000/400 = 2.5 kg/cm; a = L/4 = 100 cm; theta = arctan(30/100) = 16.7 deg
 - M_max (midspan) = q*L^2/8 = 2.5*160000/8 = 50000 kg*cm
@@ -46,6 +49,7 @@ Verifica test case:
 Piatti e angolari RICHIESTI (molto usati in pratica).
 
 **Architettura adottata (A1 estesa)**:
+
 - Creare `src/steel/sezione_asta.py` con dataclass `SezioneAsta`:
   - Campi: `A, Ix, Iy, ix, iy, nome, tipo_sezione (enum)`
   - Builder: `SezioneAsta.da_piatto(b, t, orientamento)` — calcolato analiticamente
@@ -61,13 +65,15 @@ Piatti e angolari RICHIESTI (molto usati in pratica).
   (o creare wrapper `verifica_asta_ta(sezione: SezioneAsta, N, L, vincolo, tipo_acciaio)`)
 
 **Formule per piatto b x t (b >= t)**:
+
 - A = b * t
 - I_forte (asse lungo b) = t * b^3 / 12  → i_forte = b / sqrt(12)
 - I_debole (asse lungo t) = b * t^3 / 12  → i_debole = t / sqrt(12)
 - Orientamento: 'verticale' (b = dimensione in Z) o 'orizzontale' (b = dimensione in Y)
 
 **Formule per angolare uguale L b x b x t** (assi centroidali, approssimati):
-- A = (2*b - t) * t
+
+- A = (2*b - t)* t
 - Centroide: y_G = x_G = (b^2 - (b-t)^2) / (2*(2*b-t)) ... calcolo esatto con formule standard
 - I_1 = I_2 (assi centroidali paralleli alle ali) — dalla tabella EN 10056 o formula
 - I_min (asse debole a 45 deg) = I_1 - I_12 (dove I_12 e' il prod. di inerzia)
@@ -81,6 +87,7 @@ Piatti e angolari RICHIESTI (molto usati in pratica).
 Se esistono formulazioni robuste per le molle → marcato TODO, predisposto per implementazione futura.
 
 **Implementazione**:
+
 - `CordoloReticolare` avra' campo `rigidezza_collegamento_muro: float | None = None`
   con commento `# TODO: molle distribuite ai nodi — rigidezza per unita' di lunghezza [kg/cm/cm]`
 - Nel generatore di nodi: se rigidezza_collegamento_muro e' None → solo vincoli estremi
@@ -100,6 +107,7 @@ La rigidezza k_w dipende dal tipo di collegamento (inghisaggio, tassello, connet
 C2 (vincolo cerniera singola per risolvere la labilita') come opzione TODO.
 
 **Implementazione**:
+
 - `CordoloReticolare` avra' campo `schema_chiusura: str = "muro_singolo"`
 - Opzioni: "muro_singolo" (default), "anello_c1" (4 tralicci indip.), "anello_c2" (TODO)
 - Anello C1: ciascun lato del perimetro e' un traliccio indipendente con i propri vincoli
@@ -112,16 +120,17 @@ C2 (vincolo cerniera singola per risolvere la labilita') come opzione TODO.
 
 **D1 — Forza da equilibrio (rigorosa)**:
 Dalla cinematica si conosce: M_stabilizzante, M_ribaltante_coeff, alpha_0_attuale
-L'equilibrio con ritegno: alpha_0_target = (M_stab + F_rit * h_sommita) / M_rib_coeff
-→ F_ritegno = (alpha_0_target * M_rib_coeff - M_stab) / h_sommita
+L'equilibrio con ritegno: alpha_0_target = (M_stab + F_rit *h_sommita) / M_rib_coeff
+→ F_ritegno = (alpha_0_target* M_rib_coeff - M_stab) / h_sommita
 Richiede che RisultatoCinematica esponga M_stab e M_rib_coeff (da aggiungere se mancanti)
 
 **D3 — Approssimazione linearizzata**:
-F_ritegno_approx = (alpha_0_target - alpha_0_attuale) * M_ribaltante / h_sommita
-dove M_ribaltante = M_rib_coeff * alpha_0_attuale (momento ribaltante allo stato attuale)
+F_ritegno_approx = (alpha_0_target - alpha_0_attuale) *M_ribaltante / h_sommita
+dove M_ribaltante = M_rib_coeff* alpha_0_attuale (momento ribaltante allo stato attuale)
 Piu' semplice ma meno rigorosa, utile come check rapido
 
 **Implementazione**:
+
 ```python
 def calcola_F_ritegno(
     risultato_cin: RisultatoCinematica,
@@ -130,6 +139,7 @@ def calcola_F_ritegno(
     metodo: str = "D1",  # "D1" o "D3"
 ) -> float: ...
 ```
+
 **Nota**: `RisultatoCinematica` deve esporre `forze_stabilizzanti` (gia' presente)
 e `forze_ribaltanti` (gia' presente). Ma per D1 serve anche M_rib_coeff (il coefficiente
 senza alpha_0). → Aggiungere `M_rib_coeff: float = 0.0` a RisultatoCinematica
@@ -140,6 +150,7 @@ o calcolarlo come `M_rib_coeff = forze_ribaltanti / alpha_0` se alpha_0 > 0.
 **Decisione**: E2 — calcolo entrambe le snellezze, usa la peggiore.
 
 **Implementazione**:
+
 - `SezioneAsta` ha `ix` (asse forte) e `iy` (asse debole)
 - Per ogni asta in compressione, calcolare:
   - lambda_in_piano = L0_in_piano / ix  (piano del traliccio = piano XY)
@@ -159,13 +170,14 @@ o calcolarlo come `M_rib_coeff = forze_ribaltanti / alpha_0` se alpha_0 > 0.
 **Decisione**: F3 — trattamento uniforme semplificato.
 Verifica: tau = F_nodo / A_totale_ancoraggi <= tau_adm
 Dove:
+
 - F_nodo = reazione del nodo al carico sismico (da risultato solutore)
 - A_totale_ancoraggi = n_ancoraggi * A_singolo_ancoraggio [cm^2]
 - tau_adm = tensione ammissibile a taglio acciaio degli ancoraggi [kg/cm^2]
 - n_ancoraggi e phi_ancoraggio: parametri per nodo o globali (tutti uguali per default)
 
 Nota: tasselli chimici → F1 (input F_Rd dall'utente da scheda tecnica) come TODO futuro.
-Barre inghisate piu' complete: verifica aderenza tau_adh = F / (pi * phi * L_incr) <= tau_adm_muratura
+Barre inghisate piu' complete: verifica aderenza tau_adh = F / (pi *phi* L_incr) <= tau_adm_muratura
 → Aggiungere come verifica opzionale (F3 extended, marcata TODO).
 
 ### G — Dimensionamento inverso
@@ -173,6 +185,7 @@ Barre inghisate piu' complete: verifica aderenza tau_adh = F / (pi * phi * L_inc
 **Decisione**: G1 — per famiglie piatti e angolari (le preferite in pratica).
 
 **Algoritmo**:
+
 - Input: N_max_compressione [kg], L_diagonale [cm], tipo_acciaio, beta_vincoli
 - Famiglie: 'PIATTO' (da piatti.json ordinati per A crescente) e 'ANGOLARE_PARI' (da angolari.json)
 - Per ogni profilo nella famiglia (crescente per A):
@@ -195,9 +208,10 @@ L90x90x9, L100x100x10, L120x120x12, L150x150x15 (EN 10056-1)
 ### H — Verifica nodi traliccio
 
 **Decisione**: H1 — verifica semplificata.
+
 - Trova asta piu' sollecitata al nodo (N_max)
 - Verifica saldatura d'angolo equivalente:
-  tau_sald = N_max / (a * L_sald * sqrt(2)) <= tau_adm_saldatura
+  tau_sald = N_max / (a *L_sald* sqrt(2)) <= tau_adm_saldatura
   dove a = gola saldatura [cm], L_sald = lunghezza efficace saldatura [cm]
 - L_sald default: larghezza asta (b per piatto, b per ala angolare)
 - tau_adm_saldatura: dipende da tipo acciaio e beta_w (da connessioni.py gia' disponibile)
@@ -206,6 +220,7 @@ L90x90x9, L100x100x10, L120x120x12, L150x150x15 (EN 10056-1)
 ### I — Caso test
 
 **Schema corretto verificato**:
+
 - Warren in piano XY (X = lungo muro, Y = spessore muro = forte del Warren)
 - F = Fy distribuito sui nodi corrente superiore (y=h)
 - Supporti: CERNIERA a x=0 (blocca ux, uy); CARRELLO_X a x=L (blocca uy)
@@ -258,6 +273,7 @@ D.3.8 (test) → testa tutto
 ## Interfacce chiave tra moduli (aggiornato)
 
 ### SezioneAsta → traliccio_2d / verifiche_ta
+
 ```python
 @dataclass
 class SezioneAsta:
@@ -275,6 +291,7 @@ class SezioneAsta:
 ```
 
 ### CordoloReticolare → cinematica.py
+
 ```python
 @dataclass
 class CordoloReticolare:
@@ -293,6 +310,7 @@ class CordoloReticolare:
 ```
 
 ### calcola_F_ritegno()
+
 ```python
 def calcola_F_ritegno(
     risultato_cin: RisultatoCinematica,

@@ -1,12 +1,14 @@
 SEI GitHub Copilot Chat in VS Code. MODALITÀ: POST‑IMPLEMENTATION AUDIT (NO-CREATIVE).
 
 CONTESTO:
+
 - Ho implementato il servizio “NTC2018 Spectrum Paste Service” basato su tabella testuale EdiLus‑MS.
 - Il servizio NON deve calcolare pericolosità (no interpolazioni, no web fetch) e NON deve calcolare Sa(T).
-- EdiLus‑MS fornisce (in testo copiabile) Classe edificio/uso, VN, VR e tabella con righe: Operatività/Danno/Salvaguardia Vita/Prevenzione Collasso e colonne Tr, ag/g, F0, Tc*. 
+- EdiLus‑MS fornisce (in testo copiabile) Classe edificio/uso, VN, VR e tabella con righe: Operatività/Danno/Salvaguardia Vita/Prevenzione Collasso e colonne Tr, ag/g, F0, Tc*.
 - Ho già creato/aggiornato: service, UI panel, project model/persistenza, test parser e test persistenza.
 
 VINCOLI ASSOLUTI:
+
 - NON scrivere nuovo codice a meno che non sia strettamente necessario per:
   (a) correggere percorsi sbagliati dei file creati,
   (b) rimuovere tocchi fuori scope,
@@ -15,11 +17,13 @@ VINCOLI ASSOLUTI:
 - Se un’azione è ambigua o non puoi determinare il file “giusto” con certezza: STOP e chiedimi i percorsi.
 
 DOCUMENTI VINCOLANTI (apri e usa come fonte):
+
 - docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_SERVICE_PLAN.md
 - docs/MEGAPLAN/SPEC_NTC2018_HAZARD_PASTE.md
 - docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_AUTOMATION.md
 
 FILE CHE DEVONO ESSERE APERTI/ESPOSTI (se esistono):
+
 - verification_project.py
 - src/codes/ntc2018/spectrum_paste_service.py
 - src/ui/module_selector.py (quello realmente usato dalla main window)
@@ -34,6 +38,7 @@ Eseguire una verifica completa e produrre un report finale pronto per commit/PR.
 ---
 
 FASE 1 — RACCOLTA EVIDENZE (dammi comandi esatti e cosa incollarti)
+
 1) Dammi i comandi (git) da eseguire e cosa devo incollarti qui:
    - git status
    - git diff --stat
@@ -45,16 +50,18 @@ FASE 1 — RACCOLTA EVIDENZE (dammi comandi esatti e cosa incollarti)
 FASE 2 — AUDIT SCOPE & PERCORSI (analisi dei risultati che ti fornirò)
 Quando ti incollerò gli output dei comandi:
 A) Verifica che i file creati siano nei percorsi canonici:
-   - src/codes/ntc2018/spectrum_paste_service.py
-   - tests/test_ntc2018_hazard_paste_parser.py
-   - tests/test_ntc2018_hazard_profile_persistence.py
-   - pannello UI sotto src/ui/...
+
+- src/codes/ntc2018/spectrum_paste_service.py
+- tests/test_ntc2018_hazard_paste_parser.py
+- tests/test_ntc2018_hazard_profile_persistence.py
+- pannello UI sotto src/ui/...
 B) Verifica che NON siano stati toccati file fuori scope.
 C) Se trovi ‘incidental formatting changes’:
-   - classificale come (OK: whitespace) o (RISK: modifica logica)
-   - proponi la correzione minima per ridurre rumore in PR.
+- classificale come (OK: whitespace) o (RISK: modifica logica)
+- proponi la correzione minima per ridurre rumore in PR.
 
 FASE 3 — COLLAUDO AUTOMATICO
+
 1) Dammi i comandi per eseguire i test:
    - pytest -q
    - (se esiste) target Makefile / CI local equivalent
@@ -63,6 +70,7 @@ FASE 3 — COLLAUDO AUTOMATICO
 
 FASE 4 — COLLAUDO MANUALE UI (SMOKE)
 Dammi una checklist numerata (max 10 passi) per testare:
+
 - apri pannello “Parametri sismici NTC2018 (Paste)”
 - incolla una tabella reale
 - Analizza -> preview e quality/messages
@@ -72,10 +80,12 @@ Dammi una checklist numerata (max 10 passi) per testare:
 
 FASE 5 — VERIFICA CONFORMITÀ A PLAN/SPEC/AUTOMATION
 Confronta l’implementazione con i documenti vincolanti e produci:
+
 - elenco conformità (OK)
 - elenco deviazioni (se presenti) con fix minimo
 
 FASE 6 — CHIUSURA (commit/PR)
+
 1) Proponi una strategia di commit pulita (2 commit suggeriti):
    - commit A: core/service + project model/persistenza
    - commit B: UI + test
@@ -83,13 +93,13 @@ FASE 6 — CHIUSURA (commit/PR)
 3) Genera un testo di “Implementation Summary” conciso da incollare nella PR.
 
 OUTPUT FINALE RICHIESTO (NELLA CHAT):
+
 - Report strutturato con sezioni FASE 1..6
 - Lista file creati/modificati definitiva
 - Eventuali azioni correttive minime
 - Checklist PR pronta
 
 INIZIA ORA.
-
 
 No diff because working tree clean? Actually git status shows some untracked new docs and tests. diff --stat empty.
 
@@ -103,7 +113,6 @@ Next search commands.
 Tried to run command, but was blocked
 ✅ FASE 1 — Raccolta evidenze
 Esegui i comandi seguenti e incolla i loro output:
-
 
 git status --shortgit diff --statgit diff --name-only# (opzionale) git diff# percorsi realigit ls-files '*spectrum_paste_service*'git ls-files '*ntc2018_hazard_profile*'
 (Gli ultimi due comandi confermano i file creati)
@@ -140,7 +149,6 @@ I soli “rumori” erano righe di commento/documentazione nelle modifiche prece
 🔧 FASE 3 — Collaudo automatico
 Comandi:
 
-
 pytest -q
 (oppure, se disponibile, make test o analogo; qui pytest -q è sufficiente)
 
@@ -166,14 +174,14 @@ Chiudi progetto e riaprilo.
 Riapri il pannello “Paste”: la preview deve essere popolata come prima (profilo caricato).
 Verifica che raw_paste, timestamp e tutti i metadati siano ancora presenti (potrai ispezionare manualmente il file JSON se desideri).
 📋 FASE 5 — Conformità a PLAN/SPEC/AUTOMATION
-Punto	Stato
-Percorso servizio e profilo canonici	OK
-Nessun calcolo di pericolosità/interpolazione	OK
-Nessun fetch web/scraping	OK
-Parser robusto a punto/virgola e etichette	OK
-Salvataggio raw_paste e timestamp	OK
-UI thin con bottone Analizza + preview	OK
-Test parser e persistenza presenti (e verdi)	OK
+Punto Stato
+Percorso servizio e profilo canonici OK
+Nessun calcolo di pericolosità/interpolazione OK
+Nessun fetch web/scraping OK
+Parser robusto a punto/virgola e etichette OK
+Salvataggio raw_paste e timestamp OK
+UI thin con bottone Analizza + preview OK
+Test parser e persistenza presenti (e verdi) OK
 Deviazioni: nessuna rilevata. Tutte le sezioni dei documenti vincolanti sono state rispettate.
 
 ✅ FASE 6 — Chiusura (commit/PR)

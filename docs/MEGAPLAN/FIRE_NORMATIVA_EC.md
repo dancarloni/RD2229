@@ -3,7 +3,6 @@ FIRE_NORMATIVA_EC – Quadro normativo europeo (Eurocodici)
 Status: STABILE
 Ruolo: Riferimento tecnico‑normativo per il calcolo strutturale in caso di incendio
 
-
 1. Inquadramento generale
 Nel sistema europeo la progettazione strutturale in caso di incendio è disciplinata dai cosiddetti Eurocodici “hot”, ossia le parti ‑1‑2 degli Eurocodici strutturali.
 Per le strutture in calcestruzzo armato, il riferimento principale è:
@@ -16,8 +15,7 @@ le proprietà dei materiali a temperatura elevata
 i metodi di calcolo (da semplificati ad avanzati)
 👉 Gli Eurocodici stabiliscono il “come si calcola” la resistenza al fuoco.
 
-
-2. Sistema degli Eurocodici per l’incendio
+1. Sistema degli Eurocodici per l’incendio
 2.1 Eurocodici coinvolti
 La verifica strutturale in incendio richiede l’uso combinato di:
 
@@ -30,8 +28,7 @@ EN 1993‑1‑2 – Acciaio
 EN 1994‑1‑2 – Strutture composte
 EN 1995‑1‑2 – Legno
 
-
-3. EN 1991‑1‑2 – Azioni in caso di incendio
+1. EN 1991‑1‑2 – Azioni in caso di incendio
 3.1 Modelli di incendio
 La norma definisce diversi modelli di incendio, tra cui:
 
@@ -47,8 +44,7 @@ Le azioni meccaniche in incendio sono definite come:
 \\[ E_{d,fi} = \\eta_{fi} \\cdot E_d \\]
 con riduzione delle azioni variabili mediante coefficienti \\(\\psi_{fi}\\).
 
-
-4. EN 1992‑1‑2 – Calcestruzzo armato in incendio
+1. EN 1992‑1‑2 – Calcestruzzo armato in incendio
 4.1 Campo di applicazione
 La norma si applica a:
 
@@ -60,7 +56,6 @@ Sono esclusi:
 comportamenti anomali non modellabili
 effetti non strutturali
 
-
 4.2 Obiettivo della verifica
 La verifica fondamentale è:
 \\[ E_{d,fi} \\le R_{d,fi,t} \\]
@@ -69,8 +64,7 @@ Dove:
 \\(E_{d,fi}\\) = azione di progetto in incendio
 \\(R_{d,fi,t}\\) = resistenza residua della sezione al tempo \\(t\\)
 
-
-5. Metodi di verifica previsti
+1. Metodi di verifica previsti
 5.1 Metodo tabellare (Livello 1)
 Caratteristiche:
 
@@ -87,7 +81,6 @@ robusto
 conservativo
 poco flessibile
 
-
 5.2 Metodo semplificato (Livello 2)
 Caratteristiche:
 
@@ -95,7 +88,6 @@ sezione ridotta ("effective section")
 profilo termico semplificato
 riduzione delle proprietà dei materiali
 ✅ Buon compromesso tra accuratezza e semplicità
-
 
 5.3 Metodo avanzato (Livello 3)
 Caratteristiche:
@@ -105,8 +97,7 @@ possibile uso FEM
 modellazione esplicita del tempo
 ✅ Massima accuratezza ❌ Elevata complessità
 
-
-6. Proprietà dei materiali a temperatura elevata
+1. Proprietà dei materiali a temperatura elevata
 La EN 1992‑1‑2 fornisce:
 
 curve di riduzione della resistenza del calcestruzzo
@@ -114,8 +105,7 @@ curve di riduzione della resistenza dell’acciaio
 variazione del modulo elastico
 Tali curve sono vincolanti per il calcolo.
 
-
-7. Versioni e aggiornamenti
+1. Versioni e aggiornamenti
 
 EN 1992‑1‑2:2004 + A1:2019 – Prima generazione
 EN 1992‑1‑2:2023 – Seconda generazione
@@ -124,8 +114,7 @@ Nel software:
 la versione deve essere esplicitamente selezionabile
 i risultati devono riportare la versione normativa
 
-
-8. Ruolo degli Eurocodici nel software
+1. Ruolo degli Eurocodici nel software
 Nel sistema software:
 Gli Eurocodici determinano:
 
@@ -139,16 +128,14 @@ la classe R richiesta
 il livello di prestazione
 gli obblighi di verifica (definiti da NTC / VVF)
 
-
-9. Collegamento con gli altri documenti
+1. Collegamento con gli altri documenti
 
 FIRE_MASTER.md → coordinamento generale
 FIRE_NORMATIVA_NTC.md → obblighi e prestazioni
 FIRE_TEORIA_CALCOLO.md → formule dettagliate ed esempi
 FIRE_INTEGRAZIONE_SOFTWARE.md → input, output, GUI
 
-
-10. Criteri di accettazione
+1. Criteri di accettazione
 
 Tutti i modelli fanno riferimento a EN 1991‑1‑2 e EN 1992‑1‑2
 Metodo di verifica esplicitamente dichiarato

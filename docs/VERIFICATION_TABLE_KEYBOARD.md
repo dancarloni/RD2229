@@ -90,6 +90,7 @@ if col in {'mat_concrete', 'mat_steel', 'stirrups_mat'}:
 > Nota: i metodi usati internamente come `_start_edit` e `_commit_and_move` sono progettati per essere riusati; se preferisci, posso estrarre una piccola API pubblica attorno a questi comportamenti.
 
 Se vuoi, procedo con:
+
 1. estrarre helper pubblici per usare `Combobox` senza duplicazione di codice, oppure
 2. aggiungere esempi più dettagliati nei test (ad es. test che verificano che Combobox sia usata e che i valori vengano commitati), oppure
 3. aprire una PR con tutte le modifiche e la documentazione aggiornata.

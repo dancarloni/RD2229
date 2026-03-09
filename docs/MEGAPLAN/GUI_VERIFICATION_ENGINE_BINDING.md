@@ -9,7 +9,6 @@ invocare il core di verifica (CAP_4 / CAP_7);
 salvare i VerificationResult nel ProjectModel;
 mantenere separazione totale tra GUI e logica normativa.
 
-
 1. Dipendenze e precondizioni (vincolanti)
 Questo binding è valido solo se esistono e sono coerenti:
 
@@ -20,8 +19,7 @@ VerificationEngine e verifiche atomiche (CAP_4 / CAP_7);
 modelli di risultato VerificationResult, NTCCapitol, VerificationStatus.
 Regola hard: la GUI non crea formule, non decide la norma, non interpreta risultati.
 
-
-2. Flusso dati (end‑to‑end)
+1. Flusso dati (end‑to‑end)
 
 GUI Views
   ├─ SezioniMaterialiView ──┐
@@ -42,10 +40,7 @@ GUI Views
             ▼
         ProjectModel.verifiche_cap4 / verifiche_cap7
 
-
-
-
-3. Responsabilità del Binding
+1. Responsabilità del Binding
 Il binding deve:
 
 verificare la completezza minima dei dati (sezione, materiale, sollecitazioni);
@@ -55,13 +50,11 @@ eseguire le verifiche pertinenti (CAP_4 / CAP_7);
 smistare i risultati per capitolo NTC;
 aggiornare il ProjectModel.
 
-
-4. Codice – gui/binding/verification_engine_binding.py
+1. Codice – gui/binding/verification_engine_binding.py
 
 from core.verification.verification_engine import VerificationEngine
 from core.verification.verification_result import VerificationStatus
 from ntc_capitolo import NTCCapitol
-
 
 class VerificationEngineBinding:
     """
@@ -148,9 +141,6 @@ class VerificationEngineBinding:
             elif r.capitolo_ntc == NTCCapitol.CAP_7:
                 self.project_model.verifiche_cap7.append(r)
 
-
-
-
 5. Factory delle verifiche (contratto richiesto)
 Il binding non conosce le singole verifiche. Si appoggia a una factory.
 
@@ -163,9 +153,6 @@ class VerificationFactory:
         """Ritorna una lista di verifiche CAP_7 (capacità/gerarchia)."""
         raise NotImplementedError
 
-
-
-
 6. Integrazione con le View GUI
 
 SollecitazioniView → salva project_model.sollecitazioni
@@ -174,22 +161,17 @@ Bottone “Esegui verifiche” (in GUI controller) → chiama:
 
 binding.run_verifications()
 
-
-
 RisultatiView → legge:project_model.verifiche_cap4
 project_model.verifiche_cap7
 
-
-7. Regole di sicurezza normativa
+1. Regole di sicurezza normativa
 
 il binding rifiuta l’esecuzione se i dati minimi mancano;
 CAP_7 non viene eseguito se non abilitato dal workflow;
 i risultati sono sempre marcati con capitolo_ntc;
 nessun risultato viene interpretato o modificato dalla GUI.
 
-
-8. Stato
+1. Stato
 ✅ Binding GUI ↔ Core definito ✅ Separazione responsabilità garantita ✅ Pronto per integrazione in main.py ✅ Nessun refactor richiesto
-
 
 Questo file è vincolante per il collegamento tra GUI e VerificationEngine nel software NTC2018.

@@ -26,104 +26,106 @@ Di seguito trovi un piano completo per arrivare a quel risultato; è organizzato
 ### 1. **Mappatura delle funzionalità richieste**
 
 1. **Creazione / caricamento / modifica progetto**  
-   - Modello: `src/project/project_model.py` (pydantic, JSON/YAML)  
-   - Form GUI: nuovi widget per aggiungere elementi, materiali, carichi, codici.
+   * Modello: `src/project/project_model.py` (pydantic, JSON/YAML)  
+   * Form GUI: nuovi widget per aggiungere elementi, materiali, carichi, codici.
 2. **Visualizzazione ed editing materiali/elementi**  
-   - Esistenti: `HistoricalMaterialWindow`, `MainWindow` (geometria).  
-   - Riconnetterli al `ProjectModel` e a repository condivisi.
+   * Esistenti: `HistoricalMaterialWindow`, `MainWindow` (geometria).  
+   * Riconnetterli al `ProjectModel` e a repository condivisi.
 3. **Esecuzione pipeline & calcoli**  
-   - Orchestratore: pipeline.py + `create_verification_engine`.  
-   - Risultati: `ResultsModel` con dettaglio per elemento + passi.
+   * Orchestratore: pipeline.py + `create_verification_engine`.  
+   * Risultati: `ResultsModel` con dettaglio per elemento + passi.
 4. **Report e export**  
-   - Builder: report_builder.py, export HTML/MD.  
-   - Viewer GUI per mostrare report e/o salvarlo.
+   * Builder: report_builder.py, export HTML/MD.  
+   * Viewer GUI per mostrare report e/o salvarlo.
 5. **Gestione plugin/estensioni dinamiche**  
-   - modules per GUI (attualmente contiene alcuni moduli)  
-   - plugins per logica CLI → estendere la scoperta in registry.
+   * modules per GUI (attualmente contiene alcuni moduli)  
+   * plugins per logica CLI → estendere la scoperta in registry.
 6. **Logging & notifiche**  
-   - Usare già presente logs + `notify_error/notify_info` per dialog.
+   * Usare già presente logs + `notify_error/notify_info` per dialog.
 
 ### 2. **Rafforzare il registry e i moduli**
 
-- **Modificare registry.py**
-  - estendere la scansione anche a plugins e calculations se necessario;
-  - supportare passaggio opzionale di dipendenze (es. `project`, `material_repo`) ai factory.
+* **Modificare registry.py**
+  * estendere la scansione anche a plugins e calculations se necessario;
+  * supportare passaggio opzionale di dipendenze (es. `project`, `material_repo`) ai factory.
 
-- **Aggiungere nuovi moduli in modules**
-  - `project_editor.py` – finestra per creare/caricare/salvare `ProjectModel`; contiene form dinamici generati da pydantic.
-  - `pipeline_runner.py` – avvia la pipeline, mostra barra di progresso + tavola risultati.
-  - `report_viewer.py` – visualizza l’HTML/MD generato, pulsanti export.
-  - Eventualmente moduli “element_editor”, “code_selector”, “material_editor” (quest’ultimo già esiste).
+* **Aggiungere nuovi moduli in modules**
+  * `project_editor.py` – finestra per creare/caricare/salvare `ProjectModel`; contiene form dinamici generati da pydantic.
+  * `pipeline_runner.py` – avvia la pipeline, mostra barra di progresso + tavola risultati.
+  * `report_viewer.py` – visualizza l’HTML/MD generato, pulsanti export.
+  * Eventualmente moduli “element_editor”, “code_selector”, “material_editor” (quest’ultimo già esiste).
 
-- **Aggiornare modules_config.json** con le nuove chiavi e l’ordine desiderato; abilitarli.
+* **Aggiornare modules_config.json** con le nuove chiavi e l’ordine desiderato; abilitarli.
 
-- **Garantire che ogni modulo esporti:**
+* **Garantire che ogni modulo esporti:**
+
   ```python
   MODULE_SPEC = {...}
   def create_module(master=None, **context) -> Window:
       # costruisce/ritorna la finestra concreta oppure placeholder
   ```
+
   e che i factory accettino `project`, `material_repo`, ecc.
 
 ### 3. **Estendere le librerie UI esistenti**
 
 I file sotto ui già contengono finestre generiche; bisogna:
 
-- **Creare/aggiornare le classi Window**:
-  - `ProjectEditorWindow` – generare form da schema pydantic (es. usando `pydantic.fields`, `tkinter` widgets).
-  - `PipelineWindow` – riceve un `ProjectModel`, chiama `run_pipeline`, visualizza `ResultsModel` in tabella/albero.
-  - `ReportWindow` – mostra un widget `tkhtmlview` o un semplice `Text` con HTML/MD + pulsanti `Save as…`.
-- **Aggiungere dialog di configurazione per ogni plugin/feature** (come già accade per “Impostazioni Codice”).
-- **Fornire un servizio di “ProjectService”** centralizzato (singleton) che memorizza il progetto corrente e lo passa ai moduli aperti.
+* **Creare/aggiornare le classi Window**:
+  * `ProjectEditorWindow` – generare form da schema pydantic (es. usando `pydantic.fields`, `tkinter` widgets).
+  * `PipelineWindow` – riceve un `ProjectModel`, chiama `run_pipeline`, visualizza `ResultsModel` in tabella/albero.
+  * `ReportWindow` – mostra un widget `tkhtmlview` o un semplice `Text` con HTML/MD + pulsanti `Save as…`.
+* **Aggiungere dialog di configurazione per ogni plugin/feature** (come già accade per “Impostazioni Codice”).
+* **Fornire un servizio di “ProjectService”** centralizzato (singleton) che memorizza il progetto corrente e lo passa ai moduli aperti.
 
 ### 4. **Aggiornare il selettore e il controller**
 
-- `ModuleSelectorController`:
-  - creazione del `ProjectService` all’avvio.
-  - passaggio di `project=ProjectService.instance()` e `material_repo=MaterialRepository()` ai factory.
-- `ModuleSelectorWindow`:
-  - aggiungere voci di menu “Nuovo progetto”, “Apri progetto”, “Salva progetto”
+* `ModuleSelectorController`:
+  * creazione del `ProjectService` all’avvio.
+  * passaggio di `project=ProjectService.instance()` e `material_repo=MaterialRepository()` ai factory.
+* `ModuleSelectorWindow`:
+  * aggiungere voci di menu “Nuovo progetto”, “Apri progetto”, “Salva progetto”
     → invocare il modulo `project_editor` o il service direttamente.
-  - aggiungere pulsanti/menù per “Esegui pipeline”, “Mostra report” che aprono i moduli appositi.
-  - supportare l’apertura di più moduli contemporaneamente (già gestito).
+  * aggiungere pulsanti/menù per “Esegui pipeline”, “Mostra report” che aprono i moduli appositi.
+  * supportare l’apertura di più moduli contemporaneamente (già gestito).
 
 ### 5. **Implementare i comportamenti principali**
 
 1. **Creazione progetto**  
-   - Nuovo progetto (file YAML/JSON) con contatori iniziali.
-   - Form per aggiungere elementi/armature/materiali; ogni modifica pompa eventi (observables) per aggiornare il `ProjectService`.
+   * Nuovo progetto (file YAML/JSON) con contatori iniziali.
+   * Form per aggiungere elementi/armature/materiali; ogni modifica pompa eventi (observables) per aggiornare il `ProjectService`.
 2. **Caricamento/salvataggio**  
-   - Dialog file → `ProjectModel.parse_file` / `.json()` e `.yaml()`.
-   - Validazione ancor prima di chiudere; errori mostrati in dialog.
+   * Dialog file → `ProjectModel.parse_file` / `.json()` e `.yaml()`.
+   * Validazione ancor prima di chiudere; errori mostrati in dialog.
 3. **Esecuzione pipeline**  
-   - Bottone “Run” in `PipelineWindow`; disabilita UI durante il calcolo.
-   - Output in `ResultsModel` conservato nel service e inviato al `ReportWindow`.
+   * Bottone “Run” in `PipelineWindow`; disabilita UI durante il calcolo.
+   * Output in `ResultsModel` conservato nel service e inviato al `ReportWindow`.
 4. **Report**  
-   - Genera MD/HTML e lo mostra; pulsanti per `Export` e `Close`.
+   * Genera MD/HTML e lo mostra; pulsanti per `Export` e `Close`.
 5. **Riscoperta moduli**  
-   - Watch sulla directory modules (e plugins) per aggiornare la sidebar in tempo reale.  
-   - Pulsante “Aggiorna Moduli” già presente mantiene questa logica.
+   * Watch sulla directory modules (e plugins) per aggiornare la sidebar in tempo reale.  
+   * Pulsante “Aggiorna Moduli” già presente mantiene questa logica.
 6. **Visibilità configurabili**  
-   - Gli utenti possono attivare/disattivare categorie tramite un *ConfigurationDialog* generico, la scelta salvata in `modules_config.json`.
+   * Gli utenti possono attivare/disattivare categorie tramite un *ConfigurationDialog* generico, la scelta salvata in `modules_config.json`.
 
 ### 6. **Test e qualità**
 
-- **Unit**  
-  - Modifica/serializzazione `ProjectModel`; service di progetto; registry.
-- **GUI**  
-  - Usa `pytest-tk` (o `pytest-qt` se si migra a PySide6) per:  
+* **Unit**  
+  * Modifica/serializzazione `ProjectModel`; service di progetto; registry.
+* **GUI**  
+  * Usa `pytest-tk` (o `pytest-qt` se si migra a PySide6) per:  
     * aprire `ModuleSelectorWindow`, verificare presenza dei moduli reali;  
     * creare un progetto, aggiungere un elemento, salvare e ricaricare;  
     * eseguire pipeline su un progetto di esempio e verificare che la tabella risultati compaia;  
     * generare un report e controllare contenuto.
-- **Integrazione**  
-  - Test CLI esistenti estesi per riflettere i nuovi moduli (es. `rd2229 run` deve usare la stessa pipeline dell’interfaccia grafica).
+* **Integrazione**  
+  * Test CLI esistenti estesi per riflettere i nuovi moduli (es. `rd2229 run` deve usare la stessa pipeline dell’interfaccia grafica).
 
 ### 7. **Documentazione e assistenza**
 
-- Aggiornare la sezione GUI/CLI del README.md con screenshot e flussi utente.  
-- Aggiungere un file `docs/USAGE_GUI.md` che descrive i passaggi “Nuovo progetto → Edit → Run → Report”.  
-- Esempi in `docs/examples/` con progetti di prova.
+* Aggiornare la sezione GUI/CLI del README.md con screenshot e flussi utente.  
+* Aggiungere un file `docs/USAGE_GUI.md` che descrive i passaggi “Nuovo progetto → Edit → Run → Report”.  
+* Esempi in `docs/examples/` con progetti di prova.
 
 ### 8. **Roadmap dettagliata**
 
@@ -138,15 +140,16 @@ I file sotto ui già contengono finestre generiche; bisogna:
 
 ### 9. **Criteri di accettazione**
 
-- All’avvio la GUI mostra nella sidebar tutti i moduli reali (geometria, material editor, project editor, pipeline runner, report viewer, eventuali plugin aggiunti) e nessuno dei placeholder.
-- Ogni modulo si apre e funziona: l’utente può inserire dati, salvare, caricare, eseguire calcoli e visualizzare report.
-- La configurazione del progetto viene serializzata correttamente e la validazione pydantic scatta prima del salvataggio.
-- Il pulsante “Aggiorna Moduli” e il watch filesystem aggiungono dinamicamente nuove funzionalità senza riavviare l’interfaccia.
-- I log (su file) registrano tutte le azioni utente e le eccezioni.
-- La suite di test copre tutti i flussi critici.
-- La documentazione descrive l’uso GUI, include i requisiti (es. app_module).
+* All’avvio la GUI mostra nella sidebar tutti i moduli reali (geometria, material editor, project editor, pipeline runner, report viewer, eventuali plugin aggiunti) e nessuno dei placeholder.
+* Ogni modulo si apre e funziona: l’utente può inserire dati, salvare, caricare, eseguire calcoli e visualizzare report.
+* La configurazione del progetto viene serializzata correttamente e la validazione pydantic scatta prima del salvataggio.
+* Il pulsante “Aggiorna Moduli” e il watch filesystem aggiungono dinamicamente nuove funzionalità senza riavviare l’interfaccia.
+* I log (su file) registrano tutte le azioni utente e le eccezioni.
+* La suite di test copre tutti i flussi critici.
+* La documentazione descrive l’uso GUI, include i requisiti (es. app_module).
 
 ---
+
 ### 🛠 Migrazione GUI: da Tkinter a PyQt6 / PySide6
 
 **Contesto**  
@@ -154,32 +157,32 @@ La codebase attuale contiene un’interfaccia Tkinter (moduli in `ui/`, `libs/ap
 
 **Obiettivo del prompt**  
 Trasformare l’intero front-end Tkinter in una GUI Qt (PyQt6 o PySide6) coerente con l’architettura “modern GUI” già avviata nel repository, mantenendo o migliorando i comportamenti esistenti e abilitando tutte le funzioni richieste dal piano (progetto, materiali, pipeline, report, plugin, ecc.). La migrazione deve:
-- Rimuovere completamente il codice Tkinter e i suoi riferimenti (ad eccezione del minimo indispensabile per compatibilità retroattiva, se necessario).
-- Realizzare nuove versioni Qt di tutte le finestre/moduli elencati in Tkinter (`ModuleSelectorWindow`, `ProjectEditorWindow`, `PipelineWindow`, ecc.) conformi ai pattern MVVM esposti nei documenti.
-- Portare la logica del `ModuleRegistry` e dei moduli in `modules/` nel nuovo mondo Qt (es. sidebar dinamica, menu, toolbar, gestione multiplo <-> singolo, watch filesystem).
-- Integrare i servizi di notifica (`notify_error`, `notify_info`) e logging nella nuova GUI.
-- Coprire il comportamento interattivo descritto nei `.md`: form dinamici generati da pydantic, dialog di configurazione per ogni feature, visualizzazione steps su richiesta, supporto batch, ecc.
-- Sfruttare PySide6 come stack primario (vedi `MIGRATION_TKINTER_TO_QT.md` e `0001-gui-pyqt6-migration.md`) e introdurre eventuali classi helper riutilizzabili (es. `QtProjectService`, `QtModuleSelector`).
+* Rimuovere completamente il codice Tkinter e i suoi riferimenti (ad eccezione del minimo indispensabile per compatibilità retroattiva, se necessario).
+* Realizzare nuove versioni Qt di tutte le finestre/moduli elencati in Tkinter (`ModuleSelectorWindow`, `ProjectEditorWindow`, `PipelineWindow`, ecc.) conformi ai pattern MVVM esposti nei documenti.
+* Portare la logica del `ModuleRegistry` e dei moduli in `modules/` nel nuovo mondo Qt (es. sidebar dinamica, menu, toolbar, gestione multiplo <-> singolo, watch filesystem).
+* Integrare i servizi di notifica (`notify_error`, `notify_info`) e logging nella nuova GUI.
+* Coprire il comportamento interattivo descritto nei `.md`: form dinamici generati da pydantic, dialog di configurazione per ogni feature, visualizzazione steps su richiesta, supporto batch, ecc.
+* Sfruttare PySide6 come stack primario (vedi `MIGRATION_TKINTER_TO_QT.md` e `0001-gui-pyqt6-migration.md`) e introdurre eventuali classi helper riutilizzabili (es. `QtProjectService`, `QtModuleSelector`).
 
 **Criteri di successo certificati**  
-- Il progetto si avvia senza Tkinter e tutte le interfacce esistenti appaiono correttamente convertite; la sidebar Qt mostra le feature in tempo reale e le finestre si aprono senza placeholder.
-- Tutte le funzionalità delineate nel piano (creazione/progetto, calcoli, report, plugin dinamici) sono accessibili dalla GUI Qt.
-- I file `.md` nella directory `docs/` devono essere rifusi nella documentazione utente come “guida per la nuova GUI”, e le eventuali eccezioni rispetto ai contenuti originali devono essere annotate.
-- La suite di test GUI (`pytest-qt`) copre tutti i flussi critici, sostituendo i vecchi test `pytest-tk`.
-- Il codice Tkinter eliminato è rimosso dal repository o relegato a `legacy/` con un chiaro avviso.
+* Il progetto si avvia senza Tkinter e tutte le interfacce esistenti appaiono correttamente convertite; la sidebar Qt mostra le feature in tempo reale e le finestre si aprono senza placeholder.
+* Tutte le funzionalità delineate nel piano (creazione/progetto, calcoli, report, plugin dinamici) sono accessibili dalla GUI Qt.
+* I file `.md` nella directory `docs/` devono essere rifusi nella documentazione utente come “guida per la nuova GUI”, e le eventuali eccezioni rispetto ai contenuti originali devono essere annotate.
+* La suite di test GUI (`pytest-qt`) copre tutti i flussi critici, sostituendo i vecchi test `pytest-tk`.
+* Il codice Tkinter eliminato è rimosso dal repository o relegato a `legacy/` con un chiaro avviso.
 
 **Indicazioni operative**  
-- Leggi e segui le specifiche tecniche contenute nei documenti `docs/MIGRATION_TKINTER_TO_QT.md`, `docs/module_structure.md`, `docs/WINDOW_MANAGEMENT_FIX.md` e altri pertinenti.
-- Utilizza i pattern MVVM e il feature registry già presenti in `src/ui/modern/` come base per la nuova implementazione.
-- Assicurati che le nuove finestre Qt ricevano le stesse dipendenze (`project`, `material_repo`, ecc.) dal `ProjectService` condiviso.
-- Il nuovo `module_selector` Qt deve replicare (e migliorare) la logica di `ModuleSelectorController`, inclusa la gestione thread per l’avvio dei moduli.
+* Leggi e segui le specifiche tecniche contenute nei documenti `docs/MIGRATION_TKINTER_TO_QT.md`, `docs/module_structure.md`, `docs/WINDOW_MANAGEMENT_FIX.md` e altri pertinenti.
+* Utilizza i pattern MVVM e il feature registry già presenti in `src/ui/modern/` come base per la nuova implementazione.
+* Assicurati che le nuove finestre Qt ricevano le stesse dipendenze (`project`, `material_repo`, ecc.) dal `ProjectService` condiviso.
+* Il nuovo `module_selector` Qt deve replicare (e migliorare) la logica di `ModuleSelectorController`, inclusa la gestione thread per l’avvio dei moduli.
 
 **Pedaggio per l’agente**  
-- Elenca i file Tkinter da convertire e fornisci piani di mapping verso i corrispondenti componenti Qt.
-- Progetta un’architettura di package `src/ui/qt/` o simile per ospitare i nuovi moduli.
-- Pianifica un set di test di regressione che assicuri la parità funzionale con l’originale.
-- Documenta i passaggi di migrazione nel repository e aggiorna tutti i riferimenti ai vecchi widget.
-- Preparati a supportare il coexistere temporaneo di codice Tkinter in `legacy/` per facilitare il roll‑out.
+* Elenca i file Tkinter da convertire e fornisci piani di mapping verso i corrispondenti componenti Qt.
+* Progetta un’architettura di package `src/ui/qt/` o simile per ospitare i nuovi moduli.
+* Pianifica un set di test di regressione che assicuri la parità funzionale con l’originale.
+* Documenta i passaggi di migrazione nel repository e aggiorna tutti i riferimenti ai vecchi widget.
+* Preparati a supportare il coexistere temporaneo di codice Tkinter in `legacy/` per facilitare il roll‑out.
 
 ➤ **Esegui questo piano di migrazione in modo esaustivo**; non lasciare tracce di Tkinter attivo nell’applicazione finale e garanzia che tutte le funzioni esposte nei documenti `docs/` rimangano disponibili o migliorate nella nuova GUI Qt.
 
@@ -191,20 +194,20 @@ Convertire il materiale scritto nei file markdown della cartella `docs/` in un e
 **Cosa fare**
 
 1. **Scansione iniziale dei documenti**  
-   - Apri ogni file sotto `docs/` e nelle sottocartelle (`adr`, `MEGAPLAN`, `normative` ecc.).  
-   - Cerca con uno script (o grep) le parole chiave:  
+   * Apri ogni file sotto `docs/` e nelle sottocartelle (`adr`, `MEGAPLAN`, `normative` ecc.).  
+   * Cerca con uno script (o grep) le parole chiave:  
      `Window`, `Modulo`, `module`, `Editor`, `Manager`, `Service`, `Runner`, `Viewer`, `dialog`, `button`, `menu`, `calcolo`, `verifica`, `pipeline`, `report`, `plugin`, `sezioni`, `materiali`, `carichi`, `codice`.  
-   - Estrai i titoli dei capitoli (markup `#`, `##`, `**` ecc.) per individuare le macro‑aree.
+   * Estrai i titoli dei capitoli (markup `#`, `##`, `**` ecc.) per individuare le macro‑aree.
 
 2. **Annotazione manuale**  
-   - Per ogni riferimento trovato, crea un’annotazione con:  
+   * Per ogni riferimento trovato, crea un’annotazione con:  
      * nome esatto (es. `ProjectEditorWindow`, “sezioni CSV”),  
      * breve descrizione (parafrasi il testo circostante),  
      * eventuale percorso module/class già esistente (ricerca `grep` nell’albero `src/` o `libs/app_module`).  
-   - Se l’elemento descritto non ha corrispondenza nel codice, definisci un **nuovo modulo** con: nome suggerito, categoria e dipendenze richieste.
+   * Se l’elemento descritto non ha corrispondenza nel codice, definisci un **nuovo modulo** con: nome suggerito, categoria e dipendenze richieste.
 
 3. **Costruzione della lista strutturata**  
-   - Organizza le annotazioni in categorie logiche:
+   * Organizza le annotazioni in categorie logiche:
 
      ```
      **Progetto**
@@ -233,10 +236,10 @@ Convertire il materiale scritto nei file markdown della cartella `docs/` in un e
        - Module Selector (ats)
      ```
 
-   - Includi tutte le voci “di supporto” menzionate nei docs come notifiche, logger, gestione delle finestre, ecc.
+   * Includi tutte le voci “di supporto” menzionate nei docs come notifiche, logger, gestione delle finestre, ecc.
 
 4. **Generazione automatica dei template**  
-   - Scrivi un prompt/script che, dato l’elenco risultante:
+   * Scrivi un prompt/script che, dato l’elenco risultante:
 
      * aggiorna `modules/modules_config.json` aggiungendo ogni modulo con `enabled: true` e un ordine predefinito;
      * crea (se non esistono) i file Python previsti sotto `modules/` o `src/ui/qt/` contenenti:
@@ -266,17 +269,17 @@ Convertire il materiale scritto nei file markdown della cartella `docs/` in un e
      * inserisca commenti TODO nelle zone dove la logica non è ancora implementata (es. “# TODO: implement ProjectEditorWindow form fields”).
 
 5. **Verifica automatica**  
-   - Aggiungi un test (pytest) che:
+   * Aggiungi un test (pytest) che:
 
      * carica il registry e chiama [get_specs()](http://_vscodecontentref_/0) – lista non vuota e contiene tutte le voci individuate;
      * per ogni spec, chiama [create_module(master=None, project=ProjectModel())](http://_vscodecontentref_/1) e può chiudere immediatamente la finestra senza errori;
      * verifica che [modules_config.json](http://_vscodecontentref_/2) contenga tutte le chiavi.
 
 6. **Output richiesto all’agente**  
-   - La lista strutturata completa con categorie, percorsi e dipendenze.
-   - Il codice del prompt/script che genera/aggiorna i file e il registry.
-   - Eventuali osservazioni (es. “il file X non menziona espressamente ma appare in doc Y, trattarlo come modulo Z”).
-   - Una sezione “pre‑migration checklist” con le azioni da fare prima di convertire Tkinter (es. spostare moduli già creati in [legacy](http://_vscodecontentref_/3)).
+   * La lista strutturata completa con categorie, percorsi e dipendenze.
+   * Il codice del prompt/script che genera/aggiorna i file e il registry.
+   * Eventuali osservazioni (es. “il file X non menziona espressamente ma appare in doc Y, trattarlo come modulo Z”).
+   * Una sezione “pre‑migration checklist” con le azioni da fare prima di convertire Tkinter (es. spostare moduli già creati in [legacy](http://_vscodecontentref_/3)).
 
 **Nota**  
 Se un documento MD contiene esempi di utilizzo (snippet di codice, screenshot, comandi CLI), includi nel prompt l’istruzione di estrarre anche quelli e convertirli in test o demo.
@@ -286,7 +289,6 @@ Alla fine dell’esecuzione del prompt, dovresti poter eseguire un comando tipo:
 python -m scripts/generate_modules_from_docs.py
 pytest tests/test_module_registry.py
 
-
 e ottenere:
 
 * un [modules_config.json](http://_vscodecontentref_/4) completo,
@@ -294,4 +296,4 @@ e ottenere:
 * una suite di test che passa e conferma che ogni modulo è avviabile (pois).
 * un report (stdout/markdown) che elenca i moduli mappati e le fonti documentali.
 
-➤ _Inserisci questo prompt nel piano_ per costringere il prossimo sviluppatore/agente ad applicare rigorosamente l’analisi della documentazione e a “trasformare parole in moduli” prima ancora di effettuare la migrazione Qt o altre modifiche strutturali.
+➤ *Inserisci questo prompt nel piano* per costringere il prossimo sviluppatore/agente ad applicare rigorosamente l’analisi della documentazione e a “trasformare parole in moduli” prima ancora di effettuare la migrazione Qt o altre modifiche strutturali.

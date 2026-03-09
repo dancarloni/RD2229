@@ -89,26 +89,32 @@ File: `sections.json` (nella cartella di lavoro)
 ## Test di Verifica
 
 ### ✅ Test Unitari (4/4 PASSATI)
+
 ```
 test_persistence_create_and_load     ✅ PASSATO
 test_persistence_update_delete       ✅ PASSATO
 test_persistence_rotation            ✅ PASSATO
 test_empty_repository                ✅ PASSATO
 ```
+
 **File**: `test_persistence.py`
 
 ### ✅ Test di Integrazione (3/3 PASSATI)
+
 ```
 test_integration_with_csv_serializer ✅ PASSATO
 test_concurrent_repositories         ✅ PASSATO
 test_large_dataset (100 sezioni)     ✅ PASSATO
 ```
+
 **File**: `test_integration_persistence.py`
 
 ### ✅ Test Compatibilità GUI (1/1 PASSATO)
+
 ```
 Simula: aggiunta, modifica, eliminazione, export CSV, riavvio app
 ```
+
 **File**: `test_gui_compatibility.py`
 
 ---
@@ -147,10 +153,11 @@ repo = SectionRepository(json_file="data/sections.json")
 **File**: `demo_persistenza.py`
 
 ```bash
-$ python demo_persistenza.py
+python demo_persistenza.py
 ```
 
 Mostra:
+
 1. ✅ Creazione sezioni e salvataggio JSON
 2. ✅ Visualizzazione proprietà geometriche
 3. ✅ Modifica sezione (update)
@@ -164,6 +171,7 @@ Mostra:
 ## Documentazione
 
 ### 📖 PERSISTENZA_REPOSITORY.md
+
 - Descrizione feature
 - Esempi di utilizzo
 - API completa
@@ -172,6 +180,7 @@ Mostra:
 - Logging
 
 ### 📖 IMPLEMENTAZIONE_PERSISTENZA.md
+
 - Resoconto implementazione
 - File modificati
 - Test di verifica
@@ -183,10 +192,12 @@ Mostra:
 
 ## File Modificati e Creati
 
-### Modificati:
+### Modificati
+
 - ✏️ `sections_app/services/repository.py` (+90 righe)
 
-### Creati:
+### Creati
+
 - ✨ `test_persistence.py` - Test unitari
 - ✨ `test_integration_persistence.py` - Test integrazione
 - ✨ `test_gui_compatibility.py` - Test compatibilità GUI
@@ -198,14 +209,16 @@ Mostra:
 
 ## Comportamento
 
-### All'avvio programma:
+### All'avvio programma
+
 ```
 1. Inizializza SectionRepository()
 2. Se sections.json esiste → Carica sezioni
 3. Se sections.json non esiste → Repository vuoto
 ```
 
-### Durante l'uso:
+### Durante l'uso
+
 ```
 1. Utente aggiunge sezione
 2. add_section() salva automaticamente
@@ -213,14 +226,16 @@ Mostra:
 4. Proprietà visibili in GUI
 ```
 
-### Alla chiusura programma:
+### Alla chiusura programma
+
 ```
 1. Tutte le sezioni rimangono nel JSON
 2. Repository terminato
 3. Nessuna perdita di dati
 ```
 
-### All'avvio successivo:
+### All'avvio successivo
+
 ```
 1. SectionRepository() carica dal JSON
 2. Tutte le sezioni ripristinate
@@ -300,6 +315,7 @@ Mostra:
 **Lo sviluppo della persistenza del SectionRepository è stato completato con successo.**
 
 La funzionalità è:
+
 - ✅ Completamente implementata
 - ✅ Ampiamente testata (8 test, tutti passati)
 - ✅ Retro-compatibile (nessun breaking change)

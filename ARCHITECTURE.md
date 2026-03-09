@@ -1,4 +1,5 @@
 # Engineering Verification Framework
+
 ### Architettura modulare per verifiche strutturali
 
 Questo progetto implementa un **framework modulare per verifiche strutturali**, completamente ristrutturato secondo l'architettura definita nella OPZIONE A1.

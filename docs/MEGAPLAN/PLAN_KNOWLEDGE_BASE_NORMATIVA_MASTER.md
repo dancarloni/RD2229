@@ -1,6 +1,7 @@
 
 PLAN KNOWLEDGE BASE NORMATIVA – MASTER
 Status: VINCOLO DURO (estendibile solo previa richiesta esplicita dell’utente)
+
 1. Scopo del documento
 Questo PLAN definisce la struttura vincolante della Knowledge Base normativa del software di calcolo strutturale.
 La Knowledge Base (KB):
@@ -10,8 +11,7 @@ La Knowledge Base (KB):
 garantisce difendibilità tecnico‑legale, tracciabilità e coerenza multi‑norma.
 Il documento non contiene formule e non sostituisce il contenuto delle singole norme.
 
-
-2. Principio fondamentale (non negoziabile)
+1. Principio fondamentale (non negoziabile)
 
 I PLAN definiscono l’architettura.
 La Knowledge Base normativa contiene:prescrizioni;
@@ -24,8 +24,7 @@ duplicare contenuti normativi nei PLAN;
 introdurre formule o coefficienti normativi nel codice senza riferimento KB;
 generare verifiche prive di citazione normativa.
 
-
-3. Ruolo della Knowledge Base
+1. Ruolo della Knowledge Base
 La Knowledge Base normativa serve a:
 
 supportare l’implementazione dei moduli di verifica;
@@ -35,8 +34,7 @@ NOT_APPLICABLE;
 generare relazioni di calcolo difendibili;
 consentire confronti tra norme a parità di modello di analisi.
 
-
-4. Struttura obbligatoria della Knowledge Base
+1. Struttura obbligatoria della Knowledge Base
 La Knowledge Base è suddivisa in file separati e indipendenti, uno per ciascun corpus normativo.
 4.1 File normativi principali
 Devono esistere almeno i seguenti file:
@@ -48,8 +46,7 @@ KB_NTC2018.md
 KB_EUROCODICI.md
 Ogni file rappresenta una norma e una sola norma.
 
-
-5. Struttura interna obbligatoria di ogni file KB
+1. Struttura interna obbligatoria di ogni file KB
 Ogni file KB deve seguire esattamente questa struttura concettuale:
 
 Identità normativatitolo ufficiale;
@@ -74,8 +71,7 @@ Citazioni puntualicapitolo;
 paragrafo;
 eventuale comma.
 
-
-6. Gestione dei rinvii agli Eurocodici
+1. Gestione dei rinvii agli Eurocodici
 Gli Eurocodici possono essere utilizzati solo come:
 
 integrazione esplicita;
@@ -87,8 +83,7 @@ essere motivato;
 citare esplicitamente la norma italiana che rinvia o è carente;
 essere riportato nella relazione di calcolo.
 
-
-7. Relazione di calcolo (integrazione obbligatoria)
+1. Relazione di calcolo (integrazione obbligatoria)
 La Knowledge Base deve consentire alla relazione di calcolo di:
 
 citare automaticamente:norma;
@@ -100,8 +95,7 @@ evidenziare i casi di:fallback Eurocodice;
 confronto tra norme.
 La relazione non può contenere affermazioni prive di riferimento KB.
 
-
-8. Confronto tra norme
+1. Confronto tra norme
 Il confronto tra norme è ammesso solo se:
 
 il modello di analisi è identico;
@@ -112,8 +106,7 @@ La Knowledge Base deve consentire:
 mappature concettuali tra prescrizioni;
 esplicitazione delle differenze.
 
-
-9. Integrazione con Copilot e sviluppo software
+1. Integrazione con Copilot e sviluppo software
 GitHub Copilot deve:
 
 usare i file KB come fonte primaria;
@@ -121,22 +114,19 @@ non introdurre coefficienti non presenti in KB;
 segnalare TODO se una prescrizione non è presente;
 rifiutare implementazioni prive di base normativa.
 
-
-10. Estensioni future consentite
+1. Estensioni future consentite
 Sono ammesse solo previa estensione formale del PLAN:
 
 aggiunta di nuove norme;
 aggiornamenti normativi;
 KB dedicate (es. muratura, ponti, opere speciali).
 
-
-11. Criteri di accettazione
+1. Criteri di accettazione
 La Knowledge Base normativa è conforme a questo PLAN se:
 
 ogni verifica richiama almeno una voce KB;
 ogni limite è tracciabile a una fonte;
 la relazione di calcolo è ricostruibile a posteriori;
 non esistono contenuti normativi fuori dalla KB.
-
 
 Questo PLAN è vincolante per tutta la gestione della Knowledge Base normativa del progetto.

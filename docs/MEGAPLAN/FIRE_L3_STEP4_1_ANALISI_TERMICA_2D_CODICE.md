@@ -3,7 +3,6 @@ FIRE_L3_STEP4_1_ANALISI_TERMICA_2D_CODICE – Analisi termica 2D reale (codice)
 Status: IN IMPLEMENTAZIONE
 Ruolo: STEP 4.1 – Implementazione reale dell’analisi termica 2D per pareti in c.a.
 
-
 1. Scopo
 Questo documento implementa l’analisi termica 2D reale per le pareti in c.a. in incendio, come primo sottostep operativo della linea 2D.
 Output atteso:
@@ -12,8 +11,7 @@ campo di temperatura 2D \\(T(x,y,t)\\)
 stabilità numerica
 riuso diretto nello STEP 4.2 (meccanica 2D)
 
-
-2. Modello termico adottato
+1. Modello termico adottato
 
 Incendio: ISO 834
 Dominio: sezione 2D della parete
@@ -24,16 +22,14 @@ Semplificazione iniziale:
 gradiente termico per strati in funzione della distanza dalla superficie esposta
 diffusione termica semplificata (no conduzione avanzata)
 
-
-3. Discretizzazione 2D
+1. Discretizzazione 2D
 
 Coordinate locali: \\(x,y\\)
 Spessore parete discretizzato in n strati
 Ogni cella FEM contiene:temperatura
 riferimento materiale
 
-
-4. Legge termica ISO 834
+1. Legge termica ISO 834
 \\[ T(t) = 20 + 345 \\log_{10}(8t + 1) \\]
 con \\(t\\) in minuti.
 Gradiente 2D semplificato:
@@ -41,8 +37,7 @@ Gradiente 2D semplificato:
 superficie esposta → \\(T_{ISO}(t)\\)
 attenuazione lineare verso l’interno
 
-
-5. Interfaccia del solver termico 2D
+1. Interfaccia del solver termico 2D
 
 class ThermalSolverL3_2D:
     def step(self, time_s: float) -> None:
@@ -51,9 +46,6 @@ class ThermalSolverL3_2D:
     def get_temperature_field(self):
         """Restituisce T(x,y)"""
         ...
-
-
-
 
 6. Scheletro di codice (reale)
 
@@ -76,24 +68,19 @@ class ThermalSolverL3_2D:
     def get_temperature_field(self):
         return self.T
 
-
-
-
 7. Test minimi obbligatori
 
 ☐ test ISO 834 a tempi noti
 ☐ gradiente monotono
 ☐ confronto qualitativo con modello 1D
 
-
-8. Gate di avanzamento
+1. Gate di avanzamento
 Si può procedere allo STEP 4.2 solo se:
 
 campo termico 2D stabile
 test superati
 
-
-9. Collegamenti
+1. Collegamenti
 
 FIRE_L3_STEP4_MODELLI_2D_PARETI.md
 FIRE_L3_COSTITUTIVE_NONLINEARI.md

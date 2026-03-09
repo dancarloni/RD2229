@@ -3,7 +3,6 @@ FIRE_INTEGRAZIONE_L3_IN_CODEMODULE – Integrazione del solver L3 FEM
 Status: STABILE
 Ruolo: Specifica di integrazione del solver L3 FEM nel CodeModule_INCENDIO
 
-
 1. Scopo del documento
 Questo documento definisce come integrare formalmente il solver L3 FEM all’interno del CodeModule_INCENDIO, mantenendo:
 
@@ -13,8 +12,7 @@ controllo tramite gate di rilascio
 tracciabilità tecnico‑legale
 L’integrazione rende L3 invocabile dal sistema, ma non automaticamente abilitato.
 
-
-2. Architettura aggiornata del CodeModule_INCENDIO
+1. Architettura aggiornata del CodeModule_INCENDIO
 
 CodeModule_INCENDIO
  ├─ Solver_L1          (tabellare)
@@ -22,23 +20,17 @@ CodeModule_INCENDIO
  ├─ Solver_L3_FEM      (beam‑fiber / FEM)
  └─ FireSolverRouter   (selezione metodo)
 
-
 Principio fondamentale:
-
 
 L3 è sempre una scelta consapevole, mai automatica.
 
-
-
-
-3. FireSolverRouter – Selezione del metodo
+1. FireSolverRouter – Selezione del metodo
 3.1 Regola generale
 Il router seleziona il solver in base a:
 
 fire_method (input esplicito)
 validità del metodo per il caso specifico
 superamento del gate di rilascio L3
-
 
 3.2 Pseudocodice di routing
 
@@ -53,16 +45,12 @@ elif fire_method == "L3":
 else:
     raise ValueError("Metodo incendio non riconosciuto")
 
-
-
-
-4. Interfaccia unificata dei solver
+1. Interfaccia unificata dei solver
 Tutti i solver incendio devono esporre la stessa interfaccia logica:
 
 class FireSolver:
     def run(self, fire_input) -> VerificationResultItem:
         ...
-
 
 Questo garantisce:
 
@@ -70,8 +58,7 @@ intercambiabilità
 testabilità
 routing pulito
 
-
-5. Integrazione del solver L3 FEM
+1. Integrazione del solver L3 FEM
 5.1 Inizializzazione
 Il Solver_L3_FEM viene inizializzato con:
 
@@ -83,7 +70,6 @@ Tutti i parametri FEM:
 non sono normativi
 devono essere versionati
 
-
 5.2 Esecuzione
 Flusso interno:
 
@@ -92,8 +78,7 @@ loop termo‑meccanico nel tempo
 individuazione del tempo di collasso
 costruzione VerificationResultItem
 
-
-6. Output e tracciabilità
+1. Output e tracciabilità
 L’output del solver L3:
 
 deve essere un VerificationResultItem
@@ -106,14 +91,12 @@ In aggiunta:
 log FEM archiviato
 riferimento alla versione del solver
 
-
-7. Controllo tramite Gate di rilascio
+1. Controllo tramite Gate di rilascio
 7.1 Punto di aggancio
 Il controllo del gate avviene:
 
 prima dell’invocazione di Solver_L3_FEM
 dentro il FireSolverRouter
-
 
 7.2 Documenti vincolanti
 Il router deve verificare la presenza di:
@@ -124,23 +107,20 @@ In assenza:
 
 L3 non è invocabile
 
-
-8. Integrazione con test automatici
+1. Integrazione con test automatici
 
 i test pytest L3 usano il router
 mock del gate per test positivi/negativi
 test separati per:routing
 solver
 
-
-9. Comportamento in caso di errore
+1. Comportamento in caso di errore
 
 gate non superato → RuntimeError controllato
 instabilità numerica → NOT_APPLICABLE
 collasso prima di R → NOT_OK
 
-
-10. Stato del solver L3 nel sistema
+1. Stato del solver L3 nel sistema
 Il solver L3 può avere stato:
 
 DISABLED (default)
@@ -151,8 +131,7 @@ Lo stato deve essere:
 esplicito
 tracciabile
 
-
-11. Collegamenti
+1. Collegamenti
 
 FIRE_SOLVER_L3_FEM_CODICE.md
 FIRE_GATE_RILASCIO_L3_FEM.md

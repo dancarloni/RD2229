@@ -2,6 +2,7 @@ You are GitHub Copilot (Plan) working on my Python/Tkinter structural
 engineering application.
 
 ROLE & SESSION CONSTRAINTS
+
 - You act as a cautious, scientifically rigorous senior developer for a
   civil/structural engineering tool.
 - This Plan MUST be executed in ONE SINGLE Copilot Plan session:
@@ -29,6 +30,7 @@ ROLE & SESSION CONSTRAINTS
   by scanning the workspace. Do NOT ask for paths unless impossible to infer.
 
 HOW TO READ THIS SPEC
+
 - This file (e.g. docs/copilot_plan.md) is the SINGLE, authoritative prompt
   for this Copilot Plan.
 - All instructions below form one unified specification.
@@ -36,6 +38,7 @@ HOW TO READ THIS SPEC
   confirm actual paths/names from the code.
 
 UI LANGUAGE REQUIREMENT
+
 - ALL user-facing text MUST be in Italian:
   - window titles,
   - labels,
@@ -51,6 +54,7 @@ UI LANGUAGE REQUIREMENT
 ==================================================
 HIGH-LEVEL GOALS
 ==================================================
+
 1) Restore full functionality of the workspace after refactor + heavy linting:
    - `python -m app.main` MUST open the main GUI without errors.
 2) Recreate and correctly rewire the “verification module” so that:
@@ -91,7 +95,9 @@ HIGH-LEVEL GOALS
 ==================================================
 NORMATIVE CONTEXT & SCOPE
 ==================================================
+
 Norms considered (present or planned):
+
 - RD 2229/39: historical TA for RC structures (metodo alle tensioni ammissibili).
 - DM 14/02/1992: TA for RC/prestressed/steel structures.
 - DM 9/1/1996: updated TA provisions.
@@ -103,6 +109,7 @@ Norms considered (present or planned):
 For each norm, within the scope of the software, all verification families
 that the application claims to support MUST be implemented in a complete
 and non-ambiguous way:
+
 - flessione semplice e deviata,
 - presso/tenso-flessione semplice e deviata,
 - compressione / trazione,
@@ -118,6 +125,7 @@ and non-ambiguous way:
 - deformazioni ammissibili (nei limiti definiti più sotto).
 
 If a check family is NOT implemented for a given norm:
+
 - DO NOT implement a fake or partial check and call it “complete”.
 - Either:
   - disable that check for that norm in GUI with a clear Italian message
@@ -129,6 +137,7 @@ If a check family is NOT implemented for a given norm:
 ==================================================
 ASSUNZIONI E PERIMETRO (PER EVITARE AMBIGUITÀ)
 ==================================================
+
 To avoid Copilot implementing non-requested features or guessing:
 
 - Combinazioni di carico:
@@ -242,6 +251,7 @@ To avoid Copilot implementing non-requested features or guessing:
 ==================================================
 FUNCTIONAL SCOPE PER ELEMENTO (DATI & CHECK)
 ==================================================
+
 Each GUI row represents a structural element:
 
 - Checks:
@@ -271,6 +281,7 @@ Each GUI row represents a structural element:
 ==================================================
 REAL-TIME ROW VERIFICATION & BULK RECALC
 ==================================================
+
 - Real-time per row:
   - On row edit finished:
     - controller builds CalcInput via repositories,
@@ -290,6 +301,7 @@ REAL-TIME ROW VERIFICATION & BULK RECALC
 ==================================================
 STRICT USE OF REPOSITORIES IN CONTROLLERS
 ==================================================
+
 - GUI:
   - passes only IDs and numeric values:
     - section_id, material_id,
@@ -308,9 +320,11 @@ STRICT USE OF REPOSITORIES IN CONTROLLERS
 ==================================================
 CORE CONTRACTS: CalcInput, CalcOutput, SingleCheckResult
 ==================================================
+
 You MUST define/maintain these core contracts in a GUI-free module.
 
 CalcInput (minimum fields):
+
 - element_name: str
 - section: SectionLike
 - material: MaterialLike
@@ -328,6 +342,7 @@ CalcInput (minimum fields):
 - extra: dict[str, Any]
 
 SingleCheckResult:
+
 - template_id: str
 - ok: bool
 - utilisation: float | None
@@ -338,6 +353,7 @@ SingleCheckResult:
 - limit_state: str | None
 
 CalcOutput:
+
 - element_name: str
 - norm_code: str
 - ok: bool
@@ -348,7 +364,9 @@ CalcOutput:
 ==================================================
 NORMREFERENCE & VERIFICATIONTEMPLATE
 ==================================================
+
 NormReference (dataclass):
+
 - norm_code: str
 - chapter: str
 - paragraph: str
@@ -359,6 +377,7 @@ NormReference (dataclass):
 - priority: int | None
 
 VerificationTemplate (dataclass):
+
 - template_id: str
 - norm_code: str
 - norm_version: str | None
@@ -386,9 +405,11 @@ TA, ecc.).
 ==================================================
 VALIDATION ENGINE (CORE)
 ==================================================
+
 Implement ValidationIssue / ValidationResult and validate_calc_input:
 
 ValidationIssue:
+
 - severity: "info" | "warning" | "error"
 - field: str
 - code: str
@@ -397,11 +418,13 @@ ValidationIssue:
 - context: dict[str, Any]
 
 ValidationResult:
+
 - issues: list[ValidationIssue]
 - has_errors: bool
 - has_warnings: bool
 
 validate_calc_input(calc_input, active_norm, templates) -> ValidationResult:
+
 - checks:
   - geometric consistency (d, d', As, As', staffe, circular rebar layout),
   - material ranges (f_ck, f_yk, E_c, E_s),
@@ -410,11 +433,13 @@ validate_calc_input(calc_input, active_norm, templates) -> ValidationResult:
 - attaches NormReference where validation rule comes from norms.
 
 If has_errors:
+
 - run_verifications_for_element MUST NOT execute any template.
 
 ==================================================
 VERIFICATION SERVICE (CORE)
 ==================================================
+
 run_verifications_for_element(calc_input, active_norm, enabled_limit_states=None)
  -> CalcOutput
 
@@ -444,9 +469,11 @@ Both functions are pure core (no Tkinter; no direct file I/O outside logging).
 ==================================================
 CIRCULAR REBAR HELPER (CORE + GUI)
 ==================================================
+
 Implement in core:
 
 CircularRebarLayout:
+
 - n_bars: int
 - bar_diameter: float
 - bar_area: float
@@ -465,6 +492,7 @@ arrange_circular_rebars(section_geometry, n_bars, bar_diameter, cover,
 - Pure core, no GUI, no files, no normative checks.
 
 GUI dialog “Disposizione automatica armature circolari” MUST:
+
 - use section_id → section_repository → CircularSectionLike,
 - get n_bars, bar_diameter, cover, inner_radius,
 - call arrange_circular_rebars,
@@ -479,7 +507,9 @@ Validation Engine MUST ensure that the generated layout is geometrically valid.
 ==================================================
 CALIBRATION & BENCHMARK MODULE (CORE + GUI)
 ==================================================
+
 Core:
+
 - define CalibrationCase, CalibrationMismatch, CalibrationResult.
 - implement:
   - run_calibration_case(calc_input, expected_output, active_norm, tolerance),
@@ -488,6 +518,7 @@ Core:
   - generate_pytest_code_for_case().
 
 GUI panel “Modulo di Calibratura / Verifica Dinamica” MUST:
+
 - allow user to:
   - input CalcInput fields,
   - specify expected metrics (utilisations, σ_c, σ_s, M_Rd, V_Rd, x_neutro, ecc.),
@@ -505,6 +536,7 @@ must fail if behaviour changes unexpectedly.
 ==================================================
 GUI MODULES / PANELS
 ==================================================
+
 Without redesigning the whole GUI:
 
 - Main Verification Panel:
@@ -545,6 +577,7 @@ Without redesigning the whole GUI:
 ==================================================
 THREADING, ERROR HANDLING & LOGGING
 ==================================================
+
 - Core (validation, verification, helpers, calibration):
   - synchronous, deterministic,
   - no threads or GUI dependencies.
@@ -566,6 +599,7 @@ THREADING, ERROR HANDLING & LOGGING
 ==================================================
 TESTS, LINTING & FINAL CHECK
 ==================================================
+
 - Implement/extend pytest tests:
   - unit:
     - validation engine (geometry, materials, LC/FC),
@@ -588,7 +622,9 @@ TESTS, LINTING & FINAL CHECK
 ==================================================
 NO-SHORTCUT, NO-INVENTION POLICY (ABSOLUTE)
 ==================================================
+
 You MUST NOT:
+
 - invent new formulas,
 - alter normative procedures arbitrarily,
 - implement “simplified” or heuristic checks without explicit TODO and
@@ -599,6 +635,7 @@ You MUST NOT:
 - silently change behaviour to fit calibration cases.
 
 Any uncertainty or missing normative detail MUST be:
+
 - explicitly marked with a TODO in Italian,
 - NEVER resolved by guessing.
 

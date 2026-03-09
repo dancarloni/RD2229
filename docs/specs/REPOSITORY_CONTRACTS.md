@@ -12,6 +12,7 @@
 ## Contratto repository generico
 
 Ogni repository implementa:
+
 - `save(entity) -> None` — upsert per id
 - `get(id: str) -> Entity | None` — lettura per id
 - `list(project_id: str) -> list[Entity]` — lista per progetto

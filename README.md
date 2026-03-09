@@ -11,6 +11,7 @@ python -c "import pydantic; print(pydantic.__version__)"
 ```
 
 Se il comando stampa una versione >=2,<3, l’ambiente è pronto.
+
 ## ⚠️ Policy obbligatoria: Linting e Formatting pre-commit
 
 **IMPORTANTE:** Prima di ogni commit/push, è **obbligatorio** eseguire questi comandi per evitare fallimenti CI su GitHub:
@@ -34,11 +35,13 @@ python -m flake8 .
 ```
 
 **Perché questo è necessario:** Gli errori di linting/import che non emergono in locale possono causare fallimenti CI su GitHub a causa di:
+
 - Differenze di ambiente (versioni tool, Python, dipendenze)
 - Comandi non eseguiti localmente prima del push
 - Cache locali che mascherano errori
 
 **Best practice:**
+
 - Eseguire questi comandi **prima** di ogni `git commit`
 - Verificare che `ruff check .` restituisca "All checks passed!"
 - I test devono passare: `pytest -q`

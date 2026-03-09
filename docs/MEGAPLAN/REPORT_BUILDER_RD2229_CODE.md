@@ -9,7 +9,6 @@ stesso flusso dati (ProjectModel → VerificationResult → Markdown);
 assenza totale di ricalcoli;
 coerenza multi‑normativa del sistema di report.
 
-
 1. Interfaccia comune (richiamo vincolante)
 Il builder RD2229 implementa la stessa interfaccia dei builder NTC.
 
@@ -20,13 +19,9 @@ class BaseReportBuilder:
     def build(self) -> str:
         raise NotImplementedError
 
-
-
-
 2. Codice – core/report/report_builder_rd2229.py
 
 from core.report.base_report_builder import BaseReportBuilder
-
 
 class ReportBuilderRD2229(BaseReportBuilder):
     """
@@ -80,18 +75,13 @@ class ReportBuilderRD2229(BaseReportBuilder):
 
         return "\n".join(md)
 
-
-
-
 3. Allineamento con ReportBuilderNTC2018
 
-Aspetto	NTC2018	RD2229
-Classe	ReportBuilderNTC2018	ReportBuilderRD2229
-Interfaccia	BaseReportBuilder	BaseReportBuilder
-Input	VerificationResult	VerificationResult
-Output	Markdown	Markdown
-Ricalcoli	❌	❌
-
-
+Aspetto NTC2018 RD2229
+Classe ReportBuilderNTC2018 ReportBuilderRD2229
+Interfaccia BaseReportBuilder BaseReportBuilder
+Input VerificationResult VerificationResult
+Output Markdown Markdown
+Ricalcoli ❌ ❌
 
 Questo file è vincolante per l’implementazione del ReportBuilder RD2229 allineato al framework NTC2018.

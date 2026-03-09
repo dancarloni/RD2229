@@ -1,6 +1,7 @@
 
 PLAN STRATEGIA STRUTTURALE ESTESA
 Status: VINCOLO DURO (estendibile solo previa richiesta esplicita dell’utente)
+
 1. Scopo del documento
 Questo PLAN definisce la strategia complessiva e vincolante per lo sviluppo del software di calcolo strutturale in Python + Tkinter, da realizzare in VS Code con GitHub Copilot Pro, garantendo:
 
@@ -10,8 +11,7 @@ separazione rigorosa tra metodi di calcolo, norme, GUI e output;
 possibilità di estensione futura controllata (muratura, edifici esistenti, FEM, ecc.).
 Il documento recepisce e cristallizza le decisioni strategiche fornite dall’utente (Q1–Q5).
 
-
-2. Priorità di sviluppo (vincolanti)
+1. Priorità di sviluppo (vincolanti)
 Ordine di priorità obbligatorio per tutte le roadmap e i sottopiani:
 
 Calcestruzzo armato – NTC2018 (elementi singoli e telai piani)
@@ -20,8 +20,7 @@ Muratura (solo pianificazione architetturale iniziale)
 Edifici esistenti (ζE, miglioramento/adeguamento – pianificazione successiva)
 Nessun modulo di priorità inferiore può introdurre dipendenze che ostacolino o ritardino quelli superiori.
 
-
-3. Ruolo del Metodo di Cross
+1. Ruolo del Metodo di Cross
 Il Metodo di Cross è definito come:
 
 Metodo di calcolo strutturale autonomo (engine interno) ✅
@@ -34,8 +33,7 @@ le norme consumano i risultati del metodo;
 il metodo deve produrre output intermedi tracciabili (momenti, rotazioni, iterazioni);
 la GUI può opzionalmente visualizzare i passaggi (modalità “didattica”).
 
-
-4. Muratura – Stato attuale
+1. Muratura – Stato attuale
 La muratura è fuori dallo scope implementativo immediato.
 In questa fase:
 
@@ -45,8 +43,7 @@ workflow;
 interfacce con sismica e metodi di calcolo.
 Le verifiche dei meccanismi locali (ribaltamento, flessione fuori piano, cinematismi) sono esplicitamente rimandate a fasi future.
 
-
-5. Relazione di calcolo e difendibilità legale
+1. Relazione di calcolo e difendibilità legale
 Requisito obbligatorio:
 Il software deve poter produrre una relazione di calcolo difendibile, che:
 
@@ -63,8 +60,7 @@ PLAN_OUTPUT_COMUNE;
 struttura dei VerificationResultItem;
 knowledge base normative.
 
-
-6. Regime dei PLAN (vincoli duri)
+1. Regime dei PLAN (vincoli duri)
 Tutti i PLAN del progetto sono:
 
 vincoli architetturali duri;
@@ -76,8 +72,7 @@ estendere un PLAN;
 integrare nuovi moduli;
 solo previa richiesta esplicita dell’utente, con aggiornamento formale del PLAN interessato.
 
-
-7. Suddivisione concettuale del sistema
+1. Suddivisione concettuale del sistema
 Struttura logica obbligatoria:
 
 Metodi di calcolo (Cross, elastico, FEM futuro)
@@ -87,8 +82,7 @@ GUI (thin)
 Output (unica fonte per report e confronti)
 Nessun layer può inglobare responsabilità di un altro.
 
-
-8. Collegamento con gli altri PLAN
+1. Collegamento con gli altri PLAN
 Questo documento è gerarchicamente coordinato con:
 
 PLAN_MASTER.md
@@ -102,14 +96,12 @@ PLAN_MASTER
 PLAN_STRATEGIA_STRUTTURALE_ESTESA
 altri PLAN di dominio
 
-
-9. Criteri di accettazione
+1. Criteri di accettazione
 Il sistema è conforme a questo PLAN se:
 
 il Metodo di Cross è implementato come metodo indipendente dalla norma;
 le norme non contengono logica di calcolo globale;
 ogni risultato è tracciabile e citabile in relazione;
 l’estensione futura non richiede refactor distruttivi.
-
 
 Questo PLAN è vincolante per tutto lo sviluppo futuro.

@@ -3,11 +3,13 @@
 **Data:** 2026-02-14
 
 ## Executive summary
+
 Sintesi compatta: creare un package `codes/ntc2018` + interfaccia `CodeModule` che espone controlli SLU/SLE/sismici, implementare le verifiche *calcestruzzo armato* (incluso il controllo di taglio **senza** staffe — V_Rd,c), aggiungere un modulo per **elementi secondari** (Cap. 7.2), modernizzare GUI/registry/storage e garantire test e CI. Tutto modulare, riuso massimo del codice esistente e separazione netta Core / GUI.
 
 ---
 
 ## Roadmap sintetica (fasi compatte)
+
 1. Fase 0 — Preparazione & test baseline
 2. Fase 1 — API normativa: definire `CodeModule` (contract)
 3. Fase 2 — Azioni & combinazioni (generator configurabile NTC2018)
@@ -26,6 +28,7 @@ Sintesi compatta: creare un package `codes/ntc2018` + interfaccia `CodeModule` c
 ---
 
 ## Moduli chiave & responsabilità
+
 - `codes/ntc2018` (CodeModule NTC2018): esposizione `available_checks()`, `run_check(id, input)`, `list_templates()`
 - `core/combinations`: generatore combinazioni NTC2018 → produce `LoadCase` per `VerificationEngine`
 - `core/materials` (adapter): mapping `material_code` → `MaterialProperties` (reuse `material_sources.py`)
@@ -36,6 +39,7 @@ Sintesi compatta: creare un package `codes/ntc2018` + interfaccia `CodeModule` c
 ---
 
 ## Fase 4 (RC) — estensione obbligatoria: Taglio senza armatura (V_Rd,c) — dettagli essenziali 🔧
+
 Obiettivo: implementare checks concettuali e test per elementi senza staffe.
 
 - Output richiesto dal check (contract):
@@ -55,6 +59,7 @@ Test‑cases (golden): PASS, FAIL, NOT_APPLICABLE, effetto assiale, SLE cracking
 ---
 
 ## Modulo “Elementi strutturali secondari” (Fase 6bis) — overview
+
 Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta.
 
 - Package: `codes/ntc2018/secondary_elements`
@@ -70,6 +75,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## CodeModule — scelte di contratto (sintesi)
+
 - Metodi pubblici (plan-only): `available_checks()`, `run_check(check_id, CalcInput)`, `available_templates()`, `validate_input(schema)`
 - Risposta standard: `{status, value, utilisation, steps[], norm_references[], messages[]}`
 - `VerificationEngine` invoca checks tramite `CodeModule` (nessuna dipendenza diretta su file di implementazione)
@@ -77,6 +83,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## GUI / registry / storage — principi di intervento
+
 - GUI: aggiunta selector norma, editor combinazioni e pannelli risultati; callbacks senza logica normativa.
 - Storage: estendere `projects` JSON con `secondary_elements[]` e `templates/secondary_elements/*.json`
 - Backward compatibility: mantenere shims per RD2229/DM92/DM96; feature‑toggle per nuove funzioni.
@@ -84,6 +91,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Testing, validazione e documentazione
+
 - Per ogni check: unit tests + integration tests + 3+ golden numeric cases con tolleranze documentate.
 - Acceptance: test‑suite verde + documentazione `docs/NTC2018.md` con riferimenti e decision flowcharts.
 - Coverage target: >90% per nuovi moduli normativi.
@@ -91,6 +99,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Deliverables principali (per milestone)
+
 - API `CodeModule` specificata e documentata
 - `codes/ntc2018` with RC checks incl. `V_Rd,c` (specs + tests)
 - `codes/ntc2018/secondary_elements` (specs + templates)
@@ -101,6 +110,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Acceptance criteria (essenziali)
+
 - Tutti i checks esposti da `CodeModule.available_checks()` e invocabili via `VerificationEngine`.
 - `RC_SLU_VRDc_NoStirrups` e `RC_SLE_Cracking_NoStirrups`: OK/NOT_OK/NOT_APPLICABLE + normative refs + 3 golden tests.
 - `SecondaryElementSpec` supporta min. 4 template e persistence in project storage.
@@ -109,6 +119,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Rischi principali & mitigazioni
+
 - Ambiguità normativa → mitigare con fallback EC e tag `norm_reference`.
 - Regressioni numeriche → mitigare con golden examples e test automatici.
 - UI complexity → MVP + progressive enhancement, feature‑toggles.
@@ -116,6 +127,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Checklist compatta (azione immediata)
+
 - [ ] Test baseline verde (Fase 0)
 - [ ] SPEC `CodeModule` (Fase 1)
 - [ ] Combinatore NTC2018 + spectrum generator (Fase 2 / 5)
@@ -127,6 +139,7 @@ Posizionamento: inserire come **Fase 6bis** dopo Acciaio. Priorità media‑alta
 ---
 
 ## Prossimi passi raccomandati (scegliere 1)
+
 1. Formalizzo la SPEC dettagliata per `RC_SLU_VRDc_NoStirrups` (input/output/casi test + norm refs).
 2. Redigo lo schema `SecondaryElementSpec` + 4 template prioritari (mensola, insegna, tramezzo, camino).
 3. Scrivo la SPEC contrattuale del `CodeModule` (API + risposta standard + mapping dei checks esistenti).

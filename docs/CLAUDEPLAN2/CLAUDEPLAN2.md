@@ -44,7 +44,6 @@ src/materials/material_model.py — modello materiale (STUB → completo)
 src/ui/qt/material_editor.py — editor materiali Qt (STUB → completo)
 src/legacy/material_sources.py — fonti normative con calcolo auto
 
-
 Piano Multi-Step
 FASE A — Fondamenta: Modello Materiale e Editor (sessione corrente)
 A1. Completare material_model.py (src/materials/material_model.py)
@@ -57,7 +56,6 @@ Parametri calcestruzzo: fck, fcd, sigma_c28, sigma_c, tau_c0, tau_c1, n, Ec
 Parametri acciaio: fyk, fyd, sigma_sn, sigma_s, Es
 Parametri muratura: fk, fvk0, tau_0, E_mur, G_mur
 Metodo to_json() / from_json()
-
 
 Riutilizzare pattern da src/legacy/material_sources.py (MaterialSource dataclass)
 Riutilizzare src/materials/validation.py per validazione
@@ -72,8 +70,6 @@ Doppia notazione (moderna/storica) come già in legacy Tkinter
 Pulsante "Ricarica valori da Fonte"
 Gestione fonti (aggiungi/modifica/elimina)
 
-
-
 A3. Aggiungere famiglia muratura al modello materiali
 
 Aggiungere tipo "masonry" con parametri NTC2018 §4.5 e §11.10:
@@ -86,8 +82,6 @@ E (modulo elastico)
 G (modulo di taglio)
 γ_M (coefficiente parziale)
 tipo_malta, tipo_blocco, classe_esecuzione
-
-
 
 FASE B — Verifiche Mancanti: Torsione
 B1. Torsione RD2229 TA — nuovo file src/methods/rd2229/torsione.py
@@ -166,14 +160,12 @@ Piatti saldati/bullonati (configurazione custom)
 Configurazione reticolare (aste superiore/inferiore + diagonali)
 Sezione composta (profilo + soletta collaborante se presente)
 
-
 Verifiche cordolo metallico:
 
 Resistenza: M_Rd, V_Rd, N_Rd
 Stabilità: instabilità flesso-torsionale (LTB)
 Collegamento: saldature o bulloni (domanda/capacità)
 Ancoraggio alla muratura: barre filettate, piastre, resine
-
 
 Normativa: NTC2018 §4.5.6.2 (cordoli), §4.2 (acciaio strutturale), EC3
 
@@ -262,12 +254,10 @@ V_Rd1 = f_vd × A_eff (resistenza a taglio diagonale)
 f_vd = (f_vk0 + 0.4σ_n) / γ_M ≤ f_vk,lim/γ_M
 Verifica: V_Ed ≤ V_Rd1
 
-
 Crisi a pressoflessione (NTC §4.5.6.4.2):
 
 V_Rd2 = 0.85 × (A_eff × σ_0) / h_s × (1 - σ_0 / (ψ×f_d))
 dove σ_0 = N/A_eff, ψ = 1.0 (muri inflessi) o 1.5 (muri incernierati)
-
 
 RD2229 TA: τ = V/(b×h) ≤ τ_amm (da tabella resistenze storiche DM87 o RD2229)
 Muratura senza cordoli: lo stesso ma con h_s = altezza netta di piano (senza cordolo)
@@ -279,7 +269,6 @@ Modello trave verticale: parete tra impalcati come trave con carichi distribuiti
 Verifica flessione fuori piano SLU (NTC §4.5.6.3):
 
 M_Ed ≤ M_Rd = f_d × t² / 6 × b (sezione rettangolare in cls semplice equivalente)
-
 
 Meccanismo di ribaltamento: analisi cinematica (vedi F6.5)
 Verifica snellezza per fuori piano: stessa λ di F6.1
@@ -298,7 +287,6 @@ Forza di calcolo catena (analisi cinematica lineare NTC §C8A.4.1):
 Meccanismo scelto → calcolo moltiplicatore α₀ → F_catena = N_mob × α₀ (forza di tiro necessaria)
 Verifica pretensione minima se catena pre-tesa
 
-
 Verifica barra catena (acciaio): N_catena ≤ A_s × f_yd (trazione pura)
 Verifica piastra di ancoraggio:
 
@@ -306,7 +294,6 @@ Tipi: quadrata, rettangolare, circolare, a paletto (diversa geometria)
 Verifica flessione piastra (portata mensola in 2D): M = q_loc × a²/2 ≤ M_Rd = t_p² × f_y / 4
 Verifica pressione muratura sotto piastra: σ = N_catena / A_piastra ≤ σ_amm,mur (o f_d)
 Verifica ancoraggio muro (pull-out da muratura): meccanismo cono o prisma di rottura
-
 
 Input tipi piastre: l × h × t (mm), acciaio (S235/S275/S355), disposizione (esterna/incassata)
 Muratura senza cordoli: catene spesso l'unico presidio; analisi cinematica OBBLIGATORIA
@@ -335,12 +322,10 @@ Distribuzione azioni laterali (NTC §7.3.5.1 per muratura):
 Metodo statico equivalente: F_i proporzionale a massa×altezza
 Distribuzione ai maschi murari in funzione rigidezza (o uniforme)
 
-
 Rigidezza maschio murario (NTC §4.5.5):
 
 K_m = G × A_m / (χ × h) (taglio) + 12 × E × I_m / h³ (flessione) — combinata
 χ = 1.2 per sezione rettangolare
-
 
 Indice di sicurezza sismica ζ_E = PGA_c / PGA_d (NTC §8.4.1)
 Calcolo PGA_c da meccanismo più sfavorevole (cinematica lineare/non lineare)
@@ -352,7 +337,6 @@ catene_editor.py: Qt widget — tabella catene (posizione, φ, acciaio, tipo pia
 
 Selezione tipo piastra da catalogo (quadrata/rettangolare/circolare + dimensioni custom)
 Visualizzazione anteprima piastra e posizione su parete
-
 
 meccanismi_widget.py: Qt widget — selezione meccanismo (da lista: ribaltamento semplice, flessione verticale, taglio piano, etc.) + visualizzazione schema + risultati α₀, ζ_E
 
@@ -379,14 +363,12 @@ Rigidezza maschio (NTC §7.8.1.5.2):
 K_m = 1 / (h³/(12EI) + χh/(GA)) — flessione + taglio combinati
 E, G da materiale muratura (archivio centralizzato)
 
-
 Resistenza maschio: V_Rd = min(V_taglio, V_pressoflessione) come da F6.2
 Fasce: resistenza a flessione (con o senza cordolo/catena) + taglio
 Distribuzione sismica per piano: Fb = Sd(T1) × W × λ / g (NTC §7.3.3.2)
 
 F_i = F_b × z_i×W_i / Σ(z_j×W_j) — distribuzione lineare
 Distribuzione ai maschi per rigidezza: V_i = V_piano × K_i / ΣK_j
-
 
 Rapporto D/C per ogni maschio: D/C = V_Ed / V_Rd
 Predisposizione pushover: curva di capacità V_base - δ_tetto (incrementale, non lineare)
@@ -549,6 +531,7 @@ J3. Interfaccia astratta solutore — src/solvers/base.py
 pythonclass StructuralSolver(ABC):
     def solve(self, model, load_cases) -> AnalysisResult: ...
     def get_internal_forces(self, member_id, x) -> InternalForces: ...
+
 ```
 - CrossPozzatiSolver e FEMSolver implementano la stessa interfaccia
 - Scelta solutore dalla GUI; norme consumano risultati indifferentemente
@@ -662,6 +645,7 @@ pythonclass StructuralSolver(ABC):
 
 **O2. Suite test per ogni norma**
 ```
+
 tests/
 ├── test_rd2229/
 │   ├── test_flessione.py       # Confronto con Santarella
@@ -681,6 +665,7 @@ tests/
 └── test_integration/
     ├── test_material_flow.py   # Materiale → verifica → report
     └── test_gui_e2e.py         # Test end-to-end Qt
+
 ```
 
 **O3. Validazione incrociata**
@@ -806,6 +791,7 @@ Il modulo sezioni esiste già con buona copertura. Codice esistente da riusare:
 
 **U1. Modulo grafici** — `src/plotting/`
 ```
+
 src/plotting/
 ├── __init__.py
 ├── diagrams.py        # Diagrammi M, V, N lungo l'asta
@@ -814,6 +800,7 @@ src/plotting/
 ├── interaction.py     # Diagrammi di interazione N-M, N-Mx-My
 ├── section_plot.py    # Disegno sezione con proprietà
 └── qt_widgets.py      # Widget Qt per embedding in GUI
+
 ```
 
 **U2. Diagrammi sollecitazioni** — `src/plotting/diagrams.py`
@@ -950,6 +937,7 @@ src/plotting/
 
 #### Struttura package geotecnica
 ```
+
 src/geotecnica/
 ├── __init__.py
 ├── models/
@@ -993,14 +981,12 @@ Caso centrico: σ = N/A
 Caso eccentrico (1 asse): σ = N/A ± M/W = N/A ± 6Ne/(BL²)
 Caso bieccenrico: formula bilineare
 
-
 Capacità portante (NTC2018+C7 §6.4.2, L3):
 
 Qult = c'×Nc×Fc + γ×Df×Nq×Fq + 0.5×γ×B×Nγ×Fγ (Hansen/Meyerhof)
 Fattori forma Fc, Fq, Fγ (per piante rettangolari, quadrate, circolari)
 Fattori inclinazione per forze orizzontali
 Combinazioni GEO: A1+M1+R1 / A2+M2+R1 / A2+M2+R2
-
 
 Capacità portante TA (RD2229, L2): σ_amm = σ_lim / CS_terreno (CS = 3 di norma)
 Verifiche strutturali plinto (CA o cls semplice):
@@ -1009,7 +995,6 @@ Punzonamento: v_Ed ≤ v_Rd,c (NTC §4.1.2.1.3.4, L3)
 Flessione: momento su sezione di riferimento (x = faccia pilastro)
 Taglio a una via (travi e mensoloni)
 Armatura minima
-
 
 Collegamento pilastro-plinto: calcolo lunghezza ancoraggio barre
 
@@ -1036,7 +1021,6 @@ Q_b = q_b × A_b (base): correlazioni SPT, CPT, o da prove di carico
 Q_s = Σ(q_si × A_si) (attrito laterale): metodi α (argilla), β (sabbia)
 Verifica GEO: R_c,k ≥ F_c,d / ξ_i (fattori di correlazione da Tab.6.4.I NTC)
 
-
 Portanza laterale (L1): predisposizione metodo Broms, p-y curves
 Gruppo pali (L1): efficienza η_G, distribuzione carichi da corda
 Palo sismico (EC8-5 §5, L1): verifica curvatura, lunghezza libera
@@ -1050,13 +1034,11 @@ Rankine: K_a = tan²(45 - φ'/2), K_p = tan²(45 + φ'/2)
 Coulomb: con attrito muro-terra (δ = 2/3 φ')
 Mononobe-Okabe (sismica, L1)
 
-
 Verifiche stabilità (NTC2018 §6.5, L3):
 
 Ribaltamento: ΣM_stab / ΣM_rib ≥ R_rib (approccio TA) / M_stab,d ≥ M_rib,d (GEO)
 Scorrimento: H_d ≤ R_h,d = V_d × tan(δ_d) + c_d × A
 Portanza base fondazione: metodo Hansen
-
 
 Verifiche strutturali mensola (L2): flessione, taglio, armatura minima
 
@@ -1069,19 +1051,15 @@ CSR = 0.65 × (a_g/g) × (σ_v0/σ'_v0) × r_d
 FS_liq = CRR × MSF / CSR; se FS_liq < 1 → potenziale liquefazione
 Categorie di suolo A÷F: amplificazione sismica locale
 
-
 Amplificazione sismica locale (NTC §3.2.2, L2):
 
 Categorizzazione suolo: Vs30 da prove geofisiche
 Fattori S_S, S_T (stratigraphic + topographic amplification)
 
-
 Fondazioni sotto sisma (EC8-5, L1):
 
 Verifica capacità portante con azione sismica: q_Rd,seis ≤ q_Rd,stat × (1 - F_seis/N)
 Predisposizione modello dati per GFOS (Global Foundation Overstrength factor)
-
-
 
 X7. Cedimenti — src/geotecnica/cedimenti/
 
@@ -1114,6 +1092,7 @@ class CoreSample:
     data_prova: str
     laboratorio: str
     note: str
+
 ```
 
 **X-BIS.2. Formulazioni di conversione** — `conversion_formulas.py`
@@ -1328,6 +1307,7 @@ Lavoro in parallelo su più fronti. Fasi marcate "DA SUBITO":
 
 ### File di tracciamento (creati durante implementazione)
 ```
+
 docs/PROGRESS/
 ├── STATUS.md                    # Stato globale: cosa è FATTO vs cosa è DA FARE
 ├── FASE_A_materials.md          # Avanzamento FASE A — completato/in corso/TODO
@@ -1376,8 +1356,6 @@ Riferimento normativo (articolo, tabella)
 Formula principale usata
 Unità di misura (kg/cm² default, MPa solo se esplicitamente richiesto)
 Limitazioni note
-
-
 
 Verifica
 

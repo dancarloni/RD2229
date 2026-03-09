@@ -3,6 +3,7 @@
 ## 📋 Sommario
 
 Corretti due problemi principali dell'applicazione:
+
 1. ✅ **Chiusura indipendente finestre moduli** - Ora ogni finestra può essere chiusa senza affettare le altre
 2. ✅ **Ricerca materiali in Verification Table** - La ricerca per codice e nome funziona correttamente con filtro per tipo
 
@@ -11,10 +12,12 @@ Corretti due problemi principali dell'applicazione:
 ## 🔴 PROBLEMA 1 - Chiusura Indipendente Finestre Moduli
 
 ### Sintomo
+
 - Alcune finestre di modulo (Geometry, Historical, Materials Editor, Verification Table) non potevano essere chiuse indipendentemente
 - Chiudere una finestra poteva causare problemi con la finestra principale o con altre finestre
 
 ### Causa Radice
+
 - **MainWindow** e **HistoricalModuleMainWindow** **non avevano handler WM_DELETE_WINDOW**
 - Senza un handler esplicito, la chiusura della finestra non era gestita correttamente
 
@@ -95,6 +98,7 @@ class HistoricalModuleMainWindow(tk.Toplevel):
 ## 🔴 PROBLEMA 2 - Ricerca Materiali in Verification Table
 
 ### Sintomo
+
 - La ricerca di materiali per codice (es. "C100", "A500", "RD2229_R160") non funzionava
 - L'utente doveva digitare il nome completo del materiale, non il codice
 - Il filtro per tipo di materiale (calcestruzzo/acciaio) non era coerente
@@ -242,21 +246,25 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
 ## 📁 File Modificati
 
 ### 1. `core_models/materials.py`
+
 - Aggiunto campo `code: str = ""` alla class `Material`
 - Aggiornato `to_dict()` per includere `code` nel JSON
 - Aggiornato `from_dict()` per caricare `code` da JSON
 - Aggiornato `import_historical_material()` per preservare il `code`
 
 ### 2. `sections_app/services/search_helpers.py`
+
 - Aggiornato `search_materials()` per cercare BOTH `name` AND `code`
 - Aggiunto commenti chiari sulla logica di ricerca
 - Mantenuto supporto per type filtering (concrete/steel)
 
 ### 3. `sections_app/ui/main_window.py`
+
 - Aggiunto `self.protocol("WM_DELETE_WINDOW", self._on_close)` nel `__init__`
 - Aggiunto metodo `_on_close()` che chiama `_cancel_polling()` e `destroy()`
 
 ### 4. `sections_app/ui/historical_main_window.py`
+
 - Aggiunto `self.protocol("WM_DELETE_WINDOW", self._on_close)` nel `__init__`
 - Aggiunto metodo `_on_close()` che chiama `destroy()`
 
@@ -265,11 +273,13 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
 ## ✅ Validazione
 
 ### Test Suite
+
 ```
 52 passed, 2 skipped, 1 warning, 9 subtests passed
 ```
 
 ### Comportamenti Verificati
+
 ✅ MainWindow (Geometry) è chiudibile indipendentemente
 ✅ HistoricalModuleMainWindow è chiudibile indipendentemente
 ✅ VerificationTableWindow è chiudibile indipendentemente (aveva già handler)
@@ -289,16 +299,19 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
 ## 🎓 Lezioni Apprese
 
 ### Gestione Finestre Tkinter
+
 1. **Una sola `tk.Tk()` per applicazione** - Tutte le altre dovrebbero essere `tk.Toplevel()`
 2. **Handler `WM_DELETE_WINDOW` esplicito** - Necessario per ogni Toplevel che ha logica di cleanup
 3. **Non confondere `destroy()` con `quit()`** - `destroy()` chiude la finestra, `quit()` chiude l'app
 
 ### Persistenza Dati Strutturati
+
 1. **Mantieni tutti i campi nel JSON** - Non perdere dati durante export/import
 2. **Preserva i dati identificativi** - Codici, ID, nomi dovrebbero essere persistiti
 3. **Sincronizza modelli** - Se HistoricalMaterial ha un `code`, Material dovrebbe averlo
 
 ### Ricerca Full-Text
+
 1. **Multi-field search** - Permettere ricerca su più campi aumenta l'usabilità
 2. **Case-insensitive per default** - Gli utenti non vogliono ricordare maiuscole/minuscole
 3. **Fallback a static list** - Se il repository non è disponibile, usa una fallback list
@@ -308,11 +321,13 @@ def search_materials(repo, names: Optional[List[str]], query: str, type_filter: 
 ## 🚀 Implicazioni Pratiche
 
 ### Per l'Utente
+
 1. **Finestre indipendenti** - Può aprire Geometry, Materials, e Verification Table contemporaneamente
 2. **Nessun freeze** - Chiudere una finestra non congela l'app
 3. **Ricerca intelligente** - Può cercare sia per codice ("C100") che per nome ("Calcestruzzo")
 
 ### Per lo Sviluppatore
+
 1. **Code base mantenibile** - Ogni finestra gestisce la propria chiusura
 2. **Estendibilità** - Aggiungere nuovi moduli è semplice (basta estendere Toplevel)
 3. **Ricerca riutilizzabile** - `search_helpers.py` è centrale e testabile
@@ -346,6 +361,7 @@ Tests: 52 passed, 2 skipped
 ## ✨ Risultato Finale
 
 L'applicazione ora ha:
+
 - ✅ **Gestione finestre robusta** - Ogni modulo può essere aperto/chiuso indipendentemente
 - ✅ **Ricerca materiali potente** - Ricerca per nome E codice, con filtri per tipo
 - ✅ **Architettura mantenibile** - Ogni componente ha responsabilità chiara

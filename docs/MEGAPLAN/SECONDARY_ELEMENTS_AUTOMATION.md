@@ -12,6 +12,7 @@
 ## 0-bis. Decisione di consolidamento (VINCOLANTE) — Mapping 2A‑1
 
 ### 0-bis.1 Decisione
+
 - È stata assunta la decisione **2A‑1 (conservativa)**.
 - **Source of truth** del modulo “Secondary Elements” nella Fase 2 è: **`src/codes/secondary_elements/*`**.
 - Le directory e i file eventualmente presenti in:
@@ -19,6 +20,7 @@
   NON devono essere creati in questa fase (evitare duplicazioni).
 
 ### 0-bis.2 Interpretazione del presente file di automazione
+
 Tutte le azioni di creazione/estensione definite nelle sezioni successive (A…H) devono essere interpretate come segue:
 
 - **TOUCH (adattare/estendere)** file già esistenti sotto:
@@ -40,11 +42,13 @@ Tutte le azioni di creazione/estensione definite nelle sezioni successive (A…H
   - `SECONDARY_ELEMENTS_MASTER.md` (già presente; resta vincolante)
 
 ### 0-bis.3 Divieti espliciti (anti‑doppioni)
+
 - NON creare `methods/verification/secondary_elements/`.
 - NON duplicare dispatcher/registry in due alberi diversi.
 - NON introdurre un “secondary_elements_v2”.
 
 ### 0-bis.4 Invarianti (richiamo)
+
 - Forza sismica: sempre NTC2018.
 - Drift: solo SLE, Metodo B (shear‑building proxy + soft_storey_factor), confidence LOW, warning obbligatorio.
 - Output: sempre `trace.run_id` e `norm_references[]`.
@@ -54,6 +58,7 @@ Tutte le azioni di creazione/estensione definite nelle sezioni successive (A…H
 ## A. Creazione struttura del modulo
 
 ### A1. Directory
+
 Creare la seguente directory (se non esistente):
 
 - `methods/verification/secondary_elements/`
@@ -73,6 +78,7 @@ All’interno di `methods/verification/secondary_elements/` creare:
 
 > I file devono essere creati **senza logica di calcolo**.
 > Sono ammessi solo:
+>
 > - docstring
 > - TODO
 > - classi/interfacce vuote
@@ -168,6 +174,7 @@ Ogni verifica deve produrre un `VerificationResultItem` con:
 - `trace.run_id`
 
 > ❗ `decision_log` è **obbligatorio** per:
+>
 > - metodo Ta
 > - metodo drift
 > - assunzioni e warning
@@ -258,5 +265,6 @@ Usare **esclusivamente** il contenuto definito nel file:
 ## I. Fine del piano di automazione
 
 Ogni implementazione che **non** rispetta questo file:
+
 - è da considerarsi **non conforme al piano**
 - deve essere corretta prima di procedere oltre.

@@ -26,11 +26,13 @@ config/
 ### TA.jsoncode - Tensioni Ammissibili
 
 Configurazione per il metodo delle tensioni ammissibili, compatibile con:
+
 - RD 2229/39
 - DM 92/96
 - Circolare LL.PP. 617/2009
 
 **Struttura principale:**
+
 ```json
 {
   "code_name": "TA",
@@ -50,6 +52,7 @@ Configurazione per il metodo delle tensioni ammissibili, compatibile con:
 ```
 
 **Mapping con Visual Basic:**
+
 - `PrincipCA_TA.bas` → sezioni `safety_coefficients`, `stress_limits`, `formulas`
 - Variabili VB: `Gammac`, `Gammas`, `Sigca`, `TauC0`, `TauC1`, `n`
 
@@ -58,12 +61,14 @@ Configurazione per il metodo delle tensioni ammissibili, compatibile con:
 Configurazione per SLU secondo NTC 2008/2018.
 
 **Parametri chiave:**
+
 - `gamma_c`: 1.5 (calcestruzzo)
 - `gamma_s`: 1.15 (acciaio)
 - `eps_c2`: 0.002 (deformazione max parabola-rettangolo)
 - `eps_cu`: 0.0035 (deformazione ultima calcestruzzo)
 
 **Mapping con Visual Basic:**
+
 - `CA_SLU.bas` → sezioni `strain_limits`, `constitutive_models`, `confinement`
 - Variabili VB: `Eps_c2`, `Eps_cu`, `Eps_su`, `fcd`, `fyd`
 
@@ -72,11 +77,13 @@ Configurazione per SLU secondo NTC 2008/2018.
 Configurazione per verifiche SLE (tensioni, fessurazione, deformazioni).
 
 **Parametri chiave:**
+
 - Limiti tensioni: `0.6 × fck` (combinazione caratteristica)
 - Limiti fessurazione: `w_max = 0.2-0.3 mm` (secondo ambiente)
 - Coefficienti fessurazione NTC 2008: `k1`, `kt`, `beta1`, `beta2`
 
 **Mapping con Visual Basic:**
+
 - `CA_SLE.bas` → sezioni `stress_limits`, `crack_limits`, `cracking_coefficients`
 - Variabili VB: `Perc_cls_c`, `Perc_cls_qp`, `k1`, `kt`, `Beta1`, `Beta2`
 
@@ -88,23 +95,27 @@ Configurazione per verifiche SLE (tensioni, fessurazione, deformazioni).
 **Unità:** Sistema tecnico (kg/cm²)
 
 **Classi calcestruzzo:**
+
 - R120: σ_c,28 = 120 kg/cm², σ_c,adm = 60 kg/cm²
 - R160: σ_c,28 = 160 kg/cm², σ_c,adm = 80 kg/cm²
 - R225: σ_c,28 = 225 kg/cm², σ_c,adm = 112.5 kg/cm²
 - R300: σ_c,28 = 300 kg/cm², σ_c,adm = 150 kg/cm²
 
 **Tipi acciaio:**
+
 - Dolce, Semiduro, Duro (lisci)
 - FeB32k, FeB38k, FeB44k (aderenza migliorata)
 - AQ42, AQ50 (tipo Tor)
 
 **Tipi cemento:**
+
 - Normale (Portland)
 - Presa lenta (pozzolanico)
 - Alta resistenza
 - Alluminoso (⚠️ degradazione nel tempo)
 
 **Formule principali:**
+
 ```
 σ_c,adm = 0.5 × σ_c,28
 τ_c0 = 0.06 × σ_c,28  (taglio di servizio)
@@ -130,6 +141,7 @@ Classi calcestruzzo moderne: da C20/25 a C90/105.
 Acciai: B450C (duttile, classe C), B450A (normale, classe A - deprecato in zona sismica).
 
 **Formule modulo elastico:**
+
 ```
 E_cm = 22000 × (f_cm / 10)^0.3
 ```
@@ -268,6 +280,7 @@ v_output = VerificationOutput(
 ## Conversioni Unità
 
 **Sistema tecnico ↔ SI:**
+
 ```
 1 kg/cm² = 0.0980665 MPa
 1 MPa = 10.197 kg/cm²

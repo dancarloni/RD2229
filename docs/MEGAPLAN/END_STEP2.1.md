@@ -1,14 +1,10 @@
 
 PROMPT IMPLEMENTAZIONE — NTC2018 Spectrum Paste Service (AGGIORNATO E COMPLETO)
 
-
 Uso: incolla questo prompt in GitHub Copilot Chat (VS Code) in modalità Implementazione / Agent quando vuoi generare il codice.
 Scopo: implementare un servizio di paste dei parametri di pericolosità sismica NTC2018 ottenuti da EdiLus‑MS (tabella testuale), con UI dedicata e persistenza nel project model.
 
-
-
-
-0) Premesse e contesto vincolante
+1) Premesse e contesto vincolante
 
 La sorgente esterna è EdiLus‑MS, che consente di selezionare Classe dell’edificio, Vita Nominale, Periodo di Riferimento e restituisce una tabella copiabile come testo con colonne Tr[anni], ag/g, F0, Tc\* e righe di stato limite (Operatività, Danno, Salvaguardia Vita, Prevenzione Collasso).
 Il repository usa come project model la classe VerificationProject in verification_project.py (include load/save e alimenta UI/persistenza).
@@ -20,7 +16,6 @@ docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_SERVICE_PLAN.md
 docs/MEGAPLAN/SPEC_NTC2018_HAZARD_PASTE.md
 docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_AUTOMATION.md
 
-
 1) DIVIETI ASSOLUTI (anti‑deriva)
 
 ❌ NON implementare interpolazioni/pericolosità da coordinate (nessun calcolo INGV/reticolo).
@@ -30,8 +25,7 @@ docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_AUTOMATION.md
 ❌ Se esistono duplicati di module_selector.py/UI, NON modificarli entrambi: devi determinare quello effettivamente usato dal main window e modificare solo quello.
 ❌ Se un percorso è ambiguo o non identificabile con certezza: STOP e chiedi istruzioni (non “indovinare”).
 
-
-2) FILE DA ESPORRE NEL CONTESTO (OBBLIGATORI)
+1) FILE DA ESPORRE NEL CONTESTO (OBBLIGATORI)
 Apri e “pinna” in VS Code questi file PRIMA di eseguire:
 2.1 Documenti di piano/spec (obbligatori)
 
@@ -49,8 +43,7 @@ src/ui/module_selector.py (o il module selector effettivamente importato dal mai
 
 un test esistente di persistenza o di parser (scegline uno vicino per stile).
 
-
-3) FILE TARGET (AUTORIZZATI) — CREATE / TOUCH
+1) FILE TARGET (AUTORIZZATI) — CREATE / TOUCH
 3.1 CREATE
 1) src/codes/ntc2018/spectrum_paste_service.py
 
@@ -89,8 +82,7 @@ e/o src/ui/main_window.py
 Aggiungere voce/pulsante: “Parametri sismici NTC2018 (Paste)” che apre il pannello.
 Collegare il pannello al VerificationProject corrente.
 
-
-4) REGOLE DI IMPLEMENTAZIONE (OBBLIGATORIE)
+1) REGOLE DI IMPLEMENTAZIONE (OBBLIGATORIE)
 4.1 Persistenza (single profile)
 
 Persisti in: project.seismic_inputs.ntc2018_hazard_profile (non dizionario libero).
@@ -113,12 +105,10 @@ Salvando:scrive project.seismic_inputs.ntc2018_hazard_profile = profile.
 I test devono essere contrattuali (nessun caso numerico avanzato).
 Usare tmp_path/temporary file per round‑trip.
 
-
-5) ORDINE DI ESECUZIONE (OBBLIGATORIO)
+1) ORDINE DI ESECUZIONE (OBBLIGATORIO)
 1) Implementa spectrum_paste_service.py + unit test parser. 2) Integra VerificationProject (campo + load/save) + test persistenza. 3) Implementa UI panel. 4) Aggancia UI panel al module selector / main window. 5) Esegui pytest (almeno suite completa o subset rilevante). Se fallisce, correggi SOLO nei file autorizzati.
 
-
-6) OUTPUT RICHIESTO IN CHAT (A FINE LAVORO)
+1) OUTPUT RICHIESTO IN CHAT (A FINE LAVORO)
 1) Elenco file creati/modificati (con percorso) e motivazione 1 riga. 2) Istruzioni manuali di test UI:
 
 apri pannello → incolla tabella → Analizza → Salva → salva progetto → riapri progetto → verifica che la preview sia popolata.
@@ -128,8 +118,7 @@ non è stato implementato alcun fetch web / scraping
 non è stata implementata alcuna interpolazione di pericolosità
 non è stato implementato calcolo Sa(T)
 
-
-7) CLAUSOLA DI ARRESTO
+1) CLAUSOLA DI ARRESTO
 Se durante l’implementazione scopri che:
 
 non esiste un unico file UI “module selector” chiaramente usato, oppure
@@ -140,18 +129,15 @@ NON procedere per tentativi
 scrivi STOP e chiedi esplicitamente quali file toccare.
 INIZIA ORA.
 
-
-
-
 📁 Files created / modified
-Path	Role
-spectrum_paste_service.py	NEW – domain service, data models (Ntc2018HazardRow/Profile), parser, builder and accessor API (parser honours POINT/COMMA, labels, quality, messages).
-test_ntc2018_hazard_paste_parser.py	NEW – unit‑tests for parser (decimal point, comma, missing rows, invalid tokens).
-test_ntc2018_hazard_profile_persistence.py	NEW – round‑trip test via VerificationProject ensuring profile serialisation (incl. raw_paste).
-ntc2018_hazard_paste_panel.py	NEW – thin Tkinter panel implementing the UI spec (fields, textarea, analyse/preview, save button).
-verification_project.py	MODIFIED – added SeismicInputs dataclass, seismic_inputs field, load/save logic for ntc2018_hazard_profile with backward compatibility.
-module_selector.py	MODIFIED – added button “Spettro NTC2018 (Paste)” and _open_hazard_paste() handler.
-(plus incidental formatting changes)	
+Path Role
+spectrum_paste_service.py NEW – domain service, data models (Ntc2018HazardRow/Profile), parser, builder and accessor API (parser honours POINT/COMMA, labels, quality, messages).
+test_ntc2018_hazard_paste_parser.py NEW – unit‑tests for parser (decimal point, comma, missing rows, invalid tokens).
+test_ntc2018_hazard_profile_persistence.py NEW – round‑trip test via VerificationProject ensuring profile serialisation (incl. raw_paste).
+ntc2018_hazard_paste_panel.py NEW – thin Tkinter panel implementing the UI spec (fields, textarea, analyse/preview, save button).
+verification_project.py MODIFIED – added SeismicInputs dataclass, seismic_inputs field, load/save logic for ntc2018_hazard_profile with backward compatibility.
+module_selector.py MODIFIED – added button “Spettro NTC2018 (Paste)” and_open_hazard_paste() handler.
+(plus incidental formatting changes) 
 🧪 Manual UI testing steps
 Launch the app (start module_selector as usual).
 Click “Parametri sismici NTC2018 (Paste)” in the Parametri Normativa section.

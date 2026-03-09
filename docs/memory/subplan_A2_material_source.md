@@ -1,13 +1,16 @@
 # A.2 — MaterialSource Strutturata
+
 # Contesto completo per implementazione futura
 
 ## Obiettivo
+
 Collegare ogni materiale alla sua fonte normativa con riferimento preciso
 (norma, articolo, paragrafo, tabella), abilitando citazione automatica nei tabulati.
 
 ## Stato attuale: 3 entita' parallele NON collegate
 
 ### 1. MaterialSource (LEGACY — da eliminare)
+
 - File: `src/legacy/material_sources.py` (~330 righe)
 - Contiene: MaterialSource dataclass, CalculationMethod enum (TA/SL/SP/SPER),
   MaterialSourceLibrary CRUD, _get_default_sources() con 9 norme,
@@ -16,24 +19,29 @@ Collegare ogni materiale alla sua fonte normativa con riferimento preciso
 - La logica di calcolo e' GIA' coperta da material_model.py e concrete_strength.py
 
 ### 2. NormRef (MANTENERE — scope: check specifications)
+
 - File: `src/checks/registry.py`
 - Struttura: NormRef(source_id, clause, description)
 - Usato in: CheckSpec per specificare la norma di riferimento di ogni check
 
 ### 3. NormReference (MANTENERE — scope: risultati check)
+
 - File: `src/core_calculus/contracts.py`
 - Struttura: NormReference(norm_code, chapter, paragraph, formula_label, ...)
 - Usato in: SingleCheckResult per tracciare la norma nel risultato
 
 ### Modello Material attuale
+
 - File: `src/materials/material_model.py` (~804 righe)
 - Campo: `norma_riferimento: str` (es. "NTC2018") — solo codice, senza dettaglio
 
 ### Cataloghi JSON attuali
+
 - 10 file in `data/materials/catalogo_*.json`, 97 materiali totali
 - Hanno solo `"norma_riferimento": "NTC2018"` — nessun articolo/paragrafo
 
 ### sources.yaml
+
 - File: `docs/normative/sources.yaml`
 - Contiene 8 fonti: RD2229, DM92, DM96, NTC2018, ISO834, EN1992_1_2,
   EN1991_1_4, CNR_DT207, NTC2018_CIRC
@@ -67,6 +75,7 @@ Collegare ogni materiale alla sua fonte normativa con riferimento preciso
 ## Strutture dati nuove
 
 ### MaterialSource (nuova, in src/materials/material_source.py)
+
 ```python
 @dataclass
 class MaterialSource:
@@ -87,6 +96,7 @@ class MetodoCalcolo(str, Enum):
 ```
 
 ### MaterialNormRef (nuova, stesso file)
+
 ```python
 @dataclass
 class MaterialNormRef:
@@ -101,6 +111,7 @@ class MaterialNormRef:
 ## 9 fonti da migrare dal legacy
 
 Da `_get_default_sources()` in `src/legacy/material_sources.py`:
+
 1. RD2229 — Regio Decreto 1939, TA
 2. DM72 — DM 30/05/1972, TA
 3. DM92 — DM 14/02/1992, SL
@@ -112,6 +123,7 @@ Da `_get_default_sources()` in `src/legacy/material_sources.py`:
 9. CUSTOM — Personalizzato, SP
 
 Fonti aggiuntive da sources.yaml non presenti nel legacy:
+
 - DM87 (muratura), Circ81, ISO834, EN1992_1_2, EN1991_1_4, CNR_DT207, NTC2018_CIRC
 
 ## Note architetturali

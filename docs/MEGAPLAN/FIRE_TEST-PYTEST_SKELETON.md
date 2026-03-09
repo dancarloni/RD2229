@@ -3,7 +3,6 @@ FIRE_TESTS_PYTEST_SKELETON – Test automatici pytest (R60 / R90 / R120)
 Status: STABILE
 Ruolo: Scheletro reale di test pytest per il modulo INCENDIO
 
-
 1. Scopo del documento
 Questo documento fornisce uno scheletro reale e pronto all’uso di test pytest, che copre:
 
@@ -19,8 +18,7 @@ FIRE_ESEMPIO_R60_PILASTRO.md
 FIRE_ESTENSIONE_R90_R120.md
 FIRE_CHECKLIST_TECNICO_LEGALE.md
 
-
-2. Struttura reale dei test
+1. Struttura reale dei test
 
 tests/
 └── fire/
@@ -30,16 +28,15 @@ tests/
     ├── test_fire_r90.py
     └── test_fire_r120.py
 
-
-
-
-3. conftest.py – Fixture e mock
+1. conftest.py – Fixture e mock
 
 import pytest
 from types import SimpleNamespace
 
 # =========================
+
 # Mock del CodeModule_INCENDIO
+
 # =========================
 
 class MockFireSolver:
@@ -68,11 +65,9 @@ class MockFireSolver:
             warning_note=None,
         )
 
-
 @pytest.fixture
 def code_module_incendio():
     return MockFireSolver()
-
 
 @pytest.fixture
 def base_fire_input():
@@ -83,10 +78,7 @@ def base_fire_input():
         "fire_method": "L2",
     }
 
-
-
-
-4. Test R60 positivo (OK)
+1. Test R60 positivo (OK)
 
 # test_fire_r60_positive.py
 
@@ -104,9 +96,6 @@ def test_fire_r60_ok(code_module_incendio, base_fire_input):
     assert result.fire_method == "L2"
     assert result.esito == "OK"
     assert result.fire_time_achieved >= 60
-
-
-
 
 5. Test R60 negativo (NOT_OK)
 
@@ -126,9 +115,6 @@ def test_fire_r60_not_ok(code_module_incendio, base_fire_input):
     assert result.esito == "NOT_OK"
     assert result.fire_time_achieved < 60
 
-
-
-
 6. Test R90 (riuso struttura)
 
 # test_fire_r90.py
@@ -145,9 +131,6 @@ def test_fire_r90_ok(code_module_incendio, base_fire_input):
     assert result.fire_class_required == "R90"
     assert result.fire_time_achieved >= 90
     assert result.esito == "OK"
-
-
-
 
 7. Test R120 (riuso struttura)
 
@@ -166,9 +149,6 @@ def test_fire_r120_ok(code_module_incendio, base_fire_input):
     assert result.fire_time_achieved >= 120
     assert result.esito == "OK"
 
-
-
-
 8. Criteri di qualità dei test
 I test sono corretti se:
 
@@ -177,15 +157,13 @@ non usano valori normativi hardcoded
 verificano solo comportamento e output
 falliscono in caso di regressione
 
-
-9. Estensioni future
+1. Estensioni future
 
 aggiungere test L3 (mock FEM)
 parametrizzare R30/R60/R90/R120
 integrazione CI (GitHub Actions)
 
-
-10. Collegamenti
+1. Collegamenti
 
 FIRE_ESEMPIO_R60_PILASTRO.md
 FIRE_TESTS_AUTOMATICI_R60.md

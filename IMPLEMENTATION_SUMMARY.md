@@ -9,6 +9,7 @@ This document summarizes the updates to the verification module to support new l
 ### 1. VerificationInput Dataclass Updates
 
 **New Load Parameters:**
+
 - `Mx`: Bending moment about x-axis (renamed from `M`)
 - `My`: Bending moment about y-axis (NEW)
 - `Mz`: Torsional moment (NEW, replaces previous "Mt")
@@ -17,9 +18,11 @@ This document summarizes the updates to the verification module to support new l
 - `At`: Torsional reinforcement area (NEW)
 
 **Backward Compatibility:**
+
 - Legacy properties `M` and `T` maintained as aliases to `Mx` and `Ty`
 - Existing code continues to work without modifications
 - Example:
+
   ```python
   v_input.M = 100.0  # Sets v_input.Mx = 100.0
   v_input.T = 50.0   # Sets v_input.Ty = 50.0
@@ -28,6 +31,7 @@ This document summarizes the updates to the verification module to support new l
 ### 2. VerificationOutput Dataclass Updates
 
 **New Result Fields:**
+
 - `asse_neutro_x`: Neutral axis x-coordinate (for deviated bending)
 - `asse_neutro_y`: Neutral axis y-coordinate (for deviated bending)
 - `inclinazione_asse_neutro`: Neutral axis inclination in degrees
@@ -37,12 +41,14 @@ This document summarizes the updates to the verification module to support new l
 - `sigma_s_compressi`: Compressed steel stress
 
 **Default Initialization:**
+
 - All new fields default to 0.0 or empty string
 - `messaggi` list automatically initialized to `[]`
 
 ### 3. Configuration System (.jsoncode)
 
 **Directory Structure:**
+
 ```
 config/
 ├── calculation_codes/
@@ -61,6 +67,7 @@ config/
 ### 4. Calculation Code Configurations
 
 **TA.jsoncode (Tensioni Ammissibili):**
+
 - Safety coefficients: γ_c = 1.0, γ_s = 1.0 (already in allowable stress)
 - Stress limits: σ_c,adm = 0.5 × σ_c,28
 - Shear limits: τ_c0 = 0.06 × σ_c,28, τ_c1 = 0.14 × σ_c,28
@@ -68,6 +75,7 @@ config/
 - Material sources: RD2229, DM72, DM92, DM96
 
 **SLU.jsoncode (Stato Limite Ultimo):**
+
 - Safety coefficients: γ_c = 1.5, γ_s = 1.15
 - Strain limits: ε_c2 = 0.002, ε_cu = 0.0035
 - Constitutive models: parabola-rectangle, stress block, elastic-perfect plastic
@@ -75,6 +83,7 @@ config/
 - Material sources: NTC2008, NTC2018
 
 **SLE.jsoncode (Stato Limite Esercizio):**
+
 - Stress limits: σ_c ≤ 0.6 × fck (characteristic), σ_c ≤ 0.45 × fck (quasi-permanent)
 - Crack limits: w_max = 0.2-0.3 mm (environment dependent)
 - Cracking coefficients: k1, kt, β1, β2 (NTC 2008/2018 method)
@@ -83,6 +92,7 @@ config/
 ### 5. Historical Materials Configurations
 
 **RD2229.jsoncode (1939-1972):**
+
 - Unit system: Technical (kg/cm²)
 - Concrete classes: R120, R160, R225, R300
 - Steel types: Dolce, Semiduro, Duro, FeB32k, FeB38k, FeB44k, AQ42, AQ50
@@ -91,12 +101,14 @@ config/
 - Conversion factors: 1 kg/cm² = 0.0980665 MPa
 
 **DM92.jsoncode (1992-2008):**
+
 - Unit system: SI (MPa)
 - Concrete classes: C12/15 to C40/50
 - Steel types: FeB38k, FeB44k, Feb38ks, Feb44ks (weldable)
 - Transition period from technical to SI units
 
 **NTC2008.jsoncode & NTC2018.jsoncode:**
+
 - Unit system: SI (MPa)
 - Concrete classes: C20/25 to C90/105
 - Steel types: B450C (ductile, class C), B450A (normal, class A)
@@ -173,6 +185,7 @@ v_input.T = 400.0   # Sets Ty
 ## Testing
 
 All tests pass successfully:
+
 - ✅ Configuration loaders functional
 - ✅ TA, SLU, SLE configurations loaded
 - ✅ RD2229, DM92, NTC2008, NTC2018 materials loaded
@@ -198,15 +211,18 @@ All tests pass successfully:
 All `.jsoncode` parameters are rigorously extracted from Visual Basic files:
 
 **PrincipCA_TA.bas → TA.jsoncode:**
+
 - `Gammac`, `Gammas` → `safety_coefficients`
 - `Sigca`, `TauC0`, `TauC1` → `stress_limits`
 - `n` (Es/Ec) → `homogenization`
 - `Eps_c2`, `Eps_cu`, `Eps_su` → `strain_limits`
 
 **CA_SLU.bas → SLU.jsoncode:**
+
 - Strain limits, constitutive models, confinement parameters
 
 **CA_SLE.bas → SLE.jsoncode:**
+
 - Stress limits, crack limits, cracking coefficients
 
 **No simplifications or approximations** were introduced - all formulas match the original VB code.
@@ -225,6 +241,7 @@ All `.jsoncode` parameters are rigorously extracted from Visual Basic files:
 ## Next Steps
 
 Future enhancements planned:
+
 - [ ] Implement calculation core using .jsoncode parameters
 - [ ] Add graphical results (neutral axis, stress/strain diagrams)
 - [ ] Implement N-M interaction diagram (resistance domain)

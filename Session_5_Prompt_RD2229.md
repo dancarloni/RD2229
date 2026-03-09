@@ -2,6 +2,7 @@ Session_5_Prompt_RD2229
 I am starting a NEW Claude Code session.
 
 CONTEXT
+
 - This repository is a Python/Tkinter structural engineering application.
 - The single authoritative specification is the file: AGGIIORNAMENTO_FOCUS.md.
 - In previous sessions, you completed the core architecture and partial/complete implementations for NTC 2018, LC/FC, validation engine, verification pipeline, and initial normative registry support.
@@ -10,6 +11,7 @@ GOAL OF THIS SESSION (SESSION 5 – RD 2229/39)
 Your task in this session is to implement support for the historical Italian normative RD 2229/1939 (Tensioni Ammissibili – TA storico), strictly following the constraints and rules in AGGIIORNAMENTO_FOCUS.md.
 
 You must:
+
 1. Read AGGIIORNAMENTO_FOCUS.md carefully, respecting:
    - NO-INVENTION POLICY
    - scope limits
@@ -34,15 +36,18 @@ You must:
 ==================================================
 PRIORITY A — DEFINE RD 2229/39 VERIFICATION FUNCTIONS (TA)
 ==================================================
+
 Implement ONLY checks that can be supported WITHOUT inventing formulas, using clear NormReference entries and TODO notes.
 
 Typical checks allowed under RD 2229 TA:
+
 - Tensione di calcolo (σ) = N/A, M/W
 - Confronto con tensioni ammissibili fornite dal materiale
 - Taglio TA if clearly present in the repo
 - Minimi di armatura (ONLY if supported by existing normative helpers)
 
 For each implemented function:
+
 - Place them in an appropriate module such as:
   `src/methods/checks_rd2229.py`
 - Use Italian messages and warnings
@@ -54,6 +59,7 @@ For each implemented function:
 ==================================================
 PRIORITY B — CREATE VERIFICATIONTEMPLATE ENTRIES
 ==================================================
+
 In `src/core_calculus/normative_registry.py` (or equivalent):
 
 - Add `get_rd2229_templates()`
@@ -69,6 +75,7 @@ In `src/core_calculus/normative_registry.py` (or equivalent):
 ==================================================
 PRIORITY C — CONNECT VALIDATION RULES
 ==================================================
+
 In `src/core_calculus/validation_engine.py`:
 
 - Add or refine validation rules SPECIFIC for TA RD 2229, for example:
@@ -79,6 +86,7 @@ In `src/core_calculus/validation_engine.py`:
 ==================================================
 PRIORITY D — IMPLEMENT TESTS
 ==================================================
+
 Create or extend tests to validate RD 2229 functionality:
 
 - New file: `tests/test_rd2229_checks.py`
@@ -94,19 +102,23 @@ Tests must run through:
 ==================================================
 PRIORITY E — REGISTRY + CONTROLLER INTEGRATION
 ==================================================
+
 - Ensure RD 2229 templates are recognized when norm_code="RD2229"
 - VerificationController must correctly route TA verifications
 
 ==================================================
 CONSTRAINTS
 ==================================================
+
 YOU MUST:
+
 - Keep ALL user-facing messages in ITALIANO
 - Respect core/GUI separation
 - Mark missing checks with PARTIAL + TODO
 - Avoid inventing formulas or interpolations
 
 YOU MUST NOT:
+
 - Implement rules or formulas not explicitly supported by the existing workspace
 - Mass-reformat the repository
 - Run tests repeatedly after tiny edits
@@ -114,7 +126,9 @@ YOU MUST NOT:
 ==================================================
 FINAL OUTPUT FOR THIS SESSION
 ==================================================
+
 At the end, print a “Session 5 – RD 2229/39 Result Summary” with:
+
 - List of RD 2229/39 checks implemented, partial, or left as TODO
 - Template entries created
 - Tests created and their results
@@ -122,6 +136,7 @@ At the end, print a “Session 5 – RD 2229/39 Result Summary” with:
 
 Now I will paste the FINAL SESSION SUMMARY from Session 4.
 Do NOT start implementation until you have:
+
 - Read AGGIIORNAMENTO_FOCUS.md
 - Read the Summary
 - Printed the Roadmap for Session 5.

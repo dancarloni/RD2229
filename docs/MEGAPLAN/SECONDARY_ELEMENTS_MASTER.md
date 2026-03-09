@@ -3,6 +3,7 @@
 > **NOTA (vincolante)**: questo documento è **PLAN‑ONLY**. Non contiene codice eseguibile.
 > È la **SPEC master** del modulo “Elementi Secondari / Non Strutturali”.
 > Deve restare coerente con:
+>
 > - separazione Core/GUI/I‑O, modularità estrema, tracciabilità normativa completa
 > - input comune unico e output comune unico (VerificationResultItem)
 > - GUI thin: nessuna logica normativa in UI; solo raccolta input/validazione e visualizzazione risultati
@@ -29,6 +30,7 @@
 ## 1. Obiettivi e non‑obiettivi
 
 ### 1.1 Obiettivi
+
 1. Gestire in modo unificato elementi “SECONDARY_STRUCTURAL” e “NONSTRUCTURAL” nel workflow di verifica.
 2. Calcolare la domanda inerziale sugli elementi non strutturali con **NTC2018** (vincolo non negoziabile).
 3. Consentire scelta esplicita del **modello Ta** (poiché NTC non fornisce metodo chiuso) con decision log.
@@ -36,6 +38,7 @@
 5. Supportare verifica domanda/capacità degli ancoraggi in modo **ETA‑first** (manuale oggi), pianificando ETA Library.
 
 ### 1.2 Non‑obiettivi (espliciti)
+
 - Nessuna implementazione di modello globale FEM dell’edificio in questo modulo.
 - Nessuna “auto‑scelta” del modello più corretto: il software espone alternative e traccia la scelta.
 - Nessuna capacità ancoraggi calcolata automaticamente da normative esterne come default (ACI/EN1992‑4): solo opzioni avanzate o future estensioni.
@@ -45,15 +48,18 @@
 ## 2. Definizioni e classificazioni (NTC‑first)
 
 ### 2.1 Elementi strutturali secondari (NTC Cap.7 §7.2.3)
+
 - Elementi per i quali le azioni orizzontali possono essere trascurate.
 - Progettati per carichi verticali e per seguire gli spostamenti della struttura senza perdita di capacità.
 - Vincoli: contributo rigidezza/resistenza orizzontale ≤ 15% dei primari; non possono “regolarizzare” strutture irregolari.
 
 ### 2.2 Elementi non strutturali (NTC Cap.7 §7.2.3 + §7.3.6.2)
+
 - Componenti significativi per la sicurezza/incolumità o influenti sulla risposta globale.
 - Verifica per stati limite; domanda inerziale mediante forza orizzontale Fa (NTC).
 
 ### 2.3 Tassonomia operativa (software)
+
 - `role`:
   - `SECONDARY_STRUCTURAL`
   - `NONSTRUCTURAL`
@@ -68,15 +74,18 @@
 ## 3. Teoria “software‑ready” (domanda/capacità)
 
 ### 3.1 Domanda inerziale (vincolo NTC)
+
 - Forza orizzontale `Fa` sempre secondo NTC2018 usando spettro NTC2018.
 - Il periodo `Ta` dell’elemento influenza la domanda tramite Sa(Ta) e quindi Fa.
 - Poiché NTC non fornisce metodo completo per Ta, `Ta` è stimato tramite modelli selezionabili e tracciati (ASCE/NEHRP/FEMA/EC8/Manuale).
 
 ### 3.2 Domanda deformativa (drift)
+
 - Il drift è una domanda deformativa che può governare il danno di componenti fragili/interferenti.
 - Se manca un modello globale, si usa un proxy semplificato dichiarato (Metodo B), con warning e confidence LOW.
 
 ### 3.3 Capacità (ancoraggi e resistenze locali)
+
 - Capacità ancoraggi: fonte primaria **ETA/DoP/dati produttore** (oggi manuale).
 - Capacità locale (sezione/elemento): gestita come demand/capacity nel formato standard di output.
 
@@ -87,6 +96,7 @@
 > Lo schema completo è definito nel documento SPEC dedicato. Qui si richiamano campi minimi e integrazioni additive richieste.
 
 ### 4.1 Campi minimi (MVP)
+
 - Identità: `id`, `element_type`, `description`
 - Geometria: campi minimi per tipo (`length`, `height`, `thickness`, `diameter`, ecc.)
 - Massa/Peso: `mass` o `Wa` derivabile
@@ -96,6 +106,7 @@
 - Flags: `influence_on_global_model`, `requires_seismic_check`
 
 ### 4.2 Estensioni additive (obbligatorie per Ta e drift)
+
 - `ta_model` (selezione modello periodo):
   - `RIGID`
   - `CANTILEVER_EQ`
@@ -114,11 +125,13 @@
 ## 5. Architettura modulo (file mapping e separazione funzioni)
 
 ### 5.1 Regole architetturali (vincolanti)
+
 - Core di calcolo non dipende dalla GUI; GUI non contiene logica normativa.
 - Tutti i risultati passano da `VerificationResultItem` (output unico).
 - Ogni risultato deve includere `norm_references[]` e `trace.run_id` (contratto test).
 
 ### 5.2 Posizionamento nel workspace (MVP)
+
 - Directory: `methods/verification/secondary_elements/`
 - File logici:
   - `dispatcher` (routing e registrazione)
@@ -134,6 +147,7 @@
 ## 6. Procedure di calcolo (flow) — SLU/SLV e SLE
 
 ### 6.1 Flow SLU/SLV (domanda inerziale — NTC)
+
 1. Validazione input e gating (campi obbligatori per tipo).
 2. Determinazione `Ta`:
    - da modello selezionato (`ta_model`)
@@ -150,6 +164,7 @@
    - `trace.run_id`
 
 ### 6.2 Flow SLE (drift compatibility — Metodo B)
+
 1. Gating: se `influence_on_global_model=true` → `NOT_APPLICABLE` (richiede modello globale).
 2. Determinazione drift:
    - `GLOBAL` (future hook)
@@ -168,6 +183,7 @@
 ## 7. Decisione architetturale vincolante — Metodo B (Shear‑Building Proxy + Soft‑Storey)
 
 ### 7.1 Scelta
+
 - Il modulo adotta come default MVP **Metodo B**:
   - shear‑building proxy con possibilità di soft‑storey indicator
 - Motivazioni:
@@ -177,6 +193,7 @@
   - upgrade path naturale verso drift globale
 
 ### 7.2 Regole
+
 - `soft_storey_factor`:
   - default = 1.0 (uniform)
   - se >1.0: warning informativo additivo
@@ -202,6 +219,7 @@
 ## 9. Config / Registry / Storage
 
 ### 9.1 Config `.jsoncode`
+
 - `config/calculation_codes/SECONDARY_ELEMENTS.jsoncode` deve definire:
   - check ids (SLU/SLE)
   - mapping `element_type → drift_sensitive`
@@ -210,9 +228,11 @@
   - gating: block if influence_on_global_model
 
 ### 9.2 Storage progetto
+
 - Persistenza in `project.secondary_elements[]` (spec + results), con `schema_version`.
 
 ### 9.3 ETA‑first (oggi manuale, domani library)
+
 - Oggi: `anchor_capacity` manuale con `source=ETA_MANUAL`.
 - Futuro: `eta_id` referenziato a registry ETA (con revisione, allegato, metadati).
 
@@ -221,10 +241,12 @@
 ## 10. Testing (contrattuale + golden)
 
 ### 10.1 Invarianti test (sempre)
+
 - Ogni risultato include `trace.run_id` e almeno una entry in `norm_references`.
 - GUI tests: solo smoke (selection → run → results), nessuna asserzione normativa in GUI.
 
 ### 10.2 Test minimi (MVP)
+
 - SLU/SLV: caso base OK/FAIL (anche solo status) + presenza decision log + norm refs.
 - SLE: drift ESTIMATED con `soft_storey_factor=1.0` → warning obbligatorio.
 - Gating: `influence_on_global_model=true` → NOT_APPLICABLE.

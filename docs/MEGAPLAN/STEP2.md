@@ -1,6 +1,7 @@
 Status: checking whether PLAN_INPUT_COMUNE.md defines ProjectModel fields so I include the optional update block only if relevant. I'll search the MEGAPLAN folder for the file and look for ProjectModel mentions.
 
 # filename: docs/MEGAPLAN/PLAN_NORMATIVE_STATE_CONTRACT.md
+
 Scopo e ambito
 
 Allineamento contrattuale (SPEC‑ONLY) per la gestione univoca della norma attiva nel ProjectModel e del routing verso engine/report.
@@ -51,7 +52,9 @@ Note operative
 
 Aggiornare tutti i documenti e i test esistenti che riferivano ai vecchi nomi (alias) e prediligere norma_attiva come unica denominazione autorizzata in nuovi blocchi SPEC.
 Ogni modifica di comportamento policy‑driven dovrà essere documentata e approvata (Step 3: KB/config).
+
 # filename: docs/MEGAPLAN/PLAN_ANALYSIS_METHOD_UI_FLAG.md
+
 Scopo (UI‑only)
 
 Definire il flag UI canonico che guida la presentazione/preview del metodo di analisi senza alcun impatto sui risultati numerici o sul core.

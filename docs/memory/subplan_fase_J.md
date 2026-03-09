@@ -48,7 +48,7 @@ src/gui/widgets/dominio_canvas.py — DominioNMyCanvas (Qt interattivo)
 - Bresler TA: (|Mx|/M_Rdx)^alpha + (|My|/M_Rdy)^alpha <= 1
 - M_Rd TA: (sigma_adm - |N|/A_om) * W
 - Dominio: M_Rd(theta) = 1/((|cos|/M_Rdx)^a + (|sin|/M_Rdy)^a)^(1/a)
-- Instabilita': alpha_M = 1/(1 - |N|/Pcr), Pcr = pi^2 * 0.4*Ec * I / l0^2
+- Instabilita': alpha_M = 1/(1 - |N|/Pcr), Pcr = pi^2 *0.4*Ec * I / l0^2
 
 ## Dipendenze riusate (non modificate)
 

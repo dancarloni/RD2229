@@ -44,6 +44,7 @@ Ultimo aggiornamento: 2026-03-05
 ## File Creati/Modificati — Sessione Corrente (2026-03-05)
 
 ### Nuovi file
+
 - `src/core/registro_log.py` — Registro log centralizzato (RegistroLog, VoceLog, LivelloLog)
 - `src/core/unita_misura.py` — Sistema unità di misura selezionabile (kg-cm / kN-m / N-mm)
 - `src/ui/qt/aiuto_contestuale.py` — Aiuto contestuale dinamico Qt6 (caricamento YAML)
@@ -53,6 +54,7 @@ Ultimo aggiornamento: 2026-03-05
 - `docs/PROGRESS/STATUS.md` — Questo file
 
 ### File modificati
+
 - `src/ui/qt/debug_viewer.py` — Aggiornato con filtri, ricerca, export, collegamento a registro_log
 
 ## TODO Immediati (prossima sessione)

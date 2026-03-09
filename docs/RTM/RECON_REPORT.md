@@ -1,4 +1,5 @@
 # RECON – Inventario Meccanico Repository RD2229
+
 ## Fase 0 – Evidence-Only
 
 **Data**: 2026-03-01  

@@ -2,7 +2,7 @@ Istruzioni per lavorare offline con il repository RD2229
 
 1) Copia/Clona il repository sul tuo computer (se non l'hai già fatto):
 
-   git clone https://github.com/dancarloni/RD2229.git
+   git clone <https://github.com/dancarloni/RD2229.git>
 
 2) Creare e attivare un virtualenv Python:
 
@@ -36,7 +36,7 @@ Istruzioni per lavorare offline con il repository RD2229
 
    Windows (passaggi rapidi)
 
-   - Installa Git for Windows: https://git-scm.com/download/win
+   - Installa Git for Windows: <https://git-scm.com/download/win>
    - Installa Python 3 e assicurati di aggiungerlo al PATH.
    - Apri PowerShell e esegui lo script fornito `run-local.ps1` dalla cartella dove hai scaricato i file:
 

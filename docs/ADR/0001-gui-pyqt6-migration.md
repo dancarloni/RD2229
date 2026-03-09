@@ -34,12 +34,14 @@ will be removed in a future major version.
 ## Consequences
 
 ### Positive
+
 - Smaller install footprint in typical CI/CD environments.
 - `rd2229-gui` entry point now uses `PyQt6`.
 - The `RD2229_UI_TEST=1` env-var allows smoke-testing without starting the
   event loop (safe in headless CI).
 
 ### Negative
+
 - Users who have only PySide6 installed must switch or install both.
 - Some PySide6-specific signal/slot syntax differences may surface in
   future UI code (mitigated by using the common Qt6 API subset).

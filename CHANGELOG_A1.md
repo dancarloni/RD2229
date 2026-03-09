@@ -36,6 +36,7 @@
 ### Architettura
 
 Pipeline completa:
+
 ```
 repository → resolve_inputs → action_repo → report renderers → export
 ```

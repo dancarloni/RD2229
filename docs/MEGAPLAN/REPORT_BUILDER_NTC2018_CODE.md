@@ -9,7 +9,6 @@ nessuna interpretazione degli esiti;
 input esclusivo: ProjectModel + VerificationResult;
 output Markdown, poi esportabile PDF/DOCX.
 
-
 1. Interfaccia comune (vincolante)
 Tutti i ReportBuilder devono implementare la stessa interfaccia.
 
@@ -24,13 +23,9 @@ class BaseReportBuilder:
         """
         raise NotImplementedError
 
-
-
-
 2. Codice – core/report/report_builder_ntc2018.py
 
 from core.report.base_report_builder import BaseReportBuilder
-
 
 class ReportBuilderNTC2018(BaseReportBuilder):
     """
@@ -62,18 +57,13 @@ class ReportBuilderNTC2018(BaseReportBuilder):
 
         return "\n".join(md)
 
-
-
-
 3. Allineamento con RD2229
 
-Aspetto	NTC2018	RD2229
-Classe	ReportBuilderNTC2018	ReportBuilderRD2229
-Interfaccia	BaseReportBuilder	BaseReportBuilder
-Input	VerificationResult	VerificationResult
-Output	Markdown	Markdown
-Ricalcoli	❌	❌
-
-
+Aspetto NTC2018 RD2229
+Classe ReportBuilderNTC2018 ReportBuilderRD2229
+Interfaccia BaseReportBuilder BaseReportBuilder
+Input VerificationResult VerificationResult
+Output Markdown Markdown
+Ricalcoli ❌ ❌
 
 Questo file è vincolante per la generazione automatica della Relazione NTC2018.

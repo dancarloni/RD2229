@@ -11,6 +11,7 @@ Questo file è la **unica fonte di verità** sullo stato di avanzamento del prog
 - In caso di compattazione del contesto, **rileggi sempre** `docs/PIANO_LAVORO.md`
 
 **Regola operativa**: dopo ogni fase completata, aggiorna `docs/PIANO_LAVORO.md` con:
+
 1. Stato → COMPLETATO + hash commit
 2. Checkbox [x] per ogni sotto-punto completato
 3. Contatore test aggiornato
@@ -31,11 +32,13 @@ RD2229 è un software Python per il calcolo strutturale di edifici esistenti in 
 ## Convenzioni critiche
 
 ### Unità di misura
+
 - **Unità primarie**: kg/cm² per tensioni, cm per geometria
 - Modulo `src/materials/adapter.py` per conversioni kg/cm² ↔ MPa
 - Il sistema unità è selezionabile dall'utente (`src/core/unita_misura.py`)
 
 ### Architettura (vincoli duri)
+
 1. **Modularità estrema** — ogni modulo sostituibile senza refactoring globale
 2. **Zero duplicazione** — archivi centralizzati, unica fonte per ogni parametro
 3. **SOLO Qt (PySide6/PyQt6)** — legacy Tkinter deprecato, non usare mai Tkinter per codice nuovo
@@ -47,6 +50,7 @@ RD2229 è un software Python per il calcolo strutturale di edifici esistenti in 
 9. **UI in italiano** — tutto il testo visibile all'utente in italiano
 
 ### Lettere greche
+
 Il progetto usa caratteri Unicode (σ, τ, γ, etc.) in docstring e documentazione.
 
 ---
@@ -96,6 +100,7 @@ python -m pytest tests/ --tb=short
 ## Pattern di sviluppo
 
 ### Aggiungere un nuovo modulo di calcolo
+
 1. Crea file in `src/methods/<norma>/` o in `src/`
 2. Usa dataclass per Input e Risultato
 3. Includi `passaggi_calcolo: list[str]` nel risultato per tracciabilità
@@ -104,6 +109,7 @@ python -m pytest tests/ --tb=short
 6. Aggiorna `docs/PIANO_LAVORO.md`
 
 ### Aggiungere un catalogo materiali
+
 1. Crea `data/materials/catalogo_<norma>.json`
 2. Segui lo schema esistente (vedi `catalogo_ntc2018.json`)
 3. Aggiungi test in `tests/test_cataloghi_materiali.py`
@@ -112,5 +118,6 @@ python -m pytest tests/ --tb=short
 ---
 
 ## Dipendenze principali
+
 - pytest, PySide6/PyQt6, numpy, scipy (sparse), pyyaml
 - NO pandas per codice nuovo (usare JSON/dict nativi)

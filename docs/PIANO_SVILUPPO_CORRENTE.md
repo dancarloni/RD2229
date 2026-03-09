@@ -66,7 +66,7 @@ con nuovi moduli, previa approvazione.
 ### Analisi normativa
 
 - **NTC2018** (gia completato in `src/codes/ntc2018/secondary_elements/checks.py`):
-  F_a = (S_a * W_a * gamma_a) / q_a; drift limit h/200 per elementi fragili
+  F_a = (S_a *W_a* gamma_a) / q_a; drift limit h/200 per elementi fragili
 
 - **DM96/DM92**: F_h = C * W (coefficiente sismico semplificato per piano);
   drift limit h/300 tipico
@@ -92,7 +92,7 @@ con nuovi moduli, previa approvazione.
 
 - [x] **G.4.1** Creare package `src/codes/dm96/secondary_elements/`
   - `__init__.py`, `checks.py`, `models.py`
-  - `check_slu_dm96()`: F_h = C * beta * W con C da zona sismica (0.10/0.07/0.04)
+  - `check_slu_dm96()`: F_h = C *beta* W con C da zona sismica (0.10/0.07/0.04)
   - `check_sle_dm96()`: drift con limite h/300 = 0.00333
   - `SecondaryElementSpecDM96`: zona_sismica, piano, n_piani, beta_piano, validate()
   - Coefficienti: COEFFICIENTE_SISMICO_C = {1: 0.10, 2: 0.07, 3: 0.04}
@@ -141,10 +141,10 @@ con nuovi moduli, previa approvazione.
   - MANUAL: valore fornito dall'utente
 
 - **S_a al piano** (NTC2018 eq. 7.2.5):
-  S_a = alpha_S * max(3*(1+z/H)/(1+(1-T_a/T_1)^2) - 0.5, 1.0)
+  S_a = alpha_S *max(3*(1+z/H)/(1+(1-T_a/T_1)^2) - 0.5, 1.0)
 
 - **Drift Metodo B** (shear-building proxy semplificato):
-  delta_r = S_d(T_1) * (z/H) * soft_storey_factor / h_interpiano
+  delta_r = S_d(T_1) *(z/H)* soft_storey_factor / h_interpiano
   Confidence = LOW. Input S_d come valore numerico (no dipendenze circolari).
 
 ### Sub-plan
@@ -189,6 +189,7 @@ ai meccanismi fuori piano (ribaltamento, spanciamento, cuneo d'angolo) con la ri
 nel piano di maggiore inerzia.
 
 Decisioni principali:
+
 - Schemi: Warren, Pratt, custom (disegno grafico libero in fase futura)
 - Profili: piatti, angolari, profili standard da sagomario
 - Solutore: riuso `traliccio_2d.py` (piano XY reinterpretato come orizzontale)
@@ -207,6 +208,7 @@ Decisioni principali:
 Dettaglio completo in `docs/PIANO_LAVORO.md` sezione D.3.
 
 Ordine di priorita' consigliato:
+
 1. D.3.1 Generatore schemi (Warren/Pratt + pre-dimensionamento)
 2. D.3.2 Adattamento solutore (molle, carichi distribuiti, rigidezza globale)
 3. D.3.3 Modulo cordolo reticolare (dataclass, integrazione F da cinematica)
@@ -242,6 +244,7 @@ Tre sotto-problemi identificati, due in scope E.6:
 3. **Apertura nuovi vani** (fase separata R): confronto prima/dopo, telaio cerchiatura.
 
 Decisioni chiave:
+
 - Modulo separato `src/methods/muratura/cantonale.py` (massima modularita')
 - Modello 2D semplificato (proiezione 45°), 3D completo come TODO futuro
 - Spinta puntone: 2 formulazioni + input generico

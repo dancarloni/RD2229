@@ -3,7 +3,6 @@ FIRE_NORMATIVA_NTC – Quadro normativo italiano
 Status: STABILE
 Ruolo: Riferimento normativo nazionale per le verifiche di resistenza al fuoco
 
-
 1. Inquadramento generale
 Nel sistema normativo italiano l’incendio è qualificato come azione eccezionale.
 Le verifiche strutturali in caso di incendio hanno come obiettivo principale il mantenimento della capacità portante (R) per un tempo prefissato, in funzione del livello di prestazione richiesto.
@@ -13,8 +12,7 @@ definisce le prestazioni richieste (classe R)
 non fornisce metodi analitici completi di calcolo
 ammette esplicitamente il ricorso a metodi di calcolo riconosciuti (Eurocodici)
 
-
-2. NTC 2018 – Norme Tecniche per le Costruzioni
+1. NTC 2018 – Norme Tecniche per le Costruzioni
 2.1 Riferimenti normativi
 
 §2.4.3 – Sicurezza antincendio
@@ -36,8 +34,7 @@ demandano il calcolo a:metodi tabellari
 norme tecniche di comprovata validità (Eurocodici)
 👉 In pratica, le NTC stabiliscono il “cosa”, non il “come”.
 
-
-3. Normativa di Prevenzione Incendi
+1. Normativa di Prevenzione Incendi
 3.1 DM 9 marzo 2007 – Prestazioni di resistenza al fuoco
 
 Definisce i criteri per determinare le prestazioni di resistenza al fuoco delle costruzioni
@@ -53,8 +50,7 @@ I – isolamento
 La classificazione è espressa in minuti (R30, R60, R90, R120, …)
 ⚠️ Il DM 16/02/2007 non fornisce modelli di calcolo, ma solo criteri di classificazione.
 
-
-4. Codice di Prevenzione Incendi
+1. Codice di Prevenzione Incendi
 DM 3 agosto 2015 e s.m.i.
 
 Capitolo S.2 – Resistenza al fuoco
@@ -66,8 +62,7 @@ Quando si applica il Codice:
 non si applicano DM 9/3/2007 e DM 16/2/2007
 resta valido l’uso di modelli di calcolo avanzati
 
-
-5. Ruolo della normativa italiana nel software
+1. Ruolo della normativa italiana nel software
 Nel sistema software:
 Le NTC e i DM determinano:
 
@@ -84,16 +79,14 @@ il metodo analitico
 Eurocodice (EN 1991‑1‑2, EN 1992‑1‑2)
 altri metodi riconosciuti
 
-
-6. Collegamento con gli altri documenti
+1. Collegamento con gli altri documenti
 
 FIRE_MASTER.md → coordinamento generale
 FIRE_NORMATIVA_EC.md → modelli di calcolo
 FIRE_TEORIA_CALCOLO.md → formule, esempi, verifiche
 FIRE_INTEGRAZIONE_SOFTWARE.md → input, output, GUI
 
-
-7. Criteri di accettazione
+1. Criteri di accettazione
 
 Nessuna formula di calcolo inserita in questo file
 Tutti i riferimenti normativi espliciti

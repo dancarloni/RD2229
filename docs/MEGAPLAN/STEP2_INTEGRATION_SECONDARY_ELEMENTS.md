@@ -1,6 +1,7 @@
 # STEP2 — Integrazione specifica per il Modulo “Secondary Elements” (PLAN‑ONLY)
 
 ## 0. Scopo
+
 Questo documento estende STEP2.md applicando le invarianti **norma_attiva** e
 **routing safe / no‑mixing** al Modulo **Secondary Elements / Non‑Structural**.
 
@@ -8,6 +9,7 @@ Il documento è **vincolante** per la Fase 2 ed è **PLAN‑ONLY**:
 non contiene codice e non autorizza implementazioni operative.
 
 ### Riferimenti
+
 - STEP2.md (contratto norma_attiva e no‑mixing)
 - PLAN_MASTER.md
 - PLAN_INPUT_COMUNE.md
@@ -23,6 +25,7 @@ non contiene codice e non autorizza implementazioni operative.
 ## 1. Invarianti STEP2 applicate al Modulo Secondary Elements
 
 ### 1.1 Norma canonica di progetto
+
 - Il Modulo Secondary Elements **deve leggere la norma attiva esclusivamente**
   da `project_model.norma_attiva`.
 - Il modulo **non deve** introdurre campi alternativi, alias o override locali
@@ -35,6 +38,7 @@ non contiene codice e non autorizza implementazioni operative.
 ---
 
 ### 1.2 Routing safe (Engine / Report)
+
 Ogni esecuzione di verifiche del Modulo Secondary Elements deve produrre
 risultati che includono **obbligatoriamente**:
 
@@ -52,6 +56,7 @@ Regole:
   e **mai** come sostituzione della norma della forza.
 
 Il ReportBuilder deve applicare la regola di omogeneità:
+
 - se `project_model.norma_attiva = NTC2018`,
   risultati con riferimenti incoerenti **bloccano la generazione del report**
   (SAFETY‑BLOCK).
@@ -59,6 +64,7 @@ Il ReportBuilder deve applicare la regola di omogeneità:
 ---
 
 ### 1.3 Regola di no‑mixing (specifica per Secondary Elements)
+
 È ammesso l’uso di fonti esterne **solo** per:
 
 - scelta/stima del periodo proprio Ta dell’elemento,
@@ -79,6 +85,7 @@ In tal caso:
 ## 2. Impatti sullo schema Input / Output (coerenza STEP2)
 
 ### 2.1 Input comune
+
 Lo schema `SecondaryElementSpec` deve includere informazioni sufficienti a:
 
 - ereditare la `norma_attiva` dal contesto di progetto,
@@ -99,6 +106,7 @@ retro‑compatibilità.
 ---
 
 ### 2.2 Output comune
+
 Ogni verifica del Modulo Secondary Elements deve produrre
 un `VerificationResultItem` conforme allo schema comune, contenente almeno:
 
@@ -115,6 +123,7 @@ un `VerificationResultItem` conforme allo schema comune, contenente almeno:
 ## 3. Test contrattuali aggiuntivi (Fase 2)
 
 ### 3.1 Contract tests (obbligatori)
+
 Devono essere definiti e mantenuti i seguenti contratti:
 
 - **CT‑SE‑01**  
@@ -135,6 +144,7 @@ Devono essere definiti e mantenuti i seguenti contratti:
 ---
 
 ### 3.2 Report safety test (no‑mixing)
+
 - **RT‑SE‑01**  
   Se `project_model.norma_attiva = NTC2018` e nel report sono presenti
   risultati con riferimenti normativi incoerenti,

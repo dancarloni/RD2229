@@ -5,6 +5,7 @@ Questo file elenca e descrive le principali funzionalità, routine e aree di cal
 ---
 
 ## 1. Tipi di calcolo eseguiti
+
 - Calcolo delle sollecitazioni (momento, taglio, ecc.)
 - Verifica di resistenza a flessione e taglio
 - Calcolo armature minime e massime
@@ -14,6 +15,7 @@ Questo file elenca e descrive le principali funzionalità, routine e aree di cal
 - Calcolo delle deformazioni
 
 ## 2. Forme di sezione gestite
+
 - Sezioni rettangolari
 - Sezioni a T
 - Sezioni a doppio T

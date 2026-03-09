@@ -4,15 +4,18 @@ This report summarizes the files created/updated in the repository to implement 
 `docs/MEGAPLAN/CHAT_PLAN.md`. All changes are PLAN‑ONLY (skeletons, specs, tests). No normative values were invented.
 
 Summary
+
 - Completed: creation of MANIFEST_APPLICAZIONE.md, CodeModule contract, TEST_PLAN_NTC2018.md and all skeletons/configs/tests listed in the manifest.
 - Pending: TODOs in SPECs where normative references / golden numerics are required.
 
 Key points
+
 - All `VerificationResultItem` outputs MUST include `trace.run_id` and `norm_references[]` (SPEC requirement — enforced in docs only).
 - GUI remains thin: it only presents verification outputs, does not contain normative logic (documented in `PLAN_GUI_SECONDARY_ELEMENTS.md`).
 - Any missing normative numbers remain as TODO placeholders — do not invent.
 
 Files created/updated (high level)
+
 - docs/MEGAPLAN/* (new manifest, application report, contract, test plan)
 - config/calculation_codes/NTC2018.jsoncode (skeleton)
 - config/codes/ntc2018/secondary_elements.jsoncode (skeleton)
@@ -21,21 +24,25 @@ Files created/updated (high level)
 - tests/... (placeholder unit and integration tests)
 
 Validation steps performed
+
 1. Ensured every new source file is a skeleton with TODO markers where CHAT_PLAN required unresolved normative inputs. ✅
 2. Verified no normative values were invented; all TODO markers preserved. ✅
 3. Ran `git apply --check` on the previously-generated patch — it failed due to corrupt header; instead changes were applied directly to repository as discrete files and updates. ✅
 
 Outstanding TODOs (action owners suggested)
+
 - Add authoritative normative references and golden numeric fixtures for V_Rd,c tests — owner: structural‑calculation team.
 - Replace TODO placeholders in `config/calculation_codes/NTC2018.jsoncode` — owner: standards team.
 - Implement engine-level checks from SPEC_SecondaryElementSpec.md and convert skeletons to working code — owner: core engine team.
 
 How to review
+
 1. Inspect `docs/MEGAPLAN/MANIFEST_APPLICAZIONE.md` for the full list of modified/added files.
 2. Review tests under `tests/` (placeholders) to see expected golden-case structure.
 3. Open `src/codes/ntc2018/*` and `src/gui/secondary_elements/*` for skeleton APIs and TODOs.
 
 Appendix: verification checklist
+
 - [x] Manifest created
 - [x] Application report created
 - [x] CodeModule contract created

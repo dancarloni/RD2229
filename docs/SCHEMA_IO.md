@@ -32,6 +32,7 @@
 ## Esempio di run folder
 
 <<<<<<< HEAD
+
 ```
 projects/proj1/runs/run_20260301T120000Z/
   project.snapshot.json
@@ -39,16 +40,20 @@ projects/proj1/runs/run_20260301T120000Z/
   manifest.json
   run_record.json
 ```
+
 =======
 JSON Schema generato: `schemas/project.schema.json` (deterministico, sorted keys).
 >>>>>>> 101a292 (feat: project IO + schema + timeline/replay MVP (sub-issue 01))
 
 ## Output deterministico
+
 - Nessun timestamp variabile nei file confrontati (solo in path)
 - Manifest: elenco file + sha256
 
 <<<<<<< HEAD
+
 ## Note
+
 - Placeholder output per moduli senza executor: `{ "status": "TBD", "normative_ids": [...] }`
 - Replay segnala drift se sha256 non corrisponde
 =======
@@ -128,4 +133,5 @@ python tools/replay_run.py projects/<run_id>/
 - La colonna "Note" nella matrice moduli è tutta "TBD" — richiede review manuale.
 - I pipeline step producono output placeholder deterministici (nessun calcolo strutturale reale in questo MVP).
 - `schemas/project.schema.json` deve essere rigenerato se il modello Pydantic cambia.
+
 >>>>>>> 101a292 (feat: project IO + schema + timeline/replay MVP (sub-issue 01))

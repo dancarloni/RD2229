@@ -10,12 +10,9 @@ governa quale template di relazione di calcolo viene generato;
 non modifica sezioni, materiali o sollecitazioni.
 La View è progettata per supportare NTC2018 e R.D. 2229/1939, ed è estendibile a normative future.
 
-
 1. Principio architetturale (hard rule)
 
-
 La normativa è una proprietà del progetto, non della sezione.
-
 
 Pertanto:
 
@@ -25,8 +22,7 @@ la normativa influisce solo su:verifiche eseguibili;
 logica del core;
 struttura della relazione.
 
-
-2. Integrazione nel ProjectModel (vincolante)
+1. Integrazione nel ProjectModel (vincolante)
 File coinvolto
 
 project_model.py
@@ -37,18 +33,14 @@ class ProjectModel:
         ...
         self.normativa_attiva = None  # 'NTC2018' | 'RD2229'
 
-
-
-
-3. Normative supportate
+1. Normative supportate
 La GUI deve consentire la selezione esplicita tra:
 
 ✅ NTC2018 – Norme Tecniche per le Costruzioni (DM 17/01/2018)
 ✅ R.D. 2229/1939 – Norme per il calcolo delle costruzioni in cemento armato
 La normativa selezionata deve essere sempre visibile nel layout principale della GUI.
 
-
-4. View: SelezioneNormativaView
+1. View: SelezioneNormativaView
 Mockup funzionale
 
 ┌──────────── SELEZIONE NORMATIVA ────────────┐
@@ -65,29 +57,22 @@ Mockup funzionale
 │ [ Applica normativa ▶ ]                     │
 └─────────────────────────────────────────────┘
 
-
-
-
-5. Comportamento della View
+1. Comportamento della View
 Alla selezione e conferma della normativa:
 
 viene aggiornato:
 
    project_model.normativa_attiva
 
-
-
 la GUI:abilita/disabilita le voci di workflow incompatibili;
 aggiorna i messaggi di contesto (es. sismica non disponibile per RD2229);
 eventuali risultati già presenti non vengono cancellati automaticamente, ma:non sono più utilizzabili se incompatibili con la nuova normativa;
 il binding GUI ↔ core utilizzerà automaticamente la VerificationFactory corretta.
 
-
-6. Codice – gui/views/selezione_normativa.py
+1. Codice – gui/views/selezione_normativa.py
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-
 
 class SelezioneNormativaView(ttk.Frame):
     """
@@ -139,9 +124,6 @@ class SelezioneNormativaView(ttk.Frame):
             f"Normativa di verifica impostata: {normativa}",
         )
 
-
-
-
 7. Collegamento con main.py
 Nel file GUI_MAIN_PY_NAVIGAZIONE.md:
 
@@ -154,10 +136,7 @@ self.views["normativa"] = SelezioneNormativaView(
     self.project_model,
 )
 
-
-
-
-8. Regole di sicurezza normativa
+1. Regole di sicurezza normativa
 
 non è possibile eseguire verifiche senza normativa selezionata;
 RD2229 esclude automaticamente:sismica;
@@ -165,9 +144,7 @@ progettazione in capacità;
 ζE;
 la relazione generata deve corrispondere alla normativa attiva.
 
-
-9. Stato finale
+1. Stato finale
 ✅ Selezione normativa formalizzata ✅ Integrazione con ProjectModel ✅ Compatibile con GUI e core esistenti ✅ Pronta per estensione a normative future
-
 
 Questo file è vincolante per la gestione multi‑normativa della GUI di verifica strutturale.

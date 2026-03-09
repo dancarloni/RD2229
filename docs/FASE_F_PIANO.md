@@ -68,6 +68,7 @@
 ## Architettura: collegamento POR ↔ Cinematica
 
 Seguendo la prassi dei software commerciali (3Muri, Aedes PCM, CDMa Win):
+
 - Le analisi globale (POR) e locale (cinematica) sono **SEPARATE**
 - Condividono lo stesso modello geometrico (maschi, fasce, materiali, carichi)
 - I carichi per i blocchi cinematici vengono dal modello dei carichi, NON dal POR
@@ -80,7 +81,9 @@ Seguendo la prassi dei software commerciali (3Muri, Aedes PCM, CDMa Win):
 ## Sotto-fasi incrementali
 
 ### Blocco 1 (F.1-F.3): Modello + discretizzazione + rigidezza
+
 **File**:
+
 - `src/methods/muratura/modello_edificio.py` — dataclass Edificio, Piano, Parete, Apertura
 - `src/methods/muratura/discretizzazione.py` — algoritmo maschi/fasce da geometria
 - `src/methods/muratura/rigidezza.py` — rigidezza maschio/fascia, assemblaggio matrice
@@ -91,7 +94,9 @@ Seguendo la prassi dei software commerciali (3Muri, Aedes PCM, CDMa Win):
 - **Test stimati**: ~40-50
 
 ### Blocco 2 (F.4-F.5): Pushover + resistenza
+
 **File**:
+
 - `src/methods/muratura/resistenza.py` — curva bilineare maschio/fascia, integrazione E.2
 - `src/methods/muratura/por_analisi.py` — pushover incrementale, 3 GDL/piano, distribuzioni
 - `tests/test_resistenza.py`
@@ -99,7 +104,9 @@ Seguendo la prassi dei software commerciali (3Muri, Aedes PCM, CDMa Win):
 - **Test stimati**: ~30-40
 
 ### Blocco 3 (F.6-F.8): Verifiche, q, report, grafico
+
 **File**:
+
 - `src/methods/muratura/fattore_comportamento.py` — tabelle q NTC2018, override
 - `src/methods/muratura/por_verifiche.py` — tabella maschi D/C, ζ_E, grafico matplotlib
 - `tests/test_fattore_comportamento.py`

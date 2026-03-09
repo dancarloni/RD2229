@@ -24,6 +24,7 @@ Abbiamo implementato un semplice **EventBus** (pub/sub) per disaccoppiare i repo
 ```
 
 **Vantaggi:**
+
 - ✅ Nessuna dipendenza diretta tra Repository e UI
 - ✅ Multipli observer possono ascoltare gli stessi eventi
 - ✅ Facile da estendere con nuovi listener
@@ -44,6 +45,7 @@ class EventBus:
 ```
 
 **Eventi Definiti:**
+
 - `SECTIONS_ADDED` - Nuova sezione aggiunta
 - `SECTIONS_UPDATED` - Sezione esistente modificata
 - `SECTIONS_DELETED` - Sezione eliminata
@@ -58,6 +60,7 @@ class EventBus:
 ### 2. **`sections_app/services/repository.py`** (MODIFICATO)
 
 **Import aggiunto:**
+
 ```python
 from sections_app.services.event_bus import EventBus, SECTIONS_ADDED, SECTIONS_UPDATED, SECTIONS_DELETED, SECTIONS_CLEARED
 ```
@@ -65,6 +68,7 @@ from sections_app.services.event_bus import EventBus, SECTIONS_ADDED, SECTIONS_U
 **Modifiche ai metodi:**
 
 #### `add_section()`
+
 ```python
 def add_section(self, section: Section) -> bool:
     # ... logica esistente ...
@@ -76,6 +80,7 @@ def add_section(self, section: Section) -> bool:
 ```
 
 #### `update_section()`
+
 ```python
 def update_section(self, section_id: str, updated_section: Section) -> None:
     # ... logica esistente ...
@@ -86,6 +91,7 @@ def update_section(self, section_id: str, updated_section: Section) -> None:
 ```
 
 #### `delete_section()`
+
 ```python
 def delete_section(self, section_id: str) -> None:
     # ... logica esistente ...
@@ -96,6 +102,7 @@ def delete_section(self, section_id: str) -> None:
 ```
 
 #### `clear()`
+
 ```python
 def clear(self) -> None:
     self._sections.clear()
@@ -111,6 +118,7 @@ def clear(self) -> None:
 ### 3. **`core_models/materials.py`** (MODIFICATO)
 
 **Import aggiunto con fallback:**
+
 ```python
 try:
     from sections_app.services.event_bus import EventBus, MATERIALS_ADDED, MATERIALS_UPDATED, MATERIALS_DELETED, MATERIALS_CLEARED
@@ -122,6 +130,7 @@ except ImportError:
 **Modifiche ai metodi (con guard per import opzionale):**
 
 #### `add()`
+
 ```python
 def add(self, mat: Material) -> None:
     # ... logica esistente ...
@@ -133,6 +142,7 @@ def add(self, mat: Material) -> None:
 ```
 
 #### `update()`, `delete()`, `clear()`
+
 Stessa logica con `if HAS_EVENT_BUS:` guard.
 
 ---
@@ -140,6 +150,7 @@ Stessa logica con `if HAS_EVENT_BUS:` guard.
 ### 4. **`verification_table.py`** (MODIFICATO)
 
 #### Nuovo metodo `reload_references()`
+
 ```python
 def reload_references(self) -> None:
     """Reload section and material names from repositories and update autocomplete."""
@@ -149,6 +160,7 @@ def reload_references(self) -> None:
 ```
 
 #### Subscribe agli eventi nel `__init__()`
+
 ```python
 def _subscribe_to_events(self) -> None:
     """Subscribe to repository change events."""
@@ -174,6 +186,7 @@ def _subscribe_to_events(self) -> None:
 ```
 
 #### Callback handlers
+
 ```python
 def _on_sections_changed(self, *args, **kwargs) -> None:
     """Callback when sections repository changes."""
@@ -187,6 +200,7 @@ def _on_materials_changed(self, *args, **kwargs) -> None:
 ```
 
 #### Unsubscribe quando la finestra si chiude
+
 ```python
 def _on_close(self) -> None:
     """Handle window close event."""
@@ -236,6 +250,7 @@ def _on_close(self) -> None:
 6. ✅ `test_multiple_windows_all_update` - Multiple finestre si aggiornano tutte
 
 **Risultato:**
+
 ```
 Ran 6 tests in 1.469s
 OK
@@ -248,12 +263,14 @@ OK
 ### `demo_verification_table_auto_update.py`
 
 Demo GUI che permette di:
+
 - ➕ Aggiungere sezioni/materiali random
 - ✏️ Modificare prime sezioni/materiali
 - 🗑️ Eliminare prime sezioni/materiali
 - 🔄 Vedere aggiornamenti in tempo reale nella VerificationTable
 
 **Come eseguire:**
+
 ```powershell
 python demo_verification_table_auto_update.py
 ```
@@ -263,6 +280,7 @@ python demo_verification_table_auto_update.py
 ## 💡 Vantaggi della Soluzione
 
 ### 1. **Disaccoppiamento**
+
 ```python
 # Repository NON conosce VerificationTable
 # VerificationTable NON conosce Repository internals
@@ -270,6 +288,7 @@ python demo_verification_table_auto_update.py
 ```
 
 ### 2. **Scalabilità**
+
 ```python
 # Facile aggiungere nuovi listener
 class NewWindow:
@@ -278,18 +297,21 @@ class NewWindow:
 ```
 
 ### 3. **Nessun Polling**
+
 ```python
 # Prima: UI doveva interrogare periodicamente i repository
 # Dopo: UI viene notificata istantaneamente
 ```
 
 ### 4. **Multipli Observer**
+
 ```python
 # Più VerificationTableWindow possono essere aperte contemporaneamente
 # Tutte si aggiornano automaticamente
 ```
 
 ### 5. **Backward Compatible**
+
 ```python
 # EventBus con try/except import
 # Funziona anche se EventBus non disponibile
@@ -315,6 +337,7 @@ class NewWindow:
 ## 🎓 Pattern Applicati
 
 ### 1. **Singleton Pattern**
+
 ```python
 class EventBus:
     _instance = None
@@ -325,6 +348,7 @@ class EventBus:
 ```
 
 ### 2. **Observer Pattern**
+
 ```python
 # Repository = Subject
 # VerificationTable = Observer
@@ -332,6 +356,7 @@ class EventBus:
 ```
 
 ### 3. **Event-Driven Architecture**
+
 ```python
 # Decoupled communication via events
 repository.add_section() → EventBus → VerificationTable.reload()

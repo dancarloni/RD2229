@@ -79,22 +79,26 @@ Data audit: 2025-02 | Versione schema: 1.0.0
 ## 9. Punti di estensione
 
 ### Aggiungere una nuova norma
+
 1. Aggiungere voci in `docs/normative/requirements.yaml` e `coverage_matrix.yaml`.
 2. Creare template in `src/core_calculus/normative_registry.py` o file separato.
 3. Aggiungere `CheckSpec` in `src/checks/registry.py` con `norm_refs` corretti.
 
 ### Aggiungere un nuovo check
+
 1. Implementare funzione `compute(input) -> CheckResult` in modulo appropriato.
 2. Registrare in `src/checks/registry.py` con `id`, `title`, `norm_refs`, `input_schema`.
 3. Aggiornare `docs/normative/coverage_matrix.yaml`.
 4. Aggiungere test in `tests/`.
 
 ### Aggiungere una tabella parametri
+
 1. Creare file JSON in `data/` (es. `data/wind/cpe_coefficients.json`).
 2. Documentare copyright e fonte in `docs/normative/sources.yaml`.
 3. Se non liberamente riproducibile, lasciare TODO nel JSON.
 
 ### Aggiungere una feature UI
+
 1. Definire `FieldSpec` nel modulo di dominio.
 2. Registrare nel features registry (`src/ui/modern/`).
 3. Non hardcodare menu/schede: usare registry-driven rendering.

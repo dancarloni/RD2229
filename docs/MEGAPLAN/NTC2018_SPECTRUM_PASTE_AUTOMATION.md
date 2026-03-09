@@ -15,39 +15,52 @@
 ## B) File target (create/touch)
 
 ### B1. CREATE — Service (dominio NTC2018)
+
 Creare:
+
 - `src/codes/ntc2018/spectrum_paste_service.py`
 
 Contenuti ammessi:
+
 - strutture dati (profile/row)
 - parser deterministico
 - validazioni minime
 - API di accesso `get_hazard_params`
 
 Contenuti vietati:
+
 - interpolazioni di pericolosità
 - fetch web o scraping
 - calcolo completo dello spettro Sa(T) (opzionale in fase successiva)
 
 ### B2. TOUCH — Project model / schema
+
 Individuare e aggiornare (additivo):
+
 - file del **project model** dove risiede `project.seismic_inputs` (nome esatto da repo)
 
 Aggiungere:
+
 - `ntc2018_hazard_profile: Ntc2018HazardProfile | None`
 
 ### B3. TOUCH — Persistenza
+
 Individuare e aggiornare:
+
 - adapter/repository che salva/carica il project model
 
 Requisiti:
+
 - round‑trip del campo `ntc2018_hazard_profile` (con `raw_paste` conservato)
 
 ### B4. TOUCH — UI
+
 Individuare e aggiornare la UI di impostazioni progetto (sezione “Azioni sismiche / NTC2018” o equivalente):
+
 - aggiungere una nuova scheda/pannello: **Parametri sismici NTC2018 (Paste)**
 
 Componenti UI minimi:
+
 - dropdown `class_of_use` (I–IV) [1](https://www.concrete.org/publications/getarticle.aspx?m=icap&pubid=51689626)
 - input VN e VR [1](https://www.concrete.org/publications/getarticle.aspx?m=icap&pubid=51689626)
 - textarea `raw_paste` + bottone `Analizza`
@@ -56,6 +69,7 @@ Componenti UI minimi:
 - bottone `Salva nel progetto`
 
 Vietato:
+
 - modifiche alla GUI non correlate
 
 ---
@@ -63,24 +77,32 @@ Vietato:
 ## C) Test (obbligatori)
 
 ### C1. CREATE — Unit test parser
+
 Creare un file test, ad es.:
+
 - `tests/test_ntc2018_hazard_paste_parser.py`
 
 Casi minimi:
+
 1) decimali con punto → parse OK
 2) decimali con virgola → parse OK (normalizzazione)
 3) mancano 1+ righe → WARNING
 4) token non numerici / mancanti → ERROR
 
 ### C2. CREATE — Persistenza round‑trip
+
 Creare un file test, ad es.:
+
 - `tests/test_ntc2018_hazard_profile_persistence.py`
 
 Casi minimi:
+
 - salva profilo → ricarica → `raw_paste` identico + 4 righe + metadati
 
 ### C3. UI smoke (se avete harness)
+
 Se esiste harness di test UI nel repo:
+
 - aggiungere smoke: incolla testo → analizza → preview popolata
 
 ---

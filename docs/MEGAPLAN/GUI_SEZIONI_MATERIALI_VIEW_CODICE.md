@@ -9,7 +9,6 @@ caricamento automatico di proprietà geometriche e meccaniche (solo visualizzazi
 aggiornamento esclusivo del ProjectModel;
 nessuna formula e nessuna norma applicata in GUI.
 
-
 1. Dipendenze e contratti (vincolanti)
 
 GUI: Python + Tkinter (ttk)
@@ -21,12 +20,10 @@ ProjectModel
 MaterialiRepository
 SezioniRepository
 
-
-2. Codice – gui/views/sezioni_materiali.py
+1. Codice – gui/views/sezioni_materiali.py
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-
 
 class SezioniMaterialiView(ttk.Frame):
     """
@@ -192,9 +189,6 @@ class SezioniMaterialiView(ttk.Frame):
         widget.insert(tk.END, text)
         widget.configure(state="disabled")
 
-
-
-
 3. Interfacce minime dei repository (vincolanti)
 3.1 MaterialiRepository
 
@@ -207,7 +201,6 @@ class MaterialiRepository:
         """Ritorna l’oggetto materiale completo (read-only)."""
         raise NotImplementedError
 
-
 3.2 SezioniRepository
 
 class SezioniRepository:
@@ -219,9 +212,6 @@ class SezioniRepository:
         """Ritorna l’oggetto sezione completo (read-only)."""
         raise NotImplementedError
 
-
-
-
 4. Estensioni richieste al ProjectModel
 
 class ProjectModel:
@@ -230,19 +220,14 @@ class ProjectModel:
         self.sezione = None
         # resto del modello già definito
 
-
-
-
-5. Regole di sicurezza implementate
+1. Regole di sicurezza implementate
 
 impossibile assegnare senza materiale + sezione;
 proprietà non modificabili in GUI;
 la normativa di verifica non influenza la scelta di sezione/materiale;
 la GUI aggiorna solo il ProjectModel.
 
-
-6. Stato
+1. Stato
 ✅ Codice completo e pronto ✅ Allineato al workflow NTC2018 ✅ Integrabile subito in Tkinter ✅ Nessun refactor richiesto in seguito
-
 
 Questo file è vincolante per l’implementazione della SezioniMaterialiView nel software NTC2018.

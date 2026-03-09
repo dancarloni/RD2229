@@ -136,7 +136,7 @@ Poi proponi una **architettura bersaglio** chiara, ad esempio (adatta ai nomi re
 
 ### 2️⃣ Modellazione dei file di parametri per le verifiche
 
-Definisci uno schema per i file di parametri delle verifiche, in un formato semplice (ad esempio JSON o altro formato già usato nel repository). 
+Definisci uno schema per i file di parametri delle verifiche, in un formato semplice (ad esempio JSON o altro formato già usato nel repository).
 
 Ogni file deve poter descrivere almeno:
 
@@ -411,7 +411,7 @@ IN
 Explore the historical TA modules and normative data at c:\workspaces\RD2229\RD2229. I need to understand:
 
 1. **historical_ta/ directory**: List all files, read key ones:
-   - __init__.py
+   - **init**.py
    - stress.py (compute_normal_stresses_ta and related functions)
    - checks.py (compute_long_rebar_limits_ta and other functions)
    - geometry.py
@@ -493,9 +493,9 @@ drwxr-xr-x 1 AzureAD+DanieleCarloni 4096       0 feb  1 14:01 .pytest_cache
 drwxr-xr-x 1 AzureAD+DanieleCarloni 4096       0 feb  8 22:48 .ruff_cache
 drwxr-xr-x 1 AzureAD+DanieleCarloni 4096       0 feb  7 23:45 .venv
 drwxr-xr-x 1 AzureAD+DanieleCarloni 4096       0 feb  7 23:38 .vscode
--rw-r--r-- 1 AzureAD+DanieleCarloni 4096      99 feb  7 23:38 __init__.py.disabled
--rw-r--r-- 1 AzureAD+DanieleCarloni 4096     428 feb 11 01:43 __main__.py
-drwxr-xr-x 1 AzureAD+DanieleCarloni 4096       0 feb 11 09:16 __pycache__
+-rw-r--r-- 1 AzureAD+DanieleCarloni 4096      99 feb  7 23:38 **init**.py.disabled
+-rw-r--r-- 1 AzureAD+DanieleCarloni 4096     428 feb 11 01:43 **main**.py
+drwxr-xr-x 1 AzureAD+DanieleCarloni 4096       0 feb 11 09:16 **pycache**
 -rw-r--r-- 1 AzureAD+DanieleCarloni 4096   23926 feb 13 11:34 AGGIIORNAMENTO_FOCUS.md
 -rwxr-xr-x 1 AzureAD+DanieleCarloni 4096    4963 feb 13 11:34 analyze_sections_json.py
 drwxr-xr-x 1 AzureAD+DanieleCarloni 4096       0 feb 10 19:51 app
@@ -605,44 +605,44 @@ c:\workspaces\RD2229\RD2229/analyze_sections_json.py
 c:\workspaces\RD2229\RD2229/app/domain/materials.py
 c:\workspaces\RD2229\RD2229/app/domain/models.py
 c:\workspaces\RD2229\RD2229/app/domain/sections.py
-c:\workspaces\RD2229\RD2229/app/domain/__init__.py
+c:\workspaces\RD2229\RD2229/app/domain/**init**.py
 c:\workspaces\RD2229\RD2229/app/entrypoints/run_demo.py
 c:\workspaces\RD2229\RD2229/app/ui/csv_io.py
 c:\workspaces\RD2229\RD2229/app/ui/project_actions.py
 c:\workspaces\RD2229\RD2229/app/ui/rebar_calculator.py
 c:\workspaces\RD2229\RD2229/app/ui/suggestion_box.py
 c:\workspaces\RD2229\RD2229/app/ui/verification_table_app.py
-c:\workspaces\RD2229\RD2229/app/ui/__init__.py
+c:\workspaces\RD2229\RD2229/app/ui/**init**.py
 c:\workspaces\RD2229\RD2229/app/verification/engine_adapter.py
 c:\workspaces\RD2229\RD2229/app/verification/methods_sle.py
 c:\workspaces\RD2229\RD2229/app/verification/methods_slu.py
 c:\workspaces\RD2229\RD2229/app/verification/methods_ta.py
-c:\workspaces\RD2229\RD2229/app/verification/__init__.py
-c:\workspaces\RD2229\RD2229/app/__init__.py
+c:\workspaces\RD2229\RD2229/app/verification/**init**.py
+c:\workspaces\RD2229\RD2229/app/**init**.py
 c:\workspaces\RD2229\RD2229/apps/sections/app.py
 c:\workspaces\RD2229\RD2229/apps/sections/geometry_model.py
 c:\workspaces\RD2229\RD2229/apps/sections/section_calculations.py
 c:\workspaces\RD2229\RD2229/apps/sections/section_graphics.py
 c:\workspaces\RD2229\RD2229/apps/sections/shear_factors.py
 c:\workspaces\RD2229\RD2229/apps/sections/storage.py
-c:\workspaces\RD2229\RD2229/apps/sections/__init__.py
+c:\workspaces\RD2229\RD2229/apps/sections/**init**.py
 c:\workspaces\RD2229\RD2229/calculations/pilastri/carico_punta.py
 c:\workspaces\RD2229\RD2229/calculations/pilastri/compressione_semplice.py
-c:\workspaces\RD2229\RD2229/calculations/pilastri/__init__.py
-c:\workspaces\RD2229\RD2229/calculations/scale/__init__.py
-c:\workspaces\RD2229\RD2229/calculations/solette/__init__.py
+c:\workspaces\RD2229\RD2229/calculations/pilastri/**init**.py
+c:\workspaces\RD2229\RD2229/calculations/scale/**init**.py
+c:\workspaces\RD2229\RD2229/calculations/solette/**init**.py
 c:\workspaces\RD2229\RD2229/calculations/travi/flessione_semplice.py
-c:\workspaces\RD2229\RD2229/calculations/travi/__init__.py
-c:\workspaces\RD2229\RD2229/calculations/__init__.py
+c:\workspaces\RD2229\RD2229/calculations/travi/**init**.py
+c:\workspaces\RD2229\RD2229/calculations/**init**.py
 c:\workspaces\RD2229\RD2229/config/calculation_codes_loader.py
 c:\workspaces\RD2229\RD2229/config/historical_materials_loader.py
-c:\workspaces\RD2229\RD2229/config/__init__.py
+c:\workspaces\RD2229\RD2229/config/**init**.py
 c:\workspaces\RD2229\RD2229/core/verification_core.py
 c:\workspaces\RD2229\RD2229/core/verification_engine.py
-c:\workspaces\RD2229\RD2229/core/__init__.py
+c:\workspaces\RD2229\RD2229/core/**init**.py
 c:\workspaces\RD2229\RD2229/core_models/loads.py
 c:\workspaces\RD2229\RD2229/core_models/materials.py
-c:\workspaces\RD2229\RD2229/core_models/__init__.py
+c:\workspaces\RD2229\RD2229/core_models/**init**.py
 c:\workspaces\RD2229\RD2229/demo_config_system.py
 c:\workspaces\RD2229\RD2229/demo_verification_engine.py
 c:\workspaces\RD2229\RD2229/esempio_pressoflessione_deviata.py
@@ -655,13 +655,13 @@ c:\workspaces\RD2229\RD2229/examples/demo_recovery_system.py
 c:\workspaces\RD2229\RD2229/examples/demo_verification_table_auto_update.py
 c:\workspaces\RD2229\RD2229/gui/materials_gui.py
 c:\workspaces\RD2229\RD2229/gui/section_gui.py
-c:\workspaces\RD2229\RD2229/gui/__init__.py
+c:\workspaces\RD2229\RD2229/gui/**init**.py
 c:\workspaces\RD2229\RD2229/historical_materials.py
 c:\workspaces\RD2229\RD2229/historical_ta/checks.py
 c:\workspaces\RD2229\RD2229/historical_ta/geometry.py
 c:\workspaces\RD2229\RD2229/historical_ta/materials.py
 c:\workspaces\RD2229\RD2229/historical_ta/stress.py
-c:\workspaces\RD2229\RD2229/historical_ta/__init__.py
+c:\workspaces\RD2229\RD2229/historical_ta/**init**.py
 c:\workspaces\RD2229\RD2229/libs/app_module/app.py
 c:\workspaces\RD2229\RD2229/libs/app_module/geometry_model.py
 c:\workspaces\RD2229\RD2229/libs/app_module/section_calculations.py
@@ -681,7 +681,7 @@ c:\workspaces\RD2229\RD2229/reorganize_sections_app.py
 c:\workspaces\RD2229\RD2229/scripts/auto_fix_bandit.py
 Bash List remaining Python files
 IN
-find "c:\workspaces\RD2229\RD2229" -maxdepth 3 -type f -name "*.py" | grep -v __pycache__ | grep -v .venv | grep -v .mypy_cache | tail -80
+find "c:\workspaces\RD2229\RD2229" -maxdepth 3 -type f -name "*.py" | grep -v **pycache** | grep -v .venv | grep -v .mypy_cache | tail -80
 
 OUT
 c:\workspaces\RD2229\RD2229/tests_legacy/test_historical_import_csv.py
@@ -750,20 +750,20 @@ c:\workspaces\RD2229\RD2229/tools/run_mypy_ci.py
 c:\workspaces\RD2229\RD2229/tools/split_sections_app.py
 c:\workspaces\RD2229\RD2229/tools/sync_verifications.py
 c:\workspaces\RD2229\RD2229/tools/verify_softw_components.py
-c:\workspaces\RD2229\RD2229/tools/__init__.py
+c:\workspaces\RD2229\RD2229/tools/**init**.py
 c:\workspaces\RD2229\RD2229/ui/module_selector.py
-c:\workspaces\RD2229\RD2229/verifications/pilastri/__init__.py
+c:\workspaces\RD2229\RD2229/verifications/pilastri/**init**.py
 c:\workspaces\RD2229\RD2229/verifications/rd2229/tensioni_ammissibili.py
-c:\workspaces\RD2229\RD2229/verifications/rd2229/__init__.py
-c:\workspaces\RD2229\RD2229/verifications/scale/__init__.py
-c:\workspaces\RD2229\RD2229/verifications/solette/__init__.py
-c:\workspaces\RD2229\RD2229/verifications/travi/__init__.py
-c:\workspaces\RD2229\RD2229/verifications/__init__.py
+c:\workspaces\RD2229\RD2229/verifications/rd2229/**init**.py
+c:\workspaces\RD2229\RD2229/verifications/scale/**init**.py
+c:\workspaces\RD2229\RD2229/verifications/solette/**init**.py
+c:\workspaces\RD2229\RD2229/verifications/travi/**init**.py
+c:\workspaces\RD2229\RD2229/verifications/**init**.py
 c:\workspaces\RD2229\RD2229/verification_items.py
 c:\workspaces\RD2229\RD2229/verification_items_repository.py
 c:\workspaces\RD2229\RD2229/verification_project.py
 c:\workspaces\RD2229\RD2229/verification_table.py
-c:\workspaces\RD2229\RD2229/__main__.py
+c:\workspaces\RD2229\RD2229/**main**.py
 Globpattern: "c:\workspaces\RD2229\RD2229\src\**\*.py"
 Found 62 files
 Globpattern: "c:\workspaces\RD2229\RD2229\historical_ta\*.py"
@@ -861,12 +861,12 @@ Con il D.M. 16 gennaio 1996 veniva introdotto il metodo agli stati limite, lasci
 
 ---
 
-### Fonti principali:
+### Fonti principali
+
 - **D.M. 16/01/1996** – [staticaesismica.it](https://www.staticaesismica.it/normative/DM_16_01_1996.pdf) | [studiopetrillo.com](https://www.studiopetrillo.com/files/D.M.%2016%20gennaio%201996%20Norme%20tecniche%20per%20le%20costruzioni%20in%20zone%20sismiche.pdf)
 - **Circolare 252/1996** – [airesingegneria.it](https://www.airesingegneria.it/site/assets/files/1155/1996b_dm96_strutture_circ.pdf)
 - **D.M. 14/02/1992 (T.A.)** – [tecnesconsult.it](https://www.tecnesconsult.it/wp-content/uploads/2022/11/DM-14-2-92.pdf)
 - **Software di calcolo T.A.** – [grafill.it](https://www.grafill.it/abstract/293-3.pdf)
-
 
 REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.
 Web SearchDM 9 gennaio 1996 norme tecniche cemento armato tensioni ammissibili tabelle sigma ammissibile calcestruzzo acciaio
@@ -886,15 +886,15 @@ Le norme tecniche di cui al precedente decreto 14 febbraio 1992 per la parte con
 **Nota importante:** L'elemento nuovo e di maggior rilievo del decreto ministeriale 9-1-1996 è rappresentato dalla possibilità di utilizzare in ambito nazionale sia il metodo di verifica delle tensioni ammissibili che quello agli stati limite, nella duplice versione italiana ed europea.
 
 Per quanto riguarda le tabelle specifiche con i valori di tensioni ammissibili (sigma ammissibile) per il calcestruzzo e l'acciaio, la ricerca ha individuato il decreto completo disponibile in vari archivi normativi online, ma i risultati attuali non riportano in modo esteso le tabelle specifiche. Vi consiglio di consultare il decreto completo presso:
+
 - La Gazzetta Ufficiale (Serie Generale n.29 del 05-02-1996)
 - I siti normativi che ospitano il testo integrale del decreto (come sicet.it, airesingegneria.it o gli archivi regionali specializzati)
 
-
 REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.
 Web Fetchhttps://www.tecnesconsult.it/wp-content/uploads/2022/11/DM-14-2-92.pdf
-Fetched from https://www.tecnesconsult.it/wp-content/uploads/2022/11/DM-14-2-92.pdf
+Fetched from <https://www.tecnesconsult.it/wp-content/uploads/2022/11/DM-14-2-92.pdf>
 Web Fetchhttp://www.comune.jesi.an.it/MV/leggi/dm96lp.htm
-Fetched from http://www.comune.jesi.an.it/MV/leggi/dm96lp.htm
+Fetched from <http://www.comune.jesi.an.it/MV/leggi/dm96lp.htm>
 Ho raccolto tutte le informazioni necessarie. Ora procedo con la fase di design, lanciando un agente Plan per progettare l'implementazione.
 
 Read c:\workspaces\RD2229\RD2229\src\core_calculus\validation_engine.py
@@ -902,11 +902,13 @@ Ho tutta l'informazione necessaria. Ora scrivo il piano dettagliato.
 
 Write C:\Users\DanieleCarloni.AzureAD\.claude\plans\abundant-soaring-wigderson.md
 309 lines
+
 # Piano di Implementazione: Modulo DM96 (D.M. 9/1/1996 - Tensioni Ammissibili)
 
 ## Contesto
 
 Il progetto ha gia un'architettura consolidata per verifiche strutturali con:
+
 - **RD 2229/39** (6 check functions, Session 5-6)
 - **NTC 2018 SLU** (4 check functions, Session 2)
 - Motore TA storico (`historical_ta/`) riutilizzabile
@@ -915,6 +917,7 @@ Il progetto ha gia un'architettura consolidata per verifiche strutturali con:
 L'obiettivo e aggiungere supporto per il **DM 9/1/1996** (che rimanda al DM 14/02/1992 per il metodo TA), mantenendo la stessa architettura modulare e riutilizzando il motore di calcolo esistente.
 
 ### Relazione normativa DM96 - DM92 - RD2229
+
 - Il **DM 9/1/1996** introduce la possibilita di usare sia TA che SLU
 - Per il **metodo TA**, rimanda al **DM 14/02/1992** (tabelle tensioni ammissibili)
 - Il metodo di calcolo e lo stesso di RD2229 (sovrapposizione elastica, sezione omogeneizzata) ma con:
@@ -933,7 +936,7 @@ L'obiettivo e aggiungere supporto per il **DM 9/1/1996** (che rimanda al DM 14/0
 |-------|------|-------|
 | Contratti | `src/core_calculus/contracts.py` | CalcInput, CalcOutput, SingleCheckResult, VerificationTemplate, NormReference |
 | Registry | `src/core_calculus/normative_registry.py` | Template per norme (get_all_templates, get_templates_for_norm) |
-| Orchestratore | `src/core_calculus/verification_service.py` | run_verifications_for_element, _select_templates, _execute_template |
+| Orchestratore | `src/core_calculus/verification_service.py` | run_verifications_for_element,_select_templates,_execute_template |
 | Validazione | `src/core_calculus/validation_engine.py` | validate_calc_input con regole per-norma |
 | LC/FC | `src/core_calculus/lc_fc_adjustments.py` | Aggiustamenti materiali per strutture esistenti |
 | Checks RD2229 | `src/methods/checks_rd2229.py` | 6 funzioni check (flessione, pressoflessione, taglio, minimi, deviata) |
@@ -950,6 +953,7 @@ L'obiettivo e aggiungere supporto per il **DM 9/1/1996** (che rimanda al DM 14/0
 | Test RD2229 | `tests/test_rd2229_checks.py` | 22 test con mock objects |
 
 ### Funzioni chiave da riutilizzare (da `checks_rd2229.py`)
+
 - `convert_loads_to_ta_units()` - conversione kN/kNm -> kg/kg*cm
 - `convert_section_to_ta_geometry()` - sezione CalcInput -> SectionGeometry
 - `build_concrete_law_ta()` - costruzione ConcreteLawTA
@@ -959,6 +963,7 @@ L'obiettivo e aggiungere supporto per il **DM 9/1/1996** (che rimanda al DM 14/0
 - `apply_slenderness_reduction_ta()` - riduzione sezioni snelle
 
 ### Cosa manca per DM96
+
 1. File dati `DM96.jsoncode` con classi Rck e sigma_c_adm specifiche DM92/96
 2. Funzione `get_dm96_allowable_stresses()` che legge i valori DM96
 3. Check functions `checks_dm96.py` (pattern identico a checks_rd2229.py)
@@ -971,12 +976,15 @@ L'obiettivo e aggiungere supporto per il **DM 9/1/1996** (che rimanda al DM 14/0
 ## Sintesi Tecnica DM 14/02/1992 + DM 9/1/1996 (Metodo TA)
 
 ### Principio di verifica
+
 La verifica si basa sul confronto:
+
 - **sigma_calcolata <= sigma_ammissibile** (per ogni materiale e tipo di sollecitazione)
 - Il calcestruzzo e considerato a comportamento elastico-lineare, con trazione nulla
 - La sezione e omogeneizzata con coefficiente n = Es/Ec
 
 ### Tensioni ammissibili calcestruzzo (dal DM 14/02/1992)
+
 Le tensioni ammissibili sono tabellate in funzione di Rck:
 
 | Rck (kg/cm2) | sigma_c,adm (kg/cm2) | tau_c0 (kg/cm2) | tau_c1 (kg/cm2) |
@@ -993,6 +1001,7 @@ Le tensioni ammissibili sono tabellate in funzione di Rck:
 **Nota**: I valori esatti andranno verificati con il testo normativo DM 14/02/1992 in possesso dell'utente. I valori sopra sono indicativi, derivati dalla letteratura tecnica.
 
 ### Tensioni ammissibili acciaio
+
 | Tipo acciaio | sigma_sn (MPa) | sigma_s,adm (MPa) |
 |---|---|---|
 | FeB 32k | 315 | 255 |
@@ -1002,6 +1011,7 @@ Le tensioni ammissibili sono tabellate in funzione di Rck:
 Nota: sigma_s,adm e limitata a 255 MPa (2600 kg/cm2) per acciai ad aderenza migliorata secondo DM92.
 
 ### Verifiche da implementare
+
 1. **Flessione semplice**: sigma_c <= sigma_c,adm, sigma_s <= sigma_s,adm
 2. **Pressoflessione**: stesso metodo con N + M
 3. **Pressoflessione deviata**: sovrapposizione N/A + |Mx|/Wx + |My|/Wy
@@ -1028,6 +1038,7 @@ Nota: sigma_s,adm e limitata a 255 MPa (2600 kg/cm2) per acciai ad aderenza migl
 File JSON con parametri normativi DM 14/02/1992 / DM 9/1/1996.
 
 Struttura (seguendo pattern di `RD2229.jsoncode`):
+
 ```json
 {
   "code_name": "DM96",
@@ -1053,6 +1064,7 @@ Struttura (seguendo pattern di `RD2229.jsoncode`):
 Modulo di check DM96, seguendo il pattern esatto di `checks_rd2229.py`.
 
 **Funzioni da creare:**
+
 1. `get_dm96_allowable_stresses(material) -> AllowableStressesExtracted`
    - Legge sigma_c_adm, sigma_s_adm, tau_c0, tau_c1 da materiale DM96
    - Fallback: calcola da Rck se non presenti direttamente
@@ -1079,6 +1091,7 @@ Modulo di check DM96, seguendo il pattern esatto di `checks_rd2229.py`.
    - Adatta percentuali se diverse da RD2229
 
 **Pattern check function** (identico per tutte):
+
 ```python
 def check_flessione_ta_dm96(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
     # 1. Valida inputs (section, material, Mx, As, d)
@@ -1114,6 +1127,7 @@ def get_dm96_templates() -> list[VerificationTemplate]:
 ```
 
 Aggiornare `get_all_templates()`:
+
 ```python
 def get_all_templates():
     return [
@@ -1126,6 +1140,7 @@ def get_all_templates():
 ### Step 4: Aggiornare `src/core_calculus/validation_engine.py`
 
 Aggiungere sezione di validazione DM96-specifica:
+
 - Warning se Rck fuori range [150, 500] kg/cm2
 - Warning se LC/FC non specificati (DM96 tipicamente per strutture esistenti)
 - Controllo compatibilita materiale con DM96 (deve avere sigma_c_adm o Rck)
@@ -1147,6 +1162,7 @@ Test cases con mock objects seguendo pattern `test_rd2229_checks.py`:
 ### Step 6: Integrazione GUI (minima, solo orchestrazione)
 
 La GUI gia esistente (se funzionante) non necessita modifiche sostanziali perche:
+
 - Il `verification_service.py` seleziona automaticamente i template in base a `norm_code`
 - Basta che la GUI permetta di selezionare "DM96" come normativa attiva
 - I risultati (CalcOutput) sono gia strutturati per la visualizzazione
@@ -1158,6 +1174,7 @@ Se necessario, aggiungere "DM96" alla lista delle normative disponibili nel sele
 ## File da creare/modificare
 
 ### File NUOVI (3)
+
 | File | Righe stimate | Descrizione |
 |------|---------------|-------------|
 | `config/historical_materials/DM96.jsoncode` | ~200 | Dati normativi DM96 (classi cls, acciai, formule) |
@@ -1165,12 +1182,14 @@ Se necessario, aggiungere "DM96" alla lista delle normative disponibili nel sele
 | `tests/test_dm96_checks.py` | ~400 | 8-10 test cases |
 
 ### File MODIFICATI (2)
+
 | File | Righe aggiunte | Descrizione |
 |------|----------------|-------------|
 | `src/core_calculus/normative_registry.py` | ~120 | `get_dm96_templates()` + aggiornamento `get_all_templates()` |
 | `src/core_calculus/validation_engine.py` | ~40 | Regole validazione DM96-specifiche |
 
 ### File NON toccati (riutilizzati cosi come sono)
+
 - `src/core_calculus/contracts.py`
 - `src/core_calculus/verification_service.py`
 - `historical_ta/stress.py`, `geometry.py`, `materials.py`, `checks.py`
@@ -1181,6 +1200,7 @@ Se necessario, aggiungere "DM96" alla lista delle normative disponibili nel sele
 ## Verifica e test
 
 ### Test automatici
+
 ```bash
 pytest tests/test_dm96_checks.py -v
 pytest tests/test_rd2229_checks.py -v  # verifica non-regressione
@@ -1188,12 +1208,14 @@ pytest tests/test_ntc2018_checks.py -v  # verifica non-regressione
 ```
 
 ### Verifica manuale
+
 1. Importare `get_dm96_templates()` e verificare che restituisca 5+ template
 2. Creare un CalcInput con norm_code="DM96" e materiale DM96
 3. Chiamare `run_verifications_for_element()` e verificare che esegua i check corretti
 4. Confrontare risultato per stesso elemento con RD2229 (utilizzazioni diverse ma coerenti)
 
 ### Lint
+
 ```bash
 ruff check src/methods/checks_dm96.py --fix
 ruff check tests/test_dm96_checks.py --fix
@@ -1223,21 +1245,25 @@ Aggiorno il piano di conseguenza.
 
 Write C:\Users\DanieleCarloni.AzureAD\.claude\plans\abundant-soaring-wigderson.md
 303 lines
+
 # Piano di Implementazione: Modulo DM96 (D.M. 9/1/1996 - TA + SLU)
 
 ## Contesto
 
 Il progetto ha gia un'architettura consolidata per verifiche strutturali con:
+
 - **RD 2229/39** TA (6 check functions, Session 5-6)
 - **NTC 2018 SLU** (4 check functions, Session 2)
 - Motore TA storico (`historical_ta/`) riutilizzabile
 - Contratti ben definiti (`CalcInput`, `CalcOutput`, `SingleCheckResult`, `VerificationTemplate`)
 
 L'obiettivo e aggiungere supporto completo per il **DM 9/1/1996** (che rimanda al DM 14/02/1992 per il metodo TA):
+
 - **Verifiche TA** (Tensioni Ammissibili) - riutilizzando il motore `historical_ta/`
 - **Verifiche SLU** (Stati Limite Ultimo) - seguendo pattern `checks_ntc2018.py` con gamma_c=1.6
 
 ### Relazione normativa
+
 - Il **DM 9/1/1996** introduce la possibilita di usare sia TA che SLU in ambito nazionale
 - Per il **metodo TA**, rimanda al **DM 14/02/1992**
 - Il metodo TA e lo stesso di RD2229 (sezione omogeneizzata, sovrapposizione elastica) ma con classi Rck e valori diversi
@@ -1263,6 +1289,7 @@ L'obiettivo e aggiungere supporto completo per il **DM 9/1/1996** (che rimanda a
 | Dati DM92 | [DM92.jsoncode](config/historical_materials/DM92.jsoncode) | Classi cls C12-C40, acciai FeB (da estendere con TA) |
 
 ### Utility functions da importare da `checks_rd2229.py` (non duplicare)
+
 - `convert_loads_to_ta_units()` - kN/kNm -> kg/kg*cm
 - `convert_section_to_ta_geometry()` - CalcInput -> SectionGeometry
 - `build_concrete_law_ta()` - ConcreteLawTA builder
@@ -1276,6 +1303,7 @@ L'obiettivo e aggiungere supporto completo per il **DM 9/1/1996** (che rimanda a
 ## Sintesi Tecnica DM 14/02/1992 + DM 9/1/1996
 
 ### Metodo TA
+
 - sigma_calcolata <= sigma_ammissibile (confronto diretto)
 - Calcestruzzo elastico-lineare, trazione nulla
 - Sezione omogeneizzata con n = Es/Ec
@@ -1283,6 +1311,7 @@ L'obiettivo e aggiungere supporto completo per il **DM 9/1/1996** (che rimanda a
 - sigma_s,adm limitato (255 MPa max per acciai ad aderenza migliorata)
 
 ### Metodo SLU (novita del DM96 rispetto al DM92 puro TA)
+
 - gamma_c = **1.6** (vs 1.5 in NTC2018)
 - gamma_s = 1.15 (uguale a NTC2018)
 - fcd = 0.85 * fck / gamma_c
@@ -1308,6 +1337,7 @@ L'obiettivo e aggiungere supporto completo per il **DM 9/1/1996** (che rimanda a
 ### Step 1: Estendere `config/historical_materials/DM92.jsoncode`
 
 Aggiungere a ogni classe di calcestruzzo i campi TA:
+
 ```json
 "C20_25": {
   "name": "Calcestruzzo C20/25",
@@ -1321,11 +1351,13 @@ Aggiungere a ogni classe di calcestruzzo i campi TA:
 ```
 
 Aggiungere sezione `"ta_parameters"` con:
+
 - Tabella sigma_c_adm per Rck
 - Formula interpolazione
 - Regole riduzione snellezza
 
 Aggiungere a ogni tipo acciaio i campi TA:
+
 ```json
 "FeB38k": {
   "fyk": 375, "ftk": 430, "Es": 200000,
@@ -1348,30 +1380,30 @@ Aggiungere a ogni tipo acciaio i campi TA:
 
 **Sezione B - Check TA DM96 (riutilizzano motore historical_ta):**
 
-2. `check_flessione_ta_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
+1. `check_flessione_ta_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
    - Import da checks_rd2229: convert_loads_to_ta_units, convert_section_to_ta_geometry, build_concrete_law_ta, build_steel_law_ta
    - Import da historical_ta: compute_normal_stresses_ta, check_allowable_stresses_ta
    - Unica differenza: usa `get_dm96_allowable_stresses`
    - NormReference: DM 14/02/1992 Cap. 2
 
-3. `check_pressoflessione_ta_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
+2. `check_pressoflessione_ta_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
    - Riutilizza check_flessione_ta_dm96 con N presente
    - Riduzione snellezza: `apply_slenderness_reduction_ta`
    - NormReference: DM 14/02/1992 Cap. 2, Art. 4
 
-4. `check_taglio_ta_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
+3. `check_taglio_ta_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
    - tau = V / (b * d) (formula base, stessa di RD2229)
    - tau_c0, tau_c1 da DM92.jsoncode (valori diversi da RD2229)
    - NormReference: DM 14/02/1992 Cap. 4
 
-5. `check_minimi_armatura_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
+4. `check_minimi_armatura_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
    - Riutilizza compute_long_rebar_limits_ta con parametri DM96
    - Distinzione travi/pilastri
    - NormReference: DM 14/02/1992 Cap. 5
 
 **Sezione C - Check SLU DM96 (seguono pattern checks_ntc2018.py):**
 
-6. `check_flessione_slu_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
+1. `check_flessione_slu_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
    - Stesso algoritmo di checks_ntc2018.check_flessione_slu_rett
    - **gamma_c = 1.6** (vs 1.5 NTC2018)
    - gamma_s = 1.15
@@ -1380,20 +1412,20 @@ Aggiungere a ogni tipo acciaio i campi TA:
    - Duttilita x/d <= 0.45
    - NormReference: DM 9/1/1996 Cap. 3
 
-7. `check_taglio_slu_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
+2. `check_taglio_slu_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
    - Stesso algoritmo di checks_ntc2018.check_taglio_slu
    - gamma_c = 1.6
    - V_Rd = min(V_Rd,s, V_Rd,max)
    - theta = 21.8 deg (conservativo)
    - NormReference: DM 9/1/1996 Cap. 4
 
-8. `check_minimi_armatura_flessione_slu_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
+3. `check_minimi_armatura_flessione_slu_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
    - As,min = max(0.26*f_ctm/f_yk*b*d, 0.0013*b*d)
    - Stessa formula NTC2018 (gia presente nel DM96 per coerenza EC2)
    - NormReference: DM 9/1/1996 Cap. 5
 
-9. `check_minimi_armatura_taglio_slu_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
-   - Asw,min/s = 0.08 * sqrt(f_ck) / f_yk * b
+4. `check_minimi_armatura_taglio_slu_dm96(calc_input, template) -> SingleCheckResult` **[COMPLETE]**
+   - Asw,min/s = 0.08 *sqrt(f_ck) / f_yk* b
    - NormReference: DM 9/1/1996 Cap. 5
 
 ### Step 3: Aggiornare `src/core_calculus/normative_registry.py`
@@ -1415,6 +1447,7 @@ Template SLU:
 ```
 
 Aggiornare `get_all_templates()`:
+
 ```python
 def get_all_templates():
     return [
@@ -1427,6 +1460,7 @@ def get_all_templates():
 ### Step 4: Aggiornare `src/core_calculus/validation_engine.py`
 
 Aggiungere blocco per `active_norm == "DM96"`:
+
 - Warning se materiale non ha proprieta DM96-compatibili (Rck o fck)
 - Warning se LC/FC non specificati (DM96 spesso usato per strutture esistenti)
 - Warning dimensioni sezione (verifica unita mm)
@@ -1435,10 +1469,12 @@ Aggiungere blocco per `active_norm == "DM96"`:
 ### Step 5: Creare `tests/test_dm96_checks.py` (~500 righe)
 
 **Mock objects:**
+
 - `MockDM96Section` - sezione rettangolare 30x50 cm (300x500 mm)
 - `MockDM96Material` - C20/25 + FeB38k con proprieta TA e SLU
 
 **Test TA (5 test):**
+
 1. `test_flessione_ta_dm96_ok` - Trave OK
 2. `test_flessione_ta_dm96_non_ok` - Armatura insufficiente
 3. `test_pressoflessione_ta_dm96` - N + M
@@ -1466,12 +1502,14 @@ La GUI esistente non necessita modifiche strutturali. Se presente un selettore n
 ## Riepilogo file
 
 ### File NUOVI (2)
+
 | File | Righe | Descrizione |
 |------|-------|-------------|
 | `src/methods/checks_dm96.py` | ~800 | 9 funzioni check (4 TA + 4 SLU + 1 utility) |
 | `tests/test_dm96_checks.py` | ~500 | 13 test cases |
 
 ### File MODIFICATI (2)
+
 | File | Righe aggiunte | Descrizione |
 |------|----------------|-------------|
 | `config/historical_materials/DM92.jsoncode` | ~60 | Aggiunta campi TA per ogni classe cls/acciaio |
@@ -1479,6 +1517,7 @@ La GUI esistente non necessita modifiche strutturali. Se presente un selettore n
 | `src/core_calculus/validation_engine.py` | ~40 | Regole validazione DM96 |
 
 ### File NON toccati (riutilizzati)
+
 - `src/core_calculus/contracts.py` - CalcInput, CalcOutput, etc.
 - `src/core_calculus/verification_service.py` - Orchestratore
 - `historical_ta/*` - Motore TA
@@ -1570,6 +1609,7 @@ Let me analyze the conversation chronologically:
 9. The conversation ended with the plan file written and I was about to call ExitPlanMode.
 
 Key findings from exploration:
+
 - The project has a well-established architecture with contracts, registry, service, and check modules
 - RD2229 TA checks exist with 6 functions in checks_rd2229.py
 - NTC2018 SLU checks exist with 4 functions in checks_ntc2018.py  
@@ -1578,6 +1618,7 @@ Key findings from exploration:
 - The pattern for adding a new norm is clear: create checks file, add templates to registry, add validation rules, create tests
 
 Summary:
+
 1. Primary Request and Intent:
    The user (Italian structural engineer/developer) requested implementation of a **DM96 (D.M. 9/1/1996)** structural verification module for their Python/Tkinter application. The request covers:
    - Repository analysis and architecture assessment
@@ -1587,7 +1628,7 @@ Summary:
    - Design of a DM96 verification module (pure calculation, no GUI)
    - GUI integration (orchestration layer only)
    - Test cases for validation
-   
+
    After clarifying questions, the user specified:
    - **Use existing DM92.jsoncode** file and extend it with TA values (rather than creating new file or providing exact values)
    - Implement **both TA and SLU** methods (not just TA)
@@ -1619,7 +1660,7 @@ Summary:
      - Each template has: template_id, norm_code, function_path, primary_reference (NormReference), extra_params with implementation_status
 
    - **`src/core_calculus/verification_service.py`** (read fully, ~323 lines)
-     - Orchestrator: run_verifications_for_element(), _select_templates(), _execute_template()
+     - Orchestrator: run_verifications_for_element(),_select_templates(),_execute_template()
      - _execute_template uses importlib to dynamically import check function from template.function_path
      - Automatically filters templates by norm_code, limit_state, section_type, material_tags
      - No modifications needed for DM96 - works automatically with new templates
@@ -1659,7 +1700,7 @@ Summary:
    - **`historical_ta/checks.py`** (read fully, ~89 lines)
      - `check_allowable_stresses_ta(stresses, limits)` → AllowableCheckResult
      - `compute_long_rebar_limits_ta(section_area, Nx, fyd, fctm, ..., is_column, is_beam)` → LongitudinalRebarLimits
-     - Column: Afmin = 0.003 * section_area; Beam: Afmin = 0.0015 * section_area
+     - Column: Afmin = 0.003 *section_area; Beam: Afmin = 0.0015* section_area
 
    - **`historical_ta/materials.py`** (read fully)
      - ConcreteLawTA: fcd, Ec, eps_c2, eps_cu, parab_rect, allow_tension
@@ -1715,7 +1756,7 @@ Summary:
 
 6. All User Messages:
    - **Message 1** (main request): Comprehensive Italian-language prompt requesting DM96 module implementation across 7 areas (repository analysis, architecture, parameter schema, DM96 synthesis, comparison with existing modules, DM96 module design, GUI integration, tests). References AGGIIORNAMENTO_FOCUS.md, Session 5/6 summaries, Session 2 summary.
-   - **Message 2** (answer to clarifying questions): 
+   - **Message 2** (answer to clarifying questions):
      - "Usa il file DM92.jsoncode" (use existing DM92.jsoncode file, extend with TA values)
      - "TA + SLU" (implement both TA and SLU methods, not just TA)
 
@@ -1736,7 +1777,7 @@ Summary:
    Call `ExitPlanMode` to present the plan to the user for approval. The plan file is complete and incorporates both user answers:
    - Extending DM92.jsoncode (not creating new file)
    - Including both TA and SLU checks
-   
+
    Upon approval, begin with Step 1: extending `config/historical_materials/DM92.jsoncode` with TA-specific fields (sigma_c_adm_kg_cm2, tau_c0_kg_cm2, tau_c1_kg_cm2, n_homog) for each concrete class.
 
 If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: C:\Users\DanieleCarloni.AzureAD\.claude\projects\c--workspaces-RD2229-RD2229\dc867718-3be9-4d5a-9387-6f2b4fdf5d93.jsonl
@@ -1778,19 +1819,19 @@ Per il metodo TA, rimanda al DM 14/02/1992
 Il metodo TA e lo stesso di RD2229 (sezione omogeneizzata, sovrapposizione elastica) ma con classi Rck e valori diversi
 Il metodo SLU e simile a NTC2018 ma con gamma_c=1.6 (vs 1.5)
 Architettura Esistente (riutilizzata al 100%)
-Layer	File	Ruolo
-Contratti	contracts.py	CalcInput, CalcOutput, SingleCheckResult, VerificationTemplate
-Registry	normative_registry.py	Template per norme
-Orchestratore	verification_service.py	run_verifications_for_element
-Validazione	validation_engine.py	validate_calc_input
-LC/FC	lc_fc_adjustments.py	Aggiustamenti materiali
-Checks RD2229	checks_rd2229.py	6 check TA (utility functions riutilizzabili)
-Checks NTC2018	checks_ntc2018.py	4 check SLU (pattern riutilizzabile)
-Motore TA	historical_ta/stress.py	compute_normal_stresses_ta
-Geometria TA	historical_ta/geometry.py	SectionGeometry, compute_section_properties
-Materiali TA	historical_ta/materials.py	ConcreteLawTA, SteelLawTA
-Checks TA	historical_ta/checks.py	check_allowable_stresses_ta
-Dati DM92	DM92.jsoncode	Classi cls C12-C40, acciai FeB (da estendere con TA)
+Layer File Ruolo
+Contratti contracts.py CalcInput, CalcOutput, SingleCheckResult, VerificationTemplate
+Registry normative_registry.py Template per norme
+Orchestratore verification_service.py run_verifications_for_element
+Validazione validation_engine.py validate_calc_input
+LC/FC lc_fc_adjustments.py Aggiustamenti materiali
+Checks RD2229 checks_rd2229.py 6 check TA (utility functions riutilizzabili)
+Checks NTC2018 checks_ntc2018.py 4 check SLU (pattern riutilizzabile)
+Motore TA historical_ta/stress.py compute_normal_stresses_ta
+Geometria TA historical_ta/geometry.py SectionGeometry, compute_section_properties
+Materiali TA historical_ta/materials.py ConcreteLawTA, SteelLawTA
+Checks TA historical_ta/checks.py check_allowable_stresses_ta
+Dati DM92 DM92.jsoncode Classi cls C12-C40, acciai FeB (da estendere con TA)
 Utility functions da importare da checks_rd2229.py (non duplicare)
 convert_loads_to_ta_units() - kN/kNm -> kg/kg*cm
 convert_section_to_ta_geometry() - CalcInput -> SectionGeometry
@@ -1814,17 +1855,16 @@ fyd = fyk / gamma_s
 Stress block rettangolare (lambda=0.8, eta=1.0)
 Duttilita: x/d <= 0.45 (come NTC2018)
 Differenze chiave tra norme
-Aspetto	RD 2229/39	DM92/96 TA	DM96 SLU	NTC2018 SLU
-Classi cls	R120-R300	Rck 150-500 (C12-C40)	C12-C40	C12-C90
-sigma_c,adm	0.5*sigma_c28	Tabellato per Rck	N/A	N/A
-gamma_c	implicito ~3	implicito ~3	1.6	1.5
-gamma_s	implicito ~2	implicito ~2	1.15	1.15
-Acciai	dolce/FeB	FeB32k/38k/44k	FeB38k/44k	B450C
-Unita	kg/cm2	kg/cm2 + MPa	MPa	MPa
+Aspetto RD 2229/39 DM92/96 TA DM96 SLU NTC2018 SLU
+Classi cls R120-R300 Rck 150-500 (C12-C40) C12-C40 C12-C90
+sigma_c,adm 0.5*sigma_c28 Tabellato per Rck N/A N/A
+gamma_c implicito ~3 implicito ~3 1.6 1.5
+gamma_s implicito ~2 implicito ~2 1.15 1.15
+Acciai dolce/FeB FeB32k/38k/44k FeB38k/44k B450C
+Unita kg/cm2 kg/cm2 + MPa MPa MPa
 Piano di Implementazione (6 Step)
 Step 1: Estendere config/historical_materials/DM92.jsoncode
 Aggiungere a ogni classe di calcestruzzo i campi TA:
-
 
 "C20_25": {
   "name": "Calcestruzzo C20/25",
@@ -1841,7 +1881,6 @@ Tabella sigma_c_adm per Rck
 Formula interpolazione
 Regole riduzione snellezza
 Aggiungere a ogni tipo acciaio i campi TA:
-
 
 "FeB38k": {
   "fyk": 375, "ftk": 430, "Es": 200000,
@@ -1906,25 +1945,25 @@ Stessa formula NTC2018 (gia presente nel DM96 per coerenza EC2)
 NormReference: DM 9/1/1996 Cap. 5
 check_minimi_armatura_taglio_slu_dm96(calc_input, template) -> SingleCheckResult [COMPLETE]
 
-Asw,min/s = 0.08 * sqrt(f_ck) / f_yk * b
+Asw,min/s = 0.08 *sqrt(f_ck) / f_yk* b
 NormReference: DM 9/1/1996 Cap. 5
 Step 3: Aggiornare src/core_calculus/normative_registry.py
 Aggiungere get_dm96_templates() con 8-9 template:
 
-
 Template TA:
+
 - dm96_ta_flessione_rett (COMPLETE)
 - dm96_ta_pressoflessione_rett (COMPLETE)
 - dm96_ta_taglio_rett (COMPLETE)
 - dm96_ta_minimi_armatura_long (COMPLETE)
 
 Template SLU:
+
 - dm96_slu_flessione_rett (COMPLETE)
 - dm96_slu_taglio (COMPLETE)
 - dm96_slu_minimi_armatura_fless (COMPLETE)
 - dm96_slu_minimi_armatura_taglio (COMPLETE)
 Aggiornare get_all_templates():
-
 
 def get_all_templates():
     return [
@@ -1968,14 +2007,14 @@ La GUI esistente non necessita modifiche strutturali. Se presente un selettore n
 
 Riepilogo file
 File NUOVI (2)
-File	Righe	Descrizione
-src/methods/checks_dm96.py	~800	9 funzioni check (4 TA + 4 SLU + 1 utility)
-tests/test_dm96_checks.py	~500	13 test cases
+File Righe Descrizione
+src/methods/checks_dm96.py ~800 9 funzioni check (4 TA + 4 SLU + 1 utility)
+tests/test_dm96_checks.py ~500 13 test cases
 File MODIFICATI (2)
-File	Righe aggiunte	Descrizione
-config/historical_materials/DM92.jsoncode	~60	Aggiunta campi TA per ogni classe cls/acciaio
-src/core_calculus/normative_registry.py	~200	get_dm96_templates() con 8 template
-src/core_calculus/validation_engine.py	~40	Regole validazione DM96
+File Righe aggiunte Descrizione
+config/historical_materials/DM92.jsoncode ~60 Aggiunta campi TA per ogni classe cls/acciaio
+src/core_calculus/normative_registry.py ~200 get_dm96_templates() con 8 template
+src/core_calculus/validation_engine.py ~40 Regole validazione DM96
 File NON toccati (riutilizzati)
 src/core_calculus/contracts.py - CalcInput, CalcOutput, etc.
 src/core_calculus/verification_service.py - Orchestratore
@@ -1993,13 +2032,16 @@ Eseguire test e lint (5 min)
 Verifica finale
 
 # Test nuovi DM96
+
 pytest tests/test_dm96_checks.py -v
 
 # Non-regressione norme esistenti
+
 pytest tests/test_rd2229_checks.py -v
 pytest tests/test_ntc2018_checks.py -v
 
 # Lint
+
 ruff check src/methods/checks_dm96.py tests/test_dm96_checks.py --fix
 Vincoli
 NO-INVENTION POLICY: Valori normativi da DM92.jsoncode, formule standard
@@ -2677,23 +2719,23 @@ G) Sezione PRECOMPRESSIONE (ganci per c.a.p.):
 
 – Test SLU (5):
 
-  6. test_flessione_slu_dm96_ok
+  1. test_flessione_slu_dm96_ok
 
-  7. test_flessione_slu_dm96_gamma_c_difference
+  2. test_flessione_slu_dm96_gamma_c_difference
 
-  8. test_taglio_slu_dm96
+  3. test_taglio_slu_dm96
 
-  9. test_minimi_armatura_flessione_slu_dm96
+  4. test_minimi_armatura_flessione_slu_dm96
 
-  10. test_minimi_armatura_taglio_slu_dm96
+  5. test_minimi_armatura_taglio_slu_dm96
 
 – Test integrazione (3):
 
-  11. test_dm96_templates_registered
+  1. test_dm96_templates_registered
 
-  12. test_dm96_italian_messages
+  2. test_dm96_italian_messages
 
-  13. test_dm96_vs_ntc2018_gamma_difference
+  3. test_dm96_vs_ntc2018_gamma_difference
 
 – Test SLE e altri (almeno placeholder):
 
@@ -2979,8 +3021,6 @@ Se qualche passaggio non è chiaro o mancano informazioni normative:
 
 – e formula domande puntuali da sottoporre all’utente umano per completare l’implementazione.
 
-
-
 ==================== SEZIONE AGGIUNTIVA: USO STRUMENTI (WEB, FILE, TEST) ====================
 
 IMPORTANTE
@@ -3011,7 +3051,7 @@ riguardo all’esecuzione dei test e alla sola “proposta” di codice.
 
   • mantieni la NO-INVENTION POLICY: lascia TODO e spiega che serve conferma manuale.
 
-2) MODIFICA REALE DEI FILE NEL REPO
+1) MODIFICA REALE DEI FILE NEL REPO
 
 – Se hai accesso al filesystem/progetto (come tipicamente in Claude Code project mode):
 
@@ -3037,7 +3077,7 @@ riguardo all’esecuzione dei test e alla sola “proposta” di codice.
 
   • riassumi le modifiche in forma “tipo diff” (o elenco puntato) per facilitare la revisione.
 
-3) ESECUZIONE TEST AUTOMATICI E LINT
+1) ESECUZIONE TEST AUTOMATICI E LINT
 
 – Dopo aver creato/modificato il codice relativo al DM96, DEVI:
 
@@ -3129,7 +3169,7 @@ riguardo all’esecuzione dei test e alla sola “proposta” di codice.
 
   • se cambi un comportamento rispetto alla versione precedente, spiegalo in un commento/docstring e nel riepilogo finale.
 
-5) RIEPILOGO OPERATIVO FINALE
+1) RIEPILOGO OPERATIVO FINALE
 
 – Alla fine delle modifiche, fornisci sempre:
 
@@ -3164,6 +3204,7 @@ RICORDA
 ================== FINE SEZIONE AGGIUNTIVA STRUMENTI ==================
 
 Ti ho appena fornito un prompt dettagliato che definisce:
+
 - cosa deve fare il modulo DM96 (TA, SLU, SLE),
 - quali verifiche aggiuntive implementare (torsione, punzonamento, instabilità),
 - come predisporre i ganci per la precompressione (c.a.p.),
@@ -3232,11 +3273,13 @@ Aggiorno il piano con lo scope ampliato (SLE, verifiche aggiuntive, precompressi
 Read C:\Users\DanieleCarloni.AzureAD\.claude\plans\abundant-soaring-wigderson.md
 Write C:\Users\DanieleCarloni.AzureAD\.claude\plans\abundant-soaring-wigderson.md
 86 lines
+
 # Piano di Implementazione: Modulo DM96 Completo (TA + SLU + SLE + c.a.p.)
 
 ## Contesto
 
 Il progetto ha un'architettura consolidata. L'obiettivo e implementare il supporto completo al **DM 9/1/1996** con:
+
 - **Verifiche TA** (4 check) - riutilizzando `historical_ta/` e utility da `checks_rd2229.py`
 - **Verifiche SLU** (4 check base + 3 aggiuntivi: torsione, punzonamento, instabilita)
 - **Verifiche SLE** (2 check: fessurazione, deformazioni)
@@ -3246,6 +3289,7 @@ Il progetto ha un'architettura consolidata. L'obiettivo e implementare il suppor
 ## File da creare/modificare
 
 ### NUOVI (3)
+
 | File | Descrizione |
 |------|-------------|
 | `src/methods/checks_dm96.py` | ~1200 righe: 4 TA + 4 SLU + 2 SLE + 3 SLU aggiuntivi + 4 hook c.a.p. + utility |
@@ -3253,6 +3297,7 @@ Il progetto ha un'architettura consolidata. L'obiettivo e implementare il suppor
 | `tests/test_dm96_checks.py` | ~600 righe: test TA/SLU/SLE + placeholder precompressione |
 
 ### MODIFICATI (3)
+
 | File | Modifiche |
 |------|-----------|
 | `config/historical_materials/DM92.jsoncode` | +campi TA per cls/acciai, +sezione acciai precompressione |
@@ -3260,6 +3305,7 @@ Il progetto ha un'architettura consolidata. L'obiettivo e implementare il suppor
 | `src/core_calculus/validation_engine.py` | +blocco DM96 con regole validazione + TODO precompressione |
 
 ### NON TOCCATI (riutilizzati)
+
 - `src/core_calculus/contracts.py` - CalcInput, CalcOutput (NO modifiche, solo TODO)
 - `src/core_calculus/verification_service.py` - funziona automaticamente
 - `historical_ta/*` - motore TA riusato
@@ -3269,6 +3315,7 @@ Il progetto ha un'architettura consolidata. L'obiettivo e implementare il suppor
 ## Step di implementazione
 
 ### Step 1: DM92.jsoncode
+
 - Aggiungere per ogni classe cls: `Rck_kg_cm2`, `sigma_c_adm_kg_cm2`, `tau_c0_kg_cm2`, `tau_c1_kg_cm2`, `n_homog`
 - Aggiungere per ogni acciaio: `sigma_sn_kg_cm2`, `sigma_s_adm_kg_cm2`
 - Aggiungere sezione `"ta_parameters"` con tabella interpolazione
@@ -3276,6 +3323,7 @@ Il progetto ha un'architettura consolidata. L'obiettivo e implementare il suppor
 - NO-INVENTION: valori non noti marcati TODO nel codice
 
 ### Step 2: prestress_models.py
+
 - `TendonType` enum (aderente/non_aderente)
 - `PrestressStage` enum (tesatura/trasferimento/esercizio)
 - `PrestressingTendon` dataclass (area, forza, mu, k, slip...)
@@ -3283,7 +3331,9 @@ Il progetto ha un'architettura consolidata. L'obiettivo e implementare il suppor
 - TODO: allineamento con CalcInput
 
 ### Step 3: checks_dm96.py
+
 Sezioni:
+
 - A) `get_dm96_allowable_stresses()` - utility lettura sigma_adm da materiale
 - B) 4 check TA: flessione, pressoflessione, taglio, minimi_armatura
 - C) 4 check SLU base: flessione (gamma_c=1.6), taglio, minimi_fless, minimi_taglio
@@ -3292,24 +3342,29 @@ Sezioni:
 - F) 4 hook c.a.p.: compute_precompression_effects, estimate_prestress_losses, check_stresses_ta, check_slu
 
 ### Step 4: normative_registry.py
+
 - `get_dm96_templates()` con ~15 template (4 TA + 4 SLU + 2 SLE + 3 SLU_agg + 2 c.a.p. placeholder)
 - Integrazione in `get_all_templates()`
 
 ### Step 5: validation_engine.py
+
 - Blocco `active_norm == "DM96"`: warning materiale, LC/FC, sezione, SLU data
 - TODO: validazione PrecompressionData quando integrata in CalcInput
 
 ### Step 6: tests/test_dm96_checks.py
+
 - Mock: MockDM96Section (30x50 cm), MockDM96Material (C20/25 + FeB38k)
 - 5 test TA, 5 test SLU, 2 test SLE placeholder, 3 test integrazione
 - Test placeholder precompressione (verifica esistenza funzioni)
 
 ### Step 7: esecuzione test + lint
+
 - pytest tests/test_dm96_checks.py -v
 - pytest tests/test_rd2229_checks.py tests/test_ntc2018_checks.py -v (non-regressione)
 - ruff check sui file toccati
 
 ## Vincoli
+
 - **NO-INVENTION**: valori da DM92.jsoncode o TODO
 - **NO-HARDCODING**: parametri utente via config/template/input
 - **Messaggi italiano**: 100%
@@ -3329,15 +3384,15 @@ Ganci precompressione c.a.p. (4 funzioni placeholder + dataclass)
 NO-HARDCODING: ogni parametro utente via config/template/CalcInput
 File da creare/modificare
 NUOVI (3)
-File	Descrizione
-src/methods/checks_dm96.py	~1200 righe: 4 TA + 4 SLU + 2 SLE + 3 SLU aggiuntivi + 4 hook c.a.p. + utility
-src/methods/prestress_models.py	Dataclass PrestressingTendon, PrecompressionData, enums
-tests/test_dm96_checks.py	~600 righe: test TA/SLU/SLE + placeholder precompressione
+File Descrizione
+src/methods/checks_dm96.py ~1200 righe: 4 TA + 4 SLU + 2 SLE + 3 SLU aggiuntivi + 4 hook c.a.p. + utility
+src/methods/prestress_models.py Dataclass PrestressingTendon, PrecompressionData, enums
+tests/test_dm96_checks.py ~600 righe: test TA/SLU/SLE + placeholder precompressione
 MODIFICATI (3)
-File	Modifiche
-config/historical_materials/DM92.jsoncode	+campi TA per cls/acciai, +sezione acciai precompressione
-src/core_calculus/normative_registry.py	+get_dm96_templates() (~15 template), aggiornamento get_all_templates()
-src/core_calculus/validation_engine.py	+blocco DM96 con regole validazione + TODO precompressione
+File Modifiche
+config/historical_materials/DM92.jsoncode +campi TA per cls/acciai, +sezione acciai precompressione
+src/core_calculus/normative_registry.py +get_dm96_templates() (~15 template), aggiornamento get_all_templates()
+src/core_calculus/validation_engine.py +blocco DM96 con regole validazione + TODO precompressione
 NON TOCCATI (riutilizzati)
 src/core_calculus/contracts.py - CalcInput, CalcOutput (NO modifiche, solo TODO)
 src/core_calculus/verification_service.py - funziona automaticamente
@@ -3853,6 +3908,7 @@ COERENZA CON IL RESTO DEL SISTEMA
 
 RISULTATO ATTESO PER LA PARTE INCENDIO
 – Dopo aver seguito queste indicazioni, ti chiedo di:
+
   1) creare/aggiornare:
      • src/methods/checks_fire_dm96.py,
      • src/core_calculus/normative_registry.py (get_fire_templates + integrazione in get_all_templates),
@@ -3903,17 +3959,17 @@ Verifiche INCENDIO (4 check: trave/pilastro/solaio c.a. + trave c.a.p.) - norm_c
 NO-HARDCODING: ogni parametro utente via config/template/CalcInput
 File da creare/modificare
 NUOVI (5)
-File	Descrizione
-src/methods/checks_dm96.py	~1200 righe: 4 TA + 4 SLU + 2 SLE + 3 SLU aggiuntivi + 4 hook c.a.p. + utility
-src/methods/prestress_models.py	Dataclass PrestressingTendon, PrecompressionData, enums
-src/methods/checks_fire_dm96.py	~300 righe: 4 check incendio (trave/pilastro/solaio c.a. + trave c.a.p.) + FireVerificationConfig
-tests/test_dm96_checks.py	~600 righe: test TA/SLU/SLE + placeholder precompressione
-tests/test_fire_checks.py	~200 righe: test template incendio + placeholder run check
+File Descrizione
+src/methods/checks_dm96.py ~1200 righe: 4 TA + 4 SLU + 2 SLE + 3 SLU aggiuntivi + 4 hook c.a.p. + utility
+src/methods/prestress_models.py Dataclass PrestressingTendon, PrecompressionData, enums
+src/methods/checks_fire_dm96.py ~300 righe: 4 check incendio (trave/pilastro/solaio c.a. + trave c.a.p.) + FireVerificationConfig
+tests/test_dm96_checks.py ~600 righe: test TA/SLU/SLE + placeholder precompressione
+tests/test_fire_checks.py ~200 righe: test template incendio + placeholder run check
 MODIFICATI (3)
-File	Modifiche
-config/historical_materials/DM92.jsoncode	+campi TA per cls/acciai, +sezione acciai precompressione
-src/core_calculus/normative_registry.py	+get_dm96_templates() (~15 template) + get_fire_templates() (4 template), aggiornamento get_all_templates()
-src/core_calculus/validation_engine.py	+blocco DM96 + blocco FIRE_DM2007 con regole validazione
+File Modifiche
+config/historical_materials/DM92.jsoncode +campi TA per cls/acciai, +sezione acciai precompressione
+src/core_calculus/normative_registry.py +get_dm96_templates() (~15 template) + get_fire_templates() (4 template), aggiornamento get_all_templates()
+src/core_calculus/validation_engine.py +blocco DM96 + blocco FIRE_DM2007 con regole validazione
 NON TOCCATI (riutilizzati)
 src/core_calculus/contracts.py - CalcInput, CalcOutput (NO modifiche, solo TODO)
 src/core_calculus/verification_service.py - funziona automaticamente
@@ -4052,7 +4108,6 @@ Non è richiesta la verifica delle armature al taglio ed alla torsione quando le
 Rck è il valore di riferimento della resistenza cubica del calcestruzzo.
 
 I documenti PDF originali del DM 14/02/1992 disponibili contengono le tabelle dettagliate con i valori specifici per diverse classi di calcestruzzo, tuttavia la ricerca non ha estrapolato esplicitamente la tabella completa con tutti i valori numerici di σ_c_adm, τ_c0 e τ_c1 per le diverse classi Rck.
-
 
 REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.
 Read c:\workspaces\RD2229\RD2229\src\methods\checks_ntc2018.py (from line 427)
@@ -4266,19 +4321,19 @@ Write c:\workspaces\RD2229\RD2229\config\historical_materials\DM92.jsoncode
   },
   "ta_parameters": {
     "description": "Parametri per il metodo delle Tensioni Ammissibili (DM 14/02/1992)",
-    "sigma_c_adm_formula": "sigma_c_adm = 0.30 * Rck (kg/cm²)",
+    "sigma_c_adm_formula": "sigma_c_adm = 0.30 *Rck (kg/cm²)",
     "sigma_c_adm_reference": "DM 14/02/1992, Tabella tensioni ammissibili calcestruzzo",
     "tau_c0_description": "Tensione tangenziale ammissibile senza armatura a taglio",
     "tau_c1_description": "Tensione tangenziale massima ammissibile (con armatura a taglio)",
     "tau_reference": "DM 14/02/1992, Tabella tensioni tangenziali ammissibili",
-    "n_homog_formula": "n = Es / Ec dove Ec = 550000 * Rck / (Rck + 200) [kg/cm²], Es = 2100000 kg/cm²",
+    "n_homog_formula": "n = Es / Ec dove Ec = 550000* Rck / (Rck + 200) [kg/cm²], Es = 2100000 kg/cm²",
     "slenderness_reduction": {
       "description": "Riduzione sigma_c_adm per sezioni snelle (dimensione minima < 25 cm)",
-      "formula": "sigma_c_adm_rid = sigma_c_adm * (1 - 0.03 * (25 - A_min_cm))",
+      "formula": "sigma_c_adm_rid = sigma_c_adm *(1 - 0.03* (25 - A_min_cm))",
       "reference": "DM 14/02/1992, analogia con Art. 16 RD 2229/39"
     },
     "steel_adm_notes": {
-      "description": "Tensione ammissibile acciaio: sigma_s_adm ≈ 2/3 * sigma_sn, con limite max per aderenza migliorata",
+      "description": "Tensione ammissibile acciaio: sigma_s_adm ≈ 2/3 *sigma_sn, con limite max per aderenza migliorata",
       "limit_aderenza_migliorata_kg_cm2": 2600,
       "limit_aderenza_migliorata_MPa": 255,
       "reference": "DM 14/02/1992"
@@ -4299,7 +4354,7 @@ Write c:\workspaces\RD2229\RD2229\config\historical_materials\DM92.jsoncode
   },
   "formulas": {
     "elastic_modulus": {
-      "Ecm_formula": "22000 * (fcm / 10)^0.3",
+      "Ecm_formula": "22000* (fcm / 10)^0.3",
       "description": "Modulo elastico secante del calcestruzzo",
       "unit": "MPa"
     },
@@ -4354,11 +4409,13 @@ Strutture dati per la precompressione (c.a.p.) - DM 14/02/1992 e DM 9/1/1996.
 
 Modulo che definisce le dataclass per la gestione dei dati di precompressione
 nel motore di verifica strutturale. Queste strutture sono pensate per essere:
+
 - compilate dalla GUI (senza dipendenze da GUI nel modulo),
 - passate al core di calcolo tramite CalcInput o config dedicata,
 - allineate con i contratti esistenti (CalcInput, VerificationTemplate).
 
 Strutture principali:
+
 - TendonType: enum tipo cavo (aderente/non aderente)
 - PrestressStage: enum fase di analisi (tesatura/trasferimento/esercizio)
 - PrestressingTendon: singolo cavo/tendine
@@ -4370,13 +4427,12 @@ TODO: valutare estensione di CalcInput per includere
 PrecompressionData (da definire col maintainer del core).
 """
 
-from __future__ import annotations
+from **future** import annotations
 
 import dataclasses
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
-
 
 class TendonType(str, Enum):
     """Tipo di cavo da precompressione.
@@ -4389,7 +4445,6 @@ class TendonType(str, Enum):
 
     ADERENTE = "aderente"
     NON_ADERENTE = "non_aderente"
-
 
 class PrestressStage(str, Enum):
     """Fase di analisi della precompressione.
@@ -4404,7 +4459,6 @@ class PrestressStage(str, Enum):
     TESATURA = "tesatura"
     TRASFERIMENTO = "trasferimento"
     ESERCIZIO = "esercizio"
-
 
 @dataclass
 class PrestressingTendon:
@@ -4456,7 +4510,6 @@ class PrestressingTendon:
     anchor_slip_mm: float = 0.0
     bonded_length_mm: Optional[float] = None
     note: str = ""
-
 
 @dataclass
 class PrecompressionData:
@@ -4544,23 +4597,26 @@ secondo il DM 9/1/1996 (che rimanda al DM 14/02/1992 per il metodo TA).
 Struttura del modulo:
 A) Utility DM96-specifiche (lettura tensioni ammissibili da materiale)
 B) Check TA DM96 (4 funzioni): flessione, pressoflessione, taglio, minimi armatura
-   - Riutilizzano il motore historical_ta/ e utility da checks_rd2229.py
-   - Differenza principale: tensioni ammissibili da DM92.jsoncode (non da RD2229)
+
+- Riutilizzano il motore historical_ta/ e utility da checks_rd2229.py
+- Differenza principale: tensioni ammissibili da DM92.jsoncode (non da RD2229)
 C) Check SLU DM96 (4 funzioni base): flessione, taglio, minimi flessione, minimi taglio
-   - Pattern da checks_ntc2018.py con gamma_c=1.6 (vs 1.5 NTC2018)
+- Pattern da checks_ntc2018.py con gamma_c=1.6 (vs 1.5 NTC2018)
 D) Check SLE DM96 (2 funzioni): fessurazione, deformazioni
-   - Parametri (w_amm, limiti frecce) da config utente, NON hardcodati
+- Parametri (w_amm, limiti frecce) da config utente, NON hardcodati
 E) Check SLU aggiuntivi (3 funzioni): torsione, punzonamento, instabilita
-   - Logica base con TODO per parti normative da confermare
+- Logica base con TODO per parti normative da confermare
 F) Ganci precompressione c.a.p. (4 funzioni placeholder)
-   - Firme + docstring + TODO per implementazione futura
+- Firme + docstring + TODO per implementazione futura
 
 NormReference principali:
+
 - DM 14/02/1992 (metodo TA, Cap. 2-5)
 - DM 9/1/1996 (metodo SLU/SLE, Cap. 3-5)
 - EC2 Parte 1-1 (formule generali di riferimento)
 
 Dipendenze:
+
 - historical_ta/ (motore TA)
 - src.methods.checks_rd2229 (utility conversione unita)
 - src.core_calculus.contracts (CalcInput, SingleCheckResult, VerificationTemplate)
@@ -4569,7 +4625,7 @@ Dipendenze:
 Tutti i messaggi utente sono in italiano.
 """
 
-from __future__ import annotations
+from **future** import annotations
 
 import logging
 import math
@@ -4601,13 +4657,13 @@ from src.methods.checks_rd2229 import (
     convert_section_to_ta_geometry,
 )
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger(**name**)
 
 # ==============================================================================
+
 # SEZIONE A: UTILITY DM96-SPECIFICHE
-# ==============================================================================
 
+# ==============================================================================
 
 def get_dm96_allowable_stresses(material: Any) -> AllowableStressesExtracted:
     """Estrae tensioni ammissibili DM92/DM96 da material object.
@@ -4669,7 +4725,6 @@ def get_dm96_allowable_stresses(material: Any) -> AllowableStressesExtracted:
         sigma_c_med_allow=sigma_c_med_allow,
     )
 
-
 def _get_dm96_tau_limits(material: Any) -> tuple[float, float]:
     """Estrae limiti tau_c0 e tau_c1 dal materiale DM92/DM96.
 
@@ -4711,7 +4766,6 @@ def _get_dm96_tau_limits(material: Any) -> tuple[float, float]:
 
     return (tau_c0, tau_c1)
 
-
 def _make_error_result(
     template_id: str, message: str, limit_state: str = "TA"
 ) -> SingleCheckResult:
@@ -4725,11 +4779,11 @@ def _make_error_result(
         limit_state=limit_state,
     )
 
-
 # ==============================================================================
+
 # SEZIONE B: CHECK TA DM96 (riuso historical_ta)
-# ==============================================================================
 
+# ==============================================================================
 
 def check_flessione_ta_dm96(
     calc_input: CalcInput, template: VerificationTemplate
@@ -4843,7 +4897,6 @@ def check_flessione_ta_dm96(
             template.template_id, f"Errore nel calcolo: {e}"
         )
 
-
 def check_pressoflessione_ta_dm96(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -4949,7 +5002,6 @@ def check_pressoflessione_ta_dm96(
             template.template_id, f"Errore nel calcolo: {e}"
         )
 
-
 def check_taglio_ta_dm96(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -5047,7 +5099,6 @@ def check_taglio_ta_dm96(
         limit_state="TA",
     )
 
-
 def check_minimi_armatura_ta_dm96(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -5131,11 +5182,11 @@ def check_minimi_armatura_ta_dm96(
         limit_state="TA",
     )
 
-
 # ==============================================================================
+
 # SEZIONE C: CHECK SLU DM96 (gamma_c = 1.6)
-# ==============================================================================
 
+# ==============================================================================
 
 def check_flessione_slu_dm96(
     calc_input: CalcInput, template: VerificationTemplate
@@ -5284,7 +5335,6 @@ def check_flessione_slu_dm96(
         limit_state="SLU",
     )
 
-
 def check_taglio_slu_dm96(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -5410,7 +5460,6 @@ def check_taglio_slu_dm96(
         limit_state="SLU",
     )
 
-
 def check_minimi_armatura_flessione_slu_dm96(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -5483,7 +5532,6 @@ def check_minimi_armatura_flessione_slu_dm96(
         limit_state="SLU",
     )
 
-
 def check_minimi_armatura_taglio_slu_dm96(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -5554,11 +5602,11 @@ def check_minimi_armatura_taglio_slu_dm96(
         limit_state="SLU",
     )
 
-
 # ==============================================================================
+
 # SEZIONE D: CHECK SLE DM96 (fessurazione e deformazioni)
-# ==============================================================================
 
+# ==============================================================================
 
 def check_fessurazione_sle_dm96(
     calc_input: CalcInput, template: VerificationTemplate
@@ -5638,7 +5686,6 @@ def check_fessurazione_sle_dm96(
             )
         ],
     )
-
 
 def check_deformazioni_sle_dm96(
     calc_input: CalcInput, template: VerificationTemplate
@@ -5726,11 +5773,11 @@ def check_deformazioni_sle_dm96(
         ],
     )
 
-
 # ==============================================================================
+
 # SEZIONE E: CHECK SLU AGGIUNTIVI DM96
-# ==============================================================================
 
+# ==============================================================================
 
 def check_torsione_slu_dm96(
     calc_input: CalcInput, template: VerificationTemplate
@@ -5790,7 +5837,6 @@ def check_torsione_slu_dm96(
         ],
     )
 
-
 def check_punzonamento_slu_dm96(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -5837,7 +5883,6 @@ def check_punzonamento_slu_dm96(
             )
         ],
     )
-
 
 def check_instabilita_compressione_slu_dm96(
     calc_input: CalcInput, template: VerificationTemplate
@@ -5913,11 +5958,11 @@ def check_instabilita_compressione_slu_dm96(
         ],
     )
 
-
 # ==============================================================================
+
 # SEZIONE F: GANCI PRECOMPRESSIONE (c.a.p.)
-# ==============================================================================
 
+# ==============================================================================
 
 def compute_precompression_effects_dm96(
     precompression_data: Any,
@@ -5960,7 +6005,6 @@ def compute_precompression_effects_dm96(
         "implementation_status": "TODO",
         "note": "Funzione placeholder - implementazione da completare",
     }
-
 
 def estimate_prestress_losses_dm96(
     precompression_data: Any,
@@ -6012,7 +6056,6 @@ def estimate_prestress_losses_dm96(
         "note": "Funzione placeholder - implementazione da completare",
     }
 
-
 def check_precompression_stresses_ta_dm96(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -6061,7 +6104,6 @@ def check_precompression_stresses_ta_dm96(
             )
         ],
     )
-
 
 def check_precompression_slu_dm96(
     calc_input: CalcInput, template: VerificationTemplate
@@ -6138,6 +6180,7 @@ Modulo per le verifiche di resistenza al fuoco di elementi in cemento armato
 normale (e ganci per c.a.p.) secondo la normativa italiana sull'incendio.
 
 Riferimenti normativi principali:
+
 - DM 9 marzo 2007: criteri generali di resistenza al fuoco
   (metodi tabellare, semplificato, analitico, sperimentale)
 - DM 16 febbraio 2007: classi di resistenza al fuoco (R30, R60, R90, R120, ...)
@@ -6145,6 +6188,7 @@ Riferimenti normativi principali:
 - EC2 Parte 1-2: formule di dettaglio (se richiamate)
 
 Struttura del modulo:
+
 - FireVerificationConfig: dataclass di configurazione incendio
 - check_fire_resistance_beam_rc: trave c.a.
 - check_fire_resistance_column_rc: pilastro c.a.
@@ -6159,7 +6203,7 @@ o template.extra_params.
 Tutti i messaggi utente sono in italiano.
 """
 
-from __future__ import annotations
+from **future** import annotations
 
 import dataclasses
 from dataclasses import dataclass, field
@@ -6172,11 +6216,11 @@ from src.core_calculus.contracts import (
     VerificationTemplate,
 )
 
-
 # ==============================================================================
+
 # CONFIGURAZIONE INCENDIO
-# ==============================================================================
 
+# ==============================================================================
 
 @dataclass
 class FireVerificationConfig:
@@ -6225,7 +6269,6 @@ class FireVerificationConfig:
     user_temperature_limits: dict = dataclasses.field(default_factory=dict)
     note: str = ""
 
-
 def _extract_fire_config(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> FireVerificationConfig | None:
@@ -6265,7 +6308,6 @@ def _extract_fire_config(
 
     return None
 
-
 _FIRE_NORM_REF = NormReference(
     norm_code="FIRE_DM2007",
     chapter="DM 9/3/2007",
@@ -6273,11 +6315,11 @@ _FIRE_NORM_REF = NormReference(
     description_it="Verifica di resistenza al fuoco secondo DM 9/3/2007 e DM 16/2/2007",
 )
 
-
-# ==============================================================================
-# CHECK INCENDIO C.A.
 # ==============================================================================
 
+# CHECK INCENDIO C.A
+
+# ==============================================================================
 
 def check_fire_resistance_beam_rc(
     calc_input: CalcInput, template: VerificationTemplate
@@ -6357,7 +6399,6 @@ def check_fire_resistance_beam_rc(
         norm_references=[_FIRE_NORM_REF],
     )
 
-
 def check_fire_resistance_column_rc(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -6417,7 +6458,6 @@ def check_fire_resistance_column_rc(
         norm_references=[_FIRE_NORM_REF],
     )
 
-
 def check_fire_resistance_slab_rc(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
@@ -6467,7 +6507,6 @@ def check_fire_resistance_slab_rc(
         limit_state="FIRE",
         norm_references=[_FIRE_NORM_REF],
     )
-
 
 def check_fire_resistance_beam_cap(
     calc_input: CalcInput, template: VerificationTemplate
@@ -6528,7 +6567,7 @@ Let me go through the conversation chronologically to capture all important deta
    - Was about to call ExitPlanMode
 
 2. **First user message**: Very comprehensive Italian prompt requesting DM96 implementation with expanded scope:
-   - TA method (DM 14/02/1992) 
+   - TA method (DM 14/02/1992)
    - SLU method (gamma_c=1.6)
    - SLE checks (fessurazione, deformazioni)
    - Additional SLU (torsione, punzonamento, instabilità)
@@ -6552,7 +6591,7 @@ Let me go through the conversation chronologically to capture all important deta
 
 5. **Plan update and approval**: I updated the plan file with fire section, ExitPlanMode was approved.
 
-6. **Implementation started**: 
+6. **Implementation started**:
    - Updated todo list with 11 steps
    - Read key files in parallel (DM92.jsoncode, contracts.py, normative_registry.py, validation_engine.py)
    - Read more files (checks_rd2229.py lines 100-300, checks_ntc2018.py lines 100-500, RD2229.jsoncode, historical_ta/checks.py)
@@ -6574,6 +6613,7 @@ Let me go through the conversation chronologically to capture all important deta
 Let me now document specific file contents and code patterns that were created.
 
 Summary:
+
 1. Primary Request and Intent:
    The user (Italian structural engineer/developer) requested a comprehensive implementation of the **DM 9/1/1996** structural verification module for their Python/Tkinter application. The scope expanded across two major user messages:
 
@@ -6703,7 +6743,7 @@ Summary:
 4. Errors and fixes:
    - **ExitPlanMode rejected twice**: User rejected the first two ExitPlanMode calls because they wanted to add more content to the plan (fire verification section). Fixed by updating the plan file with fire verification details before calling ExitPlanMode again.
    - **Plan mode blocking implementation**: When I tried to start implementation (updated TodoWrite), the system reminded me I was still in plan mode. Had to read files and update plan only, then exit properly.
-   - **Web search for DM92 values**: Initial uncertainty about sigma_c_adm formula (0.30 vs 0.38 * Rck). Web search confirmed 0.38*Rck for DM 14/02/1992, but user's example in prompt used 75 for C20/25 (Rck=250 → 0.30*250=75). Used 0.30*Rck to match user's example values.
+   - **Web search for DM92 values**: Initial uncertainty about sigma_c_adm formula (0.30 vs 0.38 *Rck). Web search confirmed 0.38*Rck for DM 14/02/1992, but user's example in prompt used 75 for C20/25 (Rck=250 → 0.30*250=75). Used 0.30*Rck to match user's example values.
    - **n_homog discrepancy**: User's example showed n_homog=9.0 for C20/25, but computed values give ~6.9 using Es/Ec. Used computed values (6.9) as they follow the documented formula.
 
 5. Problem Solving:
@@ -6837,6 +6877,7 @@ Write c:\workspaces\RD2229\RD2229\tests\test_dm96_checks.py
 Test per verifiche DM 9/1/1996 - TA, SLU, SLE, c.a.p.
 
 Test coperti:
+
 - 5 test TA: flessione OK/NOK, pressoflessione, taglio, minimi armatura
 - 5 test SLU: flessione OK/NOK, taglio, minimi armatura flessione, minimi armatura taglio
 - 2 test SLE: fessurazione placeholder, deformazioni placeholder
@@ -6844,7 +6885,7 @@ Test coperti:
 - Test placeholder precompressione (verifica che le funzioni esistano e non crashino)
 """
 
-from __future__ import annotations
+from **future** import annotations
 
 from dataclasses import dataclass
 
@@ -6871,11 +6912,11 @@ from src.methods.checks_dm96 import (
     get_dm96_allowable_stresses,
 )
 
-
 # ===========================================================================
+
 # Mock objects
-# ===========================================================================
 
+# ===========================================================================
 
 @dataclass
 class MockDM96Section:
@@ -6892,7 +6933,6 @@ class MockDM96Section:
     @property
     def height(self) -> float:
         return self.h
-
 
 @dataclass
 class MockDM96Material:
@@ -6918,7 +6958,6 @@ class MockDM96Material:
     Ecm: float = 30000.0  # MPa
     f_ctm: float = 2.2  # MPa
 
-
 def _make_template(template_id: str, limit_state: str = "TA", **extra) -> VerificationTemplate:
     """Helper per creare un template di test."""
     return VerificationTemplate(
@@ -6929,17 +6968,16 @@ def _make_template(template_id: str, limit_state: str = "TA", **extra) -> Verifi
         extra_params=extra,
     )
 
-
 # ===========================================================================
+
 # Test integrazione: template registrati
-# ===========================================================================
 
+# ===========================================================================
 
 def test_dm96_templates_registered():
     """Verifica che i template DM96 siano registrati nel registry."""
     templates = get_dm96_templates()
     assert len(templates) == 15, f"Attesi 15 template DM96, trovati {len(templates)}"
-
 
 def test_dm96_template_ids():
     """Verifica gli ID dei template DM96."""
@@ -6964,17 +7002,16 @@ def test_dm96_template_ids():
     }
     assert ids == expected_ids, f"Template mancanti: {expected_ids - ids}"
 
-
 def test_dm96_templates_norm_code():
     """Tutti i template DM96 devono avere norm_code='DM96'."""
     for t in get_dm96_templates():
         assert t.norm_code == "DM96", f"Template {t.template_id} ha norm_code={t.norm_code}"
 
-
 # ===========================================================================
+
 # Test utility: tensioni ammissibili
-# ===========================================================================
 
+# ===========================================================================
 
 def test_get_dm96_allowable_stresses_from_dm92():
     """Test estrazione tensioni ammissibili da campi DM92."""
@@ -6982,7 +7019,6 @@ def test_get_dm96_allowable_stresses_from_dm92():
     result = get_dm96_allowable_stresses(mat)
     assert result.sigma_c_allow == 75.0, f"sigma_c_adm atteso 75, ottenuto {result.sigma_c_allow}"
     assert result.sigma_s_allow == 2550.0, f"sigma_s_adm atteso 2550, ottenuto {result.sigma_s_allow}"
-
 
 def test_get_dm96_allowable_stresses_from_fck():
     """Test stima tensioni ammissibili da fck (fallback)."""
@@ -6997,11 +7033,11 @@ def test_get_dm96_allowable_stresses_from_fck():
     assert result.sigma_c_allow > 0, "sigma_c_allow deve essere positiva"
     assert result.sigma_s_allow > 0, "sigma_s_allow deve essere positiva"
 
-
 # ===========================================================================
+
 # Test TA: flessione
-# ===========================================================================
 
+# ===========================================================================
 
 def test_flessione_ta_dm96_ok():
     """Flessione TA con momento moderato - deve passare."""
@@ -7025,12 +7061,11 @@ def test_flessione_ta_dm96_ok():
     assert result.utilisation is not None
     assert result.utilisation < 1.0
 
-
 def test_flessione_ta_dm96_non_ok():
     """Flessione TA con momento elevato - deve fallire."""
     section = MockDM96Section(b=200.0, h=350.0)
     material = MockDM96Material()
-    template = _make_template("dm96_ta_flessione_rett", "TA")
+    template =_make_template("dm96_ta_flessione_rett", "TA")
 
     calc_input = CalcInput(
         element_name="Trave Test DM96 NON OK",
@@ -7046,17 +7081,17 @@ def test_flessione_ta_dm96_non_ok():
     result = check_flessione_ta_dm96(calc_input, template)
     assert not result.ok, "Verifica TA flessione dovrebbe fallire con armatura insufficiente"
 
-
 # ===========================================================================
+
 # Test TA: pressoflessione
-# ===========================================================================
 
+# ===========================================================================
 
 def test_pressoflessione_ta_dm96():
     """Pressoflessione TA con N + M."""
     section = MockDM96Section(b=300.0, h=300.0)
     material = MockDM96Material()
-    template = _make_template("dm96_ta_pressoflessione_rett", "TA")
+    template =_make_template("dm96_ta_pressoflessione_rett", "TA")
 
     calc_input = CalcInput(
         element_name="Pilastro Test DM96 Pressoflessione",
@@ -7075,17 +7110,17 @@ def test_pressoflessione_ta_dm96():
     assert result.limit_state == "TA"
     assert result.utilisation is not None or len(result.messages_it) > 0
 
-
 # ===========================================================================
+
 # Test TA: taglio
-# ===========================================================================
 
+# ===========================================================================
 
 def test_taglio_ta_dm96():
     """Taglio TA con taglio moderato."""
     section = MockDM96Section(b=300.0, h=500.0)
     material = MockDM96Material()
-    template = _make_template("dm96_ta_taglio_rett", "TA")
+    template =_make_template("dm96_ta_taglio_rett", "TA")
 
     calc_input = CalcInput(
         element_name="Trave Test DM96 Taglio TA",
@@ -7101,11 +7136,11 @@ def test_taglio_ta_dm96():
     assert result.template_id == "dm96_ta_taglio_rett"
     assert result.utilisation is not None or len(result.messages_it) > 0
 
-
 # ===========================================================================
+
 # Test TA: minimi armatura
-# ===========================================================================
 
+# ===========================================================================
 
 def test_minimi_armatura_ta_dm96():
     """Minimi armatura TA con armatura adeguata."""
@@ -7125,11 +7160,11 @@ def test_minimi_armatura_ta_dm96():
     result = check_minimi_armatura_ta_dm96(calc_input, template)
     assert result.template_id == "dm96_ta_minimi_armatura_long"
 
-
 # ===========================================================================
+
 # Test SLU: flessione
-# ===========================================================================
 
+# ===========================================================================
 
 def test_flessione_slu_dm96_ok():
     """Flessione SLU DM96 con momento moderato - deve passare."""
@@ -7156,12 +7191,11 @@ def test_flessione_slu_dm96_ok():
     assert result.utilisation < 1.0
     assert "M_Rd_kNm" in result.details
 
-
 def test_flessione_slu_dm96_non_ok():
     """Flessione SLU DM96 con armatura insufficiente - deve fallire."""
     section = MockDM96Section(b=300.0, h=500.0)
     material = MockDM96Material()
-    template = _make_template(
+    template =_make_template(
         "dm96_slu_flessione_rett", "SLU", gamma_c=1.6, gamma_s=1.15
     )
 
@@ -7181,12 +7215,11 @@ def test_flessione_slu_dm96_non_ok():
     assert result.utilisation is not None
     assert result.utilisation > 1.0
 
-
 def test_flessione_slu_dm96_gamma_c_16():
     """Verifica che gamma_c=1.6 sia usato (non 1.5 come NTC2018)."""
     section = MockDM96Section(b=300.0, h=500.0)
     material = MockDM96Material()
-    template = _make_template(
+    template =_make_template(
         "dm96_slu_flessione_rett", "SLU", gamma_c=1.6, gamma_s=1.15
     )
 
@@ -7208,17 +7241,17 @@ def test_flessione_slu_dm96_gamma_c_16():
             f"f_cd dovrebbe essere 12.5 MPa (gamma_c=1.6), ottenuto {result.details['f_cd_MPa']}"
         )
 
-
 # ===========================================================================
+
 # Test SLU: taglio
-# ===========================================================================
 
+# ===========================================================================
 
 def test_taglio_slu_dm96():
     """Taglio SLU DM96 con staffe."""
     section = MockDM96Section(b=300.0, h=500.0)
     material = MockDM96Material()
-    template = _make_template(
+    template =_make_template(
         "dm96_slu_taglio", "SLU", gamma_c=1.6, gamma_s=1.15, theta_deg=21.8
     )
 
@@ -7239,17 +7272,17 @@ def test_taglio_slu_dm96():
     assert result.template_id == "dm96_slu_taglio"
     assert result.limit_state == "SLU"
 
-
 # ===========================================================================
+
 # Test SLU: minimi armatura
-# ===========================================================================
 
+# ===========================================================================
 
 def test_minimi_armatura_flessione_slu_dm96():
     """Minimi armatura flessione SLU."""
     section = MockDM96Section(b=300.0, h=500.0)
     material = MockDM96Material()
-    template = _make_template("dm96_slu_minimi_armatura_fless", "SLU")
+    template =_make_template("dm96_slu_minimi_armatura_fless", "SLU")
 
     calc_input = CalcInput(
         element_name="Test Minimi Flex SLU",
@@ -7264,12 +7297,11 @@ def test_minimi_armatura_flessione_slu_dm96():
     result = check_minimi_armatura_flessione_slu_dm96(calc_input, template)
     assert result.template_id == "dm96_slu_minimi_armatura_fless"
 
-
 def test_minimi_armatura_taglio_slu_dm96():
     """Minimi armatura taglio SLU."""
     section = MockDM96Section(b=300.0, h=500.0)
     material = MockDM96Material()
-    template = _make_template("dm96_slu_minimi_armatura_taglio", "SLU", gamma_c=1.6, gamma_s=1.15)
+    template =_make_template("dm96_slu_minimi_armatura_taglio", "SLU", gamma_c=1.6, gamma_s=1.15)
 
     calc_input = CalcInput(
         element_name="Test Minimi Taglio SLU",
@@ -7285,11 +7317,11 @@ def test_minimi_armatura_taglio_slu_dm96():
     result = check_minimi_armatura_taglio_slu_dm96(calc_input, template)
     assert result.template_id == "dm96_slu_minimi_armatura_taglio"
 
-
 # ===========================================================================
+
 # Test SLE: fessurazione e deformazioni
-# ===========================================================================
 
+# ===========================================================================
 
 def test_fessurazione_sle_dm96_placeholder():
     """Fessurazione SLE placeholder - deve ritornare SingleCheckResult senza crash."""
@@ -7313,7 +7345,6 @@ def test_fessurazione_sle_dm96_placeholder():
     assert result.limit_state == "SLE"
     assert len(result.messages_it) > 0
 
-
 def test_deformazioni_sle_dm96_placeholder():
     """Deformazioni SLE placeholder - deve ritornare SingleCheckResult senza crash."""
     section = MockDM96Section()
@@ -7334,11 +7365,11 @@ def test_deformazioni_sle_dm96_placeholder():
     assert result.template_id == "dm96_sle_deformazioni"
     assert result.limit_state == "SLE"
 
-
 # ===========================================================================
+
 # Test SLU aggiuntivi: torsione, punzonamento, instabilita
-# ===========================================================================
 
+# ===========================================================================
 
 def test_torsione_slu_dm96_placeholder():
     """Torsione SLU placeholder."""
@@ -7359,7 +7390,6 @@ def test_torsione_slu_dm96_placeholder():
     assert result.template_id == "dm96_slu_torsione"
     assert result.limit_state == "SLU"
 
-
 def test_punzonamento_slu_dm96_placeholder():
     """Punzonamento SLU placeholder."""
     section = MockDM96Section()
@@ -7378,7 +7408,6 @@ def test_punzonamento_slu_dm96_placeholder():
 
     result = check_punzonamento_slu_dm96(calc_input, template)
     assert result.template_id == "dm96_slu_punzonamento"
-
 
 def test_instabilita_slu_dm96_placeholder():
     """Instabilita SLU placeholder."""
@@ -7400,17 +7429,17 @@ def test_instabilita_slu_dm96_placeholder():
     assert result.template_id == "dm96_slu_instabilita"
     assert result.limit_state == "SLU"
 
-
 # ===========================================================================
+
 # Test precompressione c.a.p. (placeholder - verificano che le funzioni esistano)
-# ===========================================================================
 
+# ===========================================================================
 
 def test_compute_precompression_effects_placeholder():
     """compute_precompression_effects_dm96 non deve crashare."""
     section = MockDM96Section()
     material = MockDM96Material()
-    template = _make_template("dm96_ta_prestress_stresses", "TA")
+    template =_make_template("dm96_ta_prestress_stresses", "TA")
 
     calc_input = CalcInput(
         element_name="Test CAP Effects",
@@ -7423,12 +7452,11 @@ def test_compute_precompression_effects_placeholder():
     assert isinstance(result, dict)
     assert "implementation_status" in result
 
-
 def test_estimate_prestress_losses_placeholder():
     """estimate_prestress_losses_dm96 non deve crashare."""
     section = MockDM96Section()
     material = MockDM96Material()
-    template = _make_template("dm96_ta_prestress_stresses", "TA")
+    template =_make_template("dm96_ta_prestress_stresses", "TA")
 
     calc_input = CalcInput(
         element_name="Test CAP Losses",
@@ -7440,12 +7468,11 @@ def test_estimate_prestress_losses_placeholder():
     result = estimate_prestress_losses_dm96(calc_input, template)
     assert isinstance(result, dict)
 
-
 def test_check_precompression_stresses_ta_placeholder():
     """check_precompression_stresses_ta_dm96 non deve crashare."""
     section = MockDM96Section()
     material = MockDM96Material()
-    template = _make_template("dm96_ta_prestress_stresses", "TA")
+    template =_make_template("dm96_ta_prestress_stresses", "TA")
 
     calc_input = CalcInput(
         element_name="Test CAP Stresses TA",
@@ -7458,12 +7485,11 @@ def test_check_precompression_stresses_ta_placeholder():
     assert result.template_id == "dm96_ta_prestress_stresses"
     assert len(result.messages_it) > 0
 
-
 def test_check_precompression_slu_placeholder():
     """check_precompression_slu_dm96 non deve crashare."""
     section = MockDM96Section()
     material = MockDM96Material()
-    template = _make_template("dm96_slu_prestress", "SLU")
+    template =_make_template("dm96_slu_prestress", "SLU")
 
     calc_input = CalcInput(
         element_name="Test CAP SLU",
@@ -7502,13 +7528,14 @@ Write c:\workspaces\RD2229\RD2229\tests\test_fire_checks.py
 Test per verifiche resistenza al fuoco - DM 9/3/2007, DM 16/2/2007.
 
 Test coperti:
+
 - Template registrati (4 template FIRE_DM2007)
 - Placeholder run check per ciascun tipo (beam_rc, column_rc, slab_rc, beam_cap)
 - FireVerificationConfig dataclass
 - Validazione incendio in validation_engine
 """
 
-from __future__ import annotations
+from **future** import annotations
 
 from dataclasses import dataclass
 
@@ -7523,11 +7550,11 @@ from src.methods.checks_fire_dm96 import (
     check_fire_resistance_slab_rc,
 )
 
-
 # ===========================================================================
+
 # Mock objects
-# ===========================================================================
 
+# ===========================================================================
 
 @dataclass
 class MockFireSection:
@@ -7545,14 +7572,12 @@ class MockFireSection:
     def height(self) -> float:
         return self.h
 
-
 @dataclass
 class MockFireMaterial:
     """Materiale per test incendio."""
 
     f_ck: float = 25.0
     f_yk: float = 450.0
-
 
 def _make_fire_template(template_id: str) -> VerificationTemplate:
     return VerificationTemplate(
@@ -7561,7 +7586,6 @@ def _make_fire_template(template_id: str) -> VerificationTemplate:
         norm_version="2007",
         limit_state="FIRE",
     )
-
 
 def _make_fire_calc_input(
     fire_class: str = "R60",
@@ -7584,17 +7608,16 @@ def _make_fire_calc_input(
         },
     )
 
-
 # ===========================================================================
+
 # Test template registrati
-# ===========================================================================
 
+# ===========================================================================
 
 def test_fire_templates_registered():
     """Verifica che i 4 template incendio siano registrati."""
     templates = get_fire_templates()
     assert len(templates) == 4, f"Attesi 4 template FIRE, trovati {len(templates)}"
-
 
 def test_fire_templates_ids():
     """Verifica gli ID dei template incendio."""
@@ -7608,23 +7631,21 @@ def test_fire_templates_ids():
     }
     assert ids == expected, f"Template mancanti: {expected - ids}"
 
-
 def test_fire_templates_norm_code():
     """Tutti i template incendio devono avere norm_code='FIRE_DM2007'."""
     for t in get_fire_templates():
         assert t.norm_code == "FIRE_DM2007", f"{t.template_id} ha norm_code={t.norm_code}"
-
 
 def test_fire_templates_limit_state():
     """Tutti i template incendio devono avere limit_state='FIRE'."""
     for t in get_fire_templates():
         assert t.limit_state == "FIRE", f"{t.template_id} ha limit_state={t.limit_state}"
 
-
 # ===========================================================================
+
 # Test FireVerificationConfig
-# ===========================================================================
 
+# ===========================================================================
 
 def test_fire_config_defaults():
     """Test valori default di FireVerificationConfig."""
@@ -7634,7 +7655,6 @@ def test_fire_config_defaults():
     assert cfg.protection_thickness_mm == 0.0
     assert cfg.design_method == "tabellare"
     assert cfg.user_temperature_limits == {}
-
 
 def test_fire_config_custom():
     """Test costruzione con valori personalizzati."""
@@ -7649,16 +7669,16 @@ def test_fire_config_custom():
     assert cfg.exposed_sides == 4
     assert cfg.protection_thickness_mm == 20.0
 
-
 # ===========================================================================
+
 # Test placeholder run checks
-# ===========================================================================
 
+# ===========================================================================
 
 def test_fire_beam_rc_placeholder():
     """check_fire_resistance_beam_rc non deve crashare."""
-    calc_input = _make_fire_calc_input("R60", 3)
-    template = _make_fire_template("dm_fire_trave_ca")
+    calc_input =_make_fire_calc_input("R60", 3)
+    template =_make_fire_template("dm_fire_trave_ca")
 
     result = check_fire_resistance_beam_rc(calc_input, template)
     assert result.template_id == "dm_fire_trave_ca"
@@ -7666,39 +7686,35 @@ def test_fire_beam_rc_placeholder():
     assert len(result.messages_it) > 0
     assert len(result.norm_references) > 0
 
-
 def test_fire_column_rc_placeholder():
     """check_fire_resistance_column_rc non deve crashare."""
-    calc_input = _make_fire_calc_input("R90", 4)
-    template = _make_fire_template("dm_fire_pilastro_ca")
+    calc_input =_make_fire_calc_input("R90", 4)
+    template =_make_fire_template("dm_fire_pilastro_ca")
 
     result = check_fire_resistance_column_rc(calc_input, template)
     assert result.template_id == "dm_fire_pilastro_ca"
     assert result.limit_state == "FIRE"
     assert len(result.messages_it) > 0
 
-
 def test_fire_slab_rc_placeholder():
     """check_fire_resistance_slab_rc non deve crashare."""
-    calc_input = _make_fire_calc_input("R120", 1)
-    template = _make_fire_template("dm_fire_solaio_ca")
+    calc_input =_make_fire_calc_input("R120", 1)
+    template =_make_fire_template("dm_fire_solaio_ca")
 
     result = check_fire_resistance_slab_rc(calc_input, template)
     assert result.template_id == "dm_fire_solaio_ca"
     assert result.limit_state == "FIRE"
     assert len(result.messages_it) > 0
 
-
 def test_fire_beam_cap_placeholder():
     """check_fire_resistance_beam_cap non deve crashare (c.a.p.)."""
-    calc_input = _make_fire_calc_input("R60", 3)
-    template = _make_fire_template("dm_fire_trave_cap")
+    calc_input =_make_fire_calc_input("R60", 3)
+    template =_make_fire_template("dm_fire_trave_cap")
 
     result = check_fire_resistance_beam_cap(calc_input, template)
     assert result.template_id == "dm_fire_trave_cap"
     assert result.limit_state == "FIRE"
     assert len(result.messages_it) > 0
-
 
 def test_fire_beam_rc_missing_config():
     """Verifica che senza fire_config il check ritorna errore."""
@@ -7714,7 +7730,6 @@ def test_fire_beam_rc_missing_config():
     result = check_fire_resistance_beam_rc(calc_input, template)
     assert not result.ok
     assert result.details.get("implementation_status") == "missing_config"
-
 
 def test_fire_beam_rc_dict_config():
     """Verifica che fire_config come dict funzioni."""
@@ -7738,11 +7753,11 @@ def test_fire_beam_rc_dict_config():
     assert result.limit_state == "FIRE"
     assert result.details.get("required_class") == "R60"
 
-
 # ===========================================================================
+
 # Test validazione incendio
-# ===========================================================================
 
+# ===========================================================================
 
 def test_validation_fire_missing_config():
     """Validazione deve segnalare errore se fire_config mancante."""
@@ -7758,7 +7773,6 @@ def test_validation_fire_missing_config():
     fire_issues = [i for i in result.issues if "FIRE" in i.code or "fire" in i.code.lower()]
     assert len(fire_issues) > 0, "Deve segnalare errore per fire_config mancante"
 
-
 def test_validation_fire_with_config():
     """Validazione con fire_config presente non deve avere errori fire."""
     calc_input = _make_fire_calc_input("R60", 3)
@@ -7769,7 +7783,6 @@ def test_validation_fire_with_config():
         if i.severity == "error" and ("FIRE" in i.code or "fire" in i.code.lower())
     ]
     assert len(fire_errors) == 0, f"Non dovrebbero esserci errori fire: {fire_errors}"
-
 
 def test_validation_fire_invalid_exposed_sides():
     """Validazione deve segnalare errore per exposed_sides non valido."""
@@ -7943,7 +7956,7 @@ FAILED tests/test_dm96_checks.py::test_estimate_prestress_losses_placeholder
 Grep "^def (compute_precompression_effects|estimate_prestress_losses)" (in c:\workspaces\RD2229\RD2229\src\methods\checks_dm96.py)
 13 lines of output
 Read c:\workspaces\RD2229\RD2229\src\methods\checks_dm96.py (lines 601-660)
-I see - f_cd = 0.85 * f_ck / gamma_c so fcd = 0.85 * 20 / 1.6 = 10.625, not 12.5. Also the precompression functions have different signatures than CalcInput-based. Let me fix all 4 test failures.
+I see - f_cd = 0.85 *f_ck / gamma_c so fcd = 0.85* 20 / 1.6 = 10.625, not 12.5. Also the precompression functions have different signatures than CalcInput-based. Let me fix all 4 test failures.
 
 Edit c:\workspaces\RD2229\RD2229\tests\test_dm96_checks.py
 Modified
@@ -8141,7 +8154,7 @@ Your branch is ahead of 'origin/main' by 1 commit.
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
   (use "git restore <file>..." to discard changes in working directory)
-	modified:   tests/test_dm96_checks.py
+ modified:   tests/test_dm96_checks.py
 
 no changes added to commit (use "git add" and/or "git commit -a")
 Dropped refs/stash@{0} (13feb45d54ed5ce79a22a16f9ec5a0b7c5e4edd1)
@@ -8229,7 +8242,7 @@ I001 [*] Import block is un-sorted or un-formatted
    |
 27 |   """
 28 |
-29 | / from __future__ import annotations
+29 | / from **future** import annotations
 30 | |
 31 | | import dataclasses
 32 | | from dataclasses import dataclass, field
@@ -8303,7 +8316,7 @@ help: Remove extraneous `f` prefix
 F401 [*] `dataclasses` imported but unused
   --> src\methods\prestress_models.py:24:8
    |
-22 | from __future__ import annotations
+22 | from **future** import annotations
 23 |
 24 | import dataclasses
    |        ^^^^^^^^^^^
@@ -8358,7 +8371,7 @@ I001 [*] Import block is un-sorted or un-formatted
    |
 10 |   """
 11 |
-12 | / from __future__ import annotations
+12 | / from **future** import annotations
 13 | |
 14 | | from dataclasses import dataclass
 15 | |
@@ -8393,7 +8406,7 @@ I001 [*] Import block is un-sorted or un-formatted
    |
  9 |   """
 10 |
-11 | / from __future__ import annotations
+11 | / from **future** import annotations
 12 | |
 13 | | from dataclasses import dataclass
 14 | |
@@ -8507,17 +8520,17 @@ All 11 steps are complete. Here's a summary of everything implemented:
 
 Riepilogo implementazione DM96 completa
 File creati (5)
-File	Contenuto
-checks_dm96.py	17 funzioni: 4 TA + 4 SLU + 2 SLE + 3 SLU aggiuntivi + 4 c.a.p.
-prestress_models.py	TendonType, PrestressStage, PrestressingTendon, PrecompressionData
-checks_fire_dm96.py	FireVerificationConfig + 4 check incendio (trave/pilastro/solaio c.a. + trave c.a.p.)
-test_dm96_checks.py	25 test: TA, SLU, SLE, c.a.p. placeholder, integrazione
-test_fire_checks.py	15 test: template, config, placeholder run, validazione
+File Contenuto
+checks_dm96.py 17 funzioni: 4 TA + 4 SLU + 2 SLE + 3 SLU aggiuntivi + 4 c.a.p.
+prestress_models.py TendonType, PrestressStage, PrestressingTendon, PrecompressionData
+checks_fire_dm96.py FireVerificationConfig + 4 check incendio (trave/pilastro/solaio c.a. + trave c.a.p.)
+test_dm96_checks.py 25 test: TA, SLU, SLE, c.a.p. placeholder, integrazione
+test_fire_checks.py 15 test: template, config, placeholder run, validazione
 File modificati (3)
-File	Modifiche
-DM92.jsoncode	+campi TA (sigma_c_adm, tau_c0/c1, n_homog) + acciai precompressione
-normative_registry.py	+get_dm96_templates() (15 template) + get_fire_templates() (4 template)
-validation_engine.py	+blocco DM96 + blocco FIRE_DM2007
+File Modifiche
+DM92.jsoncode +campi TA (sigma_c_adm, tau_c0/c1, n_homog) + acciai precompressione
+normative_registry.py +get_dm96_templates() (15 template) + get_fire_templates() (4 template)
+validation_engine.py +blocco DM96 + blocco FIRE_DM2007
 Risultati
 56/56 test passati (DM96 + FIRE + NTC2018 non-regressione)
 Ruff: 0 errori

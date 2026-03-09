@@ -189,6 +189,6 @@ Script in `tools/`: **19**
 
 > Rilevamento meccanico limitato. Consultare `pyproject.toml` per la lista completa.
 
-  - `rd2229 = "rd2229.ui_qt.app:main"`
-  - `rd2229-gui = "rd2229.ui_qt.app:main"`
-  - `rd2229-cli = "src.cli.entrypoint:main"`
+- `rd2229 = "rd2229.ui_qt.app:main"`
+- `rd2229-gui = "rd2229.ui_qt.app:main"`
+- `rd2229-cli = "src.cli.entrypoint:main"`

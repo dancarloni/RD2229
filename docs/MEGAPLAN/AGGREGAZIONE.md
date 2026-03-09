@@ -77,7 +77,7 @@ Di seguito trovi la descrizione completa, in formato pianificabile, dei campi, d
 | Campo | Tipo | Unità | Descrizione | Vincoli / note |
 |-------|------|-------|-------------|----------------|
 | `id` | stringa | – | identificatore univoco nel progetto | obbligatorio, deve essere unico |
-| `element_type` | enum {PARAPET, PARTITION, SIGNAGE, CHIMNEY, CANTILEVER, SUSPENDED, /* altri */} | – | categoria pre‑definita | determina campi opzionali ed applicabilità |
+| `element_type` | enum {PARAPET, PARTITION, SIGNAGE, CHIMNEY, CANTILEVER, SUSPENDED, /*altri*/} | – | categoria pre‑definita | determina campi opzionali ed applicabilità |
 | `description_it` | stringa | – | breve descrizione testuale | opzionale |
 | `geometry` | dict | metri | dimensioni principali: lunghezza, larghezza, altezza, spessore, diametro | almeno i campi richiesti dal tipo |
 | `mass` | float | kg | massa totale o areica | >0; funzione delle dimensioni/materiale |
@@ -93,6 +93,7 @@ Di seguito trovi la descrizione completa, in formato pianificabile, dei campi, d
 | `notes_it` | stringa | – | campo libero per annotazioni | |
 
 > **Flag operativi**  
+>
 > - `is_structural`: bool (derivato da `element_type`)  
 > - `requires_seismic_check`: bool (determina generazione combinazioni)  
 > - `library_preset`: stringa (nome preset di libreria, se applicabile)  
@@ -185,12 +186,14 @@ Questa **SPEC** è ora pronta per essere utilizzata come base nella fase di impl
 
 User: SEI GitHub Copilot Chat in VS Code. MODALITÀ OBBLIGATORIA: PLAN‑ONLY.
 Divieti assoluti:
+
 - NON generare codice (Python/Tkinter/JSON/etc.)
 - NON creare/modificare file
 - NON eseguire refactor operativi
 - NON inventare contenuti o valori normativi: se mancano dati → TODO con riferimento a fonte.
 
 CONTESTO:
+
 - Ho completato la Fase 1 (SPEC/PLAN) e devo passare alla Fase 2.
 - Il repo contiene già una prima implementazione/prototipo di secondary elements in:
   - src/codes/secondary_elements/*
@@ -202,18 +205,20 @@ CONTESTO:
 - STEP2.md definisce naming canonico e invarianti per norma_attiva e routing sicuro.
 
 VINCOLI ARCHITETTURALI (VINCOLANTI):
+
 - Separazione Core/GUI/I‑O e modularità estrema (PLAN_MASTER.md).
 - Input comune unico (PLAN_INPUT_COMUNE.md) e Output comune unico (PLAN_OUTPUT_COMUNE.md).
 - GUI thin (PLAN_GUI_SECONDARY_ELEMENTS.md).
 - Test invarianti: ogni risultato deve avere trace.run_id e norm_references[] (TEST_PLAN_NTC2018.md).
 
 OBIETTIVO FASE 2 (SOLO PIANIFICAZIONE):
+
 1) Ricognizione AS‑IS dei file esistenti relativi a secondary elements:
    - src/codes/secondary_elements/checks.py
    - src/codes/secondary_elements/models.py
    - src/codes/secondary_elements/storage_adapter.py
    - verifications/secondary_elements/dispatcher.py
-   - eventuali riferimenti in src/methods/verification/* e methods/verification/*
+   - eventuali riferimenti in src/methods/verification/*e methods/verification/*
 2) Mappatura AS‑IS → TO‑BE rispetto alla SPEC:
    - confrontare con docs/MEGAPLAN/SECONDARY_ELEMENTS_MASTER.md
    - confrontare con docs/MEGAPLAN/SECONDARY_ELEMENTS_AUTOMATION.md
@@ -233,6 +238,7 @@ OBIETTIVO FASE 2 (SOLO PIANIFICAZIONE):
    - test contrattuali aggiuntivi (solo descrizione)
 
 VINCOLI TECNICI DEL MODULO SECONDARY ELEMENTS:
+
 - Forza sismica: sempre NTC2018 (spettro NTC + formulazione NTC).
 - Modello Ta: selezionabile e tracciato (ASCE/NEHRP/FEMA/EC8/Manuale).
 - Drift SLE: Metodo B vincolante (shear‑building proxy + soft_storey_factor, confidence LOW, warning obbligatorio).
@@ -246,7 +252,6 @@ D) Test plan Fase 2 (solo contratti: trace + norm_references + gating)
 E) Bozza completa del nuovo file: docs/MEGAPLAN/STEP2_INTEGRATION_SECONDARY_ELEMENTS.md (testo da incollare)
 
 INIZIA ORA.
-
 
 GitHub Copilot: Searched for files matching `**/src/codes/secondary_elements/*`, no matches
 
@@ -323,14 +328,15 @@ La risposta è suddivisa nei punti richiesti: analisi AS‑IS, mappatura, roadma
 | **2.1 – Struttura & skeleton** | Creare `methods/verification/secondary_elements` con file listati in AUTOMATION; inizializzare dispatcher vuoto e dataclass minima | nessuna | direttorio e file esistenti vuoti |
 | **2.2 – Configurazione normativa** | aggiungere `config/calculation_codes/SECONDARY_ELEMENTS.jsoncode` con blocchi obbligatori; aggiornare `calculation_codes_loader` per riconoscerlo | 2.1 | loader carica file, il modulo appare in `available_checks()` (anche se vuote) |
 | **2.3 – Integrazione core/engine** |  
-  - estendere input/output schema (proj schema, verifiche engine)  
-  - implementare dispatcher: registro namespace, instradamento SLU/SLE  
-  - ampliare models.py con campi minimi; adattare storage_adapter a interfaccia persistente  
-  - garantire che ogni `check_*` restituisca `trace.run_id` e `norm_references[]` | 2.1–2.2 | engine esegue `namespace secondary_elements`; input arrivi validati; output contiene i contratti |
+
+- estendere input/output schema (proj schema, verifiche engine)  
+- implementare dispatcher: registro namespace, instradamento SLU/SLE  
+- ampliare models.py con campi minimi; adattare storage_adapter a interfaccia persistente  
+- garantire che ogni `check_*` restituisca `trace.run_id` e `norm_references[]` | 2.1–2.2 | engine esegue `namespace secondary_elements`; input arrivi validati; output contiene i contratti |
 | **2.4 – GUI & test** |  
-  - aggiungere modulo selector, colonne e warning in tabelle UI  
-  - creare tre file test (slu, sle, gating) e implementare casi contrattuali  
-  - estendere progetto di test per caricare config e schema | 2.3 | GUI presenta modulo e colonne; test verdi sulle regole contrattuali |
+- aggiungere modulo selector, colonne e warning in tabelle UI  
+- creare tre file test (slu, sle, gating) e implementare casi contrattuali  
+- estendere progetto di test per caricare config e schema | 2.3 | GUI presenta modulo e colonne; test verdi sulle regole contrattuali |
 
 > **Rischi / mitigazioni**
 >
@@ -430,12 +436,14 @@ Prossimo passo (Fase 2.1) sarà generare la struttura directory/boilerplate e 
 
 User: SEI GitHub Copilot Chat in VS Code. MODALITÀ OBBLIGATORIA: PLAN‑ONLY.
 Divieti assoluti:
+
 - NON generare codice (Python/Tkinter/JSON/etc.)
 - NON creare/modificare file
 - NON eseguire refactor operativi
 - NON inventare contenuti o valori normativi: se mancano dati → TODO con riferimento a fonte.
 
 CONTESTO:
+
 - Ho completato Fase 1 (SPEC/PLAN) e sono in Fase 2 (PLAN).
 - Nel repo esiste già una prima implementazione/prototipo di secondary elements in:
   - src/codes/secondary_elements/*
@@ -446,6 +454,7 @@ CONTESTO:
 - STEP2.md definisce naming canonico e invarianti per project_model.norma_attiva e routing safe/no‑mixing.
 
 OBIETTIVO (PLAN‑ONLY):
+
 - Produrre tabella AS‑IS→TO‑BE (OK/ADAPT/DEPRECATE/GAP), lista GAP prioritizzata, roadmap Fase 2 con acceptance criteria, test plan contrattuale.
 - Produrre/aggiornare bozza del file docs/MEGAPLAN/STEP2_INTEGRATION_SECONDARY_ELEMENTS.md.
 
@@ -457,8 +466,6 @@ D) Test plan contrattuale
 E) Bozza completa STEP2 integration file
 
 INIZIA ORA.
-
-
 
 GitHub Copilot: Ecco la sintesi richiesta per la **Fase 2 – integrazione del modulo Secondary Elements**, organizzata nei cinque punti indicati.  
 Resto in modalità **PLAN‑ONLY**: nessun codice, nessun file creato.
@@ -603,6 +610,7 @@ User: SEI GitHub Copilot Chat in VS Code. MODALITÀ OBBLIGATORIA: PLAN-ONLY.
 NON scrivere codice. NON modificare file. NON creare file. SOLO analisi e piano operativo.
 
 CONTESTO:
+
 - Voglio implementare un servizio NTC2018 per “paste” dei parametri di pericolosità sismica (da EdiLus-MS).
 - Input: classe d’uso (I–IV), vita nominale VN, periodo di riferimento VR e paste in blocco della tabella testuale con righe:
   Operatività / Danno / Salvaguardia Vita / Prevenzione Collasso
@@ -617,6 +625,7 @@ CONTESTO:
   - docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_AUTOMATION.md
 
 OBIETTIVO:
+
 1) Individuare nel repo i file esatti da toccare per:
    a) project model (dove sta project.seismic_inputs)
    b) persistenza (repository/adapter che salva e ricarica il project)
@@ -625,6 +634,7 @@ OBIETTIVO:
 3) Produrre una sequenza di implementazione con acceptance criteria e test minimi.
 
 OUTPUT RICHIESTO:
+
 - A) Lista file (TOUCH/CREATE) con motivazione 1 riga ciascuno
 - B) Roadmap implementazione in 6–10 passi numerati
 - C) Rischi e mitigazioni (es. paste con virgola decimale)
@@ -761,13 +771,15 @@ Al momento la lista è *completa*: nessun altro file è necessario per il serviz
 User: Sei in modalità PLAN (non implementare codice). Devi analizzare e pianificare l’integrazione dello scaffold RD2229/39 già estratto nel workspace, allineandolo all’architettura reale del repository RD2229.
 
 CONTESTO (già deciso)
+
 - Percorso modulo sismico RD2229: src/rd2229/seismic/rd2229_39/
 - MVP previsto:
-  - ONDULATORY: F_i = p * M_i * g
+  - ONDULATORY: F_i = p *M_i* g
   - SUSSULTORY (derivata): F_i,sus = 1.25 * F_i,ond
 - Output deve essere tracciabile (trace) e modulare (methods/policies/validators/models/docs_ref).
 
 ISTRUZIONI (PLAN)
+
 1) Scansione repository e compatibilità import
    - Individua il package root effettivo (es. src/rd2229/...) e come viene risolto in runtime/test.
    - Verifica come vengono eseguiti i test (pytest.ini / pyproject.toml / setup.cfg / conftest.py / PYTHONPATH, ecc.).
@@ -805,25 +817,27 @@ D) Patch planificate (diff o pseudo-diff per file)
 E) Comandi di verifica (almeno: pytest -q tests/rd2229_39)
 
 VINCOLI
+
 - Non implementare codice oltre la pianificazione.
 - Non eliminare nulla senza motivazione e alternativa.
 - Non hardcodare assunzioni: 1.25 deve essere configurabile e tracciato.
 - Se mancano informazioni, segnala TODO espliciti (non inventare).
 
 FILE DA ESPORRE AL PLAN (context minimo)
+
 - README.md
 - .vscode/settings.json (se esiste)
 - pyproject.toml / pytest.ini / setup.cfg (se presenti)
-- src/rd2229/__init__.py e file di packaging/import (eventuale setup/config)
+- src/rd2229/**init**.py e file di packaging/import (eventuale setup/config)
 - tests/ (struttura + conftest.py se presente)
 - tutti i file sotto src/rd2229/seismic/rd2229_39/ e tests/rd2229_39/
 - docs/ (almeno: docs/STEP3A_MASTER.md se esiste, docs/ARCH_NORMATIVE_KERNEL.md, docs/NORMATIVE_CAPABILITIES.md)
 
 OUTPUT FINALE AGGIUNTIVO
 Concludi con una sezione “PROMPT AGENT INPUTS” che elenchi:
+
 - i file che l’Agent dovrà avere in contesto in fase implementazione
 - l’ordine suggerito per applicare le modifiche
-
 
 GitHub Copilot: Read [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/seismic/rd2229_39/provider.py)
 
@@ -847,7 +861,7 @@ Read [](file:///c%3A/Users/danca/workspaces/RD2229/tests/rd2229_39/test_ondulato
 
 Read [](file:///c%3A/Users/danca/workspaces/RD2229/tests/rd2229_39/test_trace_presence.py)
 
-But earlier file_search output shows src/rd2229/ has __init__.py maybe not accessible? maybe hidden? search again.
+But earlier file_search output shows src/rd2229/ has **init**.py maybe not accessible? maybe hidden? search again.
 
 Searched for files matching `**/src/rd2229/__init__*`, no matches
 
@@ -862,6 +876,7 @@ Searched for files matching `**/src/rd2229/__init__*.py`, no matches
 Searched for text `TraceRecord`, 10 results
 
 ### A) Executive summary  
+
 Il “scaffold” RD2229/39 è già presente sotto rd2229_39 con
 provider, modelli, metodi, policies e validator; i test `tests/rd2229_39/*` esercitano
 fattore 1.25 e presenza di trace. Il repository principale usa un layout `src/…`
@@ -890,7 +905,7 @@ emerso; la struttura è già coerente con lo stile del progetto.
 
 ### C) Checklist to‑do
 
-1. **Verificare presenza di __init__.py** (già vuoto): sinonimo
+1. **Verificare presenza di **init**.py** (già vuoto): sinonimo
    del namespace; nessuna azione.
 2. **Controllare pyproject.toml** – `setuptools.packages.find.include` già
    include `src*`, copre `rd2229`; nessun cambio.
@@ -997,6 +1012,7 @@ tener pronti i seguenti file/percorsi nell’ambiente:
 12. Docs (STEP3B_RD2229_IMPLEMENTATION_PLAN.md, ARCH_NORMATIVE_KERNEL.md)
 
 Ordine suggerito:
+
 1. Model/persistence updates (verification_project.py)
 2. Data classes and service (models, provider, parser stub)
 3. Tests for service and round‑trip
@@ -1009,16 +1025,19 @@ normativa esistente con impatto minimo e massima compatibilità.
 User: Sei in modalità PLAN (non implementare codice). Pianifica lo STEP 4A: risoluzione del coefficiente p (percentuale delle masse) per RD2229/39 usando un datasource JSON in data/rd2229/seismic/, mantenendo compatibilità con il layout src e la configurazione pytest esistente.
 
 CONTESTO
+
 - Modulo esistente: src/rd2229/seismic/rd2229_39/ con metodi ONDULATORY e SUSSULTORY e trace.
-- Esiste un package top-level "src" (src/__init__.py): mantenere import coerenti con src.... (non cambiare questa scelta).
-- Pytest è configurato sia in pytest.ini (testpaths=tests, ignore tests_legacy) sia in pyproject.toml [tool.pytest.ini_options]: non introdurre divergenze, mantenere coerenza. 
+- Esiste un package top-level "src" (src/**init**.py): mantenere import coerenti con src.... (non cambiare questa scelta).
+- Pytest è configurato sia in pytest.ini (testpaths=tests, ignore tests_legacy) sia in pyproject.toml [tool.pytest.ini_options]: non introdurre divergenze, mantenere coerenza.
 
 SCELTA DATI (DECISA)
+
 - Il datasource JSON deve stare in: data/rd2229/seismic/
   - data/rd2229/seismic/p_coeff_table.json
   - (opzionale ma consigliato) data/rd2229/seismic/p_coeff_table.schema.json
 
 OBIETTIVO STEP 4A
+
 1) Aggiungere modalità p:
    - MANUAL: usa request.p (default, backward-compatible)
    - TABLE(JSON): ricava p da data/rd2229/seismic/p_coeff_table.json (path configurabile ma default a questo)
@@ -1032,6 +1051,7 @@ OBIETTIVO STEP 4A
 5) Non toccare file VS Code esistenti.
 
 ARCHITETTURA MINIMA ATTESA
+
 - Nuovo resolver: src/rd2229/seismic/rd2229_39/p_resolver.py (o equivalente)
 - JSON reale: data/rd2229/seismic/p_coeff_table.json (bozza con TODO normativi)
 - JSON schema (opzionale): data/rd2229/seismic/p_coeff_table.schema.json
@@ -1047,18 +1067,20 @@ B) Decisioni architetturali + motivazioni conservative
 C) Checklist to-do numerata con file da creare/modificare
 D) Patch planificate (diff/pseudo-diff per ciascun file)
 E) Comandi verifica: pytest -q tests/rd2229_39 ; pytest -q
-+ Sezione finale “PROMPT AGENT INPUTS” (file da dare all’Agent + ordine + comandi)
+- Sezione finale “PROMPT AGENT INPUTS” (file da dare all’Agent + ordine + comandi)
 
 VINCOLI
+
 - Non implementare codice.
 - Non inventare valori normativi: nel JSON reale lascia TODO; nei test usa dataset mock.
 - Mantieni import coerenti con package "src".
 - Mantieni coerenza tra pytest.ini e tool.pytest.ini_options (nessuna divergenza).
 
 FILE DA ESPORRE AL PLAN (context)
+
 - pyproject.toml
 - pytest.ini
-- src/__init__.py
+- src/**init**.py
 - src/rd2229/seismic/rd2229_39/** (tutto)
 - tests/rd2229_39/** (tutto)
 - src/rd2229/seismic/rd2229_39/docs_ref/norm_refs.py (se presente)
@@ -1067,6 +1089,7 @@ FILE DA ESPORRE AL PLAN (context)
 GitHub Copilot: Read [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/seismic/rd2229_39/docs_ref/norm_refs.py)
 
 ### A) Executive summary  
+
 Lo **STEP 4A** introduce la possibilità di determinare il coefficiente `p` da una tabella JSON
 (p.es. il foglio “pericolosità” RD2229/39) pur mantenendo il comportamento esistente (p
 manuale) e la traccia normativa.  
@@ -1280,6 +1303,7 @@ MVP è estendibile e la suite di test fornisce copertura immediata.
 User: Sei un senior software architect Python/Qt. Devi produrre un PIANO DI RIFATTORIZZAZIONE COMPLETO per questo repository.
 
 Obiettivo:
+
 - Abbandonare totalmente Tkinter (legacy demo) e creare una GUI moderna e modulare in PySide6 (Qt).
 - Eliminare o isolare le parti deprecate: nessun entrypoint deve più avviare la mini-GUI obsoleta.
 - Rendere il progetto avviabile senza PYTHONPATH manuale (packaging pulito, pip install -e ., console_scripts).
@@ -1288,12 +1312,14 @@ Obiettivo:
 - Fornire un MVP: finestra principale PySide6 con navigazione moduli, gestione progetto (New/Open/Save JSON), viewer log, e almeno una pagina “demo” collegata al core.
 
 Contesto problema attuale:
+
 - Avviando scripts/run_verification_demo.py appare una mini interfaccia legacy e/o crasha con:
-  TypeError: VerificationInput.__init__() got an unexpected keyword argument 'M'. Did you mean 'Mx'?
+  TypeError: VerificationInput.**init**() got an unexpected keyword argument 'M'. Did you mean 'Mx'?
 - Questo demo è obsoleto e deve essere dismesso come percorso principale.
 - In precedenza è stato aggiunto un entrypoint CLI, ma il repository sta ancora portando l’utente verso la GUI Tkinter.
 
 Richieste del piano:
+
 1) Inventario: identifica file che importano tkinter o contengono GUI legacy; identifica entrypoint e script di avvio.
 2) Nuova architettura: proponi struttura cartelle PySide6 (app shell, pages, viewmodels, services), plugin modules, project store JSON.
 3) Packaging: definisci come sistemare pyproject.toml, console_scripts, python -m package, e come eliminare PYTHONPATH manuale.
@@ -1302,6 +1328,7 @@ Richieste del piano:
 6) Test minimi: cosa aggiungere per evitare regressioni (es. test di avvio, serializzazione JSON, runner headless).
 
 Output richiesto:
+
 - Un documento strutturato (Markdown) con: overview, rischi, piano per fasi, checklist per PR, lista file da creare/modificare, naming convenzioni, e “Definition of Done”.
 - NON scrivere codice in questa fase: solo piano e lista interventi.
 
@@ -1349,9 +1376,10 @@ impostare manualmente `PYTHONPATH`.
 ## B) Nuova architettura proposta
 
 ```
+
 src/
 ├── ui_qt/                         # nuova GUI PySide6
-│   ├── __init__.py
+│   ├── **init**.py
 │   ├── app.py                     # QApplication, MainWindow shell
 │   ├── pages/                     # pagine/moduli come widget
 │   │   ├── home.py                # menu/launcher
@@ -1363,6 +1391,7 @@ src/
 ├── ui_legacy/                     # contenitore Tkinter deprecato
 │   └── ...                        # copia di tutto `src/ui/*`
 └── ...                            # resto del pacchetto invariato
+
 ```
 
 - **app.py** esporta `main()` usabile come entrypoint console.
@@ -1565,9 +1594,10 @@ La nuova GUI si trova in un package separato che non dipende da Tkinter e non de
 essere importato dal core.
 
 ```
+
 src/
 ├── ui_qt/                 # nuova GUI Qt
-│   ├── __init__.py
+│   ├── **init**.py
 │   ├── app.py             # start() / main()
 │   ├── pages/             # widget delle “pagine”
 │   │   ├── home.py
@@ -1580,6 +1610,7 @@ src/
 │   ├── module_selector.py
 │   └── … (copia completa di src/ui/)
 └── …                      # resto del codice: core, methods, rd2229, etc.
+
 ```
 
 - **Core** (`src/core_calculus`, `src/methods`, `src/domain`, ecc.) rimane invariato,
@@ -1694,12 +1725,14 @@ include = ["src*", "src.*"]  # assicurarsi che il package root 'src' venga trova
 
 4. **Guardia anti-Tkinter**  
    - `tests/test_no_tkinter_imports.py` che esegue
+
      ```python
      import pkgutil, importlib
      for m in pkgutil.walk_packages(['src/ui_qt','src']):
          mod = importlib.import_module(m.name)
          assert 'tkinter' not in str(mod.__file__)
      ```
+
      (ma permettere import sotto `src/ui_legacy`).
 
 5. **Legacy tests**  
@@ -1745,12 +1778,13 @@ include = ["src*", "src.*"]  # assicurarsi che il package root 'src' venga trova
 > *Promt agent inputs*:  
 > fornire al successivo agente i file chiave per la migrazione, nell’ordine
 > suggerito dalla roadmap (vedere sezione precedente).  
->   1. module_selector.py + altro `src/ui/*`  
->   2. l’intero package `src/ui_legacy` (da creare)  
->   3. file per `ui_qt` skeleton (`app.py`, `pages/`, etc.)  
->   4. pyproject.toml (aggiorni extras/scripts)  
->   5. test file guardiani e nuovi smoke test  
->   6. README + documenti MIGRATION  
+>
+> 1. module_selector.py + altro `src/ui/*`  
+> 2. l’intero package `src/ui_legacy` (da creare)  
+> 3. file per `ui_qt` skeleton (`app.py`, `pages/`, etc.)  
+> 4. pyproject.toml (aggiorni extras/scripts)  
+> 5. test file guardiani e nuovi smoke test  
+> 6. README + documenti MIGRATION  
 
 Con questo piano si può affrontare la migrazione gradualmente, con checkpoint
 e without breaking the core functionality.
@@ -1759,11 +1793,13 @@ User: Agisci come un software architect e UX designer esperto di Python e PyQt6.
 
 OBIETTIVO
 Devi aiutarmi a progettare e implementare un **launcher unico e modulare** per il nostro software tecnico di **verifiche strutturali e di prevenzione incendi**, in modo da:
+
 - collegare in modo coerente **tutte le finestre / dialog / moduli PyQt6 già esistenti**
 - permettere all’utente di **avviare facilmente ogni funzionalità da un’unica finestra principale**
 - migliorare la **navigazione** e ridurre la dispersione tra tante GUI separate.
 
 CONTESTO
+
 - Il software è usato da ingegneri per:
   - verifiche strutturali
   - verifiche antincendio
@@ -1774,6 +1810,7 @@ CONTESTO
 - Voglio mantenere il più possibile il codice esistente e **limitare i refactoring invasivi**.
 
 TECNOLOGIA E STRUTTURA DEL PROGETTO
+
 - Linguaggio: **Python**
 - GUI: **PyQt6**
 - Sto lavorando in **Visual Studio Code** con **GitHub Copilot Pro**.
@@ -1962,6 +1999,7 @@ launcher che fa `stacked.setCurrentWidget(widget)` oppure, per finestre
 secondary (es. dialog per calcolatori) lancia un `QDialog`.
 
 Sono già previste due modalità di attivazione:
+
 - **widget integrati** (feature): Progetto, Esegui, Risultati.
 - **finestre indipendenti**: eventuali dialog di supporto possono essere aperti
   tramite azioni del menu o pulsanti nella pagina.
@@ -2082,6 +2120,7 @@ register(FireSafetyFeature())
 ```
 
 *Commenti*  
+
 - le classi esistenti (es. `ProjectInfoWidget`) vengono importate e messe nello
   `stack` senza modifiche; il launcher funge da “wiring” centrale.  
 - per finestre stand‑alone (QDialog) semplicemente si lancia `dlg.exec()` dal
@@ -2115,6 +2154,7 @@ User: SEI IN MODALITÀ PLAN — NON SCRIVERE CODICE E NON PASSARE ALL’IMPLEMEN
 
 📌 RUOLO
 Agisci come:
+
 - software architect,
 - domain expert in software di calcolo strutturale e di prevenzione incendi,
 - system designer focalizzato su architetture modulari, configurabili e scalabili.
@@ -2123,6 +2163,7 @@ Il tuo compito è rimanere in modalità **pianificazione** il più a lungo possi
 
 🎯 OBIETTIVO GENERALE
 Aiutarmi a progettare (a livello di piano, non di codice) la nuova architettura del nostro software di verifiche strutturali e antincendio, scritto in **Python** con **PyQt6** (e oggi con del legacy tkinter e/o PySide6), in modo che sia:
+
 - completamente **modulare**,
 - con **launcher unico** (interfaccia principale) in PyQt6 che collega tutte le funzionalità,
 - con **configurazione centralizzata** (file di configurazione chiari e versionabili),
@@ -2204,6 +2245,7 @@ Nella sola fase di pianificazione, voglio che tu mi aiuti a:
    - mantenere aggiornato questo “schema mentale” man mano che il piano si raffina.
 
 🧠 MODALITÀ DI LAVORO (MOLTO IMPORTANTE)
+
 - Rimani SEMPRE in **modalità pianificazione** finché non ti chiedo di passare all’implementazione:
   - NON generare codice,
   - NON proporre snippet di implementazione dettagliati,
@@ -2235,11 +2277,13 @@ Voglio che il lavoro di pianificazione venga organizzato in sezioni chiare, ad e
 10. Roadmap di implementazione (solo ad alto livello, senza codice)
 
 Per ogni sezione:
+
 - fai domande mirate,
 - raccogli le informazioni,
 - poi sintetizza in 1–2 paragrafi + bullet point chiave.
 
 📄 FORMATO DELLE TUE RISPOSTE
+
 - Usa:
   - titoli chiari,
   - elenchi puntati,
@@ -2252,11 +2296,13 @@ Per ogni sezione:
   - quali decisioni sono “aperte” e su cui dobbiamo tornare.
 
 ⛔️ COSA NON FARE IN QUESTA FASE
+
 - Non scrivere codice Python o PyQt6 (solo, eventualmente, pseudo‑codice molto alto livello se serve a spiegare un concetto).
 - Non modificare file, non assumere di avere accesso in scrittura al repository.
 - Non dare per scontate decisioni architetturali senza avermi prima consultato.
 
 ✅ PRIMO PASSO CHE TI CHIEDO
+
 1. Riassumi in poche righe come hai capito il problema da risolvere.
 2. Proponi una prima bozza di elenco sezioni del piano (puoi usare la struttura suggerita sopra come base).
 3. Poi, PRIMA di procedere oltre, fammi le prime 3–5 domande più importanti per:
@@ -2309,6 +2355,7 @@ User: SEI IN MODALITÀ PLAN — NON SCRIVERE CODICE E NON PASSARE ALL'IMPLEMENTA
 
 🎯 RUOLO
 Agisci come:
+
 - software architect senior,
 - system designer,
 - domain expert in software di verifica strutturale e antincendio,
@@ -2317,6 +2364,7 @@ Agisci come:
 Rimani in modalità PIANIFICAZIONE PROFONDA per tutto il tempo possibile.
 
 📌 RESPONSABILITÀ PRINCIPALI (in questa fase)
+
 - Analizzare autonomamente tutti i file `.md` presenti in `docs/` nel workspace VS Code.  
   Ogni volta che ti servono informazioni, cerca **prima nei markdown**.  
 - Costruire e verificare continuamente una visione architetturale globale.
@@ -2351,6 +2399,7 @@ Quando produci la risposta:
 
 📚 USO DEI FILE DOCS/
 Ogni volta che affronti una sezione del piano:
+
 - cerca automaticamente documenti rilevanti in `docs/`,
 - estrai informazioni utili,
 - allinea le tue domande a quanto trovato,
@@ -2380,6 +2429,7 @@ Le domande devono essere a scelta multipla, ad esempio:
 Fornisci anche una domanda “E) Altro: ____” quando rilevante.
 
 📦 STRUTTURA DEL PIANO (che andremo a riempire insieme)
+
 1. Comprensione del dominio  
 2. Inventario funzionale e moduli logici  
 3. Architettura complessiva (UI, core, servizi, dati)  
@@ -2393,6 +2443,7 @@ Fornisci anche una domanda “E) Altro: ____” quando rilevante.
 11. Roadmap ad alto livello  
 
 🚫 COSA NON DEVI FARE
+
 - Non generare codice.
 - Non proporre soluzioni implementative premature.
 - Non assumere decisioni senza chiedere conferma.
@@ -2401,6 +2452,7 @@ Fornisci anche una domanda “E) Altro: ____” quando rilevante.
 ---
 
 🔰 **PRIMA AZIONE CHE DEVI FARE**
+
 1. Analizza i file in `docs/`, riassumi ciò che trovi sul dominio.  
 2. Identifica eventuali incongruenze o lacune informative.  
 3. Genera **le prime 5–8 domande a scelta multipla**, basandoti sia sui documenti che sulle parti mancanti.
@@ -2448,7 +2500,7 @@ L’inventario mostra anche placeholders per FRC e altri ingredienti storici che
 
 2. **Come credi siano organizzati i calcoli reciproci tra codice e GUI oggi?**  
    A) GUI chiama direttamente funzioni in `methods/*`, nessun engine centrale  
-   B) c’è un `VerificationEngine` che riceve oggetti di input e seleziona moduli   
+   B) c’è un `VerificationEngine` che riceve oggetti di input e seleziona moduli
    C) i calcoli sono effettuati via script VBA importati (legacy)  
    D) i moduli sono caricati dinamicamente via entry‑point plugin  
    E) Altro: __________
@@ -2511,25 +2563,32 @@ Hai confermato (risposta **C**) che il «core» strutturale copre:
 😃 Buono – il piano dovrà quindi prevedere un modulo verifiche con questi sotto‑sistemi e parametri .jsoncode.
 
 ### ✅ Domanda 2: calcoli storici VBA  
+
 Hai scelto **E** – cioè i calcoli sono ancora via script VBA e **devono essere convertiti** in un formato “moderno” (Python, engine interno).  
 → questo mette in evidenza un’area critica: **trasformazione/rifattorizzazione del backend** in un modulo condiviso prima di legarlo al launcher.
 
 ### ✅ Domanda 3: storage progetti  
+
 Hai risposto **E** (valutiamo il metodo migliore) ma con preferenza A (repository per entità) — confermo: è ragionevole adottare un layer repository “per entità” come base, poi eventualmente sopra un Unit‑of‑Work se necessario.
 
 ### ✅ Domanda 4: `.jsoncode`  
+
 Hai scelto **E** cioè lasci a me decidere a cosa servano: dai documenti emerge che servono a **parametrizzare norme, coefficienti e materiali**; sono quindi la base per la configurazione normativa centralizzata.
 
 ### ✅ Domanda 5: incendio  
+
 Con **B** mi confermi che il modulo incendio è **separato** e ha un proprio flusso termico‑meccanico; non deve essere fuso con le verifiche strutturali.
 
 ### ✅ Domanda 6: utenti e workflow  
+
 Con **A** intendiamo un ingegnere che lavora offline su un progetto per volta; l’app quindi non necessita di multi‑utenza o sincronizzazione cloud immediata, ma potremmo pianificare servizi di condivisione in futuro.
 
 ### ✅ Domanda 7: estensibilità  
+
 Hai preferito **B** – il sistema Plugin/`MODULE_SPEC` già esistente — conferma la direzione modulare e discovery automatica, che dovremo mantenere/estendere.
 
 ### ✅ Domanda 8: modularità data layer  
+
 Hai selezionato **E** con preferenza per A (repository per entità).    Quindi useremo una struttura base con repository individuali (Progetto, Materiale, Sezione, Verifica …) e valuteremo ulteriori pattern (Unit‑of‑Work) se emergono esigenze di transazioni complesse.
 
 ---
@@ -2553,6 +2612,7 @@ User: [MODALITÀ: PLAN — VS Code Copilot Chat]
 Ruolo: agisci come architetto software senior + ingegnere strutturista (Italia). Obiettivo: definire ulteriori dettagli di architettura, dominio e specifiche, SENZA scrivere codice (no file generati, no patch), SENZA avviare modalità Agent/Edit. Devi produrre solo documenti di specifica (Markdown) e schemi (JSON Schema o bozze Pydantic in pseudo-codice) e una lista di decisioni aperte.
 
 CONTESTO (vincolante)
+
 - Applicazione desktop offline mono-utente, un progetto alla volta.
 - Core strutturale: TA, SLU, SLE con combinazioni, fessurazione, deformazioni, ecc.
 - Modulo incendio separato (flusso termico-meccanico autonomo), NON fuso col core strutturale.
@@ -2563,6 +2623,7 @@ CONTESTO (vincolante)
 - Priorità: definire bene i dettagli per ridurre rework e favorire implementazione modulare.
 
 REGOLE DI RIGORE
+
 1) Niente assunzioni non dichiarate: se manca informazione, segnala “insufficienza dati” e proponi opzioni.
 2) Tutto ciò che proponi deve essere verificabile e tracciabile: ogni decisione deve avere motivazione tecnica e impatto.
 3) Output strutturato in sezioni professionali (Premessa, Modello concettuale, Flussi, Data layer, Plugin spec, Config `.jsoncode`, Migrazione VBA, Output/Report, Decisioni aperte, Next actions).
@@ -2571,44 +2632,53 @@ REGOLE DI RIGORE
 
 TASK (da completare nell’ordine)
 A) MODELLO CONCETTUALE (dominio strutturale)
+
 - Definisci elenco entità minime e avanzate: attributi essenziali, relazioni (cardinalità), invarianti.
 - Separazione netta tra: “Model” (dati), “Engine” (calcolo), “UI” (presentazione), “Persistence” (repo).
 - Indica un glossario minimo (termini: combinazione, caso di carico, verifica, risultato, profilo normativo).
 
 B) FLUSSI FUNZIONALI END-TO-END
+
 - Descrivi 3 flussi: (1) creazione progetto + setup norma; (2) definizione elementi/materiali/sezioni + azioni; (3) esecuzione verifiche + report + salvataggio risultati.
 - Per ciascun flusso: input, output, validazioni, errori tipici, punti di estensione plugin.
 
 C) DATA LAYER (repository per entità)
+
 - Proponi interfacce concettuali dei repository (metodi “minimi”) e un formato storage MVP: opzione cartella+JSON vs SQLite.
 - Definisci “versioning” del progetto e migrazioni (schema version), e strategia di compatibilità retro.
 - Specifica quali entità sono “source of truth” e quali sono “derivate/cache”.
 
 D) PLUGIN SYSTEM / MODULE_SPEC
+
 - Specifica il contenuto minimo del MODULE_SPEC: id, name, version, entrypoints (ui/engine/schemas), capabilities (checks/norms), dependencies, data contracts.
 - Definisci regole di discovery, caricamento, compatibilità versioni, e fallback se un plugin manca o è incompatibile.
 - Elenca esempi di plugin: core_structural_checks, combinations_engine, materials_db, fire_module.
 
 E) CONFIGURAZIONE `.jsoncode` (norme/materiali/coeff.)
+
 - Definisci la tassonomia e il namespace: norme → parametri globali; materiale → proprietà; combinazioni → coefficienti; esposizione e classi.
 - Proponi struttura e versionamento `.jsoncode` + validazione (schema) + unità di misura.
 - Indica un processo di override: default normativo → profilo progetto → override utente; tracciamento “provenienza” del parametro.
 
 F) MIGRAZIONE VBA → PYTHON ENGINE
+
 - Proponi un piano di conversione: inventario macro → decompose → funzioni pure → test golden file → integrazione.
 - Definisci template di “scheda macro” (nome, input, output, dipendenze Excel, tolleranze confronto).
 - Indica come ridurre il rischio: regressioni, rounding, unità, separatori, differenze numeriche.
 
 G) OUTPUT E REPORTISTICA
+
 - Definisci formato risultati: JSON risultati + report HTML/PDF (solo specifica, non generare file).
 - Requisiti di tracciabilità: versione norme, parametri usati, plugin version, timestamp, hash input.
 - Indica un “Result Contract” minimo (campi obbligatori) e livelli severità (OK/WARN/FAIL).
 
 H) DECISIONI APERTE (massimo 8) + DOMANDE BLOCCANTI (massimo 5)
+
 - Elenca decisioni da prendere con pro/contro e raccomandazione prudente.
 - Formula solo domande bloccanti, a scelta multipla A/B/C dove possibile.
 
 OUTPUT ATTESO (formato)
+
 1) Documento Markdown: “SPEC_01_Domain_Model.md”
 2) Documento Markdown: “SPEC_02_Architecture_and_DataLayer.md”
 3) Documento Markdown: “SPEC_03_Plugins_and_Config_jsoncode.md”
@@ -2724,6 +2794,7 @@ Rimani esclusivamente in modalità PLAN. NON generare codice. NON avviare Agent/
 Obiettivo: risolvere in modo rigoroso e minimale le “Insufficienze dati” identificate in SPEC_01_Domain_Model.md, producendo integrazioni formali al modello concettuale già confermato.
 
 CONTESTO VINCOLANTE
+
 - Il documento SPEC_01_Domain_Model.md è CONFERMATO e va preservato.
 - Non sono ammesse riscritture radicali del modello.
 - Sono ammesse solo:
@@ -2734,6 +2805,7 @@ CONTESTO VINCOLANTE
 - Dominio: software strutturale professionale (Italia), SLU/SLE/TA + incendio separato.
 
 INSUFFICIENZE DA RISOLVERE (OBBLIGATORIE)
+
 1) Definizione attributi e struttura di LoadCase per:
    - neve
    - vento
@@ -2748,29 +2820,32 @@ INSUFFICIENZE DA RISOLVERE (OBBLIGATORIE)
 
 TASK
 A) Per ciascuna insufficienza:
-   - descrivi il PROBLEMA
-   - proponi 2–3 OPZIONI (A/B/C)
-   - indica PRO e CONTRO tecnici
-   - fornisci una RACCOMANDAZIONE prudente
+
+- descrivi il PROBLEMA
+- proponi 2–3 OPZIONI (A/B/C)
+- indica PRO e CONTRO tecnici
+- fornisci una RACCOMANDAZIONE prudente
 B) Aggiorna il modello concettuale SOLO con:
-   - nuovi campi
-   - nuove relazioni
-   - specializzazioni (es. subtype)
+- nuovi campi
+- nuove relazioni
+- specializzazioni (es. subtype)
    chiaramente marcate come “Integrazione a SPEC_01”.
 C) Aggiorna il glossario SOLO se necessario.
 D) Indica l’impatto su:
-   - flussi funzionali
-   - data layer / repository
-   - plugin system
+- flussi funzionali
+- data layer / repository
+- plugin system
 E) Elenca le decisioni che diventano “locked” dopo questa integrazione.
 
 FORMATO OUTPUT
+
 1) Sezione: “Risoluzione insufficienze dati”
 2) Sezione: “Integrazioni formali a SPEC_01”
 3) Sezione: “Decisioni consolidate”
 4) Sezione: “Nessun’altra modifica richiesta” (se applicabile)
 
 VINCOLI FINALI
+
 - Nessun codice
 - Nessun riferimento a implementazione concreta
 - Linguaggio tecnico-professionale, prudente, tracciabile
@@ -2891,10 +2966,10 @@ FireProfile (new entity)
 ```
 
 - `Project`
-  + `fire_profiles: List[FireProfile]`
+  - `fire_profiles: List[FireProfile]`
 
 - `Element` (modificato sopra)  
-  + `role` e `fire_profile_id` (opzionali).
+  - `role` e `fire_profile_id` (opzionali).
 
 #### Glossario aggiornato
 

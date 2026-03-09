@@ -19,9 +19,11 @@ Risolto il problema per cui la finestra principale (Module Selector) si chiudeva
 ## 📁 File Modificati
 
 ### 1. **`sections_app/ui/main_window.py`** - MainWindow
+
 #### Cambio Principale: `tk.Tk` → `tk.Toplevel`
 
 **PRIMA:**
+
 ```python
 class MainWindow(tk.Tk):
     """Finestra principale dell'applicazione."""
@@ -31,6 +33,7 @@ class MainWindow(tk.Tk):
 ```
 
 **DOPO:**
+
 ```python
 class MainWindow(tk.Toplevel):
     """Finestra del modulo Geometry - aperta come Toplevel dalla finestra principale ModuleSelector.
@@ -45,6 +48,7 @@ class MainWindow(tk.Toplevel):
 ```
 
 **Impatto:**
+
 - MainWindow è ora una finestra figlia legata alla root principale
 - Non crea più un `Tk()` indipendente
 - Quando chiudi il modulo Geometry, la finestra principale rimane aperta
@@ -56,6 +60,7 @@ class MainWindow(tk.Toplevel):
 #### Modifica: Rimozione `withdraw()` e `_on_child_close()`
 
 **PRIMA:**
+
 ```python
 def _open_geometry(self) -> None:
     logger.debug("Opening Geometry module")
@@ -73,6 +78,7 @@ def _on_child_close(self) -> None:
 ```
 
 **DOPO:**
+
 ```python
 def _open_geometry(self) -> None:
     """Apre il modulo Geometry come finestra Toplevel.
@@ -88,11 +94,13 @@ def _open_geometry(self) -> None:
 ```
 
 **Applicate a:**
+
 - `_open_geometry()`
 - `_open_historical()`
 - `_open_verification_table()`
 
 **Benefici:**
+
 - La finestra principale non viene più nascosta
 - Nessun bisogno di un sistema di restore/deiconify
 - Callback più semplice e diretto
@@ -104,6 +112,7 @@ def _open_geometry(self) -> None:
 **Cambio:** Aggiunto `master` come primo parametro in `MainWindow()` constructor
 
 **PRIMA:**
+
 ```python
 def test_editor_material_button_triggers_open_material_manager(self):
     repo = SectionRepository()
@@ -112,6 +121,7 @@ def test_editor_material_button_triggers_open_material_manager(self):
 ```
 
 **DOPO:**
+
 ```python
 def setUp(self):
     # Check Tkinter availability
@@ -177,6 +187,7 @@ def setUp(self):
 ## ✅ Test e Validazione
 
 **Risultati Test:**
+
 ```
 53 passed, 1 skipped, 1 warning, 9 subtests passed in 8.42s
 ```
@@ -190,24 +201,28 @@ def setUp(self):
 ## 🚀 Comportamento in Pratica
 
 ### Scenario 1: Aprire Geometry
+
 1. Clicca "Open Geometry" nel Module Selector
 2. ✅ **Module Selector rimane visibile** in background
 3. Una nuova finestra "Gestione Proprietà Sezioni" si apre
 4. ✅ Puoi continuare a usare il Module Selector mentre Geometry è aperto
 
 ### Scenario 2: Aprire Multiple Moduli
+
 1. Apri Geometry → finestra Geometry aperta
 2. Clicca "Open Materials" → finestra Materials aperta
 3. ✅ Geometry, Materials **e** Module Selector sono **tutti visibili**
 4. Puoi passare tra le finestre liberamente
 
 ### Scenario 3: Chiudere un Modulo
+
 1. Chiudi la finestra Geometry (pulsante X o Esc)
 2. ✅ Module Selector **rimane aperta**
 3. ✅ Materials (se aperta) **rimane aperta**
 4. Solo Geometry viene chiusa
 
 ### Scenario 4: Chiudere l'Applicazione
+
 1. Chiudi la finestra Module Selector (pulsante X)
 2. ✅ L'intera applicazione termina (chiude tutti i moduli aperti)
 
@@ -268,6 +283,7 @@ def _open_geometry(self) -> None:
 ## ✨ Risultato Finale
 
 L'applicazione ora ha un comportamento **intuitivo e professionale**:
+
 - La finestra di selezione moduli rimane sempre visibile come "hub" centrale
 - Ogni modulo apre in una finestra indipendente ma gestita dalla root
 - L'utente ha il controllo totale su quali finestre tenere aperte

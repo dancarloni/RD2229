@@ -50,12 +50,14 @@ tests/test_carote.py              — ~66 test
 ## Valori di riferimento
 
 **8 carote test**: f_core = [22.5, 24.1, 23.8, 25.0, 22.0, 24.5, 23.2, 24.8] MPa
+
 - mean=23.74, s=1.072, CoV=0.045
 - EN13791 B (n=8, k=1.90): f_ck,is = 21.71 MPa
 - NTC2018 (k=1.64): f_ck,is = 21.99 MPa
 - Classificazione: C20/25
 
 **Derivati da f_ck=25 MPa**:
+
 - f_cm=33, E_cm=31476, f_ctm=2.565, Rck=30.12, sigma_c_adm~37.9 kg/cm2
 
 ## Dipendenze riusate (non modificate)

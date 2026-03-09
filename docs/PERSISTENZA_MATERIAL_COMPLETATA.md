@@ -85,12 +85,14 @@ File: `materials.json` (nella cartella di lavoro)
 ## Test di Verifica
 
 ### ✅ Test Unitari (4/4 PASSATI)
+
 ```
 test_material_persistence_basic           ✅ PASSATO
 test_material_persistence_update_delete   ✅ PASSATO
 test_empty_repository                     ✅ PASSATO
 test_find_by_id                           ✅ PASSATO
 ```
+
 **File**: [test_material_persistence.py](test_material_persistence.py)
 
 ---
@@ -104,6 +106,7 @@ python demo_material_persistence.py
 ```
 
 Mostra:
+
 1. ✅ Creazione materiali e salvataggio JSON
 2. ✅ Visualizzazione proprietà
 3. ✅ Modifica materiale (update)
@@ -144,12 +147,14 @@ repo.delete(material_id)           # Elimina materiale
 
 ## File Modificato/Creato
 
-### Modificato:
+### Modificato
+
 ```
 core_models/materials.py  (+155 righe)
 ```
 
-### Creati:
+### Creati
+
 ```
 test_material_persistence.py            ← Test unitari
 demo_material_persistence.py            ← Demo pratico
@@ -188,14 +193,16 @@ Entrambi i repository seguono lo stesso pattern di persistenza:
 
 ## Behavior
 
-### All'avvio programma:
+### All'avvio programma
+
 ```
 1. Inizializza MaterialRepository()
 2. Se materials.json esiste → Carica materiali
 3. Se materials.json non esiste → Repository vuoto
 ```
 
-### Durante l'uso:
+### Durante l'uso
+
 ```
 1. Utente aggiunge materiale
 2. add() salva automaticamente
@@ -203,14 +210,16 @@ Entrambi i repository seguono lo stesso pattern di persistenza:
 4. Proprietà visibili in GUI/API
 ```
 
-### Alla chiusura programma:
+### Alla chiusura programma
+
 ```
 1. Tutti i materiali rimangono nel JSON
 2. Repository terminato
 3. Nessuna perdita di dati
 ```
 
-### All'avvio successivo:
+### All'avvio successivo
+
 ```
 1. MaterialRepository() carica dal JSON
 2. Tutti i materiali ripristinati
@@ -256,6 +265,7 @@ Entrambi i repository seguono lo stesso pattern di persistenza:
 **Lo sviluppo della persistenza del MaterialRepository è stato completato con successo.**
 
 La funzionalità è:
+
 - ✅ Completamente implementata
 - ✅ Ampiamente testata (4 test, tutti passati)
 - ✅ Retro-compatibile (nessun breaking change)

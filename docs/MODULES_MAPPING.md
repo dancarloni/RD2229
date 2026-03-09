@@ -24,6 +24,7 @@ Questa tabella elenca tutti i moduli, servizi, finestre e componenti richiesti d
 > Generato automaticamente da analisi docs/ (PLAN_02.md, module_structure.md, ARCHITECTURE.md, WINDOW_MANAGEMENT_FIX.md, VERIFICA_7_OBIETTIVI.md, VERIFICATION_TABLE_KEYBOARD.md)
 
 ## Note
+
 - Ogni modulo deve esportare `MODULE_SPEC` e una factory `create_module()`.
 - I moduli GUI vanno migrati in Qt (PySide6) e registrati nel nuovo registry.
 - I servizi (repository, builder, service) sono singleton o factory condivise.

@@ -37,6 +37,7 @@
    - Annotare in MIGRATION_TKINTER_TO_QT.md ogni eccezione o differenza rispetto al comportamento originale.
 
 ## Note operative
+
 - La migrazione è atomica: nessun modulo Tkinter rimane attivo nella mainline.
 - I test di regressione sono obbligatori per ogni feature migrata.
 - La documentazione utente (docs/USAGE_GUI.md) deve riflettere i nuovi flussi Qt.

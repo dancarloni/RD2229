@@ -9,5 +9,6 @@ Recommended defaults (documentare/finalizzare con DM96): suggerire w_max ≈ 0.2
 Test: includere 1 EC2 worked example e 1 DM96 example (numeric).
 
 ## TODO – DM 1996
+
 - Tabella limiti fessurazione da integrare
 - Fonte normativa da confermare

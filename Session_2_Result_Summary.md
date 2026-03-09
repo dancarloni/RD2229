@@ -18,6 +18,7 @@ Session 2 successfully completed the implementation of NTC 2018 SLU verification
 - ✅ Comprehensive testing: 16 new tests, all passing
 
 **Test Results:**
+
 - 16/16 tests passing in `test_ntc2018_checks.py` ✅
 - 15/15 tests passing in related verification tests ✅
 - Zero lint errors ✅
@@ -29,11 +30,13 @@ Session 2 successfully completed the implementation of NTC 2018 SLU verification
 ### ✅ Priority B: Complete Minimi Armatura Flessione (HIGH)
 
 **What was done:**
+
 - Replaced fixed percentage (rho_min = 0.15%) with full NTC 2018 § 4.1.6.1.1 formula
 - Implemented f_ctm extraction with automatic computation from f_ck
 - Formula: `As,min = max(0.26*f_ctm/f_yk*b*d, 0.0013*b*d)`
 
 **Key implementation details:**
+
 ```python
 # f_ctm extraction or computation
 if hasattr(material, "f_ctm") and material.f_ctm is not None:
@@ -61,12 +64,14 @@ As_min_mm2 = max(As_min_1, As_min_2)
 ### ✅ Priority A: Complete Flessione SLU (HIGH)
 
 **What was done:**
+
 - Replaced simplified assumption (x = 0.3*d) with proper neutral axis calculation
 - Implemented full equilibrium solver for rectangular sections
 - Handles both singly and doubly reinforced sections
 - Checks ductility limit (x/d ≤ 0.45)
 
 **Key implementation details:**
+
 ```python
 # Singly reinforced section
 if As_prime_mm2 < 0.01:
@@ -92,6 +97,7 @@ if x > x_max:
 ```
 
 **Moment capacity:**
+
 ```python
 z_c = d_mm - lambda_factor * x / 2.0
 R_c = lambda_factor * x * b * f_cd
@@ -111,12 +117,14 @@ M_Rd = R_c * z_c + R_s_comp * z_s_comp  # N·mm
 ### ✅ Priority C: Implement Taglio SLU (HIGH)
 
 **What was done:**
+
 - Replaced placeholder with complete shear verification
 - Implemented V_Rd calculation per NTC 2018 § 4.1.2.1.3.2
 - Calculates both V_Rd,s (stirrup resistance) and V_Rd,max (compression strut limit)
 - Uses conservative θ=21.8° for strut inclination
 
 **Key implementation details:**
+
 ```python
 # Stirrup area
 A_sw_stirrup = staffe_num_bracci * math.pi * (phi_mm ** 2) / 4.0
@@ -139,6 +147,7 @@ V_Rd = min(V_Rd_s, V_Rd_max)
 **Template updated:** `src/core_calculus/normative_registry.py` - changed function_path to `check_taglio_slu`, set `implementation_status="complete"`
 
 **Implementation scope:**
+
 - ✅ V_Rd,s with vertical stirrups (α=90°)
 - ✅ V_Rd,max with compressed struts
 - ✅ Conservative θ=21.8°
@@ -151,11 +160,13 @@ V_Rd = min(V_Rd_s, V_Rd_max)
 ### ✅ Priority D: Add Minimi Armatura Taglio Template (MEDIUM)
 
 **What was done:**
+
 - Created new check function `check_minimi_armatura_taglio_slu()`
 - Implements NTC 2018 § 4.1.6.1.1 formula for minimum shear reinforcement
 - Added template to registry
 
 **Key implementation details:**
+
 ```python
 # Formula: Asw,min/s = 0.08 * sqrt(f_ck) / f_yk * b
 Asw_min_over_s = 0.08 * math.sqrt(f_ck) / f_yk * b  # mm²/mm
@@ -169,10 +180,12 @@ ok = Asw_over_s_actual >= Asw_min_over_s
 ```
 
 **Files modified:**
+
 - `src/methods/checks_ntc2018.py` - added new function (lines 638-780)
 - `src/core_calculus/normative_registry.py` - added template `ntc2018_slu_minimi_armatura_taglio`
 
 **Template configuration:**
+
 - `template_id`: "ntc2018_slu_minimi_armatura_taglio"
 - `implementation_status`: "complete"
 - `required_inputs`: section, material, staffe_passo, staffe_diametro
@@ -185,12 +198,14 @@ ok = Asw_over_s_actual >= Asw_min_over_s
 ### ✅ Priority E: Add NTC 2018 Validation Rules (MEDIUM)
 
 **What was done:**
+
 - Added norm-specific validation rules to `validation_engine.py`
 - Validates flexural reinforcement presence (As > 0)
 - Validates effective depth specification (d specified or estimated)
 - Validates stirrup data completeness for shear checks
 
 **Key validation rules:**
+
 ```python
 if active_norm == "NTC2018" and "SLU" in limit_states_enabled:
     # Warn if As missing or zero
@@ -225,6 +240,7 @@ if active_norm == "NTC2018" and "SLU" in limit_states_enabled:
 ### ✅ Priority F: Create Comprehensive NTC 2018 Tests (HIGH)
 
 **What was done:**
+
 - Created new test file `tests/test_ntc2018_checks.py`
 - 16 comprehensive tests covering all check functions
 - Tests for OK/NON-OK cases, LC/FC integration, edge cases
@@ -294,6 +310,7 @@ After Session 2, the NTC 2018 template registry contains:
 ## Technical Quality Metrics
 
 ### Code Quality
+
 - ✅ Zero lint errors (ruff check passed)
 - ✅ All functions have type hints
 - ✅ Italian docstrings and messages throughout
@@ -301,12 +318,14 @@ After Session 2, the NTC 2018 template registry contains:
 - ✅ Clear NormReference for every check
 
 ### Test Coverage
+
 - ✅ 16 new unit tests (all passing)
 - ✅ 15 integration tests (all passing)
 - ✅ Tests cover OK/NON-OK cases, edge cases, LC/FC integration
 - ✅ Mock objects for section/material (no external dependencies)
 
 ### Normative Compliance
+
 - ✅ All formulas directly from NTC 2018
 - ✅ Every check result includes norm_references
 - ✅ Conservative assumptions documented (θ=21.8° for shear)
@@ -344,12 +363,14 @@ DETTAGLIO VERIFICHE:
 **Test case:** Same beam with LC2, FC=1.20
 
 **Material property adjustments:**
+
 - f_ck: 25.0 → 20.83 MPa (reduced by FC=1.20)
 - f_yk: 450.0 → 375.0 MPa (reduced by FC=1.20)
 - f_cd: 14.17 → 11.81 MPa
 - f_yd: 391.3 → 326.1 MPa
 
 **Impact on capacity:**
+
 - M_Rd: 145.2 kNm → 120.8 kNm (-17% due to LC/FC)
 - V_Rd: 150.3 kN → 125.2 kN (-17% due to LC/FC)
 
@@ -422,12 +443,14 @@ DETTAGLIO VERIFICHE:
 ## Acknowledgments
 
 **Session 2 completed all planned priorities (A-F) within a single session:**
+
 - Priority A-D: Core check implementations ✅
 - Priority E: Validation rules ✅
 - Priority F: Comprehensive tests ✅
 - Final: Tests and lint passing ✅
 
 **Ready for future sessions:**
+
 - Architecture for presso-flessione (N-M interaction) in place
 - Template pattern established for new check types
 - Test infrastructure ready for SLE checks

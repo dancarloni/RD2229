@@ -2,7 +2,7 @@
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python-envs.pythonProjects": [],
   "chat.agent.maxRequests": 50,
-  "markdown.validate.enabled": true,
+  "markdown.validate.enabled": false,
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
   "python.testing.pytestArgs": [

@@ -669,6 +669,7 @@
 ---
 
 ## JSON (struttura completa)
+
 ```json
 {
   "name": "RD2229",

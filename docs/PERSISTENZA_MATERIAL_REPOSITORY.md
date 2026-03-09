@@ -103,6 +103,7 @@ Il file JSON contiene un array di materiali con tutte le loro proprietà:
 ### File modificato: `core_models/materials.py`
 
 **Aggiunte:**
+
 - Import: `json`, `logging`, `os`
 - Attributo di classe `DEFAULT_JSON_FILE = "materials.json"`
 - Attributo di istanza `_json_file`
@@ -116,6 +117,7 @@ Il file JSON contiene un array di materiali con tutte le loro proprietà:
 - Metodo `clear()`
 
 **Modificato:**
+
 - `__init__()`: Aggiunto caricamento automatico da file JSON
 - `add()`: Aggiunto salvataggio automatico
 - Tutti i metodi di modifica salvano automaticamente
@@ -165,16 +167,19 @@ Ottiene tutti i materiali.
 ## Comportamento
 
 ### All'avvio del programma
+
 1. Se `materials.json` non esiste → Repository vuoto
 2. Se `materials.json` esiste → Carica automaticamente tutti i materiali
 
 ### Ad ogni operazione
+
 - `add()` → Salva automaticamente
 - `update()` → Salva automaticamente
 - `delete()` → Salva automaticamente
 - `clear()` → Salva automaticamente (file vuoto)
 
 ### Nessuna perdita di dati
+
 - Se il programma si arresta → I materiali rimangono nel JSON
 - Se il programma si riavvia → I materiali vengono ripristinati automaticamente
 
@@ -205,17 +210,20 @@ repo = MaterialRepository(json_file="my_custom_materials.json")
 ## Test
 
 ### Test Unitari
+
 - ✅ `test_material_persistence_basic()` - Creazione, salvataggio, caricamento
 - ✅ `test_material_persistence_update_delete()` - Modifica e eliminazione
 - ✅ `test_empty_repository()` - Repository vuoto
 - ✅ `test_find_by_id()` - Ricerca per ID
 
 **Esecuzione**:
+
 ```bash
 python test_material_persistence.py
 ```
 
 ### Demo Pratica
+
 ```bash
 python demo_material_persistence.py
 ```

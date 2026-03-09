@@ -4,24 +4,27 @@ GOAL
 Refactor and implement the requested feature in my Python/Tkinter engineering app, keeping strict separation between GUI and calculation modules.
 
 SCOPE
+
 - Language: Python 3.x
 - GUI: Tkinter (with necessary external dependencies, to be imported in .venv)
 - Domain: civil/structural engineering utilities (sections, materials, checks)
 - Style: professional, cautious, transparent logs of every calculation step
 
 INPUTS (replace placeholders)
+
 - Target module(s): <path/to/module.py>, <path/to/gui.py>
 - Feature/spec: <paste concise requirements here, including I/O>
 - Constraints:
-  * Keep lines ≤ 100 chars
-  * Black/Ruff compliant
-  * No network calls
-  * Immutable public APIs unless specified
-  * Avoid breaking existing tests
-  * Logging with rotation (size‑based), DEBUG togglable
+  - Keep lines ≤ 100 chars
+  - Black/Ruff compliant
+  - No network calls
+  - Immutable public APIs unless specified
+  - Avoid breaking existing tests
+  - Logging with rotation (size‑based), DEBUG togglable
 - Data persistence: JSON/CSV only (UTF‑8), no DB
 
 DELIVERABLES
+
 1) Complete code edits for all affected files (show unified diffs).
 2) New/updated unit tests (pytest), covering edge cases.
 3) Docstrings (Google style) + inline comments for tricky logic.
@@ -29,6 +32,7 @@ DELIVERABLES
 5) A single final recap: what changed, assumptions made, and how to revert.
 
 RULES
+
 - Do not ask me anything back. Do not start a second task.
 - Minimize file churn; change only what is necessary.
 - Prefer pure functions; isolate side effects.
@@ -40,6 +44,7 @@ RULES
 - non inventare. se c
 
 CHECKLIST BEFORE OUTPUT
+
 - [ ] All changes compile and run
 - [ ] Tests pass locally (explain new tests)
 - [ ] No line > 100 chars; no trailing whitespace
@@ -77,8 +82,8 @@ CHECKLIST BEFORE OUTPUT
       "- Procedi per batch: (1) mappa+piano, (2) contratti+service, (3) controller+wiring, (4) test+lint+doc.",
       "- Se ambiguità su campi input/output: usa placeholder ragionevoli, documenta TODO.",
 
-
 ##
+
 voglio un prompt per richiedere il ripristino delle funzionalità dello workspace, visto che dopo un refactoring e un linting il software non si avvia più.
 Una volta ricreato il verification module, voglio che tutto sia funzionante come già previsto.
 senza eseguire modifiche al codice se non necessarie, verifica che i collegamenti funzionino, che i campi di selezione facciano riferimento ai repository e ai sistemi di selezione dei dati.
@@ -92,6 +97,7 @@ material module
 il material module è già funzionante in modo corretto.
 senza modificare le funzionalità esistenti, senza riscivere completamente il codice è necessario aggiungere una nuova funzione per i materiali esistenti inseriti ai sensi dell'NTC2008, dell'NTC2018, dell' Eurocodice EC2.
 di seguito alcuni riferimenti normativi relativi all'Eurocodice 2:
+
 1. Eurocodice 2 – EN 1992‑1‑1 (seconda generazione, 2023) – Annex I: Assessment of existing structures
 La versione aggiornata dell’Eurocodice 2 (BS EN 1992‑1‑1:2023) introduce l’Allegato I, interamente dedicato alla valutazione delle strutture esistenti in c.a., comprensivo di:
 
@@ -102,7 +108,7 @@ indicazioni per elementi con dettagli costruttivi storici.
 
 Queste informazioni sono confermate dalle fonti tecniche consultate, che precisano che Annex I è informativo e pensato per la valutazione di strutture esistenti in c.a. [scispace.com]
 
-2. Eurocodice 0 – prEN 1990‑2 (in fase di introduzione) – Basis of assessment and retrofitting of existing structures
+1. Eurocodice 0 – prEN 1990‑2 (in fase di introduzione) – Basis of assessment and retrofitting of existing structures
 La nuova versione dell’Eurocodice 0 include una nuova parte dedicata esclusivamente alla valutazione e al rinforzo delle strutture esistenti, che definisce:
 
 principi generali di valutazione;
@@ -111,7 +117,7 @@ approcci per interventi e retrofitting.
 
 È indicato come documento complementare all’EC2 per l’esistente. [scispace.com]
 
-3. Quadro generale europeo in evoluzione
+1. Quadro generale europeo in evoluzione
 Il JRC conferma che sono in sviluppo nuove regole europee specifiche per le strutture esistenti, pensate per integrare gli Eurocodici esistenti e armonizzare le metodologie nazionali. [eurocodes.....europa.eu]
 
 In sintesi
@@ -122,38 +128,41 @@ Se la domanda è “in quale Eurocodice si parla di calcestruzzo armato esistent
 RIFERIMENTI EUROCODICI E STRUTTURE ESISTENTI
 
 1. Assessment of Existing Concrete Structures Under Second‑Generation Eurocode 2
-https://structurescentre.com/assessment-of-existing-concrete-structures-under-second-generation-eurocode-2/
+<https://structurescentre.com/assessment-of-existing-concrete-structures-under-second-generation-eurocode-2/>
 
 2. New technical rules on existing structures – Eurocodes: Building the future (JRC)
-https://eurocodes.jrc.ec.europa.eu/2nd-generation-evolution/new-technical-rules-existing-structures
+<https://eurocodes.jrc.ec.europa.eu/2nd-generation-evolution/new-technical-rules-existing-structures>
 
 3. 2nd Generation Eurocode 2 – Concrete Centre
-https://www.concretecentre.com/Structural-design/Eurocode-2-concrete/2nd-Generation-Eurocode-2.aspx
+<https://www.concretecentre.com/Structural-design/Eurocode-2-concrete/2nd-Generation-Eurocode-2.aspx>
 
 4. Contributions of the Future Eurocode 2 for Assessment of Existing Concrete Structures (Hormigón y Acero)
-https://scispace.com/pdf/contributions-of-the-future-eurocode-for-the-assessment-of-ekbcbedi.pdf
+<https://scispace.com/pdf/contributions-of-the-future-eurocode-for-the-assessment-of-ekbcbedi.pdf>
 
 5. Provisions for assessment of existing structures in the second‑generation concrete Eurocode (IStructE)
-https://www.istructe.org/journal/volumes/volume-102-%282024%29/issue-4/ec2-assessment-of-existing-structures/
+<https://www.istructe.org/journal/volumes/volume-102-%282024%29/issue-4/ec2-assessment-of-existing-structures/>
 
 6. Contributions of the Future Eurocode for the Assessment of Existing Concrete Structures (Academia.edu)
-https://www.academia.edu/128798578/Contributions_of_the_Future_Eurocode_for_the_Assessment_of_Existing_Concrete_Structures
+<https://www.academia.edu/128798578/Contributions_of_the_Future_Eurocode_for_the_Assessment_of_Existing_Concrete_Structures>
 
 ---
 CONFRONTO CON NTC 2008 E NTC 2018
 
 NTC 2008:
+
 - Impostazione tradizionale basata su livelli di conoscenza (LC1-2-3) e fattori di confidenza.
 - Approccio globale senza capitoli specifici dedicati esclusivamente alle strutture esistenti in c.a., ma con criteri generali per edifici esistenti.
 - Metodologia fortemente orientata al miglioramento sismico minimo richiesto.
 
 NTC 2018:
+
 - Aggiornamento e razionalizzazione dei livelli di conoscenza.
 - Maggiore attenzione alla caratterizzazione meccanica dei materiali esistenti tramite prove in-situ.
 - Processo valutativo più coerente con gli Eurocodici, pur mantenendo struttura normativa nazionale.
 - Introduzione di criteri più dettagliati per le verifiche locali e globali.
 
 Confronto sintetico:
+
 - Eurocodice 2 (Annex I) e prEN1990-2 introducono un approccio europeo specifico per l’esistente, più avanzato nella gestione dell’incertezza.
 - NTC 2018 mantiene l’impianto nazionale ma risulta più allineata alle logiche europee rispetto alla NTC 2008.
 - Eurocodici pongono forte enfasi sulla caratterizzazione dei materiali esistenti in opere in c.a. mediante prove dirette.
@@ -163,7 +172,6 @@ le funzionalità di selezione e applicazione dei livelli di conoscenza  e fattor
 i materiali classificati come nuovi non devono consentire l'inserimento di livelli di conoscenza e fattori di confidenza.
 
 di seguito alcune informazioni utili e collegamenti che devi utilizzare
-
 
 # Tabella comparativa – Strutture esistenti (EC2, prEN 1990-2, NTC 2008/2018)
 
@@ -182,7 +190,6 @@ JSON (machine‑readable, consigliato per l’app): comparativa_norme_esistente.
 CSV (import rapido in fogli di calcolo o librerie pandas): comparativa_norme_esistente.csv
 Markdown (anteprima umana/README): comparativa_norme_esistente.md
 
-
 Contenuto tecnico (fonti verificate)
 La tabella copre:
 
@@ -191,9 +198,7 @@ prEN 1990‑2 (bozza): parte dedicata alla valutazione delle strutture esistenti
 NTC 2008 – Cap. 8: introduce in modo sistematico Livelli di Conoscenza (LC1–LC3) e Fattori di Confidenza (FC) e la classificazione degli interventi (locale, miglioramento, adeguamento). [cdn.standa...ds.iteh.ai], [austrian-s...andards.at], [eurocodes.....europa.eu]
 NTC 2018 – Cap. 8 + Circolare 2019 (Cap. C8): conferma e razionalizza LC/FC (valori tipici 1.35/1.20/1.00), dà rilievo agli interventi locali e struttura con maggiore dettaglio il processo di valutazione e gli interventi. [online.scu...ichelli.it], [Decreto de...azione ...], [ediltecnico.it]
 
-
 Nota: nel JSON ogni voce include anche gli URL ufficiali/tecnici utili per la tracciabilità.
-
 
 Schema dati (JSON) — pronto per l’app
 Ogni record ha i seguenti campi (pensati per filtri, mapping UI e logiche di verifica):
@@ -201,6 +206,7 @@ JSON{  "code": "EN 1992-1-1",  "part": "Annex I",  "title": "Eurocode 2 – Desi
 File: comparativa_norme_esistente.json
 
 Esempi d’uso (drop‑in in Visual Studio Code)
+
 1) Python (Tkinter o backend di calcolo)
 Carica, filtra e usa i dati in un’app Tkinter o CLI:
 Pythonimport jsonfrom pathlib import PathDATA = json.loads(Path("comparativa_norme_esistente.json").read_text(encoding="utf-8"))# Filtri tipiciec2_annex = [r for r in DATA if r["code"] == "EN 1992-1-1" and r["part"] == "Annex I"]ntc_correnti = [r for r in DATA if r["code"].startswith("NTC") and r["status"] in {"current"}]# Esempio: ottieni valori LC/FC (NTC 2018)ntc2018 = next(r for r in DATA if r["code"] == "NTC 2018")print(ntc2018["lc_fc_applicability"])  # "Confermati LC1–LC3; FC tipici 1.35 / 1.20 / 1.00 ..."Mostra più linee
@@ -218,7 +224,6 @@ Aggiungi nuovi record allo stesso schema (es. EN 1998‑3 per l’esistente in a
 Integra eventuali National Annex o Linee Guida interne aggiungendo campi come national_annex_ref o local_policy_ref (string o array).
 Mantieni i link di evidenza per la tracciabilità tecnica e normativa (URL a GU, JRC, BSI, ecc.). (Il JRC anticipa da anni le regole europee per l’esistente e ne documenta la progressione: utile per tracking degli aggiornamenti.) [structurescentre.com]
 
-
 Verifiche di coerenza normativa (pillole utili per il software)
 
 EC2:2023 – Annex I: assessment su c.a. esistente → caratterizzazione materiali in‑situ, incertezza/dispersione, prove con estrapolazione ragionata (informativo, non introduce LC/FC). [eu-prod.as...rosoft.com], [eu-prod.as...rosoft.com], [eu-prod.as...rosoft.com]
@@ -228,6 +233,7 @@ NTC 2008/2018: Cap. 8 regola l’esistente in Italia con LC/FC e classificazione
 devo scrivere un software per il calcolo strutturale.
 
 In questa fase devo descrivere un modulo del software che consente di definire i parametri i coefficienti, tutte le impostazioni e coefficienti da definire a cura del progettista relative ai materiali, alle azioni, alle verifiche di calcolo previste dalle seguenti normative:
+
 - RD2229/39
 - DM92
 - DM96
@@ -237,6 +243,7 @@ In questa fase devo descrivere un modulo del software che consente di definire i
 - prevedere di poter implementare ulteriori normative future mediante appositi moduli
 
 per poter eseguire verifiche a:
+
 - flessione semplice
 - flessione deviata
 - Presso/tenso flessione semplice
@@ -257,6 +264,7 @@ per poter eseguire verifiche a:
 - deformazioni ammissibili
 
 L'interfaccia deve consentire di inserire in modo semplice e veloce, sfruttando automatismi, autocompletamento, completamento previsionale, menu a tendina, filtri di selezione o inserimento diretto:
+
 - nome dell'elemento soggetto a verifica (inserimento diretto)
 - le caratteristiche delle sezioni (da repository sezioni)
 - le caratteristiche dei materiali (da repository materiali)

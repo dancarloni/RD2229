@@ -159,15 +159,15 @@ Spec validation reports missing required fields
 All existing tests run cleanly; full suite passes (pytest -q).
 
 ✅ Acceptance Criteria Met
-Criterion	Status
-STEP2 implemented under 2A‑1	✅
-Normative invariants (norma_attiva, no‑mixing) upheld	✅
-Output contracts enforced	✅
-Gating logic implemented	✅
-Config file loads without error	✅
-Only baseline files touched	✅
-No GUI changes or extra calculations added	✅
-New tests green; existing tests unaffected	✅
+Criterion Status
+STEP2 implemented under 2A‑1 ✅
+Normative invariants (norma_attiva, no‑mixing) upheld ✅
+Output contracts enforced ✅
+Gating logic implemented ✅
+Config file loads without error ✅
+Only baseline files touched ✅
+No GUI changes or extra calculations added ✅
+New tests green; existing tests unaffected ✅
 🛑 Clausola di arresto: No conflict was detected with any of the governing PLAN/STEP2 documents.
 
 📌 Notes

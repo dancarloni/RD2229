@@ -10,14 +10,12 @@ confronti tra norme
 export e reporting tecnico‑legale
 Il post‑processing non ricalcola: interpreta esclusivamente l’output.
 
-
 Principi non negoziabili
 
 Single Output Schema: tutti i moduli producono lo stesso tipo di risultato
 Read‑only: la GUI risultati non modifica i dati
 Tracciabilità normativa: ogni risultato cita norme e paragrafi
 Riproducibilità: grafici e report rigenerabili dall’output salvato
-
 
 Struttura concettuale unica
 VerificationResultItem
@@ -36,13 +34,11 @@ warning_note
 metadata (data, versione solver, progetto)
 Tutti i risultati del progetto sono una collezione di VerificationResultItem.
 
-
 Proprietà chiave
 
 Confronto diretto tra norme diverse sullo stesso elemento
 Ordinamento per criticità (utilisation)
 Aggregazione per elemento, verifica, stato limite
-
 
 Post‑processing consentito
 Tabelle
@@ -61,7 +57,6 @@ distribuzione delle tensioni
 asse neutro (posizione numerica + rappresentazione)
 Regola: nessun valore grafico non presente nell’output.
 
-
 Output testuale e report
 Contenuto minimo
 
@@ -77,7 +72,6 @@ ipotesi di calcolo
 formule in forma simbolica
 riferimenti normativi puntuali
 
-
 Export
 Formati ammessi
 
@@ -89,13 +83,11 @@ Regole di export
 esporta solo dati visibili
 includi sempre: norma, versione solver, data
 
-
 Regole di integrazione
 
 Tutte le GUI risultati leggono solo VerificationResultItem
 Nessun modulo accede direttamente ai dati interni di altri moduli
 L’output è l’unica base per confronti e report
-
 
 Criteri di accettazione
 

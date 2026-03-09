@@ -1,6 +1,7 @@
 
 PLAN METODO DI CROSS PER TELAI PIANI
 Status: VINCOLO DURO
+
 1. Scopo del documento
 Questo PLAN definisce l’architettura vincolante del Metodo di Cross per telai piani, inteso come:
 
@@ -10,8 +11,7 @@ riutilizzabile da più contesti normativi (NTC2018, DM96, Eurocodici);
 utilizzabile sia in modalità professionale sia didattica.
 Il documento non contiene formule e non sostituisce la teoria del metodo.
 
-
-2. Collocazione architetturale
+1. Collocazione architetturale
 Il Metodo di Cross appartiene al livello:
 Metodi di calcolo strutturale
 Non appartiene a:
@@ -24,8 +24,7 @@ Le norme:
 forniscono azioni, combinazioni, limiti di verifica;
 consumano gli effetti interni prodotti dal metodo.
 
-
-3. Campo di applicazione
+1. Campo di applicazione
 Il Metodo di Cross è applicabile a:
 
 telai piani in calcestruzzo armato e acciaio;
@@ -38,8 +37,7 @@ plasticizzazione diffusa;
 instabilità globale avanzata;
 analisi dinamiche modali (predisposizione futura).
 
-
-4. Responsabilità del metodo
+1. Responsabilità del metodo
 Il Metodo di Cross deve:
 
 ricevere un modello strutturale astratto;
@@ -55,8 +53,7 @@ verificare resistenze;
 decidere stati limite;
 conoscere la norma applicata.
 
-
-5. Modello strutturale concettuale
+1. Modello strutturale concettuale
 Il metodo opera su un modello composto da:
 
 nodi;
@@ -71,8 +68,7 @@ indipendente dalla GUI;
 serializzabile e persistente;
 riutilizzabile da più analisi normative.
 
-
-6. Output del metodo
+1. Output del metodo
 Output obbligatori
 
 momenti finali agli estremi delle aste;
@@ -92,8 +88,7 @@ tracciabili;
 archiviabili;
 richiamabili nella relazione di calcolo.
 
-
-7. Integrazione con le norme
+1. Integrazione con le norme
 Le norme:
 
 richiedono al Metodo di Cross gli effetti interni;
@@ -105,8 +100,7 @@ non conosce stati limite;
 non conosce coefficienti γ;
 non genera combinazioni di carico.
 
-
-8. Integrazione con la GUI
+1. Integrazione con la GUI
 La GUI:
 
 costruisce il modello strutturale;
@@ -119,8 +113,7 @@ introdurre logica numerica;
 alterare il flusso iterativo;
 introdurre coefficienti normativi.
 
-
-9. Relazione di calcolo
+1. Relazione di calcolo
 La relazione di calcolo deve:
 
 dichiarare esplicitamente l’uso del Metodo di Cross;
@@ -129,8 +122,7 @@ distinguere chiaramente:analisi strutturale;
 verifiche normative;
 citare la norma che ammette l’uso del metodo.
 
-
-10. Estensioni future consentite
+1. Estensioni future consentite
 Sono ammesse solo previa estensione formale del PLAN:
 
 estensione a telai spaziali;
@@ -138,8 +130,7 @@ integrazione con analisi FEM;
 interazione con analisi sismica globale;
 applicazione a muratura (solo se compatibile con le ipotesi del metodo).
 
-
-11. Criteri di accettazione
+1. Criteri di accettazione
 Il Metodo di Cross è conforme a questo PLAN se:
 
 è invocabile indipendentemente dalla norma;
@@ -147,6 +138,5 @@ produce output completi e tracciabili;
 non contiene logica normativa;
 può essere utilizzato da più norme senza duplicazioni;
 supporta modalità professionale e didattica.
-
 
 Questo PLAN è vincolante per tutte le implementazioni del Metodo di Cross per telai piani.

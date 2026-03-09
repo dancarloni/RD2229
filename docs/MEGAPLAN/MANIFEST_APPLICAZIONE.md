@@ -4,6 +4,7 @@ Source: derived from docs/MEGAPLAN/CHAT_PLAN.md (entire session)
 Purpose: actionable manifest of CREATE/UPDATE/REPLACE operations required to sync the repository
 
 Format:
+
 - file_path: relative path in repo
 - action: CREATE | UPDATE | REPLACE
 - source_pointer: short pointer to CHAT_PLAN.md section that mandates the change
@@ -173,6 +174,7 @@ Format:
 
 ---
 Notes:
+
 - All created source files are *skeletons only* (docstrings + TODO markers) as required.
 - All normative numeric values remain ONLY in SPEC files that explicitly contain them in CHAT_PLAN.md.
 - Any items in CHAT_PLAN.md left as non‑final remain PENDING and are explicitly referenced in APPLICATION_REPORT.md.

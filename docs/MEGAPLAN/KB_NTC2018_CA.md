@@ -8,7 +8,6 @@ KB_NTC2018.md (impianto generale);
 KB_NTC2018_AZIONI.md (azioni e combinazioni);
 KB_NTC2018_ANALISI.md (tipi di analisi).
 
-
 1. Riferimenti normativi
 
 Norma principale: D.M. 17/01/2018 – NTC 2018
@@ -19,8 +18,7 @@ Capitoli di riferimento:§4.1 – Calcestruzzo
 Circolare applicativa: Circ. 21/01/2019 n. 7
 Ogni verifica implementata deve essere citabile a livello di paragrafo.
 
-
-2. Campo di applicazione
+1. Campo di applicazione
 Le presenti regole si applicano a:
 
 strutture in calcestruzzo armato ordinario;
@@ -36,8 +34,7 @@ muratura;
 acciaio;
 materiali compositi (trattati in KB dedicate).
 
-
-3. Materiali
+1. Materiali
 3.1 Calcestruzzo
 Caratteristiche fondamentali:
 
@@ -51,7 +48,6 @@ i valori di progetto derivano da coefficienti parziali γC;
 i parametri devono essere KB‑driven;
 nessun valore può essere hardcoded.
 
-
 3.2 Acciaio per armature
 Caratteristiche fondamentali:
 
@@ -64,8 +60,7 @@ uso di γS;
 verifica della duttilità ove richiesta;
 tracciabilità dei parametri.
 
-
-4. Ipotesi di calcolo
+1. Ipotesi di calcolo
 Le verifiche in c.a. secondo NTC 2018 si basano su:
 
 ipotesi di Bernoulli;
@@ -78,8 +73,7 @@ le ipotesi devono essere esplicitate;
 il metodo di analisi (Cross, FEM, ecc.) fornisce gli effetti interni;
 la norma consuma tali effetti.
 
-
-5. Stati Limite Ultimi (SLU)
+1. Stati Limite Ultimi (SLU)
 5.1 Tipologie di verifica SLU
 Devono essere considerate, ove applicabili:
 
@@ -94,7 +88,6 @@ combinazione di carico;
 stato limite;
 riferimento normativo.
 
-
 5.2 Resistenza delle sezioni
 Principi generali:
 
@@ -107,8 +100,7 @@ restituire esito OK / NOT_OK / NOT_APPLICABLE;
 consentire il dettaglio dei passaggi di calcolo;
 garantire tracciabilità completa.
 
-
-6. Stati Limite di Esercizio (SLE)
+1. Stati Limite di Esercizio (SLE)
 6.1 Tipologie di verifica SLE
 Devono essere considerate:
 
@@ -120,7 +112,6 @@ Le verifiche SLE utilizzano:
 
 combinazioni SLE (rara, frequente, quasi‑permanente);
 analisi generalmente lineare elastica.
-
 
 6.2 Fessurazione e deformazioni
 Principi:
@@ -134,16 +125,14 @@ i limiti devono essere parametrici;
 ogni valore deve essere citabile;
 i risultati devono essere riportabili in relazione.
 
-
-7. Gerarchia delle resistenze (rinvio)
+1. Gerarchia delle resistenze (rinvio)
 La progettazione in capacità e la gerarchia delle resistenze:
 
 sono rilevanti soprattutto in ambito sismico;
 non sono sviluppate in questo file;
 rimandano a KB_NTC2018_SISMICA.md.
 
-
-8. Relazione di calcolo
+1. Relazione di calcolo
 La relazione deve riportare:
 
 dati dei materiali;
@@ -153,8 +142,7 @@ esiti;
 riferimenti normativi puntuali.
 Ogni verifica deve essere ricostruibile a posteriori.
 
-
-9. Regole di utilizzo nel software
+1. Regole di utilizzo nel software
 Nel framework:
 
 le verifiche in c.a. sono moduli separati;
@@ -162,8 +150,7 @@ nessuna formula normativa è duplicata fuori dalla KB;
 Copilot deve:rifiutare verifiche prive di base normativa;
 segnalare TODO in caso di lacune.
 
-
-10. Confronto con normative precedenti (TA)
+1. Confronto con normative precedenti (TA)
 Il confronto con DM96 / DM92 / RD2229:
 
 è ammesso solo a fini comparativi;
@@ -171,14 +158,12 @@ richiede stesso modello e stessa analisi;
 deve essere dichiarato esplicitamente in relazione.
 È vietato qualsiasi uso ibrido.
 
-
-11. Criteri di accettazione
+1. Criteri di accettazione
 Questa KB è conforme se:
 
 copre tutte le verifiche fondamentali in c.a.;
 ogni parametro è tracciabile;
 non esistono hard‑coding normativi;
 la relazione di calcolo è integralmente difendibile.
-
 
 Questo file fa parte integrante e vincolante della Knowledge Base NTC2018.

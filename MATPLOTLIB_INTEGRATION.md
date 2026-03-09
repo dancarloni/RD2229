@@ -13,6 +13,7 @@ pip install -e .
 ```
 
 Questo comando installa:
+
 - **pandas** (v3.0.0) - Per la gestione dei dati
 - **matplotlib** (v3.10.8) - Per la visualizzazione grafica
 - Tutte le dipendenze necessarie (numpy, pillow, etc.)
@@ -26,6 +27,7 @@ python demo_matplotlib_integration.py
 ```
 
 Questo script:
+
 1. Verifica l'installazione di matplotlib, pandas e numpy
 2. Genera tre demo di visualizzazione grafica
 3. Salva i grafici in `/tmp/matplotlib_demo_*.png`
@@ -50,6 +52,7 @@ plot_section(section, title='Sezione Rettangolare', show=True)
 ### 2. Integrazione con Main Window (`sections_app/ui/main_window.py`)
 
 La finestra principale delle sezioni include un pulsante "Mostra Matplotlib" che:
+
 - Apre una visualizzazione grafica della sezione corrente
 - Mostra il baricentro e le dimensioni
 - Permette l'esportazione dell'immagine
@@ -57,6 +60,7 @@ La finestra principale delle sezioni include un pulsante "Mostra Matplotlib" che
 ### 3. Verification Table
 
 La tabella di verifica può ora utilizzare matplotlib per:
+
 - Visualizzare le sezioni strutturali
 - Mostrare la distribuzione delle tensioni
 - Rappresentare graficamente i risultati delle verifiche
@@ -65,6 +69,7 @@ La tabella di verifica può ora utilizzare matplotlib per:
 ## Tipi di Sezioni Supportate
 
 Matplotlib può visualizzare:
+
 - ✓ Sezioni rettangolari (`RectangularSection`)
 - ✓ Sezioni circolari (`CircularSection`)
 - ✓ Sezioni a T (`TSection`)
@@ -159,12 +164,14 @@ kiwisolver==1.4.9
 ### Backend Matplotlib
 
 Per ambienti senza display (server, CI):
+
 ```python
 import matplotlib
 matplotlib.use('Agg')  # Backend non-interattivo
 ```
 
 Per ambienti con GUI:
+
 ```python
 # Usa il backend predefinito (TkAgg, Qt5Agg, etc.)
 import matplotlib.pyplot as plt
@@ -174,11 +181,13 @@ plt.show()  # Mostra finestra interattiva
 ### Testing
 
 I test che utilizzano matplotlib dovrebbero:
+
 1. Usare il backend 'Agg' per evitare dipendenze GUI
 2. Chiamare `plot_section(..., show=False)` e verificare il risultato
 3. Chiudere le figure con `plt.close()` dopo l'uso
 
 Esempio:
+
 ```python
 def test_plot_section():
     import matplotlib
@@ -203,20 +212,26 @@ Il modulo `gui/section_gui.py` combina matplotlib con tkinter. Importa tkinter s
 ## Troubleshooting
 
 ### Problema: "No module named 'tkinter'"
+
 **Soluzione**: In ambienti senza GUI, usa il backend Agg:
+
 ```python
 import matplotlib
 matplotlib.use('Agg')
 ```
 
 ### Problema: Plot non visibili
+
 **Soluzione**: Assicurati di chiamare `plt.show()` o salvare con `plt.savefig()`:
+
 ```python
 plt.savefig('output.png')
 ```
 
 ### Problema: Warning backend
+
 **Soluzione**: Configura esplicitamente il backend all'inizio dello script:
+
 ```python
 import matplotlib
 matplotlib.use('TkAgg')  # o 'Qt5Agg', 'Agg', etc.
@@ -232,6 +247,7 @@ matplotlib.use('TkAgg')  # o 'Qt5Agg', 'Agg', etc.
 ## Prossimi Passi
 
 Possibili miglioramenti futuri:
+
 1. Aggiungere visualizzazione 3D delle sezioni
 2. Implementare animazioni per mostrare stati di carico
 3. Creare dashboard interattive con matplotlib widgets

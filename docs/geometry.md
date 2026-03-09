@@ -4,9 +4,11 @@ This page documents the canonical polygon-based geometry model used across the
 project.
 
 Files
+
 - `src/core_calculus/core/geometry_model.py` — canonical dataclasses: `SectionGeometry`, `SectionProperties`, `CoreData`, `EllipseData`.
 
 Overview
+
 - `SectionGeometry` represents an exterior ring and optional holes (lists of (x,y) points).
 - Coordinates use model units (default `cm`); use `meta` for type/rotation info.
 
@@ -25,8 +27,10 @@ geom2 = SectionGeometry(exterior=outer, holes=[inner])
 ```
 
 Testing
+
 - See `tests/test_geometry_model_extra.py` for unit-tests and edge cases.
 
 Notes
+
 - Prefer `SectionGeometry` from this module anywhere a polygonal representation is needed.
 - Add new convenience constructors here when needed (keep behaviour deterministic).

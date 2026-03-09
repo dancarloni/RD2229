@@ -8,6 +8,7 @@
 ## Obiettivo
 
 Package `src/codes/section_params/` per calcolo parametri statici sezioni c.a.:
+
 - Rapporto di omogeneizzazione n per 6 norme
 - Sezione omogeneizzata integra (A_om, I_om, y_G_om)
 - Asse neutro fessurato + inerzia fessurata
@@ -52,6 +53,7 @@ src/gui/widgets/
 ## Formule chiave
 
 ### Sezione omogenizzata integra
+
 ```python
 A_om = A_c + (n-1) * sum(A_si)
 y_G_om = (A_c * y_G_c + (n-1) * sum(A_si * y_i)) / A_om
@@ -59,12 +61,14 @@ I_om = I_c + A_c*(y_G_c - y_G_om)^2 + (n-1)*sum(A_si*(y_i - y_G_om)^2)
 ```
 
 ### Asse neutro fessurato (rettangolare, N=0, singola fila)
+
 ```python
 (b/2)*x^2 + n*As*x - n*As*d = 0  →  x = (-n*As + sqrt((n*As)^2 + 2*b*n*As*d)) / b
 I_fess = b*x^3/3 + n*As*(d-x)^2
 ```
 
 ### Tensioni SLE
+
 ```python
 sigma_c = M * y_na / I_fess
 sigma_s_i = n * M * (y_i - y_na) / I_fess

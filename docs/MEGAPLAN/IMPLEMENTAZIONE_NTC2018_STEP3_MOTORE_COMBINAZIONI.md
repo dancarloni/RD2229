@@ -12,7 +12,6 @@ analisi strutturale (KB_NTC2018_ANALISI.md)
 verifiche (CAP_4 / CAP_7)
 Il motore è norma‑driven, parametrico, tracciabile e impedisce qualunque combinazione non ammessa dalle NTC.
 
-
 1. Ruolo del motore combinazioni
 Il motore delle combinazioni:
 
@@ -24,8 +23,7 @@ riferimento normativo;
 fornisce le combinazioni ai metodi di analisi e alle verifiche.
 📌 Nessuna verifica può essere eseguita senza passare da questo motore.
 
-
-2. Classificazione delle combinazioni
+1. Classificazione delle combinazioni
 2.1 Stati Limite supportati
 
 SLU – Stati Limite Ultimi (CAP_4)
@@ -34,8 +32,7 @@ SLE-FREQ – Stato Limite di Esercizio frequente (CAP_4)
 SLE-QP – Stato Limite di Esercizio quasi‑permanente (CAP_4)
 SISMICA – Combinazioni sismiche (CAP_7)
 
-
-3. Modello dati – Azioni
+1. Modello dati – Azioni
 
 from dataclasses import dataclass
 
@@ -45,10 +42,7 @@ class Action:
     value: float
     type: str   # G1, G2, Q, E, ...
 
-
-
-
-4. Modello dati – Combinazione
+1. Modello dati – Combinazione
 
 from dataclasses import dataclass
 from ntc_capitolo import NTCCapitol
@@ -61,11 +55,9 @@ class LoadCombination:
     capitolo_ntc: NTCCapitol
     reference: str
 
-
 Ogni combinazione è un oggetto esplicito, serializzabile e citabile.
 
-
-5. Motore combinazioni – struttura base
+1. Motore combinazioni – struttura base
 
 class CombinationEngineNTC2018:
 
@@ -87,9 +79,6 @@ class CombinationEngineNTC2018:
     def generate_sismica(self) -> list[LoadCombination]:
         ...
 
-
-
-
 6. Regole vincolanti per CAPITOLO 4
 Per le combinazioni CAP_4:
 
@@ -102,10 +91,7 @@ Ogni combinazione CAP_4 riporta:
 
 NTC2018 – §2.5 / §4
 
-
-
-
-7. Regole vincolanti per CAPITOLO 7
+1. Regole vincolanti per CAPITOLO 7
 Per le combinazioni CAP_7:
 
 inclusione obbligatoria dell’azione sismica E;
@@ -113,8 +99,7 @@ uso consentito del fattore q solo se:sono attive verifiche di capacità;
 riferimento esplicito a §7 NTC2018;
 collegamento diretto con KB_NTC2018_SISMICA.md.
 
-
-8. Esempio – Combinazione SLE rara (CAP_4)
+1. Esempio – Combinazione SLE rara (CAP_4)
 
 LoadCombination(
     name="SLE_RARA",
@@ -124,10 +109,7 @@ LoadCombination(
     reference="NTC2018 §2.5.3",
 )
 
-
-
-
-9. Esempio – Combinazione sismica (CAP_7)
+1. Esempio – Combinazione sismica (CAP_7)
 
 LoadCombination(
     name="SISMICA_ELASTICA",
@@ -137,22 +119,16 @@ LoadCombination(
     reference="NTC2018 §7.3",
 )
 
-
-
-
-10. Integrazione con il motore di verifica
+1. Integrazione con il motore di verifica
 Il flusso è obbligatorio:
 
 Azioni → Motore Combinazioni → Analisi → Verifiche
-
-
 
 le verifiche CAP_4 rifiutano combinazioni CAP_7;
 le verifiche CAP_7 rifiutano combinazioni CAP_4;
 ogni VerificationResult riporta la combinazione utilizzata.
 
-
-11. Relazione di calcolo
+1. Relazione di calcolo
 La relazione deve riportare:
 
 elenco delle azioni;
@@ -162,12 +138,10 @@ capitolo NTC;
 riferimento normativo.
 La combinazione diventa parte integrante della prova di calcolo.
 
-
-12. Stato dell’implementazione
+1. Stato dell’implementazione
 ✅ STEP 3 completato nel canvas ✅ Motore combinazioni NTC2018 definito ✅ Blocco CAP_4 / CAP_7 garantito ✅ Pronto per:
 
 STEP 4 – ζE edifici esistenti
 STEP 5 – Gerarchia e capacità sismica
-
 
 Questo file è vincolante per tutte le combinazioni di carico utilizzate nel software NTC2018.

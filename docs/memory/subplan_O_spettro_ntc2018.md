@@ -25,6 +25,7 @@ autonomamente lo spettro NTC2018 dal sito.
 ### Stato attuale spectrum_paste_service.py
 
 `src/codes/ntc2018/spectrum_paste_service.py` e' il punto di integrazione esistente:
+
 - Importa ag, F0, TC* da EdiLus-MS (parsing testo incollato)
 - Memorizza `class_of_use` e `vita_nominale_years`
 - Dataclass `Ntc2018HazardProfile` con `parsed_rows: list[Ntc2018HazardRow]`
@@ -194,11 +195,13 @@ Ntc2018HazardProfile.get_hazard_params("Salvaguardia Vita")
 ## Integrazione con O.1 (griglia INGV)
 
 La FASE O.1 deve produrre un output compatibile con `Ntc2018HazardRow`:
+
 - Input: lat, lon, VR (o TR)
 - Output: ag_g, f0, tc_star (interpolazione griglia 0.05° x 0.05°)
 - Alternativa offline: tabella CSV locale della griglia INGV (Allegato B NTC2018)
 
 Con O.1 attivo, il flusso diventa completamente automatico:
+
 ```
 lat, lon + cat_suolo + cat_topogr + classe_uso + VN
   -> O.1: ag, F0, TC* per SLV
@@ -224,11 +227,12 @@ lat, lon + cat_suolo + cat_topogr + classe_uso + VN
 ## Test da scrivere (valori di riferimento)
 
 Per `spectrum.py`, usare come riferimento:
+
 - Esempio NTC2018 Allegato B: sito Roma (lat 41.9, lon 12.5)
 - SLV, VR=50 anni, cat. suolo B, cat. topogr. T1
 - ag = 0.168g, F0 = 2.398, TC* = 0.327 s
 - SS = f(ag, F0, B) ~ 1.2 (iterativo), ST = 1.0
-- alpha_S = 0.168 * 1.2 * 1.0 = 0.2016
+- alpha_S = 0.168 *1.2* 1.0 = 0.2016
 - TB = TC/3, TC = CC*TC*, TD = 4*0.168+1.6 = 2.272 s
 
 ---
@@ -276,10 +280,11 @@ Per `spectrum.py`, usare come riferimento:
 ### Valori di riferimento corretti (Roma SLV, cat B/T1)
 
 ag=0.168g, F0=2.398, TC*=0.327s:
+
 - SS = 1.0 + 0.40*(2.398*0.168 - 0.22) = 1.073 (NON 1.2 come indicato in precedenza)
 - CC = 1.1 * 0.327^(-0.20) = 1.376
 - TC = 1.376 * 0.327 = 0.450s; TB = 0.150s; TD = 2.272s
-- alpha_S = 0.168 * 1.073 * 1.0 = 0.180 (NON 0.2016 come indicato in precedenza)
+- alpha_S = 0.168 *1.073* 1.0 = 0.180 (NON 0.2016 come indicato in precedenza)
 
 ### Gap residui
 

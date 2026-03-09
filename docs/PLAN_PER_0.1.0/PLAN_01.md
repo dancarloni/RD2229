@@ -111,8 +111,6 @@ Isolare codice legacy, non introdurre accoppiamenti
 Ogni nuovo modulo/plugin deve essere testato e documentato
 Fine del file piano.
 
-
-
 TL;DR
 RD2229 diventerà una piattaforma modulare estendibile con interfacce CLI e GUI basate su contratti solidi. Il nucleo è un ProjectModel pydantic validato via JSON‑Schema; la pipeline è configurabile e i risultati riportati in MD/HTML. I plugin, caricati automaticamente da plugins, espongono azioni eseguibili da entrambe le interfacce. Logging completo in logs; test unit, CLI e GUI garantiscono regressioni.
 

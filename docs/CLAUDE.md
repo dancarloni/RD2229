@@ -13,6 +13,7 @@ RD2229 is a Python project for digitalizing and calculating historical structura
 ## Critical Conventions
 
 ### Units System - IMPORTANT
+
 All stress and pressure values use **historical units: Kg/cm²** (kilograms per square centimeter), NOT modern SI units (MPa). This is intentional to match the historical documentation and formulas.
 
 - 1 Kg/cm² = 0.0980665 MPa
@@ -20,6 +21,7 @@ All stress and pressure values use **historical units: Kg/cm²** (kilograms per 
 - Geometric dimensions (sections) use **cm** (centimeters)
 
 ### Greek Letters Convention
+
 The project uses Unicode Greek letters (σ, τ, etc.) in docstrings and documentation. A pre-commit hook (`scripts/replace_sigma.py`) automatically replaces standalone "sigma" with "σ" in `.py`, `.md`, `.rst`, `.txt` files.
 
 ## Directory Structure
@@ -72,19 +74,24 @@ RD2229/
 | `materials_manager.py` | CRUD API for `data/materials.json` with auto-computed derived fields |
 
 ### Sections App (`src/rd2229/sections_app/`)
+
 A complete Tkinter GUI for managing cross-sections:
+
 - `models/sections.py`: Section classes (RectangularSection, CircularSection, TSection)
 - `services/repository.py`: CSV-based persistence
 - `services/calculations.py`: Canvas transform utilities
 - `ui/main_window.py`: Main GUI with dynamic field generation
 
 ### GUI (`src/rd2229/gui/`)
+
 - `materials_gui.py`: Tkinter GUI for materials CRUD with preview of calculated values
 
 ## Configuration
 
 ### `.rd2229_config.yaml`
+
 Project configuration file:
+
 ```yaml
 calculations_path: src/rd2229/calculations
 verifications_path: src/rd2229/verifications
@@ -103,11 +110,13 @@ modules:
 **Sync Rule**: When adding a new module under `calculations/`, create a corresponding placeholder in `verifications/`.
 
 ### Pre-commit Hooks (`.pre-commit-config.yaml`)
+
 - `replace-sigma`: Replaces standalone "sigma" with "σ" in documentation
 
 ## Running the Project
 
 ### Environment Setup
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate  # Linux/Mac
@@ -115,11 +124,13 @@ pip install -r requirements.txt  # pandas, matplotlib
 ```
 
 ### Run Tests
+
 ```bash
 pytest tests/
 ```
 
 ### Run GUIs
+
 ```bash
 # Materials GUI
 PYTHONPATH=src python scripts/run_materials_gui.py
@@ -131,14 +142,18 @@ PYTHONPATH=src python -m rd2229
 ## Code Patterns
 
 ### Section Classes
+
 All section types inherit from `Section` base class and implement:
+
 - `_compute() -> SectionProperties`: Calculate geometric properties
 - `_fill_dimension_fields(data: Dict)`: Serialize dimensions to dict
 - `_dimension_key() -> Tuple`: Unique key for duplicate detection
 - `to_dict() -> Dict`: Full serialization for CSV
 
 ### Material Management
+
 Materials are stored in `data/materials.json` with derived fields auto-calculated:
+
 ```python
 {
     "name": "CA-01",
@@ -158,14 +173,18 @@ Materials are stored in `data/materials.json` with derived fields auto-calculate
 ```
 
 ### Historical Stress Formulas
+
 Key functions in `concrete_strength.py`:
+
 - `compute_allowable_compressive_stress()`: σ_c from σ_c28 using historical rules
 - `compute_allowable_shear()`: Returns (τ_service, τ_max) based on cement type
 - `compute_ec()`: E_c = 550000 * σ_c28 / (σ_c28 + 200)
 - `compute_gc()`: G_c ≈ 0.43-0.445 * E_c
 
 ### Dynamic GUI Fields
+
 Section type selection dynamically rebuilds input fields using `SECTION_DEFINITIONS` dict in `main_window.py`. Each entry defines:
+
 - `class`: The section model class
 - `fields`: List of (field_name, label) tuples
 - `tooltip`: Section description
@@ -174,18 +193,21 @@ Section type selection dynamically rebuilds input fields using `SECTION_DEFINITI
 ## Development Guidelines
 
 ### Adding New Section Types
+
 1. Create dataclass in `src/rd2229/sections_app/models/sections.py`
 2. Implement `_compute()`, `_fill_dimension_fields()`, `_dimension_key()`
 3. Add to `SECTION_CLASS_MAP` and `SECTION_DEFINITIONS` in UI
 4. Optionally add drawing method in `_draw_section()`
 
 ### Adding New Calculation Modules
+
 1. Create package under `src/rd2229/calculations/<element_type>/`
 2. Create corresponding package under `src/rd2229/verifications/<element_type>/`
 3. Document formulas and normative references in docstrings
 4. Return intermediate calculation steps for GUI display
 
 ### Testing
+
 - Use pytest for all tests
 - Test files: `tests/test_*.py`
 - Include property computation validation against known values
@@ -202,9 +224,11 @@ Section type selection dynamically rebuilds input fields using `SECTION_DEFINITI
 8. **Logging** - GUI operations are logged to `logs/gui_operations.log`
 
 ## Quantities Registry
+
 A CSV-based registry (`src/quantities_registry.csv`) tracks physical quantities with their symbols and units, managed via `src/quantities_registry.py` using pandas.
 
 ## External Dependencies
+
 - `pandas` - Data manipulation (quantities registry)
 - `matplotlib` - Plotting (future use)
 - Optional: `PyYAML` - Config file parsing

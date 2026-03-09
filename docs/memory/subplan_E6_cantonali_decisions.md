@@ -19,8 +19,8 @@ Questo file documenta le decisioni architetturali e i vincoli implementativi per
 
 Il modulo `esegui_verifica_cantonale(input_dati)` è standalone. Quando verrà integrato in `analisi_tutti_meccanismi()` (in Fase R o fine Fase E), dovrà semplicemente mappare i dati dal modello 3D globale dell'edificio agli input semplificati del cantonale. Nessun refactoring di `cantonale.py` è ammesso durante l'integrazione globale.
 
+## FASE E.6.2 � Decisioni Riduzione Maschi
 
-## FASE E.6.2 � Decisioni Riduzione Maschi
-1. Soglie (A2): Normative NTC2018 ({min} = \max(t, 100 	ext{ cm})$) + Parametriche (modello proporzionale a step) + Personalizzate.
+1. Soglie (A2): Normative NTC2018 ({min} = \max(t, 100  ext{ cm})$) + Parametriche (modello proporzionale a step) + Personalizzate.
 2. Indebolimento (B2): Limitazione asintotica (safe lower bound {min} = 0.20$) per evitare singolarita a 0 quando le aperture sfiorano i cantonali.
 3. Indipendenza (C1): Completamente standalone tramite InputDiagnosticaAngolo e RisultatoDiagnosticaAngolo nel modulo cantonale.py.

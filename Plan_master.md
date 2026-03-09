@@ -2,18 +2,23 @@
 # PLAN MASTER — Multi‑Block Implementation
 
 ## 0. Instructions to the Agent
+
 - Execute the entire plan inside ONE SINGLE session.
 - Never start secondary sessions.
 - Never request confirmation.
 - Use cloud execution only as continuation of the same session.
 - Output ONE pull request containing the entire implementation.
 
-
 ##############################################
+
 # PROMPT PER GITHUB COPILOT PLAN / CLAUDE CODE
+
 # PROGETTO DI RISTRUTTURAZIONE COMPLETA (A1)
+
 # + INTRODUZIONE DI TUTTI I MODULI STRUTTURALI
+
 # + STUB S2 ULTRACOMMENTATI
+
 ##############################################
 
 OBIETTIVO PRINCIPALE:
@@ -34,7 +39,8 @@ Ricostruire completamente il progetto Python esistente riorganizzandolo in una n
 
 La GUI (se e quando sarà presente) NON deve contenere logica di calcolo.
 I calcoli vengono incapsulati nei moduli dedicati.
-Le unità di misura devono rispettare lo standard definito dall'utente: 
+Le unità di misura devono rispettare lo standard definito dall'utente:
+
 - lunghezze in cm
 - aree in cm^2
 - inerzie in cm^4
@@ -42,6 +48,7 @@ Le unità di misura devono rispettare lo standard definito dall'utente:
 - densità in kg/m^3
 
 Il progetto deve introdurre:
+
 - calcolo area a taglio (A_sx, A_sy) per TUTTE le sezioni;
 - configuratore degli elementi strutturali;
 - sistema parametri normativi con pannelli dedicati;
@@ -56,6 +63,7 @@ Il progetto deve introdurre:
 - indice risultati.
 
 TUTTI i nuovi moduli devono essere generati come STUB **S2**:
+
 - estremamente commentati;
 - docstring lunghe esplicative;
 - TODO marcati chiaramente per Copilot;
@@ -65,17 +73,21 @@ TUTTI i nuovi moduli devono essere generati come STUB **S2**:
 - nessuna logica implementativa profonda: solo interfacce e struttura.
 
 ##################################################
+
 # FASI CHE IL PIANO DEVE SEGUIRE DURANTE APPLY
+
 ##################################################
 
 FASE 0 — Ricognizione del progetto
+
 - Analizza la repo.
 - Conferma che tutti i file attuali siano spostati in src/legacy/.
 - Verifica che i nuovi package siano integri.
 
-FASE 1 — Creazione cartelle e __init__.py
+FASE 1 — Creazione cartelle e **init**.py
 
 FASE 2 — Generazione stub dei moduli:
+
 - calc/shear_area_registry.py
 - materials/material_model.py
 - materials/validation.py
@@ -102,8 +114,11 @@ FASE 4 — Validazione architettura con i test minimi
 FASE 5 — Documentazione README e changelog
 
 ############################################################
+
 # REGOLE IMPORTANTI
+
 ############################################################
+
 - NON modificare il contenuto dei file in legacy/.
 - NON introdurre logica nella GUI.
 - NON alterare unità di misura definite dall'utente.
@@ -113,9 +128,12 @@ FASE 5 — Documentazione README e changelog
 - Tutte le funzioni devono avere type hint.
 
 ############################################################
+
 # RISULTATO ATTESO
+
 ############################################################
 Una ristrutturazione completa del progetto in cui:
+
 - il codice attuale vive in src/legacy/
 - l’architettura nuova è separata, pulita, estensibile
 - i moduli sono pronti per successive implementazioni
@@ -125,12 +143,18 @@ Una ristrutturazione completa del progetto in cui:
 - Continue e Copilot possono completare automaticamente l’implementazione
 
 ############################################################
+
 # FINE BLOCCO 1: PROMPT PLAN
+
 ############################################################
 ############################################################
+
 # BLOCCO 2 / 12
+
 # STRUTTURA COMPLETA DELLA NUOVA ARCHITETTURA /src/
+
 # + NOTE DI MIGRAZIONE (A1)
+
 ############################################################
 
 Questo blocco definisce:
@@ -138,7 +162,7 @@ Questo blocco definisce:
 1. La nuova struttura del progetto secondo OPZIONE A1.
 2. Le linee guida di migrazione completa.
 3. L'albero delle cartelle così come dovrà comparire nella repo.
-4. I file __init__.py richiesti.
+4. I file **init**.py richiesti.
 5. Le note operative per Continue / Copilot Plan.
 
 ============================================================
@@ -174,9 +198,9 @@ SEZIONE 2 — ALBERO DIRECTORY COMPLETO
 Il progetto dovrà apparire così dopo la migrazione:
 
 src/
-    __init__.py
+    **init**.py
     legacy/
-        __init__.py
+        **init**.py
         # -> Qui verranno copiati TUTTI i file esistenti dalla root
         #    originaria del progetto, SENZA ALCUNA MODIFICA.
         #    Esempi:
@@ -187,62 +211,61 @@ src/
         #       quantities_registry.py
         #       etc.
     softw_components/
-        __init__.py
+        **init**.py
         # -> Moduli estratti da section_app (ora deprecato)
     calc/
-        __init__.py
+        **init**.py
         shear_area_registry.py
         section_registry.py
     materials/
-        __init__.py
+        **init**.py
         material_model.py
         material_repo.py
         validation.py
     elements/
-        __init__.py
+        **init**.py
         element_model.py
         element_repo.py
         resolve_inputs.py
     codes/
-        __init__.py
+        **init**.py
         code_registry.py
         clauses/
-            __init__.py
+            **init**.py
             # file YAML generati nei blocchi successivi
         params/
-            __init__.py
+            **init**.py
             # file JSON generati nei blocchi successivi
     actions/
-        __init__.py
+        **init**.py
         action_repo.py
     report/
-        __init__.py
+        **init**.py
         renderer_md.py
         renderer_html.py
         renderer_pdf.py
         templates/
-            __init__.py
+            **init**.py
             template.html
             template.md
     config/
-        __init__.py
+        **init**.py
         units.yml
         numerics.yml
         app.yml
         features.yml
     tools/
-        __init__.py
+        **init**.py
         verify_cli.py
         export_results.py
     tests/
-        __init__.py
+        **init**.py
         test_shear_area.py
         test_code_routing.py
         test_resolve_inputs.py
         test_reporting.py
         test_material_repo.py
         test_elements_repo.py
-
 
 ============================================================
 SEZIONE 3 — LINEE GUIDA DI MIGRAZIONE (A1)
@@ -287,30 +310,35 @@ SEZIONE 3 — LINEE GUIDA DI MIGRAZIONE (A1)
         tests/
         config/
 
-6) CREA i file __init__.py per ogni cartella.
+6) CREA i file **init**.py per ogni cartella.
 
 7) Aggiorna successivamente gli import (fase gestita dal piano Plan).
 
 ============================================================
-SEZIONE 4 — FILE __init__.py MINIMI
+SEZIONE 4 — FILE **init**.py MINIMI
 ============================================================
 
-Tutti gli __init__.py saranno minimali, es.:
+Tutti gli **init**.py saranno minimali, es.:
 
 ------------------------------------------------------------
-File: src/__init__.py
+
+File: src/**init**.py
 ------------------------------------------------------------
+
 """
 Root package of the restructured engineering verification framework.
 
 This folder contains:
+
 - the legacy code (in src/legacy/)
 - the new modular architecture
 """
 
 ------------------------------------------------------------
-File: src/legacy/__init__.py
+
+File: src/legacy/**init**.py
 ------------------------------------------------------------
+
 """
 Legacy code — original project modules preserved unchanged.
 
@@ -318,14 +346,15 @@ DO NOT EDIT FILES IN THIS FOLDER.
 """
 
 ------------------------------------------------------------
-TUTTI GLI ALTRI __init__.py:
+
+TUTTI GLI ALTRI **init**.py
 ------------------------------------------------------------
+
 """
 Package initializer.
 
 This module is part of the restructured architecture.
 """
-
 
 ============================================================
 SEZIONE 5 — NOTE OPERATIVE PER CONTINUE / COPILOT PLAN
@@ -345,18 +374,28 @@ SEZIONE 5 — NOTE OPERATIVE PER CONTINUE / COPILOT PLAN
 ============================================================
 FINE BLOCCO 2 / 12
 ============================================================
-############################################################
-# BLOCCO 3 / 12
-# PACKAGE: src/calc/
-# CONTENUTO:
-#   - shear_area_registry.py
-#   - section_registry.py
-#   - __init__.py già definito nel Blocco 2
-#
-# TUTTI I FILE SONO STUB S2 (ultra commentati e pronti
-#   per essere espansi da Copilot Plan / Continue).
+
 ############################################################
 
+# BLOCCO 3 / 12
+
+# PACKAGE: src/calc/
+
+# CONTENUTO
+
+# - shear_area_registry.py
+
+# - section_registry.py
+
+# - **init**.py già definito nel Blocco 2
+
+#
+
+# TUTTI I FILE SONO STUB S2 (ultra commentati e pronti
+
+# per essere espansi da Copilot Plan / Continue)
+
+############################################################
 
 ============================================================
 FILE: src/calc/shear_area_registry.py
@@ -366,6 +405,7 @@ FILE: src/calc/shear_area_registry.py
 shear_area_registry.py
 
 Questo modulo definisce:
+
 - Il registry per il calcolo dell'area a taglio A_sx e A_sy,
   applicato a TUTTE le sezioni del software.
 - Un sistema estensibile per aggiungere strategie di calcolo
@@ -375,12 +415,14 @@ Questo modulo definisce:
   elementi → risoluzione input → verifiche strutturali.
 
 UNITÀ di MISURA:
+
 - Tutte le lunghezze devono essere considerate in cm.
 - Le aree devono essere restituite in cm^2.
 - Nessuna conversione implicita deve essere introdotta
   in questo modulo.
 
 NOTE:
+
 - Questo file è uno STUB S2: contiene docstring esaustive,
   TODO chiari, e struttura definita, ma NON implementazione
   di calcoli complessi.
@@ -389,10 +431,12 @@ NOTE:
 
 from typing import Callable, Dict, Tuple, Optional, Any
 
+# ======================================================================
+
+# TIPOLOGIE DI ALIAS
 
 # ======================================================================
-# TIPOLOGIE DI ALIAS
-# ======================================================================
+
 ShearAreaFunction = Callable[[Any], Tuple[float, float]]
 """
 Funzione che accetta un oggetto sezione (Section)
@@ -403,9 +447,10 @@ e restituisce una tupla:
 Unità: cm^2.
 """
 
-
 # ======================================================================
+
 # COSTANTI DI BASE (VALORI CLASSICI PER SEZIONI PIENE)
+
 # ======================================================================
 
 DEFAULT_KAPPA: float = 5.0 / 6.0
@@ -414,27 +459,30 @@ Valore kappa classico per sezioni rettangolari piene.
 
 Questo valore è da considerarsi fallback.
 ATTENZIONE:
+
 - Non va usato come verità normativa.
 - È un valore standard della teoria della trave di Timoshenko.
 - Il software può sovrascriverlo tramite config o registry.
 
 TODO Copilot:
+
 - Aggiungere supporto configurazione kappa da file YAML
   (es. src/config/app.yml)
 """
-
 
 CIRCLE_KAPPA: float = 0.9
 """
 Valore classico approssimato per sezioni circolari piene.
 
 TODO Copilot:
+
 - Verificare eventuale ref. interna ai parametri materiali.
 """
 
-
 # ======================================================================
+
 # REGISTRY DELLE STRATEGIE DI CALCOLO
+
 # ======================================================================
 
 SHEAR_AREA_STRATEGIES: Dict[str, ShearAreaFunction] = {}
@@ -447,13 +495,15 @@ shape_id è l'identificatore univoco di una sezione
 nel repository delle sezioni (src/sections o src/elements).
 
 TODO Copilot:
+
 - Riempire il registry in fase di bootstrap
   leggendo dal registry delle sezioni.
 """
 
-
 # ======================================================================
+
 # FUNZIONI DI UTILITÀ PER REGISTRAZIONE
+
 # ======================================================================
 
 def register_shear_area_strategy(shape_id: str, func: ShearAreaFunction) -> None:
@@ -469,9 +519,10 @@ def register_shear_area_strategy(shape_id: str, func: ShearAreaFunction) -> None
     """
     SHEAR_AREA_STRATEGIES[shape_id] = func
 
-
 # ======================================================================
+
 # STRATEGIE STANDARD (rettangolo & cerchio)
+
 # ======================================================================
 
 def _rectangular_shear_area(section: Any) -> Tuple[float, float]:
@@ -489,7 +540,6 @@ def _rectangular_shear_area(section: Any) -> Tuple[float, float]:
     As = DEFAULT_KAPPA * A
     return (As, As)
 
-
 def _circular_shear_area(section: Any) -> Tuple[float, float]:
     """
     Calcolo A_sx e A_sy per sezione circolare piena.
@@ -501,19 +551,23 @@ def _circular_shear_area(section: Any) -> Tuple[float, float]:
     As = CIRCLE_KAPPA * A
     return (As, As)
 
-
 # ======================================================================
+
 # REGISTRAZIONE DELLE STRATEGIE STANDARD
-# ======================================================================
-
-# TODO Copilot:
-# - In futuro questi id saranno letti dal registry sezione.
-register_shear_area_strategy("rectangle", _rectangular_shear_area)
-register_shear_area_strategy("circle", _circular_shear_area)
-
 
 # ======================================================================
+
+# TODO Copilot
+
+# - In futuro questi id saranno letti dal registry sezione
+
+register_shear_area_strategy("rectangle",_rectangular_shear_area)
+register_shear_area_strategy("circle",_circular_shear_area)
+
+# ======================================================================
+
 # FUNZIONE GENERALE DI CALCOLO
+
 # ======================================================================
 
 def compute_shear_area(section: Any) -> Tuple[float, float]:
@@ -553,14 +607,11 @@ def compute_shear_area(section: Any) -> Tuple[float, float]:
 
     return (kappa_x * A, kappa_y * A)
 
-
 # ======================================================================
+
 # FINE FILE
+
 # ======================================================================
-
-
-
-
 
 ============================================================
 FILE: src/calc/section_registry.py
@@ -574,30 +625,33 @@ Questo modulo gestisce il registry delle sezioni geometriche
 ma memorizza info di base utili nelle fasi successive.
 
 Utilizzi:
+
 - Copilot Plan potrà popolare automaticamente il registry
   leggendo da un file JSON/CSV (es. sections.json in legacy).
 - Il registry faciliterà:
-    - selezione sezione nella configurazione elementi
-    - reperimento area, inerzia, parametri aggiuntivi
-    - collegamento con shear_area_registry
+  - selezione sezione nella configurazione elementi
+  - reperimento area, inerzia, parametri aggiuntivi
+  - collegamento con shear_area_registry
 
 Questo file è uno STUB S2:
+
 - molto commentato
 - nessuna implementazione reale
 
 UNITÀ DI MISURA:
+
 - Tutti i valori geometrici memorizzati devono rispettare:
     lunghezze: cm
     aree: cm^2
     inerzie: cm^4
 """
 
-
 from typing import Dict, Any, Optional
 
-
 # ======================================================================
+
 # REGISTRY DELLE SEZIONI
+
 # ======================================================================
 
 SECTION_REGISTRY: Dict[str, Any] = {}
@@ -620,13 +674,15 @@ tipicamente:
 }
 
 TODO Copilot:
+
 - Definire struttura finale leggendo sections.json in legacy.
 - Aggiungere validazioni.
 """
 
-
 # ======================================================================
+
 # FUNZIONI DI REGISTRAZIONE E RECUPERO
+
 # ======================================================================
 
 def register_section(shape_id: str, metadata: Dict[str, Any]) -> None:
@@ -640,7 +696,6 @@ def register_section(shape_id: str, metadata: Dict[str, Any]) -> None:
     """
     SECTION_REGISTRY[shape_id] = metadata
 
-
 def get_section_metadata(shape_id: str) -> Optional[Dict[str, Any]]:
     """
     Restituisce il metadata associato alla sezione.
@@ -650,9 +705,10 @@ def get_section_metadata(shape_id: str) -> Optional[Dict[str, Any]]:
     """
     return SECTION_REGISTRY.get(shape_id)
 
-
 # ======================================================================
+
 # FUNZIONE DI BOOTSTRAP (stub)
+
 # ======================================================================
 
 def load_sections_from_legacy() -> None:
@@ -667,33 +723,44 @@ def load_sections_from_legacy() -> None:
     """
     pass
 
-
 # ======================================================================
+
 # FINE FILE
+
 # ======================================================================
 
-
-
-
 ############################################################
+
 # FINE BLOCCO 3 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 4 / 12
+
 # PACKAGE: src/materials/
+
 #
-# Contenuto:
-#   - material_model.py
-#   - validation.py
-#   - material_repo.py
+
+# Contenuto
+
+# - material_model.py
+
+# - validation.py
+
+# - material_repo.py
+
 #
-# Tutti i file sono STUB S2:
+
+# Tutti i file sono STUB S2
+
 # - Estremamente commentati
+
 # - Docstring lunghe
+
 # - Struttura chiara e pronta per espansione con Copilot Plan
+
 ############################################################
-
-
 
 ============================================================
 FILE: src/materials/material_model.py
@@ -714,11 +781,13 @@ per la gestione di:
 - Parametri storici/legacy (collegamento con src/legacy/historical_materials).
 
 UNITÀ DI MISURA:
+
 - Resistenze (f_ck, f_yk) → kg/cm^2
 - Moduli elastici → kg/cm^2
 - Densità → kg/m^3
 
 OBIETTIVI DEL MODELLO:
+
 - Rappresentare in modo coerente i materiali.
 - Essere serializzabile JSON.
 - Essere pronto per la validazione via validation.py.
@@ -731,7 +800,6 @@ Questo file è uno STUB S2: contiene struttura e TODO ma non logica.
 
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
-
 
 @dataclass
 class Material:
@@ -767,14 +835,11 @@ class Material:
         """
         return self.params.get(name)
 
-
-
 # ======================================================================
+
 # FINE FILE material_model.py
+
 # ======================================================================
-
-
-
 
 ============================================================
 FILE: src/materials/validation.py
@@ -786,6 +851,7 @@ validation.py
 Modulo dedicato alla validazione dei materiali.
 
 Questo modulo centralizza:
+
 - Controlli su densità (valori positivi).
 - Controlli su parametri (fck, fyk, E).
 - Controlli logici (es. una muratura non deve avere fyk).
@@ -800,11 +866,9 @@ Questo è uno STUB S2: struttura completa, TODO attivi, niente logica.
 from typing import List
 from .material_model import Material
 
-
 class MaterialValidationError(Exception):
     """Errore di validazione dei materiali."""
     pass
-
 
 def validate_material(material: Material) -> List[str]:
     """
@@ -834,14 +898,11 @@ def validate_material(material: Material) -> List[str]:
 
     return errors
 
-
-
 # ======================================================================
+
 # FINE FILE validation.py
+
 # ======================================================================
-
-
-
 
 ============================================================
 FILE: src/materials/material_repo.py
@@ -853,6 +914,7 @@ material_repo.py
 Repository dei materiali.
 
 Obiettivi:
+
 - Gestire caricamento materiali da file legacy.
 - Gestire caricamento materiali da file JSON/YAML moderni.
 - Permettere recupero per material_id.
@@ -863,6 +925,7 @@ Obiettivi:
 
 NOTE:
 Questo file è uno STUB S2:
+
 - Contiene struttura, docstring, TODO
 - Nessuna implementazione completa
 
@@ -871,7 +934,6 @@ Questo file è uno STUB S2:
 from typing import Dict, Optional, List
 from .material_model import Material
 from .validation import validate_material
-
 
 class MaterialRepository:
     """
@@ -958,35 +1020,44 @@ class MaterialRepository:
         """
         pass
 
-
-
 # ======================================================================
+
 # FINE FILE material_repo.py
+
 # ======================================================================
 
-
-
-
 ############################################################
+
 # FINE BLOCCO 4 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 5 / 12
+
 # PACKAGE: src/elements/
+
 #
-# Contenuto:
-#   - element_model.py
-#   - element_repo.py
-#   - resolve_inputs.py
+
+# Contenuto
+
+# - element_model.py
+
+# - element_repo.py
+
+# - resolve_inputs.py
+
 #
-# Tutto in versione STUB S2:
+
+# Tutto in versione STUB S2
+
 # - Docstring lunghissime
+
 # - Commenti guida per Plan
+
 # - Interfacce pulite e pronte per implementazioni successive
+
 ############################################################
-
-
-
 
 ============================================================
 FILE: src/elements/element_model.py
@@ -999,6 +1070,7 @@ Questo modulo definisce il MODELLO dati degli elementi strutturali
 gestiti dal software.
 
 Un elemento strutturale è l’unità tecnica minima su cui si svolgono:
+
 - calcoli antisismici
 - verifiche statiche
 - assegnazione materiali
@@ -1007,6 +1079,7 @@ Un elemento strutturale è l’unità tecnica minima su cui si svolgono:
 - generazione report
 
 ESEMPI DI ELEMENTI:
+
 - Trave in c.a.
 - Pilastro in c.a.
 - Parete in c.a.
@@ -1025,6 +1098,7 @@ Questo STUB S2 definisce:
 4. Metodi placeholder pronti per essere implementati da Copilot Plan.
 
 UNITÀ DI MISURA:
+
 - Lunghezze → cm
 - Aree → cm²
 - Inerzie → cm⁴
@@ -1037,7 +1111,6 @@ from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
 from ..materials.material_model import Material
 from ..calc.shear_area_registry import compute_shear_area
-
 
 @dataclass
 class Element:
@@ -1151,14 +1224,11 @@ class Element:
             "additional_params": self.additional_params,
         }
 
-
 # ======================================================================
+
 # FINE FILE element_model.py
+
 # ======================================================================
-
-
-
-
 
 ============================================================
 FILE: src/elements/element_repo.py
@@ -1170,6 +1240,7 @@ element_repo.py
 Questo modulo definisce il REPOSITORY degli elementi strutturali.
 
 Responsabilità del repository:
+
 - Creazione e registrazione elementi.
 - Caricamento da file JSON/XML/YAML moderni.
 - Caricamento da file legacy (se esiste un corrispettivo).
@@ -1178,6 +1249,7 @@ Responsabilità del repository:
 - Collegamento con funzioni di risoluzione input (resolve_inputs).
 
 STUB S2:
+
 - Struttura completa
 - Docstring lunghe
 - TODO per Copilot
@@ -1187,7 +1259,6 @@ from typing import Dict, Optional, List
 from .element_model import Element
 from ..materials.material_repo import MaterialRepository
 from ..calc.section_registry import get_section_metadata
-
 
 class ElementRepository:
     """
@@ -1278,14 +1349,11 @@ class ElementRepository:
         """
         pass
 
-
 # ======================================================================
+
 # FINE FILE element_repo.py
+
 # ======================================================================
-
-
-
-
 
 ============================================================
 FILE: src/elements/resolve_inputs.py
@@ -1309,6 +1377,7 @@ Tale sistema produce un oggetto strutturato pronto per il motore
 di verifica.
 
 Questo modulo è fondamentale perché:
+
 - garantisce consistenza tra materiale/sezione/elemento
 - normalizza unità di misura
 - effettua controlli di validità
@@ -1316,6 +1385,7 @@ Questo modulo è fondamentale perché:
 - gestisce fallback e default
 
 STUB S2:
+
 - Nessuna implementazione reale
 - Struttura, docstring e TODO pronti per essere espansi dal Plan
 """
@@ -1323,7 +1393,6 @@ STUB S2:
 from typing import Dict, Any
 from .element_repo import ElementRepository
 from ..materials.material_repo import MaterialRepository
-
 
 def resolve_verification_inputs(
     element_repo: ElementRepository,
@@ -1373,33 +1442,42 @@ def resolve_verification_inputs(
 
     return resolved
 
-
 # ======================================================================
+
 # FINE FILE resolve_inputs.py
+
 # ======================================================================
 
-
-
-
 ############################################################
+
 # FINE BLOCCO 5 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 6 / 12
+
 # PACKAGE: src/codes/
+
 #
-# Contenuto:
-#   - code_registry.py
-#   - clauses/<normativa>.yml (stub)
-#   - params/<normativa>.json (stub)
+
+# Contenuto
+
+# - code_registry.py
+
+# - clauses/<normativa>.yml (stub)
+
+# - params/<normativa>.json (stub)
+
 #
-# Tutti i file sono STUB S2:
+
+# Tutti i file sono STUB S2
+
 # - Docstring estese
+
 # - Schema pensato per Continue / Copilot Plan
+
 ############################################################
-
-
-
 
 ============================================================
 FILE: src/codes/code_registry.py
@@ -1410,34 +1488,37 @@ code_registry.py
 
 Questo modulo definisce il REGISTRY NORMATIVO del software.
 
-Funzioni e responsabilità del registry:
+Funzioni e responsabilità del registry
 ---------------------------------------
+
 - Mappare le normative disponibili (es. "NTC2018", "EC2", "EC8").
 - Collegare ogni normativa ai suoi:
-    - parametri numerici (JSON → params/)
-    - clausole, paragrafi, limiti normativi (YAML → clauses/)
+  - parametri numerici (JSON → params/)
+  - clausole, paragrafi, limiti normativi (YAML → clauses/)
 - Fornire un punto unico per il recupero di:
-    - coefficienti di sicurezza gamma_M
-    - coefficienti di combinazione ψ
-    - limiti di tensione σ_max
-    - parametri di duttilità
+  - coefficienti di sicurezza gamma_M
+  - coefficienti di combinazione ψ
+  - limiti di tensione σ_max
+  - parametri di duttilità
 - Fornire interfacce unificate per le verifiche
   senza imporre logica normativa all’interno dei moduli di calcolo.
 
-STUB S2:
+STUB S2
 ---------------------------------------
+
 - Struttura completa
 - Docstring ricca
 - TODO per Copilot Plan
 - Implementazioni minime
 
-Unità di misura:
+Unità di misura
 ---------------------------------------
+
 - Tutti i parametri normativi devono essere coerenti con:
-    - lunghezze: cm
-    - tensioni: kg/cm^2
-    - densità: kg/m^3
-    - moduli: kg/cm^2
+  - lunghezze: cm
+  - tensioni: kg/cm^2
+  - densità: kg/m^3
+  - moduli: kg/cm^2
 
 I file in params/ contengono parametri numerici,
 mentre i file in clauses/ contengono testo strutturato
@@ -1451,9 +1532,10 @@ import json
 import yaml
 import os
 
-
 # ======================================================================
+
 # REGISTRY PER LE NORMATIVE DISPONIBILI
+
 # ======================================================================
 
 CODE_REGISTRY: Dict[str, Dict[str, Any]] = {}
@@ -1470,13 +1552,15 @@ CODE_REGISTRY = {
 }
 
 TODO Copilot:
+
 - Validare struttura JSON/YAML in fase di bootstrap.
 - Aggiungere logging.
 """
 
-
 # ======================================================================
+
 # FUNZIONI DI BOOTSTRAP
+
 # ======================================================================
 
 def load_code_params(name: str, path: str) -> Dict[str, Any]:
@@ -1490,7 +1574,6 @@ def load_code_params(name: str, path: str) -> Dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
 def load_code_clauses(name: str, path: str) -> Dict[str, Any]:
     """
     Carica le clausole normative (YAML) per una normativa.
@@ -1501,7 +1584,6 @@ def load_code_clauses(name: str, path: str) -> Dict[str, Any]:
     """
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
-
 
 def register_code(
     code_name: str,
@@ -1519,17 +1601,16 @@ def register_code(
         "clauses": clauses,
     }
 
-
 def get_code(code_name: str) -> Optional[Dict[str, Any]]:
     """
     Recupera una normativa dal registry.
     """
     return CODE_REGISTRY.get(code_name)
 
-
-
 # ======================================================================
+
 # FUNZIONE DI BOOT GENERALE (stub)
+
 # ======================================================================
 
 def bootstrap_codes(base_path: str) -> None:
@@ -1555,15 +1636,11 @@ def bootstrap_codes(base_path: str) -> None:
     # TODO: implementazione.
     pass
 
-
-
 # ======================================================================
+
 # FINE FILE code_registry.py
+
 # ======================================================================
-
-
-
-
 
 ============================================================
 FILE: src/codes/params/NTC2018.json
@@ -1580,15 +1657,15 @@ FILE: src/codes/params/NTC2018.json
     "note": "Tutti i valori riportati sono da validare e aggiornare."
 }
 
-
-
 ============================================================
 FILE: src/codes/clauses/NTC2018.yml
 ============================================================
 
 # Esempio STUB S2 di clausole normative per NTC 2018
+
 # Il testo NON è normativo reale: è solo struttura per supportare
-# Copilot Plan nella generazione di report tecnici.
+
+# Copilot Plan nella generazione di report tecnici
 
 general:
   title: "Norme Tecniche per le Costruzioni 2018"
@@ -1620,8 +1697,6 @@ verification:
     description: "Regole di verifica flessionale."
     formula_ref: "TODO: inserire richiamo normativo reale."
 
-
-
 ============================================================
 FILE: src/codes/params/EC2.json
 ============================================================
@@ -1634,8 +1709,6 @@ FILE: src/codes/params/EC2.json
     "E_cm": 310000.0,
     "note": "Placeholder, valori da aggiornare."
 }
-
-
 
 ============================================================
 FILE: src/codes/clauses/EC2.yml
@@ -1656,8 +1729,6 @@ verification:
       flexure: "Placeholder limite flessionale."
       shear: "Placeholder limite taglio."
 
-
-
 ============================================================
 NOTE FINALI DEL BLOCCO 6
 ============================================================
@@ -1669,20 +1740,29 @@ NOTE FINALI DEL BLOCCO 6
   e clausole normative tramite code_registry.
 
 ############################################################
+
 # FINE BLOCCO 6 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 7 / 12
+
 # PACKAGE: src/actions/
+
 #
-# Contenuto:
-#   - action_repo.py
-#   - infrastruttura generale per azioni di verifica
+
+# Contenuto
+
+# - action_repo.py
+
+# - infrastruttura generale per azioni di verifica
+
 #
-# TUTTI i file in modalità STUB S2.
+
+# TUTTI i file in modalità STUB S2
+
 ############################################################
-
-
 
 ============================================================
 FILE: src/actions/action_repo.py
@@ -1716,6 +1796,7 @@ La finalità del repository è:
    all’interno del motore di verifica.
 
 Questo è uno STUB S2:
+
 - NON contiene formule vere.
 - Fornisce la struttura per Copilot Plan.
 - Usa interfacce pronte per essere ampliate nei blocchi successivi.
@@ -1723,9 +1804,10 @@ Questo è uno STUB S2:
 
 from typing import Callable, Dict, List, Any
 
-
 # ==========================================================
+
 # TIPI E INTERFACCE
+
 # ==========================================================
 
 class VerificationAction:
@@ -1763,10 +1845,10 @@ class VerificationAction:
         """
         raise NotImplementedError("Azione di verifica non implementata.")
 
-
-
 # ==========================================================
+
 # REPOSITORY DELLE AZIONI
+
 # ==========================================================
 
 ACTION_REPOSITORY: Dict[str, VerificationAction] = {}
@@ -1774,10 +1856,10 @@ ACTION_REPOSITORY: Dict[str, VerificationAction] = {}
 Mappa: action_id → istanza di VerificationAction
 
 TODO Copilot:
+
 - Introdurre factory pattern per creare azioni in base alla normativa.
 - Permettere override normative (es. eccezioni speciali).
 """
-
 
 def register_action(action: VerificationAction) -> None:
     """
@@ -1789,7 +1871,6 @@ def register_action(action: VerificationAction) -> None:
     """
     ACTION_REPOSITORY[action.action_id] = action
 
-
 def get_action(action_id: str) -> VerificationAction:
     """
     Recupera una azione di verifica registrata.
@@ -1799,17 +1880,16 @@ def get_action(action_id: str) -> VerificationAction:
     """
     return ACTION_REPOSITORY[action_id]
 
-
 def list_actions() -> List[str]:
     """
     Restituisce la lista di tutte le azioni disponibili.
     """
     return list(ACTION_REPOSITORY.keys())
 
-
-
 # ==========================================================
+
 # ESEMPI DI AZIONI (STUB)
+
 # ==========================================================
 
 class FlexureCheck(VerificationAction):
@@ -1836,7 +1916,6 @@ class FlexureCheck(VerificationAction):
             "partials": {}
         }
 
-
 class ShearCheck(VerificationAction):
     """
     Verifica taglio (stub).
@@ -1856,43 +1935,57 @@ class ShearCheck(VerificationAction):
             "partials": {}
         }
 
-
 # ==========================================================
+
 # REGISTRAZIONE AUTOMATICA DELLE AZIONI DI BASE
+
 # ==========================================================
 
 register_action(FlexureCheck())
 register_action(ShearCheck())
 
-
 # ======================================================================
+
 # FINE FILE action_repo.py
+
 # ======================================================================
 
-
-
-
 ############################################################
+
 # FINE BLOCCO 7 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 8 / 12
+
 # PACKAGE: src/report/
+
 #
-# Contenuto:
-#   - renderer_md.py
-#   - renderer_html.py
-#   - renderer_pdf.py (stub)
-#   - templates/template.md
-#   - templates/template.html
+
+# Contenuto
+
+# - renderer_md.py
+
+# - renderer_html.py
+
+# - renderer_pdf.py (stub)
+
+# - templates/template.md
+
+# - templates/template.html
+
 #
-# Tutti i file sono STUB S2:
+
+# Tutti i file sono STUB S2
+
 # - Docstring molto dettagliate
+
 # - Struttura pronta per Copilot Plan
+
 # - Nessuna implementazione reale del rendering complesso
+
 ############################################################
-
-
 
 ============================================================
 FILE: src/report/renderer_md.py
@@ -1904,21 +1997,24 @@ renderer_md.py
 Renderer per generare report in formato **Markdown**.
 
 Funzioni del renderer:
+
 - Creare report sintetici o estesi sulle verifiche
 - Utilizzare i template MD del progetto (templates/template.md)
 - Inserire:
-    - dati dell’elemento
-    - risultati delle verifiche (ok, non ok, valori parziali)
-    - parametri normativi utilizzati
-    - informazioni geometriche (A_sx, A_sy, area, inerzia)
+  - dati dell’elemento
+  - risultati delle verifiche (ok, non ok, valori parziali)
+  - parametri normativi utilizzati
+  - informazioni geometriche (A_sx, A_sy, area, inerzia)
 - Essere integrato con la pipeline completa del motore di verifica
 
 Questo modulo è uno STUB S2:
+
 - Struttura completa
 - Docstring molto dettagliate
 - TODO diffusi per permettere a Copilot Plan di completare
 
 Unità di misura da rispettare (nessuna conversione):
+
 - tensioni: kg/cm^2
 - lunghezze: cm
 - inerzie: cm^4
@@ -1929,7 +2025,6 @@ Unità di misura da rispettare (nessuna conversione):
 from typing import Dict, Any
 import datetime
 import os
-
 
 class MarkdownReportRenderer:
     """
@@ -1981,15 +2076,11 @@ class MarkdownReportRenderer:
         ]
         return "\n".join(output)
 
-
-
 # ======================================================================
+
 # FINE FILE renderer_md.py
+
 # ======================================================================
-
-
-
-
 
 ============================================================
 FILE: src/report/renderer_html.py
@@ -2001,16 +2092,18 @@ renderer_html.py
 Renderer per generare report in formato **HTML**.
 
 Funzioni previste:
+
 - Caricare un template HTML (templates/template.html)
 - Inserire contenuti dinamici:
-    - intestazione
-    - dati elementi
-    - risultati verifiche
+  - intestazione
+  - dati elementi
+  - risultati verifiche
 - Generare sezioni tabulate
 - Supportare eventuali CSS inline o allegati
 - Integrare riferimenti normativi (da codes/)
 
 Questo è uno STUB S2:
+
 - Non esegue rendering reale
 - Struttura pronta per Copilot
 """
@@ -2018,7 +2111,6 @@ Questo è uno STUB S2:
 from typing import Dict, Any
 import datetime
 import os
-
 
 class HTMLReportRenderer:
     """
@@ -2063,15 +2155,11 @@ class HTMLReportRenderer:
 """
         return html
 
-
-
 # ======================================================================
+
 # FINE FILE renderer_html.py
+
 # ======================================================================
-
-
-
-
 
 ============================================================
 FILE: src/report/renderer_pdf.py
@@ -2091,16 +2179,17 @@ in formato PDF. L’implementazione reale può essere delegata a:
 - altre soluzioni basate su template HTML
 
 Tuttavia:
+
 - Questo file NON deve implementare nulla ora.
 - Serve solo la struttura per future espansioni.
 
 STUB S2:
+
 - interfaccia render()
 - docstring dettagliata
 """
 
 from typing import Dict, Any
-
 
 class PDFReportRenderer:
     """
@@ -2123,15 +2212,11 @@ class PDFReportRenderer:
         """
         raise NotImplementedError("PDF rendering non implementato (stub).")
 
-
-
 # ======================================================================
+
 # FINE FILE renderer_pdf.py
+
 # ======================================================================
-
-
-
-
 
 ============================================================
 FILE: src/report/templates/template.md
@@ -2172,9 +2257,6 @@ Verrà usato come base da renderer_md.py per generare report reali.
 
 _(File template.md, stub S2)_
 
-
-
-
 ============================================================
 FILE: src/report/templates/template.html
 ============================================================
@@ -2206,45 +2288,69 @@ FILE: src/report/templates/template.html
 </body>
 </html>
 
-
-
 ############################################################
+
 # FINE BLOCCO 8 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 9 / 12
+
 # PACKAGE: src/config/
+
 #
-# Contenuto:
-#   - units.yml
-#   - numerics.yml
-#   - app.yml
-#   - features.yml
+
+# Contenuto
+
+# - units.yml
+
+# - numerics.yml
+
+# - app.yml
+
+# - features.yml
+
 #
-# Tutti file serie STUB S2 (commentati, pronti per estensioni).
+
+# Tutti file serie STUB S2 (commentati, pronti per estensioni)
+
 ############################################################
-
-
 
 ============================================================
 FILE: src/config/units.yml
 ============================================================
 
 # ==========================================================
+
 # units.yml
+
 # ==========================================================
-# File di configurazione principale delle unità di misura.
+
+# File di configurazione principale delle unità di misura
+
 #
-# ATTENZIONE:
-# - Il progetto utilizza *solo* le unità richieste dall’utente.
-# - Nessuna conversione implicita deve essere fatta nei moduli.
+
+# ATTENZIONE
+
+# - Il progetto utilizza _solo_ le unità richieste dall’utente
+
+# - Nessuna conversione implicita deve essere fatta nei moduli
+
 #
-# FORMATO:
+
+# FORMATO
+
 # - "unit": stringa descrittiva (ad uso GUI / report)
+
 # - "factor": eventuale fattore di conversione se in futuro
-#   volessi supportare unità alternative (non implementato ora).
+
+# volessi supportare unità alternative (non implementato ora)
+
 #
-# STUB S2 — pronto per essere esteso.
+
+# STUB S2 — pronto per essere esteso
+
 # ==========================================================
 
 length:
@@ -2275,28 +2381,40 @@ force:
   base: "kg"
   factor: 1.0
 
-# NOTE:
-#   In futuro si potrà estendere con:
-#     - kN, kN·m, MPa, etc.
-#   mantenendo cm e kg come base di calcolo.
+# NOTE
 
+# In futuro si potrà estendere con
 
+# - kN, kN·m, MPa, etc
+
+# mantenendo cm e kg come base di calcolo
 
 ============================================================
 FILE: src/config/numerics.yml
 ============================================================
 
 # ==========================================================
+
 # numerics.yml
+
 # ==========================================================
-# Configurazione per la parte numerica del software.
+
+# Configurazione per la parte numerica del software
+
 #
-# CONTIENE:
+
+# CONTIENE
+
 # - precisioni di arrotondamento
+
 # - tolleranze numeriche
+
 # - parametri utili ai calcoli interni
+
 #
+
 # STUB S2 — nessun valore definitivo
+
 # ==========================================================
 
 rounding:
@@ -2312,25 +2430,36 @@ options:
   enable_debug: false   # debug numerico
   verbose_calculation: false
 
-
-
 ============================================================
 FILE: src/config/app.yml
 ============================================================
 
 # ==========================================================
+
 # app.yml
+
 # ==========================================================
-# Configurazione generale dell'applicazione.
+
+# Configurazione generale dell'applicazione
+
 #
-# CONTIENE:
+
+# CONTIENE
+
 # - Nome software
+
 # - Versione
+
 # - Default normativa utilizzata
+
 # - Percorsi file
+
 # - Impostazioni globali
+
 #
-# STUB S2 — da estendere con Copilot Plan.
+
+# STUB S2 — da estendere con Copilot Plan
+
 # ==========================================================
 
 application:
@@ -2353,77 +2482,110 @@ logging:
 ui:
   enable_gui_warnings: true
 
-
-
 ============================================================
 FILE: src/config/features.yml
 ============================================================
 
 # ==========================================================
+
 # features.yml
+
 # ==========================================================
-# File di feature-flag del software.
+
+# File di feature-flag del software
+
 #
-# SERVE PER:
+
+# SERVE PER
+
 # - Attivare/disattivare parti opzionali del programma
+
 # - Permettere sviluppo incrementale (strategie Plan)
+
 #
-# STUB S2 — da espandere.
+
+# STUB S2 — da espandere
+
 # ==========================================================
 
 features:
 
-  # --------------------------------------------------------
-  # Elementi e modellazione
-  # --------------------------------------------------------
+# --------------------------------------------------------
+
+# Elementi e modellazione
+
+# --------------------------------------------------------
+
   enable_element_restrictions: true
   enable_section_registry: true
   enable_shear_area_fallback: true
 
-  # --------------------------------------------------------
-  # Materiali
-  # --------------------------------------------------------
+# --------------------------------------------------------
+
+# Materiali
+
+# --------------------------------------------------------
+
   enable_material_validation: true
   enable_material_import_legacy: true
 
-  # --------------------------------------------------------
-  # Normative
-  # --------------------------------------------------------
+# --------------------------------------------------------
+
+# Normative
+
+# --------------------------------------------------------
+
   enable_normative_bootstrap: true
   enable_normative_overrides: false
 
-  # --------------------------------------------------------
-  # Report
-  # --------------------------------------------------------
+# --------------------------------------------------------
+
+# Report
+
+# --------------------------------------------------------
+
   enable_html_reports: true
   enable_md_reports: true
   enable_pdf_reports: false     # PDF disabilitato finché non implementato
 
-  # --------------------------------------------------------
-  # Debug e log
-  # --------------------------------------------------------
+# --------------------------------------------------------
+
+# Debug e log
+
+# --------------------------------------------------------
+
   enable_debug_messages: false
 
-
-
 ############################################################
+
 # FINE BLOCCO 9 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 10 / 12
+
 # PACKAGE: src/tools/
+
 #
-# Contenuto:
-#   - verify_cli.py
-#   - export_results.py
+
+# Contenuto
+
+# - verify_cli.py
+
+# - export_results.py
+
 #
-# Entrambi in versione *STUB S2*:
+
+# Entrambi in versione _STUB S2_
+
 # - Docstring molto estese
+
 # - Commenti guida
+
 # - Struttura per CLI e export
+
 ############################################################
-
-
 
 ============================================================
 FILE: src/tools/verify_cli.py
@@ -2436,6 +2598,7 @@ Strumento CLI (Command Line Interface) per eseguire verifiche
 strutturali dalla riga di comando.
 
 OBIETTIVI:
+
 - Permettere l'esecuzione automatica delle verifiche senza GUI.
 - Caricare repository materiali, elementi e normative.
 - Invocare resolve_inputs() per generare gli input finali.
@@ -2446,6 +2609,7 @@ UTILIZZO ATTESO (futuro):
     python verify_cli.py --config config/user_conf.yml
 
 FUNZIONI PRINCIPALI:
+
 - parse_args()
 - load_user_config()
 - bootstrap_all()
@@ -2453,6 +2617,7 @@ FUNZIONI PRINCIPALI:
 - export_report()
 
 Questo file è uno STUB S2:
+
 - Nessuna implementazione reale della pipeline
 - Struttura e TODO per Copilot Plan
 """
@@ -2467,7 +2632,6 @@ from ..codes.code_registry import bootstrap_codes, get_code
 from ..elements.resolve_inputs import resolve_verification_inputs
 from ..report.renderer_html import HTMLReportRenderer
 from ..report.renderer_md import MarkdownReportRenderer
-
 
 def parse_args():
     """
@@ -2484,7 +2648,6 @@ def parse_args():
     parser.add_argument("--format", type=str, default="html")
     return parser.parse_args()
 
-
 def load_user_config(path: str) -> Dict[str, Any]:
     """
     Carica configurazione utente da file JSON/YAML.
@@ -2495,7 +2658,6 @@ def load_user_config(path: str) -> Dict[str, Any]:
     """
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
-
 
 def bootstrap_all() -> Dict[str, Any]:
     """
@@ -2517,7 +2679,6 @@ def bootstrap_all() -> Dict[str, Any]:
         "materials": materials,
         "elements": elements,
     }
-
 
 def run_cli() -> None:
     """
@@ -2554,19 +2715,14 @@ def run_cli() -> None:
 
     print("\n[CLI Stub] Verifica completata (stub).\n")
 
-
-if __name__ == "__main__":
+if **name** == "**main**":
     run_cli()
 
-
-
 # ======================================================================
+
 # FINE FILE verify_cli.py
+
 # ======================================================================
-
-
-
-
 
 ============================================================
 FILE: src/tools/export_results.py
@@ -2588,6 +2744,7 @@ Fa parte della pipeline:
     repo → resolve_inputs → action_repo → report → exporter
 
 Questo file è STUB S2:
+
 - Struttura completa
 - Docstring estese
 - Nessuna implementazione reale
@@ -2596,7 +2753,6 @@ Questo file è STUB S2:
 from typing import Dict, Any
 import json
 import csv
-
 
 def export_to_json(data: Dict[str, Any], path: str) -> None:
     """
@@ -2608,7 +2764,6 @@ def export_to_json(data: Dict[str, Any], path: str) -> None:
     """
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
-
 
 def export_to_csv(data: Dict[str, Any], path: str) -> None:
     """
@@ -2634,34 +2789,44 @@ def export_to_csv(data: Dict[str, Any], path: str) -> None:
         # - Scrivere righe pertinenti
         writer.writerow(["stub_element", "stub_action", True, "no data (stub)"])
 
-
-
 # ======================================================================
+
 # FINE FILE export_results.py
+
 # ======================================================================
 
-
-
-
 ############################################################
+
 # FINE BLOCCO 10 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 11 / 12
+
 # PACKAGE: src/tests/
+
 #
-# Contiene:
-#   - test_shear_area.py
-#   - test_code_routing.py
-#   - test_resolve_inputs.py
-#   - test_reporting.py
-#   - test_material_repo.py
-#   - test_elements_repo.py
+
+# Contiene
+
+# - test_shear_area.py
+
+# - test_code_routing.py
+
+# - test_resolve_inputs.py
+
+# - test_reporting.py
+
+# - test_material_repo.py
+
+# - test_elements_repo.py
+
 #
-# Tutti in versione STUB S2.
+
+# Tutti in versione STUB S2
+
 ############################################################
-
-
 
 ============================================================
 FILE: src/tests/test_shear_area.py
@@ -2674,6 +2839,7 @@ Test minimi per il modulo:
     src/calc/shear_area_registry.py
 
 Gli obiettivi dei test:
+
 - Verificare che il registry funzioni.
 - Verificare che compute_shear_area restituisca tuple valide.
 - Verificare comportamento fallback.
@@ -2684,24 +2850,21 @@ STUB S2: test semplici, non completi.
 import pytest
 from src.calc.shear_area_registry import compute_shear_area
 
-
 class DummyRectSection:
     """Sezione rettangolare dummy per test."""
-    def __init__(self):
+    def **init**(self):
         self.shape_id = "rectangle"
         self.area_cm2 = 100.0
         self.kappa_x = None
         self.kappa_y = None
 
-
 class DummyUnknownSection:
     """Sezione sconosciuta → fallback."""
-    def __init__(self):
+    def **init**(self):
         self.shape_id = "unknown"
         self.area_cm2 = 50.0
         self.kappa_x = 0.8
         self.kappa_y = 0.7
-
 
 def test_rectangular_shear_area():
     sec = DummyRectSection()
@@ -2709,15 +2872,11 @@ def test_rectangular_shear_area():
     assert Asx > 0
     assert Asy > 0
 
-
 def test_fallback_shear_area():
     sec = DummyUnknownSection()
     Asx, Asy = compute_shear_area(sec)
-    assert Asx == pytest.approx(0.8 * 50.0)
-    assert Asy == pytest.approx(0.7 * 50.0)
-
-
-
+    assert Asx == pytest.approx(0.8 *50.0)
+    assert Asy == pytest.approx(0.7* 50.0)
 
 ============================================================
 FILE: src/tests/test_code_routing.py
@@ -2730,12 +2889,12 @@ Test minimi per:
     src/codes/code_registry.py
 
 Verifica che:
+
 - il registry possa registrare una normativa
 - la funzione get_code funzioni correttamente
 """
 
 from src.codes.code_registry import register_code, get_code
-
 
 def test_register_and_get_code():
     params = {"gamma_c": 1.5}
@@ -2748,9 +2907,6 @@ def test_register_and_get_code():
     assert retrieved["params"]["gamma_c"] == 1.5
     assert retrieved["clauses"]["general"]["title"] == "Test"
 
-
-
-
 ============================================================
 FILE: src/tests/test_resolve_inputs.py
 ============================================================
@@ -2762,6 +2918,7 @@ Test minimi per:
     src/elements/resolve_inputs.py
 
 Controlliamo:
+
 - La struttura base dell’output
 - Che non sollevi errori
 """
@@ -2769,7 +2926,6 @@ Controlliamo:
 from src.elements.resolve_inputs import resolve_verification_inputs
 from src.elements.element_repo import ElementRepository
 from src.materials.material_repo import MaterialRepository
-
 
 def test_resolve_inputs_structure():
     repo_e = ElementRepository()
@@ -2785,9 +2941,6 @@ def test_resolve_inputs_structure():
     assert "load_cases" in result
     assert "error_list" in result
 
-
-
-
 ============================================================
 FILE: src/tests/test_reporting.py
 ============================================================
@@ -2801,22 +2954,17 @@ Test minimi dei renderer Markdown e HTML.
 from src.report.renderer_md import MarkdownReportRenderer
 from src.report.renderer_html import HTMLReportRenderer
 
-
 def test_md_renderer_basic():
     renderer = MarkdownReportRenderer("src/report/templates/template.md")
     result = renderer.render({"elements": [], "results": []})
     assert isinstance(result, str)
     assert "Report di Verifica" in result
 
-
 def test_html_renderer_basic():
     renderer = HTMLReportRenderer("src/report/templates/template.html")
     result = renderer.render({"elements": [], "results": []})
     assert "<html>" in result
     assert "</html>" in result
-
-
-
 
 ============================================================
 FILE: src/tests/test_material_repo.py
@@ -2831,7 +2979,6 @@ Test minimi per:
 
 from src.materials.material_repo import MaterialRepository
 from src.materials.material_model import Material
-
 
 def test_material_repo_add_and_get():
     repo = MaterialRepository()
@@ -2848,9 +2995,6 @@ def test_material_repo_add_and_get():
     assert got is not None
     assert got.description == "Calcestruzzo C25 (stub)"
 
-
-
-
 ============================================================
 FILE: src/tests/test_elements_repo.py
 ============================================================
@@ -2863,7 +3007,6 @@ Test minimi per il repository degli elementi.
 
 from src.elements.element_repo import ElementRepository
 from src.elements.element_model import Element
-
 
 def test_add_and_get_element():
     repo = ElementRepository()
@@ -2878,29 +3021,37 @@ def test_add_and_get_element():
     assert got is not None
     assert got.type == "beam"
 
-
-
 ############################################################
+
 # FINE BLOCCO 11 / 12
+
 ############################################################
 ############################################################
+
 # BLOCCO 12 / 12
+
 # DOCUMENTAZIONE FINALE DEL PROGETTO
+
 #
-# Contenuto:
-#   - README.md (versione completa)
-#   - NOTE DI MIGRAZIONE
-#   - CHANGELOG (v0.1.0)
-#   - eventuale __all__ centralizzato (stub)
+
+# Contenuto
+
+# - README.md (versione completa)
+
+# - NOTE DI MIGRAZIONE
+
+# - CHANGELOG (v0.1.0)
+
+# - eventuale **all** centralizzato (stub)
+
 ############################################################
-
-
 
 ============================================================
 FILE: README.md
 ============================================================
 
 # Engineering Verification Framework  
+
 ### Architettura modulare per verifiche strutturali
 
 Questo progetto implementa un **framework modulare per verifiche strutturali**, completamente ristrutturato secondo l’architettura definita nella OPZIONE A1.
@@ -3142,18 +3293,18 @@ Utilizza Copilot Plan:
 ---
 
 ============================================================
-FILE: src/__all__.py (stub opzionale)
+FILE: src/**all**.py (stub opzionale)
 ============================================================
 
 """
-__all__.py
+**all**.py
 
 Questo file permette import centralizzato, se utile in futuro.
 
 STUB S2 — non contiene nulla, ma può essere ampliato:
 """
 
-__all__ = [
+**all** = [
     "calc",
     "materials",
     "elements",
@@ -3164,24 +3315,14 @@ __all__ = [
     "tools",
 ]
 
-
-
 ############################################################
+
 # FINE BLOCCO 12 / 12
+
 ############################################################
 
+# L'intero progetto è stato generato con successo
 
-
-
-
-
-
-
-
-
-
-
-
-# L'intero progetto è stato generato con successo.
 # Tutti i moduli, template, config, test e documentazione
-# sono ora pronti per essere utilizzati con Continue + Copilot Plan.
+
+# sono ora pronti per essere utilizzati con Continue + Copilot Plan

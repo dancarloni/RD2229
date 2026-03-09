@@ -3,7 +3,9 @@
 ## Stato: ✅ COMPLETATO
 
 ### Obiettivo
+
 Rendere il caricamento dei repository esplicito e automatico all'avvio, garantendo che:
+
 1. `SectionRepository` sia creato e caricato prima di essere usato
 2. `MaterialRepository` sia creato e caricato prima di essere usato
 3. VerificationTable riceva repository **già pre-popolati** con dati persistenti
@@ -15,6 +17,7 @@ Rendere il caricamento dei repository esplicito e automatico all'avvio, garanten
 ### 1. `sections_app/app.py`
 
 **Prima:**
+
 ```python
 def run_app() -> None:
     configure_logging()
@@ -25,6 +28,7 @@ def run_app() -> None:
 ```
 
 **Dopo:**
+
 ```python
 def run_app() -> None:
     configure_logging()
@@ -46,6 +50,7 @@ def run_app() -> None:
 ```
 
 **Key Points:**
+
 - ✅ Creazione esplicita di `SectionRepository`
 - ✅ Chiamata esplicita di `load_from_file()` (nota: load avviene anche in `__init__`)
 - ✅ Creazione esplicita di `MaterialRepository` (con import try/except)
@@ -55,6 +60,7 @@ def run_app() -> None:
 ### 2. `sections_app/ui/module_selector.py`
 
 **Prima:**
+
 ```python
 def __init__(
     self,
@@ -68,6 +74,7 @@ def __init__(
 ```
 
 **Dopo:**
+
 ```python
 def __init__(
     self,
@@ -83,6 +90,7 @@ def __init__(
 ```
 
 **Key Points:**
+
 - ✅ Accetta parametro opzionale `material_repository`
 - ✅ Se passato, lo usa; altrimenti crea uno nuovo
 - ✅ Mantiene compatibilità backward (se non viene passato)
@@ -142,7 +150,9 @@ def __init__(
 ## 🧪 Test
 
 ### Test 1: `test_auto_load_startup.py`
+
 ✅ Verifica che:
+
 - I repository caricano automaticamente nel `__init__()`
 - È possibile chiamare `load_from_file()` esplicitamente
 - Doppio caricamento è harmless
@@ -150,7 +160,9 @@ def __init__(
 **Risultato:** ✅ PASSATO (4/4 verifiche)
 
 ### Test 2: `test_startup_integration.py`
+
 ✅ Verifica che:
+
 - VerificationTable riceve repository pre-popolati
 - Il flusso completo dal startup funziona
 - I dati sono disponibili senza errori

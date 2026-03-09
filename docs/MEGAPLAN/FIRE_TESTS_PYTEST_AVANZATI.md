@@ -3,7 +3,6 @@ FIRE_TESTS_PYTEST_AVANZATI – Parametrizzazione, mock L3 FEM e checklist
 Status: STABILE
 Ruolo: Estensione avanzata dei test pytest per il modulo INCENDIO
 
-
 1. Scopo del documento
 Questo documento estende i test automatici incendio introducendo:
 
@@ -16,15 +15,13 @@ più compatta
 più leggibile
 direttamente allineata ai requisiti normativi e legali
 
-
-2. Parametrizzazione dei test (R30 / R60 / R90 / R120)
+1. Parametrizzazione dei test (R30 / R60 / R90 / R120)
 2.1 Principio
 La stessa logica di test viene riusata per più classi di resistenza al fuoco, variando solo:
 
 classe R
 tempo richiesto
 esito atteso
-
 
 2.2 Esempio di test parametrizzato
 
@@ -53,9 +50,6 @@ def test_fire_positive_parametrized(code_module_incendio, base_fire_input, fire_
     assert result.fire_time_achieved >= time_req
     assert result.esito == "OK"
 
-
-
-
 2.3 Parametrizzazione test negativi
 
 @pytest.mark.parametrize(
@@ -79,9 +73,6 @@ def test_fire_negative_parametrized(code_module_incendio, base_fire_input, fire_
     assert result.esito == "NOT_OK"
     assert result.fire_time_achieved < time_req
 
-
-
-
 3. Mock del solver L3 FEM
 3.1 Mock dedicato
 Per testare L3 senza un vero solver FEM:
@@ -101,9 +92,6 @@ class MockFireSolverL3:
             esito="OK" if t_collapse >= t_req else "NOT_OK",
             warning_note="mock FEM solver",
         )
-
-
-
 
 3.2 Test L3 parametrizzato
 
@@ -126,9 +114,6 @@ def test_fire_l3_fem_mock(fire_class, time_req, t_collapse, expected):
     assert result.fire_method == "L3"
     assert result.esito == expected
 
-
-
-
 4. Aggancio dei test alla checklist tecnico‑legale
 4.1 Principio
 Ogni test deve verificare implicitamente che:
@@ -138,7 +123,6 @@ norma sia presente
 stato limite sia corretto
 Questi controlli derivano da FIRE_CHECKLIST_TECNICO_LEGALE.md.
 
-
 4.2 Helper di validazione checklist
 
 def assert_checklist_minima(result):
@@ -146,9 +130,6 @@ def assert_checklist_minima(result):
     assert hasattr(result, "esito")
     assert hasattr(result, "fire_method")
     assert hasattr(result, "norma")
-
-
-
 
 4.3 Uso nei test
 
@@ -163,9 +144,6 @@ def test_fire_r60_checklist(code_module_incendio, base_fire_input):
 
     assert_checklist_minima(result)
 
-
-
-
 5. Benefici dell’approccio
 
 Riduzione drastica del numero di file di test
@@ -173,16 +151,14 @@ Copertura sistematica di tutte le classi R
 Allineamento automatico con requisiti tecnico‑legali
 Facilità di estensione a nuovi elementi (travi, L3 reali)
 
-
-6. Criteri di accettazione
+1. Criteri di accettazione
 Questa estensione è completa se:
 
 tutti i test R30–R120 passano
 L3 è testabile senza FEM reale
 ogni risultato passa la checklist minima
 
-
-7. Collegamenti
+1. Collegamenti
 
 FIRE_TESTS_PYTEST_SKELETON.md
 FIRE_ANALISI_AVANZATA_L3_FEM.md

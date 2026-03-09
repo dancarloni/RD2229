@@ -2,7 +2,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-
 class SollecitazioniView(ttk.Frame):
     """
     Inserimento delle sollecitazioni di progetto:
