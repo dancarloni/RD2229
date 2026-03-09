@@ -1,7 +1,8 @@
-"""Widget Qt per visualizzazione interattiva dominio N-Mx-My (FASE J).
+"""Widget Qt per visualizzazione interattiva dominio N-Mx-My (FASE J/K).
 
 Tre viste selezionabili: 3D surface, 2D Mx-My, 2D N-M.
 Slider per N_fisso e theta_fisso.
+Fase K: aggiunta combo norma e overlay punto di lavoro (N_Ed, M_Ed).
 
 Richiede: PySide6 o PyQt6 + matplotlib[backend_qt]
 """
@@ -10,6 +11,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.grafici.interazione import PuntoLavoro, DominioFactory, sovrapponi_punto_lavoro
+from src.gui.widgets._export_mixin import ExportMixin
+
 # Importazione opzionale Qt + matplotlib backend
 try:
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -17,16 +21,16 @@ try:
 
     try:
         from PySide6.QtWidgets import (
-            QComboBox, QHBoxLayout, QLabel, QSizePolicy,
-            QSlider, QVBoxLayout, QWidget,
+            QCheckBox, QComboBox, QFileDialog, QHBoxLayout, QLabel,
+            QPushButton, QSizePolicy, QSlider, QVBoxLayout, QWidget,
         )
         from PySide6.QtCore import Qt
         _QT_AVAILABLE = True
     except ImportError:
         try:
             from PyQt6.QtWidgets import (
-                QComboBox, QHBoxLayout, QLabel, QSizePolicy,
-                QSlider, QVBoxLayout, QWidget,
+                QCheckBox, QComboBox, QFileDialog, QHBoxLayout, QLabel,
+                QPushButton, QSizePolicy, QSlider, QVBoxLayout, QWidget,
             )
             from PyQt6.QtCore import Qt
             _QT_AVAILABLE = True
@@ -49,13 +53,15 @@ def _check_available() -> None:
 
 if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
 
-    class DominioNMyCanvas(QWidget):
+    class DominioNMyCanvas(ExportMixin, QWidget):
         """Widget per visualizzazione interattiva dominio N-Mx-My.
 
         Tre viste selezionabili:
           - 3D surface (N-Mx-My)
           - 2D Mx-My a N costante
           - 2D N-M a theta costante
+
+        Fase K: aggiunta combo norma e overlay punto di lavoro (N_Ed, M_Ed).
         """
 
         _VISTE = ["3D Surface", "2D Mx-My", "2D N-M"]
@@ -65,15 +71,20 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             super().__init__(parent)
 
             self._dominio: Any = None
+            self._punto_lavoro: PuntoLavoro | None = None
             self._fig = Figure(figsize=(8, 6), dpi=100)
             self._canvas = FigureCanvas(self._fig)
             self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding,
                                        QSizePolicy.Policy.Expanding)
 
-            # Controlli
+            # Controlli vista e norma
             self._combo_vista = QComboBox()
             self._combo_vista.addItems(self._VISTE)
             self._combo_vista.currentIndexChanged.connect(self._ridisegna)
+
+            self._combo_norma = QComboBox()
+            self._combo_norma.addItems(["(dalla spec)"] + DominioFactory.norme_disponibili())
+            self._combo_norma.currentIndexChanged.connect(self._ridisegna)
 
             self._slider_N = QSlider(Qt.Orientation.Horizontal)
             self._slider_N.setRange(0, 100)
@@ -87,14 +98,28 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             self._slider_theta.valueChanged.connect(self._ridisegna)
             self._label_theta = QLabel("theta: 0 deg")
 
+            # Controllo punto di lavoro
+            self._check_punto = QCheckBox("Punto di lavoro")
+            self._check_punto.setEnabled(False)
+            self._check_punto.stateChanged.connect(self._ridisegna)
+
+            # Pulsante export
+            btn_export = QPushButton("Esporta…")
+            btn_export.clicked.connect(self._dialogo_esporta)
+
             # Layout
             ctrl_layout = QHBoxLayout()
             ctrl_layout.addWidget(QLabel("Vista:"))
             ctrl_layout.addWidget(self._combo_vista)
+            ctrl_layout.addWidget(QLabel("Norma:"))
+            ctrl_layout.addWidget(self._combo_norma)
             ctrl_layout.addWidget(self._label_N)
             ctrl_layout.addWidget(self._slider_N)
             ctrl_layout.addWidget(self._label_theta)
             ctrl_layout.addWidget(self._slider_theta)
+            ctrl_layout.addWidget(self._check_punto)
+            ctrl_layout.addStretch()
+            ctrl_layout.addWidget(btn_export)
 
             main_layout = QVBoxLayout(self)
             main_layout.addLayout(ctrl_layout)
@@ -161,6 +186,20 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             ax.set_aspect("equal")
             ax.grid(True, alpha=0.3)
 
+        def imposta_punto_lavoro(self, punto: PuntoLavoro | None) -> None:
+            """Carica (o rimuove) il punto di lavoro da sovrapporre al dominio.
+
+            Parametri
+            ---------
+            punto : PuntoLavoro | None
+                Punto di lavoro (N_Ed, Mx_Ed, My_Ed). None per rimuoverlo.
+            """
+            self._punto_lavoro = punto
+            self._check_punto.setEnabled(punto is not None)
+            if punto is None:
+                self._check_punto.setChecked(False)
+            self._ridisegna()
+
         def _draw_2d_nm(self, dom: Any) -> None:
             import math
             import numpy as np
@@ -187,6 +226,22 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             ax.set_title(f"Dominio N-M a theta={theta_deg} deg")
             ax.grid(True, alpha=0.3)
 
+            # Overlay punto di lavoro (Fase K)
+            if self._check_punto.isChecked() and self._punto_lavoro is not None:
+                import math
+                sovrapponi_punto_lavoro(ax, self._punto_lavoro, theta_fisso_rad=theta_rad)
+
+        def _dialogo_esporta(self) -> None:
+            percorso, filtro = QFileDialog.getSaveFileName(
+                self, "Esporta dominio interazione", "", "PNG (*.png);;SVG (*.svg)"
+            )
+            if not percorso:
+                return
+            if filtro.startswith("SVG"):
+                self.esporta_svg(percorso)
+            else:
+                self.esporta_png(percorso)
+
         def salva(self, percorso: str, dpi: int = 150) -> None:
-            """Salva la figura corrente su file."""
+            """Salva la figura corrente su file (compatibilità retroattiva)."""
             self._fig.savefig(percorso, dpi=dpi, bbox_inches="tight")

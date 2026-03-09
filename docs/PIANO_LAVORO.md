@@ -24,9 +24,9 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | ~2316   |
+| Test totali        | ~2343   |
 | Test falliti       | 0       |
-| Moduli implementati| 71+     |
+| Moduli implementati| 78+     |
 | Norme coperte      | 10      |
 
 ---
@@ -45,7 +45,7 @@
 | H    | ✅    | 100 | corrente      | [piano_fase_H.md](piano_fase_H.md) |
 | I    | ✅    | 100 | 3bed1a7       | [piano_fase_I.md](piano_fase_I.md) |
 | J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
-| K    | ⬜    | 0   | ...           | [piano_fase_K.md](piano_fase_K.md) |
+| K    | ✅    | 100 | corrente      | [piano_fase_K.md](piano_fase_K.md) |
 | L    | ⬜    | 0   | ...           | [piano_fase_L.md](piano_fase_L.md) |
 | M    | ⬜    | 0   | ...           | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
@@ -68,6 +68,7 @@
 | 2026-03-07 | A    | A.2.9   | a0f05aa  | Test cataloghi materiali superati |
 | ...        | ...  | ...     | ...      | ...           |
 | 2026-03-08 | Q    | Q.0     | ...      | Storicizzazione domande/risposte/decisioni in [piano_fase_Q.md](docs/piano_fase_Q.md) — % completamento: 0% |
+| 2026-03-09 | K    | K.1–K.4 | corrente | Fase K completa: grafici, inviluppi, dominio interazione, spostamenti, export HTML |
 
 ---
 
