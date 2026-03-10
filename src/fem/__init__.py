@@ -1,3 +1,4 @@
+from .assemblaggio import Assemblatore, ModelloFEM, Nodo
 from .elemento_beam import (
     CaricoAssialeDistribuito,
     CaricoConcentrato,
@@ -15,6 +16,7 @@ from .elemento_beam import (
 )
 
 __all__ = [
+    "Assemblatore",
     "CaricoAssialeDistribuito",
     "CaricoConcentrato",
     "CaricoDistribuitoGenerico",
@@ -28,4 +30,6 @@ __all__ = [
     "CaricoVariazioneTermicaAssiale",
     "CedimentiNodali",
     "ElementoBeam",
+    "ModelloFEM",
+    "Nodo",
 ]

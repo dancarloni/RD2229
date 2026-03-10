@@ -8,11 +8,19 @@
     "schema_version": "1.0.0"
   },
   "normative_profile": {
-    "source_ids": ["RD2229"],
-    "clauses": ["§4.2.1"]
+    "source_ids": [
+      "RD2229"
+    ],
+    "clauses": [
+      "§4.2.1"
+    ]
   },
   "modules": [
-    {"name": "mod1", "enabled": true, "params": {}}
+    {
+      "name": "mod1",
+      "enabled": true,
+      "params": {}
+    }
   ],
   "io_settings": {}
 }

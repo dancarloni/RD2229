@@ -8,7 +8,8 @@ Write-Output "HISTORY_FILE: $f"
 if (Test-Path $f) {
     Write-Output 'HISTORY_EXISTS'
     Get-Content $f -Tail 40
-} else {
+}
+else {
     Write-Output 'NO_HISTORY_FILE'
 }
 
@@ -20,20 +21,24 @@ if ($h) {
         # If delegate, invoke via Invoke method
         if ($h -is [System.Delegate]) {
             $h.Invoke('simulated-typed-line-1') | Out-Null
-        } else {
+        }
+        else {
             # Fallback: try call as scriptblock
             & $h 'simulated-typed-line-1'
         }
-    } catch {
+    }
+    catch {
         Write-Output "HANDLER_INVOKE_FAILED: $_"
     }
     Start-Sleep -Milliseconds 200
     if (Test-Path $f) {
         Write-Output 'HISTORY_EXISTS_AFTER_INVOKE'
         Get-Content $f -Tail 40
-    } else {
+    }
+    else {
         Write-Output 'NO_HISTORY_FILE_AFTER_INVOKE'
     }
-} else {
+}
+else {
     Write-Output 'NO_HANDLER'
 }

@@ -183,20 +183,27 @@ Implementazione estesa oltre il minimo pianificato:
 
 ### M.2 — Assemblaggio matrice globale sparsa
 
-**Stato**: TODO
+**Stato**: COMPLETATO (2026-03-10, sessione Copilot)
 
-- [ ] Definire struttura dati nodi e tabella connettività (DOF globali per elemento)
-- [ ] Costruire matrice K_G con `scipy.sparse.lil_matrix`
-- [ ] Conversione `lil_matrix` → `csr_matrix` per efficienza soluzione
-- [ ] Assemblare vettore carichi globale F_G
-- [ ] Log dimensioni matrice, sparsità, numero non-zero
-- [ ] Test: portale 2 campate, verifica dimensioni e simmetria K_G
+- [x] Definire struttura dati nodi e tabella connettività (DOF globali per elemento)
+- [x] Costruire matrice K_G con `scipy.sparse.lil_matrix`
+- [x] Conversione `lil_matrix` → `csr_matrix` per efficienza soluzione
+- [x] Assemblare vettore carichi globale F_G
+- [x] Log dimensioni matrice, sparsità, numero non-zero
+- [x] Test: portale 2 campate, verifica dimensioni e simmetria K_G
+
+Implementazione estesa oltre il minimo pianificato:
+- `Nodo`, `ModelloFEM` e `Assemblatore` introdotti in `src/fem/assemblaggio.py` con ordine GDL per nodo `[u, v, theta]`
+- supporto a id nodo arbitrari ma univoci tramite mappa interna `id -> indice`
+- parsing e serializzazione JSON/CSV con schema esteso, inclusa preservazione passiva di `vincoli` e `metadati`
+- assemblaggio di carichi nodali e carichi equivalenti d'asta con trasformazione locale→globale
+- verifica di connettivita con warning per nodi isolati e sottostrutture disconnesse
 
 ### M.3 — Applicazione condizioni al contorno
 
 **Stato**: TODO
 
-- [ ] Implementare enum `TipoVincolo` (INCASTRO, CERNIERA, CARRELLO_V, CARRELLO_U, LIBERO)
+- [ ] Implementare enum `TipoVincolo` (INCASTRO, CERNIERA, CARRELLO_V, CARRELLO_U, LIBERO, PENDOLO, BIPENDOLO, PATTINO, MANICOTTO)
 - [ ] Metodo eliminazione diretta: rimozione righe/colonne GDL vincolati
 - [ ] Metodo penalty come alternativa configurabile
 - [ ] Verifica che K_G_ridotta sia non singolare (rango pieno)
@@ -275,7 +282,7 @@ Implementazione estesa oltre il minimo pianificato:
 | Gestione non-linearità geometrica | A) Non prevista in Fase M / B) Stub per Fase U (pushover) |
 | Interfaccia con GUI Qt | A) Nessuna GUI in Fase M (solo backend) / B) Widget debug visualizzazione matrice K_G |
 
-## Decisioni architetturali storicizzate — M.1
+## Decisioni architetturali storicizzate — M.1 e M.2
 
 - 2026-03-10: per M.1 viene adottato beam 2D di Euler-Bernoulli puro; Timoshenko resta esplicitamente fuori per non contaminare il nucleo locale dell'elemento.
 - 2026-03-10: le unita sono fissate e coerenti con il repo (`cm`, `kg/cm²`, `kg·cm`, `kg/cm`), senza conversioni implicite.
@@ -286,6 +293,12 @@ Implementazione estesa oltre il minimo pianificato:
 - 2026-03-10: cedimenti e rotazioni impresse sono inclusi gia in M.1, ma mantenuti separati logicamente dai carichi meccanici ordinari.
 - 2026-03-10: per carichi complessi si usa formula chiusa quando disponibile e fallback numerico Gauss-Legendre negli altri casi.
 - 2026-03-10: la convenzione dei segni del modulo FEM locale e esplicita e documentata, derivata dalla classica FEM; l'adattamento alle convenzioni grafiche del repo resta alle subfasi successive.
+- 2026-03-10: per M.2 viene adottato un nodo FEM indipendente dal modulo telai, per mantenere `src/fem/` autonomo e riusabile.
+- 2026-03-10: l'ordine dei GDL globali e fissato per nodo come `[u, v, theta]`.
+- 2026-03-10: gli id nodo possono essere arbitrari ma devono essere univoci; il modello costruisce internamente la mappa `id_nodo -> indice`.
+- 2026-03-10: l'assemblatore M.2 somma sia carichi nodali sia carichi equivalenti degli elementi, trasformando i contributi locali nel sistema globale.
+- 2026-03-10: il formato JSON di M.2 adotta lo schema esteso (`nodi`, `elementi`, `carichi_nodali`, `carichi_elementi`, `vincoli`, `metadati`, `etichetta`), ma l'applicazione numerica dei vincoli resta demandata a M.3.
+- 2026-03-10: la diagnostica di M.2 fornisce sempre statistiche finali di assemblaggio e dettaglio per elemento solo a livello debug.
 
 ---
 
@@ -312,3 +325,5 @@ Implementazione estesa oltre il minimo pianificato:
 - 2026-03-10 — M.1 completata in `src/fem/elemento_beam.py` e `tests/test_fem_beam.py`.
 - 2026-03-10 — Test eseguiti per M.1: 16 passati, 0 falliti.
 - 2026-03-10 — Pianificazione interattiva completata prima dell'implementazione, come richiesto dai vincoli operativi permanenti.
+- 2026-03-10 — M.2 completata in `src/fem/assemblaggio.py`, `src/fem/__init__.py` e `tests/test_fem_assembly.py`.
+- 2026-03-10 — Test eseguiti per M.1 + M.2: 24 passati, 0 falliti.

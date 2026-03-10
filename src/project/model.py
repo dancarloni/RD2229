@@ -26,11 +26,9 @@ from src.project.schema import (  # noqa: F401 -- re-exports
     LoadEntry,
     MaterialEntry,
     ProjectInfo,
+    ProjectModel as _SchemaProjectModel,
     ResultsRef,
     SeismicInputs,
-)
-from src.project.schema import (
-    ProjectModel as _SchemaProjectModel,
 )
 
 
