@@ -45,7 +45,9 @@ def test_verifica_portanza_da1_restituisce_due_combinazioni() -> None:
 def test_combinazione_governante_e_quella_piu_gravosa() -> None:
     risultato = verifica_portanza_slu(_input_base())
     rapporto_governante = max(r.rapporto_utilizzo for r in risultato.risultati_slu)
-    trovato = [r for r in risultato.risultati_slu if r.combinazione == risultato.combinazione_governante][0]
+    trovato = [
+        r for r in risultato.risultati_slu if r.combinazione == risultato.combinazione_governante
+    ][0]
     assert trovato.rapporto_utilizzo == pytest.approx(rapporto_governante)
 
 
@@ -56,8 +58,12 @@ def test_input_pressione_in_kpa_viene_convertito() -> None:
     ris_kg = verifica_portanza_slu(input_kg)
     ris_kpa = verifica_portanza_slu(input_kpa)
 
-    gov_kg = [r for r in ris_kg.risultati_slu if r.combinazione == ris_kg.combinazione_governante][0]
-    gov_kpa = [r for r in ris_kpa.risultati_slu if r.combinazione == ris_kpa.combinazione_governante][0]
+    gov_kg = [r for r in ris_kg.risultati_slu if r.combinazione == ris_kg.combinazione_governante][
+        0
+    ]
+    gov_kpa = [
+        r for r in ris_kpa.risultati_slu if r.combinazione == ris_kpa.combinazione_governante
+    ][0]
 
     assert gov_kg.q_ed_kg_cm2 == pytest.approx(gov_kpa.q_ed_kg_cm2, rel=1e-8)
     assert gov_kg.rapporto_utilizzo == pytest.approx(gov_kpa.rapporto_utilizzo, rel=1e-6)
@@ -84,9 +90,7 @@ def test_eccentricita_riduce_portanza() -> None:
 def test_carico_orizzontale_riduce_portanza() -> None:
     senza_h = verifica_portanza_slu(_input_base())
     con_h = verifica_portanza_slu(
-        _input_base(
-            carico=CaricoFondazione(n_verticale_kg=150000.0, h_orizzontale_kg=30000.0)
-        )
+        _input_base(carico=CaricoFondazione(n_verticale_kg=150000.0, h_orizzontale_kg=30000.0))
     )
 
     qrd_senza_h = min(r.q_rd_kg_cm2 for r in senza_h.risultati_slu)

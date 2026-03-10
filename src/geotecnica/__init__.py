@@ -29,7 +29,7 @@ from .models import (
     UnitaTensione,
 )
 from .norme import CoefficientiParzialiGeotecnici, NormaGeotecnicaBase, crea_norma_geotecnica
-from .utils import kpa_to_kg_cm2, kg_cm2_to_kpa, sovraccarico_geostatico_kg_cm2
+from .utils import kg_cm2_to_kpa, kpa_to_kg_cm2, sovraccarico_geostatico_kg_cm2
 
 __all__ = [
     "ApproccioSLU",

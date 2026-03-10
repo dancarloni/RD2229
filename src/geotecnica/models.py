@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .utils import kpa_to_kg_cm2, kg_cm2_to_kpa
+from .utils import kg_cm2_to_kpa, kpa_to_kg_cm2
 
 
 class UnitaTensione(str, Enum):

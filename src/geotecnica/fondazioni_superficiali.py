@@ -8,11 +8,7 @@ from __future__ import annotations
 
 import math
 
-from .models import (
-    InputPortanzaFondazione,
-    RisultatoPortanzaFondazione,
-    RisultatoVerificaSLU,
-)
+from .models import InputPortanzaFondazione, RisultatoPortanzaFondazione, RisultatoVerificaSLU
 from .norme import crea_norma_geotecnica
 from .utils import clamp_non_negativo, riduci_tan_phi, sovraccarico_geostatico_kg_cm2
 
@@ -55,7 +51,9 @@ def fattori_profondita_vesic(d_f_cm: float, b_eff_cm: float) -> tuple[float, flo
     return d_c, d_q, d_gamma
 
 
-def fattori_inclinazione_carico(h_orizzontale_kg: float, n_verticale_kg: float) -> tuple[float, float, float]:
+def fattori_inclinazione_carico(
+    h_orizzontale_kg: float, n_verticale_kg: float
+) -> tuple[float, float, float]:
     """Fattori di inclinazione carico in forma semplice e robusta."""
 
     if n_verticale_kg <= 0.0:
@@ -71,7 +69,9 @@ def fattori_inclinazione_carico(h_orizzontale_kg: float, n_verticale_kg: float) 
     return i_c, i_q, i_gamma
 
 
-def _larghezze_efficaci(b_cm: float, l_cm: float, e_b_cm: float, e_l_cm: float) -> tuple[float, float]:
+def _larghezze_efficaci(
+    b_cm: float, l_cm: float, e_b_cm: float, e_l_cm: float
+) -> tuple[float, float]:
     b_eff = b_cm - 2.0 * abs(e_b_cm)
     l_eff = l_cm - 2.0 * abs(e_l_cm)
     if b_eff <= 0.0 or l_eff <= 0.0:
@@ -103,13 +103,7 @@ def _calcola_q_lim_kg_cm2(
     return (
         coesione_kg_cm2 * n_c * i_c * s_c * d_c
         + q_sovraccarico * n_q * i_q * s_q * d_q
-        + 0.5
-        * (gamma_kg_m3 / 1_000_000.0)
-        * b_eff_cm
-        * n_gamma
-        * i_gamma
-        * s_gamma
-        * d_gamma
+        + 0.5 * (gamma_kg_m3 / 1_000_000.0) * b_eff_cm * n_gamma * i_gamma * s_gamma * d_gamma
     )
 
 
