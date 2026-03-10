@@ -24,7 +24,7 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | ~2383   |
+| Test totali        | ~2399   |
 | Test falliti       | 0       |
 | Moduli implementati| 78+     |
 | Norme coperte      | 10      |
@@ -47,7 +47,7 @@
 | J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
 | K    | ✅    | 100 | 23f60cf       | [piano_fase_K.md](piano_fase_K.md) |
 | L    | ✅    | 100 | f041b45       | [piano_fase_L.md](piano_fase_L.md) |
-| M    | ⬜    | 0   | —             | [piano_fase_M.md](piano_fase_M.md) |
+| M    | 🟨    | 14  | —             | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
 | O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) |
 | P    | ⬜    | 0   | —             | [piano_fase_P.md](piano_fase_P.md) |
@@ -58,6 +58,8 @@
 | U    | ⬜    | 0   | —             | [piano_fase_U.md](piano_fase_U.md) |
 | V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) |
+| Y    | ⬜    | 0   | —             | [piano_fase_Y.md](piano_fase_Y.md) |  # <-- Nuova fase modulo aree di influenza
+| X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) |  # <-- Nuova fase solai
 
 ---
 
@@ -70,11 +72,13 @@
 | 2026-03-08 | Q    | Q.0       | —       | Storicizzazione domande/risposte/decisioni in [piano_fase_Q.md](piano_fase_Q.md) — % completamento: 0%      |
 | 2026-03-09 | K    | K.1–K.4   | 23f60cf | Fase K completa: grafici, inviluppi, dominio interazione, spostamenti, export HTML                          |
 | 2026-03-09 | L    | L.1–L.10  | f041b45 | Fase L completa: telai piani Cross-Pozzati, GUI Qt, 40 test                                                 |
+| 2026-03-10 | X    | X.0       | —       | Creazione file piano_fase_X.md, separazione solai da Fase M, storicizzazione checklist e requisiti (sessione Copilot) |
+| 2026-03-10 | M    | M.1       | —       | Implementato nucleo locale FEM beam 2D (`src/fem/elemento_beam.py`), carichi equivalenti modulari, 16 test dedicati superati |
 
 ---
 
 ## Istruzioni operative
 
-Per dettagli, consultare i file docs/piano_fase_X.md corrispondenti a ciascuna fase.
-
-[Eventuali note aggiuntive...]
+Per dettagli, consultare i file docs/piano_fase_X.md, docs/piano_fase_Y.md e docs/piano_fase_V.md corrispondenti a ciascuna fase.
+La nuova fase X (solai) è documentata in [piano_fase_X.md](piano_fase_X.md), separata dalla Fase M (FEM) a partire dal 2026-03-10 (sessione Copilot).
+La nuova fase Y (aree di influenza) è documentata in [piano_fase_Y.md](piano_fase_Y.md), centralizzando la logica condivisa tra solai, scale e fondazioni (decisione 2026-03-10, sessione Copilot).

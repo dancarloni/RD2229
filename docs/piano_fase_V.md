@@ -1,4 +1,4 @@
-# Fase V — Solai e scale
+# Fase V — Scale (rampe in c.a. e metalliche)
 
 ## Stato e metadati
 
@@ -7,82 +7,19 @@
 | **Stato** | ⬜ TODO |
 | **Commit** | — |
 | **Data prevista** | — |
-| **Test pianificati** | ~80 |
-| **Norma/e di riferimento** | NTC2018 §4.1.9, §4.1.12, EC2 §5.7, DM 9/01/1996 |
+| **Test pianificati** | ~40 |
+| **Norma/e di riferimento** | NTC2018 §4.1.4, EC2 §5.7, DM 9/01/1996 |
 | **Priorità** | Media |
 
 ---
 
 ## Descrizione
 
-Verifica strutturale di solai (laterocemento, alveolari precompressi, gettati in opera) e scale (rampe in c.a., scale metalliche). Il modulo calcola le azioni trasmesse alle travi perimetrali, verifica flessione, taglio e deformazione per ogni tipo di solaio, e genera il tabulato di calcolo con i passaggi intermedi. Include widget Qt per input geometria e visualizzazione risultati.
+Verifica strutturale di scale (rampe in c.a., scale metalliche). Il modulo calcola le azioni trasmesse alle travi e ai pianerottoli, verifica flessione, taglio, pressoflessione e deformazione per ogni tipo di scala, e genera il tabulato di calcolo con i passaggi intermedi. Include widget Qt per input geometria e visualizzazione risultati. Il calcolo delle aree di influenza è demandato al modulo trasversale (Fase Y).
 
 ---
 
 ## Teoria e fondamenti strutturali
-
-### Solaio laterocemento (nervature + pignatte)
-
-Sezione a T inversa: ala compressa in cls (spessore s), nervatura in cls (base b_n, altezza h), pignatte laterali.
-
-**Larghezza efficace ala (EC2 §5.3.2):**
-
-```text
-b_eff = b_n + 2·b_eff,i
-b_eff,i = min(0.2·b_i + 0.1·l_0 ; 0.2·l_0 ; b_i)
-```
-
-**Momento resistente (sezione a T, asse neutro nell'ala):**
-
-```text
-M_Rd = A_s · f_yd · (d - 0.5·x)    con x = A_s·f_yd/(0.8·b_eff·f_cd) ≤ s
-```
-
-Se l'asse neutro scende nella nervatura: schema a sezione composta.
-
-**Verifica pignatta (NTC2018 §4.1.9.1.4):** contributo resistente della pignatta a taglio è nullo; le nervature resistono con le staffe.
-
-### Solaio alveolare precompresso
-
-Tipologie standard (larghezza 1200 mm): 20+4, 24+4, 28+4, 32+4 (altezza nervatura + cappa).
-
-**Perdite di precompressione:**
-
-```text
-Δσ_p = Δσ_μ + Δσ_δ + Δσ_r    (attrito + scorrimento + rilassamento)
-σ_p,eff = σ_p,0 - Δσ_p
-```
-
-**Momento resistente con precompressione:**
-
-```text
-M_Rd,pc = σ_p,eff · A_p · z_p + A_s · f_yd · z_s
-```
-
-**Verifica deformazione (NTC2018 §4.1.12):**
-
-```text
-δ_max = 5·q·L⁴/(384·E·I_eff) ≤ L/250    (carichi quasi-permanenti)
-I_eff = I_fess + ζ·(I_gross - I_fess)    (interpolazione Eurocodice)
-```
-
-### Solaio in c.a. gettato in opera
-
-**Lastra monodirezionale (L_x/L_y ≥ 2):**
-
-```text
-M_x = q·L_x²/8    (campata intera)
-M_x = -q·L_x²/10  (appoggio elastico)
-```
-
-**Lastra bidirezionale (metodo dei coefficienti — Pozzati Tab. §6.3):**
-
-```text
-M_x = α_x · q · L_x²
-M_y = α_y · q · L_x²
-```
-
-dove α_x, α_y funzione di β = L_x/L_y e condizioni di vincolo ai bordi.
 
 ### Scale in c.a
 
@@ -115,13 +52,10 @@ dove s = spessore solaio rampa, α = angolo inclinazione.
 ## Diagramma dipendenze subfasi
 
 ```text
-V.1 — Solaio laterocemento (geometria nervature, M_Rd, V_Rd, pignatta)
- └── V.2 — Solaio alveolare (precompressione, perdite, M_Rd, freccia)
-      └── V.3 — Solaio in c.a. gettato (lastra mono/bidirezionale, coefficienti Pozzati)
-           └── V.4 — Scale in c.a. (rampa appoggiata/incastrata, N+M)
-                └── V.5 — Scale metalliche (profilati, connessioni parapetto)
-                     └── V.6 — GUI Qt widget solaio e scala
-                          └── V.7 — Test e validazione
+V.1 — Scale in c.a. (rampa appoggiata/incastrata, N+M)
+ └── V.2 — Scale metalliche (profilati, connessioni parapetto)
+      └── V.3 — GUI Qt widget scala
+           └── V.4 — Test e validazione
 ```
 
 ---
@@ -130,12 +64,13 @@ V.1 — Solaio laterocemento (geometria nervature, M_Rd, V_Rd, pignatta)
 
 | Modulo | File | Utilizzo pianificato |
 | --- | --- | --- |
-| checks_ntc2018 | `src/checks_ntc2018.py` | Verifica flessione/taglio nervature e lastre |
-| MaterialRepository | `src/materials/material_repository.py` | cls, acciaio, acciaio da precompressione |
-| TabulatoCalcolo | `src/report/tabulati_calcolo.py` | Tabulato solaio con passaggi intermedi |
+| checks_ntc2018 | `src/checks_ntc2018.py` | Verifica flessione/taglio scale |
+| MaterialRepository | `src/materials/material_repository.py` | cls, acciaio |
+| TabulatoCalcolo | `src/report/tabulati_calcolo.py` | Tabulato scala con passaggi intermedi |
 | EC3 acciaio (Fase S) | `src/methods/ec/ec3_acciaio.py` | Verifica scale metalliche (se S completata) |
-| registro_log | `src/core/registro_log.py` | Log verifiche per ogni nervatura/lastra |
+| registro_log | `src/core/registro_log.py` | Log verifiche per ogni rampa |
 | aiuto_contestuale | `src/ui/qt/aiuto_contestuale.py` | Riferimenti normativi nel widget Qt |
+| Aree di influenza (modulo condiviso) | `src/aree_influenza.py` | Calcolo area influenza per scale (vedi Fase Y) |
 
 ---
 
@@ -182,47 +117,7 @@ tests/
 
 ## Subfasi pianificate
 
-### V.1 — Solaio laterocemento
-
-**Stato**: TODO
-
-- [ ] Dataclass `GeometriaLaterocemento` (h, s_ala, b_nervatura, i_passo, b_pignatta)
-- [ ] Calcolo larghezza efficace ala b_eff (EC2 §5.3.2) in funzione di l_0
-- [ ] Sezione a T: calcolo asse neutro e momento resistente M_Rd
-- [ ] Gestione asse neutro nell'ala vs nella nervatura (due casi)
-- [ ] Verifica taglio: V_Rd,c (senza staffe) e V_Rd,s (con staffe) per nervatura
-- [ ] Verifica pignatta: resistenza minima a schiacciamento per carico concentrato
-- [ ] Calcolo freccia: I_eff interpolato, δ ≤ L/250
-- [ ] Aggiungere `passaggi_calcolo: list[str]` con formula per ogni verifica
-- [ ] Test: solaio 20+4, nervatura 12 cm, L=5m — confronto con tabella produttore Predalle o Fert
-
-### V.2 — Solaio alveolare precompresso
-
-**Stato**: TODO
-
-- [ ] Catalogo sezioni alveolari standard (20+4, 24+4, 28+4, 32+4): A, I, A_p, z_p
-- [ ] Calcolo perdite iniziali: attrito (μ·α), scorrimento (Δl/L·E_p·A_p)
-- [ ] Calcolo perdite differite: ritiro e fluage cls; rilassamento acciaio
-- [ ] σ_p,eff dopo perdite totali
-- [ ] Momento resistente M_Rd,pc con contributo armatura + precompressione
-- [ ] Verifica allo stato limite di servizio: fessure (σ_c ≤ f_ctm per classe XC2)
-- [ ] Calcolo freccia: I_eff con fessurazione, cambera da precompressione
-- [ ] Test: alveolare 24+4, σ_p0=1200 MPa, L=8m — M_Rd e freccia a mezzeria
-
-### V.3 — Solaio in c.a. gettato in opera
-
-**Stato**: TODO
-
-- [ ] Classificazione: monodirezionale (L_x/L_y ≥ 2) o bidirezionale
-- [ ] Lastra monodirezionale: M_x in campo e all'appoggio per vari schemi di vincolo
-- [ ] Coefficienti α_x, α_y per lastra bidirezionale (tabella Pozzati §6.3)
-- [ ] Verifica flessione lastra: sezione rettangolare b=100cm, h, armatura
-- [ ] Verifica taglio lastra: V_Rd,c (senza staffe — regola NTC2018 per lastre)
-- [ ] Verifica deformazione: freccia ≤ L/250 (NTC2018 §4.1.12)
-- [ ] Distribuzione carico su travi perimetrali (integrazione con aree_influenza.py)
-- [ ] Test: lastra 15cm, 5×4m, carichi 6 kN/m² — M_x, M_y e armatura richiesta
-
-### V.4 — Scale in c.a
+### V.1 — Scale in c.a
 
 **Stato**: TODO
 
@@ -233,9 +128,10 @@ tests/
 - [ ] Verifica pressoflessione: sezione rettangolare con N+M (piccola eccentricità)
 - [ ] Verifica taglio: V_Rd,c con contributo N (compressione riduce taglio critico)
 - [ ] Piattaforma scala: soletta appoggiata su muri, carichi da rampa + peso proprio
+- [ ] Calcolo area di influenza tramite modulo condiviso (vedi Fase Y)
 - [ ] Test: rampa α=30°, L=3m, s=15cm — M_max, N, verifica pressoflessione
 
-### V.5 — Scale metalliche
+### V.2 — Scale metalliche
 
 **Stato**: TODO
 
@@ -245,27 +141,24 @@ tests/
 - [ ] Verifica taglio: V_Rd = A_v·f_y/(√3·γ_M0)
 - [ ] Verifica instabilità flessotorsionale (χ_LT per profili non irrigiditi lateralmente)
 - [ ] Connessione parapetto: forza orizzontale q=1 kN/m a h=1.0m; verifica bulloni
+- [ ] Calcolo area di influenza tramite modulo condiviso (vedi Fase Y)
 - [ ] Test: IPE200 S275, L=4m, α=35° — verifica flessione e instabilità
 
-### V.6 — GUI Qt widget solaio e scala
+### V.3 — GUI Qt widget scala
 
 **Stato**: TODO
 
-- [ ] Widget `SolaiScalaWidget` con tab: Laterocemento / Alveolare / Gettato / Scala
-- [ ] Input geometria con validazione (dimensioni minime NTC2018)
-- [ ] Dropdown tipo pignatta / catalogo sezioni alveolari standard
-- [ ] Output: tabella verifiche (M_Rd, V_Rd, freccia) con semaforo verde/rosso/giallo
-- [ ] Pulsante "Genera tabulato" → TabulatoCalcolo con passaggi intermedi
+- [ ] Widget `ScalaWidget` con input geometria e output verifiche
+- [ ] Validazione dimensioni minime NTC2018
+- [ ] Output: tabella verifiche (M_Rd, V_Rd, freccia) con semaforo
+- [ ] Pulsante "Genera tabulato" → TabulatoCalcolo
 - [ ] Help contestuale per ogni campo (riferimento NTC2018)
-- [ ] Test widget: input/output per ciascun tipo di solaio
+- [ ] Test widget: input/output per ciascun tipo di scala
 
-### V.7 — Test e validazione
+### V.4 — Test e validazione
 
 **Stato**: TODO
 
-- [ ] Solaio laterocemento: confronto con tabelle portanza produttore (Fert, Predalle)
-- [ ] Alveolare: confronto con schede tecniche elemento 24+4 da catalogo produttore
-- [ ] Lastra bidirezionale: confronto con Santarella esempi §6 o Pozzati
 - [ ] Rampa c.a.: confronto con esempio manuale Santarella "Il Cemento Armato"
 - [ ] Scala metallica: confronto con progetto manuale da Ballio-Mazzolani
 - [ ] Test regressione: risultati stabili dopo refactoring
@@ -276,29 +169,17 @@ tests/
 
 | File | Righe stimate | Descrizione |
 | --- | --- | --- |
-| `src/solai/__init__.py` | 20 | Export pubblico modulo |
-| `src/solai/laterocemento.py` | 250 | Geometria, M_Rd, V_Rd, pignatta |
-| `src/solai/alveolare.py` | 250 | Precompressione, perdite, M_Rd, freccia |
-| `src/solai/gettato_in_opera.py` | 200 | Lastra mono/bidirezionale, α Pozzati |
-| `src/solai/aree_influenza.py` | 100 | Area influenza per travi perimetrali |
-| `src/solai/scale.py` | 250 | Rampa c.a. e metallica, N+M, verifica |
-| `src/ui/qt/solaio_scala_widget.py` | 400 | GUI Qt input/output solaio e scala |
-| `tests/test_laterocemento.py` | 20 test | Nervature, M_Rd, tabelle produttori |
-| `tests/test_alveolare.py` | 20 test | Perdite, M_Rd, freccia |
-| `tests/test_gettato_in_opera.py` | 15 test | Lastra mono/bi, coefficienti Pozzati |
-| `tests/test_aree_influenza.py` | 10 test | Aree influenza, carichi travi |
+| `src/scale.py` | 250 | Rampa c.a. e metallica, N+M, verifica |
+| `src/aree_influenza.py` | 120 | Algoritmi area influenza (vedi Fase Y) |
+| `src/ui/qt/scala_widget.py` | 200 | GUI Qt input/output scala |
 | `tests/test_scale.py` | 15 test | Rampa c.a. e metallica, N+M |
+| `tests/test_aree_influenza.py` | 10 test | Area influenza, carichi scale |
 
 ---
 
-## Decisioni architetturali aperte
+## Decisioni architetturali e storicizzazione
 
-| Decisione aperta | Opzioni |
-| --- | --- |
-| Catalogo sezioni alveolari: valori standard o input libero? | A) Catalogo JSON con sezioni standard più comuni / B) Solo input libero (A_p, I, z_p da utente) / C) Entrambi |
-| Metodo lastra bidirezionale: Pozzati o EC2 §5.3? | A) Pozzati (tradizione italiana, tabelle note) / B) EC2 §5.3 (metodo delle strisce) / C) Entrambi con confronto |
-| Perdite precompressione: calcolo completo o semplificate? | A) Semplificate (perdita totale % da norma) / B) Calcolo passo-passo (più complesso, necessario per progetto) |
-| Scale metalliche: dipendenza da Fase S (EC3)? | A) Implementazione autonoma semplificata / B) Richiede S.4 (EC3 acciaio) completata |
+- Decisione 2026-03-10: il calcolo delle aree di influenza è centralizzato nel modulo trasversale (Fase Y, src/aree_influenza.py), condiviso tra scale, solai e fondazioni, per evitare duplicazioni e garantire coerenza. Tutti i riferimenti e le dipendenze sono aggiornati di conseguenza.
 
 ---
 
@@ -306,19 +187,16 @@ tests/
 
 | Problema | Descrizione | Strategia |
 | --- | --- | --- |
-| Larghezza efficace ala b_eff | Dipende da l_0 (lunghezza di influenza) non sempre ovvia | Default l_0 = 0.85·L per campata interna; documentare assunzione |
-| Freccia lastra bidirezionale | Calcolo esatto richiede FEM 2D (piastra) — molto complesso | Usare freccia in direzione x da lastra monodirezionale equivalente; TODO FEM piastra |
-| Perdite precompressione in alveolare | Calcolo completo richiede dati produttore (Es, A_p, geometria cavi) | Catalogo sezioni con perdite già stimate (15-20% tipico) |
 | Componente assiale N scala | Spesso trascurata in pratica ma fondamentale per rampe ripide | Calcolo sempre esplicito con flag warning se e/h > 0.1 |
+| Area di influenza | Geometrie complesse, aperture, casi bordo | Demandato a modulo trasversale (Fase Y) con override manuale |
 
 ---
 
 ## Note di pianificazione
 
-- Il modulo solai è uno dei più richiesti in pratica: dare priorità a V.1 (laterocemento) e V.3 (gettato in opera) come sotto-fasi di maggior impatto.
-- Le aree di influenza (V, aree_influenza.py) sono riutilizzate anche per il calcolo delle azioni sui muri e sulle fondazioni (Fase P).
-- La scala metallica (V.5) dipende da EC3 (Fase S.4) per le verifiche di instabilità: se Fase S non è ancora completata, implementare V.5 con verifica elastica semplificata come stub.
-- Il widget Qt (V.6) deve supportare entrambe le modalità: calcolo singolo solaio e calcolo multi-solaio per edificio completo con aree di influenza.
+- Il modulo scale utilizza il calcolo delle aree di influenza tramite Fase Y (modulo trasversale), garantendo coerenza con solai e fondazioni.
+- La scala metallica (V.2) dipende da EC3 (Fase S.4) per le verifiche di instabilità: se Fase S non è ancora completata, implementare V.2 con verifica elastica semplificata come stub.
+- Il widget Qt (V.3) deve supportare input/output per tutte le tipologie di scala.
 
 ## Storicizzazione
 

@@ -165,15 +165,21 @@ tests/
 
 ### M.1 — Elemento beam 2D Euler-Bernoulli
 
-**Stato**: TODO
+**Stato**: COMPLETATO (2026-03-10, sessione Copilot)
 
-- [ ] Implementare dataclass `ElementoBeam` con attributi E, A, I, L, angolo
-- [ ] Calcolare matrice rigidezza locale 6×6 (assiale + flessionale)
-- [ ] Implementare matrice di trasformazione T_e per elemento inclinato
-- [ ] Calcolare vettore carichi nodali equivalenti per carico distribuito uniforme
-- [ ] Calcolare vettore carichi nodali equivalenti per carico triangolare
-- [ ] Aggiungere `to_dict()` per serializzazione
-- [ ] Test unitari: verifica valori k_e per trave nota (L=5m, E=30000 MPa, I=1000 cm⁴)
+- [x] Implementare dataclass `ElementoBeam` con attributi E, A, I, L, angolo
+- [x] Calcolare matrice rigidezza locale 6×6 (assiale + flessionale)
+- [x] Implementare matrice di trasformazione T_e per elemento inclinato
+- [x] Calcolare vettore carichi nodali equivalenti per carico distribuito uniforme
+- [x] Calcolare vettore carichi nodali equivalenti per carico triangolare
+- [x] Aggiungere `to_dict()` per serializzazione
+- [x] Test unitari: verifica valori k_e per trave nota (L=5m, E=30000 MPa, I=1000 cm⁴)
+
+Implementazione estesa oltre il minimo pianificato:
+- supporto a carico concentrato, trapezoidale, triangolare inverso, parabolico e distribuzione generica con fallback numerico
+- combinazione di piu carichi sullo stesso elemento
+- supporto iniziale a cedimenti nodali e rotazioni impresse tramite carichi equivalenti locali
+- export pubblico del nuovo pacchetto `src/fem/`
 
 ### M.2 — Assemblaggio matrice globale sparsa
 
@@ -269,6 +275,18 @@ tests/
 | Gestione non-linearità geometrica | A) Non prevista in Fase M / B) Stub per Fase U (pushover) |
 | Interfaccia con GUI Qt | A) Nessuna GUI in Fase M (solo backend) / B) Widget debug visualizzazione matrice K_G |
 
+## Decisioni architetturali storicizzate — M.1
+
+- 2026-03-10: per M.1 viene adottato beam 2D di Euler-Bernoulli puro; Timoshenko resta esplicitamente fuori per non contaminare il nucleo locale dell'elemento.
+- 2026-03-10: le unita sono fissate e coerenti con il repo (`cm`, `kg/cm²`, `kg·cm`, `kg/cm`), senza conversioni implicite.
+- 2026-03-10: l'angolo di input dell'elemento accetta sia gradi sia radianti, con normalizzazione interna in radianti.
+- 2026-03-10: `ElementoBeam` include anche `id_nodo_iniziale` e `id_nodo_finale` per preparare la connettivita della M.2.
+- 2026-03-10: i carichi sono modellati con architettura modulare a oggetti separati, non come metodi monolitici dell'elemento.
+- 2026-03-10: la combinazione di piu carichi sullo stesso elemento e supportata gia in M.1.
+- 2026-03-10: cedimenti e rotazioni impresse sono inclusi gia in M.1, ma mantenuti separati logicamente dai carichi meccanici ordinari.
+- 2026-03-10: per carichi complessi si usa formula chiusa quando disponibile e fallback numerico Gauss-Legendre negli altri casi.
+- 2026-03-10: la convenzione dei segni del modulo FEM locale e esplicita e documentata, derivata dalla classica FEM; l'adattamento alle convenzioni grafiche del repo resta alle subfasi successive.
+
 ---
 
 ## Problemi tecnici attesi
@@ -291,4 +309,6 @@ tests/
 
 ## Storicizzazione
 
-Nessuna sessione ancora — fase non avviata.
+- 2026-03-10 — M.1 completata in `src/fem/elemento_beam.py` e `tests/test_fem_beam.py`.
+- 2026-03-10 — Test eseguiti per M.1: 16 passati, 0 falliti.
+- 2026-03-10 — Pianificazione interattiva completata prima dell'implementazione, come richiesto dai vincoli operativi permanenti.
