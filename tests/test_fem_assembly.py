@@ -39,9 +39,33 @@ def test_assemblatore_produce_matrice_csr_simmetrica_per_portale_semplice() -> N
         Nodo(id=4, x=400.0, y=0.0),
     ]
     elementi = [
-        ElementoBeam(E=2100000.0, A=40.0, I=6000.0, L=300.0, angolo=np.pi / 2.0, id_nodo_iniziale=1, id_nodo_finale=2),
-        ElementoBeam(E=2100000.0, A=30.0, I=4500.0, L=400.0, id_nodo_iniziale=2, id_nodo_finale=3, etichetta="trave"),
-        ElementoBeam(E=2100000.0, A=40.0, I=6000.0, L=300.0, angolo=-np.pi / 2.0, id_nodo_iniziale=3, id_nodo_finale=4),
+        ElementoBeam(
+            E=2100000.0,
+            A=40.0,
+            I=6000.0,
+            L=300.0,
+            angolo=np.pi / 2.0,
+            id_nodo_iniziale=1,
+            id_nodo_finale=2,
+        ),
+        ElementoBeam(
+            E=2100000.0,
+            A=30.0,
+            I=4500.0,
+            L=400.0,
+            id_nodo_iniziale=2,
+            id_nodo_finale=3,
+            etichetta="trave",
+        ),
+        ElementoBeam(
+            E=2100000.0,
+            A=40.0,
+            I=6000.0,
+            L=300.0,
+            angolo=-np.pi / 2.0,
+            id_nodo_iniziale=3,
+            id_nodo_finale=4,
+        ),
     ]
     modello = ModelloFEM(
         nodi=nodi,
@@ -114,10 +138,14 @@ def test_modello_fem_from_dict_supporta_carichi_serializzati() -> None:
     assert modello.vincoli == [{"id_nodo": 1, "tipo": "incastro"}]
     assert modello.elementi[0].L == pytest.approx(500.0)
     assert modello.elementi[0].angolo_rad == pytest.approx(0.0)
-    assert isinstance(modello.carichi_per_elemento(0, modello.elementi[0])[0], CaricoDistribuitoUniforme)
+    assert isinstance(
+        modello.carichi_per_elemento(0, modello.elementi[0])[0], CaricoDistribuitoUniforme
+    )
 
 
-def test_modello_fem_roundtrip_json_preserva_schema_esteso(tmp_path: pytest.TempPathFactory) -> None:
+def test_modello_fem_roundtrip_json_preserva_schema_esteso(
+    tmp_path: pytest.TempPathFactory,
+) -> None:
     modello = ModelloFEM(
         nodi=[Nodo(id=1, x=0.0, y=0.0), Nodo(id=2, x=500.0, y=0.0)],
         elementi=[

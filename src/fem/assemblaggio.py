@@ -344,9 +344,7 @@ class ModelloFEM:
                 else:
                     chiave_norm = chiave
                 carichi_elementi[chiave_norm] = [
-                    _deserialize_carico(item)
-                    for item in lista_carichi
-                    if isinstance(item, dict)
+                    _deserialize_carico(item) for item in lista_carichi if isinstance(item, dict)
                 ]
 
         metadati = data.get("metadati", {})
@@ -372,16 +370,15 @@ class ModelloFEM:
     @classmethod
     def from_csv(cls, path_nodi: str | Path, path_elementi: str | Path) -> "ModelloFEM":
         with Path(path_nodi).open(encoding="utf-8", newline="") as handle_nodi:
-            nodi_rows = [
-                _normalize_record(row)
-                for row in csv.DictReader(handle_nodi)
-            ]
+            nodi_rows = [_normalize_record(row) for row in csv.DictReader(handle_nodi)]
         nodi = [Nodo.from_dict(row) for row in nodi_rows]
         nodi_per_id = {nodo.id: nodo for nodo in nodi}
 
         with Path(path_elementi).open(encoding="utf-8", newline="") as handle_elementi:
             elementi_rows = [
-                _normalize_record({key: value for key, value in row.items() if value not in (None, "")})
+                _normalize_record(
+                    {key: value for key, value in row.items() if value not in (None, "")}
+                )
                 for row in csv.DictReader(handle_elementi)
             ]
         elementi = [_elemento_from_dict(row, nodi_per_id) for row in elementi_rows]
@@ -568,9 +565,9 @@ def _elemento_from_dict(data: dict[str, object], nodi_per_id: dict[int, Nodo]) -
         unita_angolo = str(mapping.get("unita_angolo", "rad"))
         angolo_input = float(mapping["angolo"])
         angolo_norm = math.radians(angolo_input) if unita_angolo == "deg" else angolo_input
-        if not math.isclose(math.cos(angolo_norm), math.cos(angolo_rad), abs_tol=1e-9) or not math.isclose(
-            math.sin(angolo_norm), math.sin(angolo_rad), abs_tol=1e-9
-        ):
+        if not math.isclose(
+            math.cos(angolo_norm), math.cos(angolo_rad), abs_tol=1e-9
+        ) or not math.isclose(math.sin(angolo_norm), math.sin(angolo_rad), abs_tol=1e-9):
             raise ValueError(
                 f"Angolo elemento incoerente con la geometria nodale: {angolo_input} {unita_angolo}"
             )
