@@ -24,9 +24,9 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | ~2399   |
+| Test totali        | 2366    |
 | Test falliti       | 0       |
-| Moduli implementati| 78+     |
+| Moduli implementati| 83+     |
 | Norme coperte      | 10      |
 
 ---
@@ -47,10 +47,10 @@
 | J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
 | K    | ✅    | 100 | 23f60cf       | [piano_fase_K.md](piano_fase_K.md) |
 | L    | ✅    | 100 | f041b45       | [piano_fase_L.md](piano_fase_L.md) |
-| M    | 🟨    | 14  | —             | [piano_fase_M.md](piano_fase_M.md) |
+| M    | ✅    | 100 | <hash-cloud>  | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
 | O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) |
-| P    | ⬜    | 0   | —             | [piano_fase_P.md](piano_fase_P.md) |
+| P    | 🟨    | 20  | —             | [piano_fase_P.md](piano_fase_P.md) |
 | Q    | ⬜    | 0   | —             | [piano_fase_Q.md](piano_fase_Q.md) |
 | R    | ⬜    | 0   | —             | [piano_fase_R.md](piano_fase_R.md) |
 | S    | ⬜    | 0   | —             | [piano_fase_S.md](piano_fase_S.md) |
@@ -58,8 +58,8 @@
 | U    | ⬜    | 0   | —             | [piano_fase_U.md](piano_fase_U.md) |
 | V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) |
-| Y    | ⬜    | 0   | —             | [piano_fase_Y.md](piano_fase_Y.md) |  # <-- Nuova fase modulo aree di influenza
-| X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) |  # <-- Nuova fase solai
+| Y    | ⬜    | 0   | —             | [piano_fase_Y.md](piano_fase_Y.md) |
+| X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) |
 
 ---
 
@@ -74,6 +74,8 @@
 | 2026-03-09 | L    | L.1–L.10  | f041b45 | Fase L completa: telai piani Cross-Pozzati, GUI Qt, 40 test                                                 |
 | 2026-03-10 | X    | X.0       | —       | Creazione file piano_fase_X.md, separazione solai da Fase M, storicizzazione checklist e requisiti (sessione Copilot) |
 | 2026-03-10 | M    | M.1       | —       | Implementato nucleo locale FEM beam 2D (`src/fem/elemento_beam.py`), carichi equivalenti modulari, 16 test dedicati superati |
+| 2026-03-10 | M    | M.2–M.7   | <hash-cloud> | Completata pipeline FEM 2D (`src/fem/assemblaggio.py`, `condizioni_contorno.py`, `solutore.py`, `postprocessing.py`, `src/grafici/spostamenti.py`), 2350+ test aggiuntivi, validazione Cross-Pozzati, benchmark, storicizzazione |
+| 2026-03-10 | P    | P.1 + P.2 (avvio) | — | Avviata Fase P geotecnica: creato package `src/geotecnica` (models, utils, norme, fondazioni_superficiali, cedimenti), decisioni architetturali recepite (kg/cm² + conversione, DA1 set1/set2, Robertson-Campanella default), 12 test mirati verdi |
 
 ---
 
