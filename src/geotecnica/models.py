@@ -254,3 +254,264 @@ def tensione_to_kpa(valore_kg_cm2: float) -> float:
     """Helper di utilita per report/UI geotecnica."""
 
     return kg_cm2_to_kpa(valore_kg_cm2)
+
+
+# ---------------------------------------------------------------------------
+# P.3 — Fondazioni profonde (pali)
+# ---------------------------------------------------------------------------
+
+
+class TipologiaPalo(str, Enum):
+    """Tipologia di terreno per portanza palo."""
+
+    ARGILLA = "ARGILLA"
+    SABBIA_SPT = "SABBIA_SPT"
+    SABBIA_CPT = "SABBIA_CPT"
+
+
+@dataclass(slots=True)
+class InputPortanzaPalo:
+    """Dati di input per la portanza di un palo singolo."""
+
+    tipologia: TipologiaPalo
+    diametro_palo_cm: float
+    lunghezza_palo_cm: float
+    c_u_kgcm2: float = 0.0
+    n_spt_medio: float = 0.0
+    q_c_kgcm2: float = 0.0
+    forza_verticale_kg: float = 0.0
+    gamma_r_punta: float = 1.30
+    gamma_r_laterale: float = 1.15
+    unita_tensione: UnitaTensione = UnitaTensione.KG_CM2
+
+    def __post_init__(self) -> None:
+        if self.diametro_palo_cm <= 0:
+            raise ValueError("diametro_palo_cm deve essere > 0")
+        if self.lunghezza_palo_cm <= 0:
+            raise ValueError("lunghezza_palo_cm deve essere > 0")
+
+
+@dataclass(slots=True)
+class RisultatoPortanzaPalo:
+    """Output della verifica di portanza di un palo singolo."""
+
+    q_punta_kg: float
+    q_laterale_kg: float
+    q_lim_kg: float
+    q_rd_kg: float
+    forza_verticale_kg: float
+    rapporto_utilizzo: float
+    verificato: bool
+    passaggi_calcolo: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, float | bool | list[str]]:
+        return {
+            "q_punta_kg": self.q_punta_kg,
+            "q_laterale_kg": self.q_laterale_kg,
+            "q_lim_kg": self.q_lim_kg,
+            "q_rd_kg": self.q_rd_kg,
+            "forza_verticale_kg": self.forza_verticale_kg,
+            "rapporto_utilizzo": self.rapporto_utilizzo,
+            "verificato": self.verificato,
+            "passaggi_calcolo": self.passaggi_calcolo,
+        }
+
+
+@dataclass(slots=True)
+class InputGruppoPali:
+    """Dati di input per efficienza di un gruppo di pali."""
+
+    n_pali_riga: int
+    n_pali_colonna: int
+    diametro_palo_cm: float
+    interasse_cm: float
+
+    def __post_init__(self) -> None:
+        if self.n_pali_riga < 1 or self.n_pali_colonna < 1:
+            raise ValueError("Numero di pali deve essere >= 1")
+        if self.diametro_palo_cm <= 0:
+            raise ValueError("diametro_palo_cm deve essere > 0")
+        if self.interasse_cm <= 0:
+            raise ValueError("interasse_cm deve essere > 0")
+
+
+# ---------------------------------------------------------------------------
+# P.4 — Muri di sostegno
+# ---------------------------------------------------------------------------
+
+
+class TipoMuro(str, Enum):
+    """Tipo di muro di sostegno."""
+
+    GRAVITA = "GRAVITA"
+    MENSOLA = "MENSOLA"
+
+
+@dataclass(slots=True)
+class GeometriaMuro:
+    """Geometria del muro di sostegno (dimensioni in cm)."""
+
+    altezza_muro_cm: float
+    larghezza_base_cm: float
+    spessore_coronamento_cm: float = 0.0
+    angolo_paramento_gradi: float = 90.0
+    inclinazione_terrapieno_gradi: float = 0.0
+
+    def __post_init__(self) -> None:
+        if self.altezza_muro_cm <= 0 or self.larghezza_base_cm <= 0:
+            raise ValueError("Dimensioni muro devono essere > 0")
+
+
+@dataclass(slots=True)
+class InputMuroSostegno:
+    """Input per la verifica di un muro di sostegno."""
+
+    terreno_ritenuto: ParametriTerreno
+    terreno_fondazione: ParametriTerreno
+    geometria: GeometriaMuro
+    peso_muro_kg: float
+    gamma_r_ribaltamento: float = 1.10
+    gamma_r_scorrimento: float = 1.10
+    angolo_attrito_muro_gradi: float = 0.0
+    tipo_muro: TipoMuro = TipoMuro.GRAVITA
+
+    def __post_init__(self) -> None:
+        if self.peso_muro_kg <= 0:
+            raise ValueError("peso_muro_kg deve essere > 0")
+
+
+@dataclass(slots=True)
+class RisultatoVerificaMuro:
+    """Esito di una singola verifica del muro."""
+
+    nome_verifica: str
+    azione_sfavorevole: float
+    azione_favorevole: float
+    rapporto_utilizzo: float
+    verificato: bool
+    passaggi_calcolo: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, float | str | bool | list[str]]:
+        return {
+            "nome_verifica": self.nome_verifica,
+            "azione_sfavorevole": self.azione_sfavorevole,
+            "azione_favorevole": self.azione_favorevole,
+            "rapporto_utilizzo": self.rapporto_utilizzo,
+            "verificato": self.verificato,
+            "passaggi_calcolo": self.passaggi_calcolo,
+        }
+
+
+@dataclass(slots=True)
+class RisultatoMuroSostegno:
+    """Output completo della verifica del muro di sostegno."""
+
+    spinta_attiva_kg_cm: float
+    coefficiente_ka: float
+    verifiche: list[RisultatoVerificaMuro]
+    verificato_globale: bool
+    passaggi_calcolo: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "spinta_attiva_kg_cm": self.spinta_attiva_kg_cm,
+            "coefficiente_ka": self.coefficiente_ka,
+            "verifiche": [v.to_dict() for v in self.verifiche],
+            "verificato_globale": self.verificato_globale,
+            "passaggi_calcolo": self.passaggi_calcolo,
+        }
+
+
+# ---------------------------------------------------------------------------
+# P.5 — Liquefazione (Seed-Idriss)
+# ---------------------------------------------------------------------------
+
+
+class ClasseLiquefazione(str, Enum):
+    """Classificazione pericolosita da liquefazione."""
+
+    BASSA = "BASSA"
+    MEDIA = "MEDIA"
+    ALTA = "ALTA"
+
+
+@dataclass(slots=True)
+class StratoLiquefazione:
+    """Singolo strato per la valutazione del rischio liquefazione."""
+
+    profondita_centro_m: float
+    spessore_m: float
+    n_spt_grezzo: int
+    sigma_v_kpa: float
+    sigma_v_eff_kpa: float
+
+    def __post_init__(self) -> None:
+        if self.spessore_m <= 0:
+            raise ValueError("spessore_m deve essere > 0")
+        if self.sigma_v_eff_kpa <= 0:
+            raise ValueError("sigma_v_eff_kpa deve essere > 0")
+
+
+@dataclass(slots=True)
+class InputLiquefazione:
+    """Input per la valutazione del rischio di liquefazione."""
+
+    strati: list[StratoLiquefazione]
+    a_max_g: float
+    magnitudo: float = 7.5
+    correzione_energia_ce: float = 1.0
+    correzione_fines_cf: float = 1.0
+
+    def __post_init__(self) -> None:
+        if not self.strati:
+            raise ValueError("Almeno uno strato deve essere definito")
+        if self.a_max_g <= 0:
+            raise ValueError("a_max_g deve essere > 0")
+        if self.magnitudo <= 0:
+            raise ValueError("magnitudo deve essere > 0")
+
+
+@dataclass(slots=True)
+class RisultatoStratoLiquefazione:
+    """Risultato liquefazione per un singolo strato."""
+
+    profondita_m: float
+    n160: float
+    csr: float
+    crr_7_5: float
+    msf: float
+    crr_m: float
+    fs: float
+    contributo_il: float
+    passaggi_calcolo: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, float | list[str]]:
+        return {
+            "profondita_m": self.profondita_m,
+            "n160": self.n160,
+            "csr": self.csr,
+            "crr_7_5": self.crr_7_5,
+            "msf": self.msf,
+            "crr_m": self.crr_m,
+            "fs": self.fs,
+            "contributo_il": self.contributo_il,
+            "passaggi_calcolo": self.passaggi_calcolo,
+        }
+
+
+@dataclass(slots=True)
+class RisultatoLiquefazione:
+    """Output completo della valutazione di rischio liquefazione."""
+
+    strati: list[RisultatoStratoLiquefazione]
+    indice_il: float
+    classe: ClasseLiquefazione
+    passaggi_calcolo: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "strati": [s.to_dict() for s in self.strati],
+            "indice_il": self.indice_il,
+            "classe": self.classe.value,
+            "passaggi_calcolo": self.passaggi_calcolo,
+        }

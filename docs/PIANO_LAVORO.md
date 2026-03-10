@@ -24,7 +24,7 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | 2366    |
+| Test totali        | 2449    |
 | Test falliti       | 0       |
 | Moduli implementati| 83+     |
 | Norme coperte      | 10      |
@@ -50,7 +50,7 @@
 | M    | ✅    | 100 | <hash-cloud>  | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
 | O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) |
-| P    | 🟨    | 20  | —             | [piano_fase_P.md](piano_fase_P.md) |
+| P    | ✅    | 100 | —             | [piano_fase_P.md](piano_fase_P.md) |
 | Q    | ⬜    | 0   | —             | [piano_fase_Q.md](piano_fase_Q.md) |
 | R    | ⬜    | 0   | —             | [piano_fase_R.md](piano_fase_R.md) |
 | S    | ⬜    | 0   | —             | [piano_fase_S.md](piano_fase_S.md) |
@@ -76,6 +76,7 @@
 | 2026-03-10 | M    | M.1       | —       | Implementato nucleo locale FEM beam 2D (`src/fem/elemento_beam.py`), carichi equivalenti modulari, 16 test dedicati superati |
 | 2026-03-10 | M    | M.2–M.7   | <hash-cloud> | Completata pipeline FEM 2D (`src/fem/assemblaggio.py`, `condizioni_contorno.py`, `solutore.py`, `postprocessing.py`, `src/grafici/spostamenti.py`), 2350+ test aggiuntivi, validazione Cross-Pozzati, benchmark, storicizzazione |
 | 2026-03-10 | P    | P.1 + P.2 (avvio) | — | Avviata Fase P geotecnica: creato package `src/geotecnica` (models, utils, norme, fondazioni_superficiali, cedimenti), decisioni architetturali recepite (kg/cm² + conversione, DA1 set1/set2, Robertson-Campanella default), 12 test mirati verdi |
+| 2026-03-10 | P    | P.3–P.5 + P.6 | — | Completata Fase P: implementati `pali.py` (argilla/SPT/CPT, gruppo Converse-Labarre), `muri_sostegno.py` (Rankine, Coulomb, ribaltamento, scorrimento), `liquefazione.py` (CSR, CRR, MSF, IL, classificazione); 71 nuovi test (83 totali Fase P); aggiornato `__init__.py` e `models.py` con nuovi dataclass |
 
 ---
 
