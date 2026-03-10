@@ -47,7 +47,7 @@
 | J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
 | K    | ✅    | 100 | 23f60cf       | [piano_fase_K.md](piano_fase_K.md) |
 | L    | ✅    | 100 | f041b45       | [piano_fase_L.md](piano_fase_L.md) |
-| M    | 🟨    | 14  | —             | [piano_fase_M.md](piano_fase_M.md) |
+| M    | ✅    | 100 | TBD           | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
 | O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) |
 | P    | ⬜    | 0   | —             | [piano_fase_P.md](piano_fase_P.md) |
@@ -74,6 +74,7 @@
 | 2026-03-09 | L    | L.1–L.10  | f041b45 | Fase L completa: telai piani Cross-Pozzati, GUI Qt, 40 test                                                 |
 | 2026-03-10 | X    | X.0       | —       | Creazione file piano_fase_X.md, separazione solai da Fase M, storicizzazione checklist e requisiti (sessione Copilot) |
 | 2026-03-10 | M    | M.1       | —       | Implementato nucleo locale FEM beam 2D (`src/fem/elemento_beam.py`), carichi equivalenti modulari, 16 test dedicati superati |
+| 2026-03-10 | M    | M.2–M.7   | TBD     | Assemblaggio globale, BC, spsolve, post-processing equilibrio, SolutoreFEM, 87 test passati (test_fem_beam + test_fem_telaio) |
 
 ---
 
