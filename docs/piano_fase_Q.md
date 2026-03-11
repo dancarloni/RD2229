@@ -5,7 +5,7 @@
 | Campo | Valore |
 | --- | --- |
 | **Stato** | ✅ COMPLETATA |
-| **Commit** | working tree |
+| **Commit** | af80fb9 |
 | **Data prevista** | 2026-03-11 |
 | **Test pianificati** | ~60 (realizzati: 50 test mirati eseguiti in sessione) |
 | **Norma/e di riferimento** | n/a (infrastruttura report) |

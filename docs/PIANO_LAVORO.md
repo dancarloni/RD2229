@@ -51,7 +51,7 @@
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
 | O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) |
 | P    | ✅    | 100 | fb83147       | [piano_fase_P.md](piano_fase_P.md) |
-| Q    | ✅    | 100 | working tree   | [piano_fase_Q.md](piano_fase_Q.md) |
+| Q    | ✅    | 100 | af80fb9       | [piano_fase_Q.md](piano_fase_Q.md) |
 | R    | ⬜    | 0   | —             | [piano_fase_R.md](piano_fase_R.md) |
 | S    | ⬜    | 0   | —             | [piano_fase_S.md](piano_fase_S.md) |
 | T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) |
@@ -79,7 +79,7 @@
 | 2026-03-10 | P    | P.3–P.5 + P.6 | fb83147 | Completata Fase P: implementati `pali.py` (argilla/SPT/CPT, gruppo Converse-Labarre), `muri_sostegno.py` (Rankine, Coulomb, ribaltamento, scorrimento), `liquefazione.py` (CSR, CRR, MSF, IL, classificazione); 71 nuovi test (83 totali Fase P); aggiornato `__init__.py` e `models.py` con nuovi dataclass |
 | 2026-03-11 | Q    | Q.1–Q.2 | —       | Avviata Fase Q: implementati `src/report/template_a4.py`, `src/report/pipeline.py`, `src/report/decorators.py`; aggiunti 9 test (`tests/test_template_a4.py`, `tests/test_report_pipeline.py`) tutti verdi |
 | 2026-03-11 | Q    | Q.3 (core) | —       | Implementato motore citazioni normative (`src/report/citazioni_normative.py`): raccolta da dataclass/dict, deduplica, indice e appendice; aggiunti test `tests/test_citazioni.py` verdi |
-| 2026-03-11 | Q    | Q.4–Q.10 | working tree | Completata Fase Q: builder professionale (`src/report/report_builder.py`), sezioni obbligatorie (`src/report/sections.py`), export multi-formato (`src/report/export.py`, `export_pdf.py`, `export_docx.py`), confronto norme (`comparison.py`), custom sections + profili (`custom.py`), widget Qt (`src/ui/qt/report_widget.py`), documentazione (`docs/report_generator.md`) ed esempi (`examples/report/`), test reali (`tests/test_real_reports.py`) |
+| 2026-03-11 | Q    | Q.4–Q.10 | af80fb9 | Completata Fase Q: builder professionale (`src/report/report_builder.py`), sezioni obbligatorie (`src/report/sections.py`), export multi-formato (`src/report/export.py`, `export_pdf.py`, `export_docx.py`), confronto norme (`comparison.py`), custom sections + profili (`custom.py`), widget Qt (`src/ui/qt/report_widget.py`), documentazione (`docs/report_generator.md`) ed esempi (`examples/report/`), test reali (`tests/test_real_reports.py`) |
 
 ---
 
