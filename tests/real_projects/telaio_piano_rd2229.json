@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.1.0",
+  "project_info": {
+    "name": "Telaio Piano RD2229",
+    "description": "Caso reale semplificato: telaio con due elementi",
+    "author": "RD2229"
+  },
+  "geometry": [
+    {
+      "id": "C1",
+      "type": "RECTANGULAR",
+      "width": 30.0,
+      "height": 45.0
+    },
+    {
+      "id": "B1",
+      "type": "RECTANGULAR",
+      "width": 30.0,
+      "height": 55.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "CLS-RD",
+      "type": "concrete",
+      "material_class": "RD-1939",
+      "f_ck": 180.0
+    }
+  ],
+  "loads": [
+    {
+      "element_id": "C1",
+      "N": 210.0,
+      "Mx": 18.0,
+      "Ty": 10.0
+    },
+    {
+      "element_id": "B1",
+      "N": 95.0,
+      "Mx": 38.0,
+      "Ty": 14.0
+    }
+  ],
+  "code_settings": {
+    "norm_code": "RD2229",
+    "limit_states": ["TA"],
+    "units_force": "kN",
+    "units_length": "cm"
+  }
+}

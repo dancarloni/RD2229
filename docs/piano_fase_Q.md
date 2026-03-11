@@ -4,10 +4,10 @@
 
 | Campo | Valore |
 | --- | --- |
-| **Stato** | ⬜ TODO |
-| **Commit** | — |
-| **Data prevista** | — |
-| **Test pianificati** | ~60 |
+| **Stato** | ✅ COMPLETATA |
+| **Commit** | working tree |
+| **Data prevista** | 2026-03-11 |
+| **Test pianificati** | ~60 (realizzati: 50 test mirati eseguiti in sessione) |
 | **Norma/e di riferimento** | n/a (infrastruttura report) |
 | **Priorità** | Media |
 
@@ -142,114 +142,114 @@ tests/
 
 ### Q.1 — Layout e template A4
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Definire classe `TemplateA4` con parametri margini, font, colori
-- [ ] Implementare CSS per stampa A4 (`@media print`, `@page`)
-- [ ] Intestazione con: nome progetto, committente, professionista, data, n. pratica
-- [ ] Piè di pagina con numero pagina e data stampa
-- [ ] Stile tabelle: bordi, ombreggiatura righe alternate, header grassetto
-- [ ] Stile blocchi formula: box grigio chiaro, font monospace
-- [ ] Placeholder immagini: riquadro con dimensione e didascalia
-- [ ] Test: render HTML pagina singola con tutti gli elementi
+- [x] Definire classe `TemplateA4` con parametri margini, font, colori
+- [x] Implementare CSS per stampa A4 (`@media print`, `@page`)
+- [x] Intestazione con: nome progetto, committente, professionista, data, n. pratica
+- [x] Piè di pagina con numero pagina e data stampa
+- [x] Stile tabelle: bordi, ombreggiatura righe alternate, header grassetto
+- [x] Stile blocchi formula: box grigio chiaro, font monospace
+- [x] Placeholder immagini: riquadro con dimensione e didascalia
+- [x] Test: render HTML pagina singola con tutti gli elementi
 
 ### Q.2 — Integrazione pipeline calcolo
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Definire interfaccia `FornitoreSezione` (protocollo) che ogni modulo di calcolo implementa
-- [ ] Implementare `PipelineReport` che raccoglie sezioni da tutti i moduli registrati
-- [ ] Registrazione automatica moduli via decoratore `@contribuisce_report`
-- [ ] Ordinamento sezioni per capitolo/numero
-- [ ] Gestione sezioni vuote (nessun calcolo eseguito per quel modulo)
-- [ ] Test: pipeline con 3 moduli mock, verifica ordine e contenuto sezioni
+- [x] Definire interfaccia `FornitoreSezione` (protocollo) che ogni modulo di calcolo implementa
+- [x] Implementare `PipelineReport` che raccoglie sezioni da tutti i moduli registrati
+- [x] Registrazione automatica moduli via decoratore `@contribuisce_report`
+- [x] Ordinamento sezioni per capitolo/numero
+- [x] Gestione sezioni vuote (nessun calcolo eseguito per quel modulo)
+- [x] Test: pipeline con 3 moduli mock, verifica ordine e contenuto sezioni
 
 ### Q.3 — Citazione automatica normativa
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Raccolta di tutti i `riferimento_normativo` dai `SingleCheckResult`
-- [ ] Deduplicazione e ordinamento (norma, §, tabella)
-- [ ] Generazione indice normativo in appendice con tutte le citazioni usate
-- [ ] Inserimento nota a piè di formula nel corpo del report
-- [ ] Formato citazione standard: `[NTC2018 §4.1.2.1.3]`
-- [ ] Test: 5 verifiche con riferimenti sovrapposti — verifica indice deduplicato
+- [x] Raccolta di tutti i `riferimento_normativo` dai `SingleCheckResult`
+- [x] Deduplicazione e ordinamento (norma, §, tabella)
+- [x] Generazione indice normativo in appendice con tutte le citazioni usate
+- [x] Inserimento nota a piè di formula nel corpo del report
+- [x] Formato citazione standard: `[NTC2018 §4.1.2.1.3]`
+- [x] Test: 5 verifiche con riferimenti sovrapposti — verifica indice deduplicato
 
 ### Q.4 — Generazione sezioni obbligatorie
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Sommario automatico con numeri di pagina (HTML: ancora, PDF: generato da WeasyPrint)
-- [ ] Capitolo 1: dati generali (descrizione opera, normativa applicata, metodo di analisi)
-- [ ] Capitolo 2: materiali (tabella da MaterialRepository, con riferimento normativo)
-- [ ] Capitolo 3: azioni (carichi, combinazioni NTC2018)
-- [ ] Capitolo 4: analisi strutturale (risultati FEM o Cross-Pozzati)
-- [ ] Capitolo 5: verifiche (una sezione per ogni tipo: flessione, taglio, torsione, SLE, ...)
-- [ ] Allegati: grafici, tabelle dettagliate, estratti normativi
-- [ ] Test: report completo con dati minimi — verifica struttura e lunghezza
+- [x] Sommario automatico con numeri di pagina (HTML: ancora, PDF: generato da WeasyPrint)
+- [x] Capitolo 1: dati generali (descrizione opera, normativa applicata, metodo di analisi)
+- [x] Capitolo 2: materiali (tabella da MaterialRepository, con riferimento normativo)
+- [x] Capitolo 3: azioni (carichi, combinazioni NTC2018)
+- [x] Capitolo 4: analisi strutturale (risultati FEM o Cross-Pozzati)
+- [x] Capitolo 5: verifiche (una sezione per ogni tipo: flessione, taglio, torsione, SLE, ...)
+- [x] Allegati: grafici, tabelle dettagliate, estratti normativi
+- [x] Test: report completo con dati minimi — verifica struttura e lunghezza
 
 ### Q.5 — Gestione immagini personalizzate
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Widget Qt per upload immagine (file dialog, incolla da clipboard)
-- [ ] Posizionamento immagine nel report: prima/dopo sezione, inline
-- [ ] Didascalia immagine editabile
-- [ ] Embedding base64 in HTML per portabilità
-- [ ] Export file separato per DOCX (directory `allegati/`)
-- [ ] Test: upload immagine PNG, verifica embedding HTML e path DOCX
+- [x] Widget Qt per upload immagine (file dialog, incolla da clipboard)
+- [x] Posizionamento immagine nel report: prima/dopo sezione, inline
+- [x] Didascalia immagine editabile
+- [x] Embedding base64 in HTML per portabilità
+- [x] Export file separato per DOCX (directory `allegati/`)
+- [x] Test: upload immagine PNG, verifica embedding HTML e path DOCX
 
 ### Q.6 — Esportazione multi-formato
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Export HTML: file self-contained con CSS e immagini inline
-- [ ] Export MD: Markdown puro, immagini come path relativo
-- [ ] Export TXT/ASCII: compatibile con tabulati Fase C (80 colonne)
-- [ ] Export PDF: WeasyPrint (dipendenza opzionale — graceful degradation se assente)
-- [ ] Export DOCX: python-docx (dipendenza opzionale)
-- [ ] Test: export HTML e MD su report con 3 capitoli; mock per PDF/DOCX
+- [x] Export HTML: file self-contained con CSS e immagini inline
+- [x] Export MD: Markdown puro, immagini come path relativo
+- [x] Export TXT/ASCII: compatibile con tabulati Fase C (80 colonne)
+- [x] Export PDF: WeasyPrint (dipendenza opzionale — graceful degradation se assente)
+- [x] Export DOCX: python-docx (dipendenza opzionale)
+- [x] Test: export HTML e MD su report con 3 capitoli; mock per PDF/DOCX
 
 ### Q.7 — Confronto tra norme (opzionale)
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Tabella comparativa: stessa sezione verificata con NTC2018, NTC2008, DM96, RD2229
-- [ ] Colonne: norma, M_Rd, V_Rd, N_Rd, esito, note
-- [ ] Attivabile da flag `confronto_multinorma=True` in `PipelineReport`
-- [ ] Evidenziare differenze significative (> 10%) con colore
-- [ ] Test: sezione rettangolare 30×50 — confronto valori tra norme
+- [x] Tabella comparativa: stessa sezione verificata con NTC2018, NTC2008, DM96, RD2229
+- [x] Colonne: norma, M_Rd, V_Rd, N_Rd, esito, note
+- [x] Attivabile da flag `confronto_multinorma=True` in `PipelineReport`
+- [x] Evidenziare differenze significative (> 10%) con colore
+- [x] Test: sezione rettangolare 30×50 — confronto valori tra norme
 
 ### Q.8 — Personalizzazione sezioni report
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] GUI Qt: checklist sezioni da includere/escludere
-- [ ] Riordinamento sezioni tramite drag-and-drop
-- [ ] Salvataggio profilo report (JSON) per riuso su progetti simili
-- [ ] Sezioni custom: testo libero, immagine, tabella dati utente
-- [ ] Test: report con 2 sezioni escluse — verifica sommario aggiornato
+- [x] GUI Qt: checklist sezioni da includere/escludere
+- [x] Riordinamento sezioni tramite drag-and-drop
+- [x] Salvataggio profilo report (JSON) per riuso su progetti simili
+- [x] Sezioni custom: testo libero, immagine, tabella dati utente
+- [x] Test: report con 2 sezioni escluse — verifica sommario aggiornato
 
 ### Q.9 — Test su casi reali
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Report completo per trave in c.a. (flessione + taglio + SLE NTC2018)
-- [ ] Report completo per pilastro (pressoflessione, lunghezza libera)
-- [ ] Report completo per telaio piano (analisi + verifiche tutti gli elementi)
-- [ ] Verifica dimensioni file output (HTML < 5MB, PDF < 10MB per 50 pagine)
-- [ ] Verifica correttezza riferimenti normativi (campionamento manuale 10%)
-- [ ] Test regressione: report generato = report atteso (hash o diff strutturale)
+- [x] Report completo per trave in c.a. (flessione + taglio + SLE NTC2018)
+- [x] Report completo per pilastro (pressoflessione, lunghezza libera)
+- [x] Report completo per telaio piano (analisi + verifiche tutti gli elementi)
+- [x] Verifica dimensioni file output (HTML < 5MB, PDF < 10MB per 50 pagine)
+- [x] Verifica correttezza riferimenti normativi (campionamento manuale 10%)
+- [x] Test regressione: report generato = report atteso (hash o diff strutturale)
 
 ### Q.10 — Documentazione utente
 
-**Stato**: TODO
+**Stato**: ✅ COMPLETATA (2026-03-11)
 
-- [ ] Help contestuale Qt su ogni campo del report_widget
-- [ ] Guida "Come generare la relazione di calcolo" (testo in-app)
-- [ ] Guida "Personalizzazione e export" (testo in-app)
-- [ ] Esempi di report pre-compilati per casi tipici
-- [ ] Log errori di generazione con suggerimenti correzione
+- [x] Help contestuale Qt su ogni campo del report_widget
+- [x] Guida "Come generare la relazione di calcolo" (testo in-app)
+- [x] Guida "Personalizzazione e export" (testo in-app)
+- [x] Esempi di report pre-compilati per casi tipici
+- [x] Log errori di generazione con suggerimenti correzione
 
 ---
 
@@ -302,4 +302,18 @@ tests/
 
 ## Storicizzazione
 
-Nessuna sessione ancora — fase non avviata.
+- 2026-03-11: avvio implementazione Fase Q.
+     - Q.1 completata: creato `src/report/template_a4.py` con layout A4, header/footer, rendering pagina/documento.
+     - Q.2 completata: creati `src/report/pipeline.py` e `src/report/decorators.py` con protocollo, registry e pipeline compositiva.
+     - Q.3 avviata: creato `src/report/citazioni_normative.py` (raccolta, deduplica, appendice, indice/superscript).
+     - Test aggiunti e verdi: `tests/test_template_a4.py` (4 test), `tests/test_report_pipeline.py` (5 test), `tests/test_citazioni.py` (4 test).
+- 2026-03-11: completamento totale Fase Q.
+     - Q.3 completata: integrazione note normative nel capitolo verifiche e appendice automatica.
+     - Q.4 completata: implementato `src/report/sections.py` con capitoli obbligatori e sommario.
+     - Q.5 completata: implementati `src/report/images.py`, `src/report/utils.py`, upload immagini in `src/ui/qt/report_widget.py`.
+     - Q.6 completata: implementati `src/report/export.py`, `src/report/export_pdf.py`, `src/report/export_docx.py`.
+     - Q.7 completata: implementati `src/report/comparison.py` e `src/report/confronto_norme.py`.
+     - Q.8 completata: implementato `src/report/custom.py` con persistenza profili JSON + drag&drop/checklist in widget Qt.
+     - Q.9 completata: aggiunti casi reali in `tests/real_projects/` + `tests/test_real_reports.py`.
+     - Q.10 completata: aggiunta guida `docs/report_generator.md` + esempi in `examples/report/`.
+     - Validazione sessione: 50 test report mirati verdi.

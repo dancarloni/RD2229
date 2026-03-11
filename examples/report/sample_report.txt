@@ -1,0 +1,13 @@
+RELAZIONE DI CALCOLO
+--------------------
+
+1. DATI GENERALI
+- Progetto: Esempio fase Q
+- Normativa: NTC2018
+
+5. VERIFICHE
+Elemento  Esito  Metriche             Riferimento
+T1        OK     util: 0.72           NTC2018 §4.1.2.1.3 [1]
+
+APPENDICE NORMATIVA
+1. [NTC2018 §4.1.2.1.3]

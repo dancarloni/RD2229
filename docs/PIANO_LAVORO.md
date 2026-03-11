@@ -24,9 +24,9 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | 2449    |
+| Test totali        | 2481    |
 | Test falliti       | 0       |
-| Moduli implementati| 83+     |
+| Moduli implementati| 95+     |
 | Norme coperte      | 10      |
 
 ---
@@ -47,11 +47,11 @@
 | J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
 | K    | ✅    | 100 | 23f60cf       | [piano_fase_K.md](piano_fase_K.md) |
 | L    | ✅    | 100 | f041b45       | [piano_fase_L.md](piano_fase_L.md) |
-| M    | ✅    | 100 | <hash-cloud>  | [piano_fase_M.md](piano_fase_M.md) |
+| M    | ✅    | 100 | 1711c73       | [piano_fase_M.md](piano_fase_M.md) |
 | N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
 | O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) |
-| P    | ✅    | 100 | —             | [piano_fase_P.md](piano_fase_P.md) |
-| Q    | ⬜    | 0   | —             | [piano_fase_Q.md](piano_fase_Q.md) |
+| P    | ✅    | 100 | fb83147       | [piano_fase_P.md](piano_fase_P.md) |
+| Q    | ✅    | 100 | working tree   | [piano_fase_Q.md](piano_fase_Q.md) |
 | R    | ⬜    | 0   | —             | [piano_fase_R.md](piano_fase_R.md) |
 | S    | ⬜    | 0   | —             | [piano_fase_S.md](piano_fase_S.md) |
 | T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) |
@@ -73,10 +73,13 @@
 | 2026-03-09 | K    | K.1–K.4   | 23f60cf | Fase K completa: grafici, inviluppi, dominio interazione, spostamenti, export HTML                          |
 | 2026-03-09 | L    | L.1–L.10  | f041b45 | Fase L completa: telai piani Cross-Pozzati, GUI Qt, 40 test                                                 |
 | 2026-03-10 | X    | X.0       | —       | Creazione file piano_fase_X.md, separazione solai da Fase M, storicizzazione checklist e requisiti (sessione Copilot) |
-| 2026-03-10 | M    | M.1       | —       | Implementato nucleo locale FEM beam 2D (`src/fem/elemento_beam.py`), carichi equivalenti modulari, 16 test dedicati superati |
-| 2026-03-10 | M    | M.2–M.7   | <hash-cloud> | Completata pipeline FEM 2D (`src/fem/assemblaggio.py`, `condizioni_contorno.py`, `solutore.py`, `postprocessing.py`, `src/grafici/spostamenti.py`), 2350+ test aggiuntivi, validazione Cross-Pozzati, benchmark, storicizzazione |
-| 2026-03-10 | P    | P.1 + P.2 (avvio) | — | Avviata Fase P geotecnica: creato package `src/geotecnica` (models, utils, norme, fondazioni_superficiali, cedimenti), decisioni architetturali recepite (kg/cm² + conversione, DA1 set1/set2, Robertson-Campanella default), 12 test mirati verdi |
-| 2026-03-10 | P    | P.3–P.5 + P.6 | — | Completata Fase P: implementati `pali.py` (argilla/SPT/CPT, gruppo Converse-Labarre), `muri_sostegno.py` (Rankine, Coulomb, ribaltamento, scorrimento), `liquefazione.py` (CSR, CRR, MSF, IL, classificazione); 71 nuovi test (83 totali Fase P); aggiornato `__init__.py` e `models.py` con nuovi dataclass |
+| 2026-03-10 | M    | M.1       | 1711c73 | Implementato nucleo locale FEM beam 2D (`src/fem/elemento_beam.py`), carichi equivalenti modulari, 16 test dedicati superati |
+| 2026-03-10 | M    | M.2–M.7   | 1711c73 | Completata pipeline FEM 2D (`src/fem/assemblaggio.py`, `condizioni_contorno.py`, `solutore.py`, `postprocessing.py`, `src/grafici/spostamenti.py`), 2350+ test aggiuntivi, validazione Cross-Pozzati, benchmark, storicizzazione |
+| 2026-03-10 | P    | P.1 + P.2 (avvio) | fb83147 | Avviata Fase P geotecnica: creato package `src/geotecnica` (models, utils, norme, fondazioni_superficiali, cedimenti), decisioni architetturali recepite (kg/cm² + conversione, DA1 set1/set2, Robertson-Campanella default), 12 test mirati verdi |
+| 2026-03-10 | P    | P.3–P.5 + P.6 | fb83147 | Completata Fase P: implementati `pali.py` (argilla/SPT/CPT, gruppo Converse-Labarre), `muri_sostegno.py` (Rankine, Coulomb, ribaltamento, scorrimento), `liquefazione.py` (CSR, CRR, MSF, IL, classificazione); 71 nuovi test (83 totali Fase P); aggiornato `__init__.py` e `models.py` con nuovi dataclass |
+| 2026-03-11 | Q    | Q.1–Q.2 | —       | Avviata Fase Q: implementati `src/report/template_a4.py`, `src/report/pipeline.py`, `src/report/decorators.py`; aggiunti 9 test (`tests/test_template_a4.py`, `tests/test_report_pipeline.py`) tutti verdi |
+| 2026-03-11 | Q    | Q.3 (core) | —       | Implementato motore citazioni normative (`src/report/citazioni_normative.py`): raccolta da dataclass/dict, deduplica, indice e appendice; aggiunti test `tests/test_citazioni.py` verdi |
+| 2026-03-11 | Q    | Q.4–Q.10 | working tree | Completata Fase Q: builder professionale (`src/report/report_builder.py`), sezioni obbligatorie (`src/report/sections.py`), export multi-formato (`src/report/export.py`, `export_pdf.py`, `export_docx.py`), confronto norme (`comparison.py`), custom sections + profili (`custom.py`), widget Qt (`src/ui/qt/report_widget.py`), documentazione (`docs/report_generator.md`) ed esempi (`examples/report/`), test reali (`tests/test_real_reports.py`) |
 
 ---
 

@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.1.0",
+  "project_info": {
+    "name": "Trave CA NTC2018",
+    "description": "Caso reale semplificato: trave in c.a.",
+    "author": "RD2229"
+  },
+  "geometry": [
+    {
+      "id": "T1",
+      "type": "RECTANGULAR",
+      "width": 30.0,
+      "height": 50.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "C25",
+      "type": "concrete",
+      "material_class": "C25/30",
+      "f_ck": 250.0
+    },
+    {
+      "id": "B450C",
+      "type": "steel",
+      "material_class": "B450C",
+      "f_yk": 4500.0
+    }
+  ],
+  "loads": [
+    {
+      "element_id": "T1",
+      "N": 80.0,
+      "Mx": 45.0,
+      "Ty": 20.0,
+      "description": "SLU principale"
+    }
+  ],
+  "code_settings": {
+    "norm_code": "NTC2018",
+    "limit_states": ["SLU", "SLE"],
+    "units_force": "kN",
+    "units_length": "cm"
+  }
+}
