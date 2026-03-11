@@ -1,125 +1,14 @@
-
-=================================== ERRORS ====================================
-__________ ERROR collecting tests/test_fire_selection_eligibility.py __________
-ImportError while importing test module 'C:\Users\DanieleCarloni\RD2229\tests\test_fire_selection_eligibility.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests\test_fire_selection_eligibility.py:15: in <module>
-    from src.core.pipeline import run_pipeline
-src\core\pipeline.py:23: in <module>
-    from src.project.schema import ProjectModel
-src\project\schema.py:12: in <module>
-    from pydantic import BaseModel, Field
-E   ModuleNotFoundError: No module named 'pydantic'
-__________________ ERROR collecting tests/test_migration.py ___________________
-ImportError while importing test module 'C:\Users\DanieleCarloni\RD2229\tests\test_migration.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests\test_migration.py:11: in <module>
-    from src.project.repository import load_project, migrate_dict
-src\project\repository.py:23: in <module>
-    from src.project.schema import (
-src\project\schema.py:12: in <module>
-    from pydantic import BaseModel, Field
-E   ModuleNotFoundError: No module named 'pydantic'
-________________ ERROR collecting tests/test_pipeline_smoke.py ________________
-ImportError while importing test module 'C:\Users\DanieleCarloni\RD2229\tests\test_pipeline_smoke.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests\test_pipeline_smoke.py:14: in <module>
-    from src.core.pipeline import run_pipeline
-src\core\pipeline.py:23: in <module>
-    from src.project.schema import ProjectModel
-src\project\schema.py:12: in <module>
-    from pydantic import BaseModel, Field
-E   ModuleNotFoundError: No module named 'pydantic'
-______________ ERROR collecting tests/test_project_roundtrip.py _______________
-ImportError while importing test module 'C:\Users\DanieleCarloni\RD2229\tests\test_project_roundtrip.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests\test_project_roundtrip.py:8: in <module>
-    from src.project.repository import load_project, save_project
-src\project\repository.py:23: in <module>
-    from src.project.schema import (
-src\project\schema.py:12: in <module>
-    from pydantic import BaseModel, Field
-E   ModuleNotFoundError: No module named 'pydantic'
-_______________ ERROR collecting tests/test_reporting_smoke.py ________________
-ImportError while importing test module 'C:\Users\DanieleCarloni\RD2229\tests\test_reporting_smoke.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests\test_reporting_smoke.py:13: in <module>
-    from src.core.pipeline import run_pipeline
-src\core\pipeline.py:23: in <module>
-    from src.project.schema import ProjectModel
-src\project\schema.py:12: in <module>
-    from pydantic import BaseModel, Field
-E   ModuleNotFoundError: No module named 'pydantic'
-_____________ ERROR collecting tests/test_step5_adapter_smoke.py ______________
-ImportError while importing test module 'C:\Users\DanieleCarloni\RD2229\tests\test_step5_adapter_smoke.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests\test_step5_adapter_smoke.py:11: in <module>
-    from src.core.pipeline import run_pipeline
-src\core\pipeline.py:23: in <module>
-    from src.project.schema import ProjectModel
-src\project\schema.py:12: in <module>
-    from pydantic import BaseModel, Field
-E   ModuleNotFoundError: No module named 'pydantic'
-_________________ ERROR collecting tests/test_step5_merge.py __________________
-ImportError while importing test module 'C:\Users\DanieleCarloni\RD2229\tests\test_step5_merge.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests\test_step5_merge.py:11: in <module>
-    from src.core.pipeline import merge_element_results, run_pipeline
-src\core\pipeline.py:23: in <module>
-    from src.project.schema import ProjectModel
-src\project\schema.py:12: in <module>
-    from pydantic import BaseModel, Field
-E   ModuleNotFoundError: No module named 'pydantic'
-__________ ERROR collecting tests/test_wind_integration_pipeline.py ___________
-ImportError while importing test module 'C:\Users\DanieleCarloni\RD2229\tests\test_wind_integration_pipeline.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests\test_wind_integration_pipeline.py:11: in <module>
-    from src.core.pipeline import run_pipeline
-src\core\pipeline.py:23: in <module>
-    from src.project.schema import ProjectModel
-src\project\schema.py:12: in <module>
-    from pydantic import BaseModel, Field
-E   ModuleNotFoundError: No module named 'pydantic'
-=========================== short test summary info ===========================
-SKIPPED [1] tests\test_shapely_integration_optional.py:3: could not import 'shapely': No module named 'shapely'
-ERROR tests/test_fire_selection_eligibility.py
-ERROR tests/test_migration.py
-ERROR tests/test_pipeline_smoke.py
-ERROR tests/test_project_roundtrip.py
-ERROR tests/test_reporting_smoke.py
-ERROR tests/test_step5_adapter_smoke.py
-ERROR tests/test_step5_merge.py
-ERROR tests/test_wind_integration_pipeline.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+........................................................................ [ 10%]
+.......................................................................F [ 13%]
+FFFF.................................................................... [ 15%]
+........................................................................ [ 18%]
+......................s................................................. [ 21%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 29%]
+........................................................................ [ 31%]
+........................................................................ [ 34%]
+....................F

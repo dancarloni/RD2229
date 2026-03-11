@@ -24,10 +24,15 @@
 
 | Indicatore         | Valore  |
 |--------------------|---------|
-| Test totali        | 2481    |
-| Test falliti       | 0       |
+| Test totali        | 2717    |
+| Test falliti       | 6       |
+| Test saltati       | 7       |
 | Moduli implementati| 95+     |
 | Norme coperte      | 10      |
+
+**Nota:**
+- I test falliti sono dovuti a errori di importazione della CLI (`typer` non trovato) e a un test FEM che non solleva l’eccezione attesa.
+- I test saltati sono legati a dipendenze opzionali non presenti (PyQt6/PySide6, Hypothesis, Shapely).
 
 ---
 
