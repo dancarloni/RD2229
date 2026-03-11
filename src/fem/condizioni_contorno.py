@@ -180,10 +180,10 @@ def _elimina_gdl(
 ) -> tuple[csr_matrix, np.ndarray]:
     """Estrae la sotto-matrice e sotto-vettore relativi ai GDL liberi."""
     idx = np.array(gdl_liberi, dtype=int)
-    K_denso = K.toarray()
-    K_rid = K_denso[np.ix_(idx, idx)]
+    # Mantieni il formato sparso: estrai la sottomatrice con slicing CSR
+    K_rid = K[idx, :][:, idx].tocsr()
     F_rid = F[idx]
-    return csr_matrix(K_rid), F_rid
+    return K_rid, F_rid
 
 
 def _applica_penalty(
