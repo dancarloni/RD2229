@@ -8,9 +8,9 @@ import pytest
 
 from src.geotecnica.models import InputGruppoPali, InputPortanzaPalo, TipologiaPalo
 from src.geotecnica.pali import (
-    _fattore_adesione_argilla,
-    _area_punta_cm2,
     _area_laterale_cm2,
+    _area_punta_cm2,
+    _fattore_adesione_argilla,
     calcola_efficienza_gruppo,
     calcola_portanza_palo,
     efficienza_gruppo_converse_labarre,
@@ -21,7 +21,6 @@ from src.geotecnica.pali import (
     portanza_punta_cpt_kg,
     portanza_punta_spt_kg,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fattore di adesione α

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from src.codes.ntc2018.secondary_elements.speciali import (
     FamigliaSpeciale,
     check_sle,
@@ -10,7 +8,6 @@ from src.codes.ntc2018.secondary_elements.speciali import (
 )
 from src.codes.ntc2018.secondary_elements.speciali.models import (
     RisultatoComponenteSpeciale,
-    StatoDannoSLE,
 )
 
 

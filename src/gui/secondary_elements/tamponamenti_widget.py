@@ -12,20 +12,15 @@ Dipendenze:
 - matplotlib per visualizzazione 2D
 """
 
-import json
 import sys
-from dataclasses import asdict
-from pathlib import Path
 from typing import Optional
 
 try:
-    from PyQt5 import QtCore, QtGui, QtWidgets
-    from PyQt5.QtCore import Qt, pyqtSignal
+    from PyQt5 import QtWidgets
     from PyQt5.QtGui import QFont
     from PyQt5.QtWidgets import (
         QComboBox,
         QDoubleSpinBox,
-        QHBoxLayout,
         QLabel,
         QLineEdit,
         QMainWindow,
@@ -41,13 +36,11 @@ try:
 
     BACKEND = "PyQt5"
 except ImportError:
-    from PySide6 import QtCore, QtGui, QtWidgets
-    from PySide6.QtCore import Qt, Signal as pyqtSignal
+    from PySide6 import QtWidgets
     from PySide6.QtGui import QFont
     from PySide6.QtWidgets import (
         QComboBox,
         QDoubleSpinBox,
-        QHBoxLayout,
         QLabel,
         QLineEdit,
         QMainWindow,
@@ -64,7 +57,6 @@ except ImportError:
     BACKEND = "PySide6"
 
 try:
-    import matplotlib.pyplot as plt
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
     from matplotlib.figure import Figure
 
@@ -79,7 +71,6 @@ from src.codes.ntc2018.secondary_elements.tamponamenti import (
     TamponamentoSpec,
     TipoAncoraggio,
     TipoVincolo,
-    adatta_per_report,
     export_markdown,
     get_preset,
     lista_preset_disponibili,
@@ -684,6 +675,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    mainWindow = MainWindow()
-    mainWindow.show()
+    main_window = MainWindow()
+    main_window.show()
     sys.exit(app.exec_() if BACKEND == "PyQt5" else app.exec())

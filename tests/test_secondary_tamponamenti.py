@@ -7,10 +7,6 @@ Copertura:
 - Benchmark: validazione vs. letteratura
 """
 
-import math
-
-import pytest
-
 from src.codes.ntc2018.secondary_elements.tamponamenti import (
     PRESET_CLS_PREFABBRICATO,
     PRESET_MURATURA_TRADIZIONALE,
@@ -20,14 +16,12 @@ from src.codes.ntc2018.secondary_elements.tamponamenti import (
     StatoDannoSLE,
     TamponamentoSpec,
     TipoAncoraggio,
-    TipoVincolo,
     calcola_fa_locale,
     calcola_resistenza_ancoraggi,
     calcola_resistenza_pannello_fuori_piano,
     calcola_stato_danno_sle,
     get_preset,
     lista_preset_disponibili,
-    verifica_slu_tamponamento,
     verifica_tamponamento_completa,
 )
 

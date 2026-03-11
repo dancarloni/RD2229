@@ -10,8 +10,6 @@ from src.geotecnica.models import (
     GeometriaMuro,
     InputMuroSostegno,
     ParametriTerreno,
-    TipoMuro,
-    UnitaTensione,
 )
 from src.geotecnica.muri_sostegno import (
     ka_coulomb,
@@ -21,7 +19,6 @@ from src.geotecnica.muri_sostegno import (
     spinta_attiva_totale_kg_cm,
     verifica_muro_sostegno,
 )
-
 
 # ---------------------------------------------------------------------------
 # Coefficiente di spinta attiva Rankine

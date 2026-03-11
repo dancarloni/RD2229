@@ -9,7 +9,6 @@ Gestisce:
 
 import json
 from pathlib import Path
-from typing import Optional, dict, list
 
 from .models import SpecAncoraggio, TamponamentoSpec, TipoAncoraggio, TipoVincolo
 
@@ -19,7 +18,7 @@ PRESETS_PATH = (
 )
 
 
-def carica_presets_da_json(filepath: Optional[Path] = None) -> dict:
+def carica_presets_da_json(filepath: Path | None = None) -> dict:
     """
     Carica preset di tamponamenti da file JSON.
 
@@ -43,9 +42,9 @@ def carica_presets_da_json(filepath: Optional[Path] = None) -> dict:
         return {}
 
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
+    except (OSError, json.JSONDecodeError) as e:
         print(f"Errore nel caricamento preset: {e}")
         return {}
 
@@ -122,7 +121,7 @@ def crea_spec_da_preset(preset_data: dict) -> TamponamentoSpec:
     )
 
 
-def get_preset(nome: str, filepath: Optional[Path] = None) -> Optional[TamponamentoSpec]:
+def get_preset(nome: str, filepath: Path | None = None) -> TamponamentoSpec | None:
     """
     Estrae un preset per nome.
 
@@ -136,7 +135,7 @@ def get_preset(nome: str, filepath: Optional[Path] = None) -> Optional[Tamponame
     return crea_spec_da_preset(presets[nome])
 
 
-def lista_preset_disponibili(filepath: Optional[Path] = None) -> list[str]:
+def lista_preset_disponibili(filepath: Path | None = None) -> list[str]:
     """Ritorna lista dei preset disponibili."""
     presets = carica_presets_da_json(filepath)
     return list(presets.keys())
