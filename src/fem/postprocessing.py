@@ -35,13 +35,12 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.integrate as scint
 
 from .assemblaggio import ElementoFEM
-from .elemento_beam import BaseCaricoBeam, CaricoConcentrato
+from .elemento_beam import CaricoConcentrato
 
 logger = logging.getLogger("rd2229.fem.postprocessing")
 
