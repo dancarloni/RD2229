@@ -188,14 +188,32 @@ class SolutoreAnalitico(ISolutoreSpostamenti):
 
 
 class SolutoreFEM(ISolutoreSpostamenti):
-    """Stub per il solutore FEM — implementazione delegata alla Fase M.
+    """Solutore spostamenti basato su doppia integrazione di M(x)/EI.
 
-    Sarà integrato con il modulo FEM beam 2D (scipy sparse) sviluppato
-    nella Fase M del piano di lavoro (assemblaggio matrice di rigidezza globale).
+    Implementa il contratto ISolutoreSpostamenti per casi in cui il diagramma
+    dei momenti M(x) è già noto (es. trave isolata con BC semplicemente
+    appoggiate o ad incastro-appoggio).
 
-    Produce anche u(x) (spostamento orizzontale per telai piani) a differenza
-    di SolutoreAnalitico che restituisce u(x)=0.
+    Per l'analisi FEM completa di telai piani (assemblaggio K_G, applicazione
+    BC, soluzione sparsa, post-processing) utilizzare direttamente:
+        from src.fem import Assemblatore, ApplicatoreBC, SolutoreFEMSparso, PostProcessorFEM
+
+    Parametri
+    ---------
+    bc : str
+        Condizioni al contorno per la doppia integrazione.
+        Valori: "semplicemente_appoggiata" | "incastro_appoggio" | "doppio_incastro"
     """
+
+    _BC_VALIDI: frozenset[str] = frozenset(
+        {"semplicemente_appoggiata", "incastro_appoggio", "doppio_incastro"}
+    )
+
+    def __init__(self, bc: str = "semplicemente_appoggiata") -> None:
+        if bc not in self._BC_VALIDI:
+            raise ValueError(f"bc '{bc}' non valido. Scegliere tra: {self._BC_VALIDI}")
+        self.bc = bc
+        self._analitico = SolutoreAnalitico(bc=bc)
 
     def calcola(
         self,
@@ -205,9 +223,20 @@ class SolutoreFEM(ISolutoreSpostamenti):
         *,
         etichetta: str = "",
     ) -> DiagrammaSpostamenti:
-        raise NotImplementedError(
-            "SolutoreFEM sarà implementato nella Fase M (FEM beam 2D — scipy sparse). "
-            "Usare SolutoreAnalitico nel frattempo per travi isolate."
+        """Calcola v(x) tramite doppia integrazione numerica di M(x)/EI.
+
+        Delegato a SolutoreAnalitico con le stesse condizioni al contorno.
+        u(x) = 0: per lo spostamento orizzontale di telai, usare SolutoreFEMSparso.
+        """
+        risultato = self._analitico.calcola(
+            x_cm, M_kgcm, EI_kgcm2, etichetta=etichetta
+        )
+        return DiagrammaSpostamenti(
+            x_cm=risultato.x_cm,
+            v_cm=risultato.v_cm,
+            u_cm=risultato.u_cm,
+            etichetta=risultato.etichetta,
+            solutore="FEM",
         )
 
 

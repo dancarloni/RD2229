@@ -206,6 +206,14 @@ class BaseCaricoBeam(ABC):
     def calcola_vettore_equivalente(self, elemento: ElementoBeam) -> CaricoEquivalente:
         raise NotImplementedError
 
+    def intensita_trasversale(self, x: float, L: float) -> float:  # noqa: ARG002
+        """Intensità del carico trasversale (locale y) in kg/cm alla posizione x.
+
+        Ritorna 0 per carichi non distribuiti (concentrati, assiali, termici).
+        Sovrascrivere nelle sottoclassi distribuite.
+        """
+        return 0.0
+
 
 def _shape_functions_bending(x: float, l: float) -> np.ndarray:
     xi = x / l
@@ -244,6 +252,9 @@ class CaricoDistribuitoUniforme(BaseCaricoBeam):
     intensita: float
     direzione_locale: Literal["y", "x"] = "y"
 
+    def intensita_trasversale(self, x: float, L: float) -> float:  # noqa: ARG002
+        return self.intensita if self.direzione_locale == "y" else 0.0
+
     def calcola_vettore_equivalente(self, elemento: ElementoBeam) -> CaricoEquivalente:
         l = elemento.L
         q = self.intensita
@@ -278,6 +289,9 @@ class CaricoAssialeDistribuito(BaseCaricoBeam):
 class CaricoTriangolare(BaseCaricoBeam):
     intensita_massima: float
 
+    def intensita_trasversale(self, x: float, L: float) -> float:
+        return self.intensita_massima * x / L if L > 0.0 else 0.0
+
     def calcola_vettore_equivalente(self, elemento: ElementoBeam) -> CaricoEquivalente:
         l = elemento.L
         qmax = self.intensita_massima
@@ -301,6 +315,9 @@ class CaricoTriangolare(BaseCaricoBeam):
 @dataclass(frozen=True)
 class CaricoTriangolareInverso(BaseCaricoBeam):
     intensita_massima: float
+
+    def intensita_trasversale(self, x: float, L: float) -> float:
+        return self.intensita_massima * (1.0 - x / L) if L > 0.0 else 0.0
 
     def calcola_vettore_equivalente(self, elemento: ElementoBeam) -> CaricoEquivalente:
         l = elemento.L
@@ -327,6 +344,9 @@ class CaricoTrapezoidale(BaseCaricoBeam):
     intensita_i: float
     intensita_j: float
 
+    def intensita_trasversale(self, x: float, L: float) -> float:
+        return self.intensita_i + (self.intensita_j - self.intensita_i) * x / L if L > 0.0 else 0.0
+
     def calcola_vettore_equivalente(self, elemento: ElementoBeam) -> CaricoEquivalente:
         uniforme = CaricoDistribuitoUniforme(self.intensita_i)
         delta = self.intensita_j - self.intensita_i
@@ -351,6 +371,9 @@ class CaricoDistribuitoGenerico(BaseCaricoBeam):
     descrizione: str = "Carico distribuito generico"
     n_punti_integrazione: int = 8
 
+    def intensita_trasversale(self, x: float, L: float) -> float:
+        return self.funzione_intensita(x, L)
+
     def calcola_vettore_equivalente(self, elemento: ElementoBeam) -> CaricoEquivalente:
         vector4 = _integrate_transverse_load(
             elemento,
@@ -367,6 +390,9 @@ class CaricoDistribuitoGenerico(BaseCaricoBeam):
 @dataclass(frozen=True)
 class CaricoParabolico(BaseCaricoBeam):
     intensita_massima: float
+
+    def intensita_trasversale(self, x: float, L: float) -> float:
+        return self.intensita_massima * (x / L) ** 2 if L > 0.0 else 0.0
 
     def calcola_vettore_equivalente(self, elemento: ElementoBeam) -> CaricoEquivalente:
         generico = CaricoDistribuitoGenerico(
