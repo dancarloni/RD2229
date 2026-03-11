@@ -8,7 +8,6 @@ from src.codes.ntc2018.secondary_elements.parapetti import (
     TipoParapetto,
     check_sle,
     check_slu,
-    spec_from_dict,
     verifica_parapetto_completa,
 )
 from src.codes.ntc2018.secondary_elements.parapetti.models import RisultatoParapetto, StatoDannoSLE

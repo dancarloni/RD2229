@@ -25,7 +25,6 @@ from .models import (
     StratoLiquefazione,
 )
 
-
 # ---------------------------------------------------------------------------
 # Parametri limite
 # ---------------------------------------------------------------------------
@@ -119,7 +118,7 @@ def calcola_msf(magnitudo: float) -> float:
 
     if magnitudo <= 0:
         raise ValueError("magnitudo deve essere > 0")
-    return (10.0**2.24) / (magnitudo**2.56)
+    return float((10.0**2.24) / (magnitudo**2.56))
 
 
 # ---------------------------------------------------------------------------

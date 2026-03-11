@@ -26,8 +26,9 @@ from __future__ import annotations
 
 import math
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Literal
+from typing import Literal
 
 import numpy as np
 
@@ -52,7 +53,7 @@ class CaricoEquivalente:
     def __post_init__(self) -> None:
         object.__setattr__(self, "vettore_locale", _vector6(self.vettore_locale))
 
-    def __add__(self, other: "CaricoEquivalente") -> "CaricoEquivalente":
+    def __add__(self, other: CaricoEquivalente) -> CaricoEquivalente:
         return CaricoEquivalente(
             vettore_locale=self.vettore_locale + other.vettore_locale,
             descrizione=f"{self.descrizione} + {other.descrizione}",
@@ -168,7 +169,7 @@ class ElementoBeam:
             ),
         )
 
-    def combina_carichi(self, carichi: list["BaseCaricoBeam"]) -> CaricoEquivalente:
+    def combina_carichi(self, carichi: list[BaseCaricoBeam]) -> CaricoEquivalente:
         totale = np.zeros(6, dtype=float)
         passaggi: list[str] = []
         descrizioni: list[str] = []

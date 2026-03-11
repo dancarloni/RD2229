@@ -194,6 +194,18 @@ def _dispatch_ntc2018(
             base,
         )
 
+    # Fallback generico NTC2018 §7.2.3 per tipi di elemento non specificati
+    from src.codes.ntc2018.secondary_elements import checks as _checks
+
+    if limit_state == "SLU":
+        return _normalize_result(_checks.check_slu(inputs), base)
+    if limit_state == "SLE":
+        return _normalize_result(_checks.check_sle(inputs), base)
+    return _normalize_result(
+        {"esito": "ERROR", "messages": [f"Unsupported limit state '{limit_state}'"]},
+        base,
+    )
+
 
 def _dispatch_dm96(
     inputs: dict[str, Any], limit_state: str, base: dict[str, Any]
