@@ -117,16 +117,35 @@ class SolutoreFEMSparso:
         passaggi.append("Solver: scipy.sparse.linalg.spsolve")
 
         # Verifica che la matrice non sia singolare (rango pieno)
-        # Controllo leggero: diagonale vicina a zero indica problemi
+        # Controllo leggero: diagonale vicina a zero indica problemi.
+        # Usa una scala robusta (mediana) per evitare che pochi valori enormi
+        # (p.es. da metodo penalty) mascherino elementi quasi-nulli.
         diagonale = K_rid.diagonal()
-        diag_max = float(np.max(np.abs(diagonale))) + 1e-30
-        if np.any(np.abs(diagonale) < 1e-10 * diag_max):
+        abs_diag = np.abs(diagonale)
+
+        # Zeri esatti sulla diagonale sono sempre un errore
+        if np.any(abs_diag == 0.0):
             raise ValueError(
                 "Matrice K_G ridotta ha elementi diagonali nulli o quasi-nulli. "
                 "Verificare che le condizioni al contorno siano sufficienti "
                 "a eliminare i modi rigidi della struttura."
             )
 
+        # Scala robusta basata sulla mediana dei valori assoluti
+        diag_scale = float(np.median(abs_diag))
+        if diag_scale <= 0.0:
+            raise ValueError(
+                "Matrice K_G ridotta ha elementi diagonali nulli o quasi-nulli. "
+                "Verificare che le condizioni al contorno siano sufficienti "
+                "a eliminare i modi rigidi della struttura."
+            )
+
+        if np.any(abs_diag < 1e-8 * diag_scale):
+            raise ValueError(
+                "Matrice K_G ridotta ha elementi diagonali nulli o quasi-nulli. "
+                "Verificare che le condizioni al contorno siano sufficienti "
+                "a eliminare i modi rigidi della struttura."
+            )
         if self.calcola_condizionamento:
             try:
                 cond = np.linalg.cond(K_rid.toarray())
