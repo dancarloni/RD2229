@@ -1,0 +1,32 @@
+[
+    {
+        "nome": "modulare_gesso_standard",
+        "tipo": "modulare_gesso",
+        "area_m2": 50.0,
+        "massa_superficiale_kg_m2": 15.0,
+        "passo_pendini_cm": 100.0,
+        "presenza_controventi": true,
+        "gioco_perimetrale_mm": 30.0,
+        "numero_pendini": 12
+    },
+    {
+        "nome": "lastra_continua_pvc",
+        "tipo": "lastra_continua",
+        "area_m2": 80.0,
+        "massa_superficiale_kg_m2": 20.0,
+        "passo_pendini_cm": 80.0,
+        "presenza_controventi": true,
+        "gioco_perimetrale_mm": 40.0,
+        "numero_pendini": 16
+    },
+    {
+        "nome": "tecnico_aperto_leggero",
+        "tipo": "tecnico_aperto",
+        "area_m2": 60.0,
+        "massa_superficiale_kg_m2": 10.0,
+        "passo_pendini_cm": 120.0,
+        "presenza_controventi": true,
+        "gioco_perimetrale_mm": 35.0,
+        "numero_pendini": 10
+    }
+]

@@ -1,0 +1,22 @@
+[
+    {
+        "nome": "tubazione_sospesa_standard",
+        "categoria": "tubazione_sospesa",
+        "massa_kg": 40.0,
+        "quota_cm": 250.0,
+        "tipo_supporto": "sospensione",
+        "numero_ancoraggi": 2,
+        "presenza_giunto_flessibile": true,
+        "lunghezza_percorso_m": 5.0
+    },
+    {
+        "nome": "canale_aria_da",
+        "categoria": "canale_aria",
+        "massa_kg": 35.0,
+        "quota_cm": 280.0,
+        "tipo_supporto": "sospensione",
+        "numero_ancoraggi": 3,
+        "presenza_giunto_flessibile": true,
+        "lunghezza_percorso_m": 8.0
+    }
+]

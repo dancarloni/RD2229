@@ -19,8 +19,15 @@ def save_secondary_element(record: dict[str, Any]) -> str:
     Se il record ha già un 'id', lo usa; altrimenti ne genera uno.
     """
     record_id = record.get("id") or str(uuid.uuid4())
-    record["id"] = record_id
-    _STORAGE[record_id] = record
+    normalized = dict(record)
+    normalized["id"] = record_id
+    normalized.setdefault("element_type", record.get("element_type", "generic"))
+    normalized.setdefault("norm_code", record.get("norm_code", "NTC2018"))
+    normalized.setdefault("phase_id", record.get("phase_id"))
+    normalized.setdefault("preset_id", record.get("preset_id"))
+    normalized.setdefault("trace_id", record.get("trace_id"))
+    normalized.setdefault("decision_log", record.get("decision_log", []))
+    _STORAGE[record_id] = normalized
     return record_id
 
 
@@ -32,6 +39,14 @@ def load_secondary_element(record_id: str) -> dict[str, Any] | None:
 def list_secondary_elements() -> list[str]:
     """Restituisce la lista degli ID degli elementi salvati."""
     return list(_STORAGE.keys())
+
+
+def list_secondary_element_records(element_type: str | None = None) -> list[dict[str, Any]]:
+    """Restituisce i record salvati, opzionalmente filtrati per tipo."""
+    values = list(_STORAGE.values())
+    if element_type is None:
+        return values
+    return [record for record in values if record.get("element_type") == element_type]
 
 
 def delete_secondary_element(record_id: str) -> bool:

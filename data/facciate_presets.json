@@ -1,0 +1,22 @@
+[
+    {
+        "nome": "curtain_wall_standard",
+        "sistema": "curtain_wall",
+        "modulo_luce_cm": 120.0,
+        "massa_superficiale_kg_m2": 50.0,
+        "tipo_sottostruttura": "alluminio",
+        "tipo_ancoraggio": "regolabile",
+        "area_m2": 50.0,
+        "drift_capacita_perc": 1.2
+    },
+    {
+        "nome": "ventilata_leggera",
+        "sistema": "ventilata",
+        "modulo_luce_cm": 100.0,
+        "massa_superficiale_kg_m2": 35.0,
+        "tipo_sottostruttura": "acciaio_zincato",
+        "tipo_ancoraggio": "fisso",
+        "area_m2": 120.0,
+        "drift_capacita_perc": 1.8
+    }
+]

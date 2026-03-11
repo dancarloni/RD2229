@@ -1,0 +1,10 @@
+[
+    {
+        "nome": "camino_muratura_base",
+        "tipo": "muratura",
+        "altezza_cm": 400.0,
+        "massa_totale_kg": 800.0,
+        "vincolo_base": "fisso",
+        "controventato": false
+    }
+]

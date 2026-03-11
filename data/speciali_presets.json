@@ -1,0 +1,12 @@
+[
+    {
+        "nome": "insegna_bandiera_piccola",
+        "famiglia": "insegna_bandiera",
+        "massa_kg": 50.0,
+        "schema_statico": "mensola",
+        "esposizione_esterna": true,
+        "tipo_supporto": "staffa_fissa",
+        "grado_mobilita": "fisso",
+        "supporti_numero": 1
+    }
+]

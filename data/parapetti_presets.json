@@ -1,0 +1,48 @@
+[
+    {
+        "nome": "parapetto_continuo_muratura_base",
+        "tipo": "continuo_muratura",
+        "altezza_cm": 120.0,
+        "lunghezza_cm": 500.0,
+        "massa_lineare_kg_m": 200.0,
+        "tipo_ancoraggio": "base_continua",
+        "resistenza_ancoraggio_kn": null,
+        "comportamento_fragile": false,
+        "vincoli_laterali": true
+    },
+    {
+        "nome": "parapetto_continuo_acciaio",
+        "tipo": "continuo_acciaio",
+        "altezza_cm": 150.0,
+        "lunghezza_cm": 600.0,
+        "massa_lineare_kg_m": 250.0,
+        "tipo_ancoraggio": "base_continua",
+        "resistenza_ancoraggio_kn": 12.0,
+        "comportamento_fragile": false,
+        "vincoli_laterali": true
+    },
+    {
+        "nome": "parapetto_montanti_acciaio",
+        "tipo": "montanti_acciaio",
+        "altezza_cm": 140.0,
+        "lunghezza_cm": 800.0,
+        "massa_lineare_kg_m": 180.0,
+        "tipo_ancoraggio": "tasselli_puntuali",
+        "interasse_montanti_cm": 100.0,
+        "numero_montanti": 8,
+        "resistenza_ancoraggio_kn": 10.5,
+        "comportamento_fragile": false,
+        "vincoli_laterali": true
+    },
+    {
+        "nome": "parapetto_vetrato",
+        "tipo": "vetrato",
+        "altezza_cm": 110.0,
+        "lunghezza_cm": 400.0,
+        "massa_lineare_kg_m": 150.0,
+        "tipo_ancoraggio": "chimico",
+        "resistenza_ancoraggio_kn": 7.5,
+        "comportamento_fragile": true,
+        "vincoli_laterali": false
+    }
+]

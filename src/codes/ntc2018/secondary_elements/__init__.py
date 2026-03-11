@@ -1,7 +1,34 @@
-"""
-ntc2018.secondary_elements — package (skeleton)
+"""Package NTC2018 per elementi secondari.
+
+Contiene il nucleo generico legacy e i package tipizzati delle fasi S1-S9.
 """
 
-from . import checks, models, storage_adapter
+from . import (
+    camini,
+    checks,
+    common,
+    controsoffitti,
+    facciate,
+    impianti,
+    models,
+    parapetti,
+    scaffalature,
+    speciali,
+    storage_adapter,
+    tramezzi,
+)
 
-__all__ = ["models", "checks", "storage_adapter"]
+__all__ = [
+    "models",
+    "checks",
+    "storage_adapter",
+    "common",
+    "tramezzi",
+    "parapetti",
+    "controsoffitti",
+    "impianti",
+    "facciate",
+    "camini",
+    "scaffalature",
+    "speciali",
+]

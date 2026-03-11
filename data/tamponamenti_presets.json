@@ -1,0 +1,149 @@
+{
+    "muratura_tradizionale_laterizio": {
+        "tipologia": "muratura in laterizio portante",
+        "geometria": {
+            "altezza_cm": 300.0,
+            "larghezza_cm": 400.0,
+            "spessore_cm": 12.0
+        },
+        "massa_superficiale_kg_m2": 240.0,
+        "resistenza_compressione_mpa": 2.5,
+        "resistenza_taglio_mpa": 0.3,
+        "vincolo_superiore": "incastro_perfetto",
+        "vincolo_inferiore": "incastro_perfetto",
+        "controvento_laterale": false,
+        "drift_capacita_perc": 1.5,
+        "area_aperture_cm2": 0.0,
+        "numero_aperture": 0,
+        "ancoraggi": [
+            {
+                "tipo": "vite_metallo",
+                "diametro_mm": 10.0,
+                "materiale": "acciaio C45",
+                "resistenza_trazione_mpa": 400.0,
+                "resistenza_taglio_mpa": 250.0,
+                "numero_fissaggi": 8,
+                "interasse_mm": 100.0
+            }
+        ],
+        "note_decisionali": "Tamponamento in laterizio tradizionale su struttura in c.a. Verificato per azione sismica in piano perpendicolare al pannello."
+    },
+    "cls_prefabbricato_leggero": {
+        "tipologia": "cls prefabbricato leggero",
+        "geometria": {
+            "altezza_cm": 280.0,
+            "larghezza_cm": 350.0,
+            "spessore_cm": 15.0
+        },
+        "massa_superficiale_kg_m2": 350.0,
+        "resistenza_compressione_mpa": 25.0,
+        "resistenza_taglio_mpa": 2.0,
+        "vincolo_superiore": "incastro_perfetto",
+        "vincolo_inferiore": "cerniera_orizzontale",
+        "controvento_laterale": false,
+        "drift_capacita_perc": 2.0,
+        "area_aperture_cm2": 0.0,
+        "numero_aperture": 0,
+        "ancoraggi": [
+            {
+                "tipo": "tassello_chimico",
+                "diametro_mm": 12.0,
+                "materiale": "resina epossidica",
+                "resistenza_trazione_mpa": 350.0,
+                "resistenza_taglio_mpa": 200.0,
+                "numero_fissaggi": 6,
+                "profondita_ancoraggio_mm": 80.0
+            }
+        ],
+        "note_decisionali": "Pannello prefabbricato in cls leggero con ancoraggio chimico. Superiore rigido, inferiore cerniera per limitare effetti di ritiro."
+    },
+    "facciata_leggera_alluminio": {
+        "tipologia": "facciata leggera in alluminio",
+        "geometria": {
+            "altezza_cm": 250.0,
+            "larghezza_cm": 300.0,
+            "spessore_cm": 8.0
+        },
+        "massa_superficiale_kg_m2": 80.0,
+        "resistenza_compressione_mpa": null,
+        "resistenza_taglio_mpa": null,
+        "vincolo_superiore": "incastro_perfetto",
+        "vincolo_inferiore": "appoggio_libero",
+        "controvento_laterale": true,
+        "rigidezza_controvento_elastico_kg_cm": 5.0,
+        "drift_capacita_perc": 2.5,
+        "area_aperture_cm2": 0.0,
+        "numero_aperture": 0,
+        "ancoraggi": [
+            {
+                "tipo": "vite_metallo",
+                "diametro_mm": 8.0,
+                "materiale": "acciaio inox A4",
+                "resistenza_trazione_mpa": 350.0,
+                "resistenza_taglio_mpa": 200.0,
+                "numero_fissaggi": 12,
+                "interasse_mm": 50.0
+            }
+        ],
+        "note_decisionali": "Facciata leggera con sottostruttura metallica e controventi laterali elastici. Verifica dinamica altamente consigliata per sistemi semi-rigidi."
+    },
+    "muratura_con_aperture": {
+        "tipologia": "muratura in laterizio tradizionale con aperture",
+        "geometria": {
+            "altezza_cm": 320.0,
+            "larghezza_cm": 480.0,
+            "spessore_cm": 12.0
+        },
+        "massa_superficiale_kg_m2": 230.0,
+        "resistenza_compressione_mpa": 2.0,
+        "resistenza_taglio_mpa": 0.25,
+        "vincolo_superiore": "incastro_perfetto",
+        "vincolo_inferiore": "incastro_perfetto",
+        "controvento_laterale": false,
+        "drift_capacita_perc": 1.2,
+        "area_aperture_cm2": 18000.0,
+        "numero_aperture": 4,
+        "ancoraggi": [
+            {
+                "tipo": "vite_metallo",
+                "diametro_mm": 10.0,
+                "materiale": "acciaio C45",
+                "resistenza_trazione_mpa": 400.0,
+                "resistenza_taglio_mpa": 250.0,
+                "numero_fissaggi": 12,
+                "interasse_mm": 80.0
+            }
+        ],
+        "note_decisionali": "Tamponamento in muratura con più aperture (finestre). Area netta ridotta; fattore di riduzione sulla resistenza."
+    },
+    "sandwitch_isolante": {
+        "tipologia": "pannello sandwich in poliuretano espanso",
+        "geometria": {
+            "altezza_cm": 270.0,
+            "larghezza_cm": 330.0,
+            "spessore_cm": 10.0
+        },
+        "massa_superficiale_kg_m2": 15.0,
+        "resistenza_compressione_mpa": null,
+        "resistenza_taglio_mpa": 0.1,
+        "vincolo_superiore": "cerniera_orizzontale",
+        "vincolo_inferiore": "appoggio_libero",
+        "controvento_laterale": true,
+        "rigidezza_controvento_elastico_kg_cm": 2.0,
+        "drift_capacita_perc": 3.0,
+        "area_aperture_cm2": 0.0,
+        "numero_aperture": 0,
+        "ancoraggi": [
+            {
+                "tipo": "tassello_meccanico",
+                "diametro_mm": 8.0,
+                "materiale": "tassello in poliammide",
+                "resistenza_trazione_mpa": 150.0,
+                "resistenza_taglio_mpa": 80.0,
+                "numero_fissaggi": 16,
+                "profondita_ancoraggio_mm": 60.0
+            }
+        ],
+        "note_decisionali": "Pannello sandwich industriale a bassa massa. Elevata deformabilità ammessa; controventi essenziali per stabilità laterale."
+    }
+}

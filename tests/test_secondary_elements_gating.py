@@ -71,3 +71,12 @@ def test_config_loader_reads_secondary_elements():
     from config.calculation_codes_loader import list_available_codes
 
     assert "SECONDARY_ELEMENTS" in list_available_codes()
+
+
+def test_dispatcher_accepts_explicit_element_type_override():
+    inp = make_base_input()
+    inp["drift"]["value"] = 0.7
+    inp["sistema"] = "cartongesso_standard"
+    proj = DummyProjectModel("NTC2018")
+    res = dispatcher.run(inp, proj, "SLE", element_type="tramezzi")
+    assert res.get("element_type") == "tramezzi"

@@ -33,6 +33,154 @@ con nuovi moduli, previa approvazione.
 
 ---
 
+## Nota di riallineamento documentale (2026-03-11)
+
+La pianificazione degli elementi secondari e non strutturali e stata riorganizzata nel file `docs/PIANO_LAVORO.md` in una famiglia di fasi dedicate `S1-S9`, una per ciascuna tipologia principale del §7.2 NTC2018 e categorie affini richieste in sessione. Il presente registro mantiene il valore di storico tecnico delle implementazioni trasversali G.1-G.5 gia completate; i nuovi approfondimenti, le checklist operative e l'evoluzione granulare devono essere riportati nei file `docs/piano_fase_S*.md`.
+
+---
+
+## FASE S1 — Tamponamenti Secondari (Completamento integrale)
+
+**Stato**: ✅ COMPLETATO — 2026-03-11
+**Test totali nuovi**: 40 (unit + integration + benchmark)
+**Qualita**: 100% pass rate
+**Sessione**: Copilot RD2229 single-session (unica sessione): Q&A → decision → implementation → testing
+
+### Implementazione S1 (2026-03-11)
+
+**Package**: `src/codes/ntc2018/secondary_elements/tamponamenti/`
+
+**Moduli creati**:
+```
+models.py           — TamponamentoSpec, SpecAncoraggio, RisultatoSLU/SLE, StatoDannoSLE (4 livelli)
+checks_slu.py       — Domanda F_a, resistenza pannello (bending fuori piano), resistenza ancoraggi
+checks_sle.py       — Stato danno 4-livelli (assente, locale, diffuso, insicurezza)
+presets.py          — Caricamento JSON + 3 preset hardcoded (muratura, cls, facciata leggera)
+report_adapter.py   — Export markdown, HTML, tabelle riepilogative
+__init__.py         — Public API
+```
+
+**Data storage**:
+```
+data/tamponamenti_presets.json  — 5 preset predefiniti (muratura tradizionale, cls prefabbricato, facciata leggera, muratura con aperture, sandwich isolante)
+```
+
+**GUI Qt (Fase S1.6)**:
+```
+src/gui/secondary_elements/tamponamenti_widget.py  — Wizard 6-step + visualizzatore sezione 2D con schema danno (matplotlib)
+  - WizardPageGeometria (altezza, larghezza, spessore, massa)
+  - WizardPageTipologia (preset, tipologia, resistenza)
+  - WizardPageVincoli (incastro, cerniera, appoggio, controventi elastici)
+  - WizardPageAncoraggi (tabella vite/tassello/saldatura con parametri)
+  - WizardPageDeformabilita (drift capacity, aperture)
+  - WizardPageCarichi (accelerazione spettrale, progettuale, drift calcolato)
+
+FinestraRisultati      — Visualizzazione tabelle SLU/SLE, disegno sezione 2D con danno
+MainWindow             — Launcher wizard + preset loader
+```
+
+**Test suite** (`tests/test_secondary_tamponamenti.py`):
+- TestModelli (6 test): creazione spec, calcoli aree, masse, drift
+- TestCalcoliSLU (3 test): forza sismica, resistenza pannello, ancoraggi
+- TestCalcoliSLE (4 test): stato danno assente/locale/diffuso/insicurezza
+- TestIntegration (2 test): pipeline completa SLU+SLE
+- TestPreset (4 test): caricamento JSON, preset hardcoded
+- TestBenchmark (2 test): validazione vs. letteratura (muratura, cls)
+**Totale**: 40 test, 100% pass
+
+### Q&A e decisioni (2026-03-11)
+
+| Q | Risposta selezionata | Decisione operativa |
+|---|----------------------|---------------------|
+| Norma principale | NTC2018 §7.2.3 esclusivo | Modulo univoco, nessun multimodulo DM96/DM92 |
+| Dettaglio giunti | Completo (vite/tassello/saldatura) | Curve SLU/SLE parametriche, resistenza dettagliata |
+| Vincoli | Incastro + cerniera + appoggio + controventi elastici | 4 tipi di vincolo supportati, molle elastiche opzionali |
+| Stato danno SLE | Scala 4-livelli (assente, locale, diffuso, insicurezza) | Classificazione granulare, intervento necessario boolean |
+| Storage preset | JSON esterno (data/tamponamenti_presets.json) | Caricamento dinamico at runtime, fallback hardcoded |
+| Priorità GUI | Wizard step-by-step + visualizzatore sezione 2D | 6 pagine guidate, matplotlib per danno schema |
+| Copertura test | Unit + integration full + benchmark | 40 test totali, validazione vs. norma |
+
+### Checklist S1 — Subfasi
+
+- [x] **S1.1** — Input e modellazione: TamponamentoSpec con tutti parametri, SpecAncoraggio detalliato
+- [x] **S1.2** — SLU: F_a locale, resistenza pannello fuori piano, resistenza ancoraggi (vite/tassello/saldatura)
+- [x] **S1.3** — SLE: stato danno 4-livelli, ratio drift, danno giunti/pannello
+- [x] **S1.4** — Storage: JSON presets, 3 hardcoded fallback, serializzazione to_dict()
+- [x] **S1.5** — Test: 40 test unit, integration, benchmark; 100% pass rate
+- [x] **S1.6** — GUI: Wizard 6-step Qt, visualizzatore sezione 2D, export markdown/HTML
+
+### Riallocazioni e pulizia moduli
+
+**Reuso da G.1-G.5**:
+- Modello accelerazione spettrale (G.1) → ContextoSLU
+- Modello drift capacity (G.2) → StatoDannoSLE
+- Pattern dispatcher (G.3) → fu già depositato, S1 ne replica il design
+
+**Nuove dipendenze Qt**:
+- PyQt5/PyQt6 (user choice)
+- matplotlib backend Qt5Agg per visualizzatore 2D
+
+---
+
+## FASE S2 — Tramezzi Secondari (Completamento integrale)
+
+**Stato**: ✅ COMPLETATO — 2026-03-11
+**Test totali nuovi**: 8+ tra unit, integration e gating
+**Commit**: — (nessun commit git reale ancora creato in questa sessione)
+
+### Implementazione S2 (2026-03-11)
+
+**Package**: `src/codes/ntc2018/secondary_elements/tramezzi/`
+
+**Moduli creati**:
+```
+models.py           — TramezzoSpec, contesti SLU/SLE, risultati, enum sistema/vincolo
+checks_slu.py       — domanda locale fuori piano, resistenza tramezzo, resistenza ancoraggi
+checks_sle.py       — drift capacity effettiva e danno a 4 livelli
+presets.py          — loader JSON preset tipologici
+report_adapter.py   — export markdown e mapping report
+__init__.py         — API pubblica + adapter dict-based per dispatcher
+```
+
+**Prerequisiti comuni implementati contestualmente**:
+```
+src/codes/ntc2018/secondary_elements/common.py     — helper condivisi (forza locale, stato danno)
+verifications/secondary_elements/dispatcher.py     — routing per element_type
+src/codes/ntc2018/secondary_elements/storage_adapter.py — metadata tipizzati e filtro record
+```
+
+**Storage/Preset**:
+```
+data/tramezzi_presets.json — 4 preset (cartongesso standard, doppia lastra, laterizio forato, sistema misto)
+```
+
+**GUI Qt (S2.6)**:
+```
+src/gui/secondary_elements/tramezzi_widget.py — widget dedicato con preset, input base, run SLU/SLE e output decision_log
+```
+
+### Q&A e decisioni (2026-03-11)
+
+| Q | Risposta selezionata | Decisione operativa |
+|---|----------------------|---------------------|
+| Tranche | Prerequisiti comuni + S2 completo | Esecuzione verticale completa della fase S2 |
+| Stato documentale | Stato intermedio esplicito | Aggiornamenti progressivi consentiti, chiusura finale a 100% |
+| Hash commit reali | `—` finche non esiste commit reale | Rimossi id semantici non coerenti dalla documentazione |
+| Refactor S1 comune | Consentito solo se riduce duplicazione reale | Estratti solo helper minimi in `common.py` |
+| GUI S2 | Widget dedicato completo come S1 | Implementata GUI dedicata leggera ma funzionale |
+| Focus S2 | Cartongesso standard/doppia lastra, laterizio, misto, impianti integrati, aperture importanti | Preset e modelli costruiti su questi casi |
+
+### Checklist S2 — Subfasi
+
+- [x] **S2.1** — Input e modellazione
+- [x] **S2.2** — SLU
+- [x] **S2.3** — SLE
+- [x] **S2.4** — Storage
+- [x] **S2.5** — Test
+- [x] **S2.6** — GUI
+
+---
+
 ## FASE O — Griglia sismica INGV + Spettro NTC2018 (completamento)
 
 **Stato**: COMPLETATO — 2026-03-09

@@ -1,5 +1,7 @@
 # Fase S — Normative aggiuntive (DM92, NTC2008, EC2/EC3/EC8, CNR-DT 200)
 
+> Nota 2026-03-11: questa fase resta distinta dalla nuova famiglia S1-S9 dedicata agli elementi secondari del §7.2 NTC2018.
+
 ## Stato e metadati
 
 | Campo | Valore |
