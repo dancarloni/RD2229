@@ -160,7 +160,7 @@ class SolutoreFEMSparso:
         except Exception as exc:
             raise RuntimeError(
                 f"spsolve fallito: {exc}. "
-                "Probabile causa: matrice singolare (struttura labille o BC insufficienti)."
+                "Probabile causa: matrice singolare (struttura labile o BC insufficienti)."
             ) from exc
         t_fine = time.perf_counter()
         tempo = t_fine - t_start
