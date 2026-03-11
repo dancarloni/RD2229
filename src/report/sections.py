@@ -179,7 +179,9 @@ def _normalize_ref(value: Any) -> str:
         norm_code = str(value.get("norm_code", "")).strip()
         paragraph = str(value.get("paragraph", "")).strip()
         if norm_code and paragraph:
-            return f"{norm_code} §{paragraph}" if "§" not in paragraph else f"{norm_code} {paragraph}"
+            return (
+                f"{norm_code} §{paragraph}" if "§" not in paragraph else f"{norm_code} {paragraph}"
+            )
     return ""
 
 

@@ -27,10 +27,10 @@ from .pipeline import (
     register_section_generator,
     register_section_provider,
 )
-from .report_builder import ReportArtifact, ReportConfig, build_report
 from .renderer_html import HTMLReportRenderer
 from .renderer_md import MarkdownReportRenderer
 from .renderer_pdf import PDFReportRenderer
+from .report_builder import ReportArtifact, ReportConfig, build_report
 from .sections import (
     capitolo_analisi,
     capitolo_azioni,

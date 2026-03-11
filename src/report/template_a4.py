@@ -158,10 +158,10 @@ body {{
             '<header class="rd2229-header">'
             f'<h1 class="rd2229-header-title">{escape(progetto)}</h1>'
             '<div class="rd2229-header-meta">'
-            f'<span><strong>Committente:</strong> {escape(committente)}</span>'
-            f'<span><strong>Professionista:</strong> {escape(professionista)}</span>'
-            f'<span><strong>Pratica:</strong> {escape(numero_pratica)}</span>'
-            f'<span><strong>Data:</strong> {escape(printed_on)}</span>'
+            f"<span><strong>Committente:</strong> {escape(committente)}</span>"
+            f"<span><strong>Professionista:</strong> {escape(professionista)}</span>"
+            f"<span><strong>Pratica:</strong> {escape(numero_pratica)}</span>"
+            f"<span><strong>Data:</strong> {escape(printed_on)}</span>"
             "</div>"
             "</header>"
         )
@@ -171,7 +171,7 @@ body {{
         printed_on = data_stampa or datetime.now().strftime("%Y-%m-%d")
         return (
             '<footer class="rd2229-footer">'
-            f'<span>Stampato: {escape(printed_on)}</span>'
+            f"<span>Stampato: {escape(printed_on)}</span>"
             '<span>Pagina <span class="page-number"></span> / '
             '<span class="page-total"></span></span>'
             "</footer>"

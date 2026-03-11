@@ -31,9 +31,7 @@ def test_collect_citations_from_dict_structure_deduplicates():
                     "EC2 §6.2.2",
                 ]
             },
-            "taglio": {
-                "norm_references": ["DM96 §3.2", "EC2 §6.2.2"]
-            },
+            "taglio": {"norm_references": ["DM96 §3.2", "EC2 §6.2.2"]},
         }
     }
 

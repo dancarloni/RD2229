@@ -10,11 +10,7 @@ from typing import Callable
 from src.core.results import ResultsModel
 from src.project.schema import ProjectModel
 
-from .citazioni_normative import (
-    build_citation_index,
-    collect_citations,
-    render_appendice,
-)
+from .citazioni_normative import build_citation_index, collect_citations, render_appendice
 from .comparison import build_norms_table
 from .custom import get_custom_sections
 from .pipeline import PipelineReport
@@ -111,7 +107,7 @@ def build_report(
     markdown_lines.append(sommario_ancore(toc_entries))
     markdown_lines.append("")
     for key, section_content in base_sections:
-        markdown_lines.append(f"<a id=\"{anchor_for_key(key)}\"></a>")
+        markdown_lines.append(f'<a id="{anchor_for_key(key)}"></a>')
         markdown_lines.append(section_content)
         markdown_lines.append("")
 
@@ -245,7 +241,9 @@ def markdown_to_basic_html(markdown: str) -> str:
                 html_lines.append("<table>")
                 in_table = True
             tag = "th" if "<th>" not in "".join(html_lines[-1:]) else "td"
-            html_lines.append("<tr>" + "".join(f"<{tag}>{escape(c)}</{tag}>" for c in cells) + "</tr>")
+            html_lines.append(
+                "<tr>" + "".join(f"<{tag}>{escape(c)}</{tag}>" for c in cells) + "</tr>"
+            )
             continue
 
         if in_table:

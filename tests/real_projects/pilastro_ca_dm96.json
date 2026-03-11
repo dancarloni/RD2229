@@ -1,39 +1,41 @@
 {
-  "schema_version": "1.1.0",
-  "project_info": {
-    "name": "Pilastro CA DM96",
-    "description": "Caso reale semplificato: pilastro pressoflesso",
-    "author": "RD2229"
-  },
-  "geometry": [
-    {
-      "id": "P1",
-      "type": "RECTANGULAR",
-      "width": 35.0,
-      "height": 35.0
+    "schema_version": "1.1.0",
+    "project_info": {
+        "name": "Pilastro CA DM96",
+        "description": "Caso reale semplificato: pilastro pressoflesso",
+        "author": "RD2229"
+    },
+    "geometry": [
+        {
+            "id": "P1",
+            "type": "RECTANGULAR",
+            "width": 35.0,
+            "height": 35.0
+        }
+    ],
+    "materials": [
+        {
+            "id": "C20",
+            "type": "concrete",
+            "material_class": "C20/25",
+            "f_ck": 200.0
+        }
+    ],
+    "loads": [
+        {
+            "element_id": "P1",
+            "N": 320.0,
+            "Mx": 25.0,
+            "My": 15.0,
+            "description": "Combinazione fondamentale"
+        }
+    ],
+    "code_settings": {
+        "norm_code": "DM96",
+        "limit_states": [
+            "SLU"
+        ],
+        "units_force": "kN",
+        "units_length": "cm"
     }
-  ],
-  "materials": [
-    {
-      "id": "C20",
-      "type": "concrete",
-      "material_class": "C20/25",
-      "f_ck": 200.0
-    }
-  ],
-  "loads": [
-    {
-      "element_id": "P1",
-      "N": 320.0,
-      "Mx": 25.0,
-      "My": 15.0,
-      "description": "Combinazione fondamentale"
-    }
-  ],
-  "code_settings": {
-    "norm_code": "DM96",
-    "limit_states": ["SLU"],
-    "units_force": "kN",
-    "units_length": "cm"
-  }
 }

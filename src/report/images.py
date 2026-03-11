@@ -15,9 +15,9 @@ def image_html_block(path: str | Path, caption: str = "") -> str:
     encoded = encode_image_base64(src_path)
     safe_caption = escape(caption)
     return (
-        "<figure class=\"report-image\">"
-        f"<img src=\"data:{mime};base64,{encoded}\" alt=\"{safe_caption}\" "
-        "style=\"max-width:100%;height:auto;\">"
+        '<figure class="report-image">'
+        f'<img src="data:{mime};base64,{encoded}" alt="{safe_caption}" '
+        'style="max-width:100%;height:auto;">'
         f"<figcaption>{safe_caption}</figcaption>"
         "</figure>"
     )

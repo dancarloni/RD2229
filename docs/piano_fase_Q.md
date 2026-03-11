@@ -303,17 +303,17 @@ tests/
 ## Storicizzazione
 
 - 2026-03-11: avvio implementazione Fase Q.
-     - Q.1 completata: creato `src/report/template_a4.py` con layout A4, header/footer, rendering pagina/documento.
-     - Q.2 completata: creati `src/report/pipeline.py` e `src/report/decorators.py` con protocollo, registry e pipeline compositiva.
-     - Q.3 avviata: creato `src/report/citazioni_normative.py` (raccolta, deduplica, appendice, indice/superscript).
-     - Test aggiunti e verdi: `tests/test_template_a4.py` (4 test), `tests/test_report_pipeline.py` (5 test), `tests/test_citazioni.py` (4 test).
+  - Q.1 completata: creato `src/report/template_a4.py` con layout A4, header/footer, rendering pagina/documento.
+  - Q.2 completata: creati `src/report/pipeline.py` e `src/report/decorators.py` con protocollo, registry e pipeline compositiva.
+  - Q.3 avviata: creato `src/report/citazioni_normative.py` (raccolta, deduplica, appendice, indice/superscript).
+  - Test aggiunti e verdi: `tests/test_template_a4.py` (4 test), `tests/test_report_pipeline.py` (5 test), `tests/test_citazioni.py` (4 test).
 - 2026-03-11: completamento totale Fase Q.
-     - Q.3 completata: integrazione note normative nel capitolo verifiche e appendice automatica.
-     - Q.4 completata: implementato `src/report/sections.py` con capitoli obbligatori e sommario.
-     - Q.5 completata: implementati `src/report/images.py`, `src/report/utils.py`, upload immagini in `src/ui/qt/report_widget.py`.
-     - Q.6 completata: implementati `src/report/export.py`, `src/report/export_pdf.py`, `src/report/export_docx.py`.
-     - Q.7 completata: implementati `src/report/comparison.py` e `src/report/confronto_norme.py`.
-     - Q.8 completata: implementato `src/report/custom.py` con persistenza profili JSON + drag&drop/checklist in widget Qt.
-     - Q.9 completata: aggiunti casi reali in `tests/real_projects/` + `tests/test_real_reports.py`.
-     - Q.10 completata: aggiunta guida `docs/report_generator.md` + esempi in `examples/report/`.
-     - Validazione sessione: 50 test report mirati verdi.
+  - Q.3 completata: integrazione note normative nel capitolo verifiche e appendice automatica.
+  - Q.4 completata: implementato `src/report/sections.py` con capitoli obbligatori e sommario.
+  - Q.5 completata: implementati `src/report/images.py`, `src/report/utils.py`, upload immagini in `src/ui/qt/report_widget.py`.
+  - Q.6 completata: implementati `src/report/export.py`, `src/report/export_pdf.py`, `src/report/export_docx.py`.
+  - Q.7 completata: implementati `src/report/comparison.py` e `src/report/confronto_norme.py`.
+  - Q.8 completata: implementato `src/report/custom.py` con persistenza profili JSON + drag&drop/checklist in widget Qt.
+  - Q.9 completata: aggiunti casi reali in `tests/real_projects/` + `tests/test_real_reports.py`.
+  - Q.10 completata: aggiunta guida `docs/report_generator.md` + esempi in `examples/report/`.
+  - Validazione sessione: 50 test report mirati verdi.

@@ -59,7 +59,7 @@ def test_build_report_contains_mandatory_chapters():
     assert "## 4. Analisi strutturale" in artifact.markdown
     assert "## 5. Verifiche" in artifact.markdown
     assert "## 7. Conclusioni" in artifact.markdown
-    assert "class=\"a4-page\"" in artifact.html
+    assert 'class="a4-page"' in artifact.html
 
 
 def test_build_report_includes_appendix_and_citations():
