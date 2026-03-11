@@ -6,14 +6,7 @@ import math
 
 import pytest
 
-from src.geotecnica.models import (
-    ClasseLiquefazione,
-    InputLiquefazione,
-    StratoLiquefazione,
-)
 from src.geotecnica.liquefazione import (
-    _funzione_f_fs,
-    _funzione_peso_w,
     calcola_crr_7_5,
     calcola_csr,
     calcola_liquefazione,
@@ -22,7 +15,11 @@ from src.geotecnica.liquefazione import (
     correggi_n160,
     fattore_riduzione_r_d,
 )
-
+from src.geotecnica.models import (
+    ClasseLiquefazione,
+    InputLiquefazione,
+    StratoLiquefazione,
+)
 
 # ---------------------------------------------------------------------------
 # Fattore di riduzione r_d

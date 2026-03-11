@@ -14,7 +14,6 @@ import math
 
 from .models import InputGruppoPali, InputPortanzaPalo, RisultatoPortanzaPalo, TipologiaPalo
 
-
 # ---------------------------------------------------------------------------
 # Fattori e correlazioni
 # ---------------------------------------------------------------------------

@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import pytest
-
 from src.codes.ntc2018.secondary_elements.camini import (
     TipoCamino,
     check_sle,
     check_slu,
     verifica_camino_completa,
 )
-from src.codes.ntc2018.secondary_elements.camini.models import RisultatoCamino, StatoDannoSLE
+from src.codes.ntc2018.secondary_elements.camini.models import RisultatoCamino
 
 
 class TestCaminoModels:

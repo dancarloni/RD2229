@@ -25,8 +25,8 @@ except ImportError:
         QWidget,
     )
 
-from . import check_sle, check_slu, lista_preset_disponibili
-from .models import CategoriaImpianto, TipoSupporto
+from . import check_sle, check_slu
+from .models import CategoriaImpianto
 
 
 class ImiantiWidget(QWidget):

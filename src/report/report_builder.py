@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from html import escape
-from typing import Callable
 
 from src.core.results import ResultsModel
 from src.project.schema import ProjectModel

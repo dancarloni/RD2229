@@ -14,10 +14,7 @@ import math
 from dataclasses import dataclass
 
 from .models import (
-    RisultatoSLE,
     RisultatoSLU,
-    RisultatoTamponamento,
-    StatoDannoSLE,
     TamponamentoSpec,
     TipoAncoraggio,
 )

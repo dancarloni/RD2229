@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from src.codes.ntc2018.secondary_elements.impianti import (
     CategoriaImpianto,
     ImpiantoSpec,

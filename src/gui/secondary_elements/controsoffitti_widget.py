@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 try:
-    from PyQt5.QtCore import Qt
     from PyQt5.QtWidgets import (
         QCheckBox,
         QComboBox,
@@ -14,7 +13,6 @@ try:
         QWidget,
     )
 except ImportError:
-    from PySide6.QtCore import Qt
     from PySide6.QtWidgets import (
         QCheckBox,
         QComboBox,
@@ -27,7 +25,7 @@ except ImportError:
         QWidget,
     )
 
-from . import check_sle, check_slu, lista_preset_disponibili
+from . import check_sle, check_slu
 from .models import TipoControsoffitto
 
 

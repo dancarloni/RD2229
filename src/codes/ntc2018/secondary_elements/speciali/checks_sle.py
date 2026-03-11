@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ..common import StatoDannoSLE, classifica_danno_da_rapporto
+from ..common import classifica_danno_da_rapporto
 from .models import ComponenteSpecialeSpec, ContestoSLESpeciale, RisultatoSLESpeciale
 
 
