@@ -57,6 +57,7 @@ except ImportError:
     BACKEND = "PySide6"
 
 try:
+    import matplotlib.pyplot as plt  # noqa: F401
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
     from matplotlib.figure import Figure
 
@@ -675,6 +676,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    main_window = MainWindow()
-    main_window.show()
+    mainWindow = MainWindow()  # noqa: N816
+    mainWindow.show()
     sys.exit(app.exec_() if BACKEND == "PyQt5" else app.exec())
