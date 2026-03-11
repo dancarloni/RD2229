@@ -44,7 +44,7 @@ def carica_presets_da_json(filepath: Path | None = None) -> dict:
     try:
         with open(filepath, encoding="utf-8") as f:
             return json.load(f)
-    except (OSError, json.JSONDecodeError) as e:
+    except (json.JSONDecodeError, OSError) as e:
         print(f"Errore nel caricamento preset: {e}")
         return {}
 

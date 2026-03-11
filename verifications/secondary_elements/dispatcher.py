@@ -194,7 +194,7 @@ def _dispatch_ntc2018(
             base,
         )
 
-    # Fallback generico NTC2018 §7.2.3 per tipi di elemento non specificati
+    # Generic / fallback: use the general NTC2018 §7.2.3 check for any unrecognized type
     from src.codes.ntc2018.secondary_elements import checks as _checks
 
     if limit_state == "SLU":
