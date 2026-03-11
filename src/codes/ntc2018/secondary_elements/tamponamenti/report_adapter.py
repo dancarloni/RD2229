@@ -5,7 +5,6 @@ Fornisce formattazione, schematizzazione e sezioni dedicate per tabulati di calc
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 from .models import RisultatoTamponamento, StatoDannoSLE
 
@@ -19,7 +18,7 @@ class SezioneReportTamponamento:
     tabella_input: dict
     tabella_slu: dict
     tabella_sle: dict
-    immagine_schema: Optional[str] = None  # Path relativo o data URI SVG
+    immagine_schema: str | None = None  # Path relativo o data URI SVG
     note_tecniche: str = ""
 
 
@@ -71,9 +70,9 @@ def adatta_per_report(risultato: RisultatoTamponamento) -> SezioneReportTamponam
 
     # Note tecniche
     note_tecniche = (
-        f"Analisi secondo NTC2018 §7.2.3 e Circ. 7/2019.\n"
-        f"Verifica fuori piano per carico sismico locale.\n"
-        f"Classificazione danno su scala 4-livelli.\n"
+        "Analisi secondo NTC2018 §7.2.3 e Circ. 7/2019.\n"
+        "Verifica fuori piano per carico sismico locale.\n"
+        "Classificazione danno su scala 4-livelli.\n"
     )
 
     if slu.esito and sle.stato_danno != StatoDannoSLE.INSICUREZZA:
@@ -148,7 +147,7 @@ def export_html_table(risultato: RisultatoTamponamento) -> str:
     """
     sezione = adatta_per_report(risultato)
 
-    html = f"\n<section class='tamponamento'>\n"
+    html = "\n<section class='tamponamento'>\n"
     html += f"  <h3>{sezione.titolo}</h3>\n"
     html += f"  <p>{sezione.descrizione}</p>\n\n"
 

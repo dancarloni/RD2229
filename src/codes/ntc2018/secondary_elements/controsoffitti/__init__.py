@@ -112,6 +112,8 @@ __all__ = [
     "TipoControsoffitto",
     "get_preset",
     "lista_preset_disponibili",
+    "carica_presets_da_json",
+    "crea_spec_da_preset",
     "adatta_per_report",
     "export_markdown",
 ]

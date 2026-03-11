@@ -13,7 +13,6 @@ Supporta:
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class TipoVincolo(Enum):
@@ -53,9 +52,9 @@ class SpecAncoraggio:
     resistenza_trazione_mpa: float  # f_t,k
     resistenza_taglio_mpa: float  # f_v,k
     numero_fissaggi: int  # Per filare di ancoraggio
-    interasse_mm: Optional[float] = None  # Distanza tra è fissaggi consecutivi
-    profondita_ancoraggio_mm: Optional[float] = None  # Per tasselli meccanici/chimici
-    spessore_acciaio_mm: Optional[float] = None  # Per saldature
+    interasse_mm: float | None = None  # Distanza tra è fissaggi consecutivi
+    profondita_ancoraggio_mm: float | None = None  # Per tasselli meccanici/chimici
+    spessore_acciaio_mm: float | None = None  # Per saldature
 
 
 @dataclass
@@ -85,14 +84,14 @@ class TamponamentoSpec:
 
     # Tipologia e materiale
     tipologia: str  # es. "muratura tradizionale", "cls prefabbricato", "laterizio"
-    resistenza_compressione_mpa: Optional[float] = None  # Per verifiche interne
-    resistenza_taglio_mpa: Optional[float] = None
+    resistenza_compressione_mpa: float | None = None  # Per verifiche interne
+    resistenza_taglio_mpa: float | None = None
 
     # Vincoli
     vincolo_superiore: TipoVincolo = TipoVincolo.INCASTRO
     vincolo_inferiore: TipoVincolo = TipoVincolo.INCASTRO
     controvento_laterale: bool = False  # Presente/assente
-    rigidezza_controvento_elastico_kg_cm: Optional[float] = None  # k per molla laterale
+    rigidezza_controvento_elastico_kg_cm: float | None = None  # k per molla laterale
 
     # Ancoraggi (lista di fissaggi)
     ancoraggi: list[SpecAncoraggio] = field(default_factory=list)

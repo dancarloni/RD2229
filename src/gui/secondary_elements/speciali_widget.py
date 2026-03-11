@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .speciali import check_sle, check_slu, spec_from_dict
+from .speciali import check_sle, check_slu
 
 
 class SpecialiWidget(QWidget):
