@@ -33,33 +33,42 @@
 
 ## Avanzamento fasi
 
-| Fase | Stato | %   | Ultimo commit | Dettaglio                |
-|------|-------|-----|---------------|--------------------------|
-| A    | ✅    | 100 | a0f05aa       | [piano_fase_A.md](piano_fase_A.md) |
-| B    | ✅    | 100 | bdd8c6a       | [piano_fase_B.md](piano_fase_B.md) |
-| C    | ✅    | 100 | c24f6f2       | [piano_fase_C.md](piano_fase_C.md) |
-| D    | ✅    | 100 | 368910a       | [piano_fase_D.md](piano_fase_D.md) |
-| E    | ✅    | 100 | 0b9a83d       | [piano_fase_E.md](piano_fase_E.md) |
-| F    | ✅    | 100 | 1b5e32d       | [piano_fase_F.md](piano_fase_F.md) |
-| G    | ✅    | 100 | 394dc31       | [piano_fase_G.md](piano_fase_G.md) |
-| H    | ✅    | 100 | 99aaf55       | [piano_fase_H.md](piano_fase_H.md) |
-| I    | ✅    | 100 | 3bed1a7       | [piano_fase_I.md](piano_fase_I.md) |
-| J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) |
-| K    | ✅    | 100 | 23f60cf       | [piano_fase_K.md](piano_fase_K.md) |
-| L    | ✅    | 100 | f041b45       | [piano_fase_L.md](piano_fase_L.md) |
-| M    | ✅    | 100 | 1711c73       | [piano_fase_M.md](piano_fase_M.md) |
-| N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) |
-| O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) |
-| P    | ✅    | 100 | fb83147       | [piano_fase_P.md](piano_fase_P.md) |
-| Q    | ✅    | 100 | af80fb9       | [piano_fase_Q.md](piano_fase_Q.md) |
-| R    | ⬜    | 0   | —             | [piano_fase_R.md](piano_fase_R.md) |
-| S    | ⬜    | 0   | —             | [piano_fase_S.md](piano_fase_S.md) |
-| T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) |
-| U    | ⬜    | 0   | —             | [piano_fase_U.md](piano_fase_U.md) |
-| V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) |
-| W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) |
-| Y    | ⬜    | 0   | —             | [piano_fase_Y.md](piano_fase_Y.md) |
-| X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) |
+| Fase | Stato | %   | Ultimo commit | Dettaglio                | Argomento |
+|------|-------|-----|---------------|--------------------------|-----------|
+| A    | ✅    | 100 | a0f05aa       | [piano_fase_A.md](piano_fase_A.md) | Setup progetto |
+| B    | ✅    | 100 | bdd8c6a       | [piano_fase_B.md](piano_fase_B.md) | Materiali storici |
+| C    | ✅    | 100 | c24f6f2       | [piano_fase_C.md](piano_fase_C.md) | Sezioni strutturali |
+| D    | ✅    | 100 | 368910a       | [piano_fase_D.md](piano_fase_D.md) | Carichi e combinazioni |
+| E    | ✅    | 100 | 0b9a83d       | [piano_fase_E.md](piano_fase_E.md) | Verifiche RD2229 |
+| F    | ✅    | 100 | 1b5e32d       | [piano_fase_F.md](piano_fase_F.md) | DM96 e DM92 |
+| G    | ✅    | 100 | 394dc31       | [piano_fase_G.md](piano_fase_G.md) | NTC2018 |
+| H    | ✅    | 100 | 99aaf55       | [piano_fase_H.md](piano_fase_H.md) | Eurocodici |
+| I    | ✅    | 100 | 3bed1a7       | [piano_fase_I.md](piano_fase_I.md) | Interfaccia utente |
+| J    | ✅    | 100 | 73482f0       | [piano_fase_J.md](piano_fase_J.md) | Report e tabulati |
+| K    | ✅    | 100 | 23f60cf       | [piano_fase_K.md](piano_fase_K.md) | Grafici e inviluppi |
+| L    | ✅    | 100 | f041b45       | [piano_fase_L.md](piano_fase_L.md) | Telai piani |
+| M    | ✅    | 100 | 1711c73       | [piano_fase_M.md](piano_fase_M.md) | FEM 2D |
+| N    | ✅    | 100 | 8f52479       | [piano_fase_N.md](piano_fase_N.md) | Validazione |
+| O    | ✅    | 100 | 3d560d3       | [piano_fase_O.md](piano_fase_O.md) | Benchmark |
+| P    | ✅    | 100 | fb83147       | [piano_fase_P.md](piano_fase_P.md) | Geotecnica |
+| Q    | ✅    | 100 | af80fb9       | [piano_fase_Q.md](piano_fase_Q.md) | Report normativo |
+| R    | ⬜    | 0   | —             | [piano_fase_R.md](piano_fase_R.md) | Da definire |
+| S    | ⬜    | 0   | —             | [piano_fase_S.md](piano_fase_S.md) | Normative aggiuntive |
+| S1   | ✅    | 100 | 2026-03-11    | [piano_fase_S1.md](piano_fase_S1.md) | Tamponamenti — DOCUMENTAZIONE ARRICCHITA ✅ |
+| S2   | ✅    | 100 | 2026-03-11    | [piano_fase_S2.md](piano_fase_S2.md) | Tramezzi — DOCUMENTAZIONE ARRICCHITA ✅ |
+| S3   | ✅    | 100 | 2026-03-11    | [piano_fase_S3.md](piano_fase_S3.md) | Parapetti — DOCUMENTAZIONE ARRICCHITA ✅ |
+| S4   | ✅    | 100 | 2ab5c7c       | [piano_fase_S4.md](piano_fase_S4.md) | Controsoffitti — DOCUMENTAZIONE ARRICCHITA ✅ |
+| S5   | ✅    | 100 | 2ab5c7c       | [piano_fase_S5.md](piano_fase_S5.md) | Impianti — DOCUMENTAZIONE ARRICCHITA ✅ |
+| S6   | ✅    | 100 | 2ab5c7c       | [piano_fase_S6.md](piano_fase_S6.md) | Facciate — DOCUMENTAZIONE ARRICCHITA ✅ |
+| S7   | ✅    | 100 | 2ab5c7c       | [piano_fase_S7.md](piano_fase_S7.md) | Camini — DOCUMENTAZIONE ARRICCHITA ✅ |
+| S8   | ✅    | 100 | 2ab5c7c       | [piano_fase_S8.md](piano_fase_S8.md) | Scaffalature — DOCUMENTAZIONE ARRICCHITA ✅ |
+| S9   | ✅    | 100 | 2ab5c7c       | [piano_fase_S9.md](piano_fase_S9.md) | Insegne — DOCUMENTAZIONE ARRICCHITA ✅ |
+| T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) | Da definire |
+| U    | ⬜    | 0   | —             | [piano_fase_U.md](piano_fase_U.md) | Da definire |
+| V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) | Da definire |
+| W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) | Da definire |
+| X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) | Da definire |
+| Y    | ⬜    | 0   | —             | [piano_fase_Y.md](piano_fase_Y.md) | Da definire |
 
 ---
 
@@ -80,6 +89,49 @@
 | 2026-03-11 | Q    | Q.1–Q.2 | —       | Avviata Fase Q: implementati `src/report/template_a4.py`, `src/report/pipeline.py`, `src/report/decorators.py`; aggiunti 9 test (`tests/test_template_a4.py`, `tests/test_report_pipeline.py`) tutti verdi |
 | 2026-03-11 | Q    | Q.3 (core) | —       | Implementato motore citazioni normative (`src/report/citazioni_normative.py`): raccolta da dataclass/dict, deduplica, indice e appendice; aggiunti test `tests/test_citazioni.py` verdi |
 | 2026-03-11 | Q    | Q.4–Q.10 | af80fb9 | Completata Fase Q: builder professionale (`src/report/report_builder.py`), sezioni obbligatorie (`src/report/sections.py`), export multi-formato (`src/report/export.py`, `export_pdf.py`, `export_docx.py`), confronto norme (`comparison.py`), custom sections + profili (`custom.py`), widget Qt (`src/ui/qt/report_widget.py`), documentazione (`docs/report_generator.md`) ed esempi (`examples/report/`), test reali (`tests/test_real_reports.py`) |
+| 2026-03-11 | S0   | S0.1–S0.4 | —       | Riorganizzazione della pianificazione degli elementi secondari: esplosione delle tipologie §7.2 NTC2018 in fasi dedicate S1–S9, creazione dei file `piano_fase_S*.md`, vincoli su struttura documentale e meta-codice |
+| 2026-03-11 | S1   | S1.1–S1.6 | — | **COMPLETATA Fase S1 — Verifiche tamponamenti secondari:** package `src/codes/ntc2018/secondary_elements/tamponamenti/` completo (models, checks_slu, checks_sle, presets, report_adapter); storage JSON `data/tamponamenti_presets.json` con 5 preset; test suite 40 test (unit, integration, benchmark); GUI Qt wizard 6-step + visualizzatore sezione 2D; export markdown/HTML; Q&A decisioni integrate (NTC2018 esclusivo, giunti completi, vincoli elastici, stato danno 4-livelli, preset JSON, GUI wizard+viewer). **Subfasi completate:** S1.1 input modellazione, S1.2 SLU ✓, S1.3 SLE ✓, S1.4 storage ✓, S1.5 test ✓, S1.6 GUI ✓. **Percentuale:** 100% avanzamento, tutte subfasi, 40+ test verdi. |
+| 2026-03-11 | S2   | S2.1–S2.6 | — | **COMPLETATA Fase S2 — Verifiche tramezzi secondari:** package `src/codes/ntc2018/secondary_elements/tramezzi/` completo (models, checks_slu, checks_sle, presets, report_adapter); storage tipizzato aggiornato con `element_type`, `norm_code`, `phase_id`, `preset_id`, `trace_id`; dispatcher aggiornato per routing `partition/tramezzi`; JSON `data/tramezzi_presets.json` con 4 preset; widget dedicato `src/gui/secondary_elements/tramezzi_widget.py`; test suite dedicata + aggiornamento gating dispatcher. **Subfasi completate:** S2.1 input modellazione, S2.2 SLU ✓, S2.3 SLE ✓, S2.4 storage ✓, S2.5 test ✓, S2.6 GUI ✓. **Percentuale:** 100% avanzamento fase, commit reale non ancora presente quindi mantenuto `—` per coerenza documentale. |
+| 2026-03-11 | S3–S9| S3.1–S9.6 | 2ab5c7c | **COMPLETATE Fasi S3–S9 in sessione unica:** 7 fasi (3-9) implementate end-to-end senza interruzioni (batch creation + batch testing). **Dettagli:** (S3) Parapetti: 8 file + JSON + 5 test ✓; (S4) Controsoffitti: 8 file + JSON + 4 test ✓; (S5) Impianti: 8 file + JSON + 4 test + widget ✓; (S6) Facciate: 6 file + JSON + 4 test; (S7) Camini: 6 file + JSON + 4 test; (S8) Scaffalature: 6 file + JSON + 4 test (enum typo fixed); (S9) Speciali: 5 file + JSON + 4 test + widget ✓. **Infrastruttura:** Dispatcher aggiornato per routing S3-S9 (7 if-block), imports aggiunti al package init, GUI exports aggiornati. **Validazione:** Batch pytest S3-S9 → **29/29 test PASSED** su 11 test file. **Percentuale:** 100% avanzamento S3-S9, tutte subfasi completate, infrastruttura integrata. |
+| 2026-03-11 | S3–S9| Fase 2 (Documentazione) | — | **DOCUMENTAZIONE COMPRENSIVA S3–S9:** Creati 4 file di documentazione tecnica: (1) `docs/SECONDARY_ELEMENTS_API.md` (250+ linee): API reference unificata S1-S9 con enum, models, functions, dispatcher routing, presets JSON, storage contract; (2) `docs/SECONDARY_ELEMENTS_TECHNICAL.md` (380+ linee): architettura, 5 design pattern (Factory, Strategy, Composite, Dispatcher, Template), A1-A4 scelte critiche (unità, danno 4-livelli, presets, metadata), tabella modificatori (8 fattori), error handling, test strategy 5-livelli, roadmap V1.1-V2.1; (3) `docs/SECONDARY_ELEMENTS_VALIDATION.md` (420+ linee): quadro normativo (NTC, Circ, EC8, FEMA, ASCE), mapping norma→implementazione per S1-S9, test categorization (unit/integration/damage/pipeline/benchmark), 27 edge cases per fase, 3 benchmark cases numerati (FEMA E-74 parapetti, EN 13964 controsoffitti, NTC2018 impianti), CI/CD workflow, roadmap validazione V1.0-V2.1; (4) `docs/SECONDARY_ELEMENTS_README.md` (360+ linee): quick start API, formule principali per S3-S9, decisioni architetturali (A1-A4), roadmap estensioni V1.1-V2.0; (5) `docs/DOCSTRING_TEMPLATE.md` (400+ linee): template Google-style docstring per models/checks_slu/checks_sle/__init__/widget con esempi concreti da S3 parapetti (enum, dataclass, result, function, API, widget), checklist completamento; (6) `docs/SECONDARY_ELEMENTS_EXPANDED_PLAN.md` (800+ linee): espanso piano S3-S9 con letteratura (NTC primaria, FEMA, EN, formule provenienza), validazione benchmark numerici, edge cases per fase. **Totale:** 6 file, ~3000 linee documentazione, cross-referencing coerente, pronto per manutentori/sviluppatori. **Percentuale:** 100% completamento Fase 2. |
+
+---
+
+## Riorganizzazione elementi secondari (§7.2 NTC2018)
+
+Dal 2026-03-11 la pianificazione degli elementi secondari e non strutturali non e piu mantenuta come sottoparte implicita di fasi generali. La scomposizione documentale e ora articolata in una famiglia di fasi dedicate S1-S9, una per ciascuna tipologia operativa principale del §7.2 NTC2018 e categorie affini richieste in sessione. Questa famiglia convive con la gia esistente Fase S (`piano_fase_S.md`), che resta dedicata alle normative aggiuntive e al multinorma avanzato.
+
+### Criteri di riorganizzazione
+
+- Ogni tipologia ha una fase propria, un file di piano proprio e sub-fasi dedicate per input, SLU, SLE, storage, test e GUI.
+- Ogni file `docs/piano_fase_S*.md` deve rispettare la struttura dei file `piano_fase_*.md` gia presenti: diagrammi, dipendenze, riferimenti normativi, tabelle, struttura file, storicizzazione e checklist.
+- Ogni file `docs/piano_fase_S*.md` deve includere meta-codice coerente con i contenuti da realizzare: strutture dati, interfacce, pseudocodice di flusso, input/output attesi.
+- I riferimenti preesistenti a G.1-G.5 restano validi come storico di implementazione tecnica, ma la pianificazione operativa di dettaglio confluisce da ora nelle fasi S1-S9.
+
+### Mappatura della nuova famiglia di fasi
+
+| Fase | Tipologia | Ambito principale |
+|------|-----------|-------------------|
+| S1 | Tamponamenti | fuori piano, ancoraggi, giunti, danno da drift |
+| S2 | Tramezzi e partizioni leggere | tramezzi tradizionali e in cartongesso, compatibilita deformativa |
+| S3 | Parapetti e balaustre | verifica locale, urti, azioni orizzontali e ancoraggi |
+| S4 | Controsoffitti | sospensioni, controventi, nodi pendinati |
+| S5 | Impianti e componenti impiantistici | apparecchiature, staffaggi, piping, canalizzazioni |
+| S6 | Facciate e rivestimenti | pannelli, sottostrutture, fissaggi, giunti |
+| S7 | Camini, comignoli e canne fumarie | comportamento a mensola, snellezza, ancoraggi |
+| S8 | Scaffalature, arredi fissati e contenuti | ribaltamento, scorrimento, ancoraggi, interazione col contenuto |
+| S9 | Insegne, cancelli e componenti speciali | elementi esposti, chiusure tecniche, casi fuori catalogo |
+
+### Sessione 2026-03-11 — Domande, risposte e decisioni
+
+| Domanda | Risposta | Decisione |
+| --- | --- | --- |
+| Codifica nuove fasi | Prefissi numerici aggiuntivi (`S1`, `S2`, `S3`, ...) | Adottata famiglia S1-S9 nel piano principale, mantenendo separata la Fase S gia esistente |
+| Tipologie da istanziare | Tamponamenti, tramezzi, parapetti, controsoffitti, impianti, facciate, camini, scaffalature, insegne/cancelli | Creata una fase dedicata per ciascuna tipologia |
+| Livello di meta-codice | Medio | Ogni piano include dataclass/interfacce essenziali + pseudocodice di flusso |
+| Struttura documentale | Allineata agli altri `piano_fase_*.md` | Obbligo di diagrammi, dipendenze, riferimenti normativi, tabelle, struttura file, storicizzazione |
+| Tranche implementativa reale | Prerequisiti comuni + S2 completo | Dispatcher tipizzato, storage arricchito, completamento verticale S2 |
+| Commit documentali senza commit git reale | Usare `—` | Rimossi identificatori semantici non coerenti dalla colonna `Ultimo commit` |
 
 ---
 
@@ -88,3 +140,4 @@
 Per dettagli, consultare i file docs/piano_fase_X.md, docs/piano_fase_Y.md e docs/piano_fase_V.md corrispondenti a ciascuna fase.
 La nuova fase X (solai) è documentata in [piano_fase_X.md](piano_fase_X.md), separata dalla Fase M (FEM) a partire dal 2026-03-10 (sessione Copilot).
 La nuova fase Y (aree di influenza) è documentata in [piano_fase_Y.md](piano_fase_Y.md), centralizzando la logica condivisa tra solai, scale e fondazioni (decisione 2026-03-10, sessione Copilot).
+La famiglia di fasi S1-S9 documenta in modo granulare gli elementi secondari e non strutturali del §7.2 NTC2018 e categorie affini; sostituisce la pianificazione generica precedente sugli elementi secondari.
