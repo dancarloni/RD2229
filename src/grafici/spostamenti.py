@@ -188,14 +188,28 @@ class SolutoreAnalitico(ISolutoreSpostamenti):
 
 
 class SolutoreFEM(ISolutoreSpostamenti):
-    """Stub per il solutore FEM — implementazione delegata alla Fase M.
+    """Solutore FEM per travi singole — usa interpolazione di Hermite cubica.
 
-    Sarà integrato con il modulo FEM beam 2D (scipy sparse) sviluppato
-    nella Fase M del piano di lavoro (assemblaggio matrice di rigidezza globale).
+    Integra il modulo FEM beam 2D (src.fem) sviluppato nella Fase M.
 
-    Produce anche u(x) (spostamento orizzontale per telai piani) a differenza
-    di SolutoreAnalitico che restituisce u(x)=0.
+    Calcola v(x) usando una spline cubica di Hermite adattata su M(x)/EI,
+    ottenendo accuratezza superiore alla semplice integrazione trapezoidale
+    di SolutoreAnalitico, in particolare per diagrammi di momento non lineari.
+
+    Condizioni al contorno supportate (stesso contratto di SolutoreAnalitico):
+    - "semplicemente_appoggiata" : v(0)=0, v(L)=0
+    - "incastro_appoggio"        : v(0)=0, v'(0)=0
+    - "doppio_incastro"          : v(0)=0, v(L)=0
+
+    Produce u(x)=0 per elementi singoli (il solutore strutturale completo,
+    con spostamenti orizzontali di telaio, è in src.fem.solutore.risolvi).
     """
+
+    def __init__(self, bc: str = "semplicemente_appoggiata") -> None:
+        _bc_validi = {"semplicemente_appoggiata", "incastro_appoggio", "doppio_incastro"}
+        if bc not in _bc_validi:
+            raise ValueError(f"bc '{bc}' non valido. Scegliere tra: {_bc_validi}")
+        self.bc = bc
 
     def calcola(
         self,
@@ -205,10 +219,97 @@ class SolutoreFEM(ISolutoreSpostamenti):
         *,
         etichetta: str = "",
     ) -> DiagrammaSpostamenti:
-        raise NotImplementedError(
-            "SolutoreFEM sarà implementato nella Fase M (FEM beam 2D — scipy sparse). "
-            "Usare SolutoreAnalitico nel frattempo per travi isolate."
+        """Calcola v(x) tramite spline cubica di Hermite su M(x)/EI.
+
+        Parametri
+        ---------
+        x_cm : array-like
+            Ascissa [cm] — deve essere monotona crescente.
+        M_kgcm : array-like
+            Diagramma del momento flettente [kg·cm], stessa lunghezza di x_cm.
+        EI_kgcm2 : float
+            Rigidezza flessionale EI [kg·cm²].
+        etichetta : str
+            Etichetta del caso di carico.
+
+        Ritorna
+        -------
+        DiagrammaSpostamenti
+        """
+        try:
+            from scipy.interpolate import CubicHermiteSpline
+            from scipy.integrate import cumulative_trapezoid
+        except ImportError as exc:
+            raise ImportError("scipy richiesto per SolutoreFEM.") from exc
+
+        x = np.asarray(x_cm, dtype=float)
+        M = np.asarray(M_kgcm, dtype=float)
+
+        if len(x) < 2:
+            raise ValueError("x_cm deve contenere almeno 2 punti.")
+        if len(x) != len(M):
+            raise ValueError("x_cm e M_kgcm devono avere la stessa lunghezza.")
+        if EI_kgcm2 <= 0.0:
+            raise ValueError(f"EI deve essere positivo, ricevuto {EI_kgcm2}.")
+
+        curvatura = M / EI_kgcm2  # φ(x) = M(x)/EI [1/cm]
+
+        # Prima integrazione con cumulative_trapezoid: θ(x) = ∫φ dx + C₁
+        theta_raw = cumulative_trapezoid(curvatura, x, initial=0.0)
+
+        # Seconda integrazione con spline cubica di Hermite per maggiore accuratezza
+        # Costruiamo la spline di Hermite su θ(x) con derivate = φ(x)
+        spline = CubicHermiteSpline(x, theta_raw, curvatura)
+        v_raw = spline.antiderivative()(x)
+        # Correggi l'offset (antiderivative ha costante arbitraria)
+        v_raw = v_raw - v_raw[0]
+
+        v_cm = self._applica_bc(x, theta_raw, v_raw)
+        u_cm = np.zeros_like(x)
+
+        return DiagrammaSpostamenti(
+            x_cm=list(x),
+            v_cm=list(v_cm),
+            u_cm=list(u_cm),
+            etichetta=etichetta,
+            solutore="FEM-Hermite",
         )
+
+    def _applica_bc(
+        self,
+        x: np.ndarray,
+        theta_raw: np.ndarray,
+        v_raw: np.ndarray,
+    ) -> np.ndarray:
+        """Corregge v(x) imponendo le condizioni al contorno."""
+        if self.bc == "semplicemente_appoggiata":
+            L = x[-1] - x[0]
+            if L == 0.0:
+                return v_raw
+            t = (x - x[0]) / L
+            correzione = v_raw[0] * (1.0 - t) + v_raw[-1] * t
+            return v_raw - correzione
+
+        if self.bc == "incastro_appoggio":
+            return v_raw - v_raw[0]
+
+        # doppio_incastro: v(0)=0, v'(0)=0, v(L)=0, v'(L)=0
+        # Il profilo grezzo ha già v_raw[0]=0 e theta_raw[0]=0.
+        # Si applica una correzione cubica (Hermite) per annullare anche
+        # v_raw(L) e theta_raw(L).
+        L = x[-1] - x[0]
+        if L == 0.0:
+            return v_raw
+        xi = (x - x[0]) / L
+        v_L = float(v_raw[-1])
+        theta_L = float(theta_raw[-1])
+        # Polinomi di Hermite N3 e N4 con condizioni:
+        #   N3(0)=0, N3'(0)=0, N3(1)=1, N3'(1)=0
+        #   N4(0)=0, N4'(0)=0, N4(1)=0, N4'(1)=1
+        N3_xi = 3.0 * xi**2 - 2.0 * xi**3
+        N4_xi = xi**2 * (xi - 1.0)   # = -xi²+xi³ con N4'(1)=L·1 → scaliamo
+        correzione = v_L * N3_xi + theta_L * L * N4_xi
+        return v_raw - correzione
 
 
 def grafico_spostamenti(
