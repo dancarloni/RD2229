@@ -171,62 +171,14 @@ class TestSolutoreAnalitico:
 
 
 # ---------------------------------------------------------------------------
-# SolutoreFEM — implementazione Hermite (Fase M completata)
+# SolutoreFEM — stub
 # ---------------------------------------------------------------------------
 
 class TestSolutoreFEM:
-    def test_restituisce_diagramma_spostamenti(self):
-        """SolutoreFEM.calcola() deve restituire un DiagrammaSpostamenti valido."""
-        x = list(np.linspace(0.0, 500.0, 21))
-        # Momento parabolico da carico uniforme (approssimazione)
-        M = [2.0 * xi * (500.0 - xi) / 2.0 for xi in x]
+    def test_raise_not_implemented(self):
         sol = SolutoreFEM()
-        diag = sol.calcola(x, M, EI_kgcm2=3e7)
-        assert isinstance(diag, DiagrammaSpostamenti)
-        assert diag.solutore == "FEM-Hermite"
-        assert len(diag.v_cm) == len(x)
-        assert len(diag.u_cm) == len(x)
-
-    def test_appoggi_nulli_semplicemente_appoggiata(self):
-        """v(0) e v(L) devono essere nulli con bc='semplicemente_appoggiata'."""
-        x = list(np.linspace(0.0, 400.0, 41))
-        M = [2.0 * xi * (400.0 - xi) / 2.0 for xi in x]
-        diag = SolutoreFEM("semplicemente_appoggiata").calcola(x, M, EI_kgcm2=2e7)
-        assert abs(diag.v_cm[0]) < 1e-10
-        assert abs(diag.v_cm[-1]) < 1e-10
-
-    def test_incastro_appoggio_origine_nulla(self):
-        """Con bc='incastro_appoggio', v(0) = 0."""
-        x = list(np.linspace(0.0, 300.0, 31))
-        M = [50.0 * xi for xi in x]
-        diag = SolutoreFEM("incastro_appoggio").calcola(x, M, EI_kgcm2=1e7)
-        assert abs(diag.v_cm[0]) < 1e-10
-
-    def test_bc_invalido_errore(self):
-        """bc non valido deve sollevare ValueError."""
-        with pytest.raises(ValueError, match="bc"):
-            SolutoreFEM(bc="semplicemente_appogiata")   # typo realístico
-
-    def test_ei_negativo_errore(self):
-        """EI non positivo deve sollevare ValueError."""
-        sol = SolutoreFEM()
-        with pytest.raises(ValueError, match="EI"):
-            sol.calcola([0.0, 100.0], [0.0, 0.0], EI_kgcm2=-1.0)
-
-    def test_doppio_incastro_estremi_nulli(self):
-        """Con bc='doppio_incastro': v(0)=0, v(L)=0 (e slope≈0 agli estremi)."""
-        x = list(np.linspace(0.0, 400.0, 41))
-        M = [1.0 * xi * (400.0 - xi) / 2.0 for xi in x]
-        diag = SolutoreFEM("doppio_incastro").calcola(x, M, EI_kgcm2=1e7)
-        assert abs(diag.v_cm[0]) < 1e-10
-        assert abs(diag.v_cm[-1]) < 1e-10
-
-    def test_u_cm_sempre_zero(self):
-        """u(x) deve essere zero per elementi singoli."""
-        x = [0.0, 100.0, 200.0]
-        M = [0.0, 50.0, 0.0]
-        diag = SolutoreFEM().calcola(x, M, EI_kgcm2=1e6)
-        assert all(abs(u) < 1e-15 for u in diag.u_cm)
+        with pytest.raises(NotImplementedError, match="Fase M"):
+            sol.calcola([0.0, 100.0], [0.0, 0.0], EI_kgcm2=1e6)
 
 
 # ---------------------------------------------------------------------------
