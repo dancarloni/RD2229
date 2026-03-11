@@ -132,7 +132,8 @@ class ApplicatoreBC:
         """
         vincolati = self.gdl_vincolati
         n = K.shape[0]
-        liberi = [i for i in range(n) if i not in set(vincolati)]
+        vincolati_set = set(vincolati)
+        liberi = [i for i in range(n) if i not in vincolati_set]
 
         logger.debug(
             "BC %s: %d GDL totali, %d vincolati, %d liberi.",
