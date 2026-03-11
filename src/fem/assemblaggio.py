@@ -149,9 +149,30 @@ class Assemblatore:
 
     @property
     def n_gdl(self) -> int:
-        """Numero totale di GDL = 3 × numero nodi."""
-        return 3 * len(self.nodi)
+        """Numero totale di GDL.
 
+        Dimensionato in base al massimo id di NodoFEM, assumendo che gli
+        indici di GDL siano derivati come ``NodoFEM.id * 3 + {0,1,2}``.
+        """
+        if not self.nodi:
+            return 0
+
+        max_id = max(nodo.id for nodo in self.nodi)
+        n_gdl = 3 * (max_id + 1)
+
+        # Se gli id non sono contigui, il numero effettivo di nodi può essere
+        # diverso da max_id + 1. In tal caso dimensioniamo comunque sui GDL
+        # effettivamente utilizzati, evitando accessi fuori range.
+        if max_id + 1 != len(self.nodi):
+            logger.debug(
+                "Assemblatore.n_gdl: nodi non contigui (len(nodi)=%d, max_id=%d); "
+                "dimensione GDL calcolata come %d.",
+                len(self.nodi),
+                max_id,
+                n_gdl,
+            )
+
+        return n_gdl
     def assembla(self) -> tuple[sp.csr_matrix, np.ndarray]:
         """Assembla K_G (csr_matrix) e F_G (array 1D).
 
