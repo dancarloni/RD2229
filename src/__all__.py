@@ -9,6 +9,7 @@ __all__ = [  # noqa: F822
     "actions",
     "elements",
     "fire",
+    "geotecnica",
     "legacy",
     "materials",
     "methods",

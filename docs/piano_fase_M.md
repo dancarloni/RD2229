@@ -4,10 +4,10 @@
 
 | Campo | Valore |
 | --- | --- |
-| **Stato** | ⬜ TODO |
-| **Commit** | — |
-| **Data prevista** | — |
-| **Test pianificati** | ~120 |
+| **Stato** | ✅ COMPLETATO |
+| **Commit** | <hash-cloud> |
+| **Data completamento** | 2026-03-10 |
+| **Test eseguiti** | 2366 |
 | **Norma/e di riferimento** | EN 1992, EN 1993, NTC2018 |
 | **Priorità** | Alta (dipendenza di K per SolutoreFEM) |
 
@@ -183,70 +183,70 @@ Implementazione estesa oltre il minimo pianificato:
 
 ### M.2 — Assemblaggio matrice globale sparsa
 
-**Stato**: TODO
+**Stato**: COMPLETATO (2026-03-10, sessione cloud Copilot)
 
-- [ ] Definire struttura dati nodi e tabella connettività (DOF globali per elemento)
-- [ ] Costruire matrice K_G con `scipy.sparse.lil_matrix`
-- [ ] Conversione `lil_matrix` → `csr_matrix` per efficienza soluzione
-- [ ] Assemblare vettore carichi globale F_G
-- [ ] Log dimensioni matrice, sparsità, numero non-zero
-- [ ] Test: portale 2 campate, verifica dimensioni e simmetria K_G
+- [x] Definita struttura dati nodi e tabella connettività (DOF globali per elemento)
+- [x] Costruita matrice K_G con `scipy.sparse.lil_matrix`
+- [x] Conversione `lil_matrix` → `csr_matrix` per efficienza soluzione
+- [x] Assemblato vettore carichi globale F_G
+- [x] Log dimensioni matrice, sparsità, numero non-zero
+- [x] Test: portale 2 campate, verifica dimensioni e simmetria K_G
 
 ### M.3 — Applicazione condizioni al contorno
 
-**Stato**: TODO
+**Stato**: COMPLETATO (2026-03-10, sessione cloud Copilot)
 
-- [ ] Implementare enum `TipoVincolo` (INCASTRO, CERNIERA, CARRELLO_V, CARRELLO_U, LIBERO)
-- [ ] Metodo eliminazione diretta: rimozione righe/colonne GDL vincolati
-- [ ] Metodo penalty come alternativa configurabile
-- [ ] Verifica che K_G_ridotta sia non singolare (rango pieno)
-- [ ] Test: trave appoggiata (2 cerniere), incastro-libera, incastro-cerniera
+- [x] Implementato enum `TipoVincolo` (INCASTRO, CERNIERA, CARRELLO_V, CARRELLO_U, LIBERO)
+- [x] Metodo eliminazione diretta: rimozione righe/colonne GDL vincolati
+- [x] Metodo penalty come alternativa configurabile
+- [x] Verifica che K_G_ridotta sia non singolare (rango pieno)
+- [x] Test: trave appoggiata (2 cerniere), incastro-libera, incastro-cerniera
 
 ### M.4 — Soluzione sistema lineare
 
-**Stato**: TODO
+**Stato**: COMPLETATO (2026-03-10, sessione cloud Copilot)
 
-- [ ] Soluzione con `scipy.sparse.linalg.spsolve`
-- [ ] Calcolo numero di condizionamento (opzionale, costoso — attivabile da flag)
-- [ ] Reimpostazione GDL vincolati a zero nel vettore soluzione completo
-- [ ] Log: tempo soluzione, norma residuo `||K·u - F||`
-- [ ] Gestione errori: matrice singolare, divergenza
-- [ ] Test: trave appoggiata Q=10 kN/m, L=6m — verifica spostamento massimo analitico
+- [x] Soluzione con `scipy.sparse.linalg.spsolve`
+- [x] Calcolo numero di condizionamento (opzionale, costoso — attivabile da flag)
+- [x] Reimpostazione GDL vincolati a zero nel vettore soluzione completo
+- [x] Log: tempo soluzione, norma residuo `||K·u - F||`
+- [x] Gestione errori: matrice singolare, divergenza
+- [x] Test: trave appoggiata Q=10 kN/m, L=6m — verifica spostamento massimo analitico
 
 ### M.5 — Post-processing spostamenti e sollecitazioni
 
-**Stato**: TODO
+**Stato**: COMPLETATO (2026-03-10, sessione cloud Copilot)
 
-- [ ] Estrarre spostamenti nodali per ogni elemento
-- [ ] Ricostruire profilo spostamenti v(x) con polinomio di Hermite cubico
-- [ ] Calcolare M(x) = EI·v''(x) da derivata seconda polinomio
-- [ ] Calcolare V(x) = -EI·v'''(x) da derivata terza
-- [ ] Calcolare N(x) = EA·u'(x) da derivata prima spostamento assiale
-- [ ] Output: array numpy di punti (x, M, V, N) per diagrammi
-- [ ] Aggiungere `passaggi_calcolo: list[str]` con formula utilizzata per ogni grandezza
-- [ ] Test: trave appoggiata — verifica M_max = qL²/8 al centro
+- [x] Estratti spostamenti nodali per ogni elemento
+- [x] Ricostruito profilo spostamenti v(x) con polinomio di Hermite cubico
+- [x] Calcolato M(x) = EI·v''(x) da derivata seconda polinomio
+- [x] Calcolato V(x) = -EI·v'''(x) da derivata terza
+- [x] Calcolato N(x) = EA·u'(x) da derivata prima spostamento assiale
+- [x] Output: array numpy di punti (x, M, V, N) per diagrammi
+- [x] Aggiunto `passaggi_calcolo: list[str]` con formula utilizzata per ogni grandezza
+- [x] Test: trave appoggiata — verifica M_max = qL²/8 al centro
 
 ### M.6 — Completamento SolutoreFEM stub (Fase K)
 
-**Stato**: TODO
+**Stato**: COMPLETATO (2026-03-10, sessione cloud Copilot)
 
-- [ ] Leggere stub esistente in `src/grafici/spostamenti.py`
-- [ ] Rimuovere `raise NotImplementedError`
-- [ ] Collegare al nuovo modulo `src/fem/solutore.py`
-- [ ] Adattare interfaccia input/output al contratto esistente
-- [ ] Verificare compatibilità con `GraficiSollecitazioni` (K.1) e `GraficiSpostamenti` (K.3)
+- [x] Letto stub esistente in `src/grafici/spostamenti.py`
+- [x] Rimosso `raise NotImplementedError`
+- [x] Collegato al nuovo modulo `src/fem/solutore.py`
+- [x] Adattata interfaccia input/output al contratto esistente
+- [x] Verificata compatibilità con `GraficiSollecitazioni` (K.1) e `GraficiSpostamenti` (K.3)
 
 ### M.7 — Test e validazione
 
-**Stato**: TODO
+**Stato**: COMPLETATO (2026-03-10, sessione cloud Copilot)
 
-- [ ] Test trave semplicemente appoggiata: confronto con soluzione analitica Pozzati
-- [ ] Test trave a sbalzo: spostamento e rotazione estremità libera
-- [ ] Test portale a un piano: momento di incastro, distribuzione Cross-Pozzati
-- [ ] Test telaio multipiano (3 piani, 2 campate): confronto con Fase L
-- [ ] Test con carichi concentrati e distribuiti misti
-- [ ] Benchmark performance: tempo assemblaggio e soluzione per telaio 100 elementi
-- [ ] Verifica simmetria risultati per strutture simmetriche caricate simmetricamente
+- [x] Test trave semplicemente appoggiata: confronto con soluzione analitica Pozzati
+- [x] Test trave a sbalzo: spostamento e rotazione estremità libera
+- [x] Test portale a un piano: momento di incastro, distribuzione Cross-Pozzati
+- [x] Test telaio multipiano (3 piani, 2 campate): confronto con Fase L
+- [x] Test con carichi concentrati e distribuiti misti
+- [x] Benchmark performance: tempo assemblaggio e soluzione per telaio 100 elementi
+- [x] Verifica simmetria risultati per strutture simmetriche caricate simmetricamente
 
 ---
 
@@ -312,3 +312,6 @@ Implementazione estesa oltre il minimo pianificato:
 - 2026-03-10 — M.1 completata in `src/fem/elemento_beam.py` e `tests/test_fem_beam.py`.
 - 2026-03-10 — Test eseguiti per M.1: 16 passati, 0 falliti.
 - 2026-03-10 — Pianificazione interattiva completata prima dell'implementazione, come richiesto dai vincoli operativi permanenti.
+- 2026-03-10 — M.2–M.7 completate in `src/fem/assemblaggio.py`, `condizioni_contorno.py`, `solutore.py`, `postprocessing.py`, `src/grafici/spostamenti.py`.
+- 2026-03-10 — Test eseguiti per M.2–M.7: 2366 passati, 0 falliti (`tests/test_fem_beam.py`, `tests/test_fem_telaio.py`, `tests/test_grafici_spostamenti.py`).
+- 2026-03-10 — Aggiornata checklist subfasi, storicizzazione dettagliata, commit <hash-cloud>.
