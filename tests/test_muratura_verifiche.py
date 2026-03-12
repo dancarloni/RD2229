@@ -3,7 +3,6 @@
 Verifica con casi noti e limiti normativi NTC2018 §4.5.
 """
 
-
 import pytest
 
 from src.methods.muratura.verifiche import (
@@ -22,6 +21,7 @@ from src.methods.muratura.verifiche import (
 )
 
 # ═══════════════════ Coefficiente Φ ═══════════════════
+
 
 class TestInterpolaPhi:
     def test_phi_lambda_zero_e_zero(self):
@@ -79,12 +79,17 @@ class TestInterpolaPhi:
 
 # ═══════════════════ Compressione ═══════════════════
 
+
 class TestCompressione:
     def test_compressione_centrata_verificata(self):
         """Parete 100×30, h=300, fd=30 kg/cm², N=50000 kg."""
         inp = InputCompressione(
-            L=100, t=30, h=300,
-            N=50000, fd=30.0, gamma_M=2.0,
+            L=100,
+            t=30,
+            h=300,
+            N=50000,
+            fd=30.0,
+            gamma_M=2.0,
         )
         res = verifica_compressione(inp)
         assert res.A == pytest.approx(3000)
@@ -95,9 +100,13 @@ class TestCompressione:
     def test_compressione_eccentrica(self):
         """Parete con momento → eccentricità."""
         inp = InputCompressione(
-            L=100, t=30, h=300,
-            N=50000, M=500000,  # e = M/N = 10 cm, e/t = 10/30 = 0.333
-            fd=30.0, gamma_M=2.0,
+            L=100,
+            t=30,
+            h=300,
+            N=50000,
+            M=500000,  # e = M/N = 10 cm, e/t = 10/30 = 0.333
+            fd=30.0,
+            gamma_M=2.0,
         )
         res = verifica_compressione(inp)
         assert res.e == pytest.approx(10.0)
@@ -108,8 +117,12 @@ class TestCompressione:
     def test_compressione_snellezza_alta(self):
         """Parete snella: h/t > 20."""
         inp = InputCompressione(
-            L=100, t=15, h=500,  # λ = 500/15 = 33.3
-            N=10000, fd=30.0, gamma_M=2.0,
+            L=100,
+            t=15,
+            h=500,  # λ = 500/15 = 33.3
+            N=10000,
+            fd=30.0,
+            gamma_M=2.0,
         )
         res = verifica_compressione(inp)
         assert res.lam > 27
@@ -118,8 +131,12 @@ class TestCompressione:
     def test_compressione_snellezza_bassa(self):
         """Parete tozza: h/t < 5."""
         inp = InputCompressione(
-            L=200, t=50, h=200,  # λ = 200/50 = 4
-            N=100000, fd=40.0, gamma_M=2.0,
+            L=200,
+            t=50,
+            h=200,  # λ = 200/50 = 4
+            N=100000,
+            fd=40.0,
+            gamma_M=2.0,
         )
         res = verifica_compressione(inp)
         assert res.lam < 5
@@ -136,8 +153,12 @@ class TestCompressione:
     def test_compressione_rho(self):
         """Vincolo ρ=0.75 → h_eff ridotto."""
         inp = InputCompressione(
-            L=100, t=30, h=400, rho=0.75,
-            N=50000, fd=30.0,
+            L=100,
+            t=30,
+            h=400,
+            rho=0.75,
+            N=50000,
+            fd=30.0,
         )
         res = verifica_compressione(inp)
         assert res.h_eff == pytest.approx(300)
@@ -146,13 +167,18 @@ class TestCompressione:
 
 # ═══════════════════ Taglio diagonale ═══════════════════
 
+
 class TestTaglioDiagonale:
     def test_diagonale_verificato(self):
         """Pannello con compressione e taglio moderati."""
         inp = InputTaglio(
-            L=200, t=30, h=300,
-            V=3000, N=50000,
-            tau_0=1.0, gamma_M=2.0,
+            L=200,
+            t=30,
+            h=300,
+            V=3000,
+            N=50000,
+            tau_0=1.0,
+            gamma_M=2.0,
         )
         res = taglio_diagonale(inp)
         assert res.criterio == "diagonale"
@@ -162,14 +188,18 @@ class TestTaglioDiagonale:
     def test_diagonale_senza_compressione(self):
         """Senza compressione, V_Rd dipende solo da τ₀."""
         inp = InputTaglio(
-            L=200, t=30, h=300,
-            V=1000, N=0,
-            tau_0=1.0, gamma_M=2.0,
+            L=200,
+            t=30,
+            h=300,
+            V=1000,
+            N=0,
+            tau_0=1.0,
+            gamma_M=2.0,
         )
         res = taglio_diagonale(inp)
         # V_t = L×t×(1.5×τ₀d/b)×√1 = L×t×τ₀d×1.5/b
         tau_0d = 0.5  # 1.0/2.0
-        b = min(300/200, 1.5)  # h/L = 1.5
+        b = min(300 / 200, 1.5)  # h/L = 1.5
         V_expected = 200 * 30 * (1.5 * tau_0d / b) * 1.0
         assert res.V_Rd == pytest.approx(V_expected, rel=0.01)
 
@@ -191,12 +221,18 @@ class TestTaglioDiagonale:
 
 # ═══════════════════ Taglio scorrimento ═══════════════════
 
+
 class TestTaglioScorrimento:
     def test_scorrimento_verificato(self):
         inp = InputTaglio(
-            L=200, t=30, h=300,
-            V=3000, N=50000,
-            fvk0=0.2, mu=0.4, gamma_M=2.0,
+            L=200,
+            t=30,
+            h=300,
+            V=3000,
+            N=50000,
+            fvk0=0.2,
+            mu=0.4,
+            gamma_M=2.0,
         )
         res = taglio_scorrimento(inp)
         assert res.criterio == "scorrimento"
@@ -211,9 +247,14 @@ class TestTaglioScorrimento:
     def test_scorrimento_senza_compressione(self):
         """Senza compressione, solo coesione contribuisce."""
         inp = InputTaglio(
-            L=200, t=30, h=300,
-            V=500, N=0,
-            fvk0=0.2, mu=0.4, gamma_M=2.0,
+            L=200,
+            t=30,
+            h=300,
+            V=500,
+            N=0,
+            fvk0=0.2,
+            mu=0.4,
+            gamma_M=2.0,
         )
         res = taglio_scorrimento(inp)
         fvd = 0.2 / 2.0
@@ -223,12 +264,18 @@ class TestTaglioScorrimento:
 
 # ═══════════════════ Taglio pressoflessione ═══════════════════
 
+
 class TestTaglioPressoflessione:
     def test_pressoflessione(self):
         inp = InputTaglio(
-            L=200, t=30, h=300,
-            V=5000, N=100000,
-            fd=40.0, psi=1.0, gamma_M=2.0,
+            L=200,
+            t=30,
+            h=300,
+            V=5000,
+            N=100000,
+            fd=40.0,
+            psi=1.0,
+            gamma_M=2.0,
         )
         res = taglio_pressoflessione(inp)
         assert res.criterio == "pressoflessione"
@@ -242,8 +289,11 @@ class TestTaglioPressoflessione:
     def test_pressoflessione_sigma_alta(self):
         """Se σ₀ ≈ 0.85fd → V_pf ≈ 0."""
         inp = InputTaglio(
-            L=100, t=30, h=300,
-            V=1000, N=100000,
+            L=100,
+            t=30,
+            h=300,
+            V=1000,
+            N=100000,
             fd=39.2,  # σ₀ = 100000/3000 = 33.3, 0.85×39.2 = 33.3
             psi=1.0,
         )
@@ -253,13 +303,21 @@ class TestTaglioPressoflessione:
 
 # ═══════════════════ Verifica taglio combinata ═══════════════════
 
+
 class TestVerificaTaglioPiano:
     def test_tutti_criteri(self):
         inp = InputTaglio(
-            L=200, t=30, h=300,
-            V=5000, N=50000,
-            tau_0=1.0, fvk0=0.2, mu=0.4, fd=40.0,
-            gamma_M=2.0, psi=1.0,
+            L=200,
+            t=30,
+            h=300,
+            V=5000,
+            N=50000,
+            tau_0=1.0,
+            fvk0=0.2,
+            mu=0.4,
+            fd=40.0,
+            gamma_M=2.0,
+            psi=1.0,
         )
         risultati = verifica_taglio_piano(inp)
         assert len(risultati) == 3
@@ -270,9 +328,13 @@ class TestVerificaTaglioPiano:
     def test_solo_diagonale(self):
         """Se mancano fvk0 e fd, solo criterio diagonale."""
         inp = InputTaglio(
-            L=200, t=30, h=300,
-            V=3000, N=50000,
-            tau_0=1.0, gamma_M=2.0,
+            L=200,
+            t=30,
+            h=300,
+            V=3000,
+            N=50000,
+            tau_0=1.0,
+            gamma_M=2.0,
         )
         risultati = verifica_taglio_piano(inp)
         assert len(risultati) == 1
@@ -280,6 +342,7 @@ class TestVerificaTaglioPiano:
 
 
 # ═══════════════════ Spanciamento ═══════════════════
+
 
 class TestSpanciamento:
     def test_parete_ok(self):
@@ -326,6 +389,7 @@ class TestSpanciamento:
 
 
 # ═══════════════════ Enum ═══════════════════
+
 
 class TestEnum:
     def test_tipo_muratura(self):

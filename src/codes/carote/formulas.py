@@ -82,6 +82,7 @@ def _interp_table(table: dict[float, float], ld: float) -> float:
 # Fattori comuni (non k_ld)
 # ---------------------------------------------------------------------------
 
+
 def _k_dir(sample: CoreSample) -> float:
     """Fattore direzione estrazione."""
     return 1.06 if sample.direction == "orizzontale" else 1.0
@@ -164,8 +165,10 @@ def _make_result(
 # 10 formulazioni
 # ---------------------------------------------------------------------------
 
+
 def converti_bs1881(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """BS 1881:Part 120 — tabella k_ld."""
     k_ld = _interp_table(_BS1881_KLD, sample.ld_ratio)
@@ -178,7 +181,8 @@ def converti_bs1881(
 
 
 def converti_aci214(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """ACI 214.4R-10 — formula k = 2/(1.04 + 0.04*L/D) per L/D < 1.75."""
     ld = sample.ld_ratio
@@ -194,7 +198,8 @@ def converti_aci214(
 
 
 def converti_tr11(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """Concrete Society Technical Report 11 — tabella k_ld."""
     k_ld = _interp_table(_TR11_KLD, sample.ld_ratio)
@@ -207,7 +212,8 @@ def converti_tr11(
 
 
 def converti_rilem1979(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """RILEM NDT 2 (1979) — tabella k_ld."""
     k_ld = _interp_table(_RILEM_KLD, sample.ld_ratio)
@@ -220,7 +226,8 @@ def converti_rilem1979(
 
 
 def converti_masi2005(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """Masi A. (2005) — regressione lineare k_ld = 0.667 + 0.167*L/D."""
     ld = sample.ld_ratio
@@ -234,7 +241,8 @@ def converti_masi2005(
 
 
 def converti_fiore2008(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """Fiore et al. (2008) — modello regressione per cls storico.
 
@@ -251,7 +259,8 @@ def converti_fiore2008(
 
 
 def converti_ntc2018(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """NTC2018 + Circolare n.7/2019 §C8.5.3 — tabella k_ld."""
     k_ld = _interp_table(_NTC2018_KLD, sample.ld_ratio)
@@ -264,7 +273,8 @@ def converti_ntc2018(
 
 
 def converti_en13791(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """EN 13791:2019 — tabella k_ld da annesso."""
     k_ld = _interp_table(_EN13791_KLD, sample.ld_ratio)
@@ -277,7 +287,8 @@ def converti_en13791(
 
 
 def converti_giacchetti(
-    sample: CoreSample, overrides: dict[str, float] | None = None,
+    sample: CoreSample,
+    overrides: dict[str, float] | None = None,
 ) -> ConversionResult:
     """Giacchetti R. et al. — regressione pratica italiana.
 
@@ -344,9 +355,7 @@ def converti_custom(
         try:
             f_is = float(eval(expression, {"__builtins__": {}}, namespace))  # noqa: S307
         except Exception as exc:
-            raise ValueError(
-                f"Errore nell'espressione custom '{expression}': {exc}"
-            ) from exc
+            raise ValueError(f"Errore nell'espressione custom '{expression}': {exc}") from exc
         passaggi.append(f"espressione: {expression}")
         passaggi.append(f"f_is = {f_is:.3f} MPa")
         return ConversionResult(
@@ -359,7 +368,9 @@ def converti_custom(
             passaggi_calcolo=passaggi,
         )
 
-    raise ValueError(f"mode custom non valido: '{mode}'. Validi: moltiplicatore, parametrica, espressione")
+    raise ValueError(
+        f"mode custom non valido: '{mode}'. Validi: moltiplicatore, parametrica, espressione"
+    )
 
 
 # ---------------------------------------------------------------------------

@@ -1,5 +1,24 @@
 """Moduli per analisi sismica avanzata (Fase U)."""
 
+from .analisi_modale import (
+    RisultatoAutovaloriModali,
+    combina_cqc,
+    combina_srss,
+    fattore_partecipazione,
+    massa_modale_effettiva,
+    risolvi_autovalori_modali,
+    taglio_base_modale,
+    verifica_partecipazione_minima,
+)
+from .duttilita import (
+    RisultatoDuttilita,
+    calcola_epsilon_cu_confinata,
+    calcola_mu_phi_disponibile,
+    calcola_mu_phi_richiesta,
+    calcola_rho_sx_minimo,
+    calcola_theta_u_circolare,
+    verifica_duttilita,
+)
 from .fattori_struttura import (
     ALPHA_U_ALPHA_1_TAB_NTC2018,
     ClasseDuttilita,
@@ -10,15 +29,6 @@ from .fattori_struttura import (
     calcola_k_w,
     calcola_q0,
     stima_alpha_u_alpha_1,
-)
-from .duttilita import (
-    RisultatoDuttilita,
-    calcola_epsilon_cu_confinata,
-    calcola_mu_phi_disponibile,
-    calcola_mu_phi_richiesta,
-    calcola_rho_sx_minimo,
-    calcola_theta_u_circolare,
-    verifica_duttilita,
 )
 from .gerarchia import (
     RisultatoGerarchiaGlobale,
@@ -36,16 +46,6 @@ from .nodi_trave_pilastro import (
     calcola_v_rd_diagonale,
     stima_a_sh_min,
     verifica_nodo_trave_pilastro,
-)
-from .analisi_modale import (
-    RisultatoAutovaloriModali,
-    combina_cqc,
-    combina_srss,
-    fattore_partecipazione,
-    massa_modale_effettiva,
-    risolvi_autovalori_modali,
-    taglio_base_modale,
-    verifica_partecipazione_minima,
 )
 from .pushover import (
     CurvaPushover,

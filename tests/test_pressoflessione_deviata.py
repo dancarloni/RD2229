@@ -36,13 +36,8 @@ from src.codes.pressoflessione.dispatcher import (
     NORME_TA,
     calcola_pressoflessione_deviata,
 )
-from src.codes.pressoflessione.dominio import (
-    _m_rd_bresler,
-    calcola_dominio_3d,
-)
-from src.codes.pressoflessione.instabilita_biassiale import (
-    amplifica_momenti_biassiale,
-)
+from src.codes.pressoflessione.dominio import _m_rd_bresler, calcola_dominio_3d
+from src.codes.pressoflessione.instabilita_biassiale import amplifica_momenti_biassiale
 from src.codes.pressoflessione.ta_cls import (
     calcola_M_Rd_ta,
     verifica_bresler_ta,
@@ -55,6 +50,7 @@ from src.codes.section_params.omogenizzata import BarraArmatura
 # Fixtures
 # ===========================================================================
 
+
 def _rect(w=30.0, h=50.0):
     return SimpleNamespace(section_type="RECTANGULAR", width=w, height=h)
 
@@ -66,8 +62,10 @@ def _circ(d=40.0):
 def _t_sec(bf=40.0, tf=10.0, tw=15.0, hw=35.0):
     return SimpleNamespace(
         section_type="T_SECTION",
-        flange_width=bf, flange_thickness=tf,
-        web_thickness=tw, web_height=hw,
+        flange_width=bf,
+        flange_thickness=tf,
+        web_thickness=tw,
+        web_height=hw,
     )
 
 
@@ -79,18 +77,32 @@ def _barre_simm_rett(h=50.0, b=30.0, copri=4.0, A_inf=5.0, A_sup=5.0):
     ]
 
 
-def _spec_ta(section=None, barre=None, N=5000.0, Mx=200000.0, My=100000.0,
-             sigma_adm=85.0, norma="RD2229", metodo="SOVRAPPOSIZIONE_ELASTICA",
-             alpha=1.0, n=15.0):
+def _spec_ta(
+    section=None,
+    barre=None,
+    N=5000.0,
+    Mx=200000.0,
+    My=100000.0,
+    sigma_adm=85.0,
+    norma="RD2229",
+    metodo="SOVRAPPOSIZIONE_ELASTICA",
+    alpha=1.0,
+    n=15.0,
+):
     if section is None:
         section = _rect()
     if barre is None:
         barre = _barre_simm_rett()
     return PressoflessSpec(
-        section=section, barre=barre,
-        N_kg=N, Mx_kgcm=Mx, My_kgcm=My,
+        section=section,
+        barre=barre,
+        N_kg=N,
+        Mx_kgcm=Mx,
+        My_kgcm=My,
         sigma_c_adm_kgcm2=sigma_adm,
-        n=n, norma=norma, metodo=metodo,
+        n=n,
+        norma=norma,
+        metodo=metodo,
         alpha_bresler=alpha,
     )
 
@@ -98,6 +110,7 @@ def _spec_ta(section=None, barre=None, N=5000.0, Mx=200000.0, My=100000.0,
 # ===========================================================================
 # TestBarraArmaturaExtension
 # ===========================================================================
+
 
 class TestBarraArmaturaExtension:
     """Retrocompat + campo x biassiale."""
@@ -129,8 +142,8 @@ class TestBarraArmaturaExtension:
 # TestCreaArmaturaRettangolare
 # ===========================================================================
 
-class TestCreaArmaturaRettangolare:
 
+class TestCreaArmaturaRettangolare:
     def test_4_barre_inf(self):
         barre = crea_armatura_rettangolare(30, 50, 4, 4, 16)
         assert len(barre) == 4
@@ -164,8 +177,8 @@ class TestCreaArmaturaRettangolare:
 # TestOmogenizzataBiassiale
 # ===========================================================================
 
-class TestOmogenizzataBiassiale:
 
+class TestOmogenizzataBiassiale:
     def test_rect_no_barre(self):
         """Sezione lorda rettangolare senza barre."""
         props = calcola_omogenizzata_biassiale(_rect(30, 50), [], 15)
@@ -238,8 +251,8 @@ class TestOmogenizzataBiassiale:
 # TestSovrapposizioneElastica
 # ===========================================================================
 
-class TestSovrapposizioneElastica:
 
+class TestSovrapposizioneElastica:
     def test_basic_rect(self):
         """Verifica base: sigma = N/A + Mx*y/Ix + My*x/Iy."""
         spec = _spec_ta(N=5000, Mx=200000, My=100000, sigma_adm=85)
@@ -287,8 +300,8 @@ class TestSovrapposizioneElastica:
 # TestSovrapposizioneElasticaDuckTyped
 # ===========================================================================
 
-class TestSovrapposizioneElasticaDuckTyped:
 
+class TestSovrapposizioneElasticaDuckTyped:
     def test_t_section(self):
         sec = _t_sec()
         barre = [BarraArmatura(y=42, A=8, x=0)]
@@ -313,7 +326,9 @@ class TestSovrapposizioneElasticaDuckTyped:
     def test_rect_hollow(self):
         sec = SimpleNamespace(
             section_type="RECTANGULAR_HOLLOW",
-            width=40, height=60, thickness=5,
+            width=40,
+            height=60,
+            thickness=5,
         )
         spec = _spec_ta(section=sec, barre=[], N=2000, Mx=100000, My=50000)
         res = verifica_sovrapposizione_elastica(spec)
@@ -322,7 +337,8 @@ class TestSovrapposizioneElasticaDuckTyped:
     def test_circular_hollow(self):
         sec = SimpleNamespace(
             section_type="CIRCULAR_HOLLOW",
-            outer_diameter=50, thickness=5,
+            outer_diameter=50,
+            thickness=5,
         )
         spec = _spec_ta(section=sec, barre=[], N=2000, Mx=100000, My=50000)
         res = verifica_sovrapposizione_elastica(spec)
@@ -333,12 +349,11 @@ class TestSovrapposizioneElasticaDuckTyped:
 # TestBreslerTA
 # ===========================================================================
 
-class TestBreslerTA:
 
+class TestBreslerTA:
     def test_alpha_1(self):
         """Bresler con alpha=1 (conservativo)."""
-        spec = _spec_ta(metodo="BRESLER_TA", alpha=1.0,
-                        N=5000, Mx=100000, My=50000)
+        spec = _spec_ta(metodo="BRESLER_TA", alpha=1.0, N=5000, Mx=100000, My=50000)
         res = verifica_bresler_ta(spec)
         assert res.metodo == "BRESLER_TA"
         assert res.bresler_value is not None
@@ -347,10 +362,8 @@ class TestBreslerTA:
 
     def test_alpha_giangreco(self):
         """Bresler con alpha=4/3 (Giangreco) — meno conservativo."""
-        spec1 = _spec_ta(metodo="BRESLER_TA", alpha=1.0,
-                         N=5000, Mx=100000, My=50000)
-        spec2 = _spec_ta(metodo="BRESLER_TA", alpha=4.0/3.0,
-                         N=5000, Mx=100000, My=50000)
+        spec1 = _spec_ta(metodo="BRESLER_TA", alpha=1.0, N=5000, Mx=100000, My=50000)
+        spec2 = _spec_ta(metodo="BRESLER_TA", alpha=4.0 / 3.0, N=5000, Mx=100000, My=50000)
         res1 = verifica_bresler_ta(spec1)
         res2 = verifica_bresler_ta(spec2)
         # alpha=4/3 e' meno conservativo: bresler_value minore
@@ -375,8 +388,7 @@ class TestBreslerTA:
 
     def test_bresler_ok(self):
         """Caso favorevole: bresler <= 1."""
-        spec = _spec_ta(metodo="BRESLER_TA", alpha=1.0,
-                        N=2000, Mx=50000, My=20000, sigma_adm=85)
+        spec = _spec_ta(metodo="BRESLER_TA", alpha=1.0, N=2000, Mx=50000, My=20000, sigma_adm=85)
         res = verifica_bresler_ta(spec)
         assert res.esito == "OK"
         assert res.bresler_value <= 1.0
@@ -395,8 +407,8 @@ class TestBreslerTA:
 # TestCalcolaM_Rd_ta
 # ===========================================================================
 
-class TestCalcolaM_Rd_ta:
 
+class TestCalcolaM_Rd_ta:
     def test_positive(self):
         M = calcola_M_Rd_ta(1500, 12500, 5000, 85)
         # sigma_res = 85 - 5000/1500 = 85 - 3.33 = 81.67
@@ -420,8 +432,8 @@ class TestCalcolaM_Rd_ta:
 # TestDispatcher
 # ===========================================================================
 
-class TestDispatcher:
 
+class TestDispatcher:
     def test_routing_ta_norms(self):
         for norma in NORME_TA:
             spec = _spec_ta(norma=norma)
@@ -432,10 +444,15 @@ class TestDispatcher:
         """SLU norms require f_ck and f_yk."""
         for norma in NORME_SLU:
             spec = PressoflessSpec(
-                section=_rect(), barre=_barre_simm_rett(),
-                N_kg=5000, Mx_kgcm=200000, My_kgcm=100000,
-                sigma_c_adm_kgcm2=85, norma=norma,
-                f_ck_MPa=25, f_yk_MPa=450,
+                section=_rect(),
+                barre=_barre_simm_rett(),
+                N_kg=5000,
+                Mx_kgcm=200000,
+                My_kgcm=100000,
+                sigma_c_adm_kgcm2=85,
+                norma=norma,
+                f_ck_MPa=25,
+                f_yk_MPa=450,
             )
             res = calcola_pressoflessione_deviata(spec)
             assert res.norma == norma
@@ -472,24 +489,33 @@ class TestDispatcher:
 # TestSLUWrapper
 # ===========================================================================
 
-class TestSLUWrapper:
 
+class TestSLUWrapper:
     def test_missing_fck_fyk(self):
         """Senza f_ck/f_yk: errore."""
         spec = PressoflessSpec(
-            section=_rect(), barre=_barre_simm_rett(),
-            N_kg=5000, Mx_kgcm=200000, My_kgcm=100000,
-            sigma_c_adm_kgcm2=85, norma="NTC2018",
+            section=_rect(),
+            barre=_barre_simm_rett(),
+            N_kg=5000,
+            Mx_kgcm=200000,
+            My_kgcm=100000,
+            sigma_c_adm_kgcm2=85,
+            norma="NTC2018",
         )
         res = calcola_pressoflessione_deviata(spec)
         assert res.esito == "ERRORE"
 
     def test_ntc2018(self):
         spec = PressoflessSpec(
-            section=_rect(), barre=_barre_simm_rett(),
-            N_kg=5000, Mx_kgcm=100000, My_kgcm=50000,
-            sigma_c_adm_kgcm2=85, norma="NTC2018",
-            f_ck_MPa=25, f_yk_MPa=450,
+            section=_rect(),
+            barre=_barre_simm_rett(),
+            N_kg=5000,
+            Mx_kgcm=100000,
+            My_kgcm=50000,
+            sigma_c_adm_kgcm2=85,
+            norma="NTC2018",
+            f_ck_MPa=25,
+            f_yk_MPa=450,
         )
         res = calcola_pressoflessione_deviata(spec)
         assert res.norma == "NTC2018"
@@ -497,20 +523,30 @@ class TestSLUWrapper:
 
     def test_ec2(self):
         spec = PressoflessSpec(
-            section=_rect(), barre=_barre_simm_rett(),
-            N_kg=5000, Mx_kgcm=100000, My_kgcm=50000,
-            sigma_c_adm_kgcm2=85, norma="EC2",
-            f_ck_MPa=25, f_yk_MPa=450,
+            section=_rect(),
+            barre=_barre_simm_rett(),
+            N_kg=5000,
+            Mx_kgcm=100000,
+            My_kgcm=50000,
+            sigma_c_adm_kgcm2=85,
+            norma="EC2",
+            f_ck_MPa=25,
+            f_yk_MPa=450,
         )
         res = calcola_pressoflessione_deviata(spec)
         assert res.norma == "EC2"
 
     def test_ntc2008(self):
         spec = PressoflessSpec(
-            section=_rect(), barre=_barre_simm_rett(),
-            N_kg=5000, Mx_kgcm=100000, My_kgcm=50000,
-            sigma_c_adm_kgcm2=85, norma="NTC2008",
-            f_ck_MPa=25, f_yk_MPa=450,
+            section=_rect(),
+            barre=_barre_simm_rett(),
+            N_kg=5000,
+            Mx_kgcm=100000,
+            My_kgcm=50000,
+            sigma_c_adm_kgcm2=85,
+            norma="NTC2008",
+            f_ck_MPa=25,
+            f_yk_MPa=450,
         )
         res = calcola_pressoflessione_deviata(spec)
         assert res.norma == "NTC2008"
@@ -520,16 +556,22 @@ class TestSLUWrapper:
 # TestInstabilitaBiassiale
 # ===========================================================================
 
-class TestInstabilitaBiassiale:
 
+class TestInstabilitaBiassiale:
     def test_basic_amplification(self):
         sec = _rect(30, 50)
         barre = _barre_simm_rett()
         w_x, w_y, Mx_amp, My_amp, det = amplifica_momenti_biassiale(
-            N_kg=10000, Mx_kgcm=100000, My_kgcm=50000,
-            section=sec, barre=barre, n=15,
-            l0_x_cm=300, l0_y_cm=300,
-            sigma_c_adm=85, E_c_kgcm2=250000,
+            N_kg=10000,
+            Mx_kgcm=100000,
+            My_kgcm=50000,
+            section=sec,
+            barre=barre,
+            n=15,
+            l0_x_cm=300,
+            l0_y_cm=300,
+            sigma_c_adm=85,
+            E_c_kgcm2=250000,
         )
         assert w_x >= 1.0
         assert w_y >= 1.0
@@ -541,12 +583,26 @@ class TestInstabilitaBiassiale:
         sec = _rect(30, 50)
         barre = _barre_simm_rett()
         _, _, _, _, det_short = amplifica_momenti_biassiale(
-            10000, 100000, 50000, sec, barre, 15,
-            l0_x_cm=100, l0_y_cm=100, sigma_c_adm=85,
+            10000,
+            100000,
+            50000,
+            sec,
+            barre,
+            15,
+            l0_x_cm=100,
+            l0_y_cm=100,
+            sigma_c_adm=85,
         )
         _, _, _, _, det_long = amplifica_momenti_biassiale(
-            10000, 100000, 50000, sec, barre, 15,
-            l0_x_cm=500, l0_y_cm=500, sigma_c_adm=85,
+            10000,
+            100000,
+            50000,
+            sec,
+            barre,
+            15,
+            l0_x_cm=500,
+            l0_y_cm=500,
+            sigma_c_adm=85,
         )
         assert det_long["omega_x"] >= det_short["omega_x"]
         assert det_long["omega_y"] >= det_short["omega_y"]
@@ -555,8 +611,15 @@ class TestInstabilitaBiassiale:
         sec = _rect()
         barre = _barre_simm_rett()
         _, _, _, _, det = amplifica_momenti_biassiale(
-            5000, 100000, 50000, sec, barre, 15,
-            l0_x_cm=300, l0_y_cm=300, sigma_c_adm=85,
+            5000,
+            100000,
+            50000,
+            sec,
+            barre,
+            15,
+            l0_x_cm=300,
+            l0_y_cm=300,
+            sigma_c_adm=85,
         )
         assert "lambda_x" in det
         assert "lambda_y" in det
@@ -566,11 +629,16 @@ class TestInstabilitaBiassiale:
     def test_dispatcher_with_instab(self):
         """Dispatcher amplifica momenti se flag attivo."""
         spec = PressoflessSpec(
-            section=_rect(), barre=_barre_simm_rett(),
-            N_kg=10000, Mx_kgcm=100000, My_kgcm=50000,
-            sigma_c_adm_kgcm2=85, norma="RD2229",
+            section=_rect(),
+            barre=_barre_simm_rett(),
+            N_kg=10000,
+            Mx_kgcm=100000,
+            My_kgcm=50000,
+            sigma_c_adm_kgcm2=85,
+            norma="RD2229",
             amplifica_instabilita=True,
-            l0_x_cm=300, l0_y_cm=300,
+            l0_x_cm=300,
+            l0_y_cm=300,
         )
         res = calcola_pressoflessione_deviata(spec)
         assert res.omega_x is not None
@@ -581,11 +649,16 @@ class TestInstabilitaBiassiale:
     def test_no_amplif_without_l0(self):
         """Senza l0, amplificazione non si attiva."""
         spec = PressoflessSpec(
-            section=_rect(), barre=_barre_simm_rett(),
-            N_kg=10000, Mx_kgcm=100000, My_kgcm=50000,
-            sigma_c_adm_kgcm2=85, norma="RD2229",
+            section=_rect(),
+            barre=_barre_simm_rett(),
+            N_kg=10000,
+            Mx_kgcm=100000,
+            My_kgcm=50000,
+            sigma_c_adm_kgcm2=85,
+            norma="RD2229",
             amplifica_instabilita=True,
-            l0_x_cm=None, l0_y_cm=None,
+            l0_x_cm=None,
+            l0_y_cm=None,
         )
         res = calcola_pressoflessione_deviata(spec)
         assert res.omega_x is None
@@ -595,8 +668,8 @@ class TestInstabilitaBiassiale:
 # TestDominio
 # ===========================================================================
 
-class TestDominio:
 
+class TestDominio:
     def test_basic_generation(self):
         spec = _spec_ta(N=0, Mx=0, My=0)
         dom = calcola_dominio_3d(spec, n_N=8, n_theta=12)
@@ -650,46 +723,55 @@ class TestDominio:
 # TestDisegno (matplotlib headless)
 # ===========================================================================
 
-class TestDisegno:
 
+class TestDisegno:
     @pytest.fixture(autouse=True)
     def _use_agg(self):
         import matplotlib
+
         matplotlib.use("Agg")
 
     def test_disegna_3d(self):
         from src.codes.pressoflessione.dominio import disegna_dominio_3d
+
         spec = _spec_ta()
         dom = calcola_dominio_3d(spec, n_N=6, n_theta=12)
         fig = disegna_dominio_3d(dom)
         assert fig is not None
         import matplotlib.pyplot as plt
+
         plt.close(fig)
 
     def test_disegna_2d_mxmy(self):
         from src.codes.pressoflessione.dominio import disegna_dominio_2d_mxmy
+
         spec = _spec_ta()
         dom = calcola_dominio_3d(spec, n_N=6, n_theta=12)
         fig = disegna_dominio_2d_mxmy(dom, N_fisso_kg=0)
         assert fig is not None
         import matplotlib.pyplot as plt
+
         plt.close(fig)
 
     def test_disegna_2d_nm(self):
         from src.codes.pressoflessione.dominio import disegna_dominio_2d_nm
+
         spec = _spec_ta()
         dom = calcola_dominio_3d(spec, n_N=6, n_theta=12)
         fig = disegna_dominio_2d_nm(dom, theta_fisso_rad=0)
         assert fig is not None
         import matplotlib.pyplot as plt
+
         plt.close(fig)
 
     def test_disegna_empty_domain(self):
         from src.codes.pressoflessione.dominio import disegna_dominio_2d_mxmy
+
         dom = DominioNMy([], [], [], [], "TA_ELASTICO", "RD2229")
         fig = disegna_dominio_2d_mxmy(dom)
         assert fig is not None
         import matplotlib.pyplot as plt
+
         plt.close(fig)
 
 
@@ -697,16 +779,28 @@ class TestDisegno:
 # TestAllSectionTypesTA
 # ===========================================================================
 
+
 class TestAllSectionTypesTA:
     """Verifica TA per vari tipi sezione duck-typed."""
 
-    @pytest.mark.parametrize("sec,name", [
-        (_rect(30, 50), "rect"),
-        (_circ(40), "circ"),
-        (_t_sec(), "T"),
-        (SimpleNamespace(section_type="RECTANGULAR_HOLLOW", width=40, height=60, thickness=5), "rect_hollow"),
-        (SimpleNamespace(section_type="CIRCULAR_HOLLOW", outer_diameter=50, thickness=5), "circ_hollow"),
-    ])
+    @pytest.mark.parametrize(
+        "sec,name",
+        [
+            (_rect(30, 50), "rect"),
+            (_circ(40), "circ"),
+            (_t_sec(), "T"),
+            (
+                SimpleNamespace(
+                    section_type="RECTANGULAR_HOLLOW", width=40, height=60, thickness=5
+                ),
+                "rect_hollow",
+            ),
+            (
+                SimpleNamespace(section_type="CIRCULAR_HOLLOW", outer_diameter=50, thickness=5),
+                "circ_hollow",
+            ),
+        ],
+    )
     def test_section_type(self, sec, name):
         barre = [BarraArmatura(y=4, A=5, x=0)]
         spec = _spec_ta(section=sec, barre=barre, N=3000, Mx=80000, My=40000)
@@ -719,16 +813,20 @@ class TestAllSectionTypesTA:
 # TestValoriRiferimento (hand-calculated)
 # ===========================================================================
 
-class TestValoriRiferimento:
 
+class TestValoriRiferimento:
     def test_rect_30x50_hand_calc(self):
         """Confronto con calcolo a mano: 30x50, 10cm2 totali, n=15."""
         # A_c = 1500, As_tot = 10, A_om = 1500 + 14*10 = 1640
         # Approssimazione con sezione lorda per Wx, Wy
         barre = _barre_simm_rett(h=50, b=30, copri=4, A_inf=5, A_sup=5)
         spec = _spec_ta(
-            section=_rect(30, 50), barre=barre,
-            N=5000, Mx=200000, My=100000, sigma_adm=85,
+            section=_rect(30, 50),
+            barre=barre,
+            N=5000,
+            Mx=200000,
+            My=100000,
+            sigma_adm=85,
         )
         res = verifica_sovrapposizione_elastica(spec)
         # sigma_N ~ 5000/1640 ~ 3.05

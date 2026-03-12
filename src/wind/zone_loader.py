@@ -15,7 +15,9 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # Percorso default del file zone
-_DEFAULT_ZONES_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "wind" / "ntc2018_wind_zones.json"
+_DEFAULT_ZONES_PATH = (
+    Path(__file__).resolve().parent.parent.parent / "data" / "wind" / "ntc2018_wind_zones.json"
+)
 
 
 @dataclass

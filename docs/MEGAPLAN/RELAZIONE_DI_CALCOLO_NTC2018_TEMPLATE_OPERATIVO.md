@@ -55,10 +55,10 @@ Le azioni e le combinazioni sono generate dal Motore Combinazioni NTC2018.
 4.1 Azioni elementari
 
 Azione Tipo Valore
-G1 Permanente strutturale 
-G2 Permanente non strutturale 
-Q Variabile 
-E Sismica 
+G1 Permanente strutturale
+G2 Permanente non strutturale
+Q Variabile
+E Sismica
 
 4.2 Combinazioni utilizzate
 Per ciascuna combinazione:

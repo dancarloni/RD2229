@@ -15,13 +15,12 @@ class TestSectionRegistry:
 
     def setup_method(self):
         from src.calc.section_registry import clear_registry
+
         clear_registry()
 
     def test_register_and_get(self):
-        from src.calc.section_registry import (
-            get_section_metadata,
-            register_section,
-        )
+        from src.calc.section_registry import get_section_metadata, register_section
+
         register_section("test-1", {"area_cm2": 100.0})
         meta = get_section_metadata("test-1")
         assert meta is not None
@@ -29,11 +28,13 @@ class TestSectionRegistry:
 
     def test_register_empty_id_ignored(self):
         from src.calc.section_registry import list_sections, register_section
+
         register_section("", {"area_cm2": 1.0})
         assert "" not in list_sections()
 
     def test_list_sections(self):
         from src.calc.section_registry import list_sections, register_section
+
         register_section("a", {})
         register_section("b", {})
         ids = list_sections()
@@ -41,22 +42,16 @@ class TestSectionRegistry:
         assert "b" in ids
 
     def test_remove_section(self):
-        from src.calc.section_registry import (
-            get_section_metadata,
-            register_section,
-            remove_section,
-        )
+        from src.calc.section_registry import get_section_metadata, register_section, remove_section
+
         register_section("rm-me", {"x": 1})
         assert remove_section("rm-me") is True
         assert get_section_metadata("rm-me") is None
         assert remove_section("rm-me") is False
 
     def test_clear_registry(self):
-        from src.calc.section_registry import (
-            clear_registry,
-            list_sections,
-            register_section,
-        )
+        from src.calc.section_registry import clear_registry, list_sections, register_section
+
         register_section("x", {})
         clear_registry()
         assert list_sections() == []
@@ -65,6 +60,7 @@ class TestSectionRegistry:
 
     def test_compute_rectangular(self):
         from src.calc.section_registry import compute_rectangular
+
         props = compute_rectangular(30.0, 50.0)
         assert props["section_type"] == "RECTANGULAR"
         assert props["area_cm2"] == 30.0 * 50.0
@@ -77,6 +73,7 @@ class TestSectionRegistry:
 
     def test_compute_circular(self):
         from src.calc.section_registry import compute_circular
+
         props = compute_circular(30.0)
         assert props["section_type"] == "CIRCULAR"
         r = 15.0
@@ -88,6 +85,7 @@ class TestSectionRegistry:
 
     def test_compute_t_section(self):
         from src.calc.section_registry import compute_t_section
+
         props = compute_t_section(60.0, 10.0, 25.0, 40.0)
         assert props["section_type"] == "T_SECTION"
         A_f = 60.0 * 10.0
@@ -102,6 +100,7 @@ class TestSectionRegistry:
 
     def test_compute_i_section(self):
         from src.calc.section_registry import compute_i_section
+
         props = compute_i_section(20.0, 1.5, 1.0, 27.0)
         assert props["section_type"] == "I_SECTION"
         h_tot = 2 * 1.5 + 27.0
@@ -112,10 +111,8 @@ class TestSectionRegistry:
         assert abs(props["area_cm2"] - round(A, 2)) < 0.01
 
     def test_load_sections_from_legacy(self):
-        from src.calc.section_registry import (
-            get_section_metadata,
-            load_sections_from_legacy,
-        )
+        from src.calc.section_registry import get_section_metadata, load_sections_from_legacy
+
         legacy_path = os.path.join(
             os.path.dirname(__file__), "..", "src", "legacy", "sections.json"
         )
@@ -129,11 +126,13 @@ class TestSectionRegistry:
 
     def test_load_sections_from_legacy_missing_file(self):
         from src.calc.section_registry import load_sections_from_legacy
+
         count = load_sections_from_legacy("/nonexistent/path.json")
         assert count == 0
 
     def test_bootstrap_default_sections(self):
         from src.calc.section_registry import bootstrap_default_sections, list_sections
+
         bootstrap_default_sections()
         ids = list_sections()
         assert len(ids) >= 9
@@ -157,6 +156,7 @@ class TestShearAreaRegistry:
             HOLLOW_CIRCLE_KAPPA,
             KAPPA_DEFAULTS,
         )
+
         assert abs(DEFAULT_KAPPA - 5.0 / 6.0) < 1e-10
         assert abs(CIRCLE_KAPPA - 6.0 / 7.0) < 1e-10
         assert abs(HOLLOW_CIRCLE_KAPPA - 0.5) < 1e-10
@@ -166,6 +166,7 @@ class TestShearAreaRegistry:
 
     def test_get_default_kappa(self):
         from src.calc.shear_area_registry import DEFAULT_KAPPA, get_default_kappa
+
         assert get_default_kappa("RECTANGULAR") == DEFAULT_KAPPA
         assert get_default_kappa("UNKNOWN_TYPE") == DEFAULT_KAPPA
 
@@ -234,10 +235,7 @@ class TestShearAreaRegistry:
         assert abs(Asx - DEFAULT_KAPPA * 500.0) < 0.01
 
     def test_compute_shear_area_kappa_defaults_for_section_type(self):
-        from src.calc.shear_area_registry import (
-            HOLLOW_CIRCLE_KAPPA,
-            compute_shear_area,
-        )
+        from src.calc.shear_area_registry import HOLLOW_CIRCLE_KAPPA, compute_shear_area
 
         class FakeHollow:
             shape_id = "custom_hollow"
@@ -250,10 +248,20 @@ class TestShearAreaRegistry:
 
     def test_all_12_section_types_have_kappa(self):
         from src.calc.shear_area_registry import KAPPA_DEFAULTS
+
         expected_types = [
-            "RECTANGULAR", "CIRCULAR", "CIRCULAR_HOLLOW", "RECTANGULAR_HOLLOW",
-            "T_SECTION", "INVERTED_T_SECTION", "I_SECTION", "PI_SECTION",
-            "C_SECTION", "L_SECTION", "V_SECTION", "INVERTED_V_SECTION",
+            "RECTANGULAR",
+            "CIRCULAR",
+            "CIRCULAR_HOLLOW",
+            "RECTANGULAR_HOLLOW",
+            "T_SECTION",
+            "INVERTED_T_SECTION",
+            "I_SECTION",
+            "PI_SECTION",
+            "C_SECTION",
+            "L_SECTION",
+            "V_SECTION",
+            "INVERTED_V_SECTION",
         ]
         for st in expected_types:
             assert st in KAPPA_DEFAULTS, f"Missing kappa default for {st}"
@@ -269,10 +277,12 @@ class TestCodeRegistry:
 
     def setup_method(self):
         from src.codes.code_registry import clear_registry
+
         clear_registry()
 
     def test_register_and_get_code(self):
         from src.codes.code_registry import get_code, register_code
+
         register_code("TEST", {"gamma_c": 1.5}, {"general": {"title": "Test"}})
         entry = get_code("TEST")
         assert entry is not None
@@ -281,11 +291,13 @@ class TestCodeRegistry:
 
     def test_register_empty_name_ignored(self):
         from src.codes.code_registry import list_codes, register_code
+
         register_code("", {"x": 1}, {})
         assert "" not in list_codes()
 
     def test_get_code_param(self):
         from src.codes.code_registry import get_code_param, register_code
+
         register_code("N", {"gamma_c": 1.5, "nested": {"val": 42}}, {})
         assert get_code_param("N", "gamma_c") == 1.5
         assert get_code_param("N", "nested.val") == 42
@@ -294,9 +306,8 @@ class TestCodeRegistry:
 
     def test_get_code_clause(self):
         from src.codes.code_registry import get_code_clause, register_code
-        register_code("E", {}, {
-            "materials": {"concrete": {"limit_states": [{"id": "ULS"}]}}
-        })
+
+        register_code("E", {}, {"materials": {"concrete": {"limit_states": [{"id": "ULS"}]}}})
         ls = get_code_clause("E", "materials.concrete.limit_states")
         assert isinstance(ls, list)
         assert ls[0]["id"] == "ULS"
@@ -305,6 +316,7 @@ class TestCodeRegistry:
 
     def test_list_codes(self):
         from src.codes.code_registry import list_codes, register_code
+
         register_code("A", {}, {})
         register_code("B", {}, {})
         codes = list_codes()
@@ -313,15 +325,15 @@ class TestCodeRegistry:
 
     def test_clear_registry(self):
         from src.codes.code_registry import clear_registry, list_codes, register_code
+
         register_code("X", {}, {})
         clear_registry()
         assert list_codes() == []
 
     def test_bootstrap_codes(self):
         from src.codes.code_registry import bootstrap_codes, get_code, list_codes
-        codes_dir = os.path.join(
-            os.path.dirname(__file__), "..", "src", "codes"
-        )
+
+        codes_dir = os.path.join(os.path.dirname(__file__), "..", "src", "codes")
         count = bootstrap_codes(codes_dir)
         assert count >= 2  # NTC2018 and EC2
 
@@ -341,14 +353,14 @@ class TestCodeRegistry:
 
     def test_bootstrap_codes_nonexistent_dir(self):
         from src.codes.code_registry import bootstrap_codes
+
         count = bootstrap_codes("/nonexistent/path")
         assert count == 0
 
     def test_bootstrap_codes_ntc2018_expanded_params(self):
         from src.codes.code_registry import bootstrap_codes, get_code_param
-        codes_dir = os.path.join(
-            os.path.dirname(__file__), "..", "src", "codes"
-        )
+
+        codes_dir = os.path.join(os.path.dirname(__file__), "..", "src", "codes")
         bootstrap_codes(codes_dir)
 
         # Verify expanded NTC2018 parameters
@@ -361,10 +373,12 @@ class TestCodeRegistry:
 
     def test_load_code_params_error_handling(self):
         from src.codes.code_registry import load_code_params
+
         result = load_code_params("test", "/nonexistent.json")
         assert result == {}
 
     def test_load_code_clauses_error_handling(self):
         from src.codes.code_registry import load_code_clauses
+
         result = load_code_clauses("test", "/nonexistent.yml")
         assert result == {}

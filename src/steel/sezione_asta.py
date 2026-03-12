@@ -23,6 +23,7 @@ from pathlib import Path
 
 class TipoSezioneAsta(str, Enum):
     """Tipo di sezione per aste di traliccio."""
+
     PIATTO = "piatto"
     ANGOLARE = "angolare"
     PROFILO_STANDARD = "profilo_standard"
@@ -44,6 +45,7 @@ class SezioneAsta:
         t:         dimensione piccola [cm]
         massa_kg_m: massa lineare [kg/m]
     """
+
     A: float
     Ix: float
     Iy: float
@@ -71,15 +73,22 @@ class SezioneAsta:
         if t > b:
             raise ValueError(f"b deve essere >= t per piatto: b={b}, t={t}")
         A = b * t
-        Ix = t * b ** 3 / 12   # inerzia rispetto asse fuori piano Z → λ_in_piano
-        Iy = b * t ** 3 / 12   # inerzia rispetto asse verticale Y → λ_fuori_piano
+        Ix = t * b**3 / 12  # inerzia rispetto asse fuori piano Z → λ_in_piano
+        Iy = b * t**3 / 12  # inerzia rispetto asse verticale Y → λ_fuori_piano
         ix = b / math.sqrt(12)
         iy = t / math.sqrt(12)
         massa = A * 7.85e-3 * 100  # A [cm²] × ρ [kg/cm³] × 100 [cm/m]
         return cls(
-            A=A, Ix=Ix, Iy=Iy, ix=ix, iy=iy,
+            A=A,
+            Ix=Ix,
+            Iy=Iy,
+            ix=ix,
+            iy=iy,
             nome=f"Piatto {b*10:.0f}x{t*10:.0f}",
-            tipo=TipoSezioneAsta.PIATTO, b=b, t=t, massa_kg_m=massa,
+            tipo=TipoSezioneAsta.PIATTO,
+            b=b,
+            t=t,
+            massa_kg_m=massa,
         )
 
     @classmethod
@@ -98,9 +107,9 @@ class SezioneAsta:
             raise ValueError(f"t deve essere < b per angolare pari: b={b}, t={t}")
 
         # Aree delle due ali (senza sovrapposizione al vertice)
-        A_h = b * t          # ala orizzontale
-        A_v = (b - t) * t   # ala verticale
-        A = A_h + A_v        # = (2b - t) * t
+        A_h = b * t  # ala orizzontale
+        A_v = (b - t) * t  # ala verticale
+        A = A_h + A_v  # = (2b - t) * t
 
         # Centroide dall'angolo interno (per simmetria x_g = y_g)
         x_g = (A_h * b / 2 + A_v * t / 2) / A
@@ -110,15 +119,14 @@ class SezioneAsta:
 
         # Inerzia rispetto all'asse orizzontale passante per il centroide
         I_cx = (
-            b * t ** 3 / 12 + A_h * (x_g - t / 2) ** 2
-            + t * (b - t) ** 3 / 12 + A_v * (x_g - y_v) ** 2
+            b * t**3 / 12
+            + A_h * (x_g - t / 2) ** 2
+            + t * (b - t) ** 3 / 12
+            + A_v * (x_g - y_v) ** 2
         )
 
         # Prodotto d'inerzia centroidale (negativo per l'angolo nel 1° quadrante)
-        I_xy = (
-            A_h * (b / 2 - x_g) * (t / 2 - x_g)
-            + A_v * (t / 2 - x_g) * (y_v - x_g)
-        )
+        I_xy = A_h * (b / 2 - x_g) * (t / 2 - x_g) + A_v * (t / 2 - x_g) * (y_v - x_g)
 
         # Momenti principali (assi ruotati di 45° rispetto agli assi geometrici)
         # I_u (forte) = I_cx + |I_xy|, I_v (debole) = I_cx - |I_xy|
@@ -126,13 +134,20 @@ class SezioneAsta:
         I2 = I_cx - abs(I_xy)
 
         ix = math.sqrt(I1 / A) if A > 0 else 0.0
-        iy = math.sqrt(I2 / A) if A > 0 else 0.0   # raggio minimo, governa
+        iy = math.sqrt(I2 / A) if A > 0 else 0.0  # raggio minimo, governa
         massa = A * 7.85e-3 * 100
 
         return cls(
-            A=A, Ix=I1, Iy=I2, ix=ix, iy=iy,
+            A=A,
+            Ix=I1,
+            Iy=I2,
+            ix=ix,
+            iy=iy,
             nome=f"L{b*10:.0f}x{b*10:.0f}x{t*10:.0f}",
-            tipo=TipoSezioneAsta.ANGOLARE, b=b, t=t, massa_kg_m=massa,
+            tipo=TipoSezioneAsta.ANGOLARE,
+            b=b,
+            t=t,
+            massa_kg_m=massa,
         )
 
     @classmethod
@@ -143,9 +158,14 @@ class SezioneAsta:
             profilo: ProfiloAcciaio (da sagomario.py)
         """
         return cls(
-            A=profilo.A, Ix=profilo.Ix, Iy=profilo.Iy,
-            ix=profilo.ix, iy=profilo.iy, nome=profilo.nome,
-            tipo=TipoSezioneAsta.PROFILO_STANDARD, massa_kg_m=profilo.massa_kg_m,
+            A=profilo.A,
+            Ix=profilo.Ix,
+            Iy=profilo.Iy,
+            ix=profilo.ix,
+            iy=profilo.iy,
+            nome=profilo.nome,
+            tipo=TipoSezioneAsta.PROFILO_STANDARD,
+            massa_kg_m=profilo.massa_kg_m,
         )
 
     @classmethod
@@ -153,10 +173,15 @@ class SezioneAsta:
         """Crea da dizionario (es. da JSON)."""
         tipo = TipoSezioneAsta(data.get("tipo", "profilo_standard"))
         return cls(
-            A=data["A"], Ix=data["Ix"], Iy=data["Iy"],
-            ix=data["ix"], iy=data["iy"],
-            nome=data["nome"], tipo=tipo,
-            b=data.get("b", 0.0), t=data.get("t", 0.0),
+            A=data["A"],
+            Ix=data["Ix"],
+            Iy=data["Iy"],
+            ix=data["ix"],
+            iy=data["iy"],
+            nome=data["nome"],
+            tipo=tipo,
+            b=data.get("b", 0.0),
+            t=data.get("t", 0.0),
             massa_kg_m=data.get("massa_kg_m", 0.0),
         )
 
@@ -174,6 +199,7 @@ class CatalogoSezioni:
 
     def carica_da_json(self, path: str | Path) -> int:
         import json
+
         path = Path(path)
         with open(path, encoding="utf-8") as f:
             data = json.load(f)

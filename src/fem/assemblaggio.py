@@ -17,8 +17,8 @@ Unità attese (coerenti con elemento_beam.py):
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Sequence
 
 import numpy as np
 import scipy.sparse as sp
@@ -99,7 +99,7 @@ class ElementoFEM:
         I: float,
         carichi: list[BaseCaricoBeam] | None = None,
         etichetta: str = "",
-    ) -> "ElementoFEM":
+    ) -> ElementoFEM:
         """Costruisce un ElementoFEM dai due nodi, calcolando L e angolo automaticamente."""
         dx = nodo_j.x - nodo_i.x
         dy = nodo_j.y - nodo_i.y
@@ -107,9 +107,7 @@ class ElementoFEM:
 
         L = math.hypot(dx, dy)
         if L == 0.0:
-            raise ValueError(
-                f"Elemento {id}: i nodi {nodo_i.id} e {nodo_j.id} coincidono."
-            )
+            raise ValueError(f"Elemento {id}: i nodi {nodo_i.id} e {nodo_j.id} coincidono.")
         angolo = math.atan2(dy, dx)
         beam = ElementoBeam(
             E=E,
@@ -173,6 +171,7 @@ class Assemblatore:
             )
 
         return n_gdl
+
     def assembla(self) -> tuple[sp.csr_matrix, np.ndarray]:
         """Assembla K_G (csr_matrix) e F_G (array 1D).
 
@@ -225,9 +224,7 @@ class Assemblatore:
 
         return K_csr, F_g
 
-    def aggiungi_carico_nodale(
-        self, F_g: np.ndarray, id_nodo: int, forze: Sequence[float]
-    ) -> None:
+    def aggiungi_carico_nodale(self, F_g: np.ndarray, id_nodo: int, forze: Sequence[float]) -> None:
         """Aggiunge un carico nodale diretto a F_G.
 
         Parametri

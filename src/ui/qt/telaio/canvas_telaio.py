@@ -19,8 +19,7 @@ import math
 from enum import Enum, auto
 
 try:
-    from PyQt6.QtCore import QPointF, QRectF, Qt  # noqa: F401
-    from PyQt6.QtCore import pyqtSignal as Signal
+    from PyQt6.QtCore import QPointF, QRectF, Qt, pyqtSignal as Signal  # noqa: F401
     from PyQt6.QtGui import (
         QBrush,
         QColor,
@@ -31,11 +30,11 @@ try:
         QTransform,
         QWheelEvent,
     )
+    from PyQt6.QtWidgets import QGraphicsPathItem  # noqa: F401
     from PyQt6.QtWidgets import (
         QGraphicsEllipseItem,
         QGraphicsItem,
         QGraphicsLineItem,
-        QGraphicsPathItem,  # noqa: F401
         QGraphicsScene,
         QGraphicsTextItem,
         QGraphicsView,
@@ -87,25 +86,25 @@ class ModalitaCanvas(Enum):
 # ==============================================================================
 
 COLORI = {
-    TipoAsta.TRAVE:     QColor("#1565C0"),   # blu
-    TipoAsta.PILASTRO:  QColor("#2E7D32"),   # verde
-    TipoAsta.SETTO:     QColor("#4E342E"),   # marrone
-    TipoAsta.MENSOLA:   QColor("#6A1B9A"),   # viola
-    TipoAsta.INCLINATA: QColor("#E65100"),   # arancione
-    TipoAsta.PENDOLO:   QColor("#37474F"),   # grigio scuro
+    TipoAsta.TRAVE: QColor("#1565C0"),  # blu
+    TipoAsta.PILASTRO: QColor("#2E7D32"),  # verde
+    TipoAsta.SETTO: QColor("#4E342E"),  # marrone
+    TipoAsta.MENSOLA: QColor("#6A1B9A"),  # viola
+    TipoAsta.INCLINATA: QColor("#E65100"),  # arancione
+    TipoAsta.PENDOLO: QColor("#37474F"),  # grigio scuro
 }
 
-COLORE_NODO = QColor("#F57F17")             # giallo scuro
+COLORE_NODO = QColor("#F57F17")  # giallo scuro
 COLORE_NODO_SELEZIONATO = QColor("#D50000")  # rosso
 COLORE_ASTA_SELEZIONATA = QColor("#D50000")
 COLORE_GRIGLIA = QColor("#E0E0E0")
 
-COLORE_MOMENTO_POS = QColor(50, 150, 250, 120)    # blu semi-trasparente
-COLORE_MOMENTO_NEG = QColor(250, 80, 80, 120)     # rosso semi-trasparente
-COLORE_TAGLIO = QColor(80, 200, 80, 120)           # verde
-COLORE_ASSIALE = QColor(200, 100, 200, 120)        # viola
+COLORE_MOMENTO_POS = QColor(50, 150, 250, 120)  # blu semi-trasparente
+COLORE_MOMENTO_NEG = QColor(250, 80, 80, 120)  # rosso semi-trasparente
+COLORE_TAGLIO = QColor(80, 200, 80, 120)  # verde
+COLORE_ASSIALE = QColor(200, 100, 200, 120)  # viola
 
-SCALA_CM_PX = 3.0      # pixel per centimetro (default, modificabile)
+SCALA_CM_PX = 3.0  # pixel per centimetro (default, modificabile)
 RAGGIO_NODO_PX = 6.0
 
 
@@ -117,10 +116,10 @@ RAGGIO_NODO_PX = 6.0
 class CanvasTelaio(QGraphicsView):
     """Canvas principale per disegno e interazione con il telaio."""
 
-    nodo_cliccato = Signal(int)     # id_nodo
-    asta_cliccata = Signal(int)     # id_asta
+    nodo_cliccato = Signal(int)  # id_nodo
+    asta_cliccata = Signal(int)  # id_asta
     nodo_richiesto = Signal(float, float)  # x_cm, y_cm (coordinate telaio)
-    asta_richiesta = Signal(int, int)      # id_nodo_i, id_nodo_j
+    asta_richiesta = Signal(int, int)  # id_nodo_i, id_nodo_j
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -130,7 +129,7 @@ class CanvasTelaio(QGraphicsView):
         self._modello: ModelloTelaio | None = None
         self._modalita = ModalitaCanvas.SELEZIONE
         self._scala = SCALA_CM_PX
-        self._griglia_cm = 50.0      # passo griglia in cm
+        self._griglia_cm = 50.0  # passo griglia in cm
         self._mostra_griglia = True
 
         # Stato inserimento asta
@@ -138,7 +137,7 @@ class CanvasTelaio(QGraphicsView):
 
         # Overlay diagrammi: "M" | "V" | "N" | None
         self._overlay_tipo: str | None = None
-        self._overlay_scala = 1.0   # scala amplificazione
+        self._overlay_scala = 1.0  # scala amplificazione
 
         # Configurazione view
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -183,8 +182,9 @@ class CanvasTelaio(QGraphicsView):
         """Carica e disegna il modello telaio."""
         self._modello = modello
         self.aggiorna()
-        self.fitInView(self._scene.sceneRect().adjusted(-50, -50, 50, 50),
-                       Qt.AspectRatioMode.KeepAspectRatio)
+        self.fitInView(
+            self._scene.sceneRect().adjusted(-50, -50, 50, 50), Qt.AspectRatioMode.KeepAspectRatio
+        )
 
     def aggiorna(self) -> None:
         """Ridisegna tutto."""
@@ -245,7 +245,7 @@ class CanvasTelaio(QGraphicsView):
         colore = COLORI.get(asta.tipo, QColor("#333333"))
         penna = QPen(colore, 2.5)
         linea = self._scene.addLine(x1, y1, x2, y2, penna)
-        linea.setData(0, asta.id)   # id asta per click detection
+        linea.setData(0, asta.id)  # id asta per click detection
         linea.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
 
         # Etichetta asta (a mezzeria)
@@ -270,9 +270,7 @@ class CanvasTelaio(QGraphicsView):
         colore_nodo = COLORE_NODO
         brush = QBrush(colore_nodo)
         penna = QPen(colore_nodo.darker(150), 1.0)
-        ellisse = self._scene.addEllipse(
-            px - r, py - r, 2 * r, 2 * r, penna, brush
-        )
+        ellisse = self._scene.addEllipse(px - r, py - r, 2 * r, 2 * r, penna, brush)
         ellisse.setData(0, nodo.id)
         ellisse.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
 
@@ -297,7 +295,7 @@ class CanvasTelaio(QGraphicsView):
         if v.tipo == TipoVincoloEsterno.LIBERO:
             return
 
-        s = 12.0    # dimensione simbolo in pixel
+        s = 12.0  # dimensione simbolo in pixel
         penna_v = QPen(QColor("#333333"), 1.5)
 
         if v.tipo == TipoVincoloEsterno.INCASTRO:
@@ -335,19 +333,28 @@ class CanvasTelaio(QGraphicsView):
             r_ruota = 3.0
             for dx in [-s + 3, 0, s - 3]:
                 self._scene.addEllipse(
-                    px + dx - r_ruota, py - s - 2 * r_ruota,
-                    2 * r_ruota, 2 * r_ruota, penna_v, QBrush(Qt.BrushStyle.NoBrush)
+                    px + dx - r_ruota,
+                    py - s - 2 * r_ruota,
+                    2 * r_ruota,
+                    2 * r_ruota,
+                    penna_v,
+                    QBrush(Qt.BrushStyle.NoBrush),
                 )
 
         elif v.tipo in (TipoVincoloEsterno.PATTINO_X, TipoVincoloEsterno.PATTINO_Y):
             # Rettangolo + ruote
-            self._scene.addRect(px - s, py - s, 2 * s, s * 0.7, penna_v,
-                                 QBrush(Qt.BrushStyle.NoBrush))
+            self._scene.addRect(
+                px - s, py - s, 2 * s, s * 0.7, penna_v, QBrush(Qt.BrushStyle.NoBrush)
+            )
             r_ruota = 3.0
             for dx in [-s + 4, s - 4]:
                 self._scene.addEllipse(
-                    px + dx - r_ruota, py - s - 2 * r_ruota,
-                    2 * r_ruota, 2 * r_ruota, penna_v, QBrush(Qt.BrushStyle.NoBrush)
+                    px + dx - r_ruota,
+                    py - s - 2 * r_ruota,
+                    2 * r_ruota,
+                    2 * r_ruota,
+                    penna_v,
+                    QBrush(Qt.BrushStyle.NoBrush),
                 )
 
         elif v.tipo == TipoVincoloEsterno.PENDOLO:
@@ -358,14 +365,17 @@ class CanvasTelaio(QGraphicsView):
             self._scene.addLine(px, py, px - dx, py - dy, penna_v)
             r_c = 3.0
             self._scene.addEllipse(
-                px - dx - r_c, py - dy - r_c, 2 * r_c, 2 * r_c, penna_v,
-                QBrush(Qt.BrushStyle.NoBrush)
+                px - dx - r_c,
+                py - dy - r_c,
+                2 * r_c,
+                2 * r_c,
+                penna_v,
+                QBrush(Qt.BrushStyle.NoBrush),
             )
 
         else:
             # Generico: quadratino
-            self._scene.addRect(px - 4, py - 4, 8, 8, penna_v,
-                                 QBrush(QColor("#888")))
+            self._scene.addRect(px - 4, py - 4, 8, 8, penna_v, QBrush(QColor("#888")))
 
     # ------------------------------------------------------------------
     # EVENTI MOUSE

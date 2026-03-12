@@ -80,15 +80,11 @@ def calcola_azione_sismica_opcm3274(
     log = result["decision_log"]
 
     if zona not in _ZONE_VALIDE:
-        raise ValueError(
-            f"Zona OPCM3274 {zona} non valida. Valori ammessi: {sorted(_ZONE_VALIDE)}"
-        )
+        raise ValueError(f"Zona OPCM3274 {zona} non valida. Valori ammessi: {sorted(_ZONE_VALIDE)}")
 
     ag_g = ZONE_AG[zona]
     TC_star = TC_STAR_OPCM[zona]
-    log.append(
-        f"OPCM3274: zona={zona}, ag_g={ag_g}g, F0={_F0_OPCM}, TC*={TC_star}s"
-    )
+    log.append(f"OPCM3274: zona={zona}, ag_g={ag_g}g, F0={_F0_OPCM}, TC*={TC_star}s")
 
     # Parametri spettrali
     cat_s = CategoriaSuolo(cat_suolo.upper())
@@ -105,27 +101,25 @@ def calcola_azione_sismica_opcm3274(
     # Se(T_1)
     Se_ms2 = spettro_elastico(ag_g, _F0_OPCM, SS, ST, TB, TC, TD, xi=5.0, T=T_1)
     Sd_ms2 = Se_ms2 / q
-    log.append(
-        f"T_1={T_1}s, Se(T_1)={Se_ms2:.4f} m/s², Sd(T_1)=Se/q={Sd_ms2:.4f} m/s²"
-    )
+    log.append(f"T_1={T_1}s, Se(T_1)={Se_ms2:.4f} m/s², Sd(T_1)=Se/q={Sd_ms2:.4f} m/s²")
 
     W_tot = sum(p.W_kN for p in piani)
     F_base = Sd_ms2 * W_tot / _G
-    log.append(
-        f"V_b = Sd({Sd_ms2:.4f}) * W_tot({W_tot:.3f}) / g = {F_base:.3f} kN"
-    )
+    log.append(f"V_b = Sd({Sd_ms2:.4f}) * W_tot({W_tot:.3f}) / g = {F_base:.3f} kN")
 
     C_eff = F_base / W_tot if W_tot > 0 else 0.0
     distribuzione = distribuzione_triangolare(F_base, piani)
 
-    result.update({
-        "F_base_kN": round(F_base, 3),
-        "C_effettivo": round(C_eff, 6),
-        "metodo": "SPETTRALE",
-        "distribuzione": distribuzione,
-        "ag_g": ag_g,
-        "Se_T1_ms2": round(Se_ms2, 4),
-        "T_1_s": T_1,
-        "zona": zona,
-    })
+    result.update(
+        {
+            "F_base_kN": round(F_base, 3),
+            "C_effettivo": round(C_eff, 6),
+            "metodo": "SPETTRALE",
+            "distribuzione": distribuzione,
+            "ag_g": ag_g,
+            "Se_T1_ms2": round(Se_ms2, 4),
+            "T_1_s": T_1,
+            "zona": zona,
+        }
+    )
     return result

@@ -24,6 +24,7 @@ SQRT12 = math.sqrt(12)
 #  Piatto da_piatto()
 # ───────────────────────────────────────────────
 
+
 class TestPiatto:
     def test_piatto_80x8_area(self):
         p = SezioneAsta.da_piatto(b=8.0, t=0.8)
@@ -31,21 +32,21 @@ class TestPiatto:
 
     def test_piatto_80x8_ix(self):
         p = SezioneAsta.da_piatto(b=8.0, t=0.8)
-        assert abs(p.ix - 8.0 / SQRT12) < 1e-4   # ≈ 2.309 cm
+        assert abs(p.ix - 8.0 / SQRT12) < 1e-4  # ≈ 2.309 cm
 
     def test_piatto_80x8_iy(self):
         p = SezioneAsta.da_piatto(b=8.0, t=0.8)
-        assert abs(p.iy - 0.8 / SQRT12) < 1e-4   # ≈ 0.231 cm
+        assert abs(p.iy - 0.8 / SQRT12) < 1e-4  # ≈ 0.231 cm
 
     def test_piatto_80x8_Ix(self):
         # Ix = t * b^3 / 12
         p = SezioneAsta.da_piatto(b=8.0, t=0.8)
-        assert abs(p.Ix - 0.8 * 512 / 12) < 1e-3   # ≈ 34.133 cm⁴
+        assert abs(p.Ix - 0.8 * 512 / 12) < 1e-3  # ≈ 34.133 cm⁴
 
     def test_piatto_80x8_Iy(self):
         # Iy = b * t^3 / 12
         p = SezioneAsta.da_piatto(b=8.0, t=0.8)
-        assert abs(p.Iy - 8.0 * 0.512 / 12) < 1e-4   # ≈ 0.341 cm⁴
+        assert abs(p.Iy - 8.0 * 0.512 / 12) < 1e-4  # ≈ 0.341 cm⁴
 
     def test_piatto_80x8_massa(self):
         p = SezioneAsta.da_piatto(b=8.0, t=0.8)
@@ -79,6 +80,7 @@ class TestPiatto:
 # ───────────────────────────────────────────────
 #  Angolare da_angolare_pari()
 # ───────────────────────────────────────────────
+
 
 class TestAngolare:
     def test_angolare_L80x80x8_area(self):
@@ -131,9 +133,11 @@ class TestAngolare:
 #  da_profilo()
 # ───────────────────────────────────────────────
 
+
 class TestDaProfilo:
     def test_da_profilo_ipe200(self):
         from src.steel.sagomario import SagomarioAcciaio
+
         sag = SagomarioAcciaio()
         sag.carica_tutti()
         profilo = sag.get("IPE 200")
@@ -148,6 +152,7 @@ class TestDaProfilo:
 
     def test_da_profilo_mantiene_massa(self):
         from src.steel.sagomario import SagomarioAcciaio
+
         sag = SagomarioAcciaio()
         sag.carica_tutti()
         profilo = sag.get("IPE 200")
@@ -160,6 +165,7 @@ class TestDaProfilo:
 # ───────────────────────────────────────────────
 #  from_dict / to_dict
 # ───────────────────────────────────────────────
+
 
 class TestSerialization:
     def test_round_trip_piatto(self):
@@ -181,6 +187,7 @@ class TestSerialization:
 # ───────────────────────────────────────────────
 #  Catalogo piatti.json
 # ───────────────────────────────────────────────
+
 
 class TestCatalogoPiatti:
     def test_catalogo_caricato(self):
@@ -208,6 +215,7 @@ class TestCatalogoPiatti:
 #  Catalogo angolari.json
 # ───────────────────────────────────────────────
 
+
 class TestCatalogoAngolari:
     def test_catalogo_angolari_caricato(self):
         cat = carica_catalogo_angolari()
@@ -227,6 +235,7 @@ class TestCatalogoAngolari:
 # ───────────────────────────────────────────────
 #  verifica_asta_ta()
 # ───────────────────────────────────────────────
+
 
 class TestVerificaAstaTa:
     def test_trazione_verificata(self):

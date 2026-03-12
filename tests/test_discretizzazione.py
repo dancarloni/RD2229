@@ -33,13 +33,19 @@ from src.methods.muratura.modello_edificio import (
 #  Fixture comune
 # ═══════════════════════════════════════════════════════════
 
+
 @pytest.fixture
 def materiale_base() -> MaterialeMuratura:
     return MaterialeMuratura(
         nome="mattoni_pieni",
-        f=24.0, tau_0=0.6, fvk0=0.4,
-        E=15000, G=5000, gamma=0.0018,
-        gamma_M=2.0, FC=1.2,
+        f=24.0,
+        tau_0=0.6,
+        fvk0=0.4,
+        E=15000,
+        G=5000,
+        gamma=0.0018,
+        gamma_M=2.0,
+        FC=1.2,
     )
 
 
@@ -47,13 +53,18 @@ def materiale_base() -> MaterialeMuratura:
 #  Parete senza aperture
 # ═══════════════════════════════════════════════════════════
 
-class TestPareteSenzaAperture:
 
+class TestPareteSenzaAperture:
     def test_maschio_unico(self, materiale_base):
         """Parete senza aperture → 1 maschio con L = lunghezza parete."""
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=500,
+            y_fin=0,
+            spessore=30,
+            materiale=materiale_base,
         )
         maschi, fasce, passaggi = discretizza_parete(parete, altezza_interpiano=300)
 
@@ -65,18 +76,28 @@ class TestPareteSenzaAperture:
 
     def test_maschio_unico_direzione(self, materiale_base):
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=500,
+            y_fin=0,
+            spessore=30,
+            materiale=materiale_base,
         )
         maschi, _, _ = discretizza_parete(parete, altezza_interpiano=300)
         # Il maschio dovrebbe avere la direzione della parete
-        assert hasattr(maschi[0], '_direzione')
+        assert hasattr(maschi[0], "_direzione")
         assert maschi[0]._direzione == "X"
 
     def test_parete_in_y(self, materiale_base):
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=0, y_fin=400,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=0,
+            y_fin=400,
+            spessore=30,
+            materiale=materiale_base,
         )
         maschi, _, _ = discretizza_parete(parete, altezza_interpiano=300)
         assert len(maschi) == 1
@@ -88,16 +109,26 @@ class TestPareteSenzaAperture:
 #  Parete con 1 apertura
 # ═══════════════════════════════════════════════════════════
 
-class TestPareteConUnaApertura:
 
+class TestPareteConUnaApertura:
     def test_due_maschi(self, materiale_base):
         """Parete 500 cm con finestra al centro → 2 maschi."""
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=500,
+            y_fin=0,
+            spessore=30,
+            materiale=materiale_base,
             aperture=[
-                Apertura(tipo=TipoApertura.FINESTRA, x_offset=150, z_offset=100,
-                         larghezza=120, altezza=120),
+                Apertura(
+                    tipo=TipoApertura.FINESTRA,
+                    x_offset=150,
+                    z_offset=100,
+                    larghezza=120,
+                    altezza=120,
+                ),
             ],
         )
         maschi, fasce, passaggi = discretizza_parete(parete, altezza_interpiano=300)
@@ -110,8 +141,13 @@ class TestPareteConUnaApertura:
     def test_fasce_superiore_inferiore(self, materiale_base):
         """Finestra con z_offset=100, altezza=120 → fascia sup e inf."""
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=500,
+            y_fin=0,
+            spessore=30,
+            materiale=materiale_base,
             aperture=[
                 Apertura(x_offset=150, z_offset=100, larghezza=120, altezza=120),
             ],
@@ -134,11 +170,17 @@ class TestPareteConUnaApertura:
     def test_porta_no_fascia_inferiore(self, materiale_base):
         """Porta (z_offset=0) → nessuna fascia inferiore."""
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=500,
+            y_fin=0,
+            spessore=30,
+            materiale=materiale_base,
             aperture=[
-                Apertura(tipo=TipoApertura.PORTA, x_offset=150, z_offset=0,
-                         larghezza=100, altezza=210),
+                Apertura(
+                    tipo=TipoApertura.PORTA, x_offset=150, z_offset=0, larghezza=100, altezza=210
+                ),
             ],
         )
         maschi, fasce, passaggi = discretizza_parete(parete, altezza_interpiano=300)
@@ -155,13 +197,18 @@ class TestPareteConUnaApertura:
 #  Parete con 2 aperture
 # ═══════════════════════════════════════════════════════════
 
-class TestPareteConDueAperture:
 
+class TestPareteConDueAperture:
     def test_tre_maschi(self, materiale_base):
         """Parete 800 cm con 2 finestre → 3 maschi."""
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=800, y_fin=0,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=800,
+            y_fin=0,
+            spessore=30,
+            materiale=materiale_base,
             aperture=[
                 Apertura(x_offset=100, z_offset=80, larghezza=120, altezza=120),
                 Apertura(x_offset=450, z_offset=80, larghezza=120, altezza=120),
@@ -178,8 +225,13 @@ class TestPareteConDueAperture:
     def test_quattro_fasce(self, materiale_base):
         """2 aperture con z_offset > 0 → 4 fasce (2 sup + 2 inf)."""
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=800, y_fin=0,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=800,
+            y_fin=0,
+            spessore=30,
+            materiale=materiale_base,
             aperture=[
                 Apertura(x_offset=100, z_offset=80, larghezza=120, altezza=120),
                 Apertura(x_offset=450, z_offset=80, larghezza=120, altezza=120),
@@ -192,8 +244,13 @@ class TestPareteConDueAperture:
     def test_maschi_adiacenti_fasce(self, materiale_base):
         """Verifica che le fasce collegano i maschi corretti."""
         parete = Parete(
-            id_parete=0, x_ini=0, y_ini=0, x_fin=800, y_fin=0,
-            spessore=30, materiale=materiale_base,
+            id_parete=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=800,
+            y_fin=0,
+            spessore=30,
+            materiale=materiale_base,
             aperture=[
                 Apertura(x_offset=100, z_offset=80, larghezza=120, altezza=120),
                 Apertura(x_offset=450, z_offset=80, larghezza=120, altezza=120),
@@ -211,21 +268,51 @@ class TestPareteConDueAperture:
 #  Discretizzazione piano
 # ═══════════════════════════════════════════════════════════
 
-class TestDiscretizzaPiano:
 
+class TestDiscretizzaPiano:
     def test_piano_4_pareti(self, materiale_base):
         """Piano rettangolare 5×4 m, senza aperture → 4 maschi."""
         piano = Piano(
-            id_piano=0, quota_z=0, altezza_interpiano=300,
+            id_piano=0,
+            quota_z=0,
+            altezza_interpiano=300,
             pareti=[
-                Parete(id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-                       spessore=30, materiale=materiale_base),
-                Parete(id_parete=1, x_ini=500, y_ini=0, x_fin=500, y_fin=400,
-                       spessore=30, materiale=materiale_base),
-                Parete(id_parete=2, x_ini=500, y_ini=400, x_fin=0, y_fin=400,
-                       spessore=30, materiale=materiale_base),
-                Parete(id_parete=3, x_ini=0, y_ini=400, x_fin=0, y_fin=0,
-                       spessore=30, materiale=materiale_base),
+                Parete(
+                    id_parete=0,
+                    x_ini=0,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=0,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
+                Parete(
+                    id_parete=1,
+                    x_ini=500,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
+                Parete(
+                    id_parete=2,
+                    x_ini=500,
+                    y_ini=400,
+                    x_fin=0,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
+                Parete(
+                    id_parete=3,
+                    x_ini=0,
+                    y_ini=400,
+                    x_fin=0,
+                    y_fin=0,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
             ],
         )
         risultato = discretizza_piano(piano)
@@ -235,19 +322,49 @@ class TestDiscretizzaPiano:
     def test_piano_con_aperture(self, materiale_base):
         """Piano con 1 finestra su 1 parete → 2 maschi su quella parete + 3 piene."""
         piano = Piano(
-            id_piano=0, quota_z=0, altezza_interpiano=300,
+            id_piano=0,
+            quota_z=0,
+            altezza_interpiano=300,
             pareti=[
-                Parete(id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-                       spessore=30, materiale=materiale_base,
-                       aperture=[
-                           Apertura(x_offset=150, z_offset=80, larghezza=120, altezza=120),
-                       ]),
-                Parete(id_parete=1, x_ini=500, y_ini=0, x_fin=500, y_fin=400,
-                       spessore=30, materiale=materiale_base),
-                Parete(id_parete=2, x_ini=500, y_ini=400, x_fin=0, y_fin=400,
-                       spessore=30, materiale=materiale_base),
-                Parete(id_parete=3, x_ini=0, y_ini=400, x_fin=0, y_fin=0,
-                       spessore=30, materiale=materiale_base),
+                Parete(
+                    id_parete=0,
+                    x_ini=0,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=0,
+                    spessore=30,
+                    materiale=materiale_base,
+                    aperture=[
+                        Apertura(x_offset=150, z_offset=80, larghezza=120, altezza=120),
+                    ],
+                ),
+                Parete(
+                    id_parete=1,
+                    x_ini=500,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
+                Parete(
+                    id_parete=2,
+                    x_ini=500,
+                    y_ini=400,
+                    x_fin=0,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
+                Parete(
+                    id_parete=3,
+                    x_ini=0,
+                    y_ini=400,
+                    x_fin=0,
+                    y_fin=0,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
             ],
         )
         risultato = discretizza_piano(piano)
@@ -258,12 +375,28 @@ class TestDiscretizzaPiano:
     def test_numerazione_progressiva(self, materiale_base):
         """Id maschi progressivi anche con più pareti."""
         piano = Piano(
-            id_piano=0, quota_z=0, altezza_interpiano=300,
+            id_piano=0,
+            quota_z=0,
+            altezza_interpiano=300,
             pareti=[
-                Parete(id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-                       spessore=30, materiale=materiale_base),
-                Parete(id_parete=1, x_ini=500, y_ini=0, x_fin=500, y_fin=400,
-                       spessore=30, materiale=materiale_base),
+                Parete(
+                    id_parete=0,
+                    x_ini=0,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=0,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
+                Parete(
+                    id_parete=1,
+                    x_ini=500,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
             ],
         )
         risultato = discretizza_piano(piano)
@@ -272,10 +405,19 @@ class TestDiscretizzaPiano:
 
     def test_to_dict(self, materiale_base):
         piano = Piano(
-            id_piano=0, quota_z=0, altezza_interpiano=300,
+            id_piano=0,
+            quota_z=0,
+            altezza_interpiano=300,
             pareti=[
-                Parete(id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0,
-                       spessore=30, materiale=materiale_base),
+                Parete(
+                    id_parete=0,
+                    x_ini=0,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=0,
+                    spessore=30,
+                    materiale=materiale_base,
+                ),
             ],
         )
         risultato = discretizza_piano(piano)
@@ -288,15 +430,15 @@ class TestDiscretizzaPiano:
 #  Maschio proprietà
 # ═══════════════════════════════════════════════════════════
 
-class TestMaschioProprietà:
 
+class TestMaschioProprietà:
     def test_area(self):
         m = Maschio(L=200, t=30, h=300)
         assert m.area == 6000.0
 
     def test_momento_inerzia(self):
         m = Maschio(L=200, t=30, h=300)
-        I_atteso = 30 * 200 ** 3 / 12
+        I_atteso = 30 * 200**3 / 12
         assert pytest.approx(m.I_x, rel=1e-6) == I_atteso
 
     def test_spostamento_limite_taglio(self):
@@ -312,8 +454,8 @@ class TestMaschioProprietà:
 #  Fascia proprietà
 # ═══════════════════════════════════════════════════════════
 
-class TestFasciaProprietà:
 
+class TestFasciaProprietà:
     def test_e_biella_senza_cordolo(self):
         f = Fascia(ha_cordolo=False)
         assert f.e_biella is True
@@ -331,8 +473,8 @@ class TestFasciaProprietà:
 #  Vincoli maschi
 # ═══════════════════════════════════════════════════════════
 
-class TestDeterminaVincoli:
 
+class TestDeterminaVincoli:
     def test_nessuna_fascia_mensola(self, materiale_base):
         """Maschio senza fasce collegate → mensola."""
         maschi = [Maschio(id_maschio=0, L=200, t=30, h=300)]
@@ -348,8 +490,9 @@ class TestDeterminaVincoli:
             Maschio(id_maschio=1, L=200, t=30, h=300),
         ]
         fasce = [
-            Fascia(id_fascia=0, L=120, t=30, h=80,
-                   id_maschio_sx=0, id_maschio_dx=1, ha_cordolo=False),
+            Fascia(
+                id_fascia=0, L=120, t=30, h=80, id_maschio_sx=0, id_maschio_dx=1, ha_cordolo=False
+            ),
         ]
 
         determina_vincoli_maschi(maschi, fasce)
@@ -363,8 +506,9 @@ class TestDeterminaVincoli:
             Maschio(id_maschio=1, L=200, t=30, h=300),
         ]
         fasce = [
-            Fascia(id_fascia=0, L=120, t=30, h=80,
-                   id_maschio_sx=0, id_maschio_dx=1, ha_cordolo=True),
+            Fascia(
+                id_fascia=0, L=120, t=30, h=80, id_maschio_sx=0, id_maschio_dx=1, ha_cordolo=True
+            ),
         ]
 
         determina_vincoli_maschi(maschi, fasce)
@@ -374,8 +518,14 @@ class TestDeterminaVincoli:
     def test_override_rispettato(self, materiale_base):
         """Override manuale vincolo non deve cambiare."""
         maschi = [
-            Maschio(id_maschio=0, L=200, t=30, h=300,
-                    vincolo=TipoVincolo.CERNIERA, vincolo_override=True),
+            Maschio(
+                id_maschio=0,
+                L=200,
+                t=30,
+                h=300,
+                vincolo=TipoVincolo.CERNIERA,
+                vincolo_override=True,
+            ),
         ]
         fasce: list[Fascia] = []
 
@@ -387,13 +537,17 @@ class TestDeterminaVincoli:
 #  N gravitazionale
 # ═══════════════════════════════════════════════════════════
 
-class TestCalcolaNGravitazionale:
 
+class TestCalcolaNGravitazionale:
     def test_peso_proprio_singolo_piano(self, materiale_base):
         """Maschio singolo piano: N = peso proprio + quota solaio."""
         m = Maschio(
-            id_maschio=0, id_parete=0, id_piano=0,
-            L=200, t=30, h=300,
+            id_maschio=0,
+            id_parete=0,
+            id_piano=0,
+            L=200,
+            t=30,
+            h=300,
             materiale=materiale_base,
         )
 
@@ -411,8 +565,12 @@ class TestCalcolaNGravitazionale:
     def test_n_override_rispettato(self, materiale_base):
         """Override N non deve essere ricalcolato."""
         m = Maschio(
-            id_maschio=0, id_parete=0, id_piano=0,
-            L=200, t=30, h=300,
+            id_maschio=0,
+            id_parete=0,
+            id_piano=0,
+            L=200,
+            t=30,
+            h=300,
             materiale=materiale_base,
             N_gravitazionale=50000.0,
             N_override=True,

@@ -17,33 +17,31 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from src.methods.muratura.discretizzazione import Maschio
-from src.methods.muratura.por_analisi import (
-    CurvaPushover,
-)
-from src.methods.muratura.resistenza import (
-    ResistenzaMaschio,
-)
+from src.methods.muratura.por_analisi import CurvaPushover
+from src.methods.muratura.resistenza import ResistenzaMaschio
 
 # ═══════════════════════════════════════════════════════════
 #  Riga tabella maschi
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RigaMaschio:
     """Riga della tabella verifiche maschi (stile 3Muri/Aedes)."""
+
     id_maschio: int = 0
     piano: int = 0
     parete: int = 0
-    L: float = 0.0                   # [cm]
-    t: float = 0.0                   # [cm]
-    h: float = 0.0                   # [cm]
-    N: float = 0.0                   # sforzo normale [kg]
-    V_Ed: float = 0.0               # taglio di progetto [kg]
-    V_Rd: float = 0.0               # resistenza a taglio [kg]
-    criterio: str = ""               # criterio dominante
-    DC: float = 0.0                  # rapporto domanda/capacità
+    L: float = 0.0  # [cm]
+    t: float = 0.0  # [cm]
+    h: float = 0.0  # [cm]
+    N: float = 0.0  # sforzo normale [kg]
+    V_Ed: float = 0.0  # taglio di progetto [kg]
+    V_Rd: float = 0.0  # resistenza a taglio [kg]
+    criterio: str = ""  # criterio dominante
+    DC: float = 0.0  # rapporto domanda/capacità
     verificato: bool = True
-    stato: str = ""                  # "elastico", "plastico", "collassato"
+    stato: str = ""  # "elastico", "plastico", "collassato"
 
     def to_dict(self) -> dict:
         return {
@@ -67,9 +65,11 @@ class RigaMaschio:
 #  Tabella verifiche maschi
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class TabellaVerificheMaschi:
     """Tabella completa delle verifiche maschi per un'analisi."""
+
     righe: list[RigaMaschio] = field(default_factory=list)
     direzione: str = "X"
     distribuzione: str = "modo_1"
@@ -175,7 +175,9 @@ def genera_tabella_maschi(
             id_maschio=m.id_maschio,
             piano=m.id_piano,
             parete=m.id_parete,
-            L=m.L, t=m.t, h=m.h,
+            L=m.L,
+            t=m.t,
+            h=m.h,
             N=m.N_gravitazionale,
             V_Ed=V_Ed,
             V_Rd=V_Rd,
@@ -193,13 +195,15 @@ def genera_tabella_maschi(
 #  Riepilogo rischio sismico
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RiepilogoRischio:
     """Riepilogo indice di rischio sismico globale vs locale."""
-    zeta_E_globale: float = 0.0      # da POR
-    zeta_E_locale: float = 0.0       # da cinematica (E.3)
-    zeta_E_governante: float = 0.0   # min(globale, locale)
-    governante: str = ""             # "globale" o "locale"
+
+    zeta_E_globale: float = 0.0  # da POR
+    zeta_E_locale: float = 0.0  # da cinematica (E.3)
+    zeta_E_governante: float = 0.0  # min(globale, locale)
+    governante: str = ""  # "globale" o "locale"
     passaggi: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
@@ -269,6 +273,7 @@ def calcola_riepilogo_rischio(
 #  Grafico matplotlib curva pushover
 # ═══════════════════════════════════════════════════════════
 
+
 def plot_curva_pushover(
     curva: CurvaPushover,
     salva_path: str | None = None,
@@ -294,34 +299,34 @@ def plot_curva_pushover(
     # Curva reale
     deltas = [p.delta_controllo for p in curva.punti]
     V_bases = [p.V_base for p in curva.punti]
-    ax.plot(deltas, V_bases, 'b-', linewidth=2, label='Curva di capacità')
+    ax.plot(deltas, V_bases, "b-", linewidth=2, label="Curva di capacità")
 
     # Bilineare
     if curva.V_y > 0 and curva.delta_y > 0:
         delta_bil = [0, curva.delta_y, curva.delta_u]
         V_bil = [0, curva.V_y, curva.V_y]
-        ax.plot(delta_bil, V_bil, 'r--', linewidth=1.5, label='Bilineare equivalente')
+        ax.plot(delta_bil, V_bil, "r--", linewidth=1.5, label="Bilineare equivalente")
 
         # Punti notevoli
-        ax.plot(curva.delta_y, curva.V_y, 'ro', markersize=8)
+        ax.plot(curva.delta_y, curva.V_y, "ro", markersize=8)
         ax.annotate(
-            f'δ_y={curva.delta_y:.3f} cm\nV_y={curva.V_y:.0f} kg',
+            f"δ_y={curva.delta_y:.3f} cm\nV_y={curva.V_y:.0f} kg",
             xy=(curva.delta_y, curva.V_y),
             xytext=(curva.delta_y + 0.3, curva.V_y * 0.85),
             fontsize=9,
         )
-        ax.plot(curva.delta_u, curva.V_y, 'rs', markersize=8)
+        ax.plot(curva.delta_u, curva.V_y, "rs", markersize=8)
         ax.annotate(
-            f'δ_u={curva.delta_u:.3f} cm',
+            f"δ_u={curva.delta_u:.3f} cm",
             xy=(curva.delta_u, curva.V_y),
             xytext=(curva.delta_u - 1.5, curva.V_y * 0.7),
             fontsize=9,
         )
 
-    ax.set_xlabel('Spostamento δ [cm]', fontsize=12)
-    ax.set_ylabel('Taglio alla base V [kg]', fontsize=12)
+    ax.set_xlabel("Spostamento δ [cm]", fontsize=12)
+    ax.set_ylabel("Taglio alla base V [kg]", fontsize=12)
     ax.set_title(
-        f'Curva Pushover — Direzione {curva.direzione}, {curva.distribuzione}',
+        f"Curva Pushover — Direzione {curva.direzione}, {curva.distribuzione}",
         fontsize=13,
     )
     ax.legend(fontsize=10)
@@ -332,17 +337,19 @@ def plot_curva_pushover(
     # Info bilineare
     if curva.T_star > 0:
         info = (
-            f'T* = {curva.T_star:.3f} s\n'
-            f'μ = {curva.mu:.2f}\n'
-            f'k = {curva.k_bilineare:.0f} kg/cm'
+            f"T* = {curva.T_star:.3f} s\n"
+            f"μ = {curva.mu:.2f}\n"
+            f"k = {curva.k_bilineare:.0f} kg/cm"
         )
         ax.text(
-            0.98, 0.02, info,
+            0.98,
+            0.02,
+            info,
             transform=ax.transAxes,
             fontsize=9,
-            verticalalignment='bottom',
-            horizontalalignment='right',
-            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5),
+            verticalalignment="bottom",
+            horizontalalignment="right",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
         )
 
     plt.tight_layout()

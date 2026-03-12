@@ -269,6 +269,7 @@ def _build_default_registry() -> CheckRegistry:
 
     def _compute_sle_stress(inputs: dict) -> dict:
         from src.actions.action_repo import SLEStressCheck
+
         element = inputs
         normative = {"norm_code": "NTC2018", "material": inputs.get("material", {})}
         return SLEStressCheck().run(element, normative, inputs.get("settings", {}))
@@ -292,6 +293,7 @@ def _build_default_registry() -> CheckRegistry:
 
     def _compute_sle_cracking(inputs: dict) -> dict:
         from src.actions.action_repo import SLECrackingCheck
+
         element = inputs
         normative = {"norm_code": "NTC2018", "material": inputs.get("material", {})}
         return SLECrackingCheck().run(element, normative, inputs.get("settings", {}))

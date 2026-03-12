@@ -136,6 +136,4 @@ def compute_urban_shielding(
     if building_height_m > 1.5 * avg_surrounding_height_m:
         return 1.0
 
-    return compute_shielding_factor(
-        avg_spacing_m, building_height_m, avg_surrounding_height_m
-    )
+    return compute_shielding_factor(avg_spacing_m, building_height_m, avg_surrounding_height_m)

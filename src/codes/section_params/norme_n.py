@@ -55,9 +55,16 @@ DM_N_DEFAULT: int = 10
 EC2_N_DEFAULT: int = 15
 
 # Norme supportate
-NORME_SUPPORTATE: frozenset[str] = frozenset({
-    "RD2229", "DM92", "DM96", "NTC2008", "NTC2018", "EC2",
-})
+NORME_SUPPORTATE: frozenset[str] = frozenset(
+    {
+        "RD2229",
+        "DM92",
+        "DM96",
+        "NTC2008",
+        "NTC2018",
+        "EC2",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -97,8 +104,7 @@ def get_n_for_norm(
 
     if norma_up not in NORME_SUPPORTATE:
         raise ValueError(
-            f"Norma '{norma}' non supportata. "
-            f"Valori ammessi: {sorted(NORME_SUPPORTATE)}"
+            f"Norma '{norma}' non supportata. " f"Valori ammessi: {sorted(NORME_SUPPORTATE)}"
         )
 
     # Valore utente: precedenza assoluta
@@ -141,11 +147,26 @@ def get_n_for_norm(
     # Default per norma
     _defaults = {
         "RD2229": (RD2229_N_DEFAULT, "RD2229 — default storico n=15; opzioni: 8/10/12/15"),
-        "DM92": (DM_N_DEFAULT, "DM92 — default professionale n=10; fornire E_s/E_c per calcolo preciso"),
-        "DM96": (DM_N_DEFAULT, "DM96 — default professionale n=10; fornire E_s/E_c per calcolo preciso"),
-        "NTC2008": (NTC2008_N_DEFAULT, "NTC2008 §4.1.2.1.4.2 — n=15 per combinazioni quasi-permanenti"),
-        "NTC2018": (NTC2018_N_DEFAULT, "NTC2018 §4.1.2.1.4.2 — n=15 per combinazioni quasi-permanenti"),
-        "EC2": (EC2_N_DEFAULT, "EC2 §7.4.3 — default n=15; fornire E_s/E_c/phi per calcolo preciso"),
+        "DM92": (
+            DM_N_DEFAULT,
+            "DM92 — default professionale n=10; fornire E_s/E_c per calcolo preciso",
+        ),
+        "DM96": (
+            DM_N_DEFAULT,
+            "DM96 — default professionale n=10; fornire E_s/E_c per calcolo preciso",
+        ),
+        "NTC2008": (
+            NTC2008_N_DEFAULT,
+            "NTC2008 §4.1.2.1.4.2 — n=15 per combinazioni quasi-permanenti",
+        ),
+        "NTC2018": (
+            NTC2018_N_DEFAULT,
+            "NTC2018 §4.1.2.1.4.2 — n=15 per combinazioni quasi-permanenti",
+        ),
+        "EC2": (
+            EC2_N_DEFAULT,
+            "EC2 §7.4.3 — default n=15; fornire E_s/E_c/phi per calcolo preciso",
+        ),
     }
     n_def, note = _defaults[norma_up]
     return NormaHnParams(n=float(n_def), fonte=norma_up, note=note)

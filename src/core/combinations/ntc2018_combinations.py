@@ -20,12 +20,12 @@ from typing import Any
 
 # Coefficienti parziali NTC2018 Tab. 2.6.I (valori default, sovrascrivibili)
 DEFAULT_GAMMA = {
-    "gamma_G1": 1.3,       # permanenti strutturali (sfavorevole)
-    "gamma_G1_fav": 1.0,   # permanenti strutturali (favorevole)
-    "gamma_G2": 1.5,       # permanenti non strutturali (sfavorevole)
-    "gamma_G2_fav": 0.0,   # permanenti non strutturali (favorevole)
-    "gamma_Q": 1.5,        # variabili (sfavorevole)
-    "gamma_Q_fav": 0.0,    # variabili (favorevole)
+    "gamma_G1": 1.3,  # permanenti strutturali (sfavorevole)
+    "gamma_G1_fav": 1.0,  # permanenti strutturali (favorevole)
+    "gamma_G2": 1.5,  # permanenti non strutturali (sfavorevole)
+    "gamma_G2_fav": 0.0,  # permanenti non strutturali (favorevole)
+    "gamma_Q": 1.5,  # variabili (sfavorevole)
+    "gamma_Q_fav": 0.0,  # variabili (favorevole)
 }
 
 # Coefficienti psi NTC2018 Tab. 2.5.I
@@ -76,12 +76,14 @@ def generate_slu_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
     if not variable_loads:
         # Solo permanenti
         total = gamma["gamma_G1"] * G1 + gamma["gamma_G2"] * G2
-        combinations.append({
-            "name": "SLU_PERM",
-            "type": "SLU",
-            "factors": {"G1": gamma["gamma_G1"], "G2": gamma["gamma_G2"]},
-            "total": round(total, 4),
-        })
+        combinations.append(
+            {
+                "name": "SLU_PERM",
+                "type": "SLU",
+                "factors": {"G1": gamma["gamma_G1"], "G2": gamma["gamma_G2"]},
+                "total": round(total, 4),
+            }
+        )
         return combinations
 
     # Ogni carico variabile come dominante
@@ -107,13 +109,15 @@ def generate_slu_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
             factors[name_acc] = round(gamma["gamma_Q"] * psi_0, 4)
             total += gamma["gamma_Q"] * psi_0 * val_acc
 
-        combinations.append({
-            "name": f"SLU_{name_dom}_dom",
-            "type": "SLU",
-            "dominant_action": name_dom,
-            "factors": factors,
-            "total": round(total, 4),
-        })
+        combinations.append(
+            {
+                "name": f"SLU_{name_dom}_dom",
+                "type": "SLU",
+                "dominant_action": name_dom,
+                "factors": factors,
+                "total": round(total, 4),
+            }
+        )
 
     return combinations
 
@@ -148,12 +152,14 @@ def generate_sle_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
         psi_2 = _get_psi(cat, "psi_2")
         factors_qp[name] = psi_2
         total_qp += psi_2 * val
-    combinations.append({
-        "name": "SLE_QP",
-        "type": "SLE_quasi_permanente",
-        "factors": factors_qp,
-        "total": round(total_qp, 4),
-    })
+    combinations.append(
+        {
+            "name": "SLE_QP",
+            "type": "SLE_quasi_permanente",
+            "factors": factors_qp,
+            "total": round(total_qp, 4),
+        }
+    )
 
     if not variable_loads:
         return combinations
@@ -176,13 +182,15 @@ def generate_sle_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
             psi_0 = _get_psi(cat_acc, "psi_0")
             factors_r[name_acc] = psi_0
             total_r += psi_0 * val_acc
-        combinations.append({
-            "name": f"SLE_RARA_{name_dom}_dom",
-            "type": "SLE_rara",
-            "dominant_action": name_dom,
-            "factors": factors_r,
-            "total": round(total_r, 4),
-        })
+        combinations.append(
+            {
+                "name": f"SLE_RARA_{name_dom}_dom",
+                "type": "SLE_rara",
+                "dominant_action": name_dom,
+                "factors": factors_r,
+                "total": round(total_r, 4),
+            }
+        )
 
         # Frequente
         psi_1_dom = _get_psi(cat_dom, "psi_1")
@@ -197,13 +205,15 @@ def generate_sle_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
             psi_2 = _get_psi(cat_acc, "psi_2")
             factors_f[name_acc] = psi_2
             total_f += psi_2 * val_acc
-        combinations.append({
-            "name": f"SLE_FREQ_{name_dom}_dom",
-            "type": "SLE_frequente",
-            "dominant_action": name_dom,
-            "factors": factors_f,
-            "total": round(total_f, 4),
-        })
+        combinations.append(
+            {
+                "name": f"SLE_FREQ_{name_dom}_dom",
+                "type": "SLE_frequente",
+                "dominant_action": name_dom,
+                "factors": factors_f,
+                "total": round(total_f, 4),
+            }
+        )
 
     return combinations
 

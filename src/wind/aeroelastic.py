@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 # Modelli dati
 # ===========================================================================
 
+
 @dataclass
 class VortexSheddingResult:
     """Risultati della verifica a distacco di vortici (App. O).
@@ -80,8 +81,8 @@ class AeroelasticCheckResult:
 STROUHAL_NUMBERS: dict[str, float] = {
     "circular": 0.18,
     "square": 0.12,
-    "rectangular_2_1": 0.06,     # b/d = 2
-    "rectangular_1_2": 0.16,     # b/d = 0.5
+    "rectangular_2_1": 0.06,  # b/d = 2
+    "rectangular_1_2": 0.16,  # b/d = 0.5
     "H_section": 0.12,
     "I_section": 0.14,
     "L_section": 0.14,
@@ -91,18 +92,21 @@ STROUHAL_NUMBERS: dict[str, float] = {
 }
 
 # Sezioni suscettibili a galloping (∂cL/∂α < 0 → instabile)
-GALLOPING_SUSCEPTIBLE_SECTIONS = frozenset({
-    "square",
-    "rectangular_2_1",
-    "D_section",
-    "L_section",
-    "ice_coated_circular",
-})
+GALLOPING_SUSCEPTIBLE_SECTIONS = frozenset(
+    {
+        "square",
+        "rectangular_2_1",
+        "D_section",
+        "L_section",
+        "ice_coated_circular",
+    }
+)
 
 
 # ===========================================================================
 # Verifica distacco vortici — CNR-DT 207 Appendice O
 # ===========================================================================
+
 
 def compute_critical_wind_speed(
     n1_hz: float,
@@ -188,7 +192,7 @@ def check_vortex_shedding(
     if is_susceptible and mass_per_length_kg_m > 0 and damping_log_dec > 0:
         # Scruton number Sc = 2·δ·m / (ρ·b²)
         rho_air = 1.25  # kg/m³
-        Sc = 2.0 * damping_log_dec * mass_per_length_kg_m / (rho_air * b_m ** 2)
+        Sc = 2.0 * damping_log_dec * mass_per_length_kg_m / (rho_air * b_m**2)
 
         # Stima semplificata: y_max/b ≈ K_w · c_lat / (Sc · St²)
         # Con K_w ≈ 0.5 (fattore di correlazione), c_lat ≈ 0.2 (cilindro)
@@ -196,7 +200,7 @@ def check_vortex_shedding(
         K_w = 0.5
 
         if Sc > 0:
-            y_over_b = K_w * c_lat / (Sc * St ** 2)
+            y_over_b = K_w * c_lat / (Sc * St**2)
             y_max = round(y_over_b * b_m, 4)
             warnings.append(
                 f"Scruton number Sc = {Sc:.1f}; "
@@ -229,6 +233,7 @@ def check_vortex_shedding(
 # ===========================================================================
 # Verifica galloping — CNR-DT 207 Appendice P
 # ===========================================================================
+
 
 def check_galloping(
     n1_hz: float,
@@ -265,9 +270,7 @@ def check_galloping(
     # Verifica se la sezione è suscettibile
     is_type_susceptible = section_type.lower() in GALLOPING_SUSCEPTIBLE_SECTIONS
     if not is_type_susceptible and a_G is None:
-        warnings.append(
-            f"Sezione '{section_type}' non tipicamente suscettibile a galloping."
-        )
+        warnings.append(f"Sezione '{section_type}' non tipicamente suscettibile a galloping.")
         return GallopingResult(
             is_susceptible=False,
             warnings=warnings,
@@ -297,7 +300,7 @@ def check_galloping(
         )
 
     rho_air = 1.25  # kg/m³
-    Sc = 2.0 * damping_log_dec * mass_per_length_kg_m / (rho_air * b_m ** 2)
+    Sc = 2.0 * damping_log_dec * mass_per_length_kg_m / (rho_air * b_m**2)
 
     # Velocità critica di galloping
     v_cg = 2.0 * Sc * n1_hz * b_m / a_G if a_G > 0 else 0.0
@@ -330,6 +333,7 @@ def check_galloping(
 # Verifica complessiva
 # ===========================================================================
 
+
 def check_aeroelastic_effects(
     n1_hz: float,
     b_m: float,
@@ -359,7 +363,9 @@ def check_aeroelastic_effects(
         AeroelasticCheckResult con risultati di tutte le verifiche.
     """
     vs = check_vortex_shedding(
-        n1_hz, b_m, v_mean_ms,
+        n1_hz,
+        b_m,
+        v_mean_ms,
         section_type=section_type,
         height_m=height_m,
         damping_log_dec=damping_log_dec,
@@ -367,7 +373,9 @@ def check_aeroelastic_effects(
     )
 
     gal = check_galloping(
-        n1_hz, b_m, v_mean_ms,
+        n1_hz,
+        b_m,
+        v_mean_ms,
         section_type=section_type,
         mass_per_length_kg_m=mass_per_length_kg_m,
         damping_log_dec=damping_log_dec,

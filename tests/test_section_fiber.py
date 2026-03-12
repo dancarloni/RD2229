@@ -23,6 +23,7 @@ from src.methods.section_fiber import (
 # Helper: creare sezioni mock con SimpleNamespace
 # ---------------------------------------------------------------------------
 
+
 def _rect(w=300.0, h=500.0):
     return SimpleNamespace(section_type="RECTANGULAR", width=w, height=h)
 
@@ -42,68 +43,85 @@ def _rect_hollow(w=400.0, h=600.0, t=20.0):
 def _t_section(bf=600.0, tf=100.0, tw=200.0, hw=400.0):
     return SimpleNamespace(
         section_type="T_SECTION",
-        flange_width=bf, flange_thickness=tf,
-        web_thickness=tw, web_height=hw,
+        flange_width=bf,
+        flange_thickness=tf,
+        web_thickness=tw,
+        web_height=hw,
     )
 
 
 def _inv_t(bf=600.0, tf=100.0, tw=200.0, hw=400.0):
     return SimpleNamespace(
         section_type="INVERTED_T_SECTION",
-        flange_width=bf, flange_thickness=tf,
-        web_thickness=tw, web_height=hw,
+        flange_width=bf,
+        flange_thickness=tf,
+        web_thickness=tw,
+        web_height=hw,
     )
 
 
 def _i_section(bf=300.0, tf=20.0, tw=12.0, hw=360.0):
     return SimpleNamespace(
         section_type="I_SECTION",
-        flange_width=bf, flange_thickness=tf,
-        web_thickness=tw, web_height=hw,
+        flange_width=bf,
+        flange_thickness=tf,
+        web_thickness=tw,
+        web_height=hw,
     )
 
 
 def _pi_section(bf=1000.0, tf=120.0, tw=150.0, hw=500.0):
     return SimpleNamespace(
         section_type="PI_SECTION",
-        flange_width=bf, flange_thickness=tf,
-        web_thickness=tw, web_height=hw,
+        flange_width=bf,
+        flange_thickness=tf,
+        web_thickness=tw,
+        web_height=hw,
     )
 
 
 def _c_section(w=100.0, h=200.0, tf=10.0, tw=8.0):
     return SimpleNamespace(
         section_type="C_SECTION",
-        width=w, height=h,
-        flange_thickness=tf, web_thickness=tw,
+        width=w,
+        height=h,
+        flange_thickness=tf,
+        web_thickness=tw,
     )
 
 
 def _l_section(w=150.0, h=200.0, th=15.0, tv=15.0):
     return SimpleNamespace(
         section_type="L_SECTION",
-        width=w, height=h,
-        t_horizontal=th, t_vertical=tv,
+        width=w,
+        height=h,
+        t_horizontal=th,
+        t_vertical=tv,
     )
 
 
 def _v_section(w=300.0, h=400.0, t=10.0):
     return SimpleNamespace(
         section_type="V_SECTION",
-        width=w, height=h, thickness=t,
+        width=w,
+        height=h,
+        thickness=t,
     )
 
 
 def _inv_v(w=300.0, h=400.0, t=10.0):
     return SimpleNamespace(
         section_type="INVERTED_V_SECTION",
-        width=w, height=h, thickness=t,
+        width=w,
+        height=h,
+        thickness=t,
     )
 
 
 # ===========================================================================
 # Test get_section_height / get_section_width
 # ===========================================================================
+
 
 class TestSectionDimensions:
     def test_rectangular(self):
@@ -145,6 +163,7 @@ class TestSectionDimensions:
 # ===========================================================================
 # Test width_at_depth per tutti i 12 tipi
 # ===========================================================================
+
 
 class TestWidthAtDepthRectangular:
     def test_inside(self):
@@ -303,6 +322,7 @@ class TestWidthAtDepthInvertedV:
 # Test integrazione area
 # ===========================================================================
 
+
 class TestAreaIntegration:
     """Verifica che l'integrazione numerica restituisca l'area corretta."""
 
@@ -351,6 +371,7 @@ class TestAreaIntegration:
 # ===========================================================================
 # Test compute_concrete_resultant
 # ===========================================================================
+
 
 class TestConcreteResultant:
     """Verifica risultante cls compresso."""

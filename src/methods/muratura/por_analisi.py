@@ -29,26 +29,20 @@ import math
 from dataclasses import dataclass, field
 from enum import Enum
 
-from src.methods.muratura.discretizzazione import (
-    Maschio,
-)
-from src.methods.muratura.modello_edificio import (
-    ConfigPOR,
-    ParametriSismiciEdificio,
-)
-from src.methods.muratura.resistenza import (
-    ResistenzaMaschio,
-    StatoMaschio,
-)
+from src.methods.muratura.discretizzazione import Maschio
+from src.methods.muratura.modello_edificio import ConfigPOR, ParametriSismiciEdificio
+from src.methods.muratura.resistenza import ResistenzaMaschio, StatoMaschio
 
 # ═══════════════════════════════════════════════════════════
 #  Distribuzione forze in altezza
 # ═══════════════════════════════════════════════════════════
 
+
 class TipoDistribuzione(str, Enum):
     """Tipo di distribuzione delle forze sismiche in altezza."""
-    UNIFORME = "uniforme"                    # proporzionale alle masse
-    MODO_1 = "modo_1"                        # proporzionale a massa × quota
+
+    UNIFORME = "uniforme"  # proporzionale alle masse
+    MODO_1 = "modo_1"  # proporzionale a massa × quota
 
 
 def forze_in_altezza(
@@ -92,35 +86,38 @@ def forze_in_altezza(
 #  Punto curva pushover
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class PuntoPushover:
     """Singolo punto della curva di capacità."""
+
     passo: int = 0
-    delta_controllo: float = 0.0     # spostamento piano di controllo [cm]
-    V_base: float = 0.0              # taglio alla base [kg]
-    n_elastici: int = 0              # maschi ancora elastici
-    n_plastici: int = 0              # maschi in plateau
-    n_collassati: int = 0            # maschi collassati
+    delta_controllo: float = 0.0  # spostamento piano di controllo [cm]
+    V_base: float = 0.0  # taglio alla base [kg]
+    n_elastici: int = 0  # maschi ancora elastici
+    n_plastici: int = 0  # maschi in plateau
+    n_collassati: int = 0  # maschi collassati
 
 
 @dataclass
 class CurvaPushover:
     """Curva di capacità V_base - δ."""
+
     punti: list[PuntoPushover] = field(default_factory=list)
     direzione: str = "X"
     distribuzione: str = "modo_1"
 
     # Bilineare equivalente
-    V_y: float = 0.0                 # taglio allo snervamento bilineare [kg]
-    delta_y: float = 0.0             # spostamento snervamento [cm]
-    delta_u: float = 0.0             # spostamento ultimo [cm]
-    k_bilineare: float = 0.0         # rigidezza bilineare [kg/cm]
-    mu: float = 0.0                  # duttilità δ_u/δ_y
+    V_y: float = 0.0  # taglio allo snervamento bilineare [kg]
+    delta_y: float = 0.0  # spostamento snervamento [cm]
+    delta_u: float = 0.0  # spostamento ultimo [cm]
+    k_bilineare: float = 0.0  # rigidezza bilineare [kg/cm]
+    mu: float = 0.0  # duttilità δ_u/δ_y
 
     # Proprietà SDOF equivalente
-    M_star: float = 0.0              # massa SDOF [kg]
-    T_star: float = 0.0              # periodo SDOF [s]
-    Gamma: float = 0.0               # fattore di partecipazione
+    M_star: float = 0.0  # massa SDOF [kg]
+    T_star: float = 0.0  # periodo SDOF [s]
+    Gamma: float = 0.0  # fattore di partecipazione
 
     passaggi: list[str] = field(default_factory=list)
 
@@ -156,6 +153,7 @@ class CurvaPushover:
 # ═══════════════════════════════════════════════════════════
 #  Pushover singolo piano (POR classico)
 # ═══════════════════════════════════════════════════════════
+
 
 def pushover_piano(
     maschi: list[Maschio],
@@ -236,14 +234,16 @@ def pushover_piano(
             else:
                 n_co += 1
 
-        curva.punti.append(PuntoPushover(
-            passo=passo,
-            delta_controllo=delta,
-            V_base=abs(V_base),
-            n_elastici=n_el,
-            n_plastici=n_pl,
-            n_collassati=n_co,
-        ))
+        curva.punti.append(
+            PuntoPushover(
+                passo=passo,
+                delta_controllo=delta,
+                V_base=abs(V_base),
+                n_elastici=n_el,
+                n_plastici=n_pl,
+                n_collassati=n_co,
+            )
+        )
 
         if abs(V_base) > V_base_max:
             V_base_max = abs(V_base)
@@ -260,9 +260,7 @@ def pushover_piano(
                     break
             elif config.criterio_collasso == "maschi_collassati":
                 if n_co / n_tot > config.soglia_maschi_collassati:
-                    passaggi.append(
-                        f"Collasso al passo {passo}: {n_co}/{n_tot} maschi collassati"
-                    )
+                    passaggi.append(f"Collasso al passo {passo}: {n_co}/{n_tot} maschi collassati")
                     break
 
     curva.passaggi = passaggi
@@ -272,6 +270,7 @@ def pushover_piano(
 # ═══════════════════════════════════════════════════════════
 #  Pushover multipiano
 # ═══════════════════════════════════════════════════════════
+
 
 def pushover_multipiano(
     maschi_per_piano: dict[int, list[Maschio]],
@@ -365,14 +364,16 @@ def pushover_multipiano(
 
         # Il taglio di base è la somma delle forze resistite dal piano terra
         # (approssimazione: in realtà V_base = Σ F_i = Σ V_piano_terra)
-        curva.punti.append(PuntoPushover(
-            passo=passo,
-            delta_controllo=delta_controllo,
-            V_base=abs(V_base),
-            n_elastici=n_el_tot,
-            n_plastici=n_pl_tot,
-            n_collassati=n_co_tot,
-        ))
+        curva.punti.append(
+            PuntoPushover(
+                passo=passo,
+                delta_controllo=delta_controllo,
+                V_base=abs(V_base),
+                n_elastici=n_el_tot,
+                n_plastici=n_pl_tot,
+                n_collassati=n_co_tot,
+            )
+        )
 
         if abs(V_base) > V_base_max:
             V_base_max = abs(V_base)
@@ -394,6 +395,7 @@ def pushover_multipiano(
 # ═══════════════════════════════════════════════════════════
 #  Bilinearizzazione (equipartizione energetica)
 # ═══════════════════════════════════════════════════════════
+
 
 def bilinearizza_curva(
     curva: CurvaPushover,
@@ -478,9 +480,11 @@ def bilinearizza_curva(
 #  Analisi completa (2 direzioni × 2 distribuzioni × ±eccentricità)
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RisultatoPOR:
     """Risultato completo dell'analisi POR."""
+
     # Curve pushover (fino a 8: 2 dir × 2 distr × 2 segni eccentricità)
     curve: list[CurvaPushover] = field(default_factory=list)
 
@@ -488,7 +492,7 @@ class RisultatoPOR:
     curva_governante: CurvaPushover | None = None
 
     # Indice di rischio sismico
-    zeta_E: float = 0.0             # PGA_capacità / PGA_domanda
+    zeta_E: float = 0.0  # PGA_capacità / PGA_domanda
 
     passaggi: list[str] = field(default_factory=list)
 

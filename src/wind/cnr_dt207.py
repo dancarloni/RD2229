@@ -43,6 +43,7 @@ _T_AVERAGING = 600.0  # Periodo di media [s] (10 min)
 # Risultati dettagliati cs·cd
 # ===========================================================================
 
+
 @dataclass
 class CscdDetailedResult:
     """Risultati dettagliati del calcolo cs·cd."""
@@ -50,12 +51,12 @@ class CscdDetailedResult:
     cscd: float = 1.0
     cs: float = 1.0
     cd: float = 1.0
-    B2: float = 1.0         # Fattore di fondo
-    R2: float = 0.0         # Fattore di risonanza
-    kp: float = 3.5         # Fattore di picco
-    Iv: float = 0.0         # Intensità di turbolenza
-    L_z_m: float = 0.0      # Scala integrale turbolenza [m]
-    S_L: float = 0.0        # Densità spettrale adimensionale
+    B2: float = 1.0  # Fattore di fondo
+    R2: float = 0.0  # Fattore di risonanza
+    kp: float = 3.5  # Fattore di picco
+    Iv: float = 0.0  # Intensità di turbolenza
+    L_z_m: float = 0.0  # Scala integrale turbolenza [m]
+    S_L: float = 0.0  # Densità spettrale adimensionale
     delta_tot: float = 0.0  # Smorzamento totale (log. dec.)
     method: str = "simplified"
 
@@ -63,6 +64,7 @@ class CscdDetailedResult:
 # ===========================================================================
 # Turbolenza
 # ===========================================================================
+
 
 def compute_turbulence_intensity(
     z: float,
@@ -120,6 +122,7 @@ def compute_integral_length_scale(
 # Fattore di fondo B²
 # ===========================================================================
 
+
 def compute_background_factor(
     h: float,
     b: float,
@@ -148,6 +151,7 @@ def compute_background_factor(
 # ===========================================================================
 # Densità spettrale e fattore di risonanza R²
 # ===========================================================================
+
 
 def compute_spectral_density(n_dim: float) -> float:
     """Densità spettrale di potenza adimensionale S_L(f, z).
@@ -185,7 +189,7 @@ def compute_aerodynamic_admittance(
         return 1.0
     if eta > 50:
         return 1.0 / eta
-    return 1.0 / eta - 1.0 / (2.0 * eta ** 2) * (1.0 - math.exp(-2.0 * eta))
+    return 1.0 / eta - 1.0 / (2.0 * eta**2) * (1.0 - math.exp(-2.0 * eta))
 
 
 def compute_resonance_factor(
@@ -228,7 +232,7 @@ def compute_resonance_factor(
     R_h = compute_aerodynamic_admittance(eta_h)
     R_b = compute_aerodynamic_admittance(eta_b)
 
-    R2 = (math.pi ** 2 / (2.0 * delta_tot)) * S_L * R_h * R_b
+    R2 = (math.pi**2 / (2.0 * delta_tot)) * S_L * R_h * R_b
 
     return max(R2, 0.0)
 
@@ -236,6 +240,7 @@ def compute_resonance_factor(
 # ===========================================================================
 # Fattore di picco kp
 # ===========================================================================
+
 
 def compute_peak_factor(
     turbulence_intensity: float,
@@ -286,6 +291,7 @@ def compute_peak_factor(
 # Arricchimento risultati con CNR-DT 207
 # ===========================================================================
 
+
 def enrich_results_with_cnr_dt207(
     wind_results: WindResults,
     site: WindSite,
@@ -333,6 +339,7 @@ def enrich_results_with_cnr_dt207(
 # ===========================================================================
 # Fattore strutturale cs·cd
 # ===========================================================================
+
 
 def compute_structural_factor(
     structure: StructureGeom | BuildingGeom,
@@ -540,6 +547,11 @@ def _compute_cscd_detailed(
 
     logger.info(
         "cs·cd dettagliato = %.3f (B²=%.3f, R²=%.3f, kp=%.2f, f1=%.2f Hz, δ=%.3f).",
-        cscd, B2, R2, kp, f1, damping_log_dec,
+        cscd,
+        B2,
+        R2,
+        kp,
+        f1,
+        damping_log_dec,
     )
     return round(cscd, 3)

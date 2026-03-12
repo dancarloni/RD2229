@@ -80,9 +80,7 @@ def check_stabilita_ta(inputs: dict[str, Any]) -> dict[str, Any]:
         i_min = float(inputs.get("i_min_cm", 0))
         if h > 0 and i_min > 0:
             lam = h / i_min
-            result["decision_log"].append(
-                f"lambda = h/i_min = {h}/{i_min} = {lam:.1f}"
-            )
+            result["decision_log"].append(f"lambda = h/i_min = {h}/{i_min} = {lam:.1f}")
         else:
             lam = 0.0
             result["decision_log"].append(
@@ -111,12 +109,14 @@ def check_stabilita_ta(inputs: dict[str, Any]) -> dict[str, Any]:
     utilisation = sigma_c / sigma_c_adm
 
     ok = sigma_c <= sigma_c_adm
-    result.update({
-        "ok": ok,
-        "sigma_c_kgcm2": round(sigma_c, 2),
-        "sigma_c_adm_kgcm2": sigma_c_adm,
-        "utilisation": round(utilisation, 4),
-    })
+    result.update(
+        {
+            "ok": ok,
+            "sigma_c_kgcm2": round(sigma_c, 2),
+            "sigma_c_adm_kgcm2": sigma_c_adm,
+            "utilisation": round(utilisation, 4),
+        }
+    )
     result["decision_log"].append(
         f"omega({omega:.2f}) * N({N:.0f}) / A({A:.1f}) = "
         f"sigma_c = {sigma_c:.2f} kg/cm2 "
@@ -144,8 +144,7 @@ def check_sle_rd2229(inputs: dict[str, Any]) -> dict[str, Any]:
     result = _base_contract()
     result["esito"] = "NOT_APPLICABLE"
     result["decision_log"].append(
-        "RD 2229/39: norma pre-sismica, verifica SLE non prevista "
-        "per elementi non strutturali"
+        "RD 2229/39: norma pre-sismica, verifica SLE non prevista " "per elementi non strutturali"
     )
     result.update({"ok": True, "utilisation": 0.0})
     return result

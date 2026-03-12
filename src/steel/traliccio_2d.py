@@ -23,31 +23,34 @@ if TYPE_CHECKING:
 
 class TipoVincolo(str, Enum):
     """Tipo di vincolo nodale."""
-    LIBERO = "libero"                  # nessun vincolo
-    CERNIERA = "cerniera"              # bloccato ux, uy
-    CARRELLO_X = "carrello_x"          # bloccato uy, libero ux
-    CARRELLO_Y = "carrello_y"          # bloccato ux, libero uy
+
+    LIBERO = "libero"  # nessun vincolo
+    CERNIERA = "cerniera"  # bloccato ux, uy
+    CARRELLO_X = "carrello_x"  # bloccato uy, libero ux
+    CARRELLO_Y = "carrello_y"  # bloccato ux, libero uy
 
 
 @dataclass
 class Nodo:
     """Nodo del traliccio piano."""
+
     id: int
-    x: float               # coordinata x [cm]
-    y: float               # coordinata y [cm]
+    x: float  # coordinata x [cm]
+    y: float  # coordinata y [cm]
     vincolo: TipoVincolo = TipoVincolo.LIBERO
-    Fx: float = 0.0        # forza esterna x [kg]
-    Fy: float = 0.0        # forza esterna y [kg]
+    Fx: float = 0.0  # forza esterna x [kg]
+    Fy: float = 0.0  # forza esterna y [kg]
 
 
 @dataclass
 class Asta:
     """Asta del traliccio piano."""
+
     id: int
-    nodo_i: int             # id nodo inizio
-    nodo_j: int             # id nodo fine
-    A: float                # area sezione [cm²]
-    E: float = 2100000.0    # modulo elastico [kg/cm²] (acciaio default)
+    nodo_i: int  # id nodo inizio
+    nodo_j: int  # id nodo fine
+    A: float  # area sezione [cm²]
+    E: float = 2100000.0  # modulo elastico [kg/cm²] (acciaio default)
     nome_profilo: str = ""  # nome profilo (opzionale)
 
     @property
@@ -58,36 +61,38 @@ class Asta:
 @dataclass
 class RisultatoAsta:
     """Risultato per singola asta."""
+
     id_asta: int
     nome_profilo: str
     nodo_i: int
     nodo_j: int
-    L: float                # lunghezza [cm]
-    N: float                # sforzo normale [kg] (+ trazione, - compressione)
-    sigma: float            # tensione σ = N/A [kg/cm²]
-    allungamento: float     # ΔL [cm]
+    L: float  # lunghezza [cm]
+    N: float  # sforzo normale [kg] (+ trazione, - compressione)
+    sigma: float  # tensione σ = N/A [kg/cm²]
+    allungamento: float  # ΔL [cm]
 
 
 @dataclass
 class RisultatoTraliccio:
     """Risultato completo dell'analisi del traliccio."""
+
     n_nodi: int
     n_aste: int
     n_gdl: int
     n_vincoli: int
 
     # Spostamenti nodali [cm]
-    spostamenti: dict[int, tuple[float, float]]     # {id_nodo: (ux, uy)}
+    spostamenti: dict[int, tuple[float, float]]  # {id_nodo: (ux, uy)}
 
     # Reazioni vincolari [kg]
-    reazioni: dict[int, tuple[float, float]]        # {id_nodo: (Rx, Ry)}
+    reazioni: dict[int, tuple[float, float]]  # {id_nodo: (Rx, Ry)}
 
     # Risultati aste
     aste: list[RisultatoAsta]
 
     # Rigidezza globale e spostamento massimo (D.3.2)
-    K_globale: float = 0.0   # F_tot_y / |uy_max| [kg/cm]
-    delta_max: float = 0.0   # spostamento massimo in Y [cm]
+    K_globale: float = 0.0  # F_tot_y / |uy_max| [kg/cm]
+    delta_max: float = 0.0  # spostamento massimo in Y [cm]
 
     # Diagnostica
     passaggi: list[str] = field(default_factory=list)
@@ -100,14 +105,8 @@ class RisultatoTraliccio:
             "n_aste": self.n_aste,
             "n_gdl": self.n_gdl,
             "n_vincoli": self.n_vincoli,
-            "spostamenti": {
-                str(k): {"ux": v[0], "uy": v[1]}
-                for k, v in self.spostamenti.items()
-            },
-            "reazioni": {
-                str(k): {"Rx": v[0], "Ry": v[1]}
-                for k, v in self.reazioni.items()
-            },
+            "spostamenti": {str(k): {"ux": v[0], "uy": v[1]} for k, v in self.spostamenti.items()},
+            "reazioni": {str(k): {"Rx": v[0], "Ry": v[1]} for k, v in self.reazioni.items()},
             "aste": [
                 {
                     "id": a.id_asta,
@@ -188,9 +187,15 @@ def risolvi_traliccio(
 
     if gdl_liberi <= 0:
         return RisultatoTraliccio(
-            n_nodi=n_nodi, n_aste=n_aste, n_gdl=n_gdl, n_vincoli=n_vinc,
-            spostamenti={}, reazioni={}, aste=[],
-            convergenza=False, errore="Struttura completamente vincolata",
+            n_nodi=n_nodi,
+            n_aste=n_aste,
+            n_gdl=n_gdl,
+            n_vincoli=n_vinc,
+            spostamenti={},
+            reazioni={},
+            aste=[],
+            convergenza=False,
+            errore="Struttura completamente vincolata",
             passaggi=passaggi,
         )
 
@@ -221,10 +226,10 @@ def risolvi_traliccio(
         cs_val = c * s
 
         # Indici gdl globali
-        i1 = 2 * nodo_idx[asta.nodo_i]      # ux_i
-        i2 = i1 + 1                           # uy_i
-        j1 = 2 * nodo_idx[asta.nodo_j]       # ux_j
-        j2 = j1 + 1                           # uy_j
+        i1 = 2 * nodo_idx[asta.nodo_i]  # ux_i
+        i2 = i1 + 1  # uy_i
+        j1 = 2 * nodo_idx[asta.nodo_j]  # ux_j
+        j2 = j1 + 1  # uy_j
 
         # Assemblaggio
         indices = [i1, i2, j1, j2]
@@ -279,9 +284,15 @@ def risolvi_traliccio(
 
     if u_red is None:
         return RisultatoTraliccio(
-            n_nodi=n_nodi, n_aste=n_aste, n_gdl=n_gdl, n_vincoli=n_vinc,
-            spostamenti={}, reazioni={}, aste=[],
-            convergenza=False, errore="Matrice singolare — struttura labile",
+            n_nodi=n_nodi,
+            n_aste=n_aste,
+            n_gdl=n_gdl,
+            n_vincoli=n_vinc,
+            spostamenti={},
+            reazioni={},
+            aste=[],
+            convergenza=False,
+            errore="Matrice singolare — struttura labile",
             passaggi=passaggi,
         )
 
@@ -319,16 +330,18 @@ def risolvi_traliccio(
         N = asta.EA / L * delta_L
         sigma_asta = N / asta.A if asta.A > 0 else 0.0
 
-        risultati_aste.append(RisultatoAsta(
-            id_asta=asta.id,
-            nome_profilo=asta.nome_profilo,
-            nodo_i=asta.nodo_i,
-            nodo_j=asta.nodo_j,
-            L=L,
-            N=N,
-            sigma=sigma_asta,
-            allungamento=delta_L,
-        ))
+        risultati_aste.append(
+            RisultatoAsta(
+                id_asta=asta.id,
+                nome_profilo=asta.nome_profilo,
+                nodo_i=asta.nodo_i,
+                nodo_j=asta.nodo_j,
+                L=L,
+                N=N,
+                sigma=sigma_asta,
+                allungamento=delta_L,
+            )
+        )
 
         tipo = "trazione" if N > 0 else "compressione" if N < 0 else "scarica"
         passaggi.append(
@@ -353,16 +366,12 @@ def risolvi_traliccio(
                     Ry += K[2 * idx + 1][j] * u[j]
                 Ry -= F[2 * idx + 1]
             reazioni[n.id] = (Rx, Ry)
-            passaggi.append(
-                f"Reazione nodo {n.id}: Rx={Rx:.1f} kg, Ry={Ry:.1f} kg"
-            )
+            passaggi.append(f"Reazione nodo {n.id}: Rx={Rx:.1f} kg, Ry={Ry:.1f} kg")
 
     # Verifica equilibrio globale
     somma_Fx = sum(n.Fx for n in nodi) + sum(r[0] for r in reazioni.values())
     somma_Fy = sum(n.Fy for n in nodi) + sum(r[1] for r in reazioni.values())
-    passaggi.append(
-        f"Equilibrio globale: ΣFx={somma_Fx:.4f} kg, ΣFy={somma_Fy:.4f} kg"
-    )
+    passaggi.append(f"Equilibrio globale: ΣFx={somma_Fx:.4f} kg, ΣFy={somma_Fy:.4f} kg")
 
     # Rigidezza globale K_globale = F_tot_y / delta_max_y
     F_tot_y = sum(n.Fy for n in nodi)
@@ -451,6 +460,7 @@ def distribuisci_carico_corrente(
         Nuova lista di nodi con Fy aggiornata (non modifica in-place).
     """
     import copy
+
     nodi_map = {n.id: n for n in nodi}
     # Copia nodi
     nodi_out = [copy.copy(n) for n in nodi]
@@ -530,8 +540,8 @@ def verifica_aste_traliccio(
             if sezioni and ra.id_asta in sezioni:
                 # Instabilità biassiale con dati di sezione reali
                 sez = sezioni[ra.id_asta]
-                lam_ip = ra.L / sez.ix if sez.ix > 0 else 0.0   # in piano
-                lam_fp = ra.L / sez.iy if sez.iy > 0 else 0.0   # fuori piano (governa)
+                lam_ip = ra.L / sez.ix if sez.ix > 0 else 0.0  # in piano
+                lam_fp = ra.L / sez.iy if sez.iy > 0 else 0.0  # fuori piano (governa)
                 lam = max(lam_ip, lam_fp)
                 omega = omega_acciaio(lam)
                 sigma_eff = omega * abs(ra.sigma)
@@ -574,5 +584,3 @@ def verifica_aste_traliccio(
         verifiche.append(ver)
 
     return verifiche
-
-

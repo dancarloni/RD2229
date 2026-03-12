@@ -4,7 +4,6 @@ Verifica calcolo sollecitazioni (M/V/N) da momenti Cross.
 Subfase L.10.
 """
 
-
 from src.methods.rd2229.telaio.modello_telaio import (
     AstaTelaio,
     CaricoAsta,
@@ -18,14 +17,14 @@ from src.methods.rd2229.telaio.modello_telaio import (
     TipoVincoloEsterno,
     VincoloEsterno,
 )
-from src.methods.rd2229.telaio.solver_telaio import (
-    calcola_caso_carico,
-)
+from src.methods.rd2229.telaio.solver_telaio import calcola_caso_carico
 
 
 def _sez(b: float = 30.0, h: float = 50.0, E: float = 300000.0) -> SezioneTelaio:
     I = b * h**3 / 12.0
-    return SezioneTelaio(tipo="RECTANGULAR", b=b, h=h, I=I, A=b*h, Wx=b*h**2/6, E=E, gamma=0.0)
+    return SezioneTelaio(
+        tipo="RECTANGULAR", b=b, h=h, I=I, A=b * h, Wx=b * h**2 / 6, E=E, gamma=0.0
+    )
 
 
 def _vinc(tipo: TipoVincoloEsterno) -> VincoloEsterno:
@@ -40,12 +39,13 @@ def _rigido() -> RilascioEstremita:
 # TEST 1 — Equilibrio trave semplice (isostatica)
 # ==============================================================================
 
+
 class TestSollecitazioniTraveSemplice:
     """Trave AB con estremi incastrati e carico uniforme q.
     Verifica: V_i + V_j = q × L (equilibrio verticale)."""
 
     def _modello(self) -> ModelloTelaio:
-        q = 5.0   # kg/cm
+        q = 5.0  # kg/cm
         L = 400.0
         nodi = [
             NodoTelaio(id=1, x=0, y=0, vincolo=_vinc(TipoVincoloEsterno.INCASTRO), etichetta="A"),
@@ -54,12 +54,22 @@ class TestSollecitazioniTraveSemplice:
         sez = _sez()
         aste = [
             AstaTelaio(
-                id=1, nodo_i=1, nodo_j=2, tipo=TipoAsta.TRAVE, sezione=sez,
-                carichi=[CaricoAsta(tipo=TipoCarico.DISTRIBUITO_UNIFORME, valore_sx=q, direzione="Y")],
-                rilascio_i=_rigido(), rilascio_j=_rigido(), etichetta="AB",
+                id=1,
+                nodo_i=1,
+                nodo_j=2,
+                tipo=TipoAsta.TRAVE,
+                sezione=sez,
+                carichi=[
+                    CaricoAsta(tipo=TipoCarico.DISTRIBUITO_UNIFORME, valore_sx=q, direzione="Y")
+                ],
+                rilascio_i=_rigido(),
+                rilascio_j=_rigido(),
+                etichetta="AB",
             )
         ]
-        return ModelloTelaio(nome="TraveSemplice", nodi=nodi, aste=aste, piani=[], zona_sismica="non_sismico")
+        return ModelloTelaio(
+            nome="TraveSemplice", nodi=nodi, aste=aste, piani=[], zona_sismica="non_sismico"
+        )
 
     def test_equilibrio_verticale(self):
         """V_i + V_j + reazione_carichi = 0 (equilibrio verticale)."""
@@ -70,10 +80,12 @@ class TestSollecitazioniTraveSemplice:
             q = 5.0
             L = 400.0
             carico_tot = q * L
-            reazione_tot = abs(soll.V[0]) + abs(soll.V[2]) if len(soll.V) > 2 else abs(soll.V[0]) * 2
-            assert abs(reazione_tot - carico_tot) < carico_tot * 0.02, (
-                f"Equilibrio verticale: reazioni={reazione_tot:.0f}, carico={carico_tot:.0f}"
+            reazione_tot = (
+                abs(soll.V[0]) + abs(soll.V[2]) if len(soll.V) > 2 else abs(soll.V[0]) * 2
             )
+            assert (
+                abs(reazione_tot - carico_tot) < carico_tot * 0.02
+            ), f"Equilibrio verticale: reazioni={reazione_tot:.0f}, carico={carico_tot:.0f}"
 
     def test_momento_agli_incastri(self):
         """Per trave con 2 incastri e carico uniforme: M_i = M_j = -qL²/12."""
@@ -84,14 +96,15 @@ class TestSollecitazioniTraveSemplice:
             q, L = 5.0, 400.0
             atteso = -q * L**2 / 12.0
             # Tolleranza 2% (Cross non converge a 0 esatto ma quasi)
-            assert abs(soll.M[0] - atteso) < abs(atteso) * 0.05, (
-                f"M_i={soll.M[0]:.0f}, atteso≈{atteso:.0f}"
-            )
+            assert (
+                abs(soll.M[0] - atteso) < abs(atteso) * 0.05
+            ), f"M_i={soll.M[0]:.0f}, atteso≈{atteso:.0f}"
 
 
 # ==============================================================================
 # TEST 2 — Reazioni ai vincoli
 # ==============================================================================
+
 
 class TestReazioniVincoli:
     """Trave isostatica (semplicemente appoggiata con cerniere).
@@ -101,21 +114,33 @@ class TestReazioniVincoli:
         q = 4.0
         L = 300.0
         nodi = [
-            NodoTelaio(id=1, x=0, y=0,
-                       vincolo=VincoloEsterno(TipoVincoloEsterno.CERNIERA), etichetta="A"),
-            NodoTelaio(id=2, x=L, y=0,
-                       vincolo=VincoloEsterno(TipoVincoloEsterno.CARRELLO_X), etichetta="B"),
+            NodoTelaio(
+                id=1, x=0, y=0, vincolo=VincoloEsterno(TipoVincoloEsterno.CERNIERA), etichetta="A"
+            ),
+            NodoTelaio(
+                id=2, x=L, y=0, vincolo=VincoloEsterno(TipoVincoloEsterno.CARRELLO_X), etichetta="B"
+            ),
         ]
         sez = _sez()
         ril_cerniera = RilascioEstremita(TipoRilascioInterno.CERNIERA)
         aste = [
             AstaTelaio(
-                id=1, nodo_i=1, nodo_j=2, tipo=TipoAsta.TRAVE, sezione=sez,
-                carichi=[CaricoAsta(tipo=TipoCarico.DISTRIBUITO_UNIFORME, valore_sx=q, direzione="Y")],
-                rilascio_i=ril_cerniera, rilascio_j=ril_cerniera, etichetta="AB",
+                id=1,
+                nodo_i=1,
+                nodo_j=2,
+                tipo=TipoAsta.TRAVE,
+                sezione=sez,
+                carichi=[
+                    CaricoAsta(tipo=TipoCarico.DISTRIBUITO_UNIFORME, valore_sx=q, direzione="Y")
+                ],
+                rilascio_i=ril_cerniera,
+                rilascio_j=ril_cerniera,
+                etichetta="AB",
             )
         ]
-        return ModelloTelaio(nome="TraveCerniere", nodi=nodi, aste=aste, piani=[], zona_sismica="non_sismico")
+        return ModelloTelaio(
+            nome="TraveCerniere", nodi=nodi, aste=aste, piani=[], zona_sismica="non_sismico"
+        )
 
     def test_reazioni_uguali(self):
         """Per trave simmetrica: V_A ≈ V_B ≈ qL/2."""
@@ -133,6 +158,7 @@ class TestReazioniVincoli:
 # TEST 3 — calcola_caso_carico senza carichi
 # ==============================================================================
 
+
 class TestCasoSenzaCarichi:
     """Con nessun carico sulle aste, momenti devono essere 0."""
 
@@ -142,11 +168,21 @@ class TestCasoSenzaCarichi:
             NodoTelaio(id=2, x=300, y=0, vincolo=VincoloEsterno(TipoVincoloEsterno.INCASTRO)),
         ]
         aste = [
-            AstaTelaio(id=1, nodo_i=1, nodo_j=2, tipo=TipoAsta.TRAVE,
-                       sezione=_sez(), carichi=[],
-                       rilascio_i=_rigido(), rilascio_j=_rigido(), etichetta="AB"),
+            AstaTelaio(
+                id=1,
+                nodo_i=1,
+                nodo_j=2,
+                tipo=TipoAsta.TRAVE,
+                sezione=_sez(),
+                carichi=[],
+                rilascio_i=_rigido(),
+                rilascio_j=_rigido(),
+                etichetta="AB",
+            ),
         ]
-        return ModelloTelaio(nome="Vuoto", nodi=nodi, aste=aste, piani=[], zona_sismica="non_sismico")
+        return ModelloTelaio(
+            nome="Vuoto", nodi=nodi, aste=aste, piani=[], zona_sismica="non_sismico"
+        )
 
     def test_momenti_nulli_senza_carichi(self):
         """Senza carichi, tutti i momenti devono essere nulli o trascurabili."""

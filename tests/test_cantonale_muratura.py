@@ -101,14 +101,23 @@ def test_diagnostica_angolo():
         TipoSogliaApertura,
         calcola_resistenza_residua_angolo,
     )
+
     # Test 1: NTC2018 (should be max(t, 100))
-    inp1 = InputDiagnosticaAngolo(distanza_apertura_cm=120.0, spessore_parete_cm=40.0, tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC)
+    inp1 = InputDiagnosticaAngolo(
+        distanza_apertura_cm=120.0,
+        spessore_parete_cm=40.0,
+        tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC,
+    )
     res1 = calcola_resistenza_residua_angolo(inp1)
     assert res1.is_ok == True
     assert res1.coeff_riduzione_k == 1.0
     assert res1.distanza_minima_richiesta_cm == 100.0
     # Test 2: NTC2018 Failing
-    inp2 = InputDiagnosticaAngolo(distanza_apertura_cm=50.0, spessore_parete_cm=40.0, tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC)
+    inp2 = InputDiagnosticaAngolo(
+        distanza_apertura_cm=50.0,
+        spessore_parete_cm=40.0,
+        tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC,
+    )
     res2 = calcola_resistenza_residua_angolo(inp2)
     assert res2.is_ok == False
     assert res2.coeff_riduzione_k == 0.5
@@ -117,7 +126,8 @@ def test_diagnostica_angolo():
     res3 = calcola_resistenza_residua_angolo(inp3)
     assert res3.is_ok == False
     assert res3.coeff_riduzione_k == 0.20
-    assert res3.status == 'FAIL'
+    assert res3.status == "FAIL"
+
 
 def test_report_estrazione():
     from src.methods.muratura.cantonale import (
@@ -133,14 +143,18 @@ def test_report_estrazione():
     inp = InputCantonale(h_cm=300, t1_cm=40, t2_cm=40, L1_dist_cm=150, L2_dist_cm=150)
     res = esegui_verifica_cantonale(inp)
     report_text = sezione_meccanismo_cantonale(res)
-    assert 'RIBALTAMENTO CANTONALE 3D' in report_text
-    assert 'Moltiplicatore collasso alpha_0' in report_text
-    assert 'PASSAGGI DI CALCOLO:' in report_text
+    assert "RIBALTAMENTO CANTONALE 3D" in report_text
+    assert "Moltiplicatore collasso alpha_0" in report_text
+    assert "PASSAGGI DI CALCOLO:" in report_text
 
     # Check diagnostica
-    inp_diag = InputDiagnosticaAngolo(distanza_apertura_cm=50.0, spessore_parete_cm=40.0, tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC)
+    inp_diag = InputDiagnosticaAngolo(
+        distanza_apertura_cm=50.0,
+        spessore_parete_cm=40.0,
+        tipo_soglia=TipoSogliaApertura.NORMATIVA_NTC,
+    )
     res_diag = calcola_resistenza_residua_angolo(inp_diag)
     report_diag_text = sezione_diagnostica_angolo(res_diag)
-    assert 'DIAGNOSTICA APERTURE' in report_diag_text
-    assert 'Stato diagnostica: WARNING' in report_diag_text
-    assert 'LOG DECISIONALE:' in report_diag_text
+    assert "DIAGNOSTICA APERTURE" in report_diag_text
+    assert "Stato diagnostica: WARNING" in report_diag_text
+    assert "LOG DECISIONALE:" in report_diag_text

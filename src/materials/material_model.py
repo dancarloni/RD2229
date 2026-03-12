@@ -39,10 +39,10 @@ logger = logging.getLogger(__name__)
 
 # --- Valori di default Poisson per tipo materiale (da letteratura) ---
 _POISSON_DEFAULT: dict[str, float] = {
-    "calcestruzzo": 0.20,    # EC2 §3.1.3 → ν = 0.2
-    "acciaio": 0.30,         # EC3 §3.2.6 → ν = 0.3
-    "muratura": 0.15,        # Letteratura → ν = 0.10÷0.25, tipico 0.15
-    "legno": 0.40,           # Valore indicativo longitudinale-trasversale
+    "calcestruzzo": 0.20,  # EC2 §3.1.3 → ν = 0.2
+    "acciaio": 0.30,  # EC3 §3.2.6 → ν = 0.3
+    "muratura": 0.15,  # Letteratura → ν = 0.10÷0.25, tipico 0.15
+    "legno": 0.40,  # Valore indicativo longitudinale-trasversale
 }
 
 
@@ -55,6 +55,7 @@ class ParametroDerivato:
         override: True se l'utente ha sovrascritto il valore calcolato.
         formula: Descrizione della formula usata per il calcolo automatico.
     """
+
     valore: float = 0.0
     override: bool = False
     formula: str = ""
@@ -110,6 +111,7 @@ class Material:
         E: Modulo elastico [kg/cm²].
         nu: Coefficiente di Poisson (default da letteratura, editabile).
     """
+
     # --- Identificazione ---
     material_id: str = ""
     descrizione: str = ""
@@ -118,44 +120,44 @@ class Material:
     densita_kg_m3: float = 2500.0
 
     # --- Parametri primari comuni ---
-    E: float = 0.0               # Modulo elastico [kg/cm²]
-    nu: float = 0.0              # Coefficiente di Poisson
+    E: float = 0.0  # Modulo elastico [kg/cm²]
+    nu: float = 0.0  # Coefficiente di Poisson
 
     # --- Parametri primari calcestruzzo ---
-    f_ck: float = 0.0            # Resistenza caratteristica cilindrica [kg/cm²]
-    gamma_c: float = 1.50        # Coefficiente parziale cls (1.0 per TA)
-    alpha_cc: float = 0.85       # Effetti lungo termine (NTC2018)
+    f_ck: float = 0.0  # Resistenza caratteristica cilindrica [kg/cm²]
+    gamma_c: float = 1.50  # Coefficiente parziale cls (1.0 per TA)
+    alpha_cc: float = 0.85  # Effetti lungo termine (NTC2018)
 
     # --- Parametri primari calcestruzzo TA (norme storiche) ---
-    sigma_c28: float = 0.0       # Resistenza cubica a 28gg [kg/cm²] (TA)
-    sigma_c_adm: float = 0.0     # Tensione ammissibile cls [kg/cm²] (TA)
-    tau_c0_adm: float = 0.0      # Tensione tangenziale amm. cls [kg/cm²] (TA)
-    tau_c1_adm: float = 0.0      # Tensione tangenziale amm. cls con staffe [kg/cm²] (TA)
+    sigma_c28: float = 0.0  # Resistenza cubica a 28gg [kg/cm²] (TA)
+    sigma_c_adm: float = 0.0  # Tensione ammissibile cls [kg/cm²] (TA)
+    tau_c0_adm: float = 0.0  # Tensione tangenziale amm. cls [kg/cm²] (TA)
+    tau_c1_adm: float = 0.0  # Tensione tangenziale amm. cls con staffe [kg/cm²] (TA)
     n_omogenizzazione: float = 0.0  # Coefficiente di omogenizzazione (TA)
 
     # --- Parametri primari acciaio ---
-    f_yk: float = 0.0            # Resistenza caratteristica snervamento [kg/cm²]
-    gamma_s: float = 1.15        # Coefficiente parziale acciaio (1.0 per TA)
+    f_yk: float = 0.0  # Resistenza caratteristica snervamento [kg/cm²]
+    gamma_s: float = 1.15  # Coefficiente parziale acciaio (1.0 per TA)
 
     # --- Parametri primari acciaio TA ---
-    sigma_s_adm: float = 0.0     # Tensione ammissibile acciaio [kg/cm²] (TA)
+    sigma_s_adm: float = 0.0  # Tensione ammissibile acciaio [kg/cm²] (TA)
 
     # --- Parametri primari muratura ---
-    f_k: float = 0.0             # Resistenza caratteristica a compressione [kg/cm²]
-    f_vk0: float = 0.0           # Resistenza caratteristica a taglio senza σ [kg/cm²]
-    gamma_M: float = 2.0         # Coefficiente parziale muratura
+    f_k: float = 0.0  # Resistenza caratteristica a compressione [kg/cm²]
+    f_vk0: float = 0.0  # Resistenza caratteristica a taglio senza σ [kg/cm²]
+    gamma_M: float = 2.0  # Coefficiente parziale muratura
 
     # --- Parametri primari legno (EN 338 / EN 14080 / NTC2018 §4.4) ---
-    f_mk: float = 0.0            # Resistenza caratteristica a flessione [kg/cm²]
-    f_t0k: float = 0.0           # Resistenza car. trazione parallela [kg/cm²]
-    f_t90k: float = 0.0          # Resistenza car. trazione perpendicolare [kg/cm²]
-    f_c0k: float = 0.0           # Resistenza car. compressione parallela [kg/cm²]
-    f_c90k: float = 0.0          # Resistenza car. compressione perpendicolare [kg/cm²]
-    f_vk: float = 0.0            # Resistenza caratteristica a taglio [kg/cm²]
-    E_0_mean: float = 0.0        # Modulo elastico medio parallelo alle fibre [kg/cm²]
-    E_90_mean: float = 0.0       # Modulo elastico medio perpendicolare [kg/cm²]
-    G_mean: float = 0.0          # Modulo di taglio medio [kg/cm²]
-    classe_servizio: int = 1     # Classe di servizio (1, 2, 3)
+    f_mk: float = 0.0  # Resistenza caratteristica a flessione [kg/cm²]
+    f_t0k: float = 0.0  # Resistenza car. trazione parallela [kg/cm²]
+    f_t90k: float = 0.0  # Resistenza car. trazione perpendicolare [kg/cm²]
+    f_c0k: float = 0.0  # Resistenza car. compressione parallela [kg/cm²]
+    f_c90k: float = 0.0  # Resistenza car. compressione perpendicolare [kg/cm²]
+    f_vk: float = 0.0  # Resistenza caratteristica a taglio [kg/cm²]
+    E_0_mean: float = 0.0  # Modulo elastico medio parallelo alle fibre [kg/cm²]
+    E_90_mean: float = 0.0  # Modulo elastico medio perpendicolare [kg/cm²]
+    G_mean: float = 0.0  # Modulo di taglio medio [kg/cm²]
+    classe_servizio: int = 1  # Classe di servizio (1, 2, 3)
 
     # --- Parametri derivati (calcolati automaticamente) ---
     _derivati: dict[str, ParametroDerivato] = field(default_factory=dict)
@@ -197,7 +199,10 @@ class Material:
             self._derivati[nome].override = True
             logger.info(
                 "Override manuale: %s.%s = %.4g (materiale %s)",
-                nome, valore, valore, self.material_id,
+                nome,
+                valore,
+                valore,
+                self.material_id,
             )
         else:
             self._derivati[nome] = ParametroDerivato(
@@ -523,47 +528,53 @@ class Material:
         }
 
         if self.famiglia == "calcestruzzo":
-            dati.update({
-                "f_ck": self.f_ck,
-                "gamma_c": self.gamma_c,
-                "alpha_cc": self.alpha_cc,
-                "sigma_c28": self.sigma_c28,
-                "sigma_c_adm": self.sigma_c_adm,
-                "tau_c0_adm": self.tau_c0_adm,
-                "tau_c1_adm": self.tau_c1_adm,
-                "n_omogenizzazione": self.n_omogenizzazione,
-            })
+            dati.update(
+                {
+                    "f_ck": self.f_ck,
+                    "gamma_c": self.gamma_c,
+                    "alpha_cc": self.alpha_cc,
+                    "sigma_c28": self.sigma_c28,
+                    "sigma_c_adm": self.sigma_c_adm,
+                    "tau_c0_adm": self.tau_c0_adm,
+                    "tau_c1_adm": self.tau_c1_adm,
+                    "n_omogenizzazione": self.n_omogenizzazione,
+                }
+            )
         elif self.famiglia == "acciaio":
-            dati.update({
-                "f_yk": self.f_yk,
-                "gamma_s": self.gamma_s,
-                "sigma_s_adm": self.sigma_s_adm,
-            })
+            dati.update(
+                {
+                    "f_yk": self.f_yk,
+                    "gamma_s": self.gamma_s,
+                    "sigma_s_adm": self.sigma_s_adm,
+                }
+            )
         elif self.famiglia == "muratura":
-            dati.update({
-                "f_k": self.f_k,
-                "f_vk0": self.f_vk0,
-                "gamma_M": self.gamma_M,
-            })
+            dati.update(
+                {
+                    "f_k": self.f_k,
+                    "f_vk0": self.f_vk0,
+                    "gamma_M": self.gamma_M,
+                }
+            )
         elif self.famiglia == "legno":
-            dati.update({
-                "f_mk": self.f_mk,
-                "f_t0k": self.f_t0k,
-                "f_t90k": self.f_t90k,
-                "f_c0k": self.f_c0k,
-                "f_c90k": self.f_c90k,
-                "f_vk": self.f_vk,
-                "E_0_mean": self.E_0_mean,
-                "E_90_mean": self.E_90_mean,
-                "G_mean": self.G_mean,
-                "classe_servizio": self.classe_servizio,
-                "gamma_M": self.gamma_M,
-            })
+            dati.update(
+                {
+                    "f_mk": self.f_mk,
+                    "f_t0k": self.f_t0k,
+                    "f_t90k": self.f_t90k,
+                    "f_c0k": self.f_c0k,
+                    "f_c90k": self.f_c90k,
+                    "f_vk": self.f_vk,
+                    "E_0_mean": self.E_0_mean,
+                    "E_90_mean": self.E_90_mean,
+                    "G_mean": self.G_mean,
+                    "classe_servizio": self.classe_servizio,
+                    "gamma_M": self.gamma_M,
+                }
+            )
 
         # Serializza derivati
-        dati["derivati"] = {
-            nome: pd.to_dict() for nome, pd in self._derivati.items()
-        }
+        dati["derivati"] = {nome: pd.to_dict() for nome, pd in self._derivati.items()}
 
         return dati
 
@@ -599,6 +610,7 @@ class Material:
 
 # --- Factory per materiali comuni ---
 
+
 def crea_calcestruzzo_ntc2018(
     classe: str = "C25/30",
     material_id: str = "",
@@ -615,21 +627,21 @@ def crea_calcestruzzo_ntc2018(
     # Mappa classe → f_ck [kg/cm²]
     # NTC2018 Tab.4.1.I (f_ck in MPa × 10.197 = kg/cm²)
     classi_fck: dict[str, float] = {
-        "C12/15": 122.4,   # 12 MPa
-        "C16/20": 163.2,   # 16 MPa
-        "C20/25": 203.9,   # 20 MPa
-        "C25/30": 254.9,   # 25 MPa
-        "C28/35": 285.5,   # 28 MPa
-        "C30/37": 305.9,   # 30 MPa
-        "C32/40": 326.3,   # 32 MPa
-        "C35/45": 356.9,   # 35 MPa
-        "C40/50": 407.9,   # 40 MPa
-        "C45/55": 458.9,   # 45 MPa
-        "C50/60": 509.8,   # 50 MPa
-        "C55/67": 560.8,   # 55 MPa
-        "C60/75": 611.8,   # 60 MPa
-        "C70/85": 713.8,   # 70 MPa
-        "C80/95": 815.7,   # 80 MPa
+        "C12/15": 122.4,  # 12 MPa
+        "C16/20": 163.2,  # 16 MPa
+        "C20/25": 203.9,  # 20 MPa
+        "C25/30": 254.9,  # 25 MPa
+        "C28/35": 285.5,  # 28 MPa
+        "C30/37": 305.9,  # 30 MPa
+        "C32/40": 326.3,  # 32 MPa
+        "C35/45": 356.9,  # 35 MPa
+        "C40/50": 407.9,  # 40 MPa
+        "C45/55": 458.9,  # 45 MPa
+        "C50/60": 509.8,  # 50 MPa
+        "C55/67": 560.8,  # 55 MPa
+        "C60/75": 611.8,  # 60 MPa
+        "C70/85": 713.8,  # 70 MPa
+        "C80/95": 815.7,  # 80 MPa
         "C90/105": 917.7,  # 90 MPa
     }
 
@@ -662,9 +674,9 @@ def crea_acciaio_ntc2018(
         Material configurato per acciaio NTC2018.
     """
     tipi_fyk: dict[str, float] = {
-        "B450C": 4589.0,   # 450 MPa
-        "B450A": 4589.0,   # 450 MPa
-        "B500B": 5098.0,   # 500 MPa (EC)
+        "B450C": 4589.0,  # 450 MPa
+        "B450A": 4589.0,  # 450 MPa
+        "B500B": 5098.0,  # 500 MPa (EC)
     }
 
     f_yk = tipi_fyk.get(tipo, 4589.0)
@@ -701,19 +713,39 @@ def crea_muratura_ntc2018(
     # Formato: {tipo_blocco: {tipo_malta: f_k}}
     tabella_fk: dict[str, dict[str, float]] = {
         "mattoni_pieni": {
-            "M2.5": 20.0, "M5": 28.0, "M10": 36.0, "M15": 42.0, "M20": 46.0,
+            "M2.5": 20.0,
+            "M5": 28.0,
+            "M10": 36.0,
+            "M15": 42.0,
+            "M20": 46.0,
         },
         "mattoni_semipieni": {
-            "M2.5": 12.0, "M5": 18.0, "M10": 24.0, "M15": 28.0, "M20": 30.0,
+            "M2.5": 12.0,
+            "M5": 18.0,
+            "M10": 24.0,
+            "M15": 28.0,
+            "M20": 30.0,
         },
         "blocchi_cls": {
-            "M2.5": 14.0, "M5": 20.0, "M10": 30.0, "M15": 38.0, "M20": 44.0,
+            "M2.5": 14.0,
+            "M5": 20.0,
+            "M10": 30.0,
+            "M15": 38.0,
+            "M20": 44.0,
         },
         "tufo": {
-            "M2.5": 8.0, "M5": 11.0, "M10": 14.0, "M15": 16.0, "M20": 18.0,
+            "M2.5": 8.0,
+            "M5": 11.0,
+            "M10": 14.0,
+            "M15": 16.0,
+            "M20": 18.0,
         },
         "pietra_squadrata": {
-            "M2.5": 12.0, "M5": 16.0, "M10": 20.0, "M15": 24.0, "M20": 26.0,
+            "M2.5": 12.0,
+            "M5": 16.0,
+            "M10": 20.0,
+            "M15": 24.0,
+            "M20": 26.0,
         },
     }
 

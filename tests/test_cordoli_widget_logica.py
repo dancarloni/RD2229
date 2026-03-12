@@ -61,6 +61,7 @@ def _build_tabulato_da_passaggi(
 
 # ─── TestLogicaMetallico ────────────────────────────────────────────────────
 
+
 class TestLogicaMetallico:
     """Verifica cordolo metallico con profilo IPE 200."""
 
@@ -136,6 +137,7 @@ class TestLogicaMetallico:
 
 # ─── TestLogicaCA ────────────────────────────────────────────────────────────
 
+
 class TestLogicaCA:
     """Verifica cordolo in CA con sezione 30×50."""
 
@@ -170,8 +172,15 @@ class TestLogicaCA:
 
     def test_minimi_ntc2018(self):
         # Sezione troppo piccola (h < 20 cm) e armatura insufficiente
-        ca = CordoloCA(b=15.0, h=15.0, n_barre_sup=2, n_barre_inf=2,
-                       phi_long=0.8, phi_staffe=0.8, passo_staffe=20.0)
+        ca = CordoloCA(
+            b=15.0,
+            h=15.0,
+            n_barre_sup=2,
+            n_barre_inf=2,
+            phi_long=0.8,
+            phi_staffe=0.8,
+            passo_staffe=20.0,
+        )
         cord = Cordolo(tipo=TipoCordolo.CA, Mx=1000.0, V=100.0, ca=ca)
         ris = verifica_cordolo(cord)
         assert ris.verifica_minimi is False
@@ -195,6 +204,7 @@ class TestLogicaCA:
 
 # ─── TestLogicaReticolare ────────────────────────────────────────────────────
 
+
 class TestLogicaReticolare:
     """Verifica cordolo reticolare — schema Howe, piatti semplici."""
 
@@ -205,8 +215,8 @@ class TestLogicaReticolare:
         return CordoloReticolare(
             schema=SchemaReticolare.HOWE,
             n_campate=4,
-            L=500.0,    # cm
-            h=30.0,     # cm (spessore muro)
+            L=500.0,  # cm
+            h=30.0,  # cm (spessore muro)
             sezione_corrente=sec_corr,
             sezione_diagonale=sec_diag,
             tipo_acciaio="Fe430",

@@ -12,11 +12,7 @@ from __future__ import annotations
 
 import math
 
-from .models import (
-    InputMuroSostegno,
-    RisultatoMuroSostegno,
-    RisultatoVerificaMuro,
-)
+from .models import InputMuroSostegno, RisultatoMuroSostegno, RisultatoVerificaMuro
 
 # ---------------------------------------------------------------------------
 # Coefficienti di spinta
@@ -201,7 +197,9 @@ def _verifica_scorrimento(
         peso_muro_kg * math.tan(delta_base) + coesione_fondazione_kg_cm2 * larghezza_base_cm
     )
     h_rd = resistenza_base_kg / gamma_r
-    rapporto = spinta_orizzontale_kg * gamma_r / resistenza_base_kg if resistenza_base_kg > 0 else math.inf
+    rapporto = (
+        spinta_orizzontale_kg * gamma_r / resistenza_base_kg if resistenza_base_kg > 0 else math.inf
+    )
 
     passaggi = [
         f"H_Ed (spinta) = {spinta_orizzontale_kg:.3f} kg",

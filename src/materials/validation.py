@@ -48,9 +48,7 @@ def validate_material(material: Material) -> list[str]:
         errors.append("Il modulo elastico E non può essere negativo.")
 
     if not (0.0 <= material.nu <= 0.5):
-        errors.append(
-            f"Coefficiente di Poisson ν={material.nu:.3f} fuori range [0.0, 0.5]."
-        )
+        errors.append(f"Coefficiente di Poisson ν={material.nu:.3f} fuori range [0.0, 0.5].")
 
     # --- Controlli per famiglia ---
     if material.famiglia == "calcestruzzo":
@@ -74,9 +72,7 @@ def _valida_calcestruzzo(material: Material) -> list[str]:
     ha_ta = material.sigma_c28 > 0 or material.sigma_c_adm > 0
 
     if not ha_sl and not ha_ta:
-        errors.append(
-            "Calcestruzzo: serve f_ck > 0 (SL) oppure sigma_c28/sigma_c_adm > 0 (TA)."
-        )
+        errors.append("Calcestruzzo: serve f_ck > 0 (SL) oppure sigma_c28/sigma_c_adm > 0 (TA).")
 
     if material.gamma_c <= 0:
         errors.append("Calcestruzzo: gamma_c deve essere > 0.")
@@ -95,9 +91,7 @@ def _valida_acciaio(material: Material) -> list[str]:
     ha_ta = material.sigma_s_adm > 0
 
     if not ha_sl and not ha_ta:
-        errors.append(
-            "Acciaio: serve f_yk > 0 (SL) oppure sigma_s_adm > 0 (TA)."
-        )
+        errors.append("Acciaio: serve f_yk > 0 (SL) oppure sigma_s_adm > 0 (TA).")
 
     if material.gamma_s <= 0:
         errors.append("Acciaio: gamma_s deve essere > 0.")

@@ -24,6 +24,7 @@ from src.wind.outputs import WindResults
 # Intensità di turbolenza
 # ===========================================================================
 
+
 class TestTurbulenceIntensity:
     def test_standard_value(self):
         """Iv(10m) con z0=0.05 deve essere circa 0.19."""
@@ -51,6 +52,7 @@ class TestTurbulenceIntensity:
 # Scala integrale di turbolenza
 # ===========================================================================
 
+
 class TestIntegralLengthScale:
     def test_increases_with_height(self):
         L10 = compute_integral_length_scale(10.0)
@@ -70,6 +72,7 @@ class TestIntegralLengthScale:
 # ===========================================================================
 # Fattore di fondo B²
 # ===========================================================================
+
 
 class TestBackgroundFactor:
     def test_small_structure(self):
@@ -95,6 +98,7 @@ class TestBackgroundFactor:
 # Densità spettrale
 # ===========================================================================
 
+
 class TestSpectralDensity:
     def test_positive(self):
         S = compute_spectral_density(0.5)
@@ -115,6 +119,7 @@ class TestSpectralDensity:
 # ===========================================================================
 # Ammettenza aerodinamica
 # ===========================================================================
+
 
 class TestAerodynamicAdmittance:
     def test_zero_eta(self):
@@ -139,6 +144,7 @@ class TestAerodynamicAdmittance:
 # Fattore di risonanza R²
 # ===========================================================================
 
+
 class TestResonanceFactor:
     def test_positive(self):
         R2 = compute_resonance_factor(1.0, 30.0, 15.0, 25.0, 150.0, 0.05)
@@ -162,6 +168,7 @@ class TestResonanceFactor:
 # Fattore di picco
 # ===========================================================================
 
+
 class TestPeakFactor:
     def test_default(self):
         kp = compute_peak_factor(0.2)
@@ -179,6 +186,7 @@ class TestPeakFactor:
 # ===========================================================================
 # compute_structural_factor (semplificato e dettagliato)
 # ===========================================================================
+
 
 class TestStructuralFactor:
     def test_rigid_structure(self):
@@ -213,7 +221,8 @@ class TestStructuralFactor:
     def test_detailed_with_f1_and_damping(self):
         """When f1 and damping are provided, uses detailed calculation."""
         sg = StructureGeom(
-            height_m=60.0, width_m=20.0,
+            height_m=60.0,
+            width_m=20.0,
             natural_frequency_hz=0.5,
             damping_log_decrement=0.05,
         )
@@ -230,10 +239,12 @@ class TestStructuralFactor:
 # compute_structural_factor_detailed
 # ===========================================================================
 
+
 class TestStructuralFactorDetailed:
     def test_returns_dataclass(self):
         sg = StructureGeom(
-            height_m=60.0, width_m=20.0,
+            height_m=60.0,
+            width_m=20.0,
             natural_frequency_hz=0.5,
             damping_log_decrement=0.05,
         )
@@ -243,7 +254,8 @@ class TestStructuralFactorDetailed:
 
     def test_has_all_fields(self):
         sg = StructureGeom(
-            height_m=60.0, width_m=20.0,
+            height_m=60.0,
+            width_m=20.0,
             natural_frequency_hz=0.5,
             damping_log_decrement=0.05,
         )
@@ -258,7 +270,8 @@ class TestStructuralFactorDetailed:
     def test_cs_cd_product(self):
         """cs·cd should be approximately cs × cd."""
         sg = StructureGeom(
-            height_m=80.0, width_m=25.0,
+            height_m=80.0,
+            width_m=25.0,
             natural_frequency_hz=0.4,
             damping_log_decrement=0.03,
         )
@@ -270,18 +283,23 @@ class TestStructuralFactorDetailed:
 # enrich_results_with_cnr_dt207
 # ===========================================================================
 
+
 class TestEnrichResults:
     def test_adds_cnr_key(self):
         wr = WindResults(method="NTC2018", v_b_ms=25.0, q_b_kN_m2=0.39)
         enriched = enrich_results_with_cnr_dt207(
-            wr, WindSite(), BuildingGeom(height_m=20.0),
+            wr,
+            WindSite(),
+            BuildingGeom(height_m=20.0),
         )
         assert "cnr_dt207" in enriched.extra
 
     def test_has_turbulence_data(self):
         wr = WindResults(method="NTC2018")
         enriched = enrich_results_with_cnr_dt207(
-            wr, WindSite(), BuildingGeom(height_m=20.0),
+            wr,
+            WindSite(),
+            BuildingGeom(height_m=20.0),
         )
         cnr = enriched.extra["cnr_dt207"]
         assert "turbulence_intensity_at_h" in cnr
@@ -291,7 +309,9 @@ class TestEnrichResults:
     def test_preserves_existing_extra(self):
         wr = WindResults(method="NTC2018", extra={"existing_key": 42})
         enriched = enrich_results_with_cnr_dt207(
-            wr, WindSite(), BuildingGeom(height_m=20.0),
+            wr,
+            WindSite(),
+            BuildingGeom(height_m=20.0),
         )
         assert enriched.extra["existing_key"] == 42
         assert "cnr_dt207" in enriched.extra

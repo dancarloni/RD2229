@@ -45,14 +45,14 @@ mcpServers:
       - -y
       - "@modelcontextprotocol/server-sequential-thinking"
     env: {}
- 
+
   - name: Time / Timezones
     type: stdio
     command: "C:\\Users\\DanieleCarloni.AzureAD\\.local\\bin\\uvx.exe"
     args:
       - mcp-server-time
 
-  
+
   - name: Browser (Playwright)
     type: stdio
     command: cmd.exe

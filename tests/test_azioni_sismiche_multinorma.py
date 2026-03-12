@@ -37,6 +37,7 @@ from src.codes.seismic.rd2229 import calcola_azione_sismica_rd2229
 # Fixture comuni
 # ---------------------------------------------------------------------------
 
+
 def _piani_3(W: float = 500.0) -> list[PianoEdificio]:
     """3 piani uguali: h = 3, 6, 9 m; W = W_kN ciascuno."""
     return [
@@ -58,6 +59,7 @@ def _piani_raw(W: float = 500.0) -> list[dict]:
 # TestDistribuzionePiani
 # ---------------------------------------------------------------------------
 
+
 class TestDistribuzionePiani:
     def test_distribuzione_3_piani_uguali(self):
         """Piani con W uguale: forza proporzionale ad h."""
@@ -66,9 +68,9 @@ class TestDistribuzionePiani:
         dist = distribuzione_triangolare(F_base, piani)
         # sum(W*h) = 500*(3+6+9) = 9000; F_i = 105 * 500*h_i / 9000
         assert len(dist) == 3
-        assert abs(dist[0]["F_kN"] - 17.5) < 0.01   # 105*3/18 = 17.5
-        assert abs(dist[1]["F_kN"] - 35.0) < 0.01   # 105*6/18 = 35.0
-        assert abs(dist[2]["F_kN"] - 52.5) < 0.01   # 105*9/18 = 52.5
+        assert abs(dist[0]["F_kN"] - 17.5) < 0.01  # 105*3/18 = 17.5
+        assert abs(dist[1]["F_kN"] - 35.0) < 0.01  # 105*6/18 = 35.0
+        assert abs(dist[2]["F_kN"] - 52.5) < 0.01  # 105*9/18 = 52.5
 
     def test_distribuzione_somma_uguale_f_base(self):
         piani = _piani_3()
@@ -97,6 +99,7 @@ class TestDistribuzionePiani:
 # ---------------------------------------------------------------------------
 # TestAzioneRD2229
 # ---------------------------------------------------------------------------
+
 
 class TestAzioneRD2229:
     def test_zona_non_sismico(self):
@@ -141,6 +144,7 @@ class TestAzioneRD2229:
 # TestAzioneDM92
 # ---------------------------------------------------------------------------
 
+
 class TestAzioneDM92:
     def test_zona_1(self):
         res = calcola_azione_sismica_dm92(_piani_3(), zona_sismica=1)
@@ -183,6 +187,7 @@ class TestAzioneDM92:
 # TestAzioneDM96
 # ---------------------------------------------------------------------------
 
+
 class TestAzioneDM96:
     def test_zona_1(self):
         res = calcola_azione_sismica_dm96(_piani_3(), zona_sismica=1)
@@ -217,18 +222,15 @@ class TestAzioneDM96:
 # TestAzioneOPCM3274
 # ---------------------------------------------------------------------------
 
+
 class TestAzioneOPCM3274:
     def test_zona_1_cat_b(self):
-        res = calcola_azione_sismica_opcm3274(
-            _piani_3(), zona=1, T_1=0.5, cat_suolo="B"
-        )
+        res = calcola_azione_sismica_opcm3274(_piani_3(), zona=1, T_1=0.5, cat_suolo="B")
         assert res["F_base_kN"] > 0
         assert res["ag_g"] == pytest.approx(0.35)
 
     def test_zona_4_ag(self):
-        res = calcola_azione_sismica_opcm3274(
-            _piani_3(), zona=4, T_1=0.5, cat_suolo="A"
-        )
+        res = calcola_azione_sismica_opcm3274(_piani_3(), zona=4, T_1=0.5, cat_suolo="A")
         assert res["ag_g"] == pytest.approx(0.05)
 
     def test_zona_invalida(self):
@@ -253,6 +255,7 @@ class TestAzioneOPCM3274:
 # ---------------------------------------------------------------------------
 # TestAzioneEC8
 # ---------------------------------------------------------------------------
+
 
 class TestAzioneEC8:
     def test_tipo1_cat_b_riferimento(self):
@@ -289,12 +292,8 @@ class TestAzioneEC8:
         assert res["tipo_spettro"] == "TIPO2"
 
     def test_q_riduce_vb(self):
-        res_q1 = calcola_azione_sismica_ec8(
-            _piani_3(), ag_g=0.25, cat_suolo="B", T_1=0.5, q=1.0
-        )
-        res_q2 = calcola_azione_sismica_ec8(
-            _piani_3(), ag_g=0.25, cat_suolo="B", T_1=0.5, q=2.0
-        )
+        res_q1 = calcola_azione_sismica_ec8(_piani_3(), ag_g=0.25, cat_suolo="B", T_1=0.5, q=1.0)
+        res_q2 = calcola_azione_sismica_ec8(_piani_3(), ag_g=0.25, cat_suolo="B", T_1=0.5, q=2.0)
         assert res_q1["F_base_kN"] > res_q2["F_base_kN"]
 
     def test_tipo_spettro_invalido(self):
@@ -305,23 +304,17 @@ class TestAzioneEC8:
 
     def test_cat_suolo_invalida(self):
         with pytest.raises(ValueError, match="non valida"):
-            calcola_azione_sismica_ec8(
-                _piani_3(), ag_g=0.25, cat_suolo="Z", T_1=0.5
-            )
+            calcola_azione_sismica_ec8(_piani_3(), ag_g=0.25, cat_suolo="Z", T_1=0.5)
 
     def test_contratto_base(self):
-        res = calcola_azione_sismica_ec8(
-            _piani_3(), ag_g=0.25, cat_suolo="B", T_1=0.5
-        )
+        res = calcola_azione_sismica_ec8(_piani_3(), ag_g=0.25, cat_suolo="B", T_1=0.5)
         assert "esito" in res
         assert "norm_references" in res
         assert "decision_log" in res
         assert "trace" in res
 
     def test_distribuzione_piani(self):
-        res = calcola_azione_sismica_ec8(
-            _piani_3(), ag_g=0.25, cat_suolo="B", T_1=0.5
-        )
+        res = calcola_azione_sismica_ec8(_piani_3(), ag_g=0.25, cat_suolo="B", T_1=0.5)
         dist = res["distribuzione"]
         assert len(dist) == 3
         assert abs(sum(d["F_kN"] for d in dist) - res["F_base_kN"]) < 1e-3
@@ -330,6 +323,7 @@ class TestAzioneEC8:
 # ---------------------------------------------------------------------------
 # TestAzioneNTC2008
 # ---------------------------------------------------------------------------
+
 
 class TestAzioneNTC2008:
     _KWARGS = dict(
@@ -357,6 +351,7 @@ class TestAzioneNTC2008:
     def test_coerente_con_ntc2018(self):
         """Stessi parametri ag/F0/TC*: NTC2008 e NTC2018 devono dare lo stesso V_b."""
         from src.codes.seismic.dispatcher import calcola_azione_sismica
+
         spec = {
             "piani": _piani_raw(),
             "ag_g": 0.168,
@@ -383,36 +378,49 @@ class TestAzioneNTC2008:
 # TestDispatcher
 # ---------------------------------------------------------------------------
 
+
 class TestDispatcher:
     def test_routing_dm96(self):
-        res = calcola_azione_sismica("DM96", {
-            "piani": _piani_raw(),
-            "zona_sismica": 2,
-        })
+        res = calcola_azione_sismica(
+            "DM96",
+            {
+                "piani": _piani_raw(),
+                "zona_sismica": 2,
+            },
+        )
         assert abs(res["F_base_kN"] - 105.0) < 0.01
 
     def test_routing_rd2229(self):
-        res = calcola_azione_sismica("RD2229", {
-            "piani": _piani_raw(),
-            "zona": "alta",
-        })
+        res = calcola_azione_sismica(
+            "RD2229",
+            {
+                "piani": _piani_raw(),
+                "zona": "alta",
+            },
+        )
         assert abs(res["F_base_kN"] - 150.0) < 0.01
 
     def test_routing_ec8(self):
-        res = calcola_azione_sismica("EC8", {
-            "piani": _piani_raw(),
-            "ag_g": 0.25,
-            "cat_suolo": "B",
-            "T_1": 0.5,
-        })
+        res = calcola_azione_sismica(
+            "EC8",
+            {
+                "piani": _piani_raw(),
+                "ag_g": 0.25,
+                "cat_suolo": "B",
+                "T_1": 0.5,
+            },
+        )
         assert res["F_base_kN"] > 0
 
     def test_routing_opcm3274(self):
-        res = calcola_azione_sismica("OPCM3274", {
-            "piani": _piani_raw(),
-            "zona": 2,
-            "T_1": 0.5,
-        })
+        res = calcola_azione_sismica(
+            "OPCM3274",
+            {
+                "piani": _piani_raw(),
+                "zona": 2,
+                "T_1": 0.5,
+            },
+        )
         assert res["F_base_kN"] > 0
 
     def test_norma_invalida(self):
@@ -420,17 +428,23 @@ class TestDispatcher:
             calcola_azione_sismica("DM_SCONOSCIUTA", {"piani": _piani_raw()})
 
     def test_case_insensitive(self):
-        res = calcola_azione_sismica("dm96", {
-            "piani": _piani_raw(),
-            "zona_sismica": 2,
-        })
+        res = calcola_azione_sismica(
+            "dm96",
+            {
+                "piani": _piani_raw(),
+                "zona_sismica": 2,
+            },
+        )
         assert res["F_base_kN"] > 0
 
     def test_contratto_base_presente(self):
-        res = calcola_azione_sismica("DM92", {
-            "piani": _piani_raw(),
-            "zona_sismica": 1,
-        })
+        res = calcola_azione_sismica(
+            "DM92",
+            {
+                "piani": _piani_raw(),
+                "zona_sismica": 1,
+            },
+        )
         assert "esito" in res
         assert "norm_references" in res
         assert "decision_log" in res

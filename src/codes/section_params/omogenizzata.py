@@ -27,6 +27,7 @@ from typing import Any
 # Tipo barra armatura
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class BarraArmatura:
     """Singolo livello di armatura nella sezione.
@@ -38,8 +39,8 @@ class BarraArmatura:
         x: posizione orizzontale dal baricentro sezione [cm] (0 = centrata)
     """
 
-    y: float       # distanza dal lembo compresso [cm]
-    A: float       # area totale barre [cm²]
+    y: float  # distanza dal lembo compresso [cm]
+    A: float  # area totale barre [cm²]
     zona: str = "tesa"  # "tesa" | "compressa" (informativo, non usato nel calcolo)
     x: float = 0.0  # posizione orizzontale dal baricentro [cm]
 
@@ -48,15 +49,18 @@ class BarraArmatura:
 # Helper interni
 # ---------------------------------------------------------------------------
 
+
 def _width_at(section: Any, y: float) -> float:
     """Larghezza sezione a profondita' y [cm] dal lembo compresso."""
     from src.methods.section_fiber import width_at_depth
+
     return width_at_depth(section, y)
 
 
 def _get_height(section: Any) -> float:
     """Altezza totale sezione [cm]."""
     from src.methods.section_fiber import get_section_height
+
     return get_section_height(section)
 
 
@@ -110,6 +114,7 @@ def _base_contract() -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Sezione omogenizzata integra
 # ---------------------------------------------------------------------------
+
 
 def calcola_sezione_omogenizzata(
     section: Any,
@@ -167,29 +172,31 @@ def calcola_sezione_omogenizzata(
     W_inf = I_om / y_lembo_inf if y_lembo_inf > 1e-9 else 0.0
 
     log.append(
-        f"Sez. omogen.: A_om={A_om:.3f} cm², y_G_om={y_G_om:.4f} cm, "
-        f"I_om={I_om:.3f} cm⁴, n={n}"
+        f"Sez. omogen.: A_om={A_om:.3f} cm², y_G_om={y_G_om:.4f} cm, " f"I_om={I_om:.3f} cm⁴, n={n}"
     )
 
-    result.update({
-        "A_omogenizzata_cm2": round(A_om, 4),
-        "y_G_omogenizzata_cm": round(y_G_om, 6),
-        "I_omogenizzata_cm4": round(I_om, 4),
-        "W_superiore_cm3": round(W_sup, 4),
-        "W_inferiore_cm3": round(W_inf, 4),
-        "n": n,
-        "A_cls_cm2": round(A_c, 4),
-        "y_G_cls_cm": round(y_G_c, 6),
-        "I_cls_cm4": round(I_c, 4),
-        "h_tot_cm": round(h, 4),
-        "barre": [{"y_cm": b.y, "A_cm2": b.A, "zona": b.zona} for b in barre],
-    })
+    result.update(
+        {
+            "A_omogenizzata_cm2": round(A_om, 4),
+            "y_G_omogenizzata_cm": round(y_G_om, 6),
+            "I_omogenizzata_cm4": round(I_om, 4),
+            "W_superiore_cm3": round(W_sup, 4),
+            "W_inferiore_cm3": round(W_inf, 4),
+            "n": n,
+            "A_cls_cm2": round(A_c, 4),
+            "y_G_cls_cm": round(y_G_c, 6),
+            "I_cls_cm4": round(I_c, 4),
+            "h_tot_cm": round(h, 4),
+            "barre": [{"y_cm": b.y, "A_cm2": b.A, "zona": b.zona} for b in barre],
+        }
+    )
     return result
 
 
 # ---------------------------------------------------------------------------
 # Asse neutro fessurato
 # ---------------------------------------------------------------------------
+
 
 def calcola_asse_neutro_fessurato(
     section: Any,
@@ -242,7 +249,7 @@ def calcola_asse_neutro_fessurato(
         a_q = b_rect / 2.0
         b_q = n * As
         c_q = -n * As * d
-        discriminant = b_q ** 2 - 4.0 * a_q * c_q
+        discriminant = b_q**2 - 4.0 * a_q * c_q
         if discriminant < 0.0:
             result["esito"] = "ERRORE"
             log.append("Discriminante negativo nel calcolo asse neutro analitico")
@@ -252,14 +259,16 @@ def calcola_asse_neutro_fessurato(
             result["esito"] = "ERRORE"
             log.append(f"Asse neutro fuori dalla sezione: x={x:.4f} cm, h={h:.4f} cm")
             return result
-        I_fess = b_rect * x ** 3 / 3.0 + n * As * (d - x) ** 2
+        I_fess = b_rect * x**3 / 3.0 + n * As * (d - x) ** 2
         log.append(f"Analitico (rettangolare): x_na={x:.6f} cm, I_fess={I_fess:.4f} cm⁴")
-        result.update({
-            "y_na_cm": round(x, 6),
-            "I_fess_cm4": round(I_fess, 4),
-            "metodo_calcolo": "ANALITICO_RETTANGOLARE",
-            "n": n,
-        })
+        result.update(
+            {
+                "y_na_cm": round(x, 6),
+                "I_fess_cm4": round(I_fess, 4),
+                "metodo_calcolo": "ANALITICO_RETTANGOLARE",
+                "n": n,
+            }
+        )
         return result
 
     # --- Caso generale: bisect sul momento primo rispetto all'asse neutro ---
@@ -340,18 +349,21 @@ def calcola_asse_neutro_fessurato(
             I_fess += n * bar.A * (bar.y - x_na) ** 2
 
     log.append(f"Iterativo (bisect): x_na={x_na:.6f} cm, I_fess={I_fess:.4f} cm⁴")
-    result.update({
-        "y_na_cm": round(x_na, 6),
-        "I_fess_cm4": round(I_fess, 4),
-        "metodo_calcolo": "ITERATIVO_BISECT",
-        "n": n,
-    })
+    result.update(
+        {
+            "y_na_cm": round(x_na, 6),
+            "I_fess_cm4": round(I_fess, 4),
+            "metodo_calcolo": "ITERATIVO_BISECT",
+            "n": n,
+        }
+    )
     return result
 
 
 # ---------------------------------------------------------------------------
 # Tensioni SLE (stato limite di esercizio)
 # ---------------------------------------------------------------------------
+
 
 def calcola_tensioni_sle(
     y_na: float,
@@ -394,33 +406,37 @@ def calcola_tensioni_sle(
     for bar in barre:
         dist = bar.y - y_na  # positiva se teso
         sigma_s = n * M_kgcm * dist / I_fess
-        barre_sigma.append({
-            "y_cm": bar.y,
-            "A_cm2": bar.A,
-            "zona": bar.zona,
-            "sigma_s_kgcm2": round(sigma_s, 4),
-        })
+        barre_sigma.append(
+            {
+                "y_cm": bar.y,
+                "A_cm2": bar.A,
+                "zona": bar.zona,
+                "sigma_s_kgcm2": round(sigma_s, 4),
+            }
+        )
 
     sigma_s_max = max((abs(b["sigma_s_kgcm2"]) for b in barre_sigma), default=0.0)
     log.append(
-        f"SLE: sigma_c_max={sigma_c_max:.4f} kg/cm², "
-        f"|sigma_s|_max={sigma_s_max:.4f} kg/cm²"
+        f"SLE: sigma_c_max={sigma_c_max:.4f} kg/cm², " f"|sigma_s|_max={sigma_s_max:.4f} kg/cm²"
     )
 
-    result.update({
-        "sigma_c_max_kgcm2": round(sigma_c_max, 4),
-        "barre_sigma": barre_sigma,
-        "M_kgcm": M_kgcm,
-        "y_na_cm": y_na,
-        "I_fess_cm4": I_fess,
-        "n": n,
-    })
+    result.update(
+        {
+            "sigma_c_max_kgcm2": round(sigma_c_max, 4),
+            "barre_sigma": barre_sigma,
+            "M_kgcm": M_kgcm,
+            "y_na_cm": y_na,
+            "I_fess_cm4": I_fess,
+            "n": n,
+        }
+    )
     return result
 
 
 # ---------------------------------------------------------------------------
 # Pipeline completa: omogenizzata + fessurata + tensioni
 # ---------------------------------------------------------------------------
+
 
 def calcola_parametri_sezione_completi(
     section: Any,
@@ -458,7 +474,8 @@ def calcola_parametri_sezione_completi(
         return result
     log += res_int["decision_log"]
     result["integra"] = {
-        k: v for k, v in res_int.items()
+        k: v
+        for k, v in res_int.items()
         if k not in ("esito", "norm_references", "decision_log", "trace")
     }
 
@@ -467,7 +484,8 @@ def calcola_parametri_sezione_completi(
     log += res_fess["decision_log"]
     if res_fess["esito"] == "OK":
         result["fessurata"] = {
-            k: v for k, v in res_fess.items()
+            k: v
+            for k, v in res_fess.items()
             if k not in ("esito", "norm_references", "decision_log", "trace")
         }
         # Tensioni SLE se richiesto
@@ -483,7 +501,8 @@ def calcola_parametri_sezione_completi(
             log += res_sle["decision_log"]
             if res_sle["esito"] == "OK":
                 result["tensioni_sle"] = {
-                    k: v for k, v in res_sle.items()
+                    k: v
+                    for k, v in res_sle.items()
                     if k not in ("esito", "norm_references", "decision_log", "trace")
                 }
     else:

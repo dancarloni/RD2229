@@ -35,7 +35,6 @@ from src.methods.muratura.cinematica import (
     PareteMuraria,
     RisultatoCinematica,
     TipoMeccanismo,
-    analisi_meccanismi_locali,
     flessione_orizzontale,
     flessione_verticale,
     ribaltamento_composto,

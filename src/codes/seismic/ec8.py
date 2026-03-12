@@ -110,37 +110,32 @@ def calcola_azione_sismica_ec8(
         )
 
     S, TB, TC, TD = tabella[cat_upper]
-    log.append(
-        f"EC8 {tipo_upper}: cat_suolo={cat_upper}, "
-        f"S={S}, TB={TB}, TC={TC}, TD={TD}"
-    )
+    log.append(f"EC8 {tipo_upper}: cat_suolo={cat_upper}, " f"S={S}, TB={TB}, TC={TC}, TD={TD}")
     log.append(f"ag_g={ag_g}g, T_1={T_1}s, q={q}, xi={xi}%")
 
     Se_ms2 = _spettro_elastico_ec8(ag_g, S, TB, TC, TD, xi, T_1)
     Sd_ms2 = Se_ms2 / q
-    log.append(
-        f"Se(T_1)={Se_ms2:.4f} m/s², Sd(T_1)=Se/q={Sd_ms2:.4f} m/s²"
-    )
+    log.append(f"Se(T_1)={Se_ms2:.4f} m/s², Sd(T_1)=Se/q={Sd_ms2:.4f} m/s²")
 
     W_tot = sum(p.W_kN for p in piani)
     F_base = Sd_ms2 * W_tot / _G
-    log.append(
-        f"V_b = Sd({Sd_ms2:.4f}) * W_tot({W_tot:.3f}) / g = {F_base:.3f} kN"
-    )
+    log.append(f"V_b = Sd({Sd_ms2:.4f}) * W_tot({W_tot:.3f}) / g = {F_base:.3f} kN")
 
     C_eff = F_base / W_tot if W_tot > 0 else 0.0
     distribuzione = distribuzione_triangolare(F_base, piani)
 
-    result.update({
-        "F_base_kN": round(F_base, 3),
-        "C_effettivo": round(C_eff, 6),
-        "metodo": "SPETTRALE",
-        "distribuzione": distribuzione,
-        "ag_g": ag_g,
-        "Se_T1_ms2": round(Se_ms2, 4),
-        "T_1_s": T_1,
-        "tipo_spettro": tipo_upper,
-        "cat_suolo": cat_upper,
-        "S": S,
-    })
+    result.update(
+        {
+            "F_base_kN": round(F_base, 3),
+            "C_effettivo": round(C_eff, 6),
+            "metodo": "SPETTRALE",
+            "distribuzione": distribuzione,
+            "ag_g": ag_g,
+            "Se_T1_ms2": round(Se_ms2, 4),
+            "T_1_s": T_1,
+            "tipo_spettro": tipo_upper,
+            "cat_suolo": cat_upper,
+            "S": S,
+        }
+    )
     return result

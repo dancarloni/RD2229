@@ -37,12 +37,16 @@ def test_verifica_nodo_non_ok() -> None:
 
 
 def test_v_cd_trave() -> None:
-    v_cd = calcola_v_cd_trave(m_rb_sinistra=120.0, m_rb_destra=140.0, luce_netta=5.0, v_g_pm_e_su_2=10.0)
+    v_cd = calcola_v_cd_trave(
+        m_rb_sinistra=120.0, m_rb_destra=140.0, luce_netta=5.0, v_g_pm_e_su_2=10.0
+    )
     assert v_cd == pytest.approx((120 + 140) / 5 + 10)
 
 
 def test_v_cd_pilastro() -> None:
-    v_cd = calcola_v_cd_pilastro(m_rc_top=180.0, m_rc_bot=160.0, altezza_netta=3.2, gamma_rd_target=1.3)
+    v_cd = calcola_v_cd_pilastro(
+        m_rc_top=180.0, m_rc_bot=160.0, altezza_netta=3.2, gamma_rd_target=1.3
+    )
     assert v_cd == pytest.approx(1.3 * (180 + 160) / 3.2)
 
 

@@ -6,9 +6,7 @@ from src.codes.ntc2018.secondary_elements.speciali import (
     check_slu,
     verifica_speciale_completa,
 )
-from src.codes.ntc2018.secondary_elements.speciali.models import (
-    RisultatoComponenteSpeciale,
-)
+from src.codes.ntc2018.secondary_elements.speciali.models import RisultatoComponenteSpeciale
 
 
 class TestComponenteModels:

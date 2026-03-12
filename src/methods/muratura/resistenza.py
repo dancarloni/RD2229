@@ -22,11 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
-from src.methods.muratura.discretizzazione import (
-    Fascia,
-    Maschio,
-    TipoVincolo,
-)
+from src.methods.muratura.discretizzazione import Fascia, Maschio, TipoVincolo
 from src.methods.muratura.rigidezza import rigidezza_fascia, rigidezza_maschio
 from src.methods.muratura.verifiche import (
     InputTaglio,
@@ -39,31 +35,35 @@ from src.methods.muratura.verifiche import (
 #  Stato maschio nella pushover
 # ═══════════════════════════════════════════════════════════
 
+
 class StatoMaschio(str, Enum):
     """Stato dell'elemento nella curva pushover."""
-    ELASTICO = "elastico"           # δ < δ_y
-    PLASTICO = "plastico"           # δ_y ≤ δ < δ_u
-    COLLASSATO = "collassato"       # δ ≥ δ_u
+
+    ELASTICO = "elastico"  # δ < δ_y
+    PLASTICO = "plastico"  # δ_y ≤ δ < δ_u
+    COLLASSATO = "collassato"  # δ ≥ δ_u
 
 
 # ═══════════════════════════════════════════════════════════
 #  Risultato resistenza maschio
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class ResistenzaMaschio:
     """Resistenza e curva bilineare di un maschio."""
+
     id_maschio: int = 0
 
     # Resistenza a taglio (minimo dei 3 criteri)
-    V_Rd: float = 0.0               # resistenza a taglio di progetto [kg]
-    criterio_dominante: str = ""     # "diagonale", "scorrimento", "pressoflessione"
+    V_Rd: float = 0.0  # resistenza a taglio di progetto [kg]
+    criterio_dominante: str = ""  # "diagonale", "scorrimento", "pressoflessione"
 
     # Rigidezza e curve bilineare
-    k_elastico: float = 0.0         # rigidezza elastica [kg/cm]
-    delta_y: float = 0.0            # spostamento a snervamento [cm]
-    delta_u: float = 0.0            # spostamento ultimo (collasso) [cm]
-    drift_limite: float = 0.0       # drift limite dominante
+    k_elastico: float = 0.0  # rigidezza elastica [kg/cm]
+    delta_y: float = 0.0  # spostamento a snervamento [cm]
+    delta_u: float = 0.0  # spostamento ultimo (collasso) [cm]
+    drift_limite: float = 0.0  # drift limite dominante
 
     # Dettaglio criteri
     V_Rd_diagonale: float = 0.0
@@ -125,6 +125,7 @@ class ResistenzaMaschio:
 #  Calcolo resistenza maschio
 # ═══════════════════════════════════════════════════════════
 
+
 def calcola_resistenza_maschio(maschio: Maschio) -> ResistenzaMaschio:
     """Calcola la resistenza a taglio e la curva bilineare di un maschio.
 
@@ -171,8 +172,8 @@ def calcola_resistenza_maschio(maschio: Maschio) -> ResistenzaMaschio:
         V=0.0,  # non verifichiamo, calcoliamo solo V_Rd
         N=maschio.N_gravitazionale,
         tau_0=mat.tau_0d * mat.gamma_M * mat.FC,  # riscala perché la funzione divide per γ_M
-        fd=mat.fd * mat.gamma_M * mat.FC,          # idem
-        fvk0=mat.fvk0d * mat.gamma_M * mat.FC,    # idem
+        fd=mat.fd * mat.gamma_M * mat.FC,  # idem
+        fvk0=mat.fvk0d * mat.gamma_M * mat.FC,  # idem
         mu=mat.mu,
         gamma_M=mat.gamma_M,
         b_coeff=b_coeff,
@@ -226,9 +227,7 @@ def calcola_resistenza_maschio(maschio: Maschio) -> ResistenzaMaschio:
     res.V_Rd = criteri[criterio_min]
     res.criterio_dominante = criterio_min
 
-    passaggi.append(
-        f"  → V_Rd = {res.V_Rd:.0f} kg (criterio: {criterio_min})"
-    )
+    passaggi.append(f"  → V_Rd = {res.V_Rd:.0f} kg (criterio: {criterio_min})")
 
     # Drift limite in base al criterio dominante
     if criterio_min == "pressoflessione":
@@ -260,12 +259,14 @@ def calcola_resistenza_maschio(maschio: Maschio) -> ResistenzaMaschio:
 #  Resistenza fascia
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class ResistenzaFascia:
     """Resistenza e curva bilineare di una fascia."""
+
     id_fascia: int = 0
     V_Rd: float = 0.0
-    M_Rd: float = 0.0               # momento resistente (se con cordolo) [kg·cm]
+    M_Rd: float = 0.0  # momento resistente (se con cordolo) [kg·cm]
     k_elastico: float = 0.0
     delta_y: float = 0.0
     delta_u: float = 0.0
@@ -361,6 +362,7 @@ def calcola_resistenza_fascia(fascia: Fascia) -> ResistenzaFascia:
 # ═══════════════════════════════════════════════════════════
 #  Calcolo resistenza tutti maschi di un piano
 # ═══════════════════════════════════════════════════════════
+
 
 def calcola_resistenze_piano(
     maschi: list[Maschio],

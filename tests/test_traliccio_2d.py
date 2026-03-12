@@ -17,6 +17,7 @@ from src.steel.traliccio_2d import (
 
 # ═══════════════════ Fixture ═══════════════════
 
+
 def _traliccio_triangolare():
     """Traliccio triangolare semplice (3 nodi, 3 aste).
 
@@ -33,7 +34,7 @@ def _traliccio_triangolare():
     """
     L = 300.0  # cm
     H = 400.0  # cm
-    A = 10.0   # cm²
+    A = 10.0  # cm²
 
     nodi = [
         Nodo(0, 0.0, 0.0, TipoVincolo.CERNIERA),
@@ -41,9 +42,9 @@ def _traliccio_triangolare():
         Nodo(2, 0.0, H, Fy=-1000.0),
     ]
     aste = [
-        Asta(0, 0, 1, A),   # orizzontale
-        Asta(1, 0, 2, A),   # verticale
-        Asta(2, 1, 2, A),   # diagonale
+        Asta(0, 0, 1, A),  # orizzontale
+        Asta(1, 0, 2, A),  # verticale
+        Asta(2, 1, 2, A),  # diagonale
     ]
     return nodi, aste
 
@@ -59,30 +60,31 @@ def _traliccio_warren():
 
     Semplificato: traliccio 2 campate con diagonali.
     """
-    L = 200.0   # larghezza pannello
-    H = 200.0   # altezza
-    A = 15.0    # cm²
+    L = 200.0  # larghezza pannello
+    H = 200.0  # altezza
+    A = 15.0  # cm²
 
     nodi = [
-        Nodo(0, 0, H, TipoVincolo.CERNIERA),        # appoggio sx alto
-        Nodo(1, 0, 0, TipoVincolo.LIBERO),           # basso sx
-        Nodo(2, L, H, TipoVincolo.LIBERO),           # alto centro
-        Nodo(3, L, 0, TipoVincolo.LIBERO, Fy=-2000), # basso centro, carico
-        Nodo(4, 2*L, H, TipoVincolo.CARRELLO_X),     # appoggio dx alto
+        Nodo(0, 0, H, TipoVincolo.CERNIERA),  # appoggio sx alto
+        Nodo(1, 0, 0, TipoVincolo.LIBERO),  # basso sx
+        Nodo(2, L, H, TipoVincolo.LIBERO),  # alto centro
+        Nodo(3, L, 0, TipoVincolo.LIBERO, Fy=-2000),  # basso centro, carico
+        Nodo(4, 2 * L, H, TipoVincolo.CARRELLO_X),  # appoggio dx alto
     ]
     aste = [
-        Asta(0, 0, 1, A),   # verticale sx
-        Asta(1, 0, 2, A),   # corrente sup sx
-        Asta(2, 1, 3, A),   # corrente inf sx
-        Asta(3, 1, 2, A),   # diagonale sx (↗)
-        Asta(4, 2, 3, A),   # verticale centro
-        Asta(5, 2, 4, A),   # corrente sup dx
-        Asta(6, 3, 4, A),   # diagonale dx (↗)
+        Asta(0, 0, 1, A),  # verticale sx
+        Asta(1, 0, 2, A),  # corrente sup sx
+        Asta(2, 1, 3, A),  # corrente inf sx
+        Asta(3, 1, 2, A),  # diagonale sx (↗)
+        Asta(4, 2, 3, A),  # verticale centro
+        Asta(5, 2, 4, A),  # corrente sup dx
+        Asta(6, 3, 4, A),  # diagonale dx (↗)
     ]
     return nodi, aste
 
 
 # ═══════════════════ Test base ═══════════════════
+
 
 class TestRisoluzioneBase:
     def test_traliccio_triangolare_converge(self):
@@ -180,6 +182,7 @@ class TestTraliccioWarren:
 
 # ═══════════════════ Test asta singola ═══════════════════
 
+
 class TestAstaSingola:
     def test_asta_trazione(self):
         """Singola asta tesa: N = F, σ = F/A."""
@@ -236,6 +239,7 @@ class TestAstaSingola:
 
 # ═══════════════════ Test casi limite ═══════════════════
 
+
 class TestCasiLimite:
     def test_nessun_carico(self):
         """Traliccio senza carichi → sforzi nulli."""
@@ -284,6 +288,7 @@ class TestToDict:
 
 
 # ═══════════════════ Test verifiche aste ═══════════════════
+
 
 class TestVerificheAste:
     def test_verifica_trazione(self):

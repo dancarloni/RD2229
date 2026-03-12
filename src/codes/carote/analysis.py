@@ -11,11 +11,7 @@ from typing import Any
 
 from src.codes.carote.core_sample import ConversionResult, CoreSample
 from src.codes.carote.derived_params import DerivedConcreteParams, calcola_parametri_derivati
-from src.codes.carote.formulas import (
-    STANDARD_FORMULATIONS,
-    converti_custom,
-    converti_tutti,
-)
+from src.codes.carote.formulas import STANDARD_FORMULATIONS, converti_custom, converti_tutti
 from src.codes.carote.statistics import FullStatisticalAnalysis, analisi_statistica_completa
 
 
@@ -57,7 +53,9 @@ class CoreAnalysisResult:
                     "mean": round(stats.summary.mean, 3) if stats else None,
                     "std": round(stats.summary.std, 3) if stats else None,
                     "cov": round(stats.summary.cov, 4) if stats else None,
-                    "f_ck_is_ntc2018_lc2": round(stats.ntc2018["LC2"].f_ck_is, 3) if stats else None,
+                    "f_ck_is_ntc2018_lc2": (
+                        round(stats.ntc2018["LC2"].f_ck_is, 3) if stats else None
+                    ),
                     "classification": stats.classification if stats else None,
                 },
                 "derived": derived.to_dict() if derived else None,
@@ -134,9 +132,7 @@ def analizza_carote(
         f_ck_is = stats.ntc2018[lc].f_ck_is
         if f_ck_is > 0:
             derived[fname] = calcola_parametri_derivati(f_ck_is, stats.classification)
-        passaggi.append(
-            f"{fname}: f_ck,is({lc}) = {f_ck_is:.3f} MPa -> {stats.classification}"
-        )
+        passaggi.append(f"{fname}: f_ck,is({lc}) = {f_ck_is:.3f} MPa -> {stats.classification}")
 
     # Best estimate: NTC2018 formulazione
     best = None

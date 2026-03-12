@@ -45,6 +45,7 @@ try:
         QVBoxLayout,
         QWidget,
     )
+
     _PYQT6 = True
 except ImportError:
     from PySide6.QtCore import QPointF, QRectF, Qt  # type: ignore[no-redef]
@@ -73,6 +74,7 @@ except ImportError:
         QVBoxLayout,
         QWidget,
     )
+
     _PYQT6 = False
 
 from src.elements.cordolo import (
@@ -114,6 +116,7 @@ _POSIZIONE_MAP = {
 
 # ── _SezioneVisualizzatore ────────────────────────────────────────────────────
 
+
 class _SezioneVisualizzatore(QWidget):
     """Disegno QPainter della sezione trasversale del cordolo."""
 
@@ -135,16 +138,31 @@ class _SezioneVisualizzatore(QWidget):
         self.update()
 
     def aggiorna_ca(
-        self, b: float, h: float, n_sup: int, n_inf: int,
-        phi_long: float, c: float,
+        self,
+        b: float,
+        h: float,
+        n_sup: int,
+        n_inf: int,
+        phi_long: float,
+        c: float,
     ) -> None:
         self._tipo = "ca"
-        self._ca_params = {"b": b, "h": h, "n_sup": n_sup, "n_inf": n_inf,
-                           "phi_long": phi_long, "c": c}
+        self._ca_params = {
+            "b": b,
+            "h": h,
+            "n_sup": n_sup,
+            "n_inf": n_inf,
+            "phi_long": phi_long,
+            "c": c,
+        }
         self.update()
 
     def aggiorna_reticolare(
-        self, L: float, h: float, n_campate: int, schema: str,
+        self,
+        L: float,
+        h: float,
+        n_campate: int,
+        schema: str,
     ) -> None:
         self._tipo = "reticolare"
         self._ret_params = {"L": L, "h": h, "n_campate": n_campate, "schema": schema}
@@ -168,12 +186,15 @@ class _SezioneVisualizzatore(QWidget):
         else:
             painter.setPen(QColor(160, 160, 160))
             painter.setFont(QFont("Arial", 10))
-            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter,
-                             "Selezionare un profilo")
+            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "Selezionare un profilo")
         painter.end()
 
     def _disegna_metallico(
-        self, painter: QPainter, margin: int, area_w: int, area_h: int,
+        self,
+        painter: QPainter,
+        margin: int,
+        area_w: int,
+        area_h: int,
     ) -> None:
         p = self._profilo
         if p is None:
@@ -188,14 +209,12 @@ class _SezioneVisualizzatore(QWidget):
         painter.setBrush(QBrush(fill))
 
         # Ala inferiore
-        painter.drawRect(QRectF(ox, oy + (p.h - p.tf) * scala,
-                                p.b * scala, p.tf * scala))
+        painter.drawRect(QRectF(ox, oy + (p.h - p.tf) * scala, p.b * scala, p.tf * scala))
         # Ala superiore
         painter.drawRect(QRectF(ox, oy, p.b * scala, p.tf * scala))
         # Anima
         x_anima = ox + (p.b - p.tw) / 2 * scala
-        painter.drawRect(QRectF(x_anima, oy + p.tf * scala,
-                                p.tw * scala, (p.h - 2 * p.tf) * scala))
+        painter.drawRect(QRectF(x_anima, oy + p.tf * scala, p.tw * scala, (p.h - 2 * p.tf) * scala))
 
         # Etichette
         painter.setPen(QColor(40, 40, 40))
@@ -205,19 +224,26 @@ class _SezioneVisualizzatore(QWidget):
         painter.save()
         painter.translate(margin - 10, oy + p.h * scala / 2)
         painter.rotate(-90)
-        painter.drawText(QRectF(-40, -10, 80, 20), Qt.AlignmentFlag.AlignCenter,
-                         f"h={p.h:.0f}")
+        painter.drawText(QRectF(-40, -10, 80, 20), Qt.AlignmentFlag.AlignCenter, f"h={p.h:.0f}")
         painter.restore()
         # b= (sopra)
-        painter.drawText(QRectF(cx - 30, oy - 18, 60, 16),
-                         Qt.AlignmentFlag.AlignCenter, f"b={p.b:.0f}")
+        painter.drawText(
+            QRectF(cx - 30, oy - 18, 60, 16), Qt.AlignmentFlag.AlignCenter, f"b={p.b:.0f}"
+        )
         # tw=
         x_label = x_anima + p.tw * scala / 2
-        painter.drawText(QRectF(x_label - 20, oy + p.h * scala / 2 - 8, 40, 16),
-                         Qt.AlignmentFlag.AlignCenter, f"tw={p.tw:.2f}")
+        painter.drawText(
+            QRectF(x_label - 20, oy + p.h * scala / 2 - 8, 40, 16),
+            Qt.AlignmentFlag.AlignCenter,
+            f"tw={p.tw:.2f}",
+        )
 
     def _disegna_ca(
-        self, painter: QPainter, margin: int, area_w: int, area_h: int,
+        self,
+        painter: QPainter,
+        margin: int,
+        area_w: int,
+        area_h: int,
     ) -> None:
         d = self._ca_params
         b, h = d["b"], d["h"]
@@ -251,24 +277,30 @@ class _SezioneVisualizzatore(QWidget):
             for i in range(row_n):
                 x_barra = ox + (c + i * spacing) * scala
                 painter.drawEllipse(
-                    QPointF(x_barra, y_barre), r_px, r_px,
+                    QPointF(x_barra, y_barre),
+                    r_px,
+                    r_px,
                 )
 
         # Etichette
         painter.setPen(QColor(40, 40, 40))
         painter.setFont(QFont("Arial", 8))
         cx = self.width() / 2
-        painter.drawText(QRectF(cx - 30, oy - 18, 60, 16),
-                         Qt.AlignmentFlag.AlignCenter, f"b={b:.0f}")
+        painter.drawText(
+            QRectF(cx - 30, oy - 18, 60, 16), Qt.AlignmentFlag.AlignCenter, f"b={b:.0f}"
+        )
         painter.save()
         painter.translate(margin - 10, oy + h * scala / 2)
         painter.rotate(-90)
-        painter.drawText(QRectF(-30, -10, 60, 20),
-                         Qt.AlignmentFlag.AlignCenter, f"h={h:.0f}")
+        painter.drawText(QRectF(-30, -10, 60, 20), Qt.AlignmentFlag.AlignCenter, f"h={h:.0f}")
         painter.restore()
 
     def _disegna_reticolare(
-        self, painter: QPainter, margin: int, area_w: int, area_h: int,
+        self,
+        painter: QPainter,
+        margin: int,
+        area_w: int,
+        area_h: int,
     ) -> None:
         d = self._ret_params
         n = max(d["n_campate"], 2)
@@ -311,27 +343,34 @@ class _SezioneVisualizzatore(QWidget):
         painter.setPen(QColor(40, 40, 40))
         painter.setFont(QFont("Arial", 8))
         cx = self.width() / 2
-        painter.drawText(QRectF(cx - 40, oy_bot + 4, 80, 16),
-                         Qt.AlignmentFlag.AlignCenter,
-                         f"L={d['L']:.0f} cm  ({n} camp.)")
+        painter.drawText(
+            QRectF(cx - 40, oy_bot + 4, 80, 16),
+            Qt.AlignmentFlag.AlignCenter,
+            f"L={d['L']:.0f} cm  ({n} camp.)",
+        )
         painter.save()
         painter.translate(margin - 10, (oy_top + oy_bot) / 2)
         painter.rotate(-90)
-        painter.drawText(QRectF(-30, -10, 60, 20),
-                         Qt.AlignmentFlag.AlignCenter, f"h={d['h']:.0f}")
+        painter.drawText(QRectF(-30, -10, 60, 20), Qt.AlignmentFlag.AlignCenter, f"h={d['h']:.0f}")
         painter.restore()
 
 
 # ── _TabellaProfiloInfo ───────────────────────────────────────────────────────
 
+
 class _TabellaProfiloInfo(QWidget):
     """Tabella key-value con le proprieta' geometriche del profilo selezionato."""
 
     _CAMPI = [
-        ("h [cm]", "h"), ("b [cm]", "b"), ("A [cm²]", "A"),
-        ("Ix [cm⁴]", "Ix"), ("Wx [cm³]", "Wx"),
-        ("Iy [cm⁴]", "Iy"), ("Wy [cm³]", "Wy"),
-        ("It [cm⁴]", "It"), ("massa [kg/m]", "massa_kg_m"),
+        ("h [cm]", "h"),
+        ("b [cm]", "b"),
+        ("A [cm²]", "A"),
+        ("Ix [cm⁴]", "Ix"),
+        ("Wx [cm³]", "Wx"),
+        ("Iy [cm⁴]", "Iy"),
+        ("Wy [cm³]", "Wy"),
+        ("It [cm⁴]", "It"),
+        ("massa [kg/m]", "massa_kg_m"),
     ]
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -354,6 +393,7 @@ class _TabellaProfiloInfo(QWidget):
 
 
 # ── _InputSollecitazioni (pagina Metallico) ───────────────────────────────────
+
 
 class _InputSollecitazioni(QWidget):
     """Form input sollecitazioni — usato solo per tipo Metallico."""
@@ -422,6 +462,7 @@ class _InputSollecitazioni(QWidget):
 
 # ── _OutputVerifiche ──────────────────────────────────────────────────────────
 
+
 class _OutputVerifiche(QWidget):
     """Tab output: testo ASCII + etichetta esito + esporta HTML."""
 
@@ -485,6 +526,7 @@ class _OutputVerifiche(QWidget):
 
 # ── Pagine form CA e Reticolare ───────────────────────────────────────────────
 
+
 class _FormCA(QWidget):
     """Form completo per cordolo CA (parametri + sollecitazioni)."""
 
@@ -547,20 +589,30 @@ class _FormCA(QWidget):
 
     def get_input(self) -> dict:
         return {
-            "b": self._b.value(), "h": self._h.value(),
-            "n_barre_sup": self._n_sup.value(), "n_barre_inf": self._n_inf.value(),
-            "phi_long": self._phi_long.value(), "phi_staffe": self._phi_staffe.value(),
-            "passo_staffe": self._passo.value(), "c": self._c.value(),
-            "sigma_c_adm": self._sigma_c.value(), "sigma_s_adm": self._sigma_s.value(),
-            "M": self._M.value(), "V": self._V.value(), "N": self._N.value(),
+            "b": self._b.value(),
+            "h": self._h.value(),
+            "n_barre_sup": self._n_sup.value(),
+            "n_barre_inf": self._n_inf.value(),
+            "phi_long": self._phi_long.value(),
+            "phi_staffe": self._phi_staffe.value(),
+            "passo_staffe": self._passo.value(),
+            "c": self._c.value(),
+            "sigma_c_adm": self._sigma_c.value(),
+            "sigma_s_adm": self._sigma_s.value(),
+            "M": self._M.value(),
+            "V": self._V.value(),
+            "N": self._N.value(),
             "posizione": self._pos.currentText(),
         }
 
     def get_ca_params_vis(self) -> dict:
         return {
-            "b": self._b.value(), "h": self._h.value(),
-            "n_sup": self._n_sup.value(), "n_inf": self._n_inf.value(),
-            "phi_long": self._phi_long.value(), "c": self._c.value(),
+            "b": self._b.value(),
+            "h": self._h.value(),
+            "n_sup": self._n_sup.value(),
+            "n_inf": self._n_inf.value(),
+            "phi_long": self._phi_long.value(),
+            "c": self._c.value(),
         }
 
 
@@ -623,25 +675,30 @@ class _FormReticolare(QWidget):
 
     def get_input(self) -> dict:
         return {
-            "L": self._L.value(), "h_traliccio": self._h.value(),
+            "L": self._L.value(),
+            "h_traliccio": self._h.value(),
             "n_campate": self._n_campate.value(),
             "schema": self._schema.currentText(),
             "tipo_acciaio": self._acciaio.currentText(),
             "F_y": self._F_y.value(),
-            "b_corrente": self._b_corr.value(), "t_corrente": self._t_corr.value(),
-            "b_diagonale": self._b_diag.value(), "t_diagonale": self._t_diag.value(),
+            "b_corrente": self._b_corr.value(),
+            "t_corrente": self._t_corr.value(),
+            "b_diagonale": self._b_diag.value(),
+            "t_diagonale": self._t_diag.value(),
             "posizione": self._pos.currentText(),
         }
 
     def get_ret_params_vis(self) -> dict:
         return {
-            "L": self._L.value(), "h": self._h.value(),
+            "L": self._L.value(),
+            "h": self._h.value(),
             "n_campate": self._n_campate.value(),
             "schema": self._schema.currentText(),
         }
 
 
 # ── CordoliWidget ─────────────────────────────────────────────────────────────
+
 
 class CordoliWidget(QWidget):
     """Widget embeddabile per verifica cordoli metallici, CA e reticolari."""
@@ -730,15 +787,9 @@ class CordoliWidget(QWidget):
         self.tabella_profili.setHorizontalHeaderLabels(
             ["Nome", "h [cm]", "b [cm]", "A [cm²]", "Wx [cm³]", "massa [kg/m]"]
         )
-        self.tabella_profili.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows
-        )
-        self.tabella_profili.setEditTriggers(
-            QTableWidget.EditTrigger.NoEditTriggers
-        )
-        self.tabella_profili.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.Stretch
-        )
+        self.tabella_profili.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tabella_profili.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tabella_profili.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         pag_layout.addWidget(self.tabella_profili)
 
         btn_row = QHBoxLayout()
@@ -840,10 +891,7 @@ class CordoliWidget(QWidget):
             h_max = 9999.0
 
         profili = self._sagomario.list_by_famiglia(famiglia)
-        profili = [
-            p for p in profili
-            if p.Wx >= wx_min and h_min <= p.h <= h_max
-        ]
+        profili = [p for p in profili if p.Wx >= wx_min and h_min <= p.h <= h_max]
 
         self.tabella_profili.setUpdatesEnabled(False)
         self.tabella_profili.setRowCount(len(profili))
@@ -895,8 +943,7 @@ class CordoliWidget(QWidget):
         if not path:
             return
         SagomarioAcciaio.genera_template_csv(path)
-        QMessageBox.information(self, "Template CSV",
-                                f"Template salvato in:\n{path}")
+        QMessageBox.information(self, "Template CSV", f"Template salvato in:\n{path}")
 
     def _esegui_calcolo(self) -> None:
         try:
@@ -946,13 +993,15 @@ class CordoliWidget(QWidget):
             normativa="TA DM 14/02/1992 / CNR 10011",
             modulo="cordoli_widget",
         )
-        tab.aggiungi_sezione_input({
-            "profilo": ("Profilo", p.nome, ""),
-            "Wx": ("Modulo elastico Wx", p.Wx, "cm³"),
-            "sigma_adm": ("Tensione ammissibile", d["sigma_adm"], "kg/cm²"),
-            "Mx": ("Momento agente", d["M"], "kg·cm"),
-            "V": ("Taglio agente", d["V"], "kg"),
-        })
+        tab.aggiungi_sezione_input(
+            {
+                "profilo": ("Profilo", p.nome, ""),
+                "Wx": ("Modulo elastico Wx", p.Wx, "cm³"),
+                "sigma_adm": ("Tensione ammissibile", d["sigma_adm"], "kg/cm²"),
+                "Mx": ("Momento agente", d["M"], "kg·cm"),
+                "V": ("Taglio agente", d["V"], "kg"),
+            }
+        )
         for passo in ris.passaggi:
             tab.aggiungi_riga_calcolo(descrizione=passo)
         tab.imposta_esito(
@@ -967,11 +1016,16 @@ class CordoliWidget(QWidget):
     def _calcola_ca(self) -> tuple[TabulatoCalcolo, bool]:
         d = self._form_ca.get_input()
         ca = CordoloCA(
-            b=d["b"], h=d["h"],
-            n_barre_sup=d["n_barre_sup"], n_barre_inf=d["n_barre_inf"],
-            phi_long=d["phi_long"], phi_staffe=d["phi_staffe"],
-            passo_staffe=d["passo_staffe"], c=d["c"],
-            sigma_c_adm=d["sigma_c_adm"], sigma_s_adm=d["sigma_s_adm"],
+            b=d["b"],
+            h=d["h"],
+            n_barre_sup=d["n_barre_sup"],
+            n_barre_inf=d["n_barre_inf"],
+            phi_long=d["phi_long"],
+            phi_staffe=d["phi_staffe"],
+            passo_staffe=d["passo_staffe"],
+            c=d["c"],
+            sigma_c_adm=d["sigma_c_adm"],
+            sigma_s_adm=d["sigma_s_adm"],
         )
         cord = Cordolo(
             tipo=TipoCordolo.CA,
@@ -988,13 +1042,15 @@ class CordoliWidget(QWidget):
             normativa="NTC2018 §7.8.1.6 / TA DM 1992",
             modulo="cordoli_widget",
         )
-        tab.aggiungi_sezione_input({
-            "b": ("Larghezza", d["b"], "cm"),
-            "h": ("Altezza", d["h"], "cm"),
-            "A_s_inf": ("Armatura inf.", ca.A_s_inf, "cm²"),
-            "sigma_s_adm": ("σ_s ammissibile", d["sigma_s_adm"], "kg/cm²"),
-            "Mx": ("Momento agente", d["M"], "kg·cm"),
-        })
+        tab.aggiungi_sezione_input(
+            {
+                "b": ("Larghezza", d["b"], "cm"),
+                "h": ("Altezza", d["h"], "cm"),
+                "A_s_inf": ("Armatura inf.", ca.A_s_inf, "cm²"),
+                "sigma_s_adm": ("σ_s ammissibile", d["sigma_s_adm"], "kg/cm²"),
+                "Mx": ("Momento agente", d["M"], "kg·cm"),
+            }
+        )
         for passo in ris.passaggi:
             tab.aggiungi_riga_calcolo(descrizione=passo)
 
@@ -1012,8 +1068,7 @@ class CordoliWidget(QWidget):
         d = self._form_ret.get_input()
         sec_corr = SezioneAsta.da_piatto(d["b_corrente"], d["t_corrente"])
         sec_diag = SezioneAsta.da_piatto(d["b_diagonale"], d["t_diagonale"])
-        schema = (SchemaReticolare.HOWE if d["schema"] == "Howe"
-                  else SchemaReticolare.PRATT)
+        schema = SchemaReticolare.HOWE if d["schema"] == "Howe" else SchemaReticolare.PRATT
         cret = CordoloReticolare(
             schema=schema,
             n_campate=d["n_campate"],
@@ -1030,12 +1085,14 @@ class CordoliWidget(QWidget):
             normativa="NTC2018 §8.7 / TA DM 1992",
             modulo="cordoli_widget",
         )
-        tab.aggiungi_sezione_input({
-            "L": ("Lunghezza cordolo", d["L"], "cm"),
-            "h": ("Profondita'", d["h_traliccio"], "cm"),
-            "n_campate": ("N. campate", d["n_campate"], ""),
-            "F_y": ("Forza sismica", d["F_y"], "kg"),
-        })
+        tab.aggiungi_sezione_input(
+            {
+                "L": ("Lunghezza cordolo", d["L"], "cm"),
+                "h": ("Profondita'", d["h_traliccio"], "cm"),
+                "n_campate": ("N. campate", d["n_campate"], ""),
+                "F_y": ("Forza sismica", d["F_y"], "kg"),
+            }
+        )
         for passo in ris.passaggi:
             tab.aggiungi_riga_calcolo(descrizione=passo)
         tab.imposta_esito(

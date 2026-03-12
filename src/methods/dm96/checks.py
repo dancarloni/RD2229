@@ -1082,7 +1082,9 @@ def check_fessurazione_sle_dm96(
     # Modulo elastico acciaio e calcestruzzo
     Es = getattr(material, "Es", None) or getattr(material, "E_s", 206000.0)  # MPa
     f_ck = getattr(material, "f_ck", 25.0)  # MPa
-    Ecm = getattr(material, "Ecm", None) or getattr(material, "E_cm", 22000.0 * (f_ck / 10.0) ** 0.3)
+    Ecm = getattr(material, "Ecm", None) or getattr(
+        material, "E_cm", 22000.0 * (f_ck / 10.0) ** 0.3
+    )
     f_ct_eff = getattr(material, "f_ctm", None) or 0.30 * f_ck ** (2.0 / 3.0)  # MPa
 
     # Tensione acciaio in esercizio (EC2 §7.3.4)
@@ -1236,7 +1238,9 @@ def check_deformazioni_sle_dm96(
 
     f_ck = getattr(material, "f_ck", 25.0)  # MPa
     Es = getattr(material, "Es", None) or getattr(material, "E_s", 206000.0)
-    Ecm = getattr(material, "Ecm", None) or getattr(material, "E_cm", 22000.0 * (f_ck / 10.0) ** 0.3)
+    Ecm = getattr(material, "Ecm", None) or getattr(
+        material, "E_cm", 22000.0 * (f_ck / 10.0) ** 0.3
+    )
     f_ct_eff = getattr(material, "f_ctm", None) or 0.30 * f_ck ** (2.0 / 3.0)
 
     # Coefficienti fluage e ritiro da config
@@ -1249,7 +1253,7 @@ def check_deformazioni_sle_dm96(
     n_lt = Es / Ec_eff if Ec_eff > 0 else 15.0
 
     # Momento di inerzia sezione reagente (stadio I)
-    I_g = b * h ** 3 / 12.0  # mm4
+    I_g = b * h**3 / 12.0  # mm4
 
     # Momento di fessurazione
     W_inf = I_g / (h / 2.0) if h > 0 else 1.0
@@ -1269,7 +1273,7 @@ def check_deformazioni_sle_dm96(
     else:
         xi = 0.5
     x_cr = xi * d_mm
-    I_cr = b * x_cr ** 3 / 3.0 + n_lt * As_mm2 * (d_mm - x_cr) ** 2
+    I_cr = b * x_cr**3 / 3.0 + n_lt * As_mm2 * (d_mm - x_cr) ** 2
 
     # Inerzia efficace (metodo Branson, EC2 §7.4.3)
     if M_sle_Nmm > 0 and M_sle_Nmm >= M_cr:
@@ -1283,7 +1287,7 @@ def check_deformazioni_sle_dm96(
 
     # Freccia istantanea (trave semplicemente appoggiata, carico uniforme equiv.)
     # delta = 5/48 * M * L^2 / (E*I)  (formula semplificata)
-    delta_inst = 5.0 / 48.0 * M_sle_Nmm * span_mm ** 2 / (Ecm * I_eff) if (Ecm * I_eff) > 0 else 0.0
+    delta_inst = 5.0 / 48.0 * M_sle_Nmm * span_mm**2 / (Ecm * I_eff) if (Ecm * I_eff) > 0 else 0.0
 
     # Freccia a lungo termine
     delta_lt = delta_inst * (1.0 + phi_creep)
@@ -1535,7 +1539,7 @@ def check_punzonamento_slu_dm96(
     rho_l = min(rho_l, 0.02)  # EC2 limita a 2%
 
     v_Rd_c = C_Rd_c * k * (100.0 * rho_l * f_ck) ** (1.0 / 3.0)
-    v_min = 0.035 * k ** 1.5 * f_ck ** 0.5
+    v_min = 0.035 * k**1.5 * f_ck**0.5
     v_Rd_c = max(v_Rd_c, v_min)
 
     utilizzazione = v_Ed / v_Rd_c if v_Rd_c > 0 else 999.0
@@ -1691,7 +1695,7 @@ def check_instabilita_compressione_slu_dm96(
         eps_yd = f_yd / Es if (Es := getattr(material, "Es", None) or 206000.0) > 0 else 0.002
         one_over_r = 2.0 * eps_yd / (0.45 * d_mm) if d_mm > 0 else 0.0
         c_factor = 10.0  # per carichi costanti
-        e_2 = one_over_r * l_0 ** 2 / c_factor
+        e_2 = one_over_r * l_0**2 / c_factor
 
         e_tot = max(e_0, e_min) + e_a + e_2
         M_Ed_tot = N_N * e_tot / 1e6  # kNm

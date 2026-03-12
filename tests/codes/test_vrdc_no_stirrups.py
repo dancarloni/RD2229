@@ -17,12 +17,12 @@ def test_vrdc_no_stirrups_golden_case():
     inputs = {
         "b_w_mm": 250,
         "d_mm": 450,
-        "A_sl_mm2": 1473,   # ~3φ25
+        "A_sl_mm2": 1473,  # ~3φ25
         "f_ck_MPa": 25,
         "N_Ed_N": 0,
         "A_c_mm2": 125000,
         "gamma_c": 1.5,
-        "V_Ed_N": 50000,    # 50 kN
+        "V_Ed_N": 50000,  # 50 kN
     }
     res = NTC2018CodeModule.run_check("vrdc_no_stirrups", inputs)
     assert res["ok"] is True

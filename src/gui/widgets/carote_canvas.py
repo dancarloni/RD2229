@@ -24,6 +24,7 @@ try:
             QVBoxLayout,
             QWidget,
         )
+
         _QT_AVAILABLE = True
     except ImportError:
         try:
@@ -35,6 +36,7 @@ try:
                 QVBoxLayout,
                 QWidget,
             )
+
             _QT_AVAILABLE = True
         except ImportError:
             _QT_AVAILABLE = False
@@ -74,8 +76,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             self._analysis: Any = None
             self._fig = Figure(figsize=(8, 6), dpi=100)
             self._canvas = FigureCanvas(self._fig)
-            self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding,
-                                       QSizePolicy.Policy.Expanding)
+            self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
             # Controlli
             self._combo_vista = QComboBox()
@@ -172,9 +173,14 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
                 ax_dst.set_xlabel(ax_src.get_xlabel())
                 ax_dst.set_ylabel(ax_src.get_ylabel())
                 for line in ax_src.get_lines():
-                    ax_dst.plot(line.get_xdata(), line.get_ydata(),
-                                color=line.get_color(), linewidth=line.get_linewidth(),
-                                linestyle=line.get_linestyle(), label=line.get_label())
+                    ax_dst.plot(
+                        line.get_xdata(),
+                        line.get_ydata(),
+                        color=line.get_color(),
+                        linewidth=line.get_linewidth(),
+                        linestyle=line.get_linestyle(),
+                        label=line.get_label(),
+                    )
                 break  # Solo primo axes
 
         def salva(self, percorso: str, dpi: int = 150) -> None:

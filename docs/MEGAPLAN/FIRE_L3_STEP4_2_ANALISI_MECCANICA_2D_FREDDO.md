@@ -94,7 +94,7 @@ class MechanicalSolverL3_2D:
         # applicazione condizioni al contorno
         # risoluzione iterativa (Newton-Raphson)
         return {
-            "displacement_field": ..., 
+            "displacement_field": ...,
             "stress_field": ...
         }
 

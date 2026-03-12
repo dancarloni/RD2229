@@ -22,9 +22,9 @@ from typing import Any
 class PianoEdificio:
     """Dati di un piano dell'edificio per la distribuzione delle forze sismiche."""
 
-    piano: int    # numero piano (1-based)
-    h_m: float    # quota dal suolo [m]
-    W_kN: float   # peso piano [kN]
+    piano: int  # numero piano (1-based)
+    h_m: float  # quota dal suolo [m]
+    W_kN: float  # peso piano [kN]
 
 
 def distribuzione_triangolare(

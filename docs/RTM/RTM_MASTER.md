@@ -1,8 +1,8 @@
 # RTM_MASTER — Requirement Traceability Matrix
 
-> **Versione**: 1.0 — 2026-03-01  
-> **Generato da**: `tools/audit_repo.py` (struttura) + revisione manuale (contenuto)  
-> **Regola**: tutte le celle con dati non verificabili meccanicamente sono marcate `TBD`.  
+> **Versione**: 1.0 — 2026-03-01
+> **Generato da**: `tools/audit_repo.py` (struttura) + revisione manuale (contenuto)
+> **Regola**: tutte le celle con dati non verificabili meccanicamente sono marcate `TBD`.
 > **Aggiornamento**: aggiornare questa matrice ad ogni nuova feature; rigenerare le righe modulo con `tools/audit_repo.py`.
 
 ---

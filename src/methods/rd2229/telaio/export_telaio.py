@@ -30,22 +30,15 @@ from src.methods.rd2229.telaio.armature_telaio import (
     SchedaArmatura,
     genera_schede_santarella,
 )
-from src.methods.rd2229.telaio.combinazioni_rd2229 import (
-    InviluppoSollecitazioniAsta,
-)
+from src.methods.rd2229.telaio.combinazioni_rd2229 import InviluppoSollecitazioniAsta
 from src.methods.rd2229.telaio.cross_pozzati import DatiCross
 from src.methods.rd2229.telaio.modello_telaio import (
     ModelloTelaio,
     TipoRilascioInterno,
     TipoVincoloEsterno,
 )
-from src.methods.rd2229.telaio.solver_telaio import (
-    RisultatoCasoCarico,
-)
-from src.methods.rd2229.telaio.verifiche_telaio import (
-    RisultatoVerificaAsta,
-    riepilogo_verifiche,
-)
+from src.methods.rd2229.telaio.solver_telaio import RisultatoCasoCarico
+from src.methods.rd2229.telaio.verifiche_telaio import RisultatoVerificaAsta, riepilogo_verifiche
 
 # ==============================================================================
 # UTILITY ASCII
@@ -145,8 +138,7 @@ def tabella_0_vincoli(modello: ModelloTelaio) -> list[str]:
         ri = asta.rilascio_i
         rj = asta.rilascio_j
         ha_rilascio = (
-            ri.tipo != TipoRilascioInterno.NODO_RIGIDO
-            or rj.tipo != TipoRilascioInterno.NODO_RIGIDO
+            ri.tipo != TipoRilascioInterno.NODO_RIGIDO or rj.tipo != TipoRilascioInterno.NODO_RIGIDO
         )
         if not ha_rilascio:
             continue
@@ -208,31 +200,25 @@ def tabella_1_sezioni(modello: ModelloTelaio) -> list[str]:
 # ==============================================================================
 
 
-def tabella_2_fattori(
-    modello: ModelloTelaio, dati_cross: DatiCross
-) -> list[str]:
+def tabella_2_fattori(modello: ModelloTelaio, dati_cross: DatiCross) -> list[str]:
     """Tabella 2: fattori di distribuzione μ per nodo."""
     righe = _intestazione_tabella(2, "Fattori di distribuzione nodale")
-    righe.append(
-        f"{'Nodo':>6} │ {'Etich.':>7} │ "
-        f"{'Asta':>5} │ {'k_ij':>12} │ {'μ_ij':>8}"
-    )
+    righe.append(f"{'Nodo':>6} │ {'Etich.':>7} │ " f"{'Asta':>5} │ {'k_ij':>12} │ {'μ_ij':>8}")
     righe.append(_SEP2)
 
     for id_nodo, fattori_nodo in dati_cross.fattori_distribuzione.items():
         nodo = modello.nodo_by_id(id_nodo)
         etich_nodo = nodo.etichetta if nodo else str(id_nodo)
-        k_totale = sum(
-            dati_cross.rigidezze.get(id_asta_nodo, 0.0)
-            for id_asta_nodo in fattori_nodo
-        )
+        k_totale = sum(dati_cross.rigidezze.get(id_asta_nodo, 0.0) for id_asta_nodo in fattori_nodo)
 
         prima_riga = True
         for id_asta, mu in fattori_nodo.items():
             asta = modello.asta_by_id(id_asta)
             etich_asta = asta.etichetta if asta else str(id_asta)
             k_ij = dati_cross.rigidezze.get(id_asta, 0.0)
-            prefisso_nodo = f"{id_nodo:>6} │ {etich_nodo:>7}" if prima_riga else f"{'':>6} │ {'':>7}"
+            prefisso_nodo = (
+                f"{id_nodo:>6} │ {etich_nodo:>7}" if prima_riga else f"{'':>6} │ {'':>7}"
+            )
             riga = f"{prefisso_nodo} │ {etich_asta:>5} │ {k_ij:>12.0f} │ {mu:>8.4f}"
             righe.append(riga)
             prima_riga = False
@@ -503,7 +489,9 @@ def tabella_7_armature(
         )
         righe.append(_SEP3)
         for id_a, info in riepilogo["per_asta"].items():
-            util_str = f"{info['utilizzazione_max']:.1%}" if info["utilizzazione_max"] is not None else "—"
+            util_str = (
+                f"{info['utilizzazione_max']:.1%}" if info["utilizzazione_max"] is not None else "—"
+            )
             riga = (
                 f"{id_a:>6} │ {info['semaforo']:>9} │ {util_str:>10} │ "
                 f"{str(info['check_governante'] or '—'):<30}"
@@ -617,10 +605,7 @@ def _html_tabella(righe_ascii: list[str], titolo: str = "") -> str:
     testo_esc = html_mod.escape(testo)
 
     titolo_html = f"<h3>{html_mod.escape(titolo)}</h3>" if titolo else ""
-    return (
-        f"{titolo_html}"
-        f'<pre class="tabulato">{testo_esc}</pre>'
-    )
+    return f"{titolo_html}" f'<pre class="tabulato">{testo_esc}</pre>'
 
 
 def genera_report_html(
@@ -747,13 +732,23 @@ def salva_tabulato(
     """
     if formato == "html":
         contenuto = genera_report_html(
-            modello, risultati_per_caso, dati_cross_per_caso,
-            inviluppo, armature, verifiche, caso_principale,
+            modello,
+            risultati_per_caso,
+            dati_cross_per_caso,
+            inviluppo,
+            armature,
+            verifiche,
+            caso_principale,
         )
     else:
         contenuto = genera_tabulato_ascii(
-            modello, risultati_per_caso, dati_cross_per_caso,
-            inviluppo, armature, verifiche, caso_principale,
+            modello,
+            risultati_per_caso,
+            dati_cross_per_caso,
+            inviluppo,
+            armature,
+            verifiche,
+            caso_principale,
         )
 
     with open(percorso, "w", encoding="utf-8") as f:

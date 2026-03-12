@@ -11,14 +11,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from tools.fetch_norma import (
-    _extracts_dir,
-    add_extract,
-    init_norm,
-    list_norms,
-    load_metadata,
-    main,
-)
+from tools.fetch_norma import _extracts_dir, add_extract, init_norm, list_norms, load_metadata, main
 
 # ---------------------------------------------------------------------------
 # Helpers

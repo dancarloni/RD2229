@@ -41,31 +41,34 @@ from ..steel.verifiche_ta import SIGMA_ADM_TA
 
 class SchemaReticolare(str, Enum):
     """Schema geometrico del traliccio."""
+
     HOWE = "howe"
     PRATT = "pratt"
 
 
 class TipoCollegamentoMuro(str, Enum):
     """Tipo di collegamento traliccio-muro."""
-    INGHISAGGIO = "inghisaggio"           # barre inghisate nella muratura
+
+    INGHISAGGIO = "inghisaggio"  # barre inghisate nella muratura
     TASSELLO_CHIMICO = "tassello_chimico"  # tassello chimico (F_Rd da utente — TODO)
-    CONNETTORE = "connettore"             # connettore meccanico
+    CONNETTORE = "connettore"  # connettore meccanico
 
 
 @dataclass
 class CordoloReticolare:
     """Dati geometrici e meccanici del cordolo reticolare."""
+
     schema: SchemaReticolare
     n_campate: int
-    L: float                # lunghezza [cm]
-    h: float                # profondità = spessore muro [cm]
+    L: float  # lunghezza [cm]
+    h: float  # profondità = spessore muro [cm]
     sezione_corrente: SezioneAsta
     sezione_diagonale: SezioneAsta
     tipo_acciaio: str = "Fe430"
-    tipo_estremi: str = "cerniera"    # "cerniera" (appoggio libero) o "incastro" (fine fissa)
+    tipo_estremi: str = "cerniera"  # "cerniera" (appoggio libero) o "incastro" (fine fissa)
     tipo_collegamento_muro: TipoCollegamentoMuro = TipoCollegamentoMuro.INGHISAGGIO
     n_ancoraggi_per_nodo: int = 2
-    phi_ancoraggio: float = 1.6       # diametro ancoraggio [cm]
+    phi_ancoraggio: float = 1.6  # diametro ancoraggio [cm]
     schema_chiusura: str = "muro_singolo"
     # TODO: schema_chiusura "anello_c1" / "anello_c2" (D.3.2-ext)
     # TODO: rigidezza_collegamento_muro: float | None = None  (Winkler)
@@ -89,17 +92,18 @@ class CordoloReticolare:
 @dataclass
 class RisultatoCordoloReticolare:
     """Risultato completo della verifica del cordolo reticolare."""
+
     convergenza: bool
-    K_globale: float           # rigidezza [kg/cm]
-    delta_max: float           # spostamento max [cm]
+    K_globale: float  # rigidezza [kg/cm]
+    delta_max: float  # spostamento max [cm]
     N_max_compressione: float  # sforzo max compressione [kg] (negativo)
-    N_max_trazione: float      # sforzo max trazione [kg] (positivo)
+    N_max_trazione: float  # sforzo max trazione [kg] (positivo)
     verifiche_aste: list[dict]
-    verifica_collegamento: dict   # F3: tau_nodo vs tau_adm
-    verifica_nodi: list[dict]     # H1: nodi d'angolo e nodi più sollecitati
+    verifica_collegamento: dict  # F3: tau_nodo vs tau_adm
+    verifica_nodi: list[dict]  # H1: nodi d'angolo e nodi più sollecitati
     F_ritegno_disponibile: float  # F massima che il cordolo può fornire [kg]
     avvisi_geometria: list[str] = field(default_factory=list)
-    fatica: None = None           # TODO placeholder fatica ciclica sismica
+    fatica: None = None  # TODO placeholder fatica ciclica sismica
     passaggi: list[str] = field(default_factory=list)
 
     @property
@@ -229,13 +233,19 @@ def verifica_cordolo_reticolare(
     # 1. Genera schema
     if cordolo.schema == SchemaReticolare.HOWE:
         nodi, aste = genera_howe(
-            cordolo.L, cordolo.h, cordolo.n_campate,
-            cordolo.sezione_corrente, cordolo.sezione_diagonale,
+            cordolo.L,
+            cordolo.h,
+            cordolo.n_campate,
+            cordolo.sezione_corrente,
+            cordolo.sezione_diagonale,
         )
     else:
         nodi, aste = genera_pratt(
-            cordolo.L, cordolo.h, cordolo.n_campate,
-            cordolo.sezione_corrente, cordolo.sezione_diagonale,
+            cordolo.L,
+            cordolo.h,
+            cordolo.n_campate,
+            cordolo.sezione_corrente,
+            cordolo.sezione_diagonale,
         )
 
     # Validazione geometria
@@ -246,7 +256,8 @@ def verifica_cordolo_reticolare(
 
     # 2. Vincoli standard cordolo
     nodi = applica_vincoli_cordolo(
-        nodi, cordolo.n_campate,
+        nodi,
+        cordolo.n_campate,
         tipo_estremi=cordolo.tipo_estremi,
     )
 
@@ -262,9 +273,12 @@ def verifica_cordolo_reticolare(
     if not risultato.convergenza:
         return RisultatoCordoloReticolare(
             convergenza=False,
-            K_globale=0.0, delta_max=0.0,
-            N_max_compressione=0.0, N_max_trazione=0.0,
-            verifiche_aste=[], verifica_collegamento={"verificato": False},
+            K_globale=0.0,
+            delta_max=0.0,
+            N_max_compressione=0.0,
+            N_max_trazione=0.0,
+            verifiche_aste=[],
+            verifica_collegamento={"verificato": False},
             verifica_nodi=[],
             F_ritegno_disponibile=0.0,
             avvisi_geometria=avvisi,
@@ -272,15 +286,18 @@ def verifica_cordolo_reticolare(
         )
 
     passaggi.append(
-        f"K_globale = {risultato.K_globale:.1f} kg/cm, "
-        f"δ_max = {risultato.delta_max:.4f} cm"
+        f"K_globale = {risultato.K_globale:.1f} kg/cm, " f"δ_max = {risultato.delta_max:.4f} cm"
     )
 
     # 5. Verifica aste
-    sezioni = {a.id: (cordolo.sezione_corrente
-                      if a.nome_profilo == cordolo.sezione_corrente.nome
-                      else cordolo.sezione_diagonale)
-               for a in aste}
+    sezioni = {
+        a.id: (
+            cordolo.sezione_corrente
+            if a.nome_profilo == cordolo.sezione_corrente.nome
+            else cordolo.sezione_diagonale
+        )
+        for a in aste
+    }
     verifiche = verifica_aste_traliccio(
         risultato,
         sigma_adm_traz=sigma_adm_val,
@@ -295,9 +312,7 @@ def verifica_cordolo_reticolare(
 
     # Sfruttamento massimo
     sfr_max = max((v.get("sfruttamento", 0.0) for v in verifiche), default=0.0)
-    passaggi.append(
-        f"N_max_comp = {N_max_comp:.0f} kg, N_max_traz = {N_max_traz:.0f} kg"
-    )
+    passaggi.append(f"N_max_comp = {N_max_comp:.0f} kg, N_max_traz = {N_max_traz:.0f} kg")
     passaggi.append(f"Sfruttamento max aste = {sfr_max:.3f}")
 
     # 6. Verifica collegamento muro (F3)
@@ -331,7 +346,7 @@ def verifica_cordolo_reticolare(
         N_max_trazione=N_max_traz,
         verifiche_aste=verifiche,
         verifica_collegamento=ver_colleg,
-        verifica_nodi=[],   # H1 popolato da verifica_nodi_angolo se chiamata
+        verifica_nodi=[],  # H1 popolato da verifica_nodi_angolo se chiamata
         F_ritegno_disponibile=F_ritegno,
         avvisi_geometria=avvisi,
         passaggi=passaggi,
@@ -368,16 +383,26 @@ def dimensiona_cordolo_reticolare(
     """
     from ..steel.sezione_asta import carica_catalogo_angolari, carica_catalogo_piatti
 
-    cat_c = (carica_catalogo_angolari() if famiglia_corrente.upper() == "ANGOLARE"
-             else carica_catalogo_piatti())
-    cat_d = (carica_catalogo_angolari() if famiglia_diagonale.upper() == "ANGOLARE"
-             else carica_catalogo_piatti())
+    cat_c = (
+        carica_catalogo_angolari()
+        if famiglia_corrente.upper() == "ANGOLARE"
+        else carica_catalogo_piatti()
+    )
+    cat_d = (
+        carica_catalogo_angolari()
+        if famiglia_diagonale.upper() == "ANGOLARE"
+        else carica_catalogo_piatti()
+    )
 
     for sez_c in cat_c.tutti():
         for sez_d in cat_d.tutti():
             cordolo = CordoloReticolare(
-                schema=schema, n_campate=n_campate, L=L, h=h,
-                sezione_corrente=sez_c, sezione_diagonale=sez_d,
+                schema=schema,
+                n_campate=n_campate,
+                L=L,
+                h=h,
+                sezione_corrente=sez_c,
+                sezione_diagonale=sez_d,
                 tipo_acciaio=tipo_acciaio,
             )
             res = verifica_cordolo_reticolare(cordolo, F_y)
@@ -391,15 +416,17 @@ def dimensiona_cordolo_reticolare(
 #  D.3.6 — Nodo d'angolo (cantonali)
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class InputNodoAngolo:
     """Input per verifica nodo d'angolo tra due cordoli."""
-    F_muro1: float          # forza dal muro 1 [kg]
-    F_muro2: float          # forza dal muro 2 [kg]
-    angolo_giunzione: float = 90.0   # angolo tra i muri [gradi]
-    a_saldatura: float = 0.6         # gola cordone saldatura [cm]
-    L_saldatura: float = 10.0        # lunghezza efficace saldatura [cm]
-    n_cordoni: int = 2               # numero cordoni saldatura
+
+    F_muro1: float  # forza dal muro 1 [kg]
+    F_muro2: float  # forza dal muro 2 [kg]
+    angolo_giunzione: float = 90.0  # angolo tra i muri [gradi]
+    a_saldatura: float = 0.6  # gola cordone saldatura [cm]
+    L_saldatura: float = 10.0  # lunghezza efficace saldatura [cm]
+    n_cordoni: int = 2  # numero cordoni saldatura
     tipo_acciaio: str = "Fe430"
 
 
@@ -413,9 +440,7 @@ def verifica_nodo_angolo(inp: InputNodoAngolo) -> dict:
     """
     theta = math.radians(inp.angolo_giunzione)
     F_ris = math.sqrt(
-        inp.F_muro1 ** 2
-        + inp.F_muro2 ** 2
-        + 2 * inp.F_muro1 * inp.F_muro2 * math.cos(theta)
+        inp.F_muro1**2 + inp.F_muro2**2 + 2 * inp.F_muro1 * inp.F_muro2 * math.cos(theta)
     )
 
     # Verifica saldatura

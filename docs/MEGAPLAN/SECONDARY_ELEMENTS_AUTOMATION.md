@@ -6,7 +6,7 @@
 > il modulo “Elementi Secondari / Non Strutturali”.
 >
 > ❗ Nessuna decisione progettuale deve essere presa fuori da quanto
-> qui specificato.  
+> qui specificato.
 > ❗ Nessun codice di calcolo deve essere introdotto in questa fase.
 
 ## 0-bis. Decisione di consolidamento (VINCOLANTE) — Mapping 2A‑1

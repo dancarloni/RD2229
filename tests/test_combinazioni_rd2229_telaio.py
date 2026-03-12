@@ -3,7 +3,6 @@
 Subfase L.10.
 """
 
-
 from src.methods.rd2229.telaio.combinazioni_rd2229 import (
     calcola_tutte_le_combinazioni,
     combinazioni_attive,
@@ -26,7 +25,7 @@ from src.methods.rd2229.telaio.modello_telaio import (
 
 def _sez(b: float = 30.0, h: float = 50.0, E: float = 300000.0) -> SezioneTelaio:
     I = b * h**3 / 12.0
-    return SezioneTelaio(tipo="RECT", b=b, h=h, I=I, A=b*h, Wx=b*h**2/6, E=E, gamma=0.0)
+    return SezioneTelaio(tipo="RECT", b=b, h=h, I=I, A=b * h, Wx=b * h**2 / 6, E=E, gamma=0.0)
 
 
 def _rigido() -> RilascioEstremita:
@@ -36,6 +35,7 @@ def _rigido() -> RilascioEstremita:
 # ==============================================================================
 # TEST 1 — Combinazioni attive per zona
 # ==============================================================================
+
 
 class TestCombinazioniAttive:
     """combinazioni_attive() restituisce list[str] con gli ID delle combinazioni."""
@@ -75,30 +75,49 @@ class TestCombinazioniAttive:
 # TEST 2 — Inviluppo: M_max ≥ M_min per ogni sezione
 # ==============================================================================
 
-class TestInviluppo:
 
+class TestInviluppo:
     def _modello_semplice(self, zona: str = "bassa") -> ModelloTelaio:
         nodi = [
             NodoTelaio(id=1, x=0, y=0, vincolo=VincoloEsterno(TipoVincoloEsterno.INCASTRO)),
-            NodoTelaio(id=2, x=300, y=300, vincolo=VincoloEsterno(TipoVincoloEsterno.LIBERO),
-                       piano=1, etichetta="B"),
+            NodoTelaio(
+                id=2,
+                x=300,
+                y=300,
+                vincolo=VincoloEsterno(TipoVincoloEsterno.LIBERO),
+                piano=1,
+                etichetta="B",
+            ),
             NodoTelaio(id=3, x=600, y=0, vincolo=VincoloEsterno(TipoVincoloEsterno.INCASTRO)),
         ]
         sez = _sez()
         aste = [
             AstaTelaio(
-                id=1, nodo_i=1, nodo_j=2, tipo=TipoAsta.PILASTRO, sezione=sez,
-                carichi=[], rilascio_i=_rigido(), rilascio_j=_rigido(), etichetta="AB"
+                id=1,
+                nodo_i=1,
+                nodo_j=2,
+                tipo=TipoAsta.PILASTRO,
+                sezione=sez,
+                carichi=[],
+                rilascio_i=_rigido(),
+                rilascio_j=_rigido(),
+                etichetta="AB",
             ),
             AstaTelaio(
-                id=2, nodo_i=2, nodo_j=3, tipo=TipoAsta.PILASTRO, sezione=sez,
-                carichi=[], rilascio_i=_rigido(), rilascio_j=_rigido(), etichetta="BC"
+                id=2,
+                nodo_i=2,
+                nodo_j=3,
+                tipo=TipoAsta.PILASTRO,
+                sezione=sez,
+                carichi=[],
+                rilascio_i=_rigido(),
+                rilascio_j=_rigido(),
+                etichetta="BC",
             ),
         ]
         piani = [PianoTelaio(id_piano=1, quota=300.0)]
         return ModelloTelaio(
-            nome="TestInviluppo", nodi=nodi, aste=aste, piani=piani,
-            zona_sismica=zona
+            nome="TestInviluppo", nodi=nodi, aste=aste, piani=piani, zona_sismica=zona
         )
 
     def test_inviluppo_ha_tutte_le_aste(self):
@@ -112,45 +131,69 @@ class TestInviluppo:
         modello = self._modello_semplice()
         ris = calcola_tutte_le_combinazioni(modello)
         for id_asta, inv in ris.inviluppo.items():
-            assert inv.M_max_i >= inv.M_min_i - 1e-6, (
-                f"Asta {id_asta} sez i: M_max_i={inv.M_max_i:.0f} < M_min_i={inv.M_min_i:.0f}"
-            )
-            assert inv.M_max_m >= inv.M_min_m - 1e-6, (
-                f"Asta {id_asta} sez mid: M_max_m={inv.M_max_m:.0f} < M_min_m={inv.M_min_m:.0f}"
-            )
-            assert inv.M_max_j >= inv.M_min_j - 1e-6, (
-                f"Asta {id_asta} sez j: M_max_j={inv.M_max_j:.0f} < M_min_j={inv.M_min_j:.0f}"
-            )
+            assert (
+                inv.M_max_i >= inv.M_min_i - 1e-6
+            ), f"Asta {id_asta} sez i: M_max_i={inv.M_max_i:.0f} < M_min_i={inv.M_min_i:.0f}"
+            assert (
+                inv.M_max_m >= inv.M_min_m - 1e-6
+            ), f"Asta {id_asta} sez mid: M_max_m={inv.M_max_m:.0f} < M_min_m={inv.M_min_m:.0f}"
+            assert (
+                inv.M_max_j >= inv.M_min_j - 1e-6
+            ), f"Asta {id_asta} sez j: M_max_j={inv.M_max_j:.0f} < M_min_j={inv.M_min_j:.0f}"
 
 
 # ==============================================================================
 # TEST 3 — Coppia (M_gov, N_gov) deve provenire dallo stesso caso
 # ==============================================================================
 
-class TestCoppiaGovernante:
 
+class TestCoppiaGovernante:
     def _portale(self, zona: str = "media") -> ModelloTelaio:
         nodi = [
             NodoTelaio(id=1, x=0, y=0, vincolo=VincoloEsterno(TipoVincoloEsterno.INCASTRO)),
-            NodoTelaio(id=2, x=0, y=400, vincolo=VincoloEsterno(TipoVincoloEsterno.LIBERO), piano=1),
-            NodoTelaio(id=3, x=500, y=400, vincolo=VincoloEsterno(TipoVincoloEsterno.LIBERO), piano=1),
+            NodoTelaio(
+                id=2, x=0, y=400, vincolo=VincoloEsterno(TipoVincoloEsterno.LIBERO), piano=1
+            ),
+            NodoTelaio(
+                id=3, x=500, y=400, vincolo=VincoloEsterno(TipoVincoloEsterno.LIBERO), piano=1
+            ),
             NodoTelaio(id=4, x=500, y=0, vincolo=VincoloEsterno(TipoVincoloEsterno.INCASTRO)),
         ]
         sez = _sez()
         aste = [
-            AstaTelaio(id=1, nodo_i=1, nodo_j=2, tipo=TipoAsta.PILASTRO,
-                       sezione=sez, carichi=[], rilascio_i=_rigido(), rilascio_j=_rigido()),
-            AstaTelaio(id=2, nodo_i=2, nodo_j=3, tipo=TipoAsta.TRAVE,
-                       sezione=sez,
-                       carichi=[CaricoAsta(TipoCarico.DISTRIBUITO_UNIFORME, valore_sx=3.0)],
-                       rilascio_i=_rigido(), rilascio_j=_rigido()),
-            AstaTelaio(id=3, nodo_i=4, nodo_j=3, tipo=TipoAsta.PILASTRO,
-                       sezione=sez, carichi=[], rilascio_i=_rigido(), rilascio_j=_rigido()),
+            AstaTelaio(
+                id=1,
+                nodo_i=1,
+                nodo_j=2,
+                tipo=TipoAsta.PILASTRO,
+                sezione=sez,
+                carichi=[],
+                rilascio_i=_rigido(),
+                rilascio_j=_rigido(),
+            ),
+            AstaTelaio(
+                id=2,
+                nodo_i=2,
+                nodo_j=3,
+                tipo=TipoAsta.TRAVE,
+                sezione=sez,
+                carichi=[CaricoAsta(TipoCarico.DISTRIBUITO_UNIFORME, valore_sx=3.0)],
+                rilascio_i=_rigido(),
+                rilascio_j=_rigido(),
+            ),
+            AstaTelaio(
+                id=3,
+                nodo_i=4,
+                nodo_j=3,
+                tipo=TipoAsta.PILASTRO,
+                sezione=sez,
+                carichi=[],
+                rilascio_i=_rigido(),
+                rilascio_j=_rigido(),
+            ),
         ]
         piani = [PianoTelaio(id_piano=1, quota=400.0)]
-        return ModelloTelaio(
-            nome="CoppiaGov", nodi=nodi, aste=aste, piani=piani, zona_sismica=zona
-        )
+        return ModelloTelaio(nome="CoppiaGov", nodi=nodi, aste=aste, piani=piani, zona_sismica=zona)
 
     def test_M_gov_e_N_gov_sono_float(self):
         """M_gov_i, N_gov_i ecc. sono float (non None)."""

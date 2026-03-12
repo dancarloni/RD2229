@@ -20,7 +20,7 @@ You are designing a development continuation plan for RD2229, a Python structura
 The project has ~1766 tests (0 failures), 45+ modules, covering 9 Italian building norms. Here's what's already COMPLETED (do NOT plan to redo these):
 
 **Completed Phases:**
-- A: Material databases (97 materials, 10 catalogs, multi-norm) 
+- A: Material databases (97 materials, 10 catalogs, multi-norm)
 - B: RD2229 Torsion TA method (src/methods/rd2229/torsione.py)
 - C: RD2229 Buckling/instability (src/methods/rd2229/instabilita.py)
 - D: Steel (sagomario EN10365 87 profiles, TA checks, 2D truss solver, connections - saldature+bulloni, cordolo model)
@@ -1617,7 +1617,7 @@ Sono presenti stub non ancora implementati. Voglio che siano implementati questi
 ta_models.py	Stub — stima periodo fondamentale T_a
 drift_models.py	Stub — stima drift metodo B
 
-in ogni caso mantieni perfettamente aggiornato il @docs/PIANO_SVILUPPO_CORRENTE.md e il @docs/PIANO_LAVORO.md 
+in ogni caso mantieni perfettamente aggiornato il @docs/PIANO_SVILUPPO_CORRENTE.md e il @docs/PIANO_LAVORO.md
 
 Salva sempre in un file di registro i tuoi commenti, le tabelle, le parti importanti delle conversazioni che abbiamo. Valgono sempre le regole stabilite in precedenza e nel @docs/PIANO_LAVORO.md  e nella @docs/CLAUDEPLAN/Conversazione.md
 The user wants me to implement the two stubs: ta_models.py (period estimation) and drift_models.py (drift estimation method B). Let me first read the existing stubs to understand what's there, then plan the implementation.
@@ -3723,7 +3723,7 @@ PIANO_LAVORO.md — 6 sotto-fasi (E.6.1–E.6.6) con dettaglio completo: meccani
 PIANO_SVILUPPO_CORRENTE.md — registro analisi Q&A e riepilogo decisioni
 Ora hai 3 sub-plan pronti per l'implementazione: D.3 (traliccio reticolare), E.6 (cantonali), A.2 (MaterialSource). Vuoi procedere con l'implementazione di uno di questi, o analizzare un'altra sezione?
 
-implementeremo i sub-plan in un'altra sessione ma non voglio che tu perda memoria di tutto lo sviluppo di questi 3 sub-plan. ora voglio che scrivi subito in modo modulare, chiaro, molto commentato, ordinato e metodico a te molto utile tutte le informazioni che potrai riutilizzare in futuro quando ti chiederò di sviluppare specifiche funzioni di @docs/PIANO_LAVORO.md 
+implementeremo i sub-plan in un'altra sessione ma non voglio che tu perda memoria di tutto lo sviluppo di questi 3 sub-plan. ora voglio che scrivi subito in modo modulare, chiaro, molto commentato, ordinato e metodico a te molto utile tutte le informazioni che potrai riutilizzare in futuro quando ti chiederò di sviluppare specifiche funzioni di @docs/PIANO_LAVORO.md
 salva e Mantieni il massimo contesto possibile a te utile.
 @docs/PIANO_LAVORO.md può contenere i riferimenti a questi file che andrai a creare.
 Tool loaded.

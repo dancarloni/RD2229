@@ -179,9 +179,7 @@ class PostProcessorFEM:
         F_left_v = float(f_stiff[1] - f_eq[1])
         F_left_M = float(f_stiff[2] - f_eq[2])
 
-        passaggi.append(
-            f"Reazione al nodo i: V_i={F_left_v:.4f} kg, M_i={F_left_M:.4f} kg·cm"
-        )
+        passaggi.append(f"Reazione al nodo i: V_i={F_left_v:.4f} kg, M_i={F_left_M:.4f} kg·cm")
 
         # Punti di campionamento
         xi_arr = np.linspace(0.0, 1.0, self.n_punti)
@@ -199,15 +197,11 @@ class PostProcessorFEM:
                     q_arr[k_idx] += carico.intensita_trasversale(x_k, L)
 
         # V_distrib(x) = F_left_v + ∫₀ˣ q_distr(t) dt  (solo carichi distribuiti)
-        cum_q = np.concatenate(
-            [[0.0], scint.cumulative_trapezoid(q_arr, x_arr)]
-        )
+        cum_q = np.concatenate([[0.0], scint.cumulative_trapezoid(q_arr, x_arr)])
         V_distrib = F_left_v + cum_q
 
         # M_distrib(x) = F_left_M + ∫₀ˣ V_distrib(t) dt
-        cum_V_distrib = np.concatenate(
-            [[0.0], scint.cumulative_trapezoid(V_distrib, x_arr)]
-        )
+        cum_V_distrib = np.concatenate([[0.0], scint.cumulative_trapezoid(V_distrib, x_arr)])
         M_distrib = F_left_M + cum_V_distrib
 
         # Carichi concentrati: contributi esatti a V e M (step function + ramp)
@@ -229,9 +223,7 @@ class PostProcessorFEM:
 
         # Spostamento trasversale v(x) con polinomio di Hermite
         d_herm = np.array([v_i_loc, L * theta_i, v_j_loc, L * theta_j], dtype=float)
-        v_loc = np.array(
-            [float(_hermite_v(xi) @ d_herm) for xi in xi_arr], dtype=float
-        )
+        v_loc = np.array([float(_hermite_v(xi) @ d_herm) for xi in xi_arr], dtype=float)
 
         # Spostamento assiale u(x) interpolato linearmente
         u_loc = u_i_loc + (u_j_loc - u_i_loc) * xi_arr
@@ -260,4 +252,3 @@ class PostProcessorFEM:
             N_kg=N_arr,
             passaggi_calcolo=passaggi,
         )
-

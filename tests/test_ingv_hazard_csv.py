@@ -44,6 +44,7 @@ CSV_DISPONIBILE = CSV_PATH.exists()
 # Fixture
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(autouse=True)
 def pulisci_cache():
     """Pulisce la cache CSV prima di ogni test per evitare interferenze."""
@@ -55,6 +56,7 @@ def pulisci_cache():
 # ---------------------------------------------------------------------------
 # _trova_tr_bracket
 # ---------------------------------------------------------------------------
+
 
 class TestTrovaTrBracket:
     def test_tr_esatto_nella_griglia(self):
@@ -90,6 +92,7 @@ class TestTrovaTrBracket:
 # _interpola_log_lineare_tr
 # ---------------------------------------------------------------------------
 
+
 class TestInterpolaLogLineareTR:
     def test_tr_esattamente_tr1_ritorna_valori_tr1(self):
         # alpha=0 -> risultato = valori TR1
@@ -123,6 +126,7 @@ class TestInterpolaLogLineareTR:
 # _valida_coordinate
 # ---------------------------------------------------------------------------
 
+
 class TestValidaCoordinate:
     def test_coordinate_valide_italia(self):
         _valida_coordinate(41.9, 12.5)  # Roma
@@ -143,6 +147,7 @@ class TestValidaCoordinate:
 # ---------------------------------------------------------------------------
 # get_hazard_params_csv — test con CSV reale
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skipif(not CSV_DISPONIBILE, reason="CSV griglia INGV non disponibile")
 class TestGetHazardParamsCsv:
@@ -171,9 +176,9 @@ class TestGetHazardParamsCsv:
         lat, lon = 42.8, 13.1  # Norcia
         valori = [get_hazard_params_csv(lat, lon, tr, CSV_PATH).ag_g for tr in [50, 201, 475, 975]]
         for i in range(len(valori) - 1):
-            assert valori[i] < valori[i + 1], (
-                f"ag non cresce: TR=... ag={valori[i]:.4f} > {valori[i+1]:.4f}"
-            )
+            assert (
+                valori[i] < valori[i + 1]
+            ), f"ag non cresce: TR=... ag={valori[i]:.4f} > {valori[i+1]:.4f}"
 
     def test_tr_475_nella_griglia(self):
         """TR=475 e' nella griglia: nessuna interpolazione TR."""
@@ -225,6 +230,7 @@ class TestGetHazardParamsCsv:
 # profilo_spettrale_completo
 # ---------------------------------------------------------------------------
 
+
 class TestProfiloSpettraleCompleto:
     """Test per profilo_spettrale_completo() in spectrum.py."""
 
@@ -239,9 +245,16 @@ class TestProfiloSpettraleCompleto:
 
     def _profilo(self, T_max=4.0, n=100):
         return profilo_spettrale_completo(
-            self._AG, self._F0, self._SS, self._ST,
-            self._TB, self._TC, self._TD,
-            xi=5.0, T_max=T_max, n_punti=n,
+            self._AG,
+            self._F0,
+            self._SS,
+            self._ST,
+            self._TB,
+            self._TC,
+            self._TD,
+            xi=5.0,
+            T_max=T_max,
+            n_punti=n,
         )
 
     def test_ritorna_lista_tuple(self):
@@ -305,10 +318,10 @@ class TestProfiloSpettraleCompleto:
     def test_compatibilita_con_spettro_elastico(self):
         """Valori del profilo devono coincidere con spettro_elastico per T campione."""
         from src.codes.ntc2018.spectrum import spettro_elastico
+
         punti = self._profilo()
         for t, se in punti[:5]:
             se_ref = spettro_elastico(
-                self._AG, self._F0, self._SS, self._ST,
-                self._TB, self._TC, self._TD, 5.0, t
+                self._AG, self._F0, self._SS, self._ST, self._TB, self._TC, self._TD, 5.0, t
             )
             assert abs(se - se_ref) < 1e-10

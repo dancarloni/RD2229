@@ -22,50 +22,53 @@ from enum import Enum
 
 class TipoCordolo(str, Enum):
     """Tipo di cordolo."""
-    CA = "ca"                           # calcestruzzo armato
-    METALLICO_SINGOLO = "metallico_singolo"   # profilo acciaio singolo
+
+    CA = "ca"  # calcestruzzo armato
+    METALLICO_SINGOLO = "metallico_singolo"  # profilo acciaio singolo
     METALLICO_RETICOLARE = "metallico_reticolare"  # traliccio acciaio
 
 
 class PosizioneCordolo(str, Enum):
     """Posizione del cordolo nell'edificio."""
-    SOMMITALE = "sommitale"             # in sommità alla muratura
-    INTERMEDIO = "intermedio"           # a livello di solaio intermedio
-    FONDAZIONE = "fondazione"           # alla base della muratura
+
+    SOMMITALE = "sommitale"  # in sommità alla muratura
+    INTERMEDIO = "intermedio"  # a livello di solaio intermedio
+    FONDAZIONE = "fondazione"  # alla base della muratura
 
 
 @dataclass
 class CordoloCA:
     """Cordolo in calcestruzzo armato."""
+
     # Geometria sezione
-    b: float                     # larghezza [cm] (≥ spessore muro)
-    h: float                     # altezza [cm] (min 20 cm NTC2018)
+    b: float  # larghezza [cm] (≥ spessore muro)
+    h: float  # altezza [cm] (min 20 cm NTC2018)
 
     # Armatura longitudinale
-    n_barre_sup: int = 2         # numero barre superiori
-    n_barre_inf: int = 2         # numero barre inferiori
-    phi_long: float = 1.6        # diametro barre longitudinali [cm]
+    n_barre_sup: int = 2  # numero barre superiori
+    n_barre_inf: int = 2  # numero barre inferiori
+    phi_long: float = 1.6  # diametro barre longitudinali [cm]
 
     # Armatura trasversale (staffe)
-    phi_staffe: float = 0.8      # diametro staffe [cm]
-    passo_staffe: float = 20.0   # passo staffe [cm]
+    phi_staffe: float = 0.8  # diametro staffe [cm]
+    passo_staffe: float = 20.0  # passo staffe [cm]
 
     # Copriferro
-    c: float = 3.0               # copriferro [cm]
+    c: float = 3.0  # copriferro [cm]
 
     # Materiali
-    sigma_c_adm: float = 60.0    # σ_c ammissibile cls [kg/cm²]
+    sigma_c_adm: float = 60.0  # σ_c ammissibile cls [kg/cm²]
     sigma_s_adm: float = 2600.0  # σ_s ammissibile acciaio [kg/cm²]
 
     @property
     def A_s_sup(self) -> float:
         """Area armatura superiore [cm²]."""
-        return self.n_barre_sup * math.pi * self.phi_long ** 2 / 4
+        return self.n_barre_sup * math.pi * self.phi_long**2 / 4
 
     @property
     def A_s_inf(self) -> float:
         """Area armatura inferiore [cm²]."""
-        return self.n_barre_inf * math.pi * self.phi_long ** 2 / 4
+        return self.n_barre_inf * math.pi * self.phi_long**2 / 4
 
     @property
     def A_s_tot(self) -> float:
@@ -75,7 +78,7 @@ class CordoloCA:
     @property
     def A_staffa(self) -> float:
         """Area singola staffa (2 bracci) [cm²]."""
-        return 2 * math.pi * self.phi_staffe ** 2 / 4
+        return 2 * math.pi * self.phi_staffe**2 / 4
 
     @property
     def A_cls(self) -> float:
@@ -101,8 +104,7 @@ class CordoloCA:
         # Armatura minima: 8 cm² (4Φ16 o equivalente)
         if self.A_s_tot < 8.0:
             problemi.append(
-                f"A_s = {self.A_s_tot:.2f} cm² < 8.0 cm² "
-                f"(minimo 4Φ16 NTC2018 §7.8.1.6)"
+                f"A_s = {self.A_s_tot:.2f} cm² < 8.0 cm² " f"(minimo 4Φ16 NTC2018 §7.8.1.6)"
             )
 
         # Staffe Φ6 passo max 25 cm
@@ -117,22 +119,23 @@ class CordoloCA:
 @dataclass
 class CordoloMetallico:
     """Cordolo metallico (profilo singolo o doppio)."""
+
     # Profilo
-    nome_profilo: str = ""           # es. "IPE 200", "HEA 160"
-    A: float = 0.0                   # area profilo [cm²]
-    Wx: float = 0.0                  # modulo resistente asse forte [cm³]
-    Wy: float = 0.0                  # modulo resistente asse debole [cm³]
-    Ix: float = 0.0                  # momento d'inerzia [cm⁴]
-    h: float = 0.0                   # altezza profilo [cm]
+    nome_profilo: str = ""  # es. "IPE 200", "HEA 160"
+    A: float = 0.0  # area profilo [cm²]
+    Wx: float = 0.0  # modulo resistente asse forte [cm³]
+    Wy: float = 0.0  # modulo resistente asse debole [cm³]
+    Ix: float = 0.0  # momento d'inerzia [cm⁴]
+    h: float = 0.0  # altezza profilo [cm]
 
     # Materiale
     tipo_acciaio: str = "Fe430"
-    sigma_adm: float = 1900.0        # tensione ammissibile [kg/cm²]
+    sigma_adm: float = 1900.0  # tensione ammissibile [kg/cm²]
 
     # Connessione alla muratura
-    n_ancoraggi: int = 4             # numero barre ancoraggio per metro
-    phi_ancoraggio: float = 1.6      # diametro barre ancoraggio [cm]
-    L_ancoraggio: float = 30.0       # lunghezza ancoraggio nella muratura [cm]
+    n_ancoraggi: int = 4  # numero barre ancoraggio per metro
+    phi_ancoraggio: float = 1.6  # diametro barre ancoraggio [cm]
+    L_ancoraggio: float = 30.0  # lunghezza ancoraggio nella muratura [cm]
 
     @property
     def M_Rd(self) -> float:
@@ -150,21 +153,22 @@ class CordoloMetallico:
     @property
     def A_ancoraggio_per_m(self) -> float:
         """Area ancoraggio per metro lineare [cm²/m]."""
-        return self.n_ancoraggi * math.pi * self.phi_ancoraggio ** 2 / 4
+        return self.n_ancoraggi * math.pi * self.phi_ancoraggio**2 / 4
 
 
 @dataclass
 class Cordolo:
     """Modello unificato cordolo (CA o metallico)."""
+
     tipo: TipoCordolo
     posizione: PosizioneCordolo = PosizioneCordolo.SOMMITALE
-    lunghezza: float = 0.0           # lunghezza cordolo [cm]
-    spessore_muro: float = 0.0       # spessore muro su cui poggia [cm]
+    lunghezza: float = 0.0  # lunghezza cordolo [cm]
+    spessore_muro: float = 0.0  # spessore muro su cui poggia [cm]
 
     # Sollecitazioni
-    N: float = 0.0                   # sforzo assiale [kg]
-    Mx: float = 0.0                  # momento flettente [kg·cm]
-    V: float = 0.0                   # taglio [kg]
+    N: float = 0.0  # sforzo assiale [kg]
+    Mx: float = 0.0  # momento flettente [kg·cm]
+    V: float = 0.0  # taglio [kg]
 
     # Dettaglio tipo
     ca: CordoloCA | None = None
@@ -174,6 +178,7 @@ class Cordolo:
 @dataclass
 class RisultatoCordolo:
     """Risultato verifica cordolo."""
+
     tipo: str
     posizione: str
 
@@ -223,9 +228,7 @@ def verifica_cordolo(cordolo: Cordolo) -> RisultatoCordolo:
         posizione=cordolo.posizione.value,
     )
 
-    passaggi.append(
-        f"Cordolo {cordolo.tipo.value}, posizione: {cordolo.posizione.value}"
-    )
+    passaggi.append(f"Cordolo {cordolo.tipo.value}, posizione: {cordolo.posizione.value}")
 
     if cordolo.tipo == TipoCordolo.CA and cordolo.ca:
         _verifica_cordolo_ca(cordolo, res, passaggi)
@@ -248,7 +251,9 @@ def _verifica_cordolo_ca(
     assert ca is not None
 
     passaggi.append(f"Sezione: {ca.b:.0f}×{ca.h:.0f} cm, d={ca.d:.1f} cm")
-    passaggi.append(f"Armatura: {ca.n_barre_sup+ca.n_barre_inf}Φ{ca.phi_long*10:.0f}, A_s={ca.A_s_tot:.2f} cm²")
+    passaggi.append(
+        f"Armatura: {ca.n_barre_sup+ca.n_barre_inf}Φ{ca.phi_long*10:.0f}, A_s={ca.A_s_tot:.2f} cm²"
+    )
 
     # Minimi NTC2018
     problemi = ca.verifica_minimi_ntc2018()
@@ -292,9 +297,7 @@ def _verifica_cordolo_ca(
         f"V_Rd = {V_Rd:.0f} → {'OK' if res.verifica_taglio else 'NON VERIFICATO'}"
     )
 
-    res.verifica_globale = (
-        res.verifica_flessione and res.verifica_taglio and res.verifica_minimi
-    )
+    res.verifica_globale = res.verifica_flessione and res.verifica_taglio and res.verifica_minimi
 
 
 def _verifica_cordolo_metallico(
@@ -315,9 +318,7 @@ def _verifica_cordolo_metallico(
         res.sfruttamento_flessione = abs(cordolo.Mx) / M_Rd
     res.verifica_flessione = abs(cordolo.Mx) <= M_Rd
 
-    passaggi.append(
-        f"M_Rd = σ_adm×Wx = {met.sigma_adm:.0f}×{met.Wx:.1f} = {M_Rd:.0f} kg·cm"
-    )
+    passaggi.append(f"M_Rd = σ_adm×Wx = {met.sigma_adm:.0f}×{met.Wx:.1f} = {M_Rd:.0f} kg·cm")
     passaggi.append(
         f"|Mx| = {abs(cordolo.Mx):.0f} {'≤' if res.verifica_flessione else '>'} "
         f"M_Rd = {M_Rd:.0f} → {'OK' if res.verifica_flessione else 'NON VERIFICATO'}"
@@ -342,55 +343,57 @@ def _verifica_cordolo_metallico(
         )
     res.verifica_minimi = len(res.problemi_minimi) == 0
 
-    res.verifica_globale = (
-        res.verifica_flessione and res.verifica_taglio and res.verifica_minimi
-    )
+    res.verifica_globale = res.verifica_flessione and res.verifica_taglio and res.verifica_minimi
 
 
 # ═══════════════════════════════════════════════════════════
 #  Catene e paletti — E.5
 # ═══════════════════════════════════════════════════════════
 
+
 class TipoPiastra(str, Enum):
     """Tipo piastra di ancoraggio catena."""
+
     CIRCOLARE = "circolare"
     QUADRATA = "quadrata"
-    A_PALETTO = "a_paletto"     # paletto passante
+    A_PALETTO = "a_paletto"  # paletto passante
 
 
 @dataclass
 class InputCatena:
     """Input per verifica catena e paletto."""
+
     # Catena
-    phi_catena: float = 2.0          # diametro catena [cm]
-    sigma_s_adm: float = 1400.0      # tensione ammissibile catena [kg/cm²]
+    phi_catena: float = 2.0  # diametro catena [cm]
+    sigma_s_adm: float = 1400.0  # tensione ammissibile catena [kg/cm²]
 
     # Forza di progetto
-    F: float = 0.0                   # forza nella catena [kg]
+    F: float = 0.0  # forza nella catena [kg]
 
     # Piastra
     tipo_piastra: TipoPiastra = TipoPiastra.QUADRATA
-    lato_piastra: float = 20.0       # lato o diametro piastra [cm]
-    spessore_piastra: float = 1.5    # spessore piastra [cm]
+    lato_piastra: float = 20.0  # lato o diametro piastra [cm]
+    spessore_piastra: float = 1.5  # spessore piastra [cm]
 
     # Muratura
-    fd_mur: float = 10.0             # resistenza compressione muratura [kg/cm²]
-    spessore_muro: float = 30.0      # spessore muro [cm]
+    fd_mur: float = 10.0  # resistenza compressione muratura [kg/cm²]
+    spessore_muro: float = 30.0  # spessore muro [cm]
 
 
 @dataclass
 class RisultatoCatena:
     """Risultato verifica catena e paletto."""
-    F: float                         # forza [kg]
+
+    F: float  # forza [kg]
 
     # Catena
-    A_catena: float                  # area catena [cm²]
-    sigma_catena: float              # tensione catena [kg/cm²]
+    A_catena: float  # area catena [cm²]
+    sigma_catena: float  # tensione catena [kg/cm²]
     verifica_trazione: bool
 
     # Piastra
-    A_piastra: float                 # area piastra [cm²]
-    sigma_piastra: float             # pressione su muratura [kg/cm²]
+    A_piastra: float  # area piastra [cm²]
+    sigma_piastra: float  # pressione su muratura [kg/cm²]
     verifica_punzonamento: bool
 
     sfruttamento_trazione: float
@@ -426,7 +429,7 @@ def verifica_catena(inp: InputCatena) -> RisultatoCatena:
     passaggi: list[str] = []
 
     # Area catena
-    A_catena = math.pi * inp.phi_catena ** 2 / 4
+    A_catena = math.pi * inp.phi_catena**2 / 4
     sigma_catena = abs(inp.F) / A_catena if A_catena > 0 else 0.0
 
     passaggi.append(f"Catena: Φ{inp.phi_catena*10:.0f}, A = {A_catena:.2f} cm²")
@@ -442,9 +445,9 @@ def verifica_catena(inp: InputCatena) -> RisultatoCatena:
 
     # Area piastra
     if inp.tipo_piastra == TipoPiastra.CIRCOLARE:
-        A_piastra = math.pi * inp.lato_piastra ** 2 / 4
+        A_piastra = math.pi * inp.lato_piastra**2 / 4
     elif inp.tipo_piastra == TipoPiastra.QUADRATA:
-        A_piastra = inp.lato_piastra ** 2
+        A_piastra = inp.lato_piastra**2
     else:
         # Paletto: area rettangolare (lato × spessore_muro)
         A_piastra = inp.lato_piastra * inp.spessore_muro

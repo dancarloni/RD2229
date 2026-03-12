@@ -59,7 +59,9 @@ def calcola_mu_phi_richiesta(q: float, t_1: float, t_c: float) -> tuple[float, b
     return mu_phi, warning_zona_tc
 
 
-def calcola_epsilon_cu_confinata(alpha_confinamento: float, rho_sx: float, f_yw: float, f_c: float) -> float:
+def calcola_epsilon_cu_confinata(
+    alpha_confinamento: float, rho_sx: float, f_yw: float, f_c: float
+) -> float:
     """Calcola epsilon_cu confinata.
 
     epsilon_cu,c = 0.0035 + 0.1 * alpha * rho_sx * f_yw / f_c

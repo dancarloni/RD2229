@@ -20,17 +20,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .cross_pozzati import DatiCross, calcola_cross_pozzati
-from .modello_telaio import (
-    AstaTelaio,
-    CaricoAsta,
-    ModelloTelaio,
-    TipoAsta,
-    TipoCarico,
-)
+from .modello_telaio import AstaTelaio, CaricoAsta, ModelloTelaio, TipoAsta, TipoCarico
 
 # ==============================================================================
 # STRUTTURE DATI RISULTATO
 # ==============================================================================
+
 
 @dataclass
 class SollecitazioniAsta:
@@ -48,18 +43,19 @@ class SollecitazioniAsta:
 
     Unità: kg·cm [M], kg [V, N]
     """
+
     id_asta: int
     etichetta: str
-    L: float                            # lunghezza [cm]
+    L: float  # lunghezza [cm]
 
     # Momenti finali da Cross (dati di base per i calcoli)
-    M_cross_i: float                    # momento Cross all'estremo i [kg·cm]
-    M_cross_j: float                    # momento Cross all'estremo j [kg·cm]
+    M_cross_i: float  # momento Cross all'estremo i [kg·cm]
+    M_cross_j: float  # momento Cross all'estremo j [kg·cm]
 
     # 3 sezioni critiche: (estremo_i, mezzeria, estremo_j)
-    M: tuple[float, float, float]       # momenti flettenti [kg·cm]
-    V: tuple[float, float, float]       # tagli [kg]
-    N: tuple[float, float, float]       # sforzi normali [kg]
+    M: tuple[float, float, float]  # momenti flettenti [kg·cm]
+    V: tuple[float, float, float]  # tagli [kg]
+    N: tuple[float, float, float]  # sforzi normali [kg]
 
     # Diagramma completo (n_punti punti da x=0 a x=L)
     x_cm: list[float]
@@ -94,10 +90,11 @@ class RisultatoCasoCarico:
 
     Contiene i dati Cross (tabelle complete) e le sollecitazioni per ogni asta.
     """
+
     id_caso: str
     descrizione: str
     dati_cross: DatiCross
-    sollecitazioni: dict[int, SollecitazioniAsta]   # {id_asta: SollecitazioniAsta}
+    sollecitazioni: dict[int, SollecitazioniAsta]  # {id_asta: SollecitazioniAsta}
     reazioni: dict[int, tuple[float, float, float]]  # {id_nodo: (H, V, M)} [kg, kg, kg·cm]
     passaggi: list[str] = field(default_factory=list)
 
@@ -105,9 +102,7 @@ class RisultatoCasoCarico:
         return {
             "id_caso": self.id_caso,
             "descrizione": self.descrizione,
-            "sollecitazioni": {
-                str(k): v.to_dict() for k, v in self.sollecitazioni.items()
-            },
+            "sollecitazioni": {str(k): v.to_dict() for k, v in self.sollecitazioni.items()},
             "convergenza": self.dati_cross.convergenza,
             "n_iterazioni": self.dati_cross.n_iterazioni,
         }
@@ -116,6 +111,7 @@ class RisultatoCasoCarico:
 # ==============================================================================
 # CALCOLO SOLLECITAZIONI PER TRAVE ORIZZONTALE
 # ==============================================================================
+
 
 def _carico_intensita_y(carico: CaricoAsta, x: float, L: float) -> float:
     """Intensità del carico verticale all'ascissa x [kg/cm]."""
@@ -133,8 +129,13 @@ def _carico_intensita_y(carico: CaricoAsta, x: float, L: float) -> float:
 
 
 def _reazione_sinistra_trave(
-    M_i: float, M_j: float, carichi: list[CaricoAsta], L: float,
-    A: float, gamma: float, includi_pp: bool,
+    M_i: float,
+    M_j: float,
+    carichi: list[CaricoAsta],
+    L: float,
+    A: float,
+    gamma: float,
+    includi_pp: bool,
 ) -> float:
     """Calcola la reazione verticale al nodo i (V_i) da equilibrio globale.
 
@@ -183,9 +184,14 @@ def _reazione_sinistra_trave(
 
 
 def _momento_trave_a_x(
-    x: float, M_i: float, V_i: float,
-    carichi: list[CaricoAsta], L: float,
-    A: float, gamma: float, includi_pp: bool,
+    x: float,
+    M_i: float,
+    V_i: float,
+    carichi: list[CaricoAsta],
+    L: float,
+    A: float,
+    gamma: float,
+    includi_pp: bool,
 ) -> float:
     """Momento flettente alla posizione x (da nodo i) per trave orizzontale.
 
@@ -246,8 +252,13 @@ def calcola_sollecitazioni_trave(
     L = _lunghezza_asta(asta)
 
     V_i = _reazione_sinistra_trave(
-        M_i, M_j, asta.carichi, L,
-        asta.sezione.A, asta.sezione.gamma, includi_pp,
+        M_i,
+        M_j,
+        asta.carichi,
+        L,
+        asta.sezione.A,
+        asta.sezione.gamma,
+        includi_pp,
     )
     V_j = -V_i  # equilibrio: V_i + V_j + Σ carichi = 0 (approssimazione segni)
 
@@ -273,8 +284,14 @@ def calcola_sollecitazioni_trave(
     # ---- Mezzeria ----
     x_mid = L / 2.0
     M_mid = _momento_trave_a_x(
-        x_mid, M_i, V_i, asta.carichi, L,
-        asta.sezione.A, asta.sezione.gamma, includi_pp,
+        x_mid,
+        M_i,
+        V_i,
+        asta.carichi,
+        L,
+        asta.sezione.A,
+        asta.sezione.gamma,
+        includi_pp,
     )
     V_mid = V_i  # costante tra carichi concentrati; approssimazione mezzeria
     # Taglio a mezzeria: V_i - carico distribuito fino a L/2
@@ -304,8 +321,9 @@ def calcola_sollecitazioni_trave(
     # ---- Diagramma ----
     xs = [i * L / (n_punti - 1) for i in range(n_punti)]
     Ms = [
-        _momento_trave_a_x(x, M_i, V_i, asta.carichi, L,
-                           asta.sezione.A, asta.sezione.gamma, includi_pp)
+        _momento_trave_a_x(
+            x, M_i, V_i, asta.carichi, L, asta.sezione.A, asta.sezione.gamma, includi_pp
+        )
         for x in xs
     ]
     # Taglio: V(x) = V_i - ∫₀ˣ q(x')dx'
@@ -353,6 +371,7 @@ def calcola_sollecitazioni_trave(
 # CALCOLO SOLLECITAZIONI PER PILASTRO VERTICALE
 # ==============================================================================
 
+
 def calcola_sollecitazioni_pilastro(
     asta: AstaTelaio,
     M_i: float,
@@ -391,7 +410,7 @@ def calcola_sollecitazioni_pilastro(
     if includi_pp:
         # Peso proprio pilastro aggiunto alla compressione alla base
         w_pp = asta.sezione.A * asta.sezione.gamma  # [kg/cm]
-        N_pp = w_pp * L                              # [kg]
+        N_pp = w_pp * L  # [kg]
         N_base = N_cumulativo + N_pp
 
     N_sommita = N_cumulativo  # senza peso proprio del pilastro stesso
@@ -409,8 +428,7 @@ def calcola_sollecitazioni_pilastro(
     Ms = [M_i + V * x for x in xs]
     Vs = [V] * n_punti
     # N decresce dalla base alla sommità (si scarica il peso proprio)
-    Ns = [N_base - asta.sezione.A * asta.sezione.gamma * x * (1 if includi_pp else 0)
-          for x in xs]
+    Ns = [N_base - asta.sezione.A * asta.sezione.gamma * x * (1 if includi_pp else 0) for x in xs]
 
     return SollecitazioniAsta(
         id_asta=asta.id,
@@ -432,6 +450,7 @@ def calcola_sollecitazioni_pilastro(
 # ==============================================================================
 # CALCOLO SFORZI NORMALI (EQUILIBRIO VERTICALE GLOBALE)
 # ==============================================================================
+
 
 def calcola_sforzi_normali_colonne(
     modello: ModelloTelaio,
@@ -468,8 +487,8 @@ def calcola_sforzi_normali_colonne(
                 continue
             # V_i agisce verso il basso sul nodo i (reazione = V_i verso l'alto)
             # V_j agisce verso il basso sul nodo j
-            N_nodo[asta.nodo_i] += sol.V[0]   # contributo reazione al nodo i
-            N_nodo[asta.nodo_j] += sol.V[2]   # contributo reazione al nodo j
+            N_nodo[asta.nodo_i] += sol.V[0]  # contributo reazione al nodo i
+            N_nodo[asta.nodo_j] += sol.V[2]  # contributo reazione al nodo j
 
     # Assegna N alle colonne (dalla somma al nodo superiore della colonna)
     for piano in piani:
@@ -490,6 +509,7 @@ def calcola_sforzi_normali_colonne(
 # ==============================================================================
 # ORCHESTRATORE PRINCIPALE
 # ==============================================================================
+
 
 def calcola_sollecitazioni_da_cross(
     modello: ModelloTelaio,
@@ -516,8 +536,12 @@ def calcola_sollecitazioni_da_cross(
             continue
         M_i, M_j = dati_cross.momenti_finali[asta.id]
         sol = calcola_sollecitazioni_trave(
-            asta=asta, M_i=M_i, M_j=M_j,
-            N_i=0.0, includi_pp=includi_pp, n_punti=n_punti,
+            asta=asta,
+            M_i=M_i,
+            M_j=M_j,
+            N_i=0.0,
+            includi_pp=includi_pp,
+            n_punti=n_punti,
         )
         sollecitazioni[asta.id] = sol
 
@@ -531,8 +555,12 @@ def calcola_sollecitazioni_da_cross(
         M_i, M_j = dati_cross.momenti_finali[asta.id]
         N_cum = N_colonne.get(asta.id, 0.0)
         sol = calcola_sollecitazioni_pilastro(
-            asta=asta, M_i=M_i, M_j=M_j,
-            N_cumulativo=N_cum, includi_pp=includi_pp, n_punti=n_punti,
+            asta=asta,
+            M_i=M_i,
+            M_j=M_j,
+            N_cumulativo=N_cum,
+            includi_pp=includi_pp,
+            n_punti=n_punti,
         )
         sollecitazioni[asta.id] = sol
 
@@ -558,6 +586,7 @@ def _lunghezza_asta(asta: AstaTelaio) -> float:
 # ==============================================================================
 # CALCOLO CASO DI CARICO COMPLETO
 # ==============================================================================
+
 
 def calcola_caso_carico(
     modello: ModelloTelaio,
@@ -608,8 +637,12 @@ def calcola_caso_carico(
         M_i, M_j = dati_cross.momenti_finali[asta.id]
         L = modello.lunghezza_asta(asta.id)
         sol = calcola_sollecitazioni_trave(
-            asta=asta, M_i=M_i, M_j=M_j, N_i=0.0,
-            includi_pp=includi_pp, n_punti=n_punti,
+            asta=asta,
+            M_i=M_i,
+            M_j=M_j,
+            N_i=0.0,
+            includi_pp=includi_pp,
+            n_punti=n_punti,
         )
         sollecitazioni_travi[asta.id] = sol
 
@@ -624,8 +657,12 @@ def calcola_caso_carico(
         M_i, M_j = dati_cross.momenti_finali[asta.id]
         N_cum = N_colonne.get(asta.id, 0.0)
         sol = calcola_sollecitazioni_pilastro(
-            asta=asta, M_i=M_i, M_j=M_j,
-            N_cumulativo=N_cum, includi_pp=includi_pp, n_punti=n_punti,
+            asta=asta,
+            M_i=M_i,
+            M_j=M_j,
+            N_cumulativo=N_cum,
+            includi_pp=includi_pp,
+            n_punti=n_punti,
         )
         sollecitazioni_colonne[asta.id] = sol
 

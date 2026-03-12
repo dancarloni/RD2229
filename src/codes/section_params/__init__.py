@@ -3,18 +3,8 @@
 Re-esporta le interfacce principali.
 """
 
-from .composita import (
-    IPE_TABLE,
-    DatiIPE,
-    calcola_sezione_composta,
-    calcola_tensioni_sle_composita,
-)
-from .norme_n import (
-    NORME_SUPPORTATE,
-    RD2229_N_OPTIONS,
-    NormaHnParams,
-    get_n_for_norm,
-)
+from .composita import IPE_TABLE, DatiIPE, calcola_sezione_composta, calcola_tensioni_sle_composita
+from .norme_n import NORME_SUPPORTATE, RD2229_N_OPTIONS, NormaHnParams, get_n_for_norm
 from .omogenizzata import (
     BarraArmatura,
     calcola_asse_neutro_fessurato,

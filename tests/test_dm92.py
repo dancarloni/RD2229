@@ -25,9 +25,7 @@ from src.methods.dm92 import (
     rck_to_fck,
     verifica_flessione_sl,
     verifica_flessione_ta,
-    verifica_pressoflessione,
     verifica_taglio,
-    verifica_torsione,
 )
 
 # ============================================================================
@@ -66,7 +64,11 @@ class TestVerificaDM92FlessioneTA:
     def test_flessione_ta_caso_ok(self) -> None:
         """Flessione TA: caso OK (dimensioni e armatura adeguate)."""
         vf = VerificaDM92Flessione(
-            Rck_28=250.0, b=25.0, d=35.0, As=4.0, c_nom=3.0  # MPa  # cm  # cm  # cm² (4 φ12)  # cm
+            Rck_28=250.0,
+            b=25.0,
+            d=35.0,
+            As=4.0,
+            c_nom=3.0,  # MPa  # cm  # cm  # cm² (4 φ12)  # cm
         )
 
         # Momento: 80 kgcm (basso, controllo)
@@ -220,7 +222,9 @@ class TestVerificaDM92Torsione:
     def test_torsione_caso_ok(self) -> None:
         """Torsione: caso OK."""
         vtor = VerificaDM92Torsione(
-            Rck_28=250.0, A_m=400.0, t_m=2.0  # cm² (area racchiusa)  # cm (spessore medio)
+            Rck_28=250.0,
+            A_m=400.0,
+            t_m=2.0,  # cm² (area racchiusa)  # cm (spessore medio)
         )
 
         T_d = 30.0 * 100 * 100  # 30 kNm = 300000 kgcm

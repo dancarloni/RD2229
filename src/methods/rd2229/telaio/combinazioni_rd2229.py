@@ -32,6 +32,7 @@ from .solver_telaio import RisultatoCasoCarico, calcola_caso_carico
 # STRUTTURE DATI
 # ==============================================================================
 
+
 @dataclass
 class InviluppoSollecitazioniAsta:
     """Inviluppo delle sollecitazioni per un'asta su tutte le combinazioni.
@@ -45,35 +46,60 @@ class InviluppoSollecitazioniAsta:
         max |M| tra LC3, LC4 (sisma ondulatorio ±X) e LC5, LC6 (sussultorio ±Z)
     con il corrispondente N dello stesso caso.
     """
+
     id_asta: int
     etichetta: str
 
     # Sezione 0 = estremo i
-    M_max_i: float = 0.0;   combo_M_max_i: str = ""
-    M_min_i: float = 0.0;   combo_M_min_i: str = ""
-    V_max_i: float = 0.0;   combo_V_max_i: str = ""
-    V_min_i: float = 0.0;   combo_V_min_i: str = ""
-    N_max_i: float = 0.0;   combo_N_max_i: str = ""
-    N_min_i: float = 0.0;   combo_N_min_i: str = ""
-    M_gov_i: float = 0.0;   N_gov_i: float = 0.0;  combo_gov_i: str = ""
+    M_max_i: float = 0.0
+    combo_M_max_i: str = ""
+    M_min_i: float = 0.0
+    combo_M_min_i: str = ""
+    V_max_i: float = 0.0
+    combo_V_max_i: str = ""
+    V_min_i: float = 0.0
+    combo_V_min_i: str = ""
+    N_max_i: float = 0.0
+    combo_N_max_i: str = ""
+    N_min_i: float = 0.0
+    combo_N_min_i: str = ""
+    M_gov_i: float = 0.0
+    N_gov_i: float = 0.0
+    combo_gov_i: str = ""
 
     # Sezione 1 = mezzeria
-    M_max_m: float = 0.0;   combo_M_max_m: str = ""
-    M_min_m: float = 0.0;   combo_M_min_m: str = ""
-    V_max_m: float = 0.0;   combo_V_max_m: str = ""
-    V_min_m: float = 0.0;   combo_V_min_m: str = ""
-    N_max_m: float = 0.0;   combo_N_max_m: str = ""
-    N_min_m: float = 0.0;   combo_N_min_m: str = ""
-    M_gov_m: float = 0.0;   N_gov_m: float = 0.0;  combo_gov_m: str = ""
+    M_max_m: float = 0.0
+    combo_M_max_m: str = ""
+    M_min_m: float = 0.0
+    combo_M_min_m: str = ""
+    V_max_m: float = 0.0
+    combo_V_max_m: str = ""
+    V_min_m: float = 0.0
+    combo_V_min_m: str = ""
+    N_max_m: float = 0.0
+    combo_N_max_m: str = ""
+    N_min_m: float = 0.0
+    combo_N_min_m: str = ""
+    M_gov_m: float = 0.0
+    N_gov_m: float = 0.0
+    combo_gov_m: str = ""
 
     # Sezione 2 = estremo j
-    M_max_j: float = 0.0;   combo_M_max_j: str = ""
-    M_min_j: float = 0.0;   combo_M_min_j: str = ""
-    V_max_j: float = 0.0;   combo_V_max_j: str = ""
-    V_min_j: float = 0.0;   combo_V_min_j: str = ""
-    N_max_j: float = 0.0;   combo_N_max_j: str = ""
-    N_min_j: float = 0.0;   combo_N_min_j: str = ""
-    M_gov_j: float = 0.0;   N_gov_j: float = 0.0;  combo_gov_j: str = ""
+    M_max_j: float = 0.0
+    combo_M_max_j: str = ""
+    M_min_j: float = 0.0
+    combo_M_min_j: str = ""
+    V_max_j: float = 0.0
+    combo_V_max_j: str = ""
+    V_min_j: float = 0.0
+    combo_V_min_j: str = ""
+    N_max_j: float = 0.0
+    combo_N_max_j: str = ""
+    N_min_j: float = 0.0
+    combo_N_min_j: str = ""
+    M_gov_j: float = 0.0
+    N_gov_j: float = 0.0
+    combo_gov_j: str = ""
 
     def M_gov(self, sezione: int) -> tuple[float, float, str]:
         """Ritorna (M_gov, N_gov, combo) per la sezione data (0, 1, 2)."""
@@ -98,23 +124,29 @@ class InviluppoSollecitazioniAsta:
             "id_asta": self.id_asta,
             "etichetta": self.etichetta,
             "sezione_i": {
-                "M_max": round(self.M_max_i, 1), "combo": self.combo_M_max_i,
+                "M_max": round(self.M_max_i, 1),
+                "combo": self.combo_M_max_i,
                 "M_min": round(self.M_min_i, 1),
-                "M_gov": round(self.M_gov_i, 1), "N_gov": round(self.N_gov_i, 1),
+                "M_gov": round(self.M_gov_i, 1),
+                "N_gov": round(self.N_gov_i, 1),
                 "combo_gov": self.combo_gov_i,
                 "V_max": round(self.V_max_i, 1),
             },
             "sezione_mid": {
-                "M_max": round(self.M_max_m, 1), "combo": self.combo_M_max_m,
+                "M_max": round(self.M_max_m, 1),
+                "combo": self.combo_M_max_m,
                 "M_min": round(self.M_min_m, 1),
-                "M_gov": round(self.M_gov_m, 1), "N_gov": round(self.N_gov_m, 1),
+                "M_gov": round(self.M_gov_m, 1),
+                "N_gov": round(self.N_gov_m, 1),
                 "combo_gov": self.combo_gov_m,
                 "V_max": round(self.V_max_m, 1),
             },
             "sezione_j": {
-                "M_max": round(self.M_max_j, 1), "combo": self.combo_M_max_j,
+                "M_max": round(self.M_max_j, 1),
+                "combo": self.combo_M_max_j,
                 "M_min": round(self.M_min_j, 1),
-                "M_gov": round(self.M_gov_j, 1), "N_gov": round(self.N_gov_j, 1),
+                "M_gov": round(self.M_gov_j, 1),
+                "N_gov": round(self.N_gov_j, 1),
                 "combo_gov": self.combo_gov_j,
                 "V_max": round(self.V_max_j, 1),
             },
@@ -124,6 +156,7 @@ class InviluppoSollecitazioniAsta:
 @dataclass
 class RisultatoCombinazioni:
     """Risultato completo di tutte le combinazioni di carico."""
+
     zona_sismica: str
     combinazioni_attive: list[str]
     risultati_per_caso: dict[str, RisultatoCasoCarico]
@@ -135,15 +168,14 @@ class RisultatoCombinazioni:
         return {
             "zona_sismica": self.zona_sismica,
             "combinazioni_attive": self.combinazioni_attive,
-            "inviluppo": {
-                str(k): v.to_dict() for k, v in self.inviluppo.items()
-            },
+            "inviluppo": {str(k): v.to_dict() for k, v in self.inviluppo.items()},
         }
 
 
 # ==============================================================================
 # GENERAZIONE COMBINAZIONI
 # ==============================================================================
+
 
 def combinazioni_attive(zona_sismica: str) -> list[str]:
     """Restituisce le combinazioni attive per la zona sismica data."""
@@ -175,59 +207,86 @@ def _descrizione_caso(id_caso: str) -> str:
 # INVILUPPO
 # ==============================================================================
 
+
 def _aggiorna_inviluppo_sezione(
     inv: InviluppoSollecitazioniAsta,
     sezione: int,
-    M: float, V: float, N: float,
+    M: float,
+    V: float,
+    N: float,
     id_caso: str,
     e_sismico: bool,
 ) -> None:
     """Aggiorna i valori max/min di una sezione nell'inviluppo."""
     if sezione == 0:
         if M > inv.M_max_i:
-            inv.M_max_i = M; inv.combo_M_max_i = id_caso
+            inv.M_max_i = M
+            inv.combo_M_max_i = id_caso
         if M < inv.M_min_i:
-            inv.M_min_i = M; inv.combo_M_min_i = id_caso
+            inv.M_min_i = M
+            inv.combo_M_min_i = id_caso
         if V > inv.V_max_i:
-            inv.V_max_i = V; inv.combo_V_max_i = id_caso
+            inv.V_max_i = V
+            inv.combo_V_max_i = id_caso
         if V < inv.V_min_i:
-            inv.V_min_i = V; inv.combo_V_min_i = id_caso
+            inv.V_min_i = V
+            inv.combo_V_min_i = id_caso
         if N > inv.N_max_i:
-            inv.N_max_i = N; inv.combo_N_max_i = id_caso
+            inv.N_max_i = N
+            inv.combo_N_max_i = id_caso
         if N < inv.N_min_i:
-            inv.N_min_i = N; inv.combo_N_min_i = id_caso
+            inv.N_min_i = N
+            inv.combo_N_min_i = id_caso
         if e_sismico and abs(M) > abs(inv.M_gov_i):
-            inv.M_gov_i = M; inv.N_gov_i = N; inv.combo_gov_i = id_caso
+            inv.M_gov_i = M
+            inv.N_gov_i = N
+            inv.combo_gov_i = id_caso
     elif sezione == 1:
         if M > inv.M_max_m:
-            inv.M_max_m = M; inv.combo_M_max_m = id_caso
+            inv.M_max_m = M
+            inv.combo_M_max_m = id_caso
         if M < inv.M_min_m:
-            inv.M_min_m = M; inv.combo_M_min_m = id_caso
+            inv.M_min_m = M
+            inv.combo_M_min_m = id_caso
         if V > inv.V_max_m:
-            inv.V_max_m = V; inv.combo_V_max_m = id_caso
+            inv.V_max_m = V
+            inv.combo_V_max_m = id_caso
         if V < inv.V_min_m:
-            inv.V_min_m = V; inv.combo_V_min_m = id_caso
+            inv.V_min_m = V
+            inv.combo_V_min_m = id_caso
         if N > inv.N_max_m:
-            inv.N_max_m = N; inv.combo_N_max_m = id_caso
+            inv.N_max_m = N
+            inv.combo_N_max_m = id_caso
         if N < inv.N_min_m:
-            inv.N_min_m = N; inv.combo_N_min_m = id_caso
+            inv.N_min_m = N
+            inv.combo_N_min_m = id_caso
         if e_sismico and abs(M) > abs(inv.M_gov_m):
-            inv.M_gov_m = M; inv.N_gov_m = N; inv.combo_gov_m = id_caso
+            inv.M_gov_m = M
+            inv.N_gov_m = N
+            inv.combo_gov_m = id_caso
     else:
         if M > inv.M_max_j:
-            inv.M_max_j = M; inv.combo_M_max_j = id_caso
+            inv.M_max_j = M
+            inv.combo_M_max_j = id_caso
         if M < inv.M_min_j:
-            inv.M_min_j = M; inv.combo_M_min_j = id_caso
+            inv.M_min_j = M
+            inv.combo_M_min_j = id_caso
         if V > inv.V_max_j:
-            inv.V_max_j = V; inv.combo_V_max_j = id_caso
+            inv.V_max_j = V
+            inv.combo_V_max_j = id_caso
         if V < inv.V_min_j:
-            inv.V_min_j = V; inv.combo_V_min_j = id_caso
+            inv.V_min_j = V
+            inv.combo_V_min_j = id_caso
         if N > inv.N_max_j:
-            inv.N_max_j = N; inv.combo_N_max_j = id_caso
+            inv.N_max_j = N
+            inv.combo_N_max_j = id_caso
         if N < inv.N_min_j:
-            inv.N_min_j = N; inv.combo_N_min_j = id_caso
+            inv.N_min_j = N
+            inv.combo_N_min_j = id_caso
         if e_sismico and abs(M) > abs(inv.M_gov_j):
-            inv.M_gov_j = M; inv.N_gov_j = N; inv.combo_gov_j = id_caso
+            inv.M_gov_j = M
+            inv.N_gov_j = N
+            inv.combo_gov_j = id_caso
 
 
 def calcola_inviluppo(
@@ -259,9 +318,13 @@ def calcola_inviluppo(
             e_sismico = id_caso in _COMBO_SISMICI
             for s in range(3):
                 _aggiorna_inviluppo_sezione(
-                    inv, s,
-                    sol.M[s], sol.V[s], sol.N[s],
-                    id_caso, e_sismico,
+                    inv,
+                    s,
+                    sol.M[s],
+                    sol.V[s],
+                    sol.N[s],
+                    id_caso,
+                    e_sismico,
                 )
         inviluppo[id_asta] = inv
 
@@ -271,6 +334,7 @@ def calcola_inviluppo(
 # ==============================================================================
 # ENTRY POINT PRINCIPALE
 # ==============================================================================
+
 
 def calcola_tutte_le_combinazioni(
     modello: ModelloTelaio,
@@ -290,9 +354,7 @@ def calcola_tutte_le_combinazioni(
     Returns:
         RisultatoCombinazioni con tutti i casi e l'inviluppo
     """
-    passaggi: list[str] = [
-        f"=== COMBINAZIONI RD2229/39 — Zona: {modello.zona_sismica} ==="
-    ]
+    passaggi: list[str] = [f"=== COMBINAZIONI RD2229/39 — Zona: {modello.zona_sismica} ==="]
 
     combos = combinazioni_attive(modello.zona_sismica)
     passaggi.append(f"Combinazioni attive: {', '.join(combos)}")
@@ -342,11 +404,13 @@ def calcola_tutte_le_combinazioni(
                     q_suss = F_per_trave / L if L > 1e-10 else 0.0
                     if trave.id not in carichi_suss:
                         carichi_suss[trave.id] = []
-                    carichi_suss[trave.id].append(CaricoAsta(
-                        tipo=TipoCarico.DISTRIBUITO_UNIFORME,
-                        valore_sx=q_suss,
-                        descrizione=f"Sussultorio {id_caso}",
-                    ))
+                    carichi_suss[trave.id].append(
+                        CaricoAsta(
+                            tipo=TipoCarico.DISTRIBUITO_UNIFORME,
+                            valore_sx=q_suss,
+                            descrizione=f"Sussultorio {id_caso}",
+                        )
+                    )
 
             # Unisci con carichi variabili
             if carichi_variabili:
@@ -400,6 +464,7 @@ def _aggiungi_carichi(
         return modello
 
     from copy import deepcopy
+
     aste_nuove = []
     for asta in modello.aste:
         extra = carichi_extra.get(asta.id, [])

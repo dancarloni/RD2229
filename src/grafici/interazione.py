@@ -48,19 +48,30 @@ class PuntoLavoro:
 # Norme supportate
 # ---------------------------------------------------------------------------
 
-_NORME_TA: frozenset[str] = frozenset({
-    "RD2229", "RD2229/1939",
-    "DM72", "DM30/05/1972",
-    "DM87", "DM20/11/1987",
-    "DM96", "DM09/01/1996",
-    "CIRC1981", "CIRC30/07/1981",
-    "OPCM3274",
-})
+_NORME_TA: frozenset[str] = frozenset(
+    {
+        "RD2229",
+        "RD2229/1939",
+        "DM72",
+        "DM30/05/1972",
+        "DM87",
+        "DM20/11/1987",
+        "DM96",
+        "DM09/01/1996",
+        "CIRC1981",
+        "CIRC30/07/1981",
+        "OPCM3274",
+    }
+)
 
-_NORME_SLU: frozenset[str] = frozenset({
-    "NTC2008", "NTC 2008",
-    "NTC2018", "NTC 2018",
-})
+_NORME_SLU: frozenset[str] = frozenset(
+    {
+        "NTC2008",
+        "NTC 2008",
+        "NTC2018",
+        "NTC 2018",
+    }
+)
 
 
 def _normalizza_norma(norma: str) -> str:
@@ -87,6 +98,7 @@ def _calcola_dominio_slu(spec: Any, **kwargs) -> Any:
 # ---------------------------------------------------------------------------
 # DominioFactory
 # ---------------------------------------------------------------------------
+
 
 class DominioFactory:
     """Factory per il calcolo del dominio di interazione multinorma.
@@ -162,6 +174,7 @@ class DominioFactory:
 # Sovrapposizione punto di lavoro
 # ---------------------------------------------------------------------------
 
+
 def sovrapponi_punto_lavoro(
     ax,
     punto: PuntoLavoro,
@@ -193,15 +206,14 @@ def sovrapponi_punto_lavoro(
     dimensione : int
         Dimensione del marcatore in punti² (scatter s=).
     """
-    M_proiettato_kgcm = (
-        punto.Mx_Ed_kgcm * abs(float(np.cos(theta_fisso_rad)))
-        + punto.My_Ed_kgcm * abs(float(np.sin(theta_fisso_rad)))
-    )
+    M_proiettato_kgcm = punto.Mx_Ed_kgcm * abs(
+        float(np.cos(theta_fisso_rad))
+    ) + punto.My_Ed_kgcm * abs(float(np.sin(theta_fisso_rad)))
     # Converti in t·m e t (coerente con _draw_2d_nm che usa kg·cm e kg sugli assi)
     # NOTA: dominio_canvas._draw_2d_nm usa direttamente kg·cm e kg sull'asse.
     # sovrapponi_punto_lavoro usa le stesse unità degli assi esistenti.
-    M_plot = M_proiettato_kgcm   # kg·cm (asse X del dominio N-M)
-    N_plot = punto.N_Ed_kg       # kg (asse Y del dominio N-M)
+    M_plot = M_proiettato_kgcm  # kg·cm (asse X del dominio N-M)
+    N_plot = punto.N_Ed_kg  # kg (asse Y del dominio N-M)
 
     ax.scatter(
         M_plot,

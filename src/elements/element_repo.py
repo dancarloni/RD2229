@@ -55,7 +55,10 @@ class ElementRepository:
         return False
 
     def assign_material(
-        self, element_id: str, material_id: str, material_repo: MaterialRepository,
+        self,
+        element_id: str,
+        material_id: str,
+        material_repo: MaterialRepository,
     ) -> bool:
         """Assegna un materiale a un elemento. Restituisce True se riuscito."""
         el = self.get(element_id)

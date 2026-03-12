@@ -42,8 +42,15 @@ def grafico_istogramma_gaussiana(
 
     # Istogramma
     n_bins = max(5, len(values) // 2)
-    ax.hist(values, bins=n_bins, density=True, alpha=0.6, color="steelblue",
-            edgecolor="white", label="f_is")
+    ax.hist(
+        values,
+        bins=n_bins,
+        density=True,
+        alpha=0.6,
+        color="steelblue",
+        edgecolor="white",
+        label="f_is",
+    )
 
     # Gaussiana sovrapposta
     if stats and stats.summary.std > 0:
@@ -55,8 +62,9 @@ def grafico_istogramma_gaussiana(
 
         # Linea f_ck,is
         f_ck = stats.ntc2018["LC2"].f_ck_is
-        ax.axvline(f_ck, color="green", linestyle="--", linewidth=1.5,
-                    label=f"f_ck,is = {f_ck:.1f} MPa")
+        ax.axvline(
+            f_ck, color="green", linestyle="--", linewidth=1.5, label=f"f_ck,is = {f_ck:.1f} MPa"
+        )
 
     ax.set_xlabel("f_is [MPa]")
     ax.set_ylabel("Densita")
@@ -101,8 +109,13 @@ def grafico_scatter_conversione(
 
     # Etichette campioni
     for c in conv_list:
-        ax.annotate(c.sample_id, (c.f_core_mpa, c.f_is_mpa),
-                     textcoords="offset points", xytext=(5, 5), fontsize=8)
+        ax.annotate(
+            c.sample_id,
+            (c.f_core_mpa, c.f_is_mpa),
+            textcoords="offset points",
+            xytext=(5, 5),
+            fontsize=8,
+        )
 
     ax.set_xlabel("f_core [MPa]")
     ax.set_ylabel("f_is [MPa]")
@@ -137,8 +150,17 @@ def grafico_boxplot_comparativo(analysis: CoreAnalysisResult) -> Figure:
             data.append(values)
 
     bp = ax.boxplot(data, labels=labels, patch_artist=True)
-    colors = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974",
-              "#64B5CD", "#E88C30", "#8C8C8C", "#DA8BC3"]
+    colors = [
+        "#4C72B0",
+        "#55A868",
+        "#C44E52",
+        "#8172B2",
+        "#CCB974",
+        "#64B5CD",
+        "#E88C30",
+        "#8C8C8C",
+        "#DA8BC3",
+    ]
     for i, patch in enumerate(bp["boxes"]):
         patch.set_facecolor(colors[i % len(colors)])
         patch.set_alpha(0.7)
@@ -171,16 +193,31 @@ def grafico_barre_fck(analysis: CoreAnalysisResult) -> Figure:
         names.append(fname)
         fck_values.append(fck)
 
-    colors = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974",
-              "#64B5CD", "#E88C30", "#8C8C8C", "#DA8BC3"]
+    colors = [
+        "#4C72B0",
+        "#55A868",
+        "#C44E52",
+        "#8172B2",
+        "#CCB974",
+        "#64B5CD",
+        "#E88C30",
+        "#8C8C8C",
+        "#DA8BC3",
+    ]
     bar_colors = [colors[i % len(colors)] for i in range(len(names))]
 
     bars = ax.bar(names, fck_values, color=bar_colors, alpha=0.8, edgecolor="gray")
 
     # Etichette valori
     for bar, val in zip(bars, fck_values):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
-                f"{val:.1f}", ha="center", va="bottom", fontsize=9)
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 0.3,
+            f"{val:.1f}",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
 
     ax.set_ylabel("f_ck,is [MPa]")
     ax.set_title("f_ck,is per formulazione (NTC2018 LC2)")

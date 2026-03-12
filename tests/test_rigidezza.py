@@ -10,11 +10,7 @@ Test per:
 
 import pytest
 
-from src.methods.muratura.discretizzazione import (
-    Fascia,
-    Maschio,
-    TipoVincolo,
-)
+from src.methods.muratura.discretizzazione import Fascia, Maschio, TipoVincolo
 from src.methods.muratura.modello_edificio import MaterialeMuratura
 from src.methods.muratura.rigidezza import (
     CHI_RETTANGOLARE,
@@ -30,22 +26,35 @@ from src.methods.muratura.rigidezza import (
 def materiale() -> MaterialeMuratura:
     return MaterialeMuratura(
         nome="mattoni_pieni",
-        f=24.0, tau_0=0.6, fvk0=0.4,
-        E=15000.0, G=5000.0, gamma=0.0018,
+        f=24.0,
+        tau_0=0.6,
+        fvk0=0.4,
+        E=15000.0,
+        G=5000.0,
+        gamma=0.0018,
     )
 
 
 def _crea_maschio(
-    id_m: int, L: float, t: float, h: float,
+    id_m: int,
+    L: float,
+    t: float,
+    h: float,
     mat: MaterialeMuratura,
     vincolo: TipoVincolo = TipoVincolo.INCASTRO,
-    x_bar: float = 0.0, y_bar: float = 0.0,
+    x_bar: float = 0.0,
+    y_bar: float = 0.0,
     direzione: str = "X",
 ) -> Maschio:
     m = Maschio(
-        id_maschio=id_m, L=L, t=t, h=h,
-        materiale=mat, vincolo=vincolo,
-        x_baricentro=x_bar, y_baricentro=y_bar,
+        id_maschio=id_m,
+        L=L,
+        t=t,
+        h=h,
+        materiale=mat,
+        vincolo=vincolo,
+        x_baricentro=x_bar,
+        y_baricentro=y_bar,
     )
     m._direzione = direzione  # type: ignore[attr-defined]
     return m
@@ -55,19 +64,18 @@ def _crea_maschio(
 #  Rigidezza maschio
 # ═══════════════════════════════════════════════════════════
 
-class TestRigidezzaMaschio:
 
+class TestRigidezzaMaschio:
     def test_doppio_incastro(self, materiale):
         """k = 1 / (h³/(12EI) + χh/(GA)) per doppio incastro."""
-        m = _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          vincolo=TipoVincolo.INCASTRO)
+        m = _crea_maschio(0, L=200, t=30, h=300, mat=materiale, vincolo=TipoVincolo.INCASTRO)
 
-        I = 30 * 200 ** 3 / 12  # = 20_000_000 cm⁴
+        I = 30 * 200**3 / 12  # = 20_000_000 cm⁴
         A = 200 * 30  # = 6000 cm²
         E = 15000.0
         G = 5000.0
 
-        flex_flex = 300 ** 3 / (12 * E * I)
+        flex_flex = 300**3 / (12 * E * I)
         flex_taglio = CHI_RETTANGOLARE * 300 / (G * A)
         k_atteso = 1.0 / (flex_flex + flex_taglio)
 
@@ -76,15 +84,14 @@ class TestRigidezzaMaschio:
 
     def test_cerniera(self, materiale):
         """k = 1 / (h³/(3EI) + χh/(GA)) per incastro-cerniera."""
-        m = _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          vincolo=TipoVincolo.CERNIERA)
+        m = _crea_maschio(0, L=200, t=30, h=300, mat=materiale, vincolo=TipoVincolo.CERNIERA)
 
-        I = 30 * 200 ** 3 / 12
+        I = 30 * 200**3 / 12
         A = 200 * 30
         E = 15000.0
         G = 5000.0
 
-        flex_flex = 300 ** 3 / (3 * E * I)
+        flex_flex = 300**3 / (3 * E * I)
         flex_taglio = CHI_RETTANGOLARE * 300 / (G * A)
         k_atteso = 1.0 / (flex_flex + flex_taglio)
 
@@ -93,10 +100,8 @@ class TestRigidezzaMaschio:
 
     def test_incastro_piu_rigido_di_cerniera(self, materiale):
         """Il maschio doppiamente incastrato è più rigido."""
-        m_inc = _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                              vincolo=TipoVincolo.INCASTRO)
-        m_cer = _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                              vincolo=TipoVincolo.CERNIERA)
+        m_inc = _crea_maschio(0, L=200, t=30, h=300, mat=materiale, vincolo=TipoVincolo.INCASTRO)
+        m_cer = _crea_maschio(1, L=200, t=30, h=300, mat=materiale, vincolo=TipoVincolo.CERNIERA)
 
         assert rigidezza_maschio(m_inc) > rigidezza_maschio(m_cer)
 
@@ -136,8 +141,8 @@ class TestRigidezzaMaschio:
 #  Rigidezza fascia
 # ═══════════════════════════════════════════════════════════
 
-class TestRigidezzaFascia:
 
+class TestRigidezzaFascia:
     def test_fascia_con_cordolo(self, materiale):
         """Fascia con cordolo: rigidezza come trave Timoshenko."""
         f = Fascia(L=120, t=30, h=80, materiale=materiale, ha_cordolo=True)
@@ -165,19 +170,15 @@ class TestRigidezzaFascia:
 #  Centro rigidezza
 # ═══════════════════════════════════════════════════════════
 
-class TestCentroRigidezza:
 
+class TestCentroRigidezza:
     def test_piano_simmetrico(self, materiale):
         """Piano simmetrico: CR coincide con centro geometrico."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="X"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=400, direzione="X"),
-            _crea_maschio(2, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="Y"),
-            _crea_maschio(3, L=200, t=30, h=300, mat=materiale,
-                          x_bar=500, y_bar=0, direzione="Y"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="X"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=400, direzione="X"),
+            _crea_maschio(2, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="Y"),
+            _crea_maschio(3, L=200, t=30, h=300, mat=materiale, x_bar=500, y_bar=0, direzione="Y"),
         ]
         cr = calcola_centro_rigidezza(maschi, x_CM=250, y_CM=200)
 
@@ -189,14 +190,10 @@ class TestCentroRigidezza:
     def test_eccentricita_nulla_simmetrico(self, materiale):
         """Piano simmetrico con CM al centro: eccentricità ≈ 0."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="X"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=400, direzione="X"),
-            _crea_maschio(2, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="Y"),
-            _crea_maschio(3, L=200, t=30, h=300, mat=materiale,
-                          x_bar=500, y_bar=0, direzione="Y"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="X"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=400, direzione="X"),
+            _crea_maschio(2, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="Y"),
+            _crea_maschio(3, L=200, t=30, h=300, mat=materiale, x_bar=500, y_bar=0, direzione="Y"),
         ]
         cr = calcola_centro_rigidezza(maschi, x_CM=250, y_CM=200)
 
@@ -206,14 +203,10 @@ class TestCentroRigidezza:
     def test_rigidezza_torsionale_positiva(self, materiale):
         """Maschi a distanza dal CR generano K_θ > 0."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="X"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=400, direzione="X"),
-            _crea_maschio(2, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="Y"),
-            _crea_maschio(3, L=200, t=30, h=300, mat=materiale,
-                          x_bar=500, y_bar=0, direzione="Y"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="X"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=400, direzione="X"),
+            _crea_maschio(2, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="Y"),
+            _crea_maschio(3, L=200, t=30, h=300, mat=materiale, x_bar=500, y_bar=0, direzione="Y"),
         ]
         cr = calcola_centro_rigidezza(maschi, x_CM=250, y_CM=200)
         assert cr.K_theta > 0
@@ -223,15 +216,13 @@ class TestCentroRigidezza:
 #  Matrice rigidezza piano
 # ═══════════════════════════════════════════════════════════
 
-class TestMatriceRigidezzaPiano:
 
+class TestMatriceRigidezzaPiano:
     def test_matrice_simmetrica(self, materiale):
         """La matrice K deve essere simmetrica."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="X"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=500, y_bar=0, direzione="Y"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="X"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=500, y_bar=0, direzione="Y"),
         ]
         mat = assembla_matrice_piano(maschi)
         K = mat.K
@@ -244,10 +235,8 @@ class TestMatriceRigidezzaPiano:
     def test_diagonale_positiva(self, materiale):
         """Termini diagonali devono essere > 0."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=100, direzione="X"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=250, y_bar=0, direzione="Y"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=100, direzione="X"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=250, y_bar=0, direzione="Y"),
         ]
         mat = assembla_matrice_piano(maschi)
         K = mat.K
@@ -259,10 +248,8 @@ class TestMatriceRigidezzaPiano:
     def test_solo_maschi_x(self, materiale):
         """Solo maschi in X: Kyy = 0."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="X"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=400, direzione="X"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="X"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=400, direzione="X"),
         ]
         mat = assembla_matrice_piano(maschi)
         assert mat.K[1][1] == 0.0
@@ -277,18 +264,15 @@ class TestMatriceRigidezzaPiano:
 #  Distribuzione forze
 # ═══════════════════════════════════════════════════════════
 
-class TestDistribuisciForza:
 
+class TestDistribuisciForza:
     def test_distribuzione_proporzionale_uguale(self, materiale):
         """Due maschi uguali in X: forza distribuita 50-50."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="X"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=400, direzione="X"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="X"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=400, direzione="X"),
         ]
-        tagli = distribuisci_forza_piano(maschi, Fx=10000, Fy=0,
-                                          x_rif=0, y_rif=200)
+        tagli = distribuisci_forza_piano(maschi, Fx=10000, Fy=0, x_rif=0, y_rif=200)
 
         # Con maschi uguali simmetrici rispetto a y_rif=200,
         # la forza si distribuisce 50-50
@@ -298,18 +282,13 @@ class TestDistribuisciForza:
     def test_somma_tagli_uguale_forza(self, materiale):
         """Somma dei tagli = forza applicata."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="X"),
-            _crea_maschio(1, L=150, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=400, direzione="X"),
-            _crea_maschio(2, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="Y"),
-            _crea_maschio(3, L=200, t=30, h=300, mat=materiale,
-                          x_bar=500, y_bar=0, direzione="Y"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="X"),
+            _crea_maschio(1, L=150, t=30, h=300, mat=materiale, x_bar=0, y_bar=400, direzione="X"),
+            _crea_maschio(2, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="Y"),
+            _crea_maschio(3, L=200, t=30, h=300, mat=materiale, x_bar=500, y_bar=0, direzione="Y"),
         ]
         Fx = 15000.0
-        tagli = distribuisci_forza_piano(maschi, Fx=Fx, Fy=0,
-                                          x_rif=250, y_rif=200)
+        tagli = distribuisci_forza_piano(maschi, Fx=Fx, Fy=0, x_rif=250, y_rif=200)
 
         # Tagli maschi in X devono sommare a Fx
         tagli_x = tagli[0] + tagli[1]
@@ -318,14 +297,11 @@ class TestDistribuisciForza:
     def test_forza_in_y(self, materiale):
         """Forza in Y distribuita sui maschi in Y."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="Y"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=500, y_bar=0, direzione="Y"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="Y"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=500, y_bar=0, direzione="Y"),
         ]
         Fy = 8000.0
-        tagli = distribuisci_forza_piano(maschi, Fx=0, Fy=Fy,
-                                          x_rif=250, y_rif=0)
+        tagli = distribuisci_forza_piano(maschi, Fx=0, Fy=Fy, x_rif=250, y_rif=0)
 
         assert pytest.approx(tagli[0] + tagli[1], rel=0.01) == Fy
 
@@ -333,14 +309,11 @@ class TestDistribuisciForza:
         """Eccentricità tra CM e CR genera taglio diverso sui maschi."""
         # Due maschi uguali in Y, ma il CM è spostato
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="Y"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=500, y_bar=0, direzione="Y"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="Y"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=500, y_bar=0, direzione="Y"),
         ]
         # Forza applicata con eccentricità (CM a x=100 anziché 250)
-        tagli = distribuisci_forza_piano(maschi, Fx=0, Fy=10000,
-                                          x_rif=100, y_rif=0)
+        tagli = distribuisci_forza_piano(maschi, Fx=0, Fy=10000, x_rif=100, y_rif=0)
 
         # I tagli sui due maschi devono essere diversi (effetto torsione)
         assert tagli[0] != pytest.approx(tagli[1], rel=0.1)
@@ -348,13 +321,10 @@ class TestDistribuisciForza:
     def test_momento_torcente(self, materiale):
         """Momento torcente applicato direttamente."""
         maschi = [
-            _crea_maschio(0, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=0, direzione="X"),
-            _crea_maschio(1, L=200, t=30, h=300, mat=materiale,
-                          x_bar=0, y_bar=400, direzione="X"),
+            _crea_maschio(0, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=0, direzione="X"),
+            _crea_maschio(1, L=200, t=30, h=300, mat=materiale, x_bar=0, y_bar=400, direzione="X"),
         ]
-        tagli = distribuisci_forza_piano(maschi, Fx=0, Fy=0, Mz=100000,
-                                          x_rif=0, y_rif=200)
+        tagli = distribuisci_forza_piano(maschi, Fx=0, Fy=0, Mz=100000, x_rif=0, y_rif=200)
 
         # Momento genera tagli opposti sui maschi
         assert tagli[0] > 0

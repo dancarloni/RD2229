@@ -126,18 +126,18 @@ un `VerificationResultItem` conforme allo schema comune, contenente almeno:
 
 Devono essere definiti e mantenuti i seguenti contratti:
 
-- **CT‑SE‑01**  
+- **CT‑SE‑01**
   Ogni risultato include `trace.run_id`.
 
-- **CT‑SE‑02**  
+- **CT‑SE‑02**
   Ogni risultato include almeno una entry in `norm_references[]`.
 
-- **CT‑SE‑03**  
+- **CT‑SE‑03**
   Se `drift.source = ESTIMATED`:
   - warning obbligatorio,
   - `confidence = LOW`.
 
-- **CT‑SE‑04**  
+- **CT‑SE‑04**
   Se `influence_on_global_model = true`,
   la verifica SLE con drift stimato restituisce `NOT_APPLICABLE`.
 
@@ -145,7 +145,7 @@ Devono essere definiti e mantenuti i seguenti contratti:
 
 ### 3.2 Report safety test (no‑mixing)
 
-- **RT‑SE‑01**  
+- **RT‑SE‑01**
   Se `project_model.norma_attiva = NTC2018` e nel report sono presenti
   risultati con riferimenti normativi incoerenti,
   la generazione del report deve essere **bloccata**.

@@ -7,16 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from src.steel.sagomario import (
-    FamigliaProfilo,
-    ProfiloAcciaio,
-    SagomarioAcciaio,
-)
+from src.steel.sagomario import FamigliaProfilo, ProfiloAcciaio, SagomarioAcciaio
 
 DATA_DIR = Path(__file__).parent.parent / "data" / "steel"
 
 
 # ───────────────────────── Fixture ─────────────────────────
+
 
 @pytest.fixture
 def sagomario():
@@ -28,6 +25,7 @@ def sagomario():
 
 
 # ───────────────────────── Caricamento ─────────────────────────
+
 
 class TestCaricamento:
     def test_carica_tutti(self, sagomario):
@@ -47,19 +45,23 @@ class TestCaricamento:
         famiglie = sagomario.list_famiglie()
         assert set(famiglie) == {"HEA", "HEB", "HEM", "IPE", "UPN"}
 
-    @pytest.mark.parametrize("famiglia,count", [
-        ("IPE", 18),
-        ("HEA", 19),
-        ("HEB", 19),
-        ("HEM", 19),
-        ("UPN", 12),
-    ])
+    @pytest.mark.parametrize(
+        "famiglia,count",
+        [
+            ("IPE", 18),
+            ("HEA", 19),
+            ("HEB", 19),
+            ("HEM", 19),
+            ("UPN", 12),
+        ],
+    )
     def test_count_per_famiglia(self, sagomario, famiglia, count):
         profili = sagomario.list_by_famiglia(famiglia)
         assert len(profili) == count
 
 
 # ───────────────────────── Ricerca ─────────────────────────
+
 
 class TestRicerca:
     def test_get_profilo_esistente(self, sagomario):
@@ -116,6 +118,7 @@ class TestRicerca:
 
 # ───────────────────────── Proprietà profili noti ─────────────────────────
 
+
 class TestProprietaProfili:
     """Verifica valori noti di profili standard EN 10365."""
 
@@ -160,36 +163,49 @@ class TestProprietaProfili:
         """hi = h - 2·tf per tutti i profili IPE."""
         for p in sagomario.list_by_famiglia("IPE"):
             hi_calc = p.h - 2 * p.tf
-            assert p.hi == pytest.approx(hi_calc, abs=0.01), \
-                f"{p.nome}: hi={p.hi} != h-2tf={hi_calc}"
+            assert p.hi == pytest.approx(
+                hi_calc, abs=0.01
+            ), f"{p.nome}: hi={p.hi} != h-2tf={hi_calc}"
 
     def test_ipe_coerenza_d(self, sagomario):
         """d = h - 2·tf - 2·r per tutti i profili IPE."""
         for p in sagomario.list_by_famiglia("IPE"):
             d_calc = p.h - 2 * p.tf - 2 * p.r
-            assert p.d == pytest.approx(d_calc, abs=0.01), \
-                f"{p.nome}: d={p.d} != h-2tf-2r={d_calc}"
+            assert p.d == pytest.approx(d_calc, abs=0.01), f"{p.nome}: d={p.d} != h-2tf-2r={d_calc}"
 
     def test_wx_coerente_ix(self, sagomario):
         """Wx ≈ 2·Ix/h per profili simmetrici (tolleranza 5%)."""
         for p in sagomario.tutti():
             if p.h > 0:
                 Wx_calc = 2 * p.Ix / p.h
-                assert p.Wx == pytest.approx(Wx_calc, rel=0.05), \
-                    f"{p.nome}: Wx={p.Wx} vs 2Ix/h={Wx_calc}"
+                assert p.Wx == pytest.approx(
+                    Wx_calc, rel=0.05
+                ), f"{p.nome}: Wx={p.Wx} vs 2Ix/h={Wx_calc}"
 
 
 # ───────────────────────── ProfiloAcciaio ─────────────────────────
+
 
 class TestProfiloAcciaio:
     def test_from_dict_to_dict_roundtrip(self):
         data = {
             "nome": "TEST 100",
             "famiglia": "TEST",
-            "h": 10.0, "b": 5.0, "tw": 0.5, "tf": 0.8, "r": 0.7,
-            "A": 15.0, "massa_kg_m": 11.8,
-            "Ix": 200.0, "Wx": 40.0, "Wpl_x": 46.0, "ix": 3.65,
-            "Iy": 18.0, "Wy": 7.2, "Wpl_y": 11.0, "iy": 1.1,
+            "h": 10.0,
+            "b": 5.0,
+            "tw": 0.5,
+            "tf": 0.8,
+            "r": 0.7,
+            "A": 15.0,
+            "massa_kg_m": 11.8,
+            "Ix": 200.0,
+            "Wx": 40.0,
+            "Wpl_x": 46.0,
+            "ix": 3.65,
+            "Iy": 18.0,
+            "Wy": 7.2,
+            "Wpl_y": 11.0,
+            "iy": 1.1,
         }
         p = ProfiloAcciaio.from_dict(data)
         assert p.nome == "TEST 100"
@@ -199,11 +215,23 @@ class TestProfiloAcciaio:
 
     def test_from_dict_ignora_campi_extra(self):
         data = {
-            "nome": "X", "famiglia": "X",
-            "h": 1, "b": 1, "tw": 0.1, "tf": 0.1, "r": 0.1,
-            "A": 1, "massa_kg_m": 1,
-            "Ix": 1, "Wx": 1, "Wpl_x": 1, "ix": 1,
-            "Iy": 1, "Wy": 1, "Wpl_y": 1, "iy": 1,
+            "nome": "X",
+            "famiglia": "X",
+            "h": 1,
+            "b": 1,
+            "tw": 0.1,
+            "tf": 0.1,
+            "r": 0.1,
+            "A": 1,
+            "massa_kg_m": 1,
+            "Ix": 1,
+            "Wx": 1,
+            "Wpl_x": 1,
+            "ix": 1,
+            "Iy": 1,
+            "Wy": 1,
+            "Wpl_y": 1,
+            "iy": 1,
             "campo_sconosciuto": 999,
         }
         p = ProfiloAcciaio.from_dict(data)
@@ -211,28 +239,53 @@ class TestProfiloAcciaio:
 
     def test_rapporto_hw_tw(self):
         p = ProfiloAcciaio(
-            nome="T", famiglia="T",
-            h=20.0, b=10.0, tw=0.56, tf=0.85, r=1.2,
-            A=28.5, massa_kg_m=22.4,
-            Ix=1943, Wx=194, Wpl_x=221, ix=8.26,
-            Iy=142, Wy=28.5, Wpl_y=44.6, iy=2.24,
+            nome="T",
+            famiglia="T",
+            h=20.0,
+            b=10.0,
+            tw=0.56,
+            tf=0.85,
+            r=1.2,
+            A=28.5,
+            massa_kg_m=22.4,
+            Ix=1943,
+            Wx=194,
+            Wpl_x=221,
+            ix=8.26,
+            Iy=142,
+            Wy=28.5,
+            Wpl_y=44.6,
+            iy=2.24,
         )
         # hw = 20 - 2*0.85 = 18.3
         assert p.rapporto_hw_tw == pytest.approx(18.3 / 0.56, rel=0.01)
 
     def test_rapporto_cf_tf(self):
         p = ProfiloAcciaio(
-            nome="T", famiglia="T",
-            h=20.0, b=10.0, tw=0.56, tf=0.85, r=1.2,
-            A=28.5, massa_kg_m=22.4,
-            Ix=1943, Wx=194, Wpl_x=221, ix=8.26,
-            Iy=142, Wy=28.5, Wpl_y=44.6, iy=2.24,
+            nome="T",
+            famiglia="T",
+            h=20.0,
+            b=10.0,
+            tw=0.56,
+            tf=0.85,
+            r=1.2,
+            A=28.5,
+            massa_kg_m=22.4,
+            Ix=1943,
+            Wx=194,
+            Wpl_x=221,
+            ix=8.26,
+            Iy=142,
+            Wy=28.5,
+            Wpl_y=44.6,
+            iy=2.24,
         )
         # c = (10 - 0.56)/2 - 1.2 = 4.72 - 1.2 = 3.52
         assert p.rapporto_cf_tf == pytest.approx(3.52 / 0.85, rel=0.01)
 
 
 # ───────────────────────── FamigliaProfilo Enum ─────────────────────────
+
 
 class TestFamigliaProfilo:
     def test_valori(self):
@@ -244,6 +297,7 @@ class TestFamigliaProfilo:
 
 
 # ───────────────────────── Esportazione ─────────────────────────
+
 
 class TestEsportazione:
     def test_esporta_reimporta(self, sagomario, tmp_path):

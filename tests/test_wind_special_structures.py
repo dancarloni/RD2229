@@ -22,6 +22,7 @@ from src.wind.special_structures import (
 # Tettoie
 # ===========================================================================
 
+
 class TestCanopyCp:
     def test_monopitch_returns_tuple(self):
         cp_max, cp_min = get_canopy_cp("CANOPY_MONO", 10.0, 0.0, "A")
@@ -51,7 +52,9 @@ class TestCanopyCp:
         assert abs(cp_min_closed) >= abs(cp_min_open)
 
     def test_override(self):
-        cp_max, cp_min = get_canopy_cp("CANOPY_MONO", 10.0, 0.0, "A", override_max=3.0, override_min=-3.0)
+        cp_max, cp_min = get_canopy_cp(
+            "CANOPY_MONO", 10.0, 0.0, "A", override_max=3.0, override_min=-3.0
+        )
         assert cp_max == 3.0
         assert cp_min == -3.0
 
@@ -94,6 +97,7 @@ class TestCanopyPressures:
 # Pensiline
 # ===========================================================================
 
+
 class TestShelter:
     def test_shelter_reduced(self):
         """Shelter pressures should be less than canopy."""
@@ -111,6 +115,7 @@ class TestShelter:
 # ===========================================================================
 # Insegne
 # ===========================================================================
+
 
 class TestSignCf:
     def test_solid_plate_default(self):
@@ -156,6 +161,7 @@ class TestSignForce:
 # Pannelli fotovoltaici
 # ===========================================================================
 
+
 class TestSolarPanelCp:
     def test_ground_mounted(self):
         cp_max, cp_min = get_solar_panel_cp("SOLAR_GROUND", 25.0, "edge")
@@ -193,12 +199,16 @@ class TestSolarPanelCp:
         assert abs(cp_tilted) >= abs(cp_flush)
 
     def test_tracker(self):
-        cp_max, cp_min = get_solar_panel_cp("SOLAR_TRACKER", 0.0, "interior", tracking_angle_deg=30.0)
+        cp_max, cp_min = get_solar_panel_cp(
+            "SOLAR_TRACKER", 0.0, "interior", tracking_angle_deg=30.0
+        )
         assert cp_max > 0 or cp_min < 0
 
     def test_tracker_stow(self):
         """At 0° tracking, loads should be low."""
-        cp_max, cp_min = get_solar_panel_cp("SOLAR_TRACKER", 0.0, "interior", tracking_angle_deg=0.0)
+        cp_max, cp_min = get_solar_panel_cp(
+            "SOLAR_TRACKER", 0.0, "interior", tracking_angle_deg=0.0
+        )
         assert abs(cp_max) < 0.5
         assert abs(cp_min) < 0.5
 
@@ -217,6 +227,7 @@ class TestSolarPressures:
 # ===========================================================================
 # Muri isolati / recinzioni
 # ===========================================================================
+
 
 class TestFreestandingWall:
     def test_basic_wall(self):
@@ -241,6 +252,7 @@ class TestFreestandingWall:
 # ===========================================================================
 # Pressioni a zone insegne (CNR-DT 207 G.7)
 # ===========================================================================
+
 
 class TestSignZonePressures:
     def test_wide_sign_has_zone_C(self):
@@ -315,6 +327,7 @@ class TestSignZonePressures:
 # ===========================================================================
 # Punto di applicazione tettoie (CNR-DT 207 G.6)
 # ===========================================================================
+
 
 class TestCanopyApplicationPoint:
     def test_d_over_4(self):

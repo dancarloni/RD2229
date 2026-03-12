@@ -6,9 +6,7 @@ from src.codes.ntc2018.secondary_elements.scaffalature import (
     check_slu,
     verifica_scaffalatura_completa,
 )
-from src.codes.ntc2018.secondary_elements.scaffalature.models import (
-    RisultatoScaffalatura,
-)
+from src.codes.ntc2018.secondary_elements.scaffalature.models import RisultatoScaffalatura
 
 
 class TestScaffalaturaModels:

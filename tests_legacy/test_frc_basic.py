@@ -2,7 +2,6 @@
 """Tests base per il modulo core.frc (comportamento materiali FRC)."""
 
 from core.frc import frc_stress
-
 from core_models.materials import Material
 
 

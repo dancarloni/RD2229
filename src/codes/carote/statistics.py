@@ -37,10 +37,10 @@ class NTC2018Result:
     """Risultato analisi NTC2018 per un livello di conoscenza."""
 
     lc: str
-    k: float          # 1.64 per distribuzione normale
-    f_m: float        # media f_is [MPa]
-    cov: float        # CoV
-    f_ck_is: float    # f_m * (1 - k*CoV) [MPa]
+    k: float  # 1.64 per distribuzione normale
+    f_m: float  # media f_is [MPa]
+    cov: float  # CoV
+    f_ck_is: float  # f_m * (1 - k*CoV) [MPa]
     passaggi: list[str] = field(default_factory=list)
 
 
@@ -48,13 +48,13 @@ class NTC2018Result:
 class EN13791Result:
     """Risultato analisi EN 13791."""
 
-    method: str       # "A" o "B"
+    method: str  # "A" o "B"
     f_m: float
     s: float
     k: float
     f_ck_is_1: float  # f_m - k*s
     f_ck_is_2: float  # f_is,lowest + 4  (solo metodo B)
-    f_ck_is: float    # min dei due
+    f_ck_is: float  # min dei due
     passaggi: list[str] = field(default_factory=list)
 
 
@@ -75,12 +75,12 @@ class FullStatisticalAnalysis:
     """Analisi statistica completa per un set di f_is."""
 
     summary: StatisticalSummary
-    ntc2018: dict[str, NTC2018Result]       # LC1, LC2, LC3
-    en13791_a: EN13791Result | None          # None se n < 15
-    en13791_b: EN13791Result | None          # None se n < 3
+    ntc2018: dict[str, NTC2018Result]  # LC1, LC2, LC3
+    en13791_a: EN13791Result | None  # None se n < 15
+    en13791_b: EN13791Result | None  # None se n < 3
     outliers_grubbs: list[OutlierResult]
     outliers_chauvenet: list[OutlierResult]
-    classification: str                     # "C20/25" ecc.
+    classification: str  # "C20/25" ecc.
     passaggi_calcolo: list[str] = field(default_factory=list)
 
 
@@ -102,8 +102,12 @@ def calcola_summary(values: Sequence[float]) -> StatisticalSummary:
         std = 0.0
     cov = std / mean if mean > 0 else 0.0
     return StatisticalSummary(
-        n=n, mean=mean, std=std, cov=cov,
-        min_val=min(values), max_val=max(values),
+        n=n,
+        mean=mean,
+        std=std,
+        cov=cov,
+        min_val=min(values),
+        max_val=max(values),
     )
 
 
@@ -127,8 +131,12 @@ def analisi_ntc2018(values: Sequence[float], lc: str = "LC2") -> NTC2018Result:
         f"f_ck,is = f_m*(1-k*CoV) = {s.mean:.3f}*(1-{k}*{s.cov:.4f}) = {f_ck_is:.3f} MPa",
     ]
     return NTC2018Result(
-        lc=lc, k=k, f_m=s.mean, cov=s.cov,
-        f_ck_is=f_ck_is, passaggi=passaggi,
+        lc=lc,
+        k=k,
+        f_m=s.mean,
+        cov=s.cov,
+        f_ck_is=f_ck_is,
+        passaggi=passaggi,
     )
 
 
@@ -177,9 +185,14 @@ def analisi_en13791_a(values: Sequence[float]) -> EN13791Result | None:
         f"f_ck,is = f_m - 1.48*s = {s.mean:.3f} - 1.48*{s.std:.3f} = {f_ck_is:.3f} MPa",
     ]
     return EN13791Result(
-        method="A", f_m=s.mean, s=s.std, k=k,
-        f_ck_is_1=f_ck_is, f_ck_is_2=0.0,
-        f_ck_is=f_ck_is, passaggi=passaggi,
+        method="A",
+        f_m=s.mean,
+        s=s.std,
+        k=k,
+        f_ck_is_1=f_ck_is,
+        f_ck_is_2=0.0,
+        f_ck_is=f_ck_is,
+        passaggi=passaggi,
     )
 
 
@@ -203,9 +216,14 @@ def analisi_en13791_b(values: Sequence[float]) -> EN13791Result | None:
         f"f_ck,is = min({f_ck_1:.3f}, {f_ck_2:.3f}) = {f_ck_is:.3f} MPa",
     ]
     return EN13791Result(
-        method="B", f_m=s.mean, s=s.std, k=k,
-        f_ck_is_1=f_ck_1, f_ck_is_2=f_ck_2,
-        f_ck_is=f_ck_is, passaggi=passaggi,
+        method="B",
+        f_m=s.mean,
+        s=s.std,
+        k=k,
+        f_ck_is_1=f_ck_1,
+        f_ck_is_2=f_ck_2,
+        f_ck_is=f_ck_is,
+        passaggi=passaggi,
     )
 
 
@@ -230,10 +248,7 @@ def test_grubbs(values: Sequence[float], alpha: float = 0.05) -> list[OutlierRes
     mean = sum(vals) / n
     std = math.sqrt(sum((x - mean) ** 2 for x in vals) / (n - 1))
     if std < 1e-12:
-        return [
-            OutlierResult(v, i, False, 0.0, 0.0, "Grubbs")
-            for i, v in enumerate(vals)
-        ]
+        return [OutlierResult(v, i, False, 0.0, 0.0, "Grubbs") for i, v in enumerate(vals)]
 
     # Valore critico Grubbs (two-sided)
     t_crit = t_dist.ppf(1.0 - alpha / (2.0 * n), n - 2)
@@ -242,10 +257,16 @@ def test_grubbs(values: Sequence[float], alpha: float = 0.05) -> list[OutlierRes
     results = []
     for i, v in enumerate(vals):
         g = abs(v - mean) / std
-        results.append(OutlierResult(
-            value=v, index=i, is_outlier=(g > g_crit),
-            test_statistic=g, critical_value=g_crit, test_name="Grubbs",
-        ))
+        results.append(
+            OutlierResult(
+                value=v,
+                index=i,
+                is_outlier=(g > g_crit),
+                test_statistic=g,
+                critical_value=g_crit,
+                test_name="Grubbs",
+            )
+        )
     return results
 
 
@@ -264,21 +285,23 @@ def test_chauvenet(values: Sequence[float]) -> list[OutlierResult]:
     mean = sum(vals) / n
     std = math.sqrt(sum((x - mean) ** 2 for x in vals) / (n - 1))
     if std < 1e-12:
-        return [
-            OutlierResult(v, i, False, 0.0, 0.0, "Chauvenet")
-            for i, v in enumerate(vals)
-        ]
+        return [OutlierResult(v, i, False, 0.0, 0.0, "Chauvenet") for i, v in enumerate(vals)]
 
     threshold = 1.0 / (2.0 * n)
     results = []
     for i, v in enumerate(vals):
         z = abs(v - mean) / std
         p = 2.0 * (1.0 - norm.cdf(z))  # probabilita' bilaterale
-        results.append(OutlierResult(
-            value=v, index=i, is_outlier=(p < threshold),
-            test_statistic=z, critical_value=norm.ppf(1.0 - threshold / 2.0),
-            test_name="Chauvenet",
-        ))
+        results.append(
+            OutlierResult(
+                value=v,
+                index=i,
+                is_outlier=(p < threshold),
+                test_statistic=z,
+                critical_value=norm.ppf(1.0 - threshold / 2.0),
+                test_name="Chauvenet",
+            )
+        )
     return results
 
 

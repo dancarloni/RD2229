@@ -399,10 +399,11 @@ class RisultatoCantonale:
 # FASE E.6.2 - RIDUZIONE RESISTENZA MASCHI D'ANGOLO
 # ============================================================================
 
+
 class TipoSogliaApertura(Enum):
-    NORMATIVA_NTC = 'Normativa NTC2018: max(t, 100 cm)'
-    PARAMETRICA = 'Regola parametrica proporzionale: alpha * t'
-    UTENTE = 'Scelta diretta utente'
+    NORMATIVA_NTC = "Normativa NTC2018: max(t, 100 cm)"
+    PARAMETRICA = "Regola parametrica proporzionale: alpha * t"
+    UTENTE = "Scelta diretta utente"
 
 
 @dataclass
@@ -412,7 +413,7 @@ class InputDiagnosticaAngolo:
     tipo_soglia: TipoSogliaApertura = TipoSogliaApertura.NORMATIVA_NTC
     # Parametri per modalità alternative (ignorati se NORMATIVA_NTC)
     alpha_moltiplicatore_t: float = 1.5  # Usato se tipo_soglia == PARAMETRICA
-    d_min_utente_cm: float = 100.0       # Usato se tipo_soglia == UTENTE
+    d_min_utente_cm: float = 100.0  # Usato se tipo_soglia == UTENTE
     # Modello di riduzione con asintoto minimo (Safe lower bound)
     k_min_resistenza: float = 0.20
 
@@ -420,60 +421,72 @@ class InputDiagnosticaAngolo:
 @dataclass
 class RisultatoDiagnosticaAngolo:
     is_ok: bool
-    status: str          # 'OK', 'WARNING', 'FAIL'
+    status: str  # 'OK', 'WARNING', 'FAIL'
     distanza_minima_richiesta_cm: float
-    coeff_riduzione_k: float   # [k_min, 1.0]
+    coeff_riduzione_k: float  # [k_min, 1.0]
     passaggi_calcolo: list[str]
 
     def to_dict(self) -> dict:
         return {
-            'is_ok': self.is_ok,
-            'status': self.status,
-            'distanza_minima_richiesta_cm': self.distanza_minima_richiesta_cm,
-            'coeff_riduzione_k': self.coeff_riduzione_k,
-            'passaggi_calcolo': self.passaggi_calcolo
+            "is_ok": self.is_ok,
+            "status": self.status,
+            "distanza_minima_richiesta_cm": self.distanza_minima_richiesta_cm,
+            "coeff_riduzione_k": self.coeff_riduzione_k,
+            "passaggi_calcolo": self.passaggi_calcolo,
         }
 
 
-def calcola_resistenza_residua_angolo(input_diag: InputDiagnosticaAngolo) -> RisultatoDiagnosticaAngolo:
-    '''
+def calcola_resistenza_residua_angolo(
+    input_diag: InputDiagnosticaAngolo,
+) -> RisultatoDiagnosticaAngolo:
+    """
     Valuta l'indebolimento del maschio d'angolo a causa di aperture troppo ravvicinate.
     Implementa le scelte architetturali E.6.2: Soglia flessibile e Riduzione asintotica (B2).
-    '''
+    """
     passaggi = []
     # 1. Calcolo distanza minima richiesta
     d_min = 0.0
     if input_diag.tipo_soglia == TipoSogliaApertura.NORMATIVA_NTC:
         d_min = max(input_diag.spessore_parete_cm, 100.0)
-        passaggi.append(f'Criterio soglia: NTC2018 -> max(t={input_diag.spessore_parete_cm:.1f} cm, 100.0 cm) = {d_min:.1f} cm')
+        passaggi.append(
+            f"Criterio soglia: NTC2018 -> max(t={input_diag.spessore_parete_cm:.1f} cm, 100.0 cm) = {d_min:.1f} cm"
+        )
     elif input_diag.tipo_soglia == TipoSogliaApertura.PARAMETRICA:
         d_min = input_diag.alpha_moltiplicatore_t * input_diag.spessore_parete_cm
-        passaggi.append(f'Criterio soglia: Parametrica -> {input_diag.alpha_moltiplicatore_t} * t({input_diag.spessore_parete_cm:.1f} cm) = {d_min:.1f} cm')
+        passaggi.append(
+            f"Criterio soglia: Parametrica -> {input_diag.alpha_moltiplicatore_t} * t({input_diag.spessore_parete_cm:.1f} cm) = {d_min:.1f} cm"
+        )
     else:
         d_min = input_diag.d_min_utente_cm
-        passaggi.append(f'Criterio soglia: Utente -> {d_min:.1f} cm')
+        passaggi.append(f"Criterio soglia: Utente -> {d_min:.1f} cm")
 
     # 2. Verifica dello status e del coefficiente
     d_eff = input_diag.distanza_apertura_cm
-    status = 'OK'
+    status = "OK"
     is_ok = True
     k = 1.0
     if d_eff >= d_min:
-        passaggi.append(f'Distanza reale {d_eff:.1f} cm >= {d_min:.1f} cm limite. Nessuna penalizzazione.')
+        passaggi.append(
+            f"Distanza reale {d_eff:.1f} cm >= {d_min:.1f} cm limite. Nessuna penalizzazione."
+        )
     else:
         is_ok = False
         # Limitazione a soglia asintotica k_min per evitare labilità totale (B2)
         k_lineare = d_eff / d_min if d_min > 0 else 1.0
         k = max(input_diag.k_min_resistenza, k_lineare)
-        status = 'FAIL' if k <= input_diag.k_min_resistenza else 'WARNING'
-        passaggi.append(f'Distanza reale {d_eff:.1f} cm < {d_min:.1f} cm limite (STATUS: {status}).')
-        passaggi.append(f'Calcolo penalizzazione: limite_lineare = {d_eff:.1f}/{d_min:.1f} = {k_lineare:.3f} | k_min = {input_diag.k_min_resistenza:.3f}')
-        passaggi.append(f'Coefficiente di riduzione resistenza assunto = {k:.3f}')
+        status = "FAIL" if k <= input_diag.k_min_resistenza else "WARNING"
+        passaggi.append(
+            f"Distanza reale {d_eff:.1f} cm < {d_min:.1f} cm limite (STATUS: {status})."
+        )
+        passaggi.append(
+            f"Calcolo penalizzazione: limite_lineare = {d_eff:.1f}/{d_min:.1f} = {k_lineare:.3f} | k_min = {input_diag.k_min_resistenza:.3f}"
+        )
+        passaggi.append(f"Coefficiente di riduzione resistenza assunto = {k:.3f}")
 
     return RisultatoDiagnosticaAngolo(
         is_ok=is_ok,
         status=status,
         distanza_minima_richiesta_cm=d_min,
         coeff_riduzione_k=k,
-        passaggi_calcolo=passaggi
+        passaggi_calcolo=passaggi,
     )

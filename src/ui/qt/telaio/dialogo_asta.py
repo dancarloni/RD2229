@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 try:
+    from PyQt6.QtWidgets import QSpinBox  # noqa: F401
     from PyQt6.QtWidgets import (
         QComboBox,
         QDialog,
@@ -15,7 +16,6 @@ try:
         QLineEdit,
         QListWidget,
         QPushButton,
-        QSpinBox,  # noqa: F401
         QTabWidget,
         QVBoxLayout,
         QWidget,
@@ -50,10 +50,10 @@ from src.methods.rd2229.telaio.modello_telaio import (
 
 _DESCRIZIONI_RILASCIO = {
     TipoRilascioInterno.NODO_RIGIDO: "Nodo rigido   (k=4EI/L, c=0.50)",
-    TipoRilascioInterno.CERNIERA:    "Cerniera      (k=3EI/L, c=0.00)",
-    TipoRilascioInterno.MANICOTTO:   "Manicotto     (N=0, k=4EI/L, c=0.50)",
-    TipoRilascioInterno.PATTINO:     "Pattino       (k=EI/L, c=−1.00)",
-    TipoRilascioInterno.BIPENDOLO:   "Bipendolo     (k=3EI/L, c=0.00)",
+    TipoRilascioInterno.CERNIERA: "Cerniera      (k=3EI/L, c=0.00)",
+    TipoRilascioInterno.MANICOTTO: "Manicotto     (N=0, k=4EI/L, c=0.50)",
+    TipoRilascioInterno.PATTINO: "Pattino       (k=EI/L, c=−1.00)",
+    TipoRilascioInterno.BIPENDOLO: "Bipendolo     (k=3EI/L, c=0.00)",
 }
 
 
@@ -171,9 +171,7 @@ class DialogoAsta(QDialog):
         form_rilasci.addRow("Rilascio nodo j:", self._combo_rilascio_j)
 
         self._lbl_info_rilasci = QLabel()
-        self._lbl_info_rilasci.setStyleSheet(
-            "color: #555; font-style: italic; font-size: 10px;"
-        )
+        self._lbl_info_rilasci.setStyleSheet("color: #555; font-style: italic; font-size: 10px;")
         self._lbl_info_rilasci.setWordWrap(True)
         form_rilasci.addRow("Info:", self._lbl_info_rilasci)
 

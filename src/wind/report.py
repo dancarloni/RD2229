@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 # Serializzazione dataclass → dict
 # ===========================================================================
 
+
 def _profile_point_to_dict(p: WindProfilePoint) -> dict[str, Any]:
     return {
         "z_m": p.z_m,
@@ -100,6 +101,7 @@ def _combination_to_dict(c: WindCombination) -> dict[str, Any]:
 # Generazione report
 # ===========================================================================
 
+
 def wind_results_to_dict(
     results: WindResults,
     *,
@@ -148,9 +150,7 @@ def wind_results_to_dict(
 
     # Sezione 2: Profilo velocità/pressione
     if include_profile and results.velocity_profile:
-        report["velocity_profile"] = [
-            _profile_point_to_dict(p) for p in results.velocity_profile
-        ]
+        report["velocity_profile"] = [_profile_point_to_dict(p) for p in results.velocity_profile]
         # Pressione di picco alla sommità
         top = results.velocity_profile[-1]
         report["peak_pressure"] = {
@@ -161,38 +161,28 @@ def wind_results_to_dict(
 
     # Sezione 3: Pressioni per zone
     if results.pressure_zones:
-        report["pressure_zones"] = [
-            _pressure_zone_to_dict(pz) for pz in results.pressure_zones
-        ]
+        report["pressure_zones"] = [_pressure_zone_to_dict(pz) for pz in results.pressure_zones]
 
     # Sezione 4: Forze risultanti
     if results.resultant_forces:
-        report["resultant_forces"] = [
-            _zone_force_to_dict(f) for f in results.resultant_forces
-        ]
+        report["resultant_forces"] = [_zone_force_to_dict(f) for f in results.resultant_forces]
         # Riepilogo forze
-        from src.wind.resultant_forces import (
-            forces_to_calc_input,
-        )
+        from src.wind.resultant_forces import forces_to_calc_input
+
         friction_total = sum(fr.F_fr_kN for fr in results.friction_forces)
         report["force_summary"] = forces_to_calc_input(
-            results.resultant_forces, include_friction=friction_total,
+            results.resultant_forces,
+            include_friction=friction_total,
         )
 
     # Sezione 5: Attrito
     if results.friction_forces:
-        report["friction_forces"] = [
-            _friction_to_dict(fr) for fr in results.friction_forces
-        ]
-        report["friction_total_kN"] = round(
-            sum(fr.F_fr_kN for fr in results.friction_forces), 4
-        )
+        report["friction_forces"] = [_friction_to_dict(fr) for fr in results.friction_forces]
+        report["friction_total_kN"] = round(sum(fr.F_fr_kN for fr in results.friction_forces), 4)
 
     # Sezione 6: Combinazioni
     if include_combinations and results.combinations:
-        report["combinations"] = [
-            _combination_to_dict(c) for c in results.combinations
-        ]
+        report["combinations"] = [_combination_to_dict(c) for c in results.combinations]
 
     # Sezione 7: Avvisi
     if results.warnings:
@@ -241,17 +231,19 @@ def generate_summary_table(results: WindResults) -> list[dict[str, Any]]:
     for pz in results.pressure_zones:
         area = pz.area_m2 if pz.area_m2 > 0 else 0.0
         F = round(pz.net_kN_m2 * area, 3) if area > 0 else 0.0
-        rows.append({
-            "zone_id": pz.zone_id,
-            "description": pz.description,
-            "cpe": pz.cpe,
-            "cpi": pz.cpi,
-            "we_kN_m2": pz.we_kN_m2,
-            "wi_kN_m2": pz.wi_kN_m2,
-            "net_kN_m2": pz.net_kN_m2,
-            "area_m2": area,
-            "F_kN": F,
-        })
+        rows.append(
+            {
+                "zone_id": pz.zone_id,
+                "description": pz.description,
+                "cpe": pz.cpe,
+                "cpi": pz.cpi,
+                "we_kN_m2": pz.we_kN_m2,
+                "wi_kN_m2": pz.wi_kN_m2,
+                "net_kN_m2": pz.net_kN_m2,
+                "area_m2": area,
+                "F_kN": F,
+            }
+        )
     return rows
 
 

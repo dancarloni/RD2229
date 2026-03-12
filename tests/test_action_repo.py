@@ -154,7 +154,9 @@ class TestShearCheckSLU:
     def test_basic_pass(self):
         """Staffe ϕ8/20 2 bracci, taglio contenuto."""
         element = {
-            "b": 30.0, "h": 50.0, "d": 46.0,
+            "b": 30.0,
+            "h": 50.0,
+            "d": 46.0,
             "Tx": 5000.0,
             "staffe_diametro": 8.0,
             "staffe_num_bracci": 2.0,
@@ -166,7 +168,9 @@ class TestShearCheckSLU:
     def test_basic_fail(self):
         """Taglio molto alto."""
         element = {
-            "b": 30.0, "h": 50.0, "d": 46.0,
+            "b": 30.0,
+            "h": 50.0,
+            "d": 46.0,
             "Tx": 500000.0,
             "staffe_diametro": 8.0,
             "staffe_num_bracci": 2.0,
@@ -178,14 +182,16 @@ class TestShearCheckSLU:
     def test_v_rd_formula(self):
         """V_Rd,s = (A_sw/s) × 0.9 × d × f_yd × cot(θ)."""
         element = {
-            "b": 30.0, "h": 50.0, "d": 46.0,
+            "b": 30.0,
+            "h": 50.0,
+            "d": 46.0,
             "Tx": 5000.0,
             "staffe_diametro": 8.0,
             "staffe_num_bracci": 2.0,
             "staffe_passo": 20.0,
         }
         result = self.check.run(element, self.normative, {})
-        A_sw = 2 * math.pi * (0.8)**2 / 4.0
+        A_sw = 2 * math.pi * (0.8) ** 2 / 4.0
         V_Rd_s = (A_sw / 20.0) * 0.9 * 46.0 * 3904.0 * 2.5
         assert abs(result["partials"]["V_Rd_s_kg"] - round(V_Rd_s, 1)) < 1.0
 
@@ -224,16 +230,24 @@ class TestPressFlexureCheckSLU:
 
     def test_basic_pass(self):
         element = {
-            "b": 30.0, "h": 50.0, "d": 46.0,
-            "As": 6.28, "N": 5000.0, "Mx": 2000.0,
+            "b": 30.0,
+            "h": 50.0,
+            "d": 46.0,
+            "As": 6.28,
+            "N": 5000.0,
+            "Mx": 2000.0,
         }
         result = self.check.run(element, self.normative, {})
         assert result["ok"] is True
 
     def test_high_utilization(self):
         element = {
-            "b": 30.0, "h": 50.0, "d": 46.0,
-            "As": 6.28, "N": 500000.0, "Mx": 30000.0,
+            "b": 30.0,
+            "h": 50.0,
+            "d": 46.0,
+            "As": 6.28,
+            "N": 500000.0,
+            "Mx": 30000.0,
         }
         result = self.check.run(element, self.normative, {})
         assert result["ok"] is False
@@ -353,18 +367,26 @@ class TestSLECrackingCheck:
 
     def test_basic_pass(self):
         element = {
-            "width_cm": 30.0, "height_cm": 50.0, "d": 46.0,
-            "As": 6.28, "M_sle": 1000.0,
-            "cover_cm": 3.0, "diam_barre_mm": 14.0,
+            "width_cm": 30.0,
+            "height_cm": 50.0,
+            "d": 46.0,
+            "As": 6.28,
+            "M_sle": 1000.0,
+            "cover_cm": 3.0,
+            "diam_barre_mm": 14.0,
         }
         result = self.check.run(element, self.normative, {"w_lim_mm": 0.3})
         assert result["ok"] is True
 
     def test_high_moment_fails(self):
         element = {
-            "width_cm": 30.0, "height_cm": 50.0, "d": 46.0,
-            "As": 2.0, "M_sle": 5000.0,
-            "cover_cm": 3.0, "diam_barre_mm": 14.0,
+            "width_cm": 30.0,
+            "height_cm": 50.0,
+            "d": 46.0,
+            "As": 2.0,
+            "M_sle": 5000.0,
+            "cover_cm": 3.0,
+            "diam_barre_mm": 14.0,
         }
         result = self.check.run(element, self.normative, {"w_lim_mm": 0.3})
         # With very small As and high moment, cracking should fail
@@ -372,8 +394,11 @@ class TestSLECrackingCheck:
 
     def test_w_lim_from_settings(self):
         element = {
-            "width_cm": 30.0, "height_cm": 50.0, "d": 46.0,
-            "As": 6.28, "M_sle": 1000.0,
+            "width_cm": 30.0,
+            "height_cm": 50.0,
+            "d": 46.0,
+            "As": 6.28,
+            "M_sle": 1000.0,
         }
         result = self.check.run(element, self.normative, {"w_lim_mm": 0.4})
         assert result["partials"]["w_lim_mm"] == 0.4
@@ -387,10 +412,16 @@ class TestSLECrackingCheck:
 class TestOutputFormat:
     """Tutte le azioni devono restituire action_id, ok, messages, partials."""
 
-    @pytest.fixture(params=[
-        "flexure_check", "shear_check", "press_flexure_check",
-        "torsion_check", "sle_stress_check", "sle_cracking_check",
-    ])
+    @pytest.fixture(
+        params=[
+            "flexure_check",
+            "shear_check",
+            "press_flexure_check",
+            "torsion_check",
+            "sle_stress_check",
+            "sle_cracking_check",
+        ]
+    )
     def action_id(self, request):
         return request.param
 
@@ -401,8 +432,12 @@ class TestOutputFormat:
         normative = {
             "norm_code": "NTC2018",
             "material": {
-                "f_cd": 141.7, "f_yd": 3904.0, "f_ck": 254.9,
-                "f_yk": 4589.0, "E_cm": 300000.0, "E_s": 2100000.0,
+                "f_cd": 141.7,
+                "f_yd": 3904.0,
+                "f_ck": 254.9,
+                "f_yk": 4589.0,
+                "E_cm": 300000.0,
+                "E_s": 2100000.0,
                 "f_ctm": 25.0,
             },
         }

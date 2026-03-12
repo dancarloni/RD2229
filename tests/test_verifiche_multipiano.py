@@ -19,21 +19,32 @@ from src.methods.muratura.verifiche_multipiano import (
 #  Fixtures
 # ═══════════════════════════════════════════════════════════
 
+
 @pytest.fixture
 def materiale():
     return MaterialeMuratura(
-        nome="Mattoni pieni", f=32.0, tau_0=0.76,
-        E=15000, G=5000, gamma=0.0018,
-        gamma_M=2.0, FC=1.20,
+        nome="Mattoni pieni",
+        f=32.0,
+        tau_0=0.76,
+        E=15000,
+        G=5000,
+        gamma=0.0018,
+        gamma_M=2.0,
+        FC=1.20,
     )
 
 
 @pytest.fixture
 def maschio_base(materiale):
     return Maschio(
-        id_maschio=0, id_parete=1, id_piano=0,
-        L=100, t=30, h=300,
-        x_ini_locale=0, x_fin_locale=100,
+        id_maschio=0,
+        id_parete=1,
+        id_piano=0,
+        L=100,
+        t=30,
+        h=300,
+        x_ini_locale=0,
+        x_fin_locale=100,
         materiale=materiale,
     )
 
@@ -42,8 +53,8 @@ def maschio_base(materiale):
 #  Eccentricità
 # ═══════════════════════════════════════════════════════════
 
-class TestEccentricita:
 
+class TestEccentricita:
     def test_default(self):
         e = Eccentricita()
         assert e.e_totale == pytest.approx(0.0)
@@ -60,7 +71,6 @@ class TestEccentricita:
 
 
 class TestCalcolaEccentricita:
-
     def test_accidentale_minima_2cm(self, maschio_base):
         """NTC2018: e_a ≥ 2 cm."""
         ecc = calcola_eccentricita(maschio_base, rho=1.0)
@@ -98,12 +108,16 @@ class TestCalcolaEccentricita:
 #  RigaVerificaMaschio
 # ═══════════════════════════════════════════════════════════
 
-class TestRigaVerificaMaschio:
 
+class TestRigaVerificaMaschio:
     def test_to_dict(self):
         r = RigaVerificaMaschio(
-            id_maschio=1, id_piano=0, N_Ed=10000,
-            N_Rd=15000, DC=0.667, verificato=True,
+            id_maschio=1,
+            id_piano=0,
+            N_Ed=10000,
+            N_Rd=15000,
+            DC=0.667,
+            verificato=True,
         )
         d = r.to_dict()
         assert d["D/C"] == pytest.approx(0.667, abs=0.001)
@@ -114,8 +128,8 @@ class TestRigaVerificaMaschio:
 #  RigaVerificaPiano
 # ═══════════════════════════════════════════════════════════
 
-class TestRigaVerificaPiano:
 
+class TestRigaVerificaPiano:
     def test_to_dict(self):
         r = RigaVerificaPiano(id_piano=0, quota=0, n_maschi=3, DC_max=0.8)
         d = r.to_dict()
@@ -126,8 +140,8 @@ class TestRigaVerificaPiano:
 #  TabellaVerificheMultipiano
 # ═══════════════════════════════════════════════════════════
 
-class TestTabellaVerifiche:
 
+class TestTabellaVerifiche:
     def test_vuota(self):
         t = TabellaVerificheMultipiano()
         assert t.verificato is True
@@ -147,9 +161,17 @@ class TestTabellaVerifiche:
         t = TabellaVerificheMultipiano(
             righe_maschi=[
                 RigaVerificaMaschio(
-                    id_maschio=1, id_piano=0, L=100, t=30,
-                    N_Ed=10000, sigma_0=3.33, lam=10,
-                    phi=0.97, N_Rd=15000, DC=0.667, verificato=True,
+                    id_maschio=1,
+                    id_piano=0,
+                    L=100,
+                    t=30,
+                    N_Ed=10000,
+                    sigma_0=3.33,
+                    lam=10,
+                    phi=0.97,
+                    N_Rd=15000,
+                    DC=0.667,
+                    verificato=True,
                 ),
             ],
             righe_piani=[
@@ -167,12 +189,16 @@ class TestTabellaVerifiche:
 #  verifica_multipiano
 # ═══════════════════════════════════════════════════════════
 
-class TestVerificaMultipiano:
 
+class TestVerificaMultipiano:
     def test_singolo_piano_verificato(self, materiale):
         m = Maschio(
-            id_maschio=0, id_parete=1, id_piano=0,
-            L=100, t=30, h=300,
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=100,
+            t=30,
+            h=300,
             materiale=materiale,
         )
         cm = CaricoMaschio(
@@ -206,8 +232,12 @@ class TestVerificaMultipiano:
     def test_maschio_sovraccaricato(self, materiale):
         """Maschio piccolo con carico enorme → non verificato."""
         m = Maschio(
-            id_maschio=0, id_parete=1, id_piano=0,
-            L=30, t=15, h=300,  # maschio molto piccolo
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=30,
+            t=15,
+            h=300,  # maschio molto piccolo
             materiale=materiale,
         )
         cm = CaricoMaschio(
@@ -231,16 +261,24 @@ class TestVerificaMultipiano:
     def test_due_piani(self, materiale):
         """Due piani: piano basso ha D/C maggiore."""
         maschi = {
-            0: [Maschio(id_maschio=0, id_parete=1, id_piano=0,
-                        L=100, t=30, h=300, materiale=materiale)],
-            1: [Maschio(id_maschio=10, id_parete=1, id_piano=1,
-                        L=100, t=30, h=300, materiale=materiale)],
+            0: [
+                Maschio(
+                    id_maschio=0, id_parete=1, id_piano=0, L=100, t=30, h=300, materiale=materiale
+                )
+            ],
+            1: [
+                Maschio(
+                    id_maschio=10, id_parete=1, id_piano=1, L=100, t=30, h=300, materiale=materiale
+                )
+            ],
         }
         carichi = {
-            0: {0: CaricoMaschio(id_maschio=0, peso_proprio=1620,
-                                  N_solaio_G1=5000, N_superiore=8000)},
-            1: {10: CaricoMaschio(id_maschio=10, peso_proprio=1620,
-                                   N_solaio_G1=5000)},
+            0: {
+                0: CaricoMaschio(
+                    id_maschio=0, peso_proprio=1620, N_solaio_G1=5000, N_superiore=8000
+                )
+            },
+            1: {10: CaricoMaschio(id_maschio=10, peso_proprio=1620, N_solaio_G1=5000)},
         }
         g = GestoreCombinazioni()
         ris = verifica_multipiano(
@@ -258,8 +296,12 @@ class TestVerificaMultipiano:
     def test_snellezza_fuori_limite(self, materiale):
         """Maschio snello (λ > 20) → non verificato."""
         m = Maschio(
-            id_maschio=0, id_parete=1, id_piano=0,
-            L=100, t=12, h=300,  # λ = 300/12 = 25 > 20
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=100,
+            t=12,
+            h=300,  # λ = 300/12 = 25 > 20
             materiale=materiale,
         )
         cm = CaricoMaschio(id_maschio=0, peso_proprio=500, N_solaio_G1=1000)
@@ -278,8 +320,12 @@ class TestVerificaMultipiano:
     def test_eccentricita_vento(self, materiale):
         """Momento fuori piano → eccentricità aumenta e/t → Φ ridotto."""
         m = Maschio(
-            id_maschio=0, id_parete=1, id_piano=0,
-            L=100, t=30, h=300,
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=100,
+            t=30,
+            h=300,
             materiale=materiale,
         )
         cm = CaricoMaschio(id_maschio=0, peso_proprio=1620, N_solaio_G1=5000)
@@ -308,8 +354,7 @@ class TestVerificaMultipiano:
         assert ris_si.righe_maschi[0].phi <= ris_no.righe_maschi[0].phi
 
     def test_passaggi_non_vuoti(self, materiale):
-        m = Maschio(id_maschio=0, id_parete=1, id_piano=0,
-                    L=100, t=30, h=300, materiale=materiale)
+        m = Maschio(id_maschio=0, id_parete=1, id_piano=0, L=100, t=30, h=300, materiale=materiale)
         cm = CaricoMaschio(id_maschio=0, peso_proprio=1000)
         g = GestoreCombinazioni()
         ris = verifica_multipiano(
@@ -323,9 +368,16 @@ class TestVerificaMultipiano:
 
     def test_senza_carichi(self, materiale):
         """Maschio senza carichi → usa N_gravitazionale."""
-        m = Maschio(id_maschio=0, id_parete=1, id_piano=0,
-                    L=100, t=30, h=300, materiale=materiale,
-                    N_gravitazionale=5000)
+        m = Maschio(
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=100,
+            t=30,
+            h=300,
+            materiale=materiale,
+            N_gravitazionale=5000,
+        )
         g = GestoreCombinazioni()
         ris = verifica_multipiano(
             maschi_per_piano={0: [m]},
@@ -337,8 +389,7 @@ class TestVerificaMultipiano:
         assert ris.righe_maschi[0].N_Ed > 0
 
     def test_to_dict(self, materiale):
-        m = Maschio(id_maschio=0, id_parete=1, id_piano=0,
-                    L=100, t=30, h=300, materiale=materiale)
+        m = Maschio(id_maschio=0, id_parete=1, id_piano=0, L=100, t=30, h=300, materiale=materiale)
         cm = CaricoMaschio(id_maschio=0, peso_proprio=1000)
         g = GestoreCombinazioni()
         ris = verifica_multipiano(

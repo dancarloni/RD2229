@@ -35,8 +35,10 @@ from src.codes.ntc2018.spectrum import (
 # Fixture: HazardRow Roma di riferimento
 # ---------------------------------------------------------------------------
 
+
 class _FakeHazardRow:
     """Sostituto di Ntc2018HazardRow per i test (evita dipendenza da EdiLus-MS)."""
+
     def __init__(self, ag_g, f0, tc_star_s, limit_state_label="SLV", tr_years=475):
         self.ag_g = ag_g
         self.f0 = f0
@@ -53,15 +55,16 @@ _ROW_ROMA = _FakeHazardRow(ag_g=_AG, f0=_F0, tc_star_s=_TC_STAR)
 
 # Valori attesi Roma cat B / T1
 _SS_ROMA_B = 1.0 + 0.40 * (_F0 * _AG - 0.22)  # 1.07315
-_CC_ROMA_B = 1.1 * (_TC_STAR ** -0.20)          # 1.37554
-_TC_ROMA = _CC_ROMA_B * _TC_STAR                # 0.44980 s
-_TB_ROMA = _TC_ROMA / 3.0                       # 0.14993 s
-_TD_ROMA = 4.0 * _AG + 1.6                      # 2.272 s
+_CC_ROMA_B = 1.1 * (_TC_STAR**-0.20)  # 1.37554
+_TC_ROMA = _CC_ROMA_B * _TC_STAR  # 0.44980 s
+_TB_ROMA = _TC_ROMA / 3.0  # 0.14993 s
+_TD_ROMA = 4.0 * _AG + 1.6  # 2.272 s
 
 
 # ---------------------------------------------------------------------------
 # TestCalcolaVR
 # ---------------------------------------------------------------------------
+
 
 class TestCalcolaVR:
     def test_classe_ii_vn50(self):
@@ -85,6 +88,7 @@ class TestCalcolaVR:
 # ---------------------------------------------------------------------------
 # TestCalcolaSS
 # ---------------------------------------------------------------------------
+
 
 class TestCalcolaSS:
     def test_categoria_A(self):
@@ -120,6 +124,7 @@ class TestCalcolaSS:
 # TestCalcolaST
 # ---------------------------------------------------------------------------
 
+
 class TestCalcolaST:
     def test_T1(self):
         assert calcola_ST(CategoriaTopografica.T1) == pytest.approx(1.0)
@@ -138,6 +143,7 @@ class TestCalcolaST:
 # TestCalcolaCC
 # ---------------------------------------------------------------------------
 
+
 class TestCalcolaCC:
     def test_categoria_A(self):
         assert calcola_CC(CategoriaSuolo.A, 0.327) == pytest.approx(1.0, rel=1e-6)
@@ -148,18 +154,19 @@ class TestCalcolaCC:
 
     def test_categoria_C(self):
         # CC = 1.05 * 0.327^(-0.33)
-        cc = 1.05 * (0.327 ** -0.33)
+        cc = 1.05 * (0.327**-0.33)
         assert calcola_CC(CategoriaSuolo.C, 0.327) == pytest.approx(cc, rel=1e-3)
 
     def test_categoria_D(self):
         # CC = 1.25 * 0.327^(-0.50) = 1.25 / sqrt(0.327)
         import math
+
         cc = 1.25 / math.sqrt(0.327)
         assert calcola_CC(CategoriaSuolo.D, 0.327) == pytest.approx(cc, rel=1e-3)
 
     def test_categoria_E(self):
         # CC = 1.15 * 0.327^(-0.40)
-        cc = 1.15 * (0.327 ** -0.40)
+        cc = 1.15 * (0.327**-0.40)
         assert calcola_CC(CategoriaSuolo.E, 0.327) == pytest.approx(cc, rel=1e-3)
 
     def test_tc_star_zero_raises(self):
@@ -170,6 +177,7 @@ class TestCalcolaCC:
 # ---------------------------------------------------------------------------
 # TestCalcolaPeriodi
 # ---------------------------------------------------------------------------
+
 
 class TestCalcolaPeriodi:
     def test_TB_TC_TD_roma(self):
@@ -191,6 +199,7 @@ class TestCalcolaPeriodi:
 # TestCalcolaAlphaS
 # ---------------------------------------------------------------------------
 
+
 class TestCalcolaAlphaS:
     def test_roma_cat_B_T1(self):
         alpha = calcola_alpha_S(_AG, _SS_ROMA_B, 1.0)
@@ -209,13 +218,20 @@ class TestCalcolaAlphaS:
 # TestSpettroElastico
 # ---------------------------------------------------------------------------
 
+
 class TestSpettroElastico:
     """Test spettro elastico con parametri Roma cat B / T1 (xi=5%)."""
 
     def _params(self):
         return dict(
-            ag_g=_AG, F0=_F0, SS=_SS_ROMA_B, ST=1.0,
-            TB=_TB_ROMA, TC=_TC_ROMA, TD=_TD_ROMA, xi=5.0,
+            ag_g=_AG,
+            F0=_F0,
+            SS=_SS_ROMA_B,
+            ST=1.0,
+            TB=_TB_ROMA,
+            TC=_TC_ROMA,
+            TD=_TD_ROMA,
+            xi=5.0,
         )
 
     def test_T0_uguale_ag_S(self):
@@ -257,19 +273,27 @@ class TestSpettroElastico:
         p = self._params()
         T = 3.0
         Se_plateau = _AG * 9.81 * _SS_ROMA_B * _F0
-        expected = Se_plateau * (_TC_ROMA * _TD_ROMA / T ** 2)
+        expected = Se_plateau * (_TC_ROMA * _TD_ROMA / T**2)
         Se = spettro_elastico(**p, T=T)
         assert Se == pytest.approx(expected, rel=1e-3)
 
     def test_eta_smorzamento_diverso(self):
         # xi=10%: eta = sqrt(10/(5+10)) = sqrt(0.667) = 0.8165 (>= 0.55)
         import math
+
         xi = 10.0
         eta = math.sqrt(10.0 / (5.0 + xi))
         T = (_TB_ROMA + _TC_ROMA) / 2.0
         Se = spettro_elastico(
-            ag_g=_AG, F0=_F0, SS=_SS_ROMA_B, ST=1.0,
-            TB=_TB_ROMA, TC=_TC_ROMA, TD=_TD_ROMA, xi=xi, T=T
+            ag_g=_AG,
+            F0=_F0,
+            SS=_SS_ROMA_B,
+            ST=1.0,
+            TB=_TB_ROMA,
+            TC=_TC_ROMA,
+            TD=_TD_ROMA,
+            xi=xi,
+            T=T,
         )
         expected = _AG * 9.81 * _SS_ROMA_B * eta * _F0
         assert Se == pytest.approx(expected, rel=1e-3)
@@ -283,6 +307,7 @@ class TestSpettroElastico:
 # ---------------------------------------------------------------------------
 # TestSpettroProgetto
 # ---------------------------------------------------------------------------
+
 
 class TestSpettroProgetto:
     def test_sd_uguale_se_diviso_q(self):
@@ -302,10 +327,12 @@ class TestSpettroProgetto:
 # TestCalcolaS_d_T1
 # ---------------------------------------------------------------------------
 
+
 class TestCalcolaS_d_T1:
     def test_valore_Roma_T1_0_5s(self):
         # T_1=0.5s in ramo discendente (TC < 0.5 < TD)
         import math
+
         TB, TC, TD = calcola_periodi(_TC_STAR, _CC_ROMA_B, _AG)
         T_1 = 0.5
         Sd = spettro_progetto(_AG, _F0, _SS_ROMA_B, 1.0, TB, TC, TD, 2.0, T_1)
@@ -323,11 +350,23 @@ class TestCalcolaS_d_T1:
 # TestSpettroDaHazardRow
 # ---------------------------------------------------------------------------
 
+
 class TestSpettroDaHazardRow:
     def test_chiavi_output_presenti(self):
         result = spettro_da_hazard_row(_ROW_ROMA, CategoriaSuolo.B, CategoriaTopografica.T1)
-        for chiave in ("SS", "ST", "S", "CC", "TB", "TC", "TD", "alpha_S",
-                       "Se_func", "Sd_func", "decision_log"):
+        for chiave in (
+            "SS",
+            "ST",
+            "S",
+            "CC",
+            "TB",
+            "TC",
+            "TD",
+            "alpha_S",
+            "Se_func",
+            "Sd_func",
+            "decision_log",
+        ):
             assert chiave in result
 
     def test_valori_Roma_cat_B_T1(self):
@@ -359,6 +398,7 @@ class TestSpettroDaHazardRow:
 # TestIntegrazione — spectral_acceleration_floor_from_site
 # ---------------------------------------------------------------------------
 
+
 class TestSpectralAccelerationFloorFromSite:
     """Verifica integrazione spectrum.py con ta_models.py."""
 
@@ -367,15 +407,22 @@ class TestSpectralAccelerationFloorFromSite:
             spectral_acceleration_floor,
             spectral_acceleration_floor_from_site,
         )
+
         SS = calcola_SS(_AG, _F0, CategoriaSuolo.B)
         ST = calcola_ST(CategoriaTopografica.T1)
         alpha_S = calcola_alpha_S(_AG, SS, ST)
 
         S_a_manuale = spectral_acceleration_floor(5.0, 10.0, 0.2, 0.5, alpha_S)
         S_a_sito = spectral_acceleration_floor_from_site(
-            5.0, 10.0, 0.2, 0.5,
-            _AG, _F0, _TC_STAR,
-            CategoriaSuolo.B, CategoriaTopografica.T1,
+            5.0,
+            10.0,
+            0.2,
+            0.5,
+            _AG,
+            _F0,
+            _TC_STAR,
+            CategoriaSuolo.B,
+            CategoriaTopografica.T1,
         )
         assert S_a_sito == pytest.approx(S_a_manuale, rel=1e-6)
 
@@ -384,11 +431,13 @@ class TestSpectralAccelerationFloorFromSite:
 # TestIntegrazione — check_slu con parametri sito
 # ---------------------------------------------------------------------------
 
+
 class TestCheckSluDaSito:
     """Verifica integrazione spectrum.py con checks.py."""
 
     def test_S_a_calcolata_internamente(self):
         from src.codes.ntc2018.secondary_elements.checks import check_slu
+
         inputs_sito = {
             "W_a": 5.0,
             "ag_g": _AG,
@@ -412,6 +461,7 @@ class TestCheckSluDaSito:
 
     def test_S_a_esplicita_non_modificata(self):
         from src.codes.ntc2018.secondary_elements.checks import check_slu
+
         inputs_diretti = {"W_a": 5.0, "S_a": 0.5, "gamma_a": 1.0, "q_a": 2.0}
         result = check_slu(inputs_diretti)
         # F_a = 0.5 * 5.0 * 1.0 / 2.0 = 1.25
@@ -422,13 +472,17 @@ class TestCheckSluDaSito:
 # TestIntegrazione — parametri_sismici_da_sito
 # ---------------------------------------------------------------------------
 
+
 class TestParametriSismiciDaSito:
     """Verifica integrazione spectrum.py con cinematica.py."""
 
     def test_S_calcolato_da_sito(self):
         from src.methods.muratura.cinematica import parametri_sismici_da_sito
+
         sismici = parametri_sismici_da_sito(
-            ag_g=_AG, F0=_F0, TC_star=_TC_STAR,
+            ag_g=_AG,
+            F0=_F0,
+            TC_star=_TC_STAR,
             cat_suolo=CategoriaSuolo.B,
             cat_topografica=CategoriaTopografica.T1,
         )
@@ -439,8 +493,11 @@ class TestParametriSismiciDaSito:
 
     def test_defaults(self):
         from src.methods.muratura.cinematica import parametri_sismici_da_sito
+
         sismici = parametri_sismici_da_sito(
-            ag_g=0.1, F0=2.4, TC_star=0.3,
+            ag_g=0.1,
+            F0=2.4,
+            TC_star=0.3,
             cat_suolo=CategoriaSuolo.A,
             cat_topografica=CategoriaTopografica.T1,
         )

@@ -6,7 +6,6 @@ verticale, flessione orizzontale) + cinematica lineare/non lineare.
 Riferimenti: NTC2018 §C8A.4, Circolare n.7/2019.
 """
 
-
 import pytest
 
 from src.methods.muratura.cinematica import (
@@ -25,6 +24,7 @@ from src.methods.muratura.cinematica import (
 
 # ═══════════════════ Fixture ═══════════════════
 
+
 @pytest.fixture
 def parete_tipo():
     """Parete tipica: h=300cm, t=30cm, L=400cm, γ=0.0018 kg/cm³."""
@@ -35,7 +35,10 @@ def parete_tipo():
 def parete_con_carico():
     """Parete con sovraccarico in sommità."""
     return PareteMuraria(
-        h=300, t=30, L=400, gamma=0.0018,
+        h=300,
+        t=30,
+        L=400,
+        gamma=0.0018,
         N_sommita=500,  # kg/m lineare
     )
 
@@ -44,8 +47,12 @@ def parete_con_carico():
 def parete_in_quota():
     """Parete in quota (piano intermedio)."""
     return PareteMuraria(
-        h=300, t=30, L=400, gamma=0.0018,
-        Z=300, H_edificio=900,
+        h=300,
+        t=30,
+        L=400,
+        gamma=0.0018,
+        Z=300,
+        H_edificio=900,
     )
 
 
@@ -63,6 +70,7 @@ def sismica_alta():
 
 # ═══════════════════ PareteMuraria ═══════════════════
 
+
 class TestPareteMuraria:
     def test_peso_proprio(self, parete_tipo):
         W = 300 * 30 * 400 * 0.0018
@@ -79,6 +87,7 @@ class TestPareteMuraria:
 
 # ═══════════════════ Enums ═══════════════════
 
+
 class TestEnums:
     def test_tipo_meccanismo_values(self):
         assert TipoMeccanismo.RIBALTAMENTO_SEMPLICE.value == "ribaltamento_semplice"
@@ -90,6 +99,7 @@ class TestEnums:
 
 
 # ═══════════════════ Ribaltamento Semplice ═══════════════════
+
 
 class TestRibaltamentoSemplice:
     def test_alpha_0_calcolo_manuale(self, parete_tipo, sismica_base):
@@ -164,6 +174,7 @@ class TestRibaltamentoSemplice:
 
 # ═══════════════════ Cinematica Lineare ═══════════════════
 
+
 class TestCinematicaLineare:
     def test_a_terra_verifica(self, parete_tipo):
         """Parete a terra con sismica bassa → verificata."""
@@ -214,6 +225,7 @@ class TestCinematicaLineare:
 
 # ═══════════════════ Cinematica Non Lineare ═══════════════════
 
+
 class TestCinematicaNonLineare:
     def test_d_0_star_proporzionale_t(self, sismica_base):
         """d₀* ∝ t (spessore parete)."""
@@ -245,6 +257,7 @@ class TestCinematicaNonLineare:
 
 
 # ═══════════════════ Ribaltamento Composto ═══════════════════
+
 
 class TestRibaltamentoComposto:
     def test_alpha_0_con_cuneo(self, parete_tipo, sismica_base):
@@ -285,6 +298,7 @@ class TestRibaltamentoComposto:
 
 # ═══════════════════ Flessione Verticale ═══════════════════
 
+
 class TestFlessioneVerticale:
     def test_cerniera_default_meta(self, parete_tipo, sismica_base):
         """Cerniera default a h/2."""
@@ -310,7 +324,7 @@ class TestFlessioneVerticale:
     def test_catena_sopra_cerniera(self, parete_tipo, sismica_base):
         """Solo catene sopra la cerniera contribuiscono."""
         cat_sopra = ForzaCatena(F=1000, h_applicazione=250)  # sopra h/2=150
-        cat_sotto = ForzaCatena(F=1000, h_applicazione=50)   # sotto h/2=150
+        cat_sotto = ForzaCatena(F=1000, h_applicazione=50)  # sotto h/2=150
 
         r_sopra = flessione_verticale(parete_tipo, sismica=sismica_base, catene=[cat_sopra])
         r_sotto = flessione_verticale(parete_tipo, sismica=sismica_base, catene=[cat_sotto])
@@ -329,6 +343,7 @@ class TestFlessioneVerticale:
 
 
 # ═══════════════════ Flessione Orizzontale ═══════════════════
+
 
 class TestFlessioneOrizzontale:
     def test_alpha_arco(self, parete_tipo, sismica_base):
@@ -367,11 +382,14 @@ class TestFlessioneOrizzontale:
 
 # ═══════════════════ Analisi Completa ═══════════════════
 
+
 class TestAnalisiMeccanismiLocali:
     def test_tutti_meccanismi(self, parete_tipo, sismica_base):
         """Con cuneo → 4 meccanismi."""
         risultati = analisi_meccanismi_locali(
-            parete_tipo, sismica_base, cuneo_h=100,
+            parete_tipo,
+            sismica_base,
+            cuneo_h=100,
         )
         assert len(risultati) == 4
         meccanismi = {r.meccanismo for r in risultati}
@@ -388,7 +406,9 @@ class TestAnalisiMeccanismiLocali:
     def test_ordinati_per_alpha(self, parete_tipo, sismica_base):
         """Risultati ordinati per α₀ crescente (primo = più critico)."""
         risultati = analisi_meccanismi_locali(
-            parete_tipo, sismica_base, cuneo_h=100,
+            parete_tipo,
+            sismica_base,
+            cuneo_h=100,
         )
         alphas = [r.alpha_0 for r in risultati]
         assert alphas == sorted(alphas)
@@ -396,7 +416,9 @@ class TestAnalisiMeccanismiLocali:
     def test_primo_piu_critico(self, parete_tipo, sismica_base):
         """Il primo risultato ha α₀ più basso."""
         risultati = analisi_meccanismi_locali(
-            parete_tipo, sismica_base, cuneo_h=100,
+            parete_tipo,
+            sismica_base,
+            cuneo_h=100,
         )
         assert risultati[0].alpha_0 <= risultati[-1].alpha_0
 
@@ -414,6 +436,7 @@ class TestAnalisiMeccanismiLocali:
 
 
 # ═══════════════════ Casi Limite ═══════════════════
+
 
 class TestCasiLimite:
     def test_parete_molto_spessa(self, sismica_base):

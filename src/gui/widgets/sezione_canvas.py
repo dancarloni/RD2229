@@ -21,10 +21,12 @@ try:
 
     try:
         from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QWidget
+
         _QT_AVAILABLE = True
     except ImportError:
         try:
             from PyQt6.QtWidgets import QSizePolicy, QVBoxLayout, QWidget
+
             _QT_AVAILABLE = True
         except ImportError:
             _QT_AVAILABLE = False
@@ -86,12 +88,14 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             """
             self._fig.clear()
             try:
-                from src.codes.section_params.disegno_sezione import (
-                    crea_figura_sezione_sle,
-                )
+                from src.codes.section_params.disegno_sezione import crea_figura_sezione_sle
+
                 fig_new = crea_figura_sezione_sle(
-                    section, barre, dati_sle,
-                    norma=norma, titolo=titolo,
+                    section,
+                    barre,
+                    dati_sle,
+                    norma=norma,
+                    titolo=titolo,
                     figsize=self._fig.get_size_inches().tolist(),
                 )
                 # Copia gli axes nella figura interna
@@ -101,15 +105,19 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
                     self._fig.axes.append(ax)
                     self._fig.add_axes(ax)
                 import matplotlib.pyplot as plt
+
                 plt.close(fig_new)
             except Exception as exc:
                 ax = self._fig.add_subplot(111)
                 ax.text(
-                    0.5, 0.5,
+                    0.5,
+                    0.5,
                     f"Errore disegno sezione:\n{exc}",
                     transform=ax.transAxes,
-                    ha="center", va="center",
-                    color="red", fontsize=10,
+                    ha="center",
+                    va="center",
+                    color="red",
+                    fontsize=10,
                 )
 
             self._canvas.draw()

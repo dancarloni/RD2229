@@ -24,6 +24,7 @@ from src.methods.muratura.fattore_comportamento import (
 #  Tabella α_u/α_1
 # ═══════════════════════════════════════════════════════════
 
+
 class TestTabellaAlpha:
     """Test sui valori tabulati α_u/α_1."""
 
@@ -49,6 +50,7 @@ class TestTabellaAlpha:
 # ═══════════════════════════════════════════════════════════
 #  Calcolo q — muratura ordinaria
 # ═══════════════════════════════════════════════════════════
+
 
 class TestQOrdinaria:
     """Test calcolo q per muratura ordinaria."""
@@ -106,6 +108,7 @@ class TestQOrdinaria:
 #  Calcolo q — muratura armata
 # ═══════════════════════════════════════════════════════════
 
+
 class TestQArmata:
     """Test calcolo q per muratura armata."""
 
@@ -134,6 +137,7 @@ class TestQArmata:
 # ═══════════════════════════════════════════════════════════
 #  Irregolarità
 # ═══════════════════════════════════════════════════════════
+
 
 class TestIrregolarita:
     """Test effetto irregolarità su q."""
@@ -181,6 +185,7 @@ class TestIrregolarita:
 #  Override
 # ═══════════════════════════════════════════════════════════
 
+
 class TestOverride:
     """Test override manuali."""
 
@@ -212,6 +217,7 @@ class TestOverride:
 # ═══════════════════════════════════════════════════════════
 #  Proprietà risultato
 # ═══════════════════════════════════════════════════════════
+
 
 class TestRisultatoQ:
     """Test proprietà del risultato."""

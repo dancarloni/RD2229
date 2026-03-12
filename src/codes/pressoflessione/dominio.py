@@ -85,8 +85,12 @@ def calcola_dominio_3d(
     props = calcola_omogenizzata_biassiale(spec.section, spec.barre, spec.n)
     if props.get("esito") != "OK":
         return DominioNMy(
-            N_levels_kg=[], theta_rad=[], Mx_Rd_kgcm=[], My_Rd_kgcm=[],
-            metodo="TA_ELASTICO", norma=spec.norma,
+            N_levels_kg=[],
+            theta_rad=[],
+            Mx_Rd_kgcm=[],
+            My_Rd_kgcm=[],
+            metodo="TA_ELASTICO",
+            norma=spec.norma,
         )
 
     A_om = props["A_om_cm2"]
@@ -132,6 +136,7 @@ def calcola_dominio_3d(
 # ---------------------------------------------------------------------------
 # Visualizzazione matplotlib
 # ---------------------------------------------------------------------------
+
 
 def disegna_dominio_3d(dominio: DominioNMy, **kwargs: Any) -> Any:
     """Surface plot 3D N-Mx-My con mplot3d.
@@ -250,14 +255,10 @@ def disegna_dominio_2d_nm(
     Mx_arr = np.array(dominio.Mx_Rd_kgcm)
     My_arr = np.array(dominio.My_Rd_kgcm)
 
-    M_vals = [
-        math.sqrt(Mx_arr[i, j] ** 2 + My_arr[i, j] ** 2)
-        for i in range(len(N_vals))
-    ]
+    M_vals = [math.sqrt(Mx_arr[i, j] ** 2 + My_arr[i, j] ** 2) for i in range(len(N_vals))]
 
     fig, ax = plt.subplots(figsize=kwargs.pop("figsize", (8, 6)))
-    ax.plot(M_vals, N_vals, "r-", linewidth=1.5,
-            label=f"theta = {math.degrees(theta_val):.0f} deg")
+    ax.plot(M_vals, N_vals, "r-", linewidth=1.5, label=f"theta = {math.degrees(theta_val):.0f} deg")
     ax.fill_betweenx(N_vals, 0, M_vals, alpha=0.15, color="red")
     ax.set_xlabel("M [kg·cm]")
     ax.set_ylabel("N [kg]")

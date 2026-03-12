@@ -23,12 +23,13 @@ from .sagomario import ProfiloAcciaio
 
 class TipoAcciaio(str, Enum):
     """Tipo di acciaio strutturale."""
-    Fe360 = "Fe360"    # fyk = 2350 kg/cm², sigma_adm = 1600 kg/cm²
-    Fe430 = "Fe430"    # fyk = 2750 kg/cm², sigma_adm = 1900 kg/cm²
-    Fe510 = "Fe510"    # fyk = 3550 kg/cm², sigma_adm = 2400 kg/cm²
-    S235 = "S235"      # equivalente Fe360
-    S275 = "S275"      # equivalente Fe430
-    S355 = "S355"      # equivalente Fe510
+
+    Fe360 = "Fe360"  # fyk = 2350 kg/cm², sigma_adm = 1600 kg/cm²
+    Fe430 = "Fe430"  # fyk = 2750 kg/cm², sigma_adm = 1900 kg/cm²
+    Fe510 = "Fe510"  # fyk = 3550 kg/cm², sigma_adm = 2400 kg/cm²
+    S235 = "S235"  # equivalente Fe360
+    S275 = "S275"  # equivalente Fe430
+    S355 = "S355"  # equivalente Fe510
 
 
 # Tensioni ammissibili TA per tipo acciaio [kg/cm²]
@@ -46,14 +47,14 @@ FYK_ACCIAIO: dict[str, float] = {
     "Fe360": 2350.0,
     "Fe430": 2750.0,
     "Fe510": 3550.0,
-    "S235": 2395.0,   # 235 MPa
-    "S275": 2804.0,   # 275 MPa
-    "S355": 3620.0,   # 355 MPa
+    "S235": 2395.0,  # 235 MPa
+    "S275": 2804.0,  # 275 MPa
+    "S355": 3620.0,  # 355 MPa
 }
 
 # Modulo elastico acciaio strutturale
 E_ACCIAIO = 2100000.0  # kg/cm²
-G_ACCIAIO = 810000.0   # kg/cm²
+G_ACCIAIO = 810000.0  # kg/cm²
 
 # Coefficiente di sicurezza per instabilità
 OMEGA_1_BASE = 1.0  # fattore di sicurezza base
@@ -61,11 +62,12 @@ OMEGA_1_BASE = 1.0  # fattore di sicurezza base
 
 class VincoloEstremita(str, Enum):
     """Vincoli alle estremità dell'asta per calcolo lunghezza libera."""
-    INCASTRO_INCASTRO = "incastro-incastro"        # beta = 0.5
-    INCASTRO_CERNIERA = "incastro-cerniera"        # beta = 0.7
-    CERNIERA_CERNIERA = "cerniera-cerniera"        # beta = 1.0
-    INCASTRO_LIBERO = "incastro-libero"            # beta = 2.0
-    INCASTRO_CARR_TRASL = "incastro-carr_trasl"    # beta = 1.0
+
+    INCASTRO_INCASTRO = "incastro-incastro"  # beta = 0.5
+    INCASTRO_CERNIERA = "incastro-cerniera"  # beta = 0.7
+    CERNIERA_CERNIERA = "cerniera-cerniera"  # beta = 1.0
+    INCASTRO_LIBERO = "incastro-libero"  # beta = 2.0
+    INCASTRO_CARR_TRASL = "incastro-carr_trasl"  # beta = 1.0
 
 
 BETA_VINCOLI: dict[str, float] = {
@@ -80,19 +82,20 @@ BETA_VINCOLI: dict[str, float] = {
 @dataclass
 class InputVerificaAcciaio:
     """Dati di input per verifica profilo acciaio TA."""
+
     profilo: ProfiloAcciaio
     tipo_acciaio: str = "Fe430"
 
     # Sollecitazioni
-    N: float = 0.0               # sforzo assiale [kg] (positivo = trazione)
-    Mx: float = 0.0              # momento flettente asse forte [kg·cm]
-    My: float = 0.0              # momento flettente asse debole [kg·cm]
-    Vx: float = 0.0              # taglio asse x [kg]
-    Vy: float = 0.0              # taglio asse y [kg]
-    Mt: float = 0.0              # momento torcente [kg·cm]
+    N: float = 0.0  # sforzo assiale [kg] (positivo = trazione)
+    Mx: float = 0.0  # momento flettente asse forte [kg·cm]
+    My: float = 0.0  # momento flettente asse debole [kg·cm]
+    Vx: float = 0.0  # taglio asse x [kg]
+    Vy: float = 0.0  # taglio asse y [kg]
+    Mt: float = 0.0  # momento torcente [kg·cm]
 
     # Per instabilità
-    L: float = 0.0               # lunghezza asta [cm]
+    L: float = 0.0  # lunghezza asta [cm]
     vincolo: str = "cerniera-cerniera"
     beta_x: float | None = None  # coefficiente lunghezza libera (se diverso da vincolo)
     beta_y: float | None = None
@@ -105,28 +108,29 @@ class InputVerificaAcciaio:
 @dataclass
 class RisultatoVerificaAcciaio:
     """Risultato verifica profilo acciaio TA."""
+
     nome_profilo: str
     tipo_acciaio: str
 
     # Tensioni ammissibili
-    sigma_adm: float             # [kg/cm²]
-    tau_adm: float               # [kg/cm²]
+    sigma_adm: float  # [kg/cm²]
+    tau_adm: float  # [kg/cm²]
 
     # Tensioni calcolate
-    sigma_N: float = 0.0         # σ da sforzo normale [kg/cm²]
-    sigma_Mx: float = 0.0        # σ da momento Mx [kg/cm²]
-    sigma_My: float = 0.0        # σ da momento My [kg/cm²]
-    sigma_id: float = 0.0        # σ ideale (combinata) [kg/cm²]
-    tau_Vy: float = 0.0          # τ da taglio Vy [kg/cm²]
-    tau_Vx: float = 0.0          # τ da taglio Vx [kg/cm²]
-    tau_Mt: float = 0.0          # τ da torsione [kg/cm²]
-    tau_max: float = 0.0         # τ massimo [kg/cm²]
+    sigma_N: float = 0.0  # σ da sforzo normale [kg/cm²]
+    sigma_Mx: float = 0.0  # σ da momento Mx [kg/cm²]
+    sigma_My: float = 0.0  # σ da momento My [kg/cm²]
+    sigma_id: float = 0.0  # σ ideale (combinata) [kg/cm²]
+    tau_Vy: float = 0.0  # τ da taglio Vy [kg/cm²]
+    tau_Vx: float = 0.0  # τ da taglio Vx [kg/cm²]
+    tau_Mt: float = 0.0  # τ da torsione [kg/cm²]
+    tau_max: float = 0.0  # τ massimo [kg/cm²]
 
     # Instabilità
-    lambda_x: float = 0.0        # snellezza asse forte
-    lambda_y: float = 0.0        # snellezza asse debole
-    omega: float = 1.0           # coefficiente ω per carico di punta
-    sigma_N_omega: float = 0.0   # σ amplificata = ω·N/A [kg/cm²]
+    lambda_x: float = 0.0  # snellezza asse forte
+    lambda_y: float = 0.0  # snellezza asse debole
+    omega: float = 1.0  # coefficiente ω per carico di punta
+    sigma_N_omega: float = 0.0  # σ amplificata = ω·N/A [kg/cm²]
 
     # Verifiche (True = verificato)
     verifica_flessione: bool = False
@@ -136,8 +140,8 @@ class RisultatoVerificaAcciaio:
     verifica_globale: bool = False
 
     # Sfruttamento
-    sfruttamento_sigma: float = 0.0   # σ_id / σ_adm
-    sfruttamento_tau: float = 0.0     # τ_max / τ_adm
+    sfruttamento_sigma: float = 0.0  # σ_id / σ_adm
+    sfruttamento_tau: float = 0.0  # τ_max / τ_adm
 
     passaggi: list[str] = field(default_factory=list)
 
@@ -256,11 +260,15 @@ def verifica_profilo_ta(inp: InputVerificaAcciaio) -> RisultatoVerificaAcciaio:
     # --- 2. Tensione da flessione ---
     if abs(inp.Mx) > 0 and p.Wx > 0:
         res.sigma_Mx = abs(inp.Mx) / p.Wx
-        passaggi.append(f"σ_Mx = |Mx|/Wx = {abs(inp.Mx):.0f}/{p.Wx:.1f} = {res.sigma_Mx:.1f} kg/cm²")
+        passaggi.append(
+            f"σ_Mx = |Mx|/Wx = {abs(inp.Mx):.0f}/{p.Wx:.1f} = {res.sigma_Mx:.1f} kg/cm²"
+        )
 
     if abs(inp.My) > 0 and p.Wy > 0:
         res.sigma_My = abs(inp.My) / p.Wy
-        passaggi.append(f"σ_My = |My|/Wy = {abs(inp.My):.0f}/{p.Wy:.1f} = {res.sigma_My:.1f} kg/cm²")
+        passaggi.append(
+            f"σ_My = |My|/Wy = {abs(inp.My):.0f}/{p.Wy:.1f} = {res.sigma_My:.1f} kg/cm²"
+        )
 
     # Verifica flessione semplice (solo Mx)
     if abs(inp.N) == 0 and abs(inp.My) == 0:
@@ -299,13 +307,17 @@ def verifica_profilo_ta(inp: InputVerificaAcciaio) -> RisultatoVerificaAcciaio:
         A_ali = 2 * p.b * p.tf
         if A_ali > 0:
             res.tau_Vx = abs(inp.Vx) / A_ali
-            passaggi.append(f"τ_Vx = |Vx|/A_ali = {abs(inp.Vx):.0f}/{A_ali:.2f} = {res.tau_Vx:.1f} kg/cm²")
+            passaggi.append(
+                f"τ_Vx = |Vx|/A_ali = {abs(inp.Vx):.0f}/{A_ali:.2f} = {res.tau_Vx:.1f} kg/cm²"
+            )
 
     # Torsione (approssimata per profili aperti)
     if abs(inp.Mt) > 0 and p.It > 0:
         t_max = max(p.tf, p.tw)
         res.tau_Mt = abs(inp.Mt) * t_max / p.It
-        passaggi.append(f"τ_Mt = |Mt|·t_max/It = {abs(inp.Mt):.0f}×{t_max:.2f}/{p.It:.2f} = {res.tau_Mt:.1f} kg/cm²")
+        passaggi.append(
+            f"τ_Mt = |Mt|·t_max/It = {abs(inp.Mt):.0f}×{t_max:.2f}/{p.It:.2f} = {res.tau_Mt:.1f} kg/cm²"
+        )
 
     res.tau_max = math.sqrt(res.tau_Vy**2 + res.tau_Vx**2) + res.tau_Mt
     res.sfruttamento_tau = res.tau_max / tau_adm if tau_adm > 0 else 0.0
@@ -360,9 +372,7 @@ def verifica_profilo_ta(inp: InputVerificaAcciaio) -> RisultatoVerificaAcciaio:
 
     # --- 6. Verifica globale ---
     res.verifica_globale = (
-        res.verifica_pressoflessione
-        and res.verifica_taglio
-        and res.verifica_instabilita
+        res.verifica_pressoflessione and res.verifica_taglio and res.verifica_instabilita
     )
 
     # Verifica combinata σ-τ (criterio Von Mises semplificato)
@@ -406,6 +416,7 @@ def seleziona_profilo_ottimale(
 
     if sagomario is None:
         from .sagomario import SagomarioAcciaio
+
         sagomario = SagomarioAcciaio()
         sagomario.carica_tutti()
 
@@ -480,5 +491,3 @@ def verifica_asta_ta(
             "sfruttamento": 0.0,
             "verificato": True,
         }
-
-

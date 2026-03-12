@@ -47,23 +47,11 @@ from typing import Any
 
 try:
     from PyQt6.QtCore import Qt
-    from PyQt6.QtWidgets import (
-        QLabel,
-        QScrollArea,  # noqa: F401
-        QSizePolicy,
-        QTextEdit,
-        QVBoxLayout,
-        QWidget,
-    )
+    from PyQt6.QtWidgets import QScrollArea  # noqa: F401
+    from PyQt6.QtWidgets import QLabel, QSizePolicy, QTextEdit, QVBoxLayout, QWidget
 except ImportError:  # pragma: no cover
     from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import (
-        QLabel,
-        QSizePolicy,
-        QTextEdit,
-        QVBoxLayout,
-        QWidget,
-    )
+    from PySide6.QtWidgets import QLabel, QSizePolicy, QTextEdit, QVBoxLayout, QWidget
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +76,7 @@ def carica_help_yaml(nome_modulo: str) -> dict[str, Any] | None:
 
     try:
         import yaml
+
         with open(percorso, encoding="utf-8") as f:
             return yaml.safe_load(f)
     except ImportError:
@@ -143,7 +132,7 @@ def genera_html_help(dati_help: dict[str, Any], contesto: dict[str, Any] | None 
             testo = norma.get("testo", "")
             html_parti.append(
                 f'<div style="margin-left:16px; margin-bottom:8px;">'
-                f'<b>{_escape(rif)}</b><br>'
+                f"<b>{_escape(rif)}</b><br>"
                 f'<i>"{_escape(testo)}"</i></div>'
             )
 
@@ -156,7 +145,7 @@ def genera_html_help(dati_help: dict[str, Any], contesto: dict[str, Any] | None 
             formula = formula_info.get("formula", "")
             html_parti.append(
                 f'<div style="margin-left:16px; margin-bottom:12px;">'
-                f'<b>{_escape(nome)}</b><br>'
+                f"<b>{_escape(nome)}</b><br>"
                 f'<code style="font-size:13px; background:#f0f0f0; padding:4px 8px; '
                 f'border-radius:4px;">{_escape(formula)}</code>'
             )
@@ -167,8 +156,8 @@ def genera_html_help(dati_help: dict[str, Any], contesto: dict[str, Any] | None 
                 for sim, desc in simboli.items():
                     html_parti.append(
                         f'<tr><td style="padding-right:12px;">'
-                        f'<code>{_escape(sim)}</code></td>'
-                        f'<td>{_escape(desc)}</td></tr>'
+                        f"<code>{_escape(sim)}</code></td>"
+                        f"<td>{_escape(desc)}</td></tr>"
                     )
                 html_parti.append("</table>")
             html_parti.append("</div>")
@@ -216,8 +205,8 @@ def genera_html_help(dati_help: dict[str, Any], contesto: dict[str, Any] | None 
         )
         for chiave, valore in contesto.items():
             html_parti.append(
-                f'<tr><td><b>{_escape(str(chiave))}</b></td>'
-                f'<td>{_escape(str(valore))}</td></tr>'
+                f"<tr><td><b>{_escape(str(chiave))}</b></td>"
+                f"<td>{_escape(str(valore))}</td></tr>"
             )
         html_parti.append("</table>")
 
@@ -255,17 +244,14 @@ class AiutoContestualeWidget(QWidget):
 
         # Intestazione
         self._etichetta_titolo = QLabel()
-        self._etichetta_titolo.setStyleSheet(
-            "font-size: 16px; font-weight: bold; padding: 8px;"
-        )
+        self._etichetta_titolo.setStyleSheet("font-size: 16px; font-weight: bold; padding: 8px;")
         layout.addWidget(self._etichetta_titolo)
 
         # Area contenuto (scroll)
         self._area_contenuto = QTextEdit()
         self._area_contenuto.setReadOnly(True)
         self._area_contenuto.setStyleSheet(
-            "QTextEdit { background-color: #FAFAFA; border: 1px solid #DDD; "
-            "padding: 8px; }"
+            "QTextEdit { background-color: #FAFAFA; border: 1px solid #DDD; " "padding: 8px; }"
         )
         layout.addWidget(self._area_contenuto)
 

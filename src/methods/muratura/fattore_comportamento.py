@@ -26,24 +26,28 @@ from enum import Enum
 
 class TipoMuraturaQ(str, Enum):
     """Tipo di muratura per il fattore di comportamento."""
-    ORDINARIA = "ordinaria"         # muratura non armata
-    ARMATA = "armata"               # muratura armata
+
+    ORDINARIA = "ordinaria"  # muratura non armata
+    ARMATA = "armata"  # muratura armata
 
 
 class RegolaritaAltezza(str, Enum):
     """Regolarità in altezza dell'edificio."""
-    REGOLARE = "regolare"           # K_R = 1.0
-    IRREGOLARE = "irregolare"       # K_R = 0.8
+
+    REGOLARE = "regolare"  # K_R = 1.0
+    IRREGOLARE = "irregolare"  # K_R = 0.8
 
 
 class RegolaritaPianta(str, Enum):
     """Regolarità in pianta dell'edificio."""
+
     REGOLARE = "regolare"
     IRREGOLARE = "irregolare"
 
 
 class TipoEdificio(str, Enum):
     """Tipo di edificio (nuovo o esistente)."""
+
     NUOVO = "nuovo"
     ESISTENTE = "esistente"
 
@@ -71,15 +75,17 @@ ALPHA_U_ALPHA_1_TAB: dict[str, dict[str, float]] = {
 #  Risultato calcolo q
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RisultatoFattoreQ:
     """Risultato del calcolo del fattore di comportamento."""
-    q: float = 2.0                   # fattore di comportamento finale
-    q_0: float = 2.0                 # q₀ prima di K_R
-    alpha_u_alpha_1: float = 1.0     # rapporto sovraresistenza
-    K_R: float = 1.0                 # fattore regolarità in altezza
+
+    q: float = 2.0  # fattore di comportamento finale
+    q_0: float = 2.0  # q₀ prima di K_R
+    alpha_u_alpha_1: float = 1.0  # rapporto sovraresistenza
+    K_R: float = 1.0  # fattore regolarità in altezza
     coefficiente_base: float = 1.75  # coefficiente moltiplicativo (1.75 ordinaria, 2.0÷3.0 armata)
-    q_override: bool = False         # True se q impostato manualmente
+    q_override: bool = False  # True se q impostato manualmente
 
     passaggi: list[str] = field(default_factory=list)
 
@@ -98,6 +104,7 @@ class RisultatoFattoreQ:
 # ═══════════════════════════════════════════════════════════
 #  Calcolo q
 # ═══════════════════════════════════════════════════════════
+
 
 def calcola_fattore_comportamento(
     tipo_muratura: TipoMuraturaQ = TipoMuraturaQ.ORDINARIA,
@@ -151,9 +158,7 @@ def calcola_fattore_comportamento(
         coeff = 2.0  # armata base (fino a 3.0 con capacity design)
 
     res.coefficiente_base = coeff
-    passaggi.append(
-        f"Tipo muratura: {tipo_muratura.value} → coefficiente = {coeff}"
-    )
+    passaggi.append(f"Tipo muratura: {tipo_muratura.value} → coefficiente = {coeff}")
 
     # α_u/α_1 da tabella o override
     if alpha_u_alpha_1_override is not None:

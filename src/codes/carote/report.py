@@ -158,10 +158,15 @@ def esporta_csv_carote(analysis: CoreAnalysisResult, path: str) -> int:
         writer.writerow(["sample_id", "formulation", "f_core_mpa", "k_total", "f_is_mpa"])
         for fname, conv_list in analysis.conversions.items():
             for c in conv_list:
-                writer.writerow([
-                    c.sample_id, c.formulation,
-                    f"{c.f_core_mpa:.2f}", f"{c.k_total:.4f}", f"{c.f_is_mpa:.3f}",
-                ])
+                writer.writerow(
+                    [
+                        c.sample_id,
+                        c.formulation,
+                        f"{c.f_core_mpa:.2f}",
+                        f"{c.k_total:.4f}",
+                        f"{c.f_is_mpa:.3f}",
+                    ]
+                )
                 rows += 1
     logger.info("Esportato CSV carote in '%s' (%d righe).", path, rows)
     return rows

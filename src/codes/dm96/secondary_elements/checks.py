@@ -64,9 +64,7 @@ def check_slu_dm96(inputs: dict[str, Any]) -> dict[str, Any]:
     if beta_override is not None:
         beta = float(beta_override)
     else:
-        spec = SecondaryElementSpecDM96(
-            piano=piano, n_piani=n_piani
-        )
+        spec = SecondaryElementSpecDM96(piano=piano, n_piani=n_piani)
         beta = spec.calcola_beta_piano()
 
     F_h = C * beta * W
@@ -84,14 +82,14 @@ def check_slu_dm96(inputs: dict[str, Any]) -> dict[str, Any]:
         F_Rd = float(F_Rd)
         utilisation = F_h / F_Rd if F_Rd > 0 else 999.0
         ok = F_h <= F_Rd
-        result.update({
-            "ok": ok,
-            "utilisation": round(utilisation, 4),
-            "F_Rd_kN": F_Rd,
-        })
-        result["decision_log"].append(
-            f"F_h/F_Rd = {utilisation:.4f} -> {'OK' if ok else 'NON OK'}"
+        result.update(
+            {
+                "ok": ok,
+                "utilisation": round(utilisation, 4),
+                "F_Rd_kN": F_Rd,
+            }
         )
+        result["decision_log"].append(f"F_h/F_Rd = {utilisation:.4f} -> {'OK' if ok else 'NON OK'}")
         if not ok:
             result["esito"] = "NON OK"
     else:
@@ -125,9 +123,7 @@ def check_sle_dm96(inputs: dict[str, Any]) -> dict[str, Any]:
     result["decision_log"].append(f"drift source={src}, limit=h/300={drift_limit}")
 
     if src == "ESTIMATED":
-        result.setdefault("messages", []).append(
-            "Drift stimato; confidence forzata a LOW"
-        )
+        result.setdefault("messages", []).append("Drift stimato; confidence forzata a LOW")
         result["decision_log"].append("drift source=ESTIMATED, confidence=LOW")
         result["confidence"] = "LOW"
 
@@ -136,12 +132,14 @@ def check_sle_dm96(inputs: dict[str, Any]) -> dict[str, Any]:
         drift_limit = float(drift_limit)
         utilisation = drift_value / drift_limit if drift_limit > 0 else 999.0
         ok = drift_value <= drift_limit
-        result.update({
-            "ok": ok,
-            "utilisation": round(utilisation, 4),
-            "drift_value": drift_value,
-            "drift_limit": drift_limit,
-        })
+        result.update(
+            {
+                "ok": ok,
+                "utilisation": round(utilisation, 4),
+                "drift_value": drift_value,
+                "drift_limit": drift_limit,
+            }
+        )
         result["decision_log"].append(
             f"drift = {drift_value:.5f}, limit = {drift_limit:.5f}, "
             f"util = {utilisation:.4f} -> {'OK' if ok else 'NON OK'}"

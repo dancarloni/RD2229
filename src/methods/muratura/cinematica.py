@@ -35,6 +35,7 @@ G = 981.0  # accelerazione di gravità [cm/s²]
 
 class TipoMeccanismo(str, Enum):
     """Tipo di meccanismo locale di collasso."""
+
     RIBALTAMENTO_SEMPLICE = "ribaltamento_semplice"
     RIBALTAMENTO_COMPOSTO = "ribaltamento_composto"
     FLESSIONE_VERTICALE = "flessione_verticale"
@@ -44,28 +45,31 @@ class TipoMeccanismo(str, Enum):
 
 class PosizioneParete(str, Enum):
     """Posizione della parete nell'edificio."""
-    A_TERRA = "a_terra"          # base dell'edificio
-    IN_QUOTA = "in_quota"        # piano intermedio o ultimo
+
+    A_TERRA = "a_terra"  # base dell'edificio
+    IN_QUOTA = "in_quota"  # piano intermedio o ultimo
 
 
 # ═══════════════════════════════════════════════════════════
 #  Input comune
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class PareteMuraria:
     """Geometria e proprietà parete per analisi cinematica."""
-    h: float                     # altezza parete [cm]
-    t: float                     # spessore parete [cm]
-    L: float                     # lunghezza parete [cm]
-    gamma: float = 0.0018        # peso specifico muratura [kg/cm³] (≈1800 kg/m³)
+
+    h: float  # altezza parete [cm]
+    t: float  # spessore parete [cm]
+    L: float  # lunghezza parete [cm]
+    gamma: float = 0.0018  # peso specifico muratura [kg/cm³] (≈1800 kg/m³)
 
     # Sovraccarico in sommità
-    N_sommita: float = 0.0       # carico verticale in sommità [kg/m lineare]
+    N_sommita: float = 0.0  # carico verticale in sommità [kg/m lineare]
 
     # Posizione nell'edificio
-    Z: float = 0.0               # quota della cerniera rispetto alla fondazione [cm]
-    H_edificio: float = 0.0      # altezza totale edificio [cm]
+    Z: float = 0.0  # quota della cerniera rispetto alla fondazione [cm]
+    H_edificio: float = 0.0  # altezza totale edificio [cm]
 
     @property
     def peso_proprio(self) -> float:
@@ -86,18 +90,19 @@ class PareteMuraria:
 @dataclass
 class ParametriSismici:
     """Parametri sismici per la verifica."""
-    a_g: float = 0.0             # accelerazione al suolo a_g/g [adimensionale]
-    S: float = 1.0               # coefficiente amplificazione stratigrafica S
-    T1: float = 0.0              # primo periodo proprio dell'edificio [s]
-    q: float = 2.0               # fattore di struttura per meccanismi locali
-    FC: float = 1.35             # fattore di confidenza (LC1=1.35, LC2=1.20, LC3=1.00)
+
+    a_g: float = 0.0  # accelerazione al suolo a_g/g [adimensionale]
+    S: float = 1.0  # coefficiente amplificazione stratigrafica S
+    T1: float = 0.0  # primo periodo proprio dell'edificio [s]
+    q: float = 2.0  # fattore di struttura per meccanismi locali
+    FC: float = 1.35  # fattore di confidenza (LC1=1.35, LC2=1.20, LC3=1.00)
 
     # Per verifica in quota
-    psi_Z: float = 0.0           # primo modo normalizzato alla quota Z
-    gamma_modal: float = 1.0     # coefficiente di partecipazione modale
+    psi_Z: float = 0.0  # primo modo normalizzato alla quota Z
+    gamma_modal: float = 1.0  # coefficiente di partecipazione modale
 
     # Per cinematica non lineare
-    S_De_Ts: float = 0.0         # domanda di spostamento spettrale S_De(T_s) [cm]
+    S_De_Ts: float = 0.0  # domanda di spostamento spettrale S_De(T_s) [cm]
 
 
 def parametri_sismici_da_sito(
@@ -130,6 +135,7 @@ def parametri_sismici_da_sito(
         I campi psi_Z, gamma_modal, S_De_Ts devono essere impostati manualmente.
     """
     from src.codes.ntc2018.spectrum import calcola_SS, calcola_ST
+
     SS = calcola_SS(ag_g, F0, cat_suolo)
     ST = calcola_ST(cat_topografica)
     return ParametriSismici(a_g=ag_g, S=SS * ST, T1=T1, q=q, FC=FC)
@@ -138,41 +144,44 @@ def parametri_sismici_da_sito(
 @dataclass
 class ForzaCatena:
     """Forza stabilizzante di una catena/tirante."""
-    F: float = 0.0               # forza nella catena [kg]
+
+    F: float = 0.0  # forza nella catena [kg]
     h_applicazione: float = 0.0  # quota di applicazione rispetto alla cerniera [cm]
-    angolo: float = 0.0          # angolo rispetto all'orizzontale [gradi]
+    angolo: float = 0.0  # angolo rispetto all'orizzontale [gradi]
 
 
 # ═══════════════════════════════════════════════════════════
 #  Risultati
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RisultatoCinematica:
     """Risultato analisi cinematica (lineare e/o non lineare)."""
+
     meccanismo: str = ""
 
     # Cinematica lineare
-    alpha_0: float = 0.0          # moltiplicatore di collasso α₀
-    M_star: float = 0.0           # massa partecipante M* [kg]
-    e_star: float = 0.0           # frazione massa partecipante e*
-    a_0_star: float = 0.0         # accelerazione spettrale a₀* [g]
+    alpha_0: float = 0.0  # moltiplicatore di collasso α₀
+    M_star: float = 0.0  # massa partecipante M* [kg]
+    e_star: float = 0.0  # frazione massa partecipante e*
+    a_0_star: float = 0.0  # accelerazione spettrale a₀* [g]
 
     # Domanda sismica
-    a_domanda: float = 0.0        # accelerazione di domanda [g]
+    a_domanda: float = 0.0  # accelerazione di domanda [g]
     verifica_lineare: bool = False
 
     # Cinematica non lineare
-    d_0_star: float = 0.0         # spostamento spettrale a₀=0 [cm]
-    d_u_star: float = 0.0         # spostamento ultimo d*_u = 0.4·d*_0 [cm]
-    d_domanda: float = 0.0        # domanda di spostamento [cm]
+    d_0_star: float = 0.0  # spostamento spettrale a₀=0 [cm]
+    d_u_star: float = 0.0  # spostamento ultimo d*_u = 0.4·d*_0 [cm]
+    d_domanda: float = 0.0  # domanda di spostamento [cm]
     verifica_non_lineare: bool = False
 
     # Dettaglio forze
-    forze_stabilizzanti: float = 0.0   # momento stabilizzante [kg·cm]
-    forze_ribaltanti: float = 0.0      # momento ribaltante [kg·cm] (= M_rib_coeff)
-    contributo_catene: float = 0.0     # momento stabilizzante catene [kg·cm]
-    contributo_ritegno: float = 0.0    # momento stabilizzante ritegno sommitale [kg·cm]
+    forze_stabilizzanti: float = 0.0  # momento stabilizzante [kg·cm]
+    forze_ribaltanti: float = 0.0  # momento ribaltante [kg·cm] (= M_rib_coeff)
+    contributo_catene: float = 0.0  # momento stabilizzante catene [kg·cm]
+    contributo_ritegno: float = 0.0  # momento stabilizzante ritegno sommitale [kg·cm]
 
     passaggi: list[str] = field(default_factory=list)
 
@@ -195,6 +204,7 @@ class RisultatoCinematica:
 # ═══════════════════════════════════════════════════════════
 #  1. Ribaltamento semplice
 # ═══════════════════════════════════════════════════════════
+
 
 def ribaltamento_semplice(
     parete: PareteMuraria,
@@ -262,9 +272,7 @@ def ribaltamento_semplice(
 
     # α₀ = (M_stab + M_catene + M_ritegno) / M_rib_coeff
     alpha_0 = (M_stab + M_catene + M_ritegno) / M_rib_coeff if M_rib_coeff > 0 else 0.0
-    passaggi.append(
-        f"α₀ = (M_stab + M_catene + M_ritegno) / M_rib = {alpha_0:.4f}"
-    )
+    passaggi.append(f"α₀ = (M_stab + M_catene + M_ritegno) / M_rib = {alpha_0:.4f}")
 
     # Cinematica lineare
     res = _cinematica_lineare(alpha_0, parete, sismica, passaggi)
@@ -284,6 +292,7 @@ def ribaltamento_semplice(
 # ═══════════════════════════════════════════════════════════
 #  2. Ribaltamento composto
 # ═══════════════════════════════════════════════════════════
+
 
 def ribaltamento_composto(
     parete: PareteMuraria,
@@ -364,6 +373,7 @@ def ribaltamento_composto(
 #  3. Flessione verticale
 # ═══════════════════════════════════════════════════════════
 
+
 def flessione_verticale(
     parete: PareteMuraria,
     h_cerniera: float | None = None,
@@ -393,8 +403,8 @@ def flessione_verticale(
     if h_cerniera is None:
         h_cerniera = h / 2
 
-    h_inf = h_cerniera          # altezza parte inferiore
-    h_sup = h - h_cerniera      # altezza parte superiore
+    h_inf = h_cerniera  # altezza parte inferiore
+    h_sup = h - h_cerniera  # altezza parte superiore
 
     passaggi.append(f"Cerniera intermedia a h = {h_cerniera:.0f} cm")
     passaggi.append(f"Parte inferiore: h₁ = {h_inf:.0f} cm")
@@ -412,7 +422,7 @@ def flessione_verticale(
     # La parte inferiore ruota in senso opposto.
 
     # Momento stabilizzante (gravità della parte superiore)
-    M_stab = (W_sup * t / 2 + N_s * t / 2)
+    M_stab = W_sup * t / 2 + N_s * t / 2
 
     # Momento ribaltante (forze inerziali)
     # La parte superiore ha baricentro a h_sup/2 dalla cerniera
@@ -454,7 +464,10 @@ def flessione_verticale(
 
     # Per la non lineare, usiamo h_sup come altezza di riferimento
     parete_equiv = PareteMuraria(
-        h=h_sup, t=t, L=parete.L, gamma=parete.gamma,
+        h=h_sup,
+        t=t,
+        L=parete.L,
+        gamma=parete.gamma,
         N_sommita=parete.N_sommita,
         Z=parete.Z + h_cerniera,
         H_edificio=parete.H_edificio,
@@ -468,6 +481,7 @@ def flessione_verticale(
 # ═══════════════════════════════════════════════════════════
 #  4. Flessione orizzontale
 # ═══════════════════════════════════════════════════════════
+
 
 def flessione_orizzontale(
     parete: PareteMuraria,
@@ -546,6 +560,7 @@ def flessione_orizzontale(
 #  Cinematica lineare
 # ═══════════════════════════════════════════════════════════
 
+
 def _cinematica_lineare(
     alpha_0: float,
     parete: PareteMuraria,
@@ -588,7 +603,9 @@ def _cinematica_lineare(
     if parete.Z <= 0 or parete.H_edificio <= 0:
         # Verifica a terra (§C8A.4.1, eq. C8A.4.1)
         a_domanda = sismica.a_g * sismica.S / sismica.q
-        passaggi.append(f"Verifica A TERRA: a_domanda = a_g×S/q = {sismica.a_g}×{sismica.S}/{sismica.q} = {a_domanda:.4f} g")
+        passaggi.append(
+            f"Verifica A TERRA: a_domanda = a_g×S/q = {sismica.a_g}×{sismica.S}/{sismica.q} = {a_domanda:.4f} g"
+        )
     else:
         # Verifica in quota (§C8A.4.1, eq. C8A.4.2)
         # ψ(Z) = Z/H per primo modo lineare
@@ -622,6 +639,7 @@ def _cinematica_lineare(
 # ═══════════════════════════════════════════════════════════
 #  Cinematica non lineare
 # ═══════════════════════════════════════════════════════════
+
 
 def _cinematica_non_lineare(
     alpha_0: float,
@@ -676,7 +694,7 @@ def _cinematica_non_lineare(
         # In realtà S_De(T) = a_g × S × η × T_C × T_D / (4π²) per T > T_D
         # Approssimazione semplificata
         S_D1 = sismica.a_g * sismica.S * G * 2.5  # cm/s²
-        d_domanda = S_D1 * T_s ** 2 / (4 * math.pi ** 2) if T_s > 0 else 0.0
+        d_domanda = S_D1 * T_s**2 / (4 * math.pi**2) if T_s > 0 else 0.0
 
     # Per verifica in quota:
     if parete.Z > 0 and parete.H_edificio > 0:
@@ -700,6 +718,7 @@ def _cinematica_non_lineare(
 #  Funzione di analisi completa
 # ═══════════════════════════════════════════════════════════
 
+
 def analisi_meccanismi_locali(
     parete: PareteMuraria,
     sismica: ParametriSismici,
@@ -722,9 +741,9 @@ def analisi_meccanismi_locali(
 
     # 2. Ribaltamento composto (se cuneo specificato)
     if cuneo_h > 0:
-        risultati.append(ribaltamento_composto(
-            parete, cuneo_h, cuneo_angolo, sismica, catene, ritegno_sommitale
-        ))
+        risultati.append(
+            ribaltamento_composto(parete, cuneo_h, cuneo_angolo, sismica, catene, ritegno_sommitale)
+        )
 
     # 3. Flessione verticale (sempre)
     risultati.append(flessione_verticale(parete, h_cerniera, sismica, catene, ritegno_sommitale))

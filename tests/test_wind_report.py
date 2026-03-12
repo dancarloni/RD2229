@@ -36,35 +36,65 @@ def _make_results() -> WindResults:
         ],
         pressure_zones=[
             PressureZoneResults(
-                zone_id="wall_D", description="Parete sopravento",
-                cpe=0.8, cpi=-0.2, we_kN_m2=0.408, wi_kN_m2=-0.102,
-                net_kN_m2=0.510, area_m2=30.0,
+                zone_id="wall_D",
+                description="Parete sopravento",
+                cpe=0.8,
+                cpi=-0.2,
+                we_kN_m2=0.408,
+                wi_kN_m2=-0.102,
+                net_kN_m2=0.510,
+                area_m2=30.0,
             ),
             PressureZoneResults(
-                zone_id="wall_E", description="Parete sottovento",
-                cpe=-0.5, cpi=0.2, we_kN_m2=-0.255, wi_kN_m2=0.102,
-                net_kN_m2=-0.357, area_m2=30.0,
+                zone_id="wall_E",
+                description="Parete sottovento",
+                cpe=-0.5,
+                cpi=0.2,
+                we_kN_m2=-0.255,
+                wi_kN_m2=0.102,
+                net_kN_m2=-0.357,
+                area_m2=30.0,
             ),
             PressureZoneResults(
-                zone_id="roof_F", description="Copertura zona F",
-                cpe=-1.2, net_kN_m2=-0.612, area_m2=8.0,
+                zone_id="roof_F",
+                description="Copertura zona F",
+                cpe=-1.2,
+                net_kN_m2=-0.612,
+                area_m2=8.0,
             ),
         ],
         resultant_forces=[
-            ZoneForce(zone_id="wall_D", F_kN=15.3, direction="pressure",
-                      tributary_area_m2=30.0, application_point_m=7.5),
-            ZoneForce(zone_id="wall_E", F_kN=-10.71, direction="suction",
-                      tributary_area_m2=30.0, application_point_m=7.5),
-            ZoneForce(zone_id="roof_F", F_kN=-4.896, direction="suction",
-                      tributary_area_m2=8.0, application_point_m=15.0),
+            ZoneForce(
+                zone_id="wall_D",
+                F_kN=15.3,
+                direction="pressure",
+                tributary_area_m2=30.0,
+                application_point_m=7.5,
+            ),
+            ZoneForce(
+                zone_id="wall_E",
+                F_kN=-10.71,
+                direction="suction",
+                tributary_area_m2=30.0,
+                application_point_m=7.5,
+            ),
+            ZoneForce(
+                zone_id="roof_F",
+                F_kN=-4.896,
+                direction="suction",
+                tributary_area_m2=8.0,
+                application_point_m=15.0,
+            ),
         ],
         friction_forces=[
-            FrictionForce(surface_id="roof", c_fr=0.02, area_m2=100.0,
-                          q_p_kN_m2=0.51, F_fr_kN=1.02),
+            FrictionForce(
+                surface_id="roof", c_fr=0.02, area_m2=100.0, q_p_kN_m2=0.51, F_fr_kN=1.02
+            ),
         ],
         combinations=[
-            WindCombination(combo_id="SLU_1.5", description="SLU sfavorevole",
-                            gamma_w=1.5, psi=1.0),
+            WindCombination(
+                combo_id="SLU_1.5", description="SLU sfavorevole", gamma_w=1.5, psi=1.0
+            ),
         ],
         topography_factor=1.0,
         structural_factor=1.0,
@@ -76,6 +106,7 @@ def _make_results() -> WindResults:
 # ===========================================================================
 # wind_results_to_dict
 # ===========================================================================
+
 
 class TestWindResultsToDict:
     def test_has_meta(self):
@@ -146,7 +177,8 @@ class TestWindResultsToDict:
 
     def test_project_name(self):
         report = wind_results_to_dict(
-            _make_results(), project_name="Progetto Test",
+            _make_results(),
+            project_name="Progetto Test",
         )
         assert report["meta"]["project"] == "Progetto Test"
 
@@ -187,6 +219,7 @@ class TestWindResultsToDict:
 # wind_results_to_json
 # ===========================================================================
 
+
 class TestWindResultsToJson:
     def test_valid_json(self):
         j = wind_results_to_json(_make_results())
@@ -216,6 +249,7 @@ class TestWindResultsToJson:
 # generate_summary_table
 # ===========================================================================
 
+
 class TestSummaryTable:
     def test_returns_list(self):
         rows = generate_summary_table(_make_results())
@@ -244,6 +278,7 @@ class TestSummaryTable:
 # ===========================================================================
 # generate_force_summary_table
 # ===========================================================================
+
 
 class TestForceSummaryTable:
     def test_returns_list(self):

@@ -25,12 +25,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from src.methods.muratura.discretizzazione import (
-    Fascia,
-    Maschio,
-    TipoVincolo,
-    _direzione_maschio,
-)
+from src.methods.muratura.discretizzazione import Fascia, Maschio, TipoVincolo, _direzione_maschio
 
 # Fattore forma taglio per sezione rettangolare
 CHI_RETTANGOLARE = 1.2
@@ -39,6 +34,7 @@ CHI_RETTANGOLARE = 1.2
 # ═══════════════════════════════════════════════════════════
 #  Rigidezza maschio
 # ═══════════════════════════════════════════════════════════
+
 
 def rigidezza_maschio(maschio: Maschio) -> float:
     """Calcola la rigidezza laterale di un maschio murario [kg/cm].
@@ -76,10 +72,10 @@ def rigidezza_maschio(maschio: Maschio) -> float:
 
     # Flessibilità per flessione (dipende dal vincolo)
     if maschio.vincolo == TipoVincolo.INCASTRO:
-        flex_flessione = h ** 3 / (12 * E * I)
+        flex_flessione = h**3 / (12 * E * I)
     else:
         # Cerniera o mensola
-        flex_flessione = h ** 3 / (3 * E * I)
+        flex_flessione = h**3 / (3 * E * I)
 
     flex_totale = flex_flessione + flex_taglio
     return 1.0 / flex_totale if flex_totale > 0 else 0.0
@@ -123,7 +119,7 @@ def rigidezza_fascia(fascia: Fascia) -> float:
     if L <= 0 or I <= 0 or A <= 0 or E <= 0:
         return 0.0
 
-    flex_flessione = L ** 3 / (12 * E * I)
+    flex_flessione = L**3 / (12 * E * I)
     flex_taglio = CHI_RETTANGOLARE * L / (G * A)
 
     flex_totale = flex_flessione + flex_taglio
@@ -134,22 +130,24 @@ def rigidezza_fascia(fascia: Fascia) -> float:
 #  Centro di rigidezza e massa
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class CentroRigidezzaPiano:
     """Centro di rigidezza di un piano."""
-    x_CR: float = 0.0           # coordinata x centro rigidezza [cm]
-    y_CR: float = 0.0           # coordinata y centro rigidezza [cm]
-    K_x: float = 0.0            # rigidezza totale direzione X [kg/cm]
-    K_y: float = 0.0            # rigidezza totale direzione Y [kg/cm]
-    K_theta: float = 0.0        # rigidezza torsionale [kg·cm/rad]
+
+    x_CR: float = 0.0  # coordinata x centro rigidezza [cm]
+    y_CR: float = 0.0  # coordinata y centro rigidezza [cm]
+    K_x: float = 0.0  # rigidezza totale direzione X [kg/cm]
+    K_y: float = 0.0  # rigidezza totale direzione Y [kg/cm]
+    K_theta: float = 0.0  # rigidezza torsionale [kg·cm/rad]
 
     # Centro massa
-    x_CM: float = 0.0           # coordinata x centro massa [cm]
-    y_CM: float = 0.0           # coordinata y centro massa [cm]
+    x_CM: float = 0.0  # coordinata x centro massa [cm]
+    y_CM: float = 0.0  # coordinata y centro massa [cm]
 
     # Eccentricità
-    ex: float = 0.0             # eccentricità in X [cm]
-    ey: float = 0.0             # eccentricità in Y [cm]
+    ex: float = 0.0  # eccentricità in X [cm]
+    ey: float = 0.0  # eccentricità in Y [cm]
 
     passaggi: list[str] = field(default_factory=list)
 
@@ -245,10 +243,15 @@ def calcola_centro_rigidezza(
     passaggi.append(f"Eccentricità: ex={ex:.1f} cm, ey={ey:.1f} cm")
 
     return CentroRigidezzaPiano(
-        x_CR=x_CR, y_CR=y_CR,
-        K_x=K_x, K_y=K_y, K_theta=K_theta,
-        x_CM=x_CM, y_CM=y_CM,
-        ex=ex, ey=ey,
+        x_CR=x_CR,
+        y_CR=y_CR,
+        K_x=K_x,
+        K_y=K_y,
+        K_theta=K_theta,
+        x_CM=x_CM,
+        y_CM=y_CM,
+        ex=ex,
+        ey=ey,
         passaggi=passaggi,
     )
 
@@ -257,11 +260,13 @@ def calcola_centro_rigidezza(
 #  Matrice rigidezza piano (3 GDL: ux, uy, θz)
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class MatriceRigidezzaPiano:
     """Matrice di rigidezza del piano condensata a 3 GDL."""
+
     # Matrice 3×3: [[Kxx, Kxy, Kxθ], [Kyx, Kyy, Kyθ], [Kθx, Kθy, Kθθ]]
-    K: list[list[float]] = field(default_factory=lambda: [[0.0]*3 for _ in range(3)])
+    K: list[list[float]] = field(default_factory=lambda: [[0.0] * 3 for _ in range(3)])
 
     # Contributi individuali (per debug e report)
     rigidezze_maschi: dict[int, float] = field(default_factory=dict)
@@ -271,9 +276,7 @@ class MatriceRigidezzaPiano:
     def to_dict(self) -> dict:
         return {
             "K": [[round(v, 1) for v in row] for row in self.K],
-            "rigidezze_maschi": {
-                k: round(v, 1) for k, v in self.rigidezze_maschi.items()
-            },
+            "rigidezze_maschi": {k: round(v, 1) for k, v in self.rigidezze_maschi.items()},
         }
 
 
@@ -315,9 +318,7 @@ def assembla_matrice_piano(
         MatriceRigidezzaPiano
     """
     passaggi: list[str] = []
-    K = [[0.0, 0.0, 0.0],
-         [0.0, 0.0, 0.0],
-         [0.0, 0.0, 0.0]]
+    K = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
 
     rigidezze: dict[int, float] = {}
 
@@ -337,17 +338,16 @@ def assembla_matrice_piano(
             K[0][0] += k
             K[0][2] += -k * dy
             K[2][0] += -k * dy
-            K[2][2] += k * dy ** 2
+            K[2][2] += k * dy**2
         else:
             # Maschio in Y: resiste a forze in Y
             K[1][1] += k
             K[1][2] += k * dx
             K[2][1] += k * dx
-            K[2][2] += k * dx ** 2
+            K[2][2] += k * dx**2
 
         passaggi.append(
-            f"  M{m.id_maschio} dir={direzione}: k={k:.0f} kg/cm, "
-            f"Δx={dx:.0f}, Δy={dy:.0f}"
+            f"  M{m.id_maschio} dir={direzione}: k={k:.0f} kg/cm, " f"Δx={dx:.0f}, Δy={dy:.0f}"
         )
 
     passaggi.append(f"K_piano = [[{K[0][0]:.0f}, {K[0][1]:.0f}, {K[0][2]:.0f}],")
@@ -364,6 +364,7 @@ def assembla_matrice_piano(
 # ═══════════════════════════════════════════════════════════
 #  Distribuzione forza su maschi (diaframma rigido)
 # ═══════════════════════════════════════════════════════════
+
 
 def distribuisci_forza_piano(
     maschi: list[Maschio],

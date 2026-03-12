@@ -8,11 +8,7 @@ Test per:
 
 import pytest
 
-from src.methods.muratura.discretizzazione import (
-    Fascia,
-    Maschio,
-    TipoVincolo,
-)
+from src.methods.muratura.discretizzazione import Fascia, Maschio, TipoVincolo
 from src.methods.muratura.modello_edificio import MaterialeMuratura
 from src.methods.muratura.resistenza import (
     StatoMaschio,
@@ -26,20 +22,31 @@ from src.methods.muratura.resistenza import (
 def materiale() -> MaterialeMuratura:
     return MaterialeMuratura(
         nome="mattoni_pieni",
-        f=24.0, tau_0=0.6, fvk0=0.4,
-        E=15000.0, G=5000.0, gamma=0.0018,
-        gamma_M=2.0, FC=1.2, mu=0.4,
+        f=24.0,
+        tau_0=0.6,
+        fvk0=0.4,
+        E=15000.0,
+        G=5000.0,
+        gamma=0.0018,
+        gamma_M=2.0,
+        FC=1.2,
+        mu=0.4,
     )
 
 
 def _crea_maschio(
     mat: MaterialeMuratura,
-    L: float = 200, t: float = 30, h: float = 300,
+    L: float = 200,
+    t: float = 30,
+    h: float = 300,
     N: float = 10000,
     vincolo: TipoVincolo = TipoVincolo.INCASTRO,
 ) -> Maschio:
     m = Maschio(
-        id_maschio=0, L=L, t=t, h=h,
+        id_maschio=0,
+        L=L,
+        t=t,
+        h=h,
         materiale=mat,
         N_gravitazionale=N,
         vincolo=vincolo,
@@ -52,8 +59,8 @@ def _crea_maschio(
 #  Resistenza maschio
 # ═══════════════════════════════════════════════════════════
 
-class TestResistenzaMaschio:
 
+class TestResistenzaMaschio:
     def test_V_Rd_positivo(self, materiale):
         m = _crea_maschio(materiale, N=15000)
         rm = calcola_resistenza_maschio(m)
@@ -177,8 +184,8 @@ class TestResistenzaMaschio:
 #  Resistenza fascia
 # ═══════════════════════════════════════════════════════════
 
-class TestResistenzaFascia:
 
+class TestResistenzaFascia:
     def test_fascia_biella_V_Rd_positivo(self, materiale):
         f = Fascia(L=120, t=30, h=80, materiale=materiale, ha_cordolo=False)
         rf = calcola_resistenza_fascia(f)
@@ -211,8 +218,8 @@ class TestResistenzaFascia:
 #  Calcolo resistenze piano
 # ═══════════════════════════════════════════════════════════
 
-class TestCalcolaResistenzePiano:
 
+class TestCalcolaResistenzePiano:
     def test_calcola_tutti(self, materiale):
         maschi = [
             _crea_maschio(materiale, N=10000),

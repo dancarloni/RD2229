@@ -97,7 +97,7 @@ Esito L3 2D: ❌ NOT_OK – Classe R90 non soddisfatta
 
 Aspetto L2 L3 2D
 Tipo di modello Sezione efficace FEM 2D
-  
+
 1. Interpretazione ingegneristica
 Il confronto mostra che:
 

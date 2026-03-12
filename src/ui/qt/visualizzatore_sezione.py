@@ -40,19 +40,13 @@ from typing import Any
 try:
     from PyQt6.QtCore import QPointF, QRectF, Qt  # noqa: F401
     from PyQt6.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPolygonF
-    from PyQt6.QtWidgets import (
-        QHBoxLayout,  # noqa: F401
-        QSizePolicy,
-        QVBoxLayout,  # noqa: F401
-        QWidget,
-    )
+    from PyQt6.QtWidgets import QHBoxLayout  # noqa: F401
+    from PyQt6.QtWidgets import QVBoxLayout  # noqa: F401
+    from PyQt6.QtWidgets import QSizePolicy, QWidget
 except ImportError:  # pragma: no cover
     from PySide6.QtCore import QPointF, Qt
     from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPolygonF
-    from PySide6.QtWidgets import (
-        QSizePolicy,
-        QWidget,
-    )
+    from PySide6.QtWidgets import QSizePolicy, QWidget
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +62,7 @@ class BarraArmatura:
         area: Area della barra [cm²] (calcolata automaticamente).
         tesa: True se la barra è nella zona tesa (dal calcolo).
     """
+
     x: float
     y: float
     diametro: float
@@ -92,6 +87,7 @@ class GeometriaSezione:
         baricentro_x: Coordinata x baricentro [cm].
         baricentro_y: Coordinata y baricentro [cm].
     """
+
     tipo: str = "rettangolare"
     vertici: list[list[float]] = field(default_factory=list)
     b: float = 0.0
@@ -113,6 +109,7 @@ class RisultatiCalcolo:
         sigma_s_max: Tensione massima acciaio teso [kg/cm²].
         zona_compressa_alto: True se la compressione è in alto (flessione positiva).
     """
+
     asse_neutro_y: float = 0.0
     eps_c_max: float = 0.0
     eps_s_max: float = 0.0
@@ -122,14 +119,14 @@ class RisultatiCalcolo:
 
 
 # Colori standard
-_COLORE_CLS = QColor(200, 200, 200, 180)          # Grigio chiaro — calcestruzzo
-_COLORE_COMPRESSIONE = QColor(70, 130, 220, 100)    # Blu semi-trasparente — zona compressa
-_COLORE_TRAZIONE = QColor(220, 80, 80, 100)         # Rosso semi-trasparente — zona tesa
-_COLORE_ASSE_NEUTRO = QColor(0, 150, 0)             # Verde — asse neutro
-_COLORE_ARMATURA = QColor(30, 30, 30)               # Nero — barre armatura
-_COLORE_CONTORNO = QColor(50, 50, 50)               # Bordo sezione
-_COLORE_DEFORMAZIONE = QColor(180, 100, 0)          # Arancione — diagramma deformazioni
-_COLORE_TENSIONE = QColor(128, 0, 128)              # Viola — diagramma tensioni
+_COLORE_CLS = QColor(200, 200, 200, 180)  # Grigio chiaro — calcestruzzo
+_COLORE_COMPRESSIONE = QColor(70, 130, 220, 100)  # Blu semi-trasparente — zona compressa
+_COLORE_TRAZIONE = QColor(220, 80, 80, 100)  # Rosso semi-trasparente — zona tesa
+_COLORE_ASSE_NEUTRO = QColor(0, 150, 0)  # Verde — asse neutro
+_COLORE_ARMATURA = QColor(30, 30, 30)  # Nero — barre armatura
+_COLORE_CONTORNO = QColor(50, 50, 50)  # Bordo sezione
+_COLORE_DEFORMAZIONE = QColor(180, 100, 0)  # Arancione — diagramma deformazioni
+_COLORE_TENSIONE = QColor(128, 0, 128)  # Viola — diagramma tensioni
 
 
 class VisualizzatoreSezione(QWidget):
@@ -192,8 +189,8 @@ class VisualizzatoreSezione(QWidget):
             cy += (vertici[i][1] + vertici[j][1]) * cross
         area /= 2.0
         if abs(area) > 1e-10:
-            cx /= (6.0 * area)
-            cy /= (6.0 * area)
+            cx /= 6.0 * area
+            cy /= 6.0 * area
 
         self._geometria = GeometriaSezione(
             tipo="poligonale",
@@ -261,10 +258,7 @@ class VisualizzatoreSezione(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         if not self._geometria.vertici:
-            painter.drawText(
-                self.rect(), Qt.AlignmentFlag.AlignCenter,
-                "Nessuna sezione impostata"
-            )
+            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "Nessuna sezione impostata")
             painter.end()
             return
 
@@ -314,19 +308,25 @@ class VisualizzatoreSezione(QWidget):
 
             # Zona compressa
             if self._risultati.zona_compressa_alto:
-                zona_c = QPolygonF([
-                    _coord(0, an_y), _coord(b, an_y), _coord(b, self._geometria.h), _coord(0, self._geometria.h)
-                ])
-                zona_t = QPolygonF([
-                    _coord(0, 0), _coord(b, 0), _coord(b, an_y), _coord(0, an_y)
-                ])
+                zona_c = QPolygonF(
+                    [
+                        _coord(0, an_y),
+                        _coord(b, an_y),
+                        _coord(b, self._geometria.h),
+                        _coord(0, self._geometria.h),
+                    ]
+                )
+                zona_t = QPolygonF([_coord(0, 0), _coord(b, 0), _coord(b, an_y), _coord(0, an_y)])
             else:
-                zona_c = QPolygonF([
-                    _coord(0, 0), _coord(b, 0), _coord(b, an_y), _coord(0, an_y)
-                ])
-                zona_t = QPolygonF([
-                    _coord(0, an_y), _coord(b, an_y), _coord(b, self._geometria.h), _coord(0, self._geometria.h)
-                ])
+                zona_c = QPolygonF([_coord(0, 0), _coord(b, 0), _coord(b, an_y), _coord(0, an_y)])
+                zona_t = QPolygonF(
+                    [
+                        _coord(0, an_y),
+                        _coord(b, an_y),
+                        _coord(b, self._geometria.h),
+                        _coord(0, self._geometria.h),
+                    ]
+                )
 
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(QBrush(_COLORE_COMPRESSIONE))
@@ -345,10 +345,7 @@ class VisualizzatoreSezione(QWidget):
             font_piccolo = QFont("Arial", 8)
             painter.setFont(font_piccolo)
             painter.setPen(_COLORE_ASSE_NEUTRO)
-            painter.drawText(
-                p_an_dx.x() + 4, p_an_dx.y() + 4,
-                f"A.N. y={an_y:.1f} cm"
-            )
+            painter.drawText(p_an_dx.x() + 4, p_an_dx.y() + 4, f"A.N. y={an_y:.1f} cm")
 
         # 3. Disegna armatura (cerchi neri)
         for barra in self._armature:
@@ -377,8 +374,7 @@ class VisualizzatoreSezione(QWidget):
         y_quota = p_sx.y() + 20
         painter.drawLine(p_sx.x(), y_quota, p_dx.x(), y_quota)
         painter.drawText(
-            (p_sx.x() + p_dx.x()) / 2 - 15, y_quota + 14,
-            f"b = {self._geometria.b:.1f} cm"
+            (p_sx.x() + p_dx.x()) / 2 - 15, y_quota + 14, f"b = {self._geometria.b:.1f} cm"
         )
 
         # Altezza (a sinistra)
@@ -428,10 +424,7 @@ class VisualizzatoreSezione(QWidget):
         painter.setPen(QPen(_COLORE_DEFORMAZIONE, 2))
 
         # Linea di riferimento (ε = 0) lungo tutta l'altezza
-        painter.drawLine(
-            QPointF(x_base, _y_from_sezione(0)),
-            QPointF(x_base, _y_from_sezione(h))
-        )
+        painter.drawLine(QPointF(x_base, _y_from_sezione(0)), QPointF(x_base, _y_from_sezione(h)))
 
         # Diagramma lineare: dal bordo compresso al bordo teso
         if self._risultati.zona_compressa_alto:
@@ -477,10 +470,7 @@ class VisualizzatoreSezione(QWidget):
         painter.setPen(QPen(_COLORE_TENSIONE, 2))
 
         # Linea di riferimento
-        painter.drawLine(
-            QPointF(x_base, _y_from_sezione(0)),
-            QPointF(x_base, _y_from_sezione(h))
-        )
+        painter.drawLine(QPointF(x_base, _y_from_sezione(0)), QPointF(x_base, _y_from_sezione(h)))
 
         # Diagramma tensioni cls (trapezoidale/rettangolare nella zona compressa)
         if self._risultati.zona_compressa_alto:

@@ -22,10 +22,7 @@ _F_CORE = [22.5, 24.1, 23.8, 25.0, 22.0, 24.5, 23.2, 24.8]
 def _make_samples():
     from src.codes.carote.core_sample import CoreSample
 
-    return [
-        CoreSample(sample_id=f"C{i+1}", f_core_mpa=f)
-        for i, f in enumerate(_F_CORE)
-    ]
+    return [CoreSample(sample_id=f"C{i+1}", f_core_mpa=f) for i, f in enumerate(_F_CORE)]
 
 
 # ===================================================================
@@ -562,6 +559,7 @@ class TestIntegration:
         class MockRepo:
             def __init__(self):
                 self.materials = []
+
             def add(self, mat):
                 self.materials.append(mat)
 
@@ -638,6 +636,7 @@ class TestReport:
 class TestPlots:
     def test_istogramma(self):
         import matplotlib
+
         matplotlib.use("Agg")
         from matplotlib.figure import Figure
 
@@ -651,6 +650,7 @@ class TestPlots:
 
     def test_scatter(self):
         import matplotlib
+
         matplotlib.use("Agg")
         from matplotlib.figure import Figure
 
@@ -664,6 +664,7 @@ class TestPlots:
 
     def test_boxplot(self):
         import matplotlib
+
         matplotlib.use("Agg")
         from matplotlib.figure import Figure
 
@@ -677,6 +678,7 @@ class TestPlots:
 
     def test_barre_fck(self):
         import matplotlib
+
         matplotlib.use("Agg")
         from matplotlib.figure import Figure
 
@@ -716,10 +718,7 @@ class TestWidget:
 
 class TestPackage:
     def test_init_import(self):
-        from src.codes.carote import (
-            FORMULATIONS,
-            CoreSample,
-        )
+        from src.codes.carote import FORMULATIONS, CoreSample
 
         assert len(FORMULATIONS) >= 10
         assert CoreSample is not None

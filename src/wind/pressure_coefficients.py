@@ -46,6 +46,7 @@ def _interpolate(x: float, xs: list[float], ys: list[float]) -> float:
 # Pareti verticali
 # ---------------------------------------------------------------------------
 
+
 def get_wall_cpe(
     h_m: float,
     d_m: float,
@@ -89,6 +90,7 @@ def get_wall_cpe(
     if area_m2 < 10.0 and zone_upper in ("A",):
         # Solo per zone con differenza significativa cp_e,1 vs cp_e,10
         import math
+
         cpe_1 = cpe_10 * 1.17  # Approssimazione cp_e,1/cp_e,10 ≈ 1.17 per zona A
         if area_m2 <= 1.0:
             return cpe_1
@@ -113,7 +115,11 @@ def get_all_wall_cpe(
     result = {}
     for zone in ("D", "E", "A", "B", "C"):
         result[zone] = get_wall_cpe(
-            h_m, d_m, zone, area_m2=area_m2, override=overrides.get(zone),
+            h_m,
+            d_m,
+            zone,
+            area_m2=area_m2,
+            override=overrides.get(zone),
         )
     return result
 
@@ -121,6 +127,7 @@ def get_all_wall_cpe(
 # ---------------------------------------------------------------------------
 # Coperture
 # ---------------------------------------------------------------------------
+
 
 def get_flat_roof_cpe(
     zone: str,
@@ -157,6 +164,7 @@ def get_flat_roof_cpe(
         return zd.get("cp_e_1", zd.get("cp_e_10", 0.0))
     else:
         import math
+
         cpe_10 = zd.get("cp_e_10", zd.get("cp_e_10_min", 0.0))
         cpe_1 = zd.get("cp_e_1", cpe_10)
         return cpe_1 - (cpe_1 - cpe_10) * math.log10(area_m2)
@@ -242,15 +250,17 @@ def compute_building_pressure_zones(
         for cpi in cpi_values:
             we = cpe * q_p_kN_m2
             wi = cpi * q_p_kN_m2
-            results.append({
-                "zone_id": f"wall_{zone_id}_cpi{cpi:+.1f}",
-                "description": f"Parete {zone_id} (cp_i={cpi:+.1f})",
-                "cpe": cpe,
-                "cpi": cpi,
-                "we_kN_m2": round(we, 4),
-                "wi_kN_m2": round(wi, 4),
-                "net_kN_m2": round(we - wi, 4),
-            })
+            results.append(
+                {
+                    "zone_id": f"wall_{zone_id}_cpi{cpi:+.1f}",
+                    "description": f"Parete {zone_id} (cp_i={cpi:+.1f})",
+                    "cpe": cpe,
+                    "cpi": cpi,
+                    "we_kN_m2": round(we, 4),
+                    "wi_kN_m2": round(wi, 4),
+                    "net_kN_m2": round(we - wi, 4),
+                }
+            )
 
     # Copertura
     if abs(roof_angle_deg) < 5.0:
@@ -260,52 +270,62 @@ def compute_building_pressure_zones(
             for cpi in cpi_values:
                 we = cpe * q_p_kN_m2
                 wi = cpi * q_p_kN_m2
-                results.append({
-                    "zone_id": f"roof_{zone}_cpi{cpi:+.1f}",
-                    "description": f"Copertura piana {zone} (cp_i={cpi:+.1f})",
-                    "cpe": cpe,
-                    "cpi": cpi,
-                    "we_kN_m2": round(we, 4),
-                    "wi_kN_m2": round(wi, 4),
-                    "net_kN_m2": round(we - wi, 4),
-                })
+                results.append(
+                    {
+                        "zone_id": f"roof_{zone}_cpi{cpi:+.1f}",
+                        "description": f"Copertura piana {zone} (cp_i={cpi:+.1f})",
+                        "cpe": cpe,
+                        "cpi": cpi,
+                        "we_kN_m2": round(we, 4),
+                        "wi_kN_m2": round(wi, 4),
+                        "net_kN_m2": round(we - wi, 4),
+                    }
+                )
     else:
         # Copertura inclinata
         for zone in ("F", "G", "H"):
             cp_min, cp_max = get_pitched_roof_cpe(
-                roof_angle_deg, zone, windward=True,
+                roof_angle_deg,
+                zone,
+                windward=True,
                 override=overrides.get(f"roof_{zone}"),
             )
             for cpi in cpi_values:
                 for label, cpe in [("min", cp_min), ("max", cp_max)]:
                     we = cpe * q_p_kN_m2
                     wi = cpi * q_p_kN_m2
-                    results.append({
-                        "zone_id": f"roof_ww_{zone}_{label}_cpi{cpi:+.1f}",
-                        "description": f"Copertura sopravento {zone} ({label}, cp_i={cpi:+.1f})",
-                        "cpe": cpe,
-                        "cpi": cpi,
-                        "we_kN_m2": round(we, 4),
-                        "wi_kN_m2": round(wi, 4),
-                        "net_kN_m2": round(we - wi, 4),
-                    })
+                    results.append(
+                        {
+                            "zone_id": f"roof_ww_{zone}_{label}_cpi{cpi:+.1f}",
+                            "description": f"Copertura sopravento {zone} ({label}, cp_i={cpi:+.1f})",
+                            "cpe": cpe,
+                            "cpi": cpi,
+                            "we_kN_m2": round(we, 4),
+                            "wi_kN_m2": round(wi, 4),
+                            "net_kN_m2": round(we - wi, 4),
+                        }
+                    )
 
         for zone in ("I", "J"):
             cp_min, cp_max = get_pitched_roof_cpe(
-                roof_angle_deg, zone, windward=False,
+                roof_angle_deg,
+                zone,
+                windward=False,
                 override=overrides.get(f"roof_{zone}"),
             )
             for cpi in cpi_values:
                 we = cp_min * q_p_kN_m2
                 wi = cpi * q_p_kN_m2
-                results.append({
-                    "zone_id": f"roof_lw_{zone}_cpi{cpi:+.1f}",
-                    "description": f"Copertura sottovento {zone} (cp_i={cpi:+.1f})",
-                    "cpe": cp_min,
-                    "cpi": cpi,
-                    "we_kN_m2": round(we, 4),
-                    "wi_kN_m2": round(wi, 4),
-                    "net_kN_m2": round(we - wi, 4),
-                })
+                results.append(
+                    {
+                        "zone_id": f"roof_lw_{zone}_cpi{cpi:+.1f}",
+                        "description": f"Copertura sottovento {zone} (cp_i={cpi:+.1f})",
+                        "cpe": cp_min,
+                        "cpi": cpi,
+                        "we_kN_m2": round(we, 4),
+                        "wi_kN_m2": round(wi, 4),
+                        "net_kN_m2": round(we - wi, 4),
+                    }
+                )
 
     return results

@@ -73,14 +73,27 @@ _NORME_PER_FAMIGLIA: dict[str, list[str]] = {
 }
 
 _CLASSI_CLS = [
-    "C12/15", "C16/20", "C20/25", "C25/30", "C28/35", "C30/37",
-    "C32/40", "C35/45", "C40/50", "C45/55", "C50/60",
+    "C12/15",
+    "C16/20",
+    "C20/25",
+    "C25/30",
+    "C28/35",
+    "C30/37",
+    "C32/40",
+    "C35/45",
+    "C40/50",
+    "C45/55",
+    "C50/60",
 ]
 
 _TIPI_ACCIAIO = ["B450C", "B450A", "B500B"]
 
 _TIPI_BLOCCO = [
-    "mattoni_pieni", "mattoni_semipieni", "blocchi_cls", "tufo", "pietra_squadrata",
+    "mattoni_pieni",
+    "mattoni_semipieni",
+    "blocchi_cls",
+    "tufo",
+    "pietra_squadrata",
 ]
 
 _TIPI_MALTA = ["M2.5", "M5", "M10", "M15", "M20"]
@@ -257,19 +270,30 @@ class EditorMaterialeWidget(QWidget):
         # Parametri comuni
         self._aggiungi_campo_primario("E", "Modulo elastico E", m.E, "kg/cm²")
         self._aggiungi_campo_primario("nu", "Coeff. Poisson ν", m.nu, "—", decimali=3, massimo=0.5)
-        self._aggiungi_campo_primario("densita_kg_m3", "Densità", m.densita_kg_m3, "kg/m³", massimo=10000)
+        self._aggiungi_campo_primario(
+            "densita_kg_m3", "Densità", m.densita_kg_m3, "kg/m³", massimo=10000
+        )
 
         if m.famiglia == "calcestruzzo":
             self._aggiungi_campo_primario("f_ck", "f_ck (car. cilindrica)", m.f_ck, "kg/cm²")
             self._aggiungi_campo_primario("gamma_c", "γ_c", m.gamma_c, "—", decimali=2, massimo=3.0)
-            self._aggiungi_campo_primario("alpha_cc", "α_cc", m.alpha_cc, "—", decimali=2, massimo=1.0)
-            self._aggiungi_campo_primario("sigma_c28", "σ_c28 (cubica 28gg TA)", m.sigma_c28, "kg/cm²")
+            self._aggiungi_campo_primario(
+                "alpha_cc", "α_cc", m.alpha_cc, "—", decimali=2, massimo=1.0
+            )
+            self._aggiungi_campo_primario(
+                "sigma_c28", "σ_c28 (cubica 28gg TA)", m.sigma_c28, "kg/cm²"
+            )
             self._aggiungi_campo_primario("sigma_c_adm", "σ_c,adm (TA)", m.sigma_c_adm, "kg/cm²")
-            self._aggiungi_campo_primario("n_omogenizzazione", "n (omogenizz. TA)", m.n_omogenizzazione, "—", massimo=30)
+            self._aggiungi_campo_primario(
+                "n_omogenizzazione", "n (omogenizz. TA)", m.n_omogenizzazione, "—", massimo=30
+            )
             for nome, etichetta in [
-                ("f_cd", "f_cd (calcolo)"), ("f_cm", "f_cm (media)"),
-                ("f_ctm", "f_ctm (traz. media)"), ("f_ctk_005", "f_ctk,0.05 (5%)"),
-                ("E_cm", "E_cm (modulo)"), ("G", "G (taglio)"),
+                ("f_cd", "f_cd (calcolo)"),
+                ("f_cm", "f_cm (media)"),
+                ("f_ctm", "f_ctm (traz. media)"),
+                ("f_ctk_005", "f_ctk,0.05 (5%)"),
+                ("E_cm", "E_cm (modulo)"),
+                ("G", "G (taglio)"),
             ]:
                 self._aggiungi_campo_derivato(nome, etichetta, "kg/cm²")
 
@@ -285,7 +309,9 @@ class EditorMaterialeWidget(QWidget):
             self._aggiungi_campo_primario("f_vk0", "f_vk0 (taglio senza σ)", m.f_vk0, "kg/cm²")
             self._aggiungi_campo_primario("gamma_M", "γ_M", m.gamma_M, "—", decimali=2, massimo=5.0)
             for nome, etichetta in [
-                ("f_d", "f_d (calcolo compr.)"), ("f_vd", "f_vd (calcolo taglio)"), ("G", "G (taglio)"),
+                ("f_d", "f_d (calcolo compr.)"),
+                ("f_vd", "f_vd (calcolo taglio)"),
+                ("G", "G (taglio)"),
             ]:
                 self._aggiungi_campo_derivato(nome, etichetta, "kg/cm²")
 
@@ -293,8 +319,13 @@ class EditorMaterialeWidget(QWidget):
         self._aggiornamento_in_corso = False
 
     def _aggiungi_campo_primario(
-        self, nome_attr: str, etichetta: str, valore: float,
-        unita: str, decimali: int = 1, massimo: float = 9999999.0,
+        self,
+        nome_attr: str,
+        etichetta: str,
+        valore: float,
+        unita: str,
+        decimali: int = 1,
+        massimo: float = 9999999.0,
     ) -> None:
         """Aggiunge un campo editabile per un parametro primario."""
         spin = QDoubleSpinBox()

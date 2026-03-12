@@ -27,18 +27,22 @@ class LoadCase:
     """Caso di carico associato a un elemento."""
 
     name: str = ""
-    N: float = 0.0       # Sforzo normale [kg]
-    Mx: float = 0.0      # Momento flettente x [kg·m]
-    My: float = 0.0      # Momento flettente y [kg·m]
-    Tx: float = 0.0      # Taglio x [kg]
-    Ty: float = 0.0      # Taglio y [kg]
-    Mz: float = 0.0      # Momento torcente [kg·m]
+    N: float = 0.0  # Sforzo normale [kg]
+    Mx: float = 0.0  # Momento flettente x [kg·m]
+    My: float = 0.0  # Momento flettente y [kg·m]
+    Tx: float = 0.0  # Taglio x [kg]
+    Ty: float = 0.0  # Taglio y [kg]
+    Mz: float = 0.0  # Momento torcente [kg·m]
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
-            "N": self.N, "Mx": self.Mx, "My": self.My,
-            "Tx": self.Tx, "Ty": self.Ty, "Mz": self.Mz,
+            "N": self.N,
+            "Mx": self.Mx,
+            "My": self.My,
+            "Tx": self.Tx,
+            "Ty": self.Ty,
+            "Mz": self.Mz,
         }
 
 
@@ -46,7 +50,7 @@ class LoadCase:
 class Constraint:
     """Vincolo a un estremo dell'elemento."""
 
-    type: str = "fixed"   # "fixed" | "pinned" | "roller" | "free"
+    type: str = "fixed"  # "fixed" | "pinned" | "roller" | "free"
     position: str = "start"  # "start" | "end"
 
     def to_dict(self) -> dict[str, str]:

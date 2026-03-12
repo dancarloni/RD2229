@@ -33,6 +33,7 @@ try:
             QVBoxLayout,
             QWidget,
         )
+
         _QT_AVAILABLE = True
     except ImportError:
         try:
@@ -49,6 +50,7 @@ try:
                 QVBoxLayout,
                 QWidget,
             )
+
             _QT_AVAILABLE = True
         except ImportError:
             _QT_AVAILABLE = False
@@ -90,8 +92,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             self._punto_lavoro: PuntoLavoro | None = None
             self._fig = Figure(figsize=(8, 6), dpi=100)
             self._canvas = FigureCanvas(self._fig)
-            self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding,
-                                       QSizePolicy.Policy.Expanding)
+            self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
             # Controlli vista e norma
             self._combo_vista = QComboBox()
@@ -171,6 +172,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
 
         def _draw_3d(self, dom: Any) -> None:
             import numpy as np
+
             Mx = np.array(dom.Mx_Rd_kgcm)
             My = np.array(dom.My_Rd_kgcm)
             N_grid = np.tile(
@@ -246,6 +248,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             # Overlay punto di lavoro (Fase K)
             if self._check_punto.isChecked() and self._punto_lavoro is not None:
                 import math
+
                 sovrapponi_punto_lavoro(ax, self._punto_lavoro, theta_fisso_rad=theta_rad)
 
         def _dialogo_esporta(self) -> None:

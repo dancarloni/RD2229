@@ -21,6 +21,7 @@ from src.materials import (
 # Factory legno
 # ===========================================================================
 
+
 class TestCreaLegno:
     def test_c24(self):
         legno = crea_legno_ntc2018("C24")
@@ -74,6 +75,7 @@ class TestCreaLegno:
 # Validazione legno
 # ===========================================================================
 
+
 class TestValidazioneLegno:
     def test_valido(self):
         legno = crea_legno_ntc2018("C24")
@@ -81,23 +83,22 @@ class TestValidazioneLegno:
         assert errors == []
 
     def test_f_mk_zero(self):
-        legno = Material(
-            material_id="test", famiglia="legno", f_mk=0.0, f_c0k=100.0
-        )
+        legno = Material(material_id="test", famiglia="legno", f_mk=0.0, f_c0k=100.0)
         errors = validate_material(legno)
         assert any("f_mk" in e for e in errors)
 
     def test_f_c0k_zero(self):
-        legno = Material(
-            material_id="test", famiglia="legno", f_mk=100.0, f_c0k=0.0
-        )
+        legno = Material(material_id="test", famiglia="legno", f_mk=100.0, f_c0k=0.0)
         errors = validate_material(legno)
         assert any("f_c0k" in e for e in errors)
 
     def test_classe_servizio_invalida(self):
         legno = Material(
-            material_id="test", famiglia="legno",
-            f_mk=100.0, f_c0k=100.0, classe_servizio=5,
+            material_id="test",
+            famiglia="legno",
+            f_mk=100.0,
+            f_c0k=100.0,
+            classe_servizio=5,
         )
         errors = validate_material(legno)
         assert any("classe_servizio" in e for e in errors)
@@ -106,6 +107,7 @@ class TestValidazioneLegno:
 # ===========================================================================
 # Serializzazione legno
 # ===========================================================================
+
 
 class TestSerializzazioneLegno:
     def test_to_dict_legno(self):
@@ -137,6 +139,7 @@ class TestSerializzazioneLegno:
 # Repository con legno
 # ===========================================================================
 
+
 class TestRepositoryLegno:
     def test_defaults_include_legno(self):
         repo = MaterialRepository()
@@ -164,6 +167,7 @@ class TestRepositoryLegno:
 # ===========================================================================
 # Cataloghi JSON
 # ===========================================================================
+
 
 class TestCataloghi:
     _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "materials"
@@ -215,6 +219,7 @@ class TestCataloghi:
 # ===========================================================================
 # Adapter core_calculus ↔ materials
 # ===========================================================================
+
 
 class TestAdapter:
     def test_concrete_to_core(self):

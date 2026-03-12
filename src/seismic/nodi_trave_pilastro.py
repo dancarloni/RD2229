@@ -69,7 +69,7 @@ def calcola_v_rd_diagonale(eta: float, f_cd: float, b_j: float, h_jc: float, nu_
     if rad <= 0.0:
         return 0.0
 
-    return eta * f_cd * b_j * h_jc * (rad ** 0.5)
+    return eta * f_cd * b_j * h_jc * (rad**0.5)
 
 
 def stima_a_sh_min(v_jhd: float, f_yd: float, braccio: float = 1.0) -> float:

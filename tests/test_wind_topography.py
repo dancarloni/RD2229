@@ -63,11 +63,15 @@ class TestTopographyHill:
     def test_ct_increases_with_steepness(self):
         ct_gentle = compute_topography_factor(
             10.0,
-            TopographyParams(topo_type="hill", crest_height_m=50.0, slope_upwind_deg=10.0, lu_m=200.0),
+            TopographyParams(
+                topo_type="hill", crest_height_m=50.0, slope_upwind_deg=10.0, lu_m=200.0
+            ),
         )
         ct_steep = compute_topography_factor(
             10.0,
-            TopographyParams(topo_type="hill", crest_height_m=100.0, slope_upwind_deg=20.0, lu_m=200.0),
+            TopographyParams(
+                topo_type="hill", crest_height_m=100.0, slope_upwind_deg=20.0, lu_m=200.0
+            ),
         )
         assert ct_steep >= ct_gentle
 
@@ -85,8 +89,12 @@ class TestTopographyRidge:
 
     def test_ridge_less_than_hill(self):
         """Ridge speed-up should be lower than hill for same geometry."""
-        hill = TopographyParams(topo_type="hill", crest_height_m=100.0, slope_upwind_deg=15.0, lu_m=300.0)
-        ridge = TopographyParams(topo_type="ridge", crest_height_m=100.0, slope_upwind_deg=15.0, lu_m=300.0)
+        hill = TopographyParams(
+            topo_type="hill", crest_height_m=100.0, slope_upwind_deg=15.0, lu_m=300.0
+        )
+        ridge = TopographyParams(
+            topo_type="ridge", crest_height_m=100.0, slope_upwind_deg=15.0, lu_m=300.0
+        )
         ct_hill = compute_topography_factor(10.0, hill)
         ct_ridge = compute_topography_factor(10.0, ridge)
         assert ct_hill >= ct_ridge

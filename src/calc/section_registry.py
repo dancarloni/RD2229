@@ -75,13 +75,18 @@ def compute_rectangular(b_cm: float, h_cm: float) -> dict[str, Any]:
     return {
         "id": f"Rect-{b_cm:.0f}x{h_cm:.0f}",
         "section_type": "RECTANGULAR",
-        "width_cm": b_cm, "height_cm": h_cm,
+        "width_cm": b_cm,
+        "height_cm": h_cm,
         "area_cm2": A,
-        "Ix": round(Ix, 2), "Iy": round(Iy, 2),
-        "Wx": round(Wx, 2), "Wy": round(Wy, 2),
+        "Ix": round(Ix, 2),
+        "Iy": round(Iy, 2),
+        "Wx": round(Wx, 2),
+        "Wy": round(Wy, 2),
         "inertia_cm4": {"Ix": round(Ix, 2), "Iy": round(Iy, 2)},
-        "kappa_x": 5.0 / 6.0, "kappa_y": 5.0 / 6.0,
-        "x_G": b_cm / 2.0, "y_G": h_cm / 2.0,
+        "kappa_x": 5.0 / 6.0,
+        "kappa_y": 5.0 / 6.0,
+        "x_G": b_cm / 2.0,
+        "y_G": h_cm / 2.0,
     }
 
 
@@ -96,18 +101,26 @@ def compute_circular(d_cm: float) -> dict[str, Any]:
         "id": f"Circle-D{d_cm:.0f}",
         "section_type": "CIRCULAR",
         "diameter_cm": d_cm,
-        "width_cm": d_cm, "height_cm": d_cm,
+        "width_cm": d_cm,
+        "height_cm": d_cm,
         "area_cm2": round(A, 2),
-        "Ix": round(I, 2), "Iy": round(I, 2),
-        "Wx": round(W, 2), "Wy": round(W, 2),
+        "Ix": round(I, 2),
+        "Iy": round(I, 2),
+        "Wx": round(W, 2),
+        "Wy": round(W, 2),
         "inertia_cm4": {"Ix": round(I, 2), "Iy": round(I, 2)},
-        "kappa_x": 0.9, "kappa_y": 0.9,
-        "x_G": r, "y_G": r,
+        "kappa_x": 0.9,
+        "kappa_y": 0.9,
+        "x_G": r,
+        "y_G": r,
     }
 
 
 def compute_t_section(
-    b_f_cm: float, h_f_cm: float, b_w_cm: float, h_w_cm: float,
+    b_f_cm: float,
+    h_f_cm: float,
+    b_w_cm: float,
+    h_w_cm: float,
 ) -> dict[str, Any]:
     """Proprietà geometriche di una sezione a T [cm]."""
     h_tot = h_f_cm + h_w_cm
@@ -119,8 +132,8 @@ def compute_t_section(
     y_w = h_w_cm / 2.0
     y_G = (A_f * y_f + A_w * y_w) / A if A > 0 else h_tot / 2.0
 
-    Ix_f = b_f_cm * h_f_cm**3 / 12.0 + A_f * (y_f - y_G)**2
-    Ix_w = b_w_cm * h_w_cm**3 / 12.0 + A_w * (y_w - y_G)**2
+    Ix_f = b_f_cm * h_f_cm**3 / 12.0 + A_f * (y_f - y_G) ** 2
+    Ix_w = b_w_cm * h_w_cm**3 / 12.0 + A_w * (y_w - y_G) ** 2
     Ix = Ix_f + Ix_w
     Iy = h_f_cm * b_f_cm**3 / 12.0 + h_w_cm * b_w_cm**3 / 12.0
 
@@ -133,20 +146,30 @@ def compute_t_section(
     return {
         "id": f"T-{b_f_cm:.0f}x{h_tot:.0f}",
         "section_type": "T_SECTION",
-        "width_cm": b_f_cm, "height_cm": h_tot,
-        "flange_width_cm": b_f_cm, "flange_thickness_cm": h_f_cm,
-        "web_width_cm": b_w_cm, "web_height_cm": h_w_cm,
+        "width_cm": b_f_cm,
+        "height_cm": h_tot,
+        "flange_width_cm": b_f_cm,
+        "flange_thickness_cm": h_f_cm,
+        "web_width_cm": b_w_cm,
+        "web_height_cm": h_w_cm,
         "area_cm2": round(A, 2),
-        "Ix": round(Ix, 2), "Iy": round(Iy, 2),
-        "Wx_sup": round(Wx_sup, 2), "Wx_inf": round(Wx_inf, 2),
+        "Ix": round(Ix, 2),
+        "Iy": round(Iy, 2),
+        "Wx_sup": round(Wx_sup, 2),
+        "Wx_inf": round(Wx_inf, 2),
         "inertia_cm4": {"Ix": round(Ix, 2), "Iy": round(Iy, 2)},
-        "kappa_x": round(kappa_web, 4), "kappa_y": 5.0 / 6.0,
-        "x_G": b_f_cm / 2.0, "y_G": round(y_G, 2),
+        "kappa_x": round(kappa_web, 4),
+        "kappa_y": 5.0 / 6.0,
+        "x_G": b_f_cm / 2.0,
+        "y_G": round(y_G, 2),
     }
 
 
 def compute_i_section(
-    b_f_cm: float, h_f_cm: float, b_w_cm: float, h_w_cm: float,
+    b_f_cm: float,
+    h_f_cm: float,
+    b_w_cm: float,
+    h_w_cm: float,
 ) -> dict[str, Any]:
     """Proprietà geometriche di una sezione a doppia T (I) simmetrica [cm]."""
     h_tot = 2 * h_f_cm + h_w_cm
@@ -156,10 +179,8 @@ def compute_i_section(
     y_G = h_tot / 2.0
 
     d_f = h_w_cm / 2.0 + h_f_cm / 2.0
-    Ix = (b_w_cm * h_w_cm**3 / 12.0 +
-          2 * (b_f_cm * h_f_cm**3 / 12.0 + A_f * d_f**2))
-    Iy = (h_w_cm * b_w_cm**3 / 12.0 +
-          2 * h_f_cm * b_f_cm**3 / 12.0)
+    Ix = b_w_cm * h_w_cm**3 / 12.0 + 2 * (b_f_cm * h_f_cm**3 / 12.0 + A_f * d_f**2)
+    Iy = h_w_cm * b_w_cm**3 / 12.0 + 2 * h_f_cm * b_f_cm**3 / 12.0
     Wx = Ix / (h_tot / 2.0) if h_tot > 0 else 0.0
 
     kappa_web = (b_w_cm * h_w_cm) / A if A > 0 else 5.0 / 6.0
@@ -167,14 +188,21 @@ def compute_i_section(
     return {
         "id": f"I-{b_f_cm:.0f}x{h_tot:.0f}",
         "section_type": "I_SECTION",
-        "width_cm": b_f_cm, "height_cm": h_tot,
-        "flange_width_cm": b_f_cm, "flange_thickness_cm": h_f_cm,
-        "web_width_cm": b_w_cm, "web_height_cm": h_w_cm,
+        "width_cm": b_f_cm,
+        "height_cm": h_tot,
+        "flange_width_cm": b_f_cm,
+        "flange_thickness_cm": h_f_cm,
+        "web_width_cm": b_w_cm,
+        "web_height_cm": h_w_cm,
         "area_cm2": round(A, 2),
-        "Ix": round(Ix, 2), "Iy": round(Iy, 2), "Wx": round(Wx, 2),
+        "Ix": round(Ix, 2),
+        "Iy": round(Iy, 2),
+        "Wx": round(Wx, 2),
         "inertia_cm4": {"Ix": round(Ix, 2), "Iy": round(Iy, 2)},
-        "kappa_x": round(kappa_web, 4), "kappa_y": 5.0 / 6.0,
-        "x_G": b_f_cm / 2.0, "y_G": round(y_G, 2),
+        "kappa_x": round(kappa_web, 4),
+        "kappa_y": 5.0 / 6.0,
+        "x_G": b_f_cm / 2.0,
+        "y_G": round(y_G, 2),
     }
 
 
@@ -193,9 +221,7 @@ def load_sections_from_legacy(path: str | None = None) -> int:
         Numero di sezioni caricate.
     """
     if path is None:
-        path = os.path.join(
-            os.path.dirname(__file__), "..", "legacy", "sections.json"
-        )
+        path = os.path.join(os.path.dirname(__file__), "..", "legacy", "sections.json")
 
     try:
         with open(path, encoding="utf-8") as f:

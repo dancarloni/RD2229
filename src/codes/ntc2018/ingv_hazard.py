@@ -57,6 +57,7 @@ _csv_cache: dict[Path, list[tuple[float, float, dict]]] = {}
 
 class HazardSource(Enum):
     """Modalita' di accesso ai dati di pericolosita' sismica."""
+
     INGV_WEBSERVICE = "INGV_WEBSERVICE"
     LOCAL_CSV = "LOCAL_CSV"
 
@@ -64,6 +65,7 @@ class HazardSource(Enum):
 # ---------------------------------------------------------------------------
 # Webservice INGV
 # ---------------------------------------------------------------------------
+
 
 def get_hazard_params_ingv(lat: float, lon: float, TR: int) -> Ntc2018HazardRow:
     """Ottieni parametri di pericolosita' dal webservice INGV ESSE1.
@@ -89,12 +91,14 @@ def get_hazard_params_ingv(lat: float, lon: float, TR: int) -> Ntc2018HazardRow:
 
     _valida_coordinate(lat, lon)
 
-    params = urllib.parse.urlencode({
-        "lat": f"{lat:.4f}",
-        "lon": f"{lon:.4f}",
-        "elev": "0",
-        "depth": "0",
-    })
+    params = urllib.parse.urlencode(
+        {
+            "lat": f"{lat:.4f}",
+            "lon": f"{lon:.4f}",
+            "elev": "0",
+            "depth": "0",
+        }
+    )
     url = f"{_INGV_ESSE1_URL}?{params}"
 
     try:
@@ -140,6 +144,7 @@ def _parse_ingv_response(data: dict, TR: int) -> Ntc2018HazardRow:
 # ---------------------------------------------------------------------------
 # CSV locale — lettura e cache
 # ---------------------------------------------------------------------------
+
 
 def _carica_csv_griglia(csv_path: Path) -> list[tuple[float, float, dict]]:
     """Carica la griglia INGV dal CSV e ritorna lista di (lat, lon, row_dict).
@@ -195,6 +200,7 @@ def _invalida_cache_csv(csv_path: Path | None = None) -> None:
 # ---------------------------------------------------------------------------
 # CSV locale — accesso e interpolazione
 # ---------------------------------------------------------------------------
+
 
 def get_hazard_params_csv(
     lat: float,
@@ -258,6 +264,7 @@ def get_hazard_params_csv(
 # Funzione principale (webservice + fallback)
 # ---------------------------------------------------------------------------
 
+
 def get_hazard_params_site(
     lat: float,
     lon: float,
@@ -292,6 +299,7 @@ def get_hazard_params_site(
 # ---------------------------------------------------------------------------
 # Utilita' interne
 # ---------------------------------------------------------------------------
+
 
 def _valida_coordinate(lat: float, lon: float) -> None:
     """Verifica che le coordinate siano nel range Italia (approssimativo)."""
@@ -345,7 +353,7 @@ def _cerca_punto_piu_vicino(
     best_dist2 = float("inf")
     best_row: dict | None = None
 
-    for (plat, plon, row) in points:
+    for plat, plon, row in points:
         d2 = (plat - lat) ** 2 + (plon - lon) ** 2
         if d2 < best_dist2:
             best_dist2 = d2
@@ -365,9 +373,14 @@ def _cerca_punto_piu_vicino(
 
 def _interpola_log_lineare_tr(
     TR: int,
-    tr1: int, tr2: int,
-    ag1: float, f0_1: float, tc1: float,
-    ag2: float, f0_2: float, tc2: float,
+    tr1: int,
+    tr2: int,
+    ag1: float,
+    f0_1: float,
+    tc1: float,
+    ag2: float,
+    f0_2: float,
+    tc2: float,
 ) -> tuple[float, float, float]:
     """Interpolazione log-lineare dei parametri spettrali tra due TR.
 

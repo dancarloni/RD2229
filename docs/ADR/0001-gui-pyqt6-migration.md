@@ -1,7 +1,7 @@
 # ADR 0001 – GUI Framework Migration: PySide6 → PyQt6
 
-**Date:** 2025  
-**Status:** Accepted  
+**Date:** 2025
+**Status:** Accepted
 **Deciders:** RD2229 core team
 
 ---

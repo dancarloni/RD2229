@@ -51,10 +51,10 @@ class TipoSezione(str, Enum):
 class EsitoTorsione(str, Enum):
     """Esito della verifica a torsione."""
 
-    NESSUNA_ARMATURA = "nessuna_armatura"     # τ ≤ τ_c0
+    NESSUNA_ARMATURA = "nessuna_armatura"  # τ ≤ τ_c0
     ARMATURA_NECESSARIA = "armatura_necessaria"  # τ_c0 < τ ≤ τ_c1
     SEZIONE_INSUFFICIENTE = "sezione_insufficiente"  # τ > τ_c1
-    NESSUN_MOMENTO = "nessun_momento"          # Mx = 0
+    NESSUN_MOMENTO = "nessun_momento"  # Mx = 0
     SEZIONE_NON_SUPPORTATA = "sezione_non_supportata"
 
 
@@ -79,22 +79,22 @@ class InputTorsione:
     sigma_s_adm: float  # kg/cm²
 
     # Geometria rettangolare / base per T e doppio T
-    B: float = 0.0   # cm — larghezza (anima per T)
-    H: float = 0.0   # cm — altezza totale
+    B: float = 0.0  # cm — larghezza (anima per T)
+    H: float = 0.0  # cm — altezza totale
 
     # Geometria T
-    Bo: float = 0.0   # cm — larghezza ala (flangia)
-    S: float = 0.0    # cm — spessore ala (flangia)
+    Bo: float = 0.0  # cm — larghezza ala (flangia)
+    S: float = 0.0  # cm — spessore ala (flangia)
 
     # Geometria circolare
-    D: float = 0.0    # cm — diametro esterno
-    Di: float = 0.0   # cm — diametro interno (0 per piena)
+    D: float = 0.0  # cm — diametro esterno
+    Di: float = 0.0  # cm — diametro interno (0 per piena)
 
     # Geometria scatolare
     # S usato come spessore parete (s_min)
 
     # Copriferro e diametro barre
-    copriferro: float = 3.0   # cm
+    copriferro: float = 3.0  # cm
     diametro_barra: float = 1.4  # cm (φ14)
 
     # Taglio concomitante (per interazione T+V)
@@ -102,9 +102,9 @@ class InputTorsione:
     Tz: float = 0.0  # kg — taglio in z
 
     # Armatura a torsione (per verifica)
-    Al_to: float = 0.0     # cm² — armatura longitudinale dedicata
-    Asw_to: float = 0.0    # cm² — area braccio staffa dedicata
-    Pst_to: float = 0.0    # cm — passo staffe dedicato
+    Al_to: float = 0.0  # cm² — armatura longitudinale dedicata
+    Asw_to: float = 0.0  # cm² — area braccio staffa dedicata
+    Pst_to: float = 0.0  # cm — passo staffe dedicato
 
     # Angoli traliccio
     theta_to: float = math.pi / 4  # rad — inclinazione bielle cls (45°)
@@ -116,23 +116,23 @@ class RisultatoTorsione:
     """Risultato della verifica a torsione TA."""
 
     esito: EsitoTorsione
-    tau_max: float = 0.0       # kg/cm² — tensione tangenziale massima
-    tau_c0: float = 0.0        # kg/cm² — limite senza armatura
-    tau_c1_t: float = 0.0      # kg/cm² — limite con interazione T+V
-    psi: float = 0.0           # coefficiente di forma (rettangolare)
+    tau_max: float = 0.0  # kg/cm² — tensione tangenziale massima
+    tau_c0: float = 0.0  # kg/cm² — limite senza armatura
+    tau_c1_t: float = 0.0  # kg/cm² — limite con interazione T+V
+    psi: float = 0.0  # coefficiente di forma (rettangolare)
 
     # Geometria tubolare equivalente (per SLU truss model)
-    A_k: float = 0.0           # cm² — area tubolare equivalente
-    p_k: float = 0.0           # cm — perimetro tubolare equivalente
+    A_k: float = 0.0  # cm² — area tubolare equivalente
+    p_k: float = 0.0  # cm — perimetro tubolare equivalente
 
     # Armatura (progetto)
-    Al_to: float = 0.0         # cm² — armatura longitudinale
-    Pst_to: float = 0.0        # cm — passo staffe
-    n_barre: int = 0           # numero barre longitudinali
+    Al_to: float = 0.0  # cm² — armatura longitudinale
+    Pst_to: float = 0.0  # cm — passo staffe
+    n_barre: int = 0  # numero barre longitudinali
 
     # Tensioni armatura (verifica)
-    sigma_l: float = 0.0       # kg/cm² — tensione armatura longitudinale
-    sigma_st: float = 0.0      # kg/cm² — tensione armatura trasversale
+    sigma_l: float = 0.0  # kg/cm² — tensione armatura longitudinale
+    sigma_st: float = 0.0  # kg/cm² — tensione armatura trasversale
     verifica_soddisfatta: bool = False
 
     # Dettagli calcolo
@@ -163,9 +163,7 @@ def _delta(copriferro: float, diametro_barra: float) -> float:
     return copriferro + diametro_barra / 2.0
 
 
-def calcola_tau_max_rettangolare(
-    Mx: float, B: float, H: float
-) -> tuple[float, float]:
+def calcola_tau_max_rettangolare(Mx: float, B: float, H: float) -> tuple[float, float]:
     """τ_max per sezione rettangolare piena.
 
     Ψ = 3 + 2.6 / (0.45 + a/b) dove a ≥ b.
@@ -185,9 +183,7 @@ def calcola_tau_max_rettangolare(
     return tau_max, psi
 
 
-def calcola_tau_max_circolare(
-    Mx: float, D: float, Di: float = 0.0
-) -> float:
+def calcola_tau_max_circolare(Mx: float, D: float, Di: float = 0.0) -> float:
     """τ_max per sezione circolare piena o cava.
 
     τ_max = 2·|Mx|·Re / (π·(Re⁴ - Ri⁴))
@@ -200,9 +196,7 @@ def calcola_tau_max_circolare(
     return 2.0 * abs(Mx) * Re / denom
 
 
-def calcola_tau_max_T(
-    Mx: float, B: float, H: float, Bo: float, S: float
-) -> float:
+def calcola_tau_max_T(Mx: float, B: float, H: float, Bo: float, S: float) -> float:
     """τ_max per sezione a T o T rovescia.
 
     La sezione viene scomposta in due rettangoli:
@@ -232,9 +226,7 @@ def calcola_tau_max_T(
     return 3.0 * abs(Mx) * b_max / denom
 
 
-def calcola_tau_max_doppio_T(
-    Mx: float, B: float, H: float, Bo: float, S: float
-) -> float:
+def calcola_tau_max_doppio_T(Mx: float, B: float, H: float, Bo: float, S: float) -> float:
     """τ_max per sezione a doppio T (I).
 
     Come T ma con due ali: denom = 2·a1·b1³ + a2·b2³.
@@ -257,9 +249,7 @@ def calcola_tau_max_doppio_T(
     return 3.0 * abs(Mx) * b_max / denom
 
 
-def calcola_tau_max_scatolare(
-    Mx: float, B: float, H: float, S: float
-) -> float:
+def calcola_tau_max_scatolare(Mx: float, B: float, H: float, S: float) -> float:
     """τ_max per sezione scatolare (box).
 
     Am = (B - s)·(H - s), area racchiusa dalla linea mediana.
@@ -365,8 +355,7 @@ def verifica_torsione_ta(inp: InputTorsione, modo_verifica: bool = True) -> Risu
     elif inp.tipo_sezione == TipoSezione.CIRCOLARE:
         tau_max = calcola_tau_max_circolare(inp.Mx, inp.D, inp.Di)
         passaggi.append(
-            f"Sez. circolare D={inp.D:.1f} Di={inp.Di:.1f} cm: "
-            f"τ_max = {tau_max:.2f} kg/cm²"
+            f"Sez. circolare D={inp.D:.1f} Di={inp.Di:.1f} cm: " f"τ_max = {tau_max:.2f} kg/cm²"
         )
 
     elif inp.tipo_sezione in (TipoSezione.T, TipoSezione.T_ROVESCIA):
@@ -437,18 +426,14 @@ def verifica_torsione_ta(inp: InputTorsione, modo_verifica: bool = True) -> Risu
         # Verifica armatura esistente
         sigma_l = abs_Mx * p_k / (2.0 * A_k * inp.Al_to * math.tan(theta))
         ris.sigma_l = sigma_l
-        passaggi.append(
-            f"σ_l = |Mx|·p / (2·A·Al·tan θ) = {sigma_l:.2f} kg/cm²"
-        )
+        passaggi.append(f"σ_l = |Mx|·p / (2·A·Al·tan θ) = {sigma_l:.2f} kg/cm²")
 
         if inp.Asw_to > 0 and inp.Pst_to > 0:
-            sigma_st = abs_Mx * inp.Pst_to / (
-                2.0 * A_k * inp.Asw_to * math.sin(math.pi - theta - alpha)
+            sigma_st = (
+                abs_Mx * inp.Pst_to / (2.0 * A_k * inp.Asw_to * math.sin(math.pi - theta - alpha))
             )
             ris.sigma_st = sigma_st
-            passaggi.append(
-                f"σ_st = |Mx|·p_st / (2·A·Asw·sin(π-θ-α)) = {sigma_st:.2f} kg/cm²"
-            )
+            passaggi.append(f"σ_st = |Mx|·p_st / (2·A·Asw·sin(π-θ-α)) = {sigma_st:.2f} kg/cm²")
         else:
             sigma_st = 0.0
             ris.sigma_st = 0.0
@@ -467,20 +452,19 @@ def verifica_torsione_ta(inp: InputTorsione, modo_verifica: bool = True) -> Risu
         if A_k > 0 and inp.sigma_s_adm > 0:
             Al_to = abs_Mx * p_k / (2.0 * A_k * inp.sigma_s_adm * math.tan(theta))
             ris.Al_to = Al_to
-            passaggi.append(
-                f"Al progetto = |Mx|·p / (2·A·σ_adm·tan θ) = {Al_to:.2f} cm²"
-            )
+            passaggi.append(f"Al progetto = |Mx|·p / (2·A·σ_adm·tan θ) = {Al_to:.2f} cm²")
 
             if inp.Asw_to > 0:
                 Pst_to = (
-                    2.0 * A_k * inp.Asw_to * inp.sigma_s_adm
+                    2.0
+                    * A_k
+                    * inp.Asw_to
+                    * inp.sigma_s_adm
                     * math.sin(math.pi - theta - alpha)
                     / abs_Mx
                 )
                 ris.Pst_to = Pst_to
-                passaggi.append(
-                    f"Passo staffe progetto = {Pst_to:.1f} cm"
-                )
+                passaggi.append(f"Passo staffe progetto = {Pst_to:.1f} cm")
 
             # Numero barre
             Af1 = math.pi * inp.diametro_barra**2 / 4.0

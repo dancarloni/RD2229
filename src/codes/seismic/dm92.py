@@ -61,19 +61,20 @@ def calcola_azione_sismica_dm92(
     log.append(f"DM92: zona={zona_sismica}, C={C}, I={I}, epsilon={epsilon}")
     F_base = C * I * epsilon * W_tot
     log.append(
-        f"F_base = C({C}) * I({I}) * eps({epsilon}) * W_tot({W_tot:.3f}) "
-        f"= {F_base:.3f} kN"
+        f"F_base = C({C}) * I({I}) * eps({epsilon}) * W_tot({W_tot:.3f}) " f"= {F_base:.3f} kN"
     )
 
     C_eff = F_base / W_tot if W_tot > 0 else 0.0
     distribuzione = distribuzione_triangolare(F_base, piani)
 
-    result.update({
-        "F_base_kN": round(F_base, 3),
-        "C_effettivo": round(C_eff, 6),
-        "metodo": "STATICO_EQUIVALENTE",
-        "distribuzione": distribuzione,
-        "zona_sismica": zona_sismica,
-        "C": C,
-    })
+    result.update(
+        {
+            "F_base_kN": round(F_base, 3),
+            "C_effettivo": round(C_eff, 6),
+            "metodo": "STATICO_EQUIVALENTE",
+            "distribuzione": distribuzione,
+            "zona_sismica": zona_sismica,
+            "C": C,
+        }
+    )
     return result

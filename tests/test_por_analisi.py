@@ -11,10 +11,7 @@ Test per:
 import pytest
 
 from src.methods.muratura.discretizzazione import Maschio, TipoVincolo
-from src.methods.muratura.modello_edificio import (
-    ConfigPOR,
-    MaterialeMuratura,
-)
+from src.methods.muratura.modello_edificio import ConfigPOR, MaterialeMuratura
 from src.methods.muratura.por_analisi import (
     CurvaPushover,
     TipoDistribuzione,
@@ -24,29 +21,41 @@ from src.methods.muratura.por_analisi import (
     pushover_multipiano,
     pushover_piano,
 )
-from src.methods.muratura.resistenza import (
-    calcola_resistenza_maschio,
-)
+from src.methods.muratura.resistenza import calcola_resistenza_maschio
 
 
 @pytest.fixture
 def materiale() -> MaterialeMuratura:
     return MaterialeMuratura(
         nome="mattoni_pieni",
-        f=24.0, tau_0=0.6, fvk0=0.4,
-        E=15000.0, G=5000.0, gamma=0.0018,
-        gamma_M=2.0, FC=1.2, mu=0.4,
+        f=24.0,
+        tau_0=0.6,
+        fvk0=0.4,
+        E=15000.0,
+        G=5000.0,
+        gamma=0.0018,
+        gamma_M=2.0,
+        FC=1.2,
+        mu=0.4,
     )
 
 
 def _crea_maschio(
-    mat: MaterialeMuratura, id_m: int = 0,
-    L: float = 200, t: float = 30, h: float = 300,
-    N: float = 15000, direzione: str = "X",
+    mat: MaterialeMuratura,
+    id_m: int = 0,
+    L: float = 200,
+    t: float = 30,
+    h: float = 300,
+    N: float = 15000,
+    direzione: str = "X",
 ) -> Maschio:
     m = Maschio(
-        id_maschio=id_m, L=L, t=t, h=h,
-        materiale=mat, N_gravitazionale=N,
+        id_maschio=id_m,
+        L=L,
+        t=t,
+        h=h,
+        materiale=mat,
+        N_gravitazionale=N,
         vincolo=TipoVincolo.INCASTRO,
     )
     m._direzione = direzione  # type: ignore[attr-defined]
@@ -57,11 +66,10 @@ def _crea_maschio(
 #  Distribuzione forze
 # ═══════════════════════════════════════════════════════════
 
-class TestForzeInAltezza:
 
+class TestForzeInAltezza:
     def test_modo_1_singolo_piano(self):
-        F = forze_in_altezza([10000], [300], V_base=5000,
-                             distribuzione=TipoDistribuzione.MODO_1)
+        F = forze_in_altezza([10000], [300], V_base=5000, distribuzione=TipoDistribuzione.MODO_1)
         assert len(F) == 1
         assert pytest.approx(F[0], rel=1e-3) == 5000.0
 
@@ -70,8 +78,7 @@ class TestForzeInAltezza:
         masse = [10000, 8000]
         quote = [300, 600]
         V_base = 10000
-        F = forze_in_altezza(masse, quote, V_base,
-                             distribuzione=TipoDistribuzione.MODO_1)
+        F = forze_in_altezza(masse, quote, V_base, distribuzione=TipoDistribuzione.MODO_1)
 
         # F_1 = 10000 × (10000×300) / (10000×300 + 8000×600)
         somma_mz = 10000 * 300 + 8000 * 600
@@ -81,8 +88,9 @@ class TestForzeInAltezza:
 
     def test_uniforme(self):
         masse = [10000, 8000]
-        F = forze_in_altezza(masse, [300, 600], V_base=10000,
-                             distribuzione=TipoDistribuzione.UNIFORME)
+        F = forze_in_altezza(
+            masse, [300, 600], V_base=10000, distribuzione=TipoDistribuzione.UNIFORME
+        )
 
         assert pytest.approx(F[0], rel=1e-3) == 10000 * 10000 / 18000
         assert pytest.approx(sum(F), rel=1e-3) == 10000
@@ -105,8 +113,8 @@ class TestForzeInAltezza:
 #  Pushover singolo piano
 # ═══════════════════════════════════════════════════════════
 
-class TestPushoverPiano:
 
+class TestPushoverPiano:
     def test_curva_non_vuota(self, materiale):
         maschi = [_crea_maschio(materiale, id_m=i) for i in range(3)]
         resistenze = [calcola_resistenza_maschio(m) for m in maschi]
@@ -137,7 +145,8 @@ class TestPushoverPiano:
         maschi = [_crea_maschio(materiale, id_m=i, N=20000) for i in range(3)]
         resistenze = [calcola_resistenza_maschio(m) for m in maschi]
         config = ConfigPOR(
-            n_passi=200, spostamento_max=20.0,
+            n_passi=200,
+            spostamento_max=20.0,
             criterio_collasso="caduta_resistenza",
             soglia_caduta_resistenza=0.80,
         )
@@ -165,11 +174,11 @@ class TestPushoverPiano:
 #  Pushover multipiano
 # ═══════════════════════════════════════════════════════════
 
-class TestPushoverMultipiano:
 
+class TestPushoverMultipiano:
     def test_due_piani(self, materiale):
         maschi_p0 = [_crea_maschio(materiale, id_m=i, N=30000) for i in range(3)]
-        maschi_p1 = [_crea_maschio(materiale, id_m=i+3, N=15000) for i in range(3)]
+        maschi_p1 = [_crea_maschio(materiale, id_m=i + 3, N=15000) for i in range(3)]
 
         res_p0 = [calcola_resistenza_maschio(m) for m in maschi_p0]
         res_p1 = [calcola_resistenza_maschio(m) for m in maschi_p1]
@@ -193,8 +202,8 @@ class TestPushoverMultipiano:
 #  Bilinearizzazione
 # ═══════════════════════════════════════════════════════════
 
-class TestBilinearizzazione:
 
+class TestBilinearizzazione:
     def test_bilineare_valida(self, materiale):
         maschi = [_crea_maschio(materiale, id_m=i, N=20000) for i in range(3)]
         resistenze = [calcola_resistenza_maschio(m) for m in maschi]
@@ -238,8 +247,8 @@ class TestBilinearizzazione:
 #  Analisi completa
 # ═══════════════════════════════════════════════════════════
 
-class TestAnalisiCompleta:
 
+class TestAnalisiCompleta:
     def test_8_curve(self, materiale):
         """2 dir × 2 distr × 2 segni ecc = 8 curve."""
         maschi = [
@@ -291,7 +300,9 @@ class TestAnalisiCompleta:
         risultato = analisi_por_completa(
             maschi_per_piano={0: maschi},
             resistenze_per_piano={0: resistenze},
-            masse=[20000], quote=[150], piani_ordinati=[0],
+            masse=[20000],
+            quote=[150],
+            piani_ordinati=[0],
             config=config,
         )
 

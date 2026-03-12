@@ -23,6 +23,7 @@ from src.steel.connessioni import (
 
 # ═══════════════════════ SALDATURE ═══════════════════════
 
+
 class TestCostantiSaldatura:
     def test_beta_w_fe430(self):
         assert BETA_W["Fe430"] == 0.85
@@ -39,7 +40,9 @@ class TestSaldaturaFrontale:
         """Cordone frontale a=0.5 cm, L=10 cm, N=5000 kg → verificato."""
         inp = InputSaldatura(
             tipo=TipoSaldatura.CORDONE_ANGOLO,
-            a=0.5, L=10.0, n_cordoni=2,
+            a=0.5,
+            L=10.0,
+            n_cordoni=2,
             N=5000.0,
             tipo_acciaio="Fe430",
             sigma_adm_acciaio=1900.0,
@@ -62,7 +65,9 @@ class TestSaldaturaFrontale:
         """Cordone piccolo, carico grande → non verificato."""
         inp = InputSaldatura(
             tipo=TipoSaldatura.CORDONE_ANGOLO,
-            a=0.3, L=3.0, n_cordoni=1,
+            a=0.3,
+            L=3.0,
+            n_cordoni=1,
             N=10000.0,
             tipo_acciaio="Fe430",
             sigma_adm_acciaio=1900.0,
@@ -77,7 +82,9 @@ class TestSaldaturaLaterale:
         """Cordone laterale: V=3000 kg."""
         inp = InputSaldatura(
             tipo=TipoSaldatura.CORDONE_ANGOLO,
-            a=0.5, L=15.0, n_cordoni=2,
+            a=0.5,
+            L=15.0,
+            n_cordoni=2,
             V=3000.0,
             tipo_acciaio="Fe430",
             sigma_adm_acciaio=1900.0,
@@ -95,8 +102,11 @@ class TestSaldaturaCombinata:
         """Cordone con N e V combinati."""
         inp = InputSaldatura(
             tipo=TipoSaldatura.CORDONE_ANGOLO,
-            a=0.5, L=10.0, n_cordoni=2,
-            N=3000.0, V=2000.0,
+            a=0.5,
+            L=10.0,
+            n_cordoni=2,
+            N=3000.0,
+            V=2000.0,
             tipo_acciaio="Fe430",
             sigma_adm_acciaio=1900.0,
         )
@@ -116,7 +126,8 @@ class TestSaldaturaTestaTesta:
         """Saldatura a completa penetrazione: σ_adm = materiale base."""
         inp = InputSaldatura(
             tipo=TipoSaldatura.TESTA_TESTA,
-            a=1.0, L=10.0,
+            a=1.0,
+            L=10.0,
             N=10000.0,
             tipo_acciaio="Fe430",
             sigma_adm_acciaio=1900.0,
@@ -131,7 +142,9 @@ class TestSaldaturaToDict:
     def test_to_dict(self):
         inp = InputSaldatura(
             tipo=TipoSaldatura.CORDONE_ANGOLO,
-            a=0.5, L=10.0, N=5000.0,
+            a=0.5,
+            L=10.0,
+            N=5000.0,
         )
         res = verifica_saldatura_ta(inp)
         d = res.to_dict()
@@ -145,13 +158,16 @@ class TestSaldaturaAreaNulla:
         """a=0 → area nulla, non deve crashare."""
         inp = InputSaldatura(
             tipo=TipoSaldatura.CORDONE_ANGOLO,
-            a=0.0, L=10.0, N=1000.0,
+            a=0.0,
+            L=10.0,
+            N=1000.0,
         )
         res = verifica_saldatura_ta(inp)
         assert res.A_gola == 0
 
 
 # ═══════════════════════ BULLONATURE ═══════════════════════
+
 
 class TestCostantiBulloni:
     def test_f_ub_8_8(self):
@@ -171,8 +187,10 @@ class TestBulloneTaglio:
     def test_taglio_verificato(self):
         """M20 cl 8.8: taglio 3000 kg → verificato."""
         inp = InputBullone(
-            diametro=20, classe="8.8",
-            n_bulloni=4, n_piani_taglio=1,
+            diametro=20,
+            classe="8.8",
+            n_bulloni=4,
+            n_piani_taglio=1,
             V=3000.0,
         )
         res = verifica_bullone_ta(inp)
@@ -182,8 +200,10 @@ class TestBulloneTaglio:
     def test_taglio_non_verificato(self):
         """Un bullone piccolo con carico alto → non verificato."""
         inp = InputBullone(
-            diametro=12, classe="4.6",
-            n_bulloni=1, n_piani_taglio=1,
+            diametro=12,
+            classe="4.6",
+            n_bulloni=1,
+            n_piani_taglio=1,
             V=5000.0,
         )
         res = verifica_bullone_ta(inp)
@@ -194,7 +214,8 @@ class TestBulloneTrazione:
     def test_trazione_verificata(self):
         """M20 cl 8.8: trazione 5000 kg → verificato."""
         inp = InputBullone(
-            diametro=20, classe="8.8",
+            diametro=20,
+            classe="8.8",
             n_bulloni=2,
             N=5000.0,
         )
@@ -207,9 +228,12 @@ class TestBulloneInterazione:
     def test_interazione_verificata(self):
         """M20 cl 8.8 con taglio e trazione moderati."""
         inp = InputBullone(
-            diametro=20, classe="8.8",
-            n_bulloni=4, n_piani_taglio=1,
-            V=2000.0, N=3000.0,
+            diametro=20,
+            classe="8.8",
+            n_bulloni=4,
+            n_piani_taglio=1,
+            V=2000.0,
+            N=3000.0,
         )
         res = verifica_bullone_ta(inp)
         assert res.verifica_interazione is True
@@ -219,9 +243,12 @@ class TestBulloneInterazione:
     def test_interazione_formula(self):
         """Verifica formula (V/V_Rd)² + (N/N_Rd)² ≤ 1."""
         inp = InputBullone(
-            diametro=20, classe="8.8",
-            n_bulloni=1, n_piani_taglio=1,
-            V=2000.0, N=2000.0,
+            diametro=20,
+            classe="8.8",
+            n_bulloni=1,
+            n_piani_taglio=1,
+            V=2000.0,
+            N=2000.0,
         )
         res = verifica_bullone_ta(inp)
 
@@ -242,12 +269,14 @@ class TestBulloneRifollamento:
     def test_rifollamento(self):
         """Verifica rifollamento con dati lamiera."""
         inp = InputBullone(
-            diametro=20, classe="8.8",
-            n_bulloni=2, n_piani_taglio=1,
+            diametro=20,
+            classe="8.8",
+            n_bulloni=2,
+            n_piani_taglio=1,
             V=5000.0,
-            t=1.0,          # spessore lamiera
-            e1=4.0,         # distanza dal bordo
-            p1=6.0,         # interasse
+            t=1.0,  # spessore lamiera
+            e1=4.0,  # distanza dal bordo
+            p1=6.0,  # interasse
             fu_lamiera=4400.0,  # f_u lamiera Fe430
         )
         res = verifica_bullone_ta(inp)
@@ -269,9 +298,12 @@ class TestBulloneVerificaGlobale:
     def test_tutto_verificato(self):
         """Bullone ben dimensionato → verifica globale OK."""
         inp = InputBullone(
-            diametro=24, classe="10.9",
-            n_bulloni=4, n_piani_taglio=2,
-            V=2000.0, N=1000.0,
+            diametro=24,
+            classe="10.9",
+            n_bulloni=4,
+            n_piani_taglio=2,
+            V=2000.0,
+            N=1000.0,
         )
         res = verifica_bullone_ta(inp)
         assert res.verifica_globale is True

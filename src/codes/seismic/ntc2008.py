@@ -77,31 +77,29 @@ def calcola_azione_sismica_ntc2008(
 
     Se_ms2 = spettro_elastico(ag_g, F0, SS, ST, TB, TC, TD, xi=xi, T=T_1)
     Sd_ms2 = Se_ms2 / q
-    log.append(
-        f"T_1={T_1}s, Se(T_1)={Se_ms2:.4f} m/s², Sd(T_1)={Sd_ms2:.4f} m/s²"
-    )
+    log.append(f"T_1={T_1}s, Se(T_1)={Se_ms2:.4f} m/s², Sd(T_1)={Sd_ms2:.4f} m/s²")
 
     W_tot = sum(p.W_kN for p in piani)
     F_base = Sd_ms2 * W_tot / _G
-    log.append(
-        f"V_b = Sd({Sd_ms2:.4f}) * W_tot({W_tot:.3f}) / g = {F_base:.3f} kN"
-    )
+    log.append(f"V_b = Sd({Sd_ms2:.4f}) * W_tot({W_tot:.3f}) / g = {F_base:.3f} kN")
 
     C_eff = F_base / W_tot if W_tot > 0 else 0.0
     distribuzione = distribuzione_triangolare(F_base, piani)
 
-    result.update({
-        "F_base_kN": round(F_base, 3),
-        "C_effettivo": round(C_eff, 6),
-        "metodo": "SPETTRALE",
-        "distribuzione": distribuzione,
-        "ag_g": ag_g,
-        "Se_T1_ms2": round(Se_ms2, 4),
-        "T_1_s": T_1,
-        "SS": round(SS, 4),
-        "ST": round(ST, 4),
-        "TB_s": round(TB, 4),
-        "TC_s": round(TC, 4),
-        "TD_s": round(TD, 4),
-    })
+    result.update(
+        {
+            "F_base_kN": round(F_base, 3),
+            "C_effettivo": round(C_eff, 6),
+            "metodo": "SPETTRALE",
+            "distribuzione": distribuzione,
+            "ag_g": ag_g,
+            "Se_T1_ms2": round(Se_ms2, 4),
+            "T_1_s": T_1,
+            "SS": round(SS, 4),
+            "ST": round(ST, 4),
+            "TB_s": round(TB, 4),
+            "TC_s": round(TC, 4),
+            "TD_s": round(TD, 4),
+        }
+    )
     return result

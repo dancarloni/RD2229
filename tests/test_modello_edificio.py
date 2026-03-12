@@ -31,8 +31,8 @@ from src.methods.muratura.modello_edificio import (
 #  MaterialeMuratura
 # ═══════════════════════════════════════════════════════════
 
-class TestMaterialeMuratura:
 
+class TestMaterialeMuratura:
     def test_fd_calcolo(self):
         """fd = f / (γ_M × FC)."""
         mat = MaterialeMuratura(f=24.0, gamma_M=2.0, FC=1.2)
@@ -64,8 +64,8 @@ class TestMaterialeMuratura:
 #  Apertura
 # ═══════════════════════════════════════════════════════════
 
-class TestApertura:
 
+class TestApertura:
     def test_x_fine(self):
         ap = Apertura(x_offset=100.0, larghezza=120.0)
         assert ap.x_fine == 220.0
@@ -89,8 +89,8 @@ class TestApertura:
 #  Parete
 # ═══════════════════════════════════════════════════════════
 
-class TestParete:
 
+class TestParete:
     def test_lunghezza_orizzontale(self):
         """Parete orizzontale lungo X."""
         p = Parete(x_ini=0, y_ini=0, x_fin=500, y_fin=0)
@@ -129,7 +129,10 @@ class TestParete:
 
     def test_aperture_ordinate(self):
         p = Parete(
-            x_ini=0, y_ini=0, x_fin=800, y_fin=0,
+            x_ini=0,
+            y_ini=0,
+            x_fin=800,
+            y_fin=0,
             aperture=[
                 Apertura(x_offset=400, larghezza=120),
                 Apertura(x_offset=100, larghezza=120),
@@ -150,8 +153,8 @@ class TestParete:
 #  Piano
 # ═══════════════════════════════════════════════════════════
 
-class TestPiano:
 
+class TestPiano:
     def test_quota_sommita(self):
         piano = Piano(quota_z=300, altezza_interpiano=300)
         assert piano.quota_sommita == 600
@@ -168,7 +171,7 @@ class TestPiano:
     def test_pareti_in_direzione_x(self):
         piano = Piano(
             pareti=[
-                Parete(x_ini=0, y_ini=0, x_fin=500, y_fin=0),   # X
+                Parete(x_ini=0, y_ini=0, x_fin=500, y_fin=0),  # X
                 Parete(x_ini=500, y_ini=0, x_fin=500, y_fin=400),  # Y
                 Parete(x_ini=0, y_ini=400, x_fin=500, y_fin=400),  # X
             ]
@@ -190,8 +193,8 @@ class TestPiano:
 #  ParametriSismiciEdificio
 # ═══════════════════════════════════════════════════════════
 
-class TestParametriSismici:
 
+class TestParametriSismici:
     def test_fc_da_lc1(self):
         ps = ParametriSismiciEdificio(livello_conoscenza=LivelloConoscenza.LC1)
         ps.aggiorna_FC_da_LC()
@@ -215,8 +218,12 @@ class TestParametriSismici:
     def test_spettro_plateau(self):
         """Nel plateau T_B ≤ T < T_C: Se = a_g × S × η × F₀."""
         ps = ParametriSismiciEdificio(
-            a_g=0.15, S=1.2, F_0=2.5,
-            T_B=0.15, T_C=0.45, T_D=2.0,
+            a_g=0.15,
+            S=1.2,
+            F_0=2.5,
+            T_B=0.15,
+            T_C=0.45,
+            T_D=2.0,
         )
         Se = ps.spettro_elastico(0.3)
         assert pytest.approx(Se, rel=1e-3) == 0.15 * 1.2 * 1.0 * 2.5
@@ -224,8 +231,12 @@ class TestParametriSismici:
     def test_spettro_ramo_discendente(self):
         """T_C ≤ T < T_D: Se = a_g × S × F₀ × (T_C/T)."""
         ps = ParametriSismiciEdificio(
-            a_g=0.15, S=1.2, F_0=2.5,
-            T_B=0.15, T_C=0.45, T_D=2.0,
+            a_g=0.15,
+            S=1.2,
+            F_0=2.5,
+            T_B=0.15,
+            T_C=0.45,
+            T_D=2.0,
         )
         T = 0.9
         Se = ps.spettro_elastico(T)
@@ -235,8 +246,12 @@ class TestParametriSismici:
     def test_spettro_ramo_costante_spostamento(self):
         """T ≥ T_D: Se = a_g × S × F₀ × (T_C × T_D / T²)."""
         ps = ParametriSismiciEdificio(
-            a_g=0.15, S=1.2, F_0=2.5,
-            T_B=0.15, T_C=0.45, T_D=2.0,
+            a_g=0.15,
+            S=1.2,
+            F_0=2.5,
+            T_B=0.15,
+            T_C=0.45,
+            T_D=2.0,
         )
         T = 3.0
         Se = ps.spettro_elastico(T)
@@ -246,8 +261,12 @@ class TestParametriSismici:
     def test_spettro_ramo_ascendente(self):
         """0 ≤ T < T_B."""
         ps = ParametriSismiciEdificio(
-            a_g=0.15, S=1.2, F_0=2.5,
-            T_B=0.15, T_C=0.45, T_D=2.0,
+            a_g=0.15,
+            S=1.2,
+            F_0=2.5,
+            T_B=0.15,
+            T_C=0.45,
+            T_D=2.0,
         )
         # T=0: Se = a_g × S (perché al T=0 si riduce a a_g×S×1)
         Se_0 = ps.spettro_elastico(0.0)
@@ -255,8 +274,13 @@ class TestParametriSismici:
 
     def test_spettro_progetto(self):
         ps = ParametriSismiciEdificio(
-            a_g=0.15, S=1.2, F_0=2.5, q=2.0,
-            T_B=0.15, T_C=0.45, T_D=2.0,
+            a_g=0.15,
+            S=1.2,
+            F_0=2.5,
+            q=2.0,
+            T_B=0.15,
+            T_C=0.45,
+            T_D=2.0,
         )
         Sd = ps.spettro_progetto(0.3)
         Se = ps.spettro_elastico(0.3)
@@ -267,29 +291,75 @@ class TestParametriSismici:
 #  Edificio
 # ═══════════════════════════════════════════════════════════
 
-class TestEdificio:
 
+class TestEdificio:
     @pytest.fixture
     def edificio_2piani(self) -> Edificio:
         """Edificio 2 piani rettangolare 5×4 m."""
         mat = MaterialeMuratura(f=24.0, tau_0=0.6, E=15000, G=5000, gamma=0.0018)
 
         piano0 = Piano(
-            id_piano=0, quota_z=0, altezza_interpiano=300, massa=20000,
+            id_piano=0,
+            quota_z=0,
+            altezza_interpiano=300,
+            massa=20000,
             pareti=[
-                Parete(id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0, spessore=30, materiale=mat),
-                Parete(id_parete=1, x_ini=500, y_ini=0, x_fin=500, y_fin=400, spessore=30, materiale=mat),
-                Parete(id_parete=2, x_ini=500, y_ini=400, x_fin=0, y_fin=400, spessore=30, materiale=mat),
-                Parete(id_parete=3, x_ini=0, y_ini=400, x_fin=0, y_fin=0, spessore=30, materiale=mat),
+                Parete(
+                    id_parete=0, x_ini=0, y_ini=0, x_fin=500, y_fin=0, spessore=30, materiale=mat
+                ),
+                Parete(
+                    id_parete=1,
+                    x_ini=500,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=mat,
+                ),
+                Parete(
+                    id_parete=2,
+                    x_ini=500,
+                    y_ini=400,
+                    x_fin=0,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=mat,
+                ),
+                Parete(
+                    id_parete=3, x_ini=0, y_ini=400, x_fin=0, y_fin=0, spessore=30, materiale=mat
+                ),
             ],
         )
         piano1 = Piano(
-            id_piano=1, quota_z=300, altezza_interpiano=300, massa=15000,
+            id_piano=1,
+            quota_z=300,
+            altezza_interpiano=300,
+            massa=15000,
             pareti=[
-                Parete(id_parete=4, x_ini=0, y_ini=0, x_fin=500, y_fin=0, spessore=30, materiale=mat),
-                Parete(id_parete=5, x_ini=500, y_ini=0, x_fin=500, y_fin=400, spessore=30, materiale=mat),
-                Parete(id_parete=6, x_ini=500, y_ini=400, x_fin=0, y_fin=400, spessore=30, materiale=mat),
-                Parete(id_parete=7, x_ini=0, y_ini=400, x_fin=0, y_fin=0, spessore=30, materiale=mat),
+                Parete(
+                    id_parete=4, x_ini=0, y_ini=0, x_fin=500, y_fin=0, spessore=30, materiale=mat
+                ),
+                Parete(
+                    id_parete=5,
+                    x_ini=500,
+                    y_ini=0,
+                    x_fin=500,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=mat,
+                ),
+                Parete(
+                    id_parete=6,
+                    x_ini=500,
+                    y_ini=400,
+                    x_fin=0,
+                    y_fin=400,
+                    spessore=30,
+                    materiale=mat,
+                ),
+                Parete(
+                    id_parete=7, x_ini=0, y_ini=400, x_fin=0, y_fin=0, spessore=30, materiale=mat
+                ),
             ],
         )
 
@@ -329,8 +399,8 @@ class TestEdificio:
 #  ConfigPOR
 # ═══════════════════════════════════════════════════════════
 
-class TestConfigPOR:
 
+class TestConfigPOR:
     def test_default_drift_taglio(self):
         c = ConfigPOR()
         assert c.drift_taglio == 0.005
@@ -354,8 +424,8 @@ class TestConfigPOR:
 #  FC da LC
 # ═══════════════════════════════════════════════════════════
 
-class TestFCDaLC:
 
+class TestFCDaLC:
     def test_lc1(self):
         assert FC_DA_LC["LC1"] == 1.35
 

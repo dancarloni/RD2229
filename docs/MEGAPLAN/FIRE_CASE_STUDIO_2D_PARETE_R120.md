@@ -87,14 +87,14 @@ perdita di equilibrio globaleEsito L3 2D (R120): ❌ NOT_OK – Classe R120 non 
 
 Classe Tempo di collasso L3 2D Esito
 R90 ≈ 78 min NOT_OK
-  
+
 Il passaggio a R120 non comporta un incremento lineare del tempo di resistenza.
 
 1. Confronto L2 vs L3 2D – R120
 
 Aspetto L2 R120 L3 2D R120
 Tipo di modello Sezione efficace FEM 2D
-  
+
 1. Interpretazione ingegneristica
 L’estensione a R120 mostra che:
 

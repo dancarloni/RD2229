@@ -18,22 +18,22 @@ import json
 try:
     from PyQt6.QtCore import Qt
     from PyQt6.QtGui import QAction, QIcon  # noqa: F401
+    from PyQt6.QtWidgets import QGroupBox  # noqa: F401
+    from PyQt6.QtWidgets import QMenu  # noqa: F401
+    from PyQt6.QtWidgets import QMenuBar  # noqa: F401
+    from PyQt6.QtWidgets import QScrollArea  # noqa: F401
+    from PyQt6.QtWidgets import QSizePolicy  # noqa: F401
+    from PyQt6.QtWidgets import QSplitter  # noqa: F401
     from PyQt6.QtWidgets import (
         QComboBox,
         QDialog,
         QDockWidget,
         QFileDialog,
-        QGroupBox,  # noqa: F401
         QHBoxLayout,
         QLabel,
         QMainWindow,
-        QMenu,  # noqa: F401
-        QMenuBar,  # noqa: F401
         QMessageBox,
         QPushButton,
-        QScrollArea,  # noqa: F401
-        QSizePolicy,  # noqa: F401
-        QSplitter,  # noqa: F401
         QStatusBar,
         QTableWidget,
         QTableWidgetItem,
@@ -160,12 +160,16 @@ class TelaioWindow(QMainWindow):
 
         self._act_nodo = QAction("● Nodo", self)
         self._act_nodo.setCheckable(True)
-        self._act_nodo.triggered.connect(lambda: self._imposta_modalita(ModalitaCanvas.AGGIUNGI_NODO))
+        self._act_nodo.triggered.connect(
+            lambda: self._imposta_modalita(ModalitaCanvas.AGGIUNGI_NODO)
+        )
         tb.addAction(self._act_nodo)
 
         self._act_asta = QAction("━ Asta", self)
         self._act_asta.setCheckable(True)
-        self._act_asta.triggered.connect(lambda: self._imposta_modalita(ModalitaCanvas.AGGIUNGI_ASTA))
+        self._act_asta.triggered.connect(
+            lambda: self._imposta_modalita(ModalitaCanvas.AGGIUNGI_ASTA)
+        )
         tb.addAction(self._act_asta)
 
         tb.addSeparator()
@@ -200,7 +204,9 @@ class TelaioWindow(QMainWindow):
         lay_nodi = QVBoxLayout(tab_nodi)
 
         self._tabella_nodi = QTableWidget(0, 5)
-        self._tabella_nodi.setHorizontalHeaderLabels(["ID", "Etich.", "X [cm]", "Y [cm]", "Vincolo"])
+        self._tabella_nodi.setHorizontalHeaderLabels(
+            ["ID", "Etich.", "X [cm]", "Y [cm]", "Vincolo"]
+        )
         self._tabella_nodi.horizontalHeader().setStretchLastSection(True)
         self._tabella_nodi.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay_nodi.addWidget(self._tabella_nodi)
@@ -248,6 +254,7 @@ class TelaioWindow(QMainWindow):
         form_sisma = QVBoxLayout(tab_sisma)
 
         from PyQt6.QtWidgets import QFormLayout
+
         fl = QFormLayout()
         self._combo_zona = QComboBox()
         for zona in ("non_sismico", "bassa", "media", "alta"):
@@ -335,8 +342,7 @@ class TelaioWindow(QMainWindow):
         self._testo_tabulato = QTextEdit()
         self._testo_tabulato.setReadOnly(True)
         self._testo_tabulato.setFont(
-            __import__("PyQt6.QtGui", fromlist=["QFont"]).QFont("Courier New", 8)
-            if True else None
+            __import__("PyQt6.QtGui", fromlist=["QFont"]).QFont("Courier New", 8) if True else None
         )
         lay.addWidget(self._testo_tabulato)
 
@@ -363,16 +369,18 @@ class TelaioWindow(QMainWindow):
     # ------------------------------------------------------------------
 
     def _nuovo_modello(self, nome: str = "Telaio") -> ModelloTelaio:
-        return ModelloTelaio(
-            nome=nome, nodi=[], aste=[], piani=[], zona_sismica="media"
-        )
+        return ModelloTelaio(nome=nome, nodi=[], aste=[], piani=[], zona_sismica="media")
 
     def _nuovo_modello_ui(self) -> None:
-        if QMessageBox.question(
-            self, "Nuovo modello",
-            "Perdere le modifiche non salvate e creare un nuovo modello?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-        ) == QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self,
+                "Nuovo modello",
+                "Perdere le modifiche non salvate e creare un nuovo modello?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            == QMessageBox.StandardButton.Yes
+        ):
             self._modello = self._nuovo_modello()
             self._risultati_per_caso = {}
             self._inviluppo = {}
@@ -390,7 +398,9 @@ class TelaioWindow(QMainWindow):
         # Crea nodo provvisorio
         self._id_nodo_corrente += 1
         nodo_tmp = NodoTelaio(
-            id=self._id_nodo_corrente, x=x_cm, y=y_cm,
+            id=self._id_nodo_corrente,
+            x=x_cm,
+            y=y_cm,
             vincolo=VincoloEsterno(TipoVincoloEsterno.LIBERO),
         )
         dlg = DialogoNodo(nodo=nodo_tmp, parent=self)
@@ -438,13 +448,15 @@ class TelaioWindow(QMainWindow):
             return
         nodo = self._modello.nodi[riga]
         # Verifica se aste dipendono dal nodo
-        aste_collegate = [a for a in self._modello.aste
-                          if a.nodo_i == nodo.id or a.nodo_j == nodo.id]
+        aste_collegate = [
+            a for a in self._modello.aste if a.nodo_i == nodo.id or a.nodo_j == nodo.id
+        ]
         if aste_collegate:
             QMessageBox.warning(
-                self, "Nodo in uso",
+                self,
+                "Nodo in uso",
                 f"Il nodo {nodo.id} è connesso a {len(aste_collegate)} aste. "
-                "Rimuovi prima le aste."
+                "Rimuovi prima le aste.",
             )
             return
         self._modello.nodi.pop(riga)
@@ -575,12 +587,10 @@ class TelaioWindow(QMainWindow):
             self._tabella_aste.setItem(i, 1, QTableWidgetItem(asta.etichetta))
             self._tabella_aste.setItem(i, 2, QTableWidgetItem(f"{asta.nodo_i}→{asta.nodo_j}"))
             self._tabella_aste.setItem(i, 3, QTableWidgetItem(asta.tipo.value))
-            self._tabella_aste.setItem(i, 4, QTableWidgetItem(
-                f"{asta.sezione.b:.0f}×{asta.sezione.h:.0f}"
-            ))
-            self._tabella_aste.setItem(i, 5, QTableWidgetItem(
-                str(len(asta.carichi))
-            ))
+            self._tabella_aste.setItem(
+                i, 4, QTableWidgetItem(f"{asta.sezione.b:.0f}×{asta.sezione.h:.0f}")
+            )
+            self._tabella_aste.setItem(i, 5, QTableWidgetItem(str(len(asta.carichi))))
 
     def _aggiorna_dock_risultati(self, id_asta: int) -> None:
         """Aggiorna il dock destro con i risultati dell'asta selezionata."""
@@ -593,12 +603,12 @@ class TelaioWindow(QMainWindow):
                 self._tabella_soll.insertRow(row)
                 self._tabella_soll.setItem(row, 0, QTableWidgetItem(id_caso))
                 self._tabella_soll.setItem(row, 1, QTableWidgetItem(f"{soll.M[0]:.0f}"))
-                self._tabella_soll.setItem(row, 2, QTableWidgetItem(
-                    f"{soll.M[1]:.0f}" if len(soll.M) > 1 else "—"
-                ))
-                self._tabella_soll.setItem(row, 3, QTableWidgetItem(
-                    f"{soll.M[2]:.0f}" if len(soll.M) > 2 else "—"
-                ))
+                self._tabella_soll.setItem(
+                    row, 2, QTableWidgetItem(f"{soll.M[1]:.0f}" if len(soll.M) > 1 else "—")
+                )
+                self._tabella_soll.setItem(
+                    row, 3, QTableWidgetItem(f"{soll.M[2]:.0f}" if len(soll.M) > 2 else "—")
+                )
 
         # Verifiche
         self._tabella_ver.setRowCount(0)
@@ -617,7 +627,9 @@ class TelaioWindow(QMainWindow):
                     self._tabella_ver.setItem(row, 0, QTableWidgetItem(posizione))
                     self._tabella_ver.setItem(row, 1, QTableWidgetItem(check_nome))
                     esito = "✅" if check_res.ok else "❌"
-                    util = f"{check_res.utilisation:.1%}" if check_res.utilisation is not None else "—"
+                    util = (
+                        f"{check_res.utilisation:.1%}" if check_res.utilisation is not None else "—"
+                    )
                     self._tabella_ver.setItem(row, 2, QTableWidgetItem(f"{esito} {util}"))
 
         # Armatura
@@ -631,7 +643,8 @@ class TelaioWindow(QMainWindow):
                 self._tabella_arm.setItem(row, 2, QTableWidgetItem(f"{arm.As_sup:.2f} cm²"))
                 st_str = (
                     f"Ø{arm.diam_staffa_mm:.0f}/{arm.passo_staffe_cm:.0f}cm {arm.n_bracci_staffe}br"
-                    if arm.diam_staffa_mm > 0 else "—"
+                    if arm.diam_staffa_mm > 0
+                    else "—"
                 )
                 self._tabella_arm.setItem(row, 3, QTableWidgetItem(st_str))
 
@@ -711,15 +724,14 @@ class TelaioWindow(QMainWindow):
     def _proponi_armature(self) -> None:
         if not self._inviluppo:
             QMessageBox.information(
-                self, "Armature",
-                "Esegui prima il calcolo completo (tutte le combinazioni) per ottenere l'inviluppo."
+                self,
+                "Armature",
+                "Esegui prima il calcolo completo (tutte le combinazioni) per ottenere l'inviluppo.",
             )
             return
         try:
             self._armature = proponi_armature_telaio(self._modello, self._inviluppo)
-            self._statusbar.showMessage(
-                f"Armature proposte per {len(self._armature)} aste"
-            )
+            self._statusbar.showMessage(f"Armature proposte per {len(self._armature)} aste")
         except Exception as e:
             QMessageBox.critical(self, "Errore armature", str(e))
 
@@ -738,9 +750,7 @@ class TelaioWindow(QMainWindow):
             )
             n_ok = sum(1 for r in self._verifiche.values() if r.ok)
             n_tot = len(self._verifiche)
-            self._statusbar.showMessage(
-                f"Verifiche: {n_ok}/{n_tot} aste OK"
-            )
+            self._statusbar.showMessage(f"Verifiche: {n_ok}/{n_tot} aste OK")
         except Exception as e:
             QMessageBox.critical(self, "Errore verifiche", str(e))
 
@@ -776,10 +786,7 @@ class TelaioWindow(QMainWindow):
     def _aggiorna_piani(self) -> None:
         """Aggiorna la lista PianoTelaio dal modello."""
         quote = sorted(set(n.y for n in self._modello.nodi if n.y > 0))
-        self._modello.piani = [
-            PianoTelaio(id_piano=i + 1, quota=q)
-            for i, q in enumerate(quote)
-        ]
+        self._modello.piani = [PianoTelaio(id_piano=i + 1, quota=q) for i, q in enumerate(quote)]
 
     def _aggiorna_zona_sismica(self, zona: str) -> None:
         self._modello.zona_sismica = zona
@@ -790,9 +797,7 @@ class TelaioWindow(QMainWindow):
 
     def _aggiorna_anteprima(self) -> None:
         if not self._risultati_per_caso:
-            self._testo_tabulato.setText(
-                "Nessun risultato disponibile. Esegui prima il calcolo."
-            )
+            self._testo_tabulato.setText("Nessun risultato disponibile. Esegui prima il calcolo.")
             return
         try:
             testo = genera_tabulato_ascii(
@@ -812,9 +817,7 @@ class TelaioWindow(QMainWindow):
     # ------------------------------------------------------------------
 
     def _salva_modello(self) -> None:
-        percorso, _ = QFileDialog.getSaveFileName(
-            self, "Salva modello telaio", "", "JSON (*.json)"
-        )
+        percorso, _ = QFileDialog.getSaveFileName(self, "Salva modello telaio", "", "JSON (*.json)")
         if percorso:
             try:
                 with open(percorso, "w", encoding="utf-8") as f:
@@ -824,9 +827,7 @@ class TelaioWindow(QMainWindow):
                 QMessageBox.critical(self, "Errore salvataggio", str(e))
 
     def _apri_modello(self) -> None:
-        percorso, _ = QFileDialog.getOpenFileName(
-            self, "Apri modello telaio", "", "JSON (*.json)"
-        )
+        percorso, _ = QFileDialog.getOpenFileName(self, "Apri modello telaio", "", "JSON (*.json)")
         if percorso:
             try:
                 with open(percorso, encoding="utf-8") as f:
@@ -846,9 +847,7 @@ class TelaioWindow(QMainWindow):
         if not self._risultati_per_caso:
             QMessageBox.information(self, "Export", "Esegui prima il calcolo.")
             return
-        percorso, _ = QFileDialog.getSaveFileName(
-            self, "Salva tabulato ASCII", "", "Testo (*.txt)"
-        )
+        percorso, _ = QFileDialog.getSaveFileName(self, "Salva tabulato ASCII", "", "Testo (*.txt)")
         if percorso:
             try:
                 salva_tabulato(
@@ -869,9 +868,7 @@ class TelaioWindow(QMainWindow):
         if not self._risultati_per_caso:
             QMessageBox.information(self, "Export HTML", "Esegui prima il calcolo.")
             return
-        percorso, _ = QFileDialog.getSaveFileName(
-            self, "Salva report HTML", "", "HTML (*.html)"
-        )
+        percorso, _ = QFileDialog.getSaveFileName(self, "Salva report HTML", "", "HTML (*.html)")
         if percorso:
             try:
                 salva_tabulato(
@@ -890,9 +887,8 @@ class TelaioWindow(QMainWindow):
 
     def _proprieta_modello(self) -> None:
         from PyQt6.QtWidgets import QInputDialog
-        nome, ok = QInputDialog.getText(
-            self, "Nome modello", "Nome:", text=self._modello.nome
-        )
+
+        nome, ok = QInputDialog.getText(self, "Nome modello", "Nome:", text=self._modello.nome)
         if ok and nome:
             self._modello.nome = nome
             self.setWindowTitle(f"Telai Piani — {nome}")

@@ -8,7 +8,6 @@ import pytest
 
 from src.esistenti.interventi import (
     CATALOGO_BASE,
-    Intervento,
     ObiettivoRanking,
     ScenarioIntervento,
     TipoIntervento,

@@ -26,14 +26,19 @@ from src.methods.muratura.resistenza import ResistenzaMaschio
 #  Fixtures
 # ═══════════════════════════════════════════════════════════
 
+
 @pytest.fixture
 def materiale_test():
     """Materiale muratura di test (mattoni pieni calce)."""
     return MaterialeMuratura(
         nome="Mattoni pieni calce",
-        f=32.0, tau_0=0.76, fvk0=0.20,
-        E=15000, G=5000,
-        gamma_M=2.0, FC=1.20,
+        f=32.0,
+        tau_0=0.76,
+        fvk0=0.20,
+        E=15000,
+        G=5000,
+        gamma_M=2.0,
+        FC=1.20,
     )
 
 
@@ -42,25 +47,40 @@ def maschi_test(materiale_test):
     """3 maschi di test per un piano."""
     return [
         Maschio(
-            id_maschio=1, id_piano=0, id_parete=1,
-            L=150, t=30, h=300,
-            x_baricentro=75, y_baricentro=0,
+            id_maschio=1,
+            id_piano=0,
+            id_parete=1,
+            L=150,
+            t=30,
+            h=300,
+            x_baricentro=75,
+            y_baricentro=0,
             vincolo=TipoVincolo.INCASTRO,
             materiale=materiale_test,
             N_gravitazionale=15000,
         ),
         Maschio(
-            id_maschio=2, id_piano=0, id_parete=1,
-            L=100, t=30, h=300,
-            x_baricentro=325, y_baricentro=0,
+            id_maschio=2,
+            id_piano=0,
+            id_parete=1,
+            L=100,
+            t=30,
+            h=300,
+            x_baricentro=325,
+            y_baricentro=0,
             vincolo=TipoVincolo.INCASTRO,
             materiale=materiale_test,
             N_gravitazionale=10000,
         ),
         Maschio(
-            id_maschio=3, id_piano=0, id_parete=2,
-            L=200, t=30, h=300,
-            x_baricentro=100, y_baricentro=500,
+            id_maschio=3,
+            id_piano=0,
+            id_parete=2,
+            L=200,
+            t=30,
+            h=300,
+            x_baricentro=100,
+            y_baricentro=500,
             vincolo=TipoVincolo.INCASTRO,
             materiale=materiale_test,
             N_gravitazionale=20000,
@@ -73,16 +93,28 @@ def resistenze_test():
     """3 resistenze di test corrispondenti ai maschi."""
     return [
         ResistenzaMaschio(
-            id_maschio=1, V_Rd=5000, criterio_dominante="diagonale",
-            k_elastico=10000, delta_y=0.5, delta_u=1.5,
+            id_maschio=1,
+            V_Rd=5000,
+            criterio_dominante="diagonale",
+            k_elastico=10000,
+            delta_y=0.5,
+            delta_u=1.5,
         ),
         ResistenzaMaschio(
-            id_maschio=2, V_Rd=3000, criterio_dominante="scorrimento",
-            k_elastico=8000, delta_y=0.375, delta_u=1.5,
+            id_maschio=2,
+            V_Rd=3000,
+            criterio_dominante="scorrimento",
+            k_elastico=8000,
+            delta_y=0.375,
+            delta_u=1.5,
         ),
         ResistenzaMaschio(
-            id_maschio=3, V_Rd=8000, criterio_dominante="pressoflessione",
-            k_elastico=15000, delta_y=0.533, delta_u=3.0,
+            id_maschio=3,
+            V_Rd=8000,
+            criterio_dominante="pressoflessione",
+            k_elastico=15000,
+            delta_y=0.533,
+            delta_u=3.0,
         ),
     ]
 
@@ -90,6 +122,7 @@ def resistenze_test():
 # ═══════════════════════════════════════════════════════════
 #  RigaMaschio
 # ═══════════════════════════════════════════════════════════
+
 
 class TestRigaMaschio:
     """Test dataclass RigaMaschio."""
@@ -101,11 +134,19 @@ class TestRigaMaschio:
 
     def test_to_dict(self):
         r = RigaMaschio(
-            id_maschio=1, piano=0, parete=1,
-            L=150, t=30, h=300,
-            N=15000, V_Ed=4000, V_Rd=5000,
-            criterio="diagonale", DC=0.8,
-            verificato=True, stato="elastico",
+            id_maschio=1,
+            piano=0,
+            parete=1,
+            L=150,
+            t=30,
+            h=300,
+            N=15000,
+            V_Ed=4000,
+            V_Rd=5000,
+            criterio="diagonale",
+            DC=0.8,
+            verificato=True,
+            stato="elastico",
         )
         d = r.to_dict()
         assert d["id"] == 1
@@ -121,6 +162,7 @@ class TestRigaMaschio:
 # ═══════════════════════════════════════════════════════════
 #  TabellaVerificheMaschi
 # ═══════════════════════════════════════════════════════════
+
 
 class TestTabellaVerifiche:
     """Test TabellaVerificheMaschi."""
@@ -154,11 +196,19 @@ class TestTabellaVerifiche:
     def test_formato_testo(self):
         righe = [
             RigaMaschio(
-                id_maschio=1, piano=0, parete=1,
-                L=150, t=30, h=300,
-                N=15000, V_Ed=4000, V_Rd=5000,
-                criterio="diagonale", DC=0.8,
-                verificato=True, stato="elastico",
+                id_maschio=1,
+                piano=0,
+                parete=1,
+                L=150,
+                t=30,
+                h=300,
+                N=15000,
+                V_Ed=4000,
+                V_Rd=5000,
+                criterio="diagonale",
+                DC=0.8,
+                verificato=True,
+                stato="elastico",
             ),
         ]
         t = TabellaVerificheMaschi(righe=righe, direzione="X")
@@ -173,14 +223,18 @@ class TestTabellaVerifiche:
 #  genera_tabella_maschi
 # ═══════════════════════════════════════════════════════════
 
+
 class TestGeneraTabella:
     """Test generazione tabella maschi."""
 
     def test_genera_tabella_base(self, maschi_test, resistenze_test):
         tagli_ed = {1: 4000, 2: 3500, 3: 6000}
         tabella = genera_tabella_maschi(
-            maschi_test, resistenze_test, tagli_ed,
-            direzione="X", distribuzione="modo_1",
+            maschi_test,
+            resistenze_test,
+            tagli_ed,
+            direzione="X",
+            distribuzione="modo_1",
         )
         assert len(tabella.righe) == 3
         assert tabella.direzione == "X"
@@ -204,8 +258,12 @@ class TestGeneraTabella:
         """Maschio senza resistenza → V_Rd = 0."""
         maschi = [
             Maschio(
-                id_maschio=99, id_piano=0, id_parete=1,
-                L=100, t=30, h=300,
+                id_maschio=99,
+                id_piano=0,
+                id_parete=1,
+                L=100,
+                t=30,
+                h=300,
                 materiale=materiale_test,
                 N_gravitazionale=5000,
             ),
@@ -238,6 +296,7 @@ class TestGeneraTabella:
 # ═══════════════════════════════════════════════════════════
 #  Riepilogo rischio sismico
 # ═══════════════════════════════════════════════════════════
+
 
 class TestRiepilogoRischio:
     """Test calcola_riepilogo_rischio."""
@@ -319,6 +378,7 @@ class TestRiepilogoRischio:
 #  Plot pushover (smoke test senza display)
 # ═══════════════════════════════════════════════════════════
 
+
 class TestPlotPushover:
     """Smoke test per plot_curva_pushover."""
 
@@ -349,6 +409,7 @@ class TestPlotPushover:
         # Se matplotlib è installato, deve ritornare una figura
         try:
             import matplotlib  # noqa: F401
+
             assert fig is not None
         except ImportError:
             assert fig is None

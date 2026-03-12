@@ -27,7 +27,17 @@ class TestCaricamentoCataloghi:
     def test_norme_disponibili(self, repo_completo: MaterialRepository) -> None:
         """Verifica che tutte le norme attese siano presenti."""
         norme = repo_completo.list_norme_disponibili()
-        norme_attese = {"NTC2018", "RD2229", "DM72", "DM87", "DM92", "DM96", "NTC2008", "Circ81", "OPCM3274"}
+        norme_attese = {
+            "NTC2018",
+            "RD2229",
+            "DM72",
+            "DM87",
+            "DM92",
+            "DM96",
+            "NTC2008",
+            "Circ81",
+            "OPCM3274",
+        }
         for norma in norme_attese:
             assert norma in norme, f"Norma {norma} non trovata"
 
@@ -196,9 +206,9 @@ class TestCoerenzaValori:
             for m in mats:
                 if m.sigma_c28 > 0 and m.sigma_c_adm > 0:
                     rapporto = m.sigma_c28 / m.sigma_c_adm
-                    assert 2.5 <= rapporto <= 5.0, (
-                        f"{m.material_id}: Rck/σ_c_adm = {rapporto:.1f}, fuori range"
-                    )
+                    assert (
+                        2.5 <= rapporto <= 5.0
+                    ), f"{m.material_id}: Rck/σ_c_adm = {rapporto:.1f}, fuori range"
 
     def test_modulo_elastico_acciaio_costante(self, repo_completo: MaterialRepository) -> None:
         """Tutti gli acciai devono avere Es = 2100000 kg/cm²."""
@@ -208,6 +218,4 @@ class TestCoerenzaValori:
     def test_densita_calcestruzzo_ragionevole(self, repo_completo: MaterialRepository) -> None:
         """Densità calcestruzzo deve essere tra 2200 e 2600 kg/m³."""
         for m in repo_completo.list_by_famiglia("calcestruzzo"):
-            assert 2200 <= m.densita_kg_m3 <= 2600, (
-                f"{m.material_id}: densità = {m.densita_kg_m3}"
-            )
+            assert 2200 <= m.densita_kg_m3 <= 2600, f"{m.material_id}: densità = {m.densita_kg_m3}"

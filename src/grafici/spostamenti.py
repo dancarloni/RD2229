@@ -228,9 +228,7 @@ class SolutoreFEM(ISolutoreSpostamenti):
         Delegato a SolutoreAnalitico con le stesse condizioni al contorno.
         u(x) = 0: per lo spostamento orizzontale di telai, usare SolutoreFEMSparso.
         """
-        risultato = self._analitico.calcola(
-            x_cm, M_kgcm, EI_kgcm2, etichetta=etichetta
-        )
+        risultato = self._analitico.calcola(x_cm, M_kgcm, EI_kgcm2, etichetta=etichetta)
         return DiagrammaSpostamenti(
             x_cm=risultato.x_cm,
             v_cm=risultato.v_cm,

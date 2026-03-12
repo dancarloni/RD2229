@@ -16,11 +16,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .base import (
-    PressoflessResult,
-    PressoflessSpec,
-    calcola_omogenizzata_biassiale,
-)
+from .base import PressoflessResult, PressoflessSpec, calcola_omogenizzata_biassiale
 
 # Riferimenti normativi per norma
 _NORM_REFS: dict[str, list[str]] = {
@@ -35,7 +31,9 @@ def _get_biax_props(
 ) -> dict[str, Any] | None:
     """Calcola proprieta' omogenizzata biassiale (o lorda se barre vuote)."""
     return calcola_omogenizzata_biassiale(
-        spec.section, spec.barre, spec.n,
+        spec.section,
+        spec.barre,
+        spec.n,
     )
 
 
@@ -51,8 +49,10 @@ def verifica_sovrapposizione_elastica(spec: PressoflessSpec) -> PressoflessResul
     props = _get_biax_props(spec)
     if props is None or props.get("esito") != "OK":
         return PressoflessResult(
-            esito="ERRORE", utilisation=0.0,
-            metodo="SOVRAPPOSIZIONE_ELASTICA", norma=spec.norma,
+            esito="ERRORE",
+            utilisation=0.0,
+            metodo="SOVRAPPOSIZIONE_ELASTICA",
+            norma=spec.norma,
             decision_log=props.get("decision_log", []) if props else [],
         )
 
@@ -163,8 +163,10 @@ def verifica_bresler_ta(spec: PressoflessSpec) -> PressoflessResult:
     props = _get_biax_props(spec)
     if props is None or props.get("esito") != "OK":
         return PressoflessResult(
-            esito="ERRORE", utilisation=0.0,
-            metodo="BRESLER_TA", norma=spec.norma,
+            esito="ERRORE",
+            utilisation=0.0,
+            metodo="BRESLER_TA",
+            norma=spec.norma,
             decision_log=props.get("decision_log", []) if props else [],
         )
 
@@ -202,8 +204,7 @@ def verifica_bresler_ta(spec: PressoflessSpec) -> PressoflessResult:
         f"M_Rdy = (sigma_adm - |N|/A_om) * Wy = {M_Rdy:.1f} kg·cm",
         f"alpha = {alpha:.2f}",
         f"Bresler = (|Mx|/M_Rdx)^alpha + (|My|/M_Rdy)^alpha = {bresler:.4f}",
-        f"Verifica: {bresler:.4f} {'<=' if ok else '>'} 1.0"
-        f" -> {'OK' if ok else 'NON OK'}",
+        f"Verifica: {bresler:.4f} {'<=' if ok else '>'} 1.0" f" -> {'OK' if ok else 'NON OK'}",
     ]
 
     return PressoflessResult(

@@ -31,6 +31,7 @@ from src.methods.muratura.verifiche import interpola_phi
 #  Eccentricità
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class Eccentricita:
     """Componenti di eccentricità per verifica fuori piano.
@@ -38,10 +39,11 @@ class Eccentricita:
     e_tot = e_geom + e_carico + e_accidentale + e_vento
     e/t usato per Φ nella Tab. 4.5.V
     """
-    e_geom: float = 0.0          # eccentricità geometrica (snellezza) [cm]
-    e_carico: float = 0.0        # eccentricità da carico solaio [cm]
-    e_accidentale: float = 0.0   # eccentricità accidentale [cm]
-    e_vento: float = 0.0         # eccentricità da vento/sisma fuori piano [cm]
+
+    e_geom: float = 0.0  # eccentricità geometrica (snellezza) [cm]
+    e_carico: float = 0.0  # eccentricità da carico solaio [cm]
+    e_accidentale: float = 0.0  # eccentricità accidentale [cm]
+    e_vento: float = 0.0  # eccentricità da vento/sisma fuori piano [cm]
 
     @property
     def e_totale(self) -> float:
@@ -108,9 +110,11 @@ def calcola_eccentricita(
 #  Riga verifica maschio (dettagliata)
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RigaVerificaMaschio:
     """Riga dettagliata verifica per singolo maschio."""
+
     id_maschio: int = 0
     id_piano: int = 0
     id_parete: int = 0
@@ -121,27 +125,27 @@ class RigaVerificaMaschio:
     h: float = 0.0
 
     # Carichi
-    N_Ed: float = 0.0             # sforzo normale di calcolo [kg]
-    combinazione: str = ""        # nome combinazione governante
+    N_Ed: float = 0.0  # sforzo normale di calcolo [kg]
+    combinazione: str = ""  # nome combinazione governante
 
     # Tensioni
-    sigma_0: float = 0.0          # σ₀ = N/(L×t) [kg/cm²]
+    sigma_0: float = 0.0  # σ₀ = N/(L×t) [kg/cm²]
 
     # Eccentricità
-    e_totale: float = 0.0         # eccentricità totale [cm]
-    e_t: float = 0.0              # e/t adimensionale
+    e_totale: float = 0.0  # eccentricità totale [cm]
+    e_t: float = 0.0  # e/t adimensionale
 
     # Snellezza
     h_eff: float = 0.0
-    lam: float = 0.0              # λ = h_eff/t
+    lam: float = 0.0  # λ = h_eff/t
 
     # Resistenza
-    phi: float = 0.0              # Φ(λ, e/t)
-    fd: float = 0.0               # resistenza di calcolo [kg/cm²]
-    N_Rd: float = 0.0             # N_Rd = Φ×fd×A [kg]
+    phi: float = 0.0  # Φ(λ, e/t)
+    fd: float = 0.0  # resistenza di calcolo [kg/cm²]
+    N_Rd: float = 0.0  # N_Rd = Φ×fd×A [kg]
 
     # Esito
-    DC: float = 0.0               # D/C = N_Ed / N_Rd
+    DC: float = 0.0  # D/C = N_Ed / N_Rd
     verificato: bool = True
     spanciamento_ok: bool = True
 
@@ -171,18 +175,20 @@ class RigaVerificaMaschio:
 #  Riga verifica piano (sintetica)
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RigaVerificaPiano:
     """Riga sintetica verifica per piano."""
+
     id_piano: int = 0
-    quota: float = 0.0            # quota piano [cm]
+    quota: float = 0.0  # quota piano [cm]
     n_maschi: int = 0
-    N_Ed_max: float = 0.0         # N_Ed massimo tra i maschi [kg]
-    sigma_0_max: float = 0.0      # σ₀ massima [kg/cm²]
-    DC_max: float = 0.0           # D/C massimo tra i maschi
+    N_Ed_max: float = 0.0  # N_Ed massimo tra i maschi [kg]
+    sigma_0_max: float = 0.0  # σ₀ massima [kg/cm²]
+    DC_max: float = 0.0  # D/C massimo tra i maschi
     n_verificati: int = 0
     n_non_verificati: int = 0
-    verificato: bool = True       # tutti i maschi verificati
+    verificato: bool = True  # tutti i maschi verificati
 
     def to_dict(self) -> dict:
         return {
@@ -202,9 +208,11 @@ class RigaVerificaPiano:
 #  Tabella verifiche multipiano
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class TabellaVerificheMultipiano:
     """Risultato completo verifiche multipiano."""
+
     righe_maschi: list[RigaVerificaMaschio] = field(default_factory=list)
     righe_piani: list[RigaVerificaPiano] = field(default_factory=list)
     passaggi: list[str] = field(default_factory=list)
@@ -289,6 +297,7 @@ class TabellaVerificheMultipiano:
 # ═══════════════════════════════════════════════════════════
 #  Verifica multipiano
 # ═══════════════════════════════════════════════════════════
+
 
 def verifica_multipiano(
     maschi_per_piano: dict[int, list[Maschio]],
@@ -407,7 +416,9 @@ def verifica_multipiano(
                 id_maschio=m.id_maschio,
                 id_piano=id_piano,
                 id_parete=m.id_parete,
-                L=m.L, t=m.t, h=m.h,
+                L=m.L,
+                t=m.t,
+                h=m.h,
                 N_Ed=N_Ed,
                 combinazione=nome_combo,
                 sigma_0=sigma_0,

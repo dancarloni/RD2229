@@ -49,9 +49,7 @@ def get_friction_coefficient(
     if c_fr is not None:
         return c_fr
 
-    logger.warning(
-        "Classe attrito '%s' non riconosciuta; uso SMOOTH (0.01).", friction_class
-    )
+    logger.warning("Classe attrito '%s' non riconosciuta; uso SMOOTH (0.01).", friction_class)
     return 0.01
 
 
@@ -130,18 +128,26 @@ def compute_building_friction(
 
     # Pareti laterali (2 pareti)
     area_walls = 2.0 * h_m * d_friction
-    forces.append(compute_friction_force(
-        q_p_kN_m2, friction_class, area_walls,
-        surface_id="walls_lateral",
-        override_cfr=override_cfr,
-    ))
+    forces.append(
+        compute_friction_force(
+            q_p_kN_m2,
+            friction_class,
+            area_walls,
+            surface_id="walls_lateral",
+            override_cfr=override_cfr,
+        )
+    )
 
     # Copertura
     area_roof = b_m * d_friction
-    forces.append(compute_friction_force(
-        q_p_kN_m2, friction_class, area_roof,
-        surface_id="roof",
-        override_cfr=override_cfr,
-    ))
+    forces.append(
+        compute_friction_force(
+            q_p_kN_m2,
+            friction_class,
+            area_roof,
+            surface_id="roof",
+            override_cfr=override_cfr,
+        )
+    )
 
     return forces

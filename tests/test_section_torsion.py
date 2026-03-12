@@ -107,8 +107,7 @@ class TestJtSezioniAperte:
 
     def test_i_section(self) -> None:
         bf, tf, hw, tw = 20.0, 1.5, 30.0, 1.0
-        s = ISection("IPE", flange_width=bf, flange_thickness=tf,
-                      web_height=hw, web_thickness=tw)
+        s = ISection("IPE", flange_width=bf, flange_thickness=tf, web_height=hw, web_thickness=tw)
         s.compute_properties()
         expected = (1.0 / 3.0) * (2 * bf * tf**3 + hw * tw**3)
         assert s.properties.j_t == pytest.approx(expected, rel=0.001)
@@ -116,8 +115,7 @@ class TestJtSezioniAperte:
     def test_i_section_cw(self) -> None:
         """C_w per I simmetrica: C_w = I_f * h_s^2 / 4."""
         bf, tf, hw, tw = 20.0, 1.5, 30.0, 1.0
-        s = ISection("IPE", flange_width=bf, flange_thickness=tf,
-                      web_height=hw, web_thickness=tw)
+        s = ISection("IPE", flange_width=bf, flange_thickness=tf, web_height=hw, web_thickness=tw)
         s.compute_properties()
         h = hw + 2 * tf
         I_f = tf * bf**3 / 12
@@ -127,16 +125,16 @@ class TestJtSezioniAperte:
 
     def test_i_section_shear_center(self) -> None:
         """Centro di taglio I: coincide col baricentro."""
-        s = ISection("IPE", flange_width=20.0, flange_thickness=1.5,
-                      web_height=30.0, web_thickness=1.0)
+        s = ISection(
+            "IPE", flange_width=20.0, flange_thickness=1.5, web_height=30.0, web_thickness=1.0
+        )
         s.compute_properties()
         assert s.properties.x_s == pytest.approx(s.properties.centroid_x)
         assert s.properties.y_s == pytest.approx(s.properties.centroid_y)
 
     def test_t_section(self) -> None:
         bf, tf, hw, tw = 20.0, 2.0, 25.0, 1.5
-        s = TSection("T", flange_width=bf, flange_thickness=tf,
-                      web_thickness=tw, web_height=hw)
+        s = TSection("T", flange_width=bf, flange_thickness=tf, web_thickness=tw, web_height=hw)
         s.compute_properties()
         expected = (1.0 / 3.0) * (bf * tf**3 + hw * tw**3)
         assert s.properties.j_t == pytest.approx(expected, rel=0.001)
@@ -167,16 +165,16 @@ class TestJtSezioniAperte:
 
     def test_inverted_t_section(self) -> None:
         bf, tf, hw, tw = 20.0, 2.0, 25.0, 1.5
-        s = InvertedTSection("IT", flange_width=bf, flange_thickness=tf,
-                              web_thickness=tw, web_height=hw)
+        s = InvertedTSection(
+            "IT", flange_width=bf, flange_thickness=tf, web_thickness=tw, web_height=hw
+        )
         s.compute_properties()
         expected = (1.0 / 3.0) * (bf * tf**3 + hw * tw**3)
         assert s.properties.j_t == pytest.approx(expected, rel=0.001)
 
     def test_pi_section(self) -> None:
         bf, tf, hw, tw = 30.0, 2.0, 20.0, 1.0
-        s = PiSection("Pi", flange_width=bf, flange_thickness=tf,
-                       web_height=hw, web_thickness=tw)
+        s = PiSection("Pi", flange_width=bf, flange_thickness=tf, web_height=hw, web_thickness=tw)
         s.compute_properties()
         expected = (1.0 / 3.0) * (bf * tf**3 + 2 * hw * tw**3)
         assert s.properties.j_t == pytest.approx(expected, rel=0.001)
@@ -189,7 +187,7 @@ class TestJtVSection:
         w, h, t = 20.0, 30.0, 2.0
         s = VSection("V", width=w, height=h, thickness=t)
         s.compute_properties()
-        length = sqrt((w / 2)**2 + h**2)
+        length = sqrt((w / 2) ** 2 + h**2)
         expected = (1.0 / 3.0) * 2 * length * t**3
         assert s.properties.j_t == pytest.approx(expected, rel=0.001)
 
@@ -205,7 +203,9 @@ class TestAllSectionsHaveTorsionProps:
             RectangularHollowSection("RH", width=20, height=30, thickness=2),
             ISection("I", flange_width=20, flange_thickness=1.5, web_height=30, web_thickness=1),
             TSection("T", flange_width=20, flange_thickness=2, web_thickness=1.5, web_height=25),
-            InvertedTSection("IT", flange_width=20, flange_thickness=2, web_thickness=1.5, web_height=25),
+            InvertedTSection(
+                "IT", flange_width=20, flange_thickness=2, web_thickness=1.5, web_height=25
+            ),
             CSection("C", width=10, height=30, flange_thickness=1.5, web_thickness=1),
             LSection("L", width=10, height=15, t_horizontal=1.5, t_vertical=1.5),
             PiSection("Pi", flange_width=30, flange_thickness=2, web_height=20, web_thickness=1),

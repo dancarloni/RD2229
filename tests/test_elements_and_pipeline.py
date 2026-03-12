@@ -209,10 +209,14 @@ class TestResolveInputs:
 
     def test_with_elements(self):
         el_repo = ElementRepository()
-        el_repo.add_element(Element(
-            element_id="T1", type="beam", length_cm=500.0,
-            additional_params={"b": 30.0, "h": 50.0},
-        ))
+        el_repo.add_element(
+            Element(
+                element_id="T1",
+                type="beam",
+                length_cm=500.0,
+                additional_params={"b": 30.0, "h": 50.0},
+            )
+        )
         mat_repo = MaterialRepository()
         result = resolve_verification_inputs(
             el_repo, mat_repo, {"norm_code": "NTC2018", "project_name": "Test"}
@@ -241,10 +245,18 @@ class TestHTMLRenderer:
             "norm_code": "NTC2018",
             "elements": [{"id": "T1", "b": 30, "h": 50}],
             "results": [
-                {"action_id": "flexure_check", "ok": True,
-                 "messages": ["M_Ed OK"], "partials": {"utilization": 0.5}},
-                {"action_id": "shear_check", "ok": False,
-                 "messages": ["NON VERIFICATO"], "partials": {"utilization": 1.2}},
+                {
+                    "action_id": "flexure_check",
+                    "ok": True,
+                    "messages": ["M_Ed OK"],
+                    "partials": {"utilization": 0.5},
+                },
+                {
+                    "action_id": "shear_check",
+                    "ok": False,
+                    "messages": ["NON VERIFICATO"],
+                    "partials": {"utilization": 1.2},
+                },
             ],
         }
         html = r = HTMLReportRenderer().render(data)
@@ -276,8 +288,12 @@ class TestMarkdownRenderer:
         data = {
             "project_name": "Test",
             "results": [
-                {"action_id": "flexure_check", "ok": True,
-                 "messages": ["OK"], "partials": {"utilization": 0.5}},
+                {
+                    "action_id": "flexure_check",
+                    "ok": True,
+                    "messages": ["OK"],
+                    "partials": {"utilization": 0.5},
+                },
             ],
         }
         md = MarkdownReportRenderer().render(data)
@@ -333,10 +349,18 @@ class TestExportResults:
     def test_export_to_csv(self):
         data = {
             "results": [
-                {"action_id": "flexure_check", "ok": True,
-                 "messages": ["M OK"], "partials": {"utilization": 0.5}},
-                {"action_id": "shear_check", "ok": False,
-                 "messages": ["NON VERIFICATO"], "partials": {"utilization": 1.2}},
+                {
+                    "action_id": "flexure_check",
+                    "ok": True,
+                    "messages": ["M OK"],
+                    "partials": {"utilization": 0.5},
+                },
+                {
+                    "action_id": "shear_check",
+                    "ok": False,
+                    "messages": ["NON VERIFICATO"],
+                    "partials": {"utilization": 1.2},
+                },
             ]
         }
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
@@ -353,8 +377,7 @@ class TestExportResults:
 
     def test_results_to_table(self):
         results = [
-            {"action_id": "test", "ok": True, "messages": ["OK"],
-             "partials": {"utilization": 0.5}},
+            {"action_id": "test", "ok": True, "messages": ["OK"], "partials": {"utilization": 0.5}},
         ]
         table = results_to_table(results)
         assert table[0] == ["#", "Verifica", "Esito", "Utilizzazione", "Note"]
@@ -380,6 +403,7 @@ class TestExportResults:
 class TestFireCheckStandalone:
     def test_beam_r60(self):
         from src.fire.rc_fire_check import run_fire_check_standalone
+
         result = run_fire_check_standalone(
             element_type="beam",
             rating_minutes=60,
@@ -390,6 +414,7 @@ class TestFireCheckStandalone:
 
     def test_beam_r60_fail_width(self):
         from src.fire.rc_fire_check import run_fire_check_standalone
+
         result = run_fire_check_standalone(
             element_type="beam",
             rating_minutes=60,
@@ -401,6 +426,7 @@ class TestFireCheckStandalone:
 
     def test_column_r90(self):
         from src.fire.rc_fire_check import run_fire_check_standalone
+
         result = run_fire_check_standalone(
             element_type="column",
             rating_minutes=90,
@@ -411,6 +437,7 @@ class TestFireCheckStandalone:
 
     def test_column_r90_fail_cover(self):
         from src.fire.rc_fire_check import run_fire_check_standalone
+
         result = run_fire_check_standalone(
             element_type="column",
             rating_minutes=90,
@@ -421,6 +448,7 @@ class TestFireCheckStandalone:
 
     def test_unknown_high_rating(self):
         from src.fire.rc_fire_check import run_fire_check_standalone
+
         result = run_fire_check_standalone(
             element_type="beam",
             rating_minutes=999,

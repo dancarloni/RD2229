@@ -18,12 +18,19 @@ from typing import Any
 # Altezza e larghezza totale della sezione
 # ---------------------------------------------------------------------------
 
+
 def get_section_height(section: Any) -> float:
     """Altezza totale della sezione [mm]."""
     st = getattr(section, "section_type", "")
 
-    if st in ("RECTANGULAR", "RECTANGULAR_HOLLOW", "C_SECTION", "L_SECTION",
-              "V_SECTION", "INVERTED_V_SECTION"):
+    if st in (
+        "RECTANGULAR",
+        "RECTANGULAR_HOLLOW",
+        "C_SECTION",
+        "L_SECTION",
+        "V_SECTION",
+        "INVERTED_V_SECTION",
+    ):
         return float(section.height)
 
     if st == "CIRCULAR":
@@ -56,8 +63,7 @@ def get_section_width(section: Any) -> float:
     """Larghezza totale (massima) della sezione [mm]."""
     st = getattr(section, "section_type", "")
 
-    if st in ("RECTANGULAR", "RECTANGULAR_HOLLOW", "C_SECTION",
-              "V_SECTION", "INVERTED_V_SECTION"):
+    if st in ("RECTANGULAR", "RECTANGULAR_HOLLOW", "C_SECTION", "V_SECTION", "INVERTED_V_SECTION"):
         return float(section.width)
 
     if st == "CIRCULAR":
@@ -88,6 +94,7 @@ def get_section_width(section: Any) -> float:
 # Larghezza a profondità y (asse neutro orizzontale → flessione Mx)
 # ---------------------------------------------------------------------------
 
+
 def width_at_depth(section: Any, y: float) -> float:
     """Larghezza della sezione alla profondità *y* dal lembo superiore [mm].
 
@@ -113,10 +120,10 @@ def width_at_depth(section: Any, y: float) -> float:
         R_in = R_out - section.thickness
         if y < 0.0 or y > 2.0 * R_out:
             return 0.0
-        w_out = 2.0 * math.sqrt(max(0.0, R_out ** 2 - (y - R_out) ** 2))
+        w_out = 2.0 * math.sqrt(max(0.0, R_out**2 - (y - R_out) ** 2))
         dy_in = y - R_out
         if abs(dy_in) <= R_in and R_in > 0:
-            w_in = 2.0 * math.sqrt(max(0.0, R_in ** 2 - dy_in ** 2))
+            w_in = 2.0 * math.sqrt(max(0.0, R_in**2 - dy_in**2))
         else:
             w_in = 0.0
         return max(0.0, w_out - w_in)
@@ -231,6 +238,7 @@ def width_at_depth(section: Any, y: float) -> float:
 # Larghezza a coordinata orizzontale x (asse neutro verticale → flessione My)
 # ---------------------------------------------------------------------------
 
+
 def height_at_horizontal(section: Any, x: float) -> float:
     """Altezza della sezione alla coordinata orizzontale *x* dal lembo sinistro [mm].
 
@@ -256,10 +264,10 @@ def height_at_horizontal(section: Any, x: float) -> float:
         R_in = R_out - section.thickness
         if x < 0.0 or x > 2.0 * R_out:
             return 0.0
-        h_out = 2.0 * math.sqrt(max(0.0, R_out ** 2 - (x - R_out) ** 2))
+        h_out = 2.0 * math.sqrt(max(0.0, R_out**2 - (x - R_out) ** 2))
         dx_in = x - R_out
         if abs(dx_in) <= R_in and R_in > 0:
-            h_in = 2.0 * math.sqrt(max(0.0, R_in ** 2 - dx_in ** 2))
+            h_in = 2.0 * math.sqrt(max(0.0, R_in**2 - dx_in**2))
         else:
             h_in = 0.0
         return max(0.0, h_out - h_in)
@@ -330,6 +338,7 @@ def height_at_horizontal(section: Any, x: float) -> float:
 # Risultante calcestruzzo compresso
 # ---------------------------------------------------------------------------
 
+
 def compute_concrete_resultant(
     section: Any,
     x_na: float,
@@ -387,6 +396,7 @@ def compute_concrete_resultant(
 # Larghezza anima (b_w) per verifica a taglio
 # ---------------------------------------------------------------------------
 
+
 def get_web_width(section: Any) -> float:
     """Larghezza minima dell'anima (b_w) per verifica a taglio [mm].
 
@@ -438,6 +448,7 @@ def get_web_width(section: Any) -> float:
 # ---------------------------------------------------------------------------
 # Area totale della sezione (per integrazione di verifica)
 # ---------------------------------------------------------------------------
+
 
 def compute_torsion_properties(section: Any) -> tuple[float, float, float]:
     """Proprietà torsionali della sezione per verifica a torsione [mm].
@@ -589,7 +600,7 @@ def compute_torsion_properties(section: Any) -> tuple[float, float, float]:
         b_k = b / 2.0 - t
         h_k = h - t
         A_k = max(b_k * h_k / 2.0, 0.0)
-        u_k = b_k + 2.0 * math.sqrt(b_k ** 2 / 4.0 + h_k ** 2) if A_k > 0 else 0.0
+        u_k = b_k + 2.0 * math.sqrt(b_k**2 / 4.0 + h_k**2) if A_k > 0 else 0.0
         return (A_k, u_k, t_ef)
 
     # Fallback: tratta come rettangolare
@@ -608,6 +619,7 @@ def compute_torsion_properties(section: Any) -> tuple[float, float, float]:
 # ---------------------------------------------------------------------------
 # Area totale della sezione (per integrazione di verifica)
 # ---------------------------------------------------------------------------
+
 
 def compute_section_area(section: Any, n_strips: int = 200) -> float:
     """Area della sezione per integrazione numerica [mm²].

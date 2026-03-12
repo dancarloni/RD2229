@@ -27,9 +27,7 @@ from src.core_calculus.lc_fc_adjustments import AdjustedMaterialProperties, appl
 logger = logging.getLogger(__name__)
 
 
-def check_flessione_slu(
-    calc_input: CalcInput, template: VerificationTemplate
-) -> SingleCheckResult:
+def check_flessione_slu(calc_input: CalcInput, template: VerificationTemplate) -> SingleCheckResult:
     """Verifica a flessione semplice SLU — NTC 2018 § 4.1.2.1.3.1.
 
     Generalizzata per QUALSIASI tipo di sezione. Delega a check_pressoflessione_slu
@@ -86,13 +84,19 @@ def check_pressoflessione_slu(
     # --- Validazione input ---
     if calc_input.section is None:
         return SingleCheckResult(
-            template_id=template.template_id, ok=False, utilisation=None,
-            details={}, messages_it=["Sezione non specificata"],
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={},
+            messages_it=["Sezione non specificata"],
         )
     if calc_input.material is None:
         return SingleCheckResult(
-            template_id=template.template_id, ok=False, utilisation=None,
-            details={}, messages_it=["Materiale non specificato"],
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={},
+            messages_it=["Materiale non specificato"],
         )
 
     section = calc_input.section
@@ -105,7 +109,9 @@ def check_pressoflessione_slu(
         w = get_section_width(section)
     except ValueError:
         return SingleCheckResult(
-            template_id=template.template_id, ok=False, utilisation=None,
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
             details={},
             messages_it=[f"Geometria sezione non disponibile (tipo: {section_type})"],
         )
@@ -114,8 +120,11 @@ def check_pressoflessione_slu(
     f_yk_base = getattr(material, "f_yk", None)
     if f_ck_base is None or f_yk_base is None:
         return SingleCheckResult(
-            template_id=template.template_id, ok=False, utilisation=None,
-            details={}, messages_it=["Proprietà materiale (f_ck, f_yk) non disponibili"],
+            template_id=template.template_id,
+            ok=False,
+            utilisation=None,
+            details={},
+            messages_it=["Proprietà materiale (f_ck, f_yk) non disponibili"],
         )
 
     # --- LC/FC per edifici esistenti ---
@@ -135,18 +144,18 @@ def check_pressoflessione_slu(
     # --- Parametri di calcolo ---
     gamma_c = 1.5
     gamma_s = 1.15
-    f_cd = 0.85 * f_ck / gamma_c   # MPa
-    f_yd = f_yk / gamma_s           # MPa
-    lambda_f = 0.8                  # profondità stress block
-    Es = 200000.0                   # MPa, modulo elastico acciaio
-    eps_cu = 0.0035                 # deformazione ultima cls NTC2018 §4.1.2.1.2
+    f_cd = 0.85 * f_ck / gamma_c  # MPa
+    f_yd = f_yk / gamma_s  # MPa
+    lambda_f = 0.8  # profondità stress block
+    Es = 200000.0  # MPa, modulo elastico acciaio
+    eps_cu = 0.0035  # deformazione ultima cls NTC2018 §4.1.2.1.2
     eps_yd = f_yd / Es
 
     # Armatura
-    As = calc_input.As or 0.0               # cm² (tesa)
-    As_prime = calc_input.As_prime or 0.0    # cm² (compressa)
-    d = calc_input.d or (h * 0.9 / 10.0)    # cm (profondità utile)
-    d_prime = calc_input.d_prime or 4.0      # cm
+    As = calc_input.As or 0.0  # cm² (tesa)
+    As_prime = calc_input.As_prime or 0.0  # cm² (compressa)
+    d = calc_input.d or (h * 0.9 / 10.0)  # cm (profondità utile)
+    d_prime = calc_input.d_prime or 4.0  # cm
 
     d_mm = d * 10.0
     d_prime_mm = d_prime * 10.0
@@ -154,15 +163,17 @@ def check_pressoflessione_slu(
     As_prime_mm2 = As_prime * 100.0
 
     # Sollecitazioni
-    N_Ed = calc_input.N or 0.0    # kN (positivo = compressione)
+    N_Ed = calc_input.N or 0.0  # kN (positivo = compressione)
     Mx_Ed = calc_input.Mx or 0.0  # kNm
     My_Ed = calc_input.My or 0.0  # kNm
-    N_Ed_N = N_Ed * 1000.0        # N
+    N_Ed_N = N_Ed * 1000.0  # N
 
     # --- Casi limite: sollecitazioni nulle ---
     if abs(N_Ed_N) < 1.0 and abs(Mx_Ed) < 1e-6 and abs(My_Ed) < 1e-6:
         return SingleCheckResult(
-            template_id=template.template_id, ok=True, utilisation=0.0,
+            template_id=template.template_id,
+            ok=True,
+            utilisation=0.0,
             details={"N_Ed_kN": N_Ed, "Mx_Ed_kNm": Mx_Ed, "My_Ed_kNm": My_Ed},
             messages_it=["Sollecitazioni nulle (N≈0, Mx≈0, My≈0): verifica soddisfatta."],
             norm_references=[],
@@ -194,9 +205,7 @@ def check_pressoflessione_slu(
 
         def _equilibrium_N(x_na: float) -> float:
             """Sforzo normale interno per dato asse neutro x_na [mm]."""
-            R_c, _ = compute_concrete_resultant(
-                section, x_na, f_cd, axis=axis, lambda_f=lambda_f
-            )
+            R_c, _ = compute_concrete_resultant(section, x_na, f_cd, axis=axis, lambda_f=lambda_f)
             # Deformazione armature
             if x_na > 0:
                 eps_s_comp = eps_cu * (x_na - d_prime_mm) / x_na
@@ -211,9 +220,7 @@ def check_pressoflessione_slu(
 
         def _moment_about_center(x_na: float) -> float:
             """Momento interno rispetto al baricentro geometrico [N·mm]."""
-            _, M_c = compute_concrete_resultant(
-                section, x_na, f_cd, axis=axis, lambda_f=lambda_f
-            )
+            _, M_c = compute_concrete_resultant(section, x_na, f_cd, axis=axis, lambda_f=lambda_f)
             if x_na > 0:
                 eps_s_comp = eps_cu * (x_na - d_prime_mm) / x_na
                 eps_s_tens = eps_cu * (x_na - d_ax_mm) / x_na
@@ -236,8 +243,12 @@ def check_pressoflessione_slu(
 
         if N_Ed_N < N_lo or N_Ed_N > N_hi:
             return {
-                "M_Rd_kNm": 0.0, "x_eq_mm": 0.0, "x_over_d": 0.0,
-                "over_reinforced": False, "ok": False, "utilisazione": 999.0,
+                "M_Rd_kNm": 0.0,
+                "x_eq_mm": 0.0,
+                "x_over_d": 0.0,
+                "over_reinforced": False,
+                "ok": False,
+                "utilisazione": 999.0,
                 "messages": [
                     f"N_Ed = {N_Ed:.1f} kN fuori dal dominio di resistenza.",
                     f"N_Rd,min = {N_lo / 1000:.1f} kN, N_Rd,max = {N_hi / 1000:.1f} kN",
@@ -318,7 +329,7 @@ def check_pressoflessione_slu(
         if Mx_Rd > 0 and My_Rd > 0:
             ratio_x = abs(Mx_Ed) / Mx_Rd
             ratio_y = abs(My_Ed) / My_Rd
-            bresler = ratio_x ** alpha + ratio_y ** alpha
+            bresler = ratio_x**alpha + ratio_y**alpha
         elif Mx_Rd <= 0 and My_Rd <= 0:
             bresler = 999.0
         elif Mx_Rd <= 0:
@@ -512,13 +523,15 @@ def check_pressoflessione_slu(
         if over_reinforced:
             messages_it.append(f"  ⚠️ x/d = {x_over_d:.3f} > 0.45: sezione sovra-armata")
 
-        messages_it.extend([
-            "",
-            f"Momento resistente: {asse_label}_Rd = {M_Rd_kNm:.2f} kNm "
-            f"(per N_Ed = {N_Ed:.1f} kN)",
-            f"Momento agente: {asse_label}_Ed = {M_Ed:.2f} kNm",
-            f"Utilizzazione: {utilisazione:.3f} {'✓ OK' if ok else '✗ NON OK'}",
-        ])
+        messages_it.extend(
+            [
+                "",
+                f"Momento resistente: {asse_label}_Rd = {M_Rd_kNm:.2f} kNm "
+                f"(per N_Ed = {N_Ed:.1f} kN)",
+                f"Momento agente: {asse_label}_Ed = {M_Ed:.2f} kNm",
+                f"Utilizzazione: {utilisazione:.3f} {'✓ OK' if ok else '✗ NON OK'}",
+            ]
+        )
 
         return SingleCheckResult(
             template_id=template.template_id,
@@ -547,10 +560,7 @@ def check_pressoflessione_slu(
                     chapter="4.1",
                     paragraph="4.1.2.1.3.1",
                     formula_label="(4.1)",
-                    description_it=(
-                        f"Verifica a {tipo_soll.lower()} — "
-                        f"sezione {section_type}"
-                    ),
+                    description_it=(f"Verifica a {tipo_soll.lower()} — " f"sezione {section_type}"),
                 ),
                 NormReference(
                     norm_code="Circolare7",
@@ -1113,6 +1123,7 @@ def check_minimi_armatura_taglio_slu(
 # Torsione SLU — NTC 2018 § 4.1.2.1.5 / EC2 § 6.3
 # ===========================================================================
 
+
 def check_torsione_slu(
     calc_input: CalcInput,
     template: VerificationTemplate,
@@ -1139,7 +1150,9 @@ def check_torsione_slu(
     if section is None:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Sezione non specificata per verifica torsione"],
         )
 
@@ -1147,7 +1160,9 @@ def check_torsione_slu(
     if material is None:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Materiale non specificato per verifica torsione"],
         )
 
@@ -1158,7 +1173,8 @@ def check_torsione_slu(
     if T_Ed < 1e-6:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=True, utilisation=0.0,
+            ok=True,
+            utilisation=0.0,
             details={"T_Ed_kNm": 0.0, "interaction": "nessuna"},
             messages_it=["Momento torcente nullo: verifica non necessaria."],
         )
@@ -1174,7 +1190,9 @@ def check_torsione_slu(
     if not f_ck or f_ck <= 0 or not f_yk or f_yk <= 0:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Resistenze materiale non valide per verifica torsione"],
         )
 
@@ -1189,14 +1207,18 @@ def check_torsione_slu(
     except (ValueError, AttributeError):
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Impossibile calcolare proprietà torsionali della sezione"],
         )
 
     if A_k <= 0:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Area nucleo torsionale A_k ≤ 0"],
         )
 
@@ -1224,7 +1246,7 @@ def check_torsione_slu(
     if staffe_diametro > 0 and staffe_passo > 0:
         s_mm = staffe_passo * 10.0  # cm → mm
         # Per torsione: un solo braccio della staffa contribuisce (non tutti)
-        A_sw_torsion = math.pi * (staffe_diametro ** 2) / 4.0  # mm² (1 braccio)
+        A_sw_torsion = math.pi * (staffe_diametro**2) / 4.0  # mm² (1 braccio)
         Asw_over_s = A_sw_torsion / s_mm  # mm²/mm
         T_Rd_s_Nmm = 2.0 * A_k * Asw_over_s * f_ywd * cot_t
         T_Rd_s_kNm = T_Rd_s_Nmm / 1e6
@@ -1288,16 +1310,20 @@ def check_torsione_slu(
     messages_it.append(f"T_Rd = {T_Rd_kNm:.2f} kNm")
 
     if has_interaction:
-        messages_it.extend([
-            "",
-            "Interazione taglio-torsione (EC2 eq. 6.29):",
-            f"  T_Ed/T_Rd,max + V_Ed/V_Rd,max = {interaction_ratio:.3f}",
-        ])
+        messages_it.extend(
+            [
+                "",
+                "Interazione taglio-torsione (EC2 eq. 6.29):",
+                f"  T_Ed/T_Rd,max + V_Ed/V_Rd,max = {interaction_ratio:.3f}",
+            ]
+        )
 
-    messages_it.extend([
-        "",
-        f"Utilizzazione: {utilisazione:.3f} {'OK' if ok else 'NON OK'}",
-    ])
+    messages_it.extend(
+        [
+            "",
+            f"Utilizzazione: {utilisazione:.3f} {'OK' if ok else 'NON OK'}",
+        ]
+    )
 
     return SingleCheckResult(
         template_id=template.template_id,
@@ -1317,7 +1343,9 @@ def check_torsione_slu(
         },
         norm_references=[
             NormReference(
-                norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.1.5",
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.1.5",
                 formula_label="EC2 (6.26)-(6.29)",
                 description_it="Verifica a torsione con modello a traliccio thin-walled",
             ),
@@ -1329,6 +1357,7 @@ def check_torsione_slu(
 # ===========================================================================
 # Tensioni SLE — NTC 2018 § 4.1.2.2.5
 # ===========================================================================
+
 
 def check_tensioni_sle(
     calc_input: CalcInput,
@@ -1351,7 +1380,9 @@ def check_tensioni_sle(
     if section is None:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Sezione non specificata per verifica tensioni SLE"],
         )
 
@@ -1359,7 +1390,9 @@ def check_tensioni_sle(
     if material is None:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Materiale non specificato per verifica tensioni SLE"],
         )
 
@@ -1374,7 +1407,9 @@ def check_tensioni_sle(
     if not f_ck or f_ck <= 0 or not f_yk or f_yk <= 0:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Resistenze materiale non valide per verifica tensioni SLE"],
         )
 
@@ -1385,7 +1420,9 @@ def check_tensioni_sle(
     except ValueError:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Geometria sezione non disponibile per verifica tensioni SLE"],
         )
 
@@ -1407,7 +1444,8 @@ def check_tensioni_sle(
     if M_Ed_kNm < 1e-6 and abs(N_Ed_kN) < 1e-6:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=True, utilisation=0.0,
+            ok=True,
+            utilisation=0.0,
             details={"sigma_c_MPa": 0.0, "sigma_s_MPa": 0.0},
             messages_it=["Sollecitazioni nulle: verifica non necessaria."],
         )
@@ -1426,7 +1464,7 @@ def check_tensioni_sle(
     b_coeff = n * (As_mm2 + As_prime_mm2)
     c_coeff = -(n * As_mm2 * d_mm + n * As_prime_mm2 * d_prime_mm)
 
-    disc = b_coeff ** 2 - 4.0 * a_coeff * c_coeff
+    disc = b_coeff**2 - 4.0 * a_coeff * c_coeff
     if disc < 0 or a_coeff <= 0:
         x_cr = d_mm * 0.4  # fallback
     else:
@@ -1434,14 +1472,18 @@ def check_tensioni_sle(
         x_cr = max(0.0, min(x_cr, d_mm))
 
     # Momento d'inerzia sezione fessurata
-    I_cr = (b * x_cr ** 3 / 3.0
-            + n * As_mm2 * (d_mm - x_cr) ** 2
-            + n * As_prime_mm2 * (x_cr - d_prime_mm) ** 2)
+    I_cr = (
+        b * x_cr**3 / 3.0
+        + n * As_mm2 * (d_mm - x_cr) ** 2
+        + n * As_prime_mm2 * (x_cr - d_prime_mm) ** 2
+    )
 
     if I_cr <= 0:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Inerzia sezione fessurata non calcolabile"],
         )
 
@@ -1465,8 +1507,8 @@ def check_tensioni_sle(
 
     # Limiti NTC2018 § 4.1.2.2.5
     sigma_c_lim_car = 0.60 * f_ck  # combinazione caratteristica
-    sigma_c_lim_qp = 0.45 * f_ck   # combinazione quasi-permanente
-    sigma_s_lim = 0.80 * f_yk       # acciaio
+    sigma_c_lim_qp = 0.45 * f_ck  # combinazione quasi-permanente
+    sigma_s_lim = 0.80 * f_yk  # acciaio
 
     # Combinazione: usa caratteristica come default (conservativa)
     combo = calc_input.extra.get("combinazione_sle", "caratteristica")
@@ -1515,7 +1557,9 @@ def check_tensioni_sle(
         },
         norm_references=[
             NormReference(
-                norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.2.5",
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.2.5",
                 description_it="Limiti tensioni in esercizio: σ_c ≤ 0.60·f_ck, σ_s ≤ 0.80·f_yk",
             ),
         ],
@@ -1526,6 +1570,7 @@ def check_tensioni_sle(
 # ===========================================================================
 # Fessurazione SLE — NTC 2018 § 4.1.2.2.4 / EC2 § 7.3
 # ===========================================================================
+
 
 def check_fessurazione_sle(
     calc_input: CalcInput,
@@ -1551,7 +1596,9 @@ def check_fessurazione_sle(
     if section is None:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Sezione non specificata per verifica fessurazione"],
         )
 
@@ -1559,7 +1606,9 @@ def check_fessurazione_sle(
     if material is None:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Materiale non specificato per verifica fessurazione"],
         )
 
@@ -1574,7 +1623,9 @@ def check_fessurazione_sle(
     if not f_ck or f_ck <= 0 or not f_yk or f_yk <= 0:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Resistenze materiale non valide per verifica fessurazione"],
         )
 
@@ -1585,7 +1636,9 @@ def check_fessurazione_sle(
     except ValueError:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Geometria sezione non disponibile per verifica fessurazione"],
         )
 
@@ -1597,7 +1650,9 @@ def check_fessurazione_sle(
     if As_mm2 <= 0:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Armatura As non specificata per verifica fessurazione"],
         )
 
@@ -1606,7 +1661,8 @@ def check_fessurazione_sle(
     if M_Ed_kNm < 1e-6:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=True, utilisation=0.0,
+            ok=True,
+            utilisation=0.0,
             details={"w_k_mm": 0.0},
             messages_it=["Sollecitazione nulla: verifica fessurazione non necessaria."],
         )
@@ -1627,12 +1683,12 @@ def check_fessurazione_sle(
     a_c = b / 2.0
     b_c = n * As_mm2
     c_c = -n * As_mm2 * d_mm
-    disc = b_c ** 2 - 4.0 * a_c * c_c
+    disc = b_c**2 - 4.0 * a_c * c_c
     x_cr = (-b_c + math.sqrt(max(disc, 0.0))) / (2.0 * a_c) if a_c > 0 else d_mm * 0.4
     x_cr = max(0.0, min(x_cr, d_mm))
 
     # Inerzia fessurata e tensione acciaio
-    I_cr = b * x_cr ** 3 / 3.0 + n * As_mm2 * (d_mm - x_cr) ** 2
+    I_cr = b * x_cr**3 / 3.0 + n * As_mm2 * (d_mm - x_cr) ** 2
     M_Ed_Nmm = M_Ed_kNm * 1e6
     sigma_s = n * M_Ed_Nmm * (d_mm - x_cr) / I_cr if I_cr > 0 else 0.0
 
@@ -1703,7 +1759,9 @@ def check_fessurazione_sle(
         },
         norm_references=[
             NormReference(
-                norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.2.4",
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.2.4",
                 formula_label="EC2 (7.8)-(7.11)",
                 description_it="Verifica ampiezza fessure: w_k = s_r,max · (ε_sm - ε_cm)",
             ),
@@ -1715,6 +1773,7 @@ def check_fessurazione_sle(
 # ===========================================================================
 # Deformazioni SLE — NTC 2018 § 4.1.2.2.2 / EC2 § 7.4
 # ===========================================================================
+
 
 def check_deformazioni_sle(
     calc_input: CalcInput,
@@ -1739,7 +1798,9 @@ def check_deformazioni_sle(
     if section is None:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Sezione non specificata per verifica deformazioni"],
         )
 
@@ -1747,7 +1808,9 @@ def check_deformazioni_sle(
     if material is None:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Materiale non specificato per verifica deformazioni"],
         )
 
@@ -1756,7 +1819,9 @@ def check_deformazioni_sle(
     if span_mm is None or span_mm <= 0:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Luce trave (span_mm) non specificata in CalcInput.extra"],
         )
 
@@ -1771,7 +1836,9 @@ def check_deformazioni_sle(
     if not f_ck or f_ck <= 0:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["f_ck non valido per verifica deformazioni"],
         )
 
@@ -1782,7 +1849,9 @@ def check_deformazioni_sle(
     except ValueError:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=False, utilisation=None, details={},
+            ok=False,
+            utilisation=None,
+            details={},
             messages_it=["Geometria sezione non disponibile per verifica deformazioni"],
         )
 
@@ -1801,7 +1870,8 @@ def check_deformazioni_sle(
     if M_Ed_kNm < 1e-6:
         return SingleCheckResult(
             template_id=template.template_id,
-            ok=True, utilisation=0.0,
+            ok=True,
+            utilisation=0.0,
             details={"delta_mm": 0.0},
             messages_it=["Sollecitazione nulla: verifica deformazioni non necessaria."],
         )
@@ -1816,7 +1886,7 @@ def check_deformazioni_sle(
 
     # Inerzia sezione integra (stadio I)
     # Approssimazione: sezione rettangolare equivalente b × h
-    I_I = b * h_mm ** 3 / 12.0 + n * As_mm2 * (d_mm - h_mm / 2.0) ** 2
+    I_I = b * h_mm**3 / 12.0 + n * As_mm2 * (d_mm - h_mm / 2.0) ** 2
     if As_prime_mm2 > 0:
         I_I += n * As_prime_mm2 * (h_mm / 2.0 - d_prime_mm) ** 2
 
@@ -1829,13 +1899,15 @@ def check_deformazioni_sle(
     a_c = b / 2.0
     b_c = n * (As_mm2 + As_prime_mm2)
     c_c = -(n * As_mm2 * d_mm + n * As_prime_mm2 * d_prime_mm)
-    disc = b_c ** 2 - 4.0 * a_c * c_c
+    disc = b_c**2 - 4.0 * a_c * c_c
     x_cr = (-b_c + math.sqrt(max(disc, 0.0))) / (2.0 * a_c) if a_c > 0 else d_mm * 0.4
     x_cr = max(0.0, min(x_cr, d_mm))
 
-    I_II = (b * x_cr ** 3 / 3.0
-            + n * As_mm2 * (d_mm - x_cr) ** 2
-            + n * As_prime_mm2 * (x_cr - d_prime_mm) ** 2)
+    I_II = (
+        b * x_cr**3 / 3.0
+        + n * As_mm2 * (d_mm - x_cr) ** 2
+        + n * As_prime_mm2 * (x_cr - d_prime_mm) ** 2
+    )
 
     # Coefficiente di distribuzione (EC2 eq. 7.19)
     beta = 1.0  # carico di lunga durata (0.5 per breve durata)
@@ -1861,11 +1933,11 @@ def check_deformazioni_sle(
     # Freccia per trave semplicemente appoggiata: δ = 5/48 · 1/r · L²
     # (per carico uniforme equivalente)
     k_defl = calc_input.extra.get("k_deflection", 5.0 / 48.0)
-    delta_mm = k_defl * curv * span_mm ** 2
+    delta_mm = k_defl * curv * span_mm**2
 
     # Creep: amplificazione
     phi_creep = calc_input.extra.get("phi_creep", 2.0)  # EC2 default ≈ 2.0
-    delta_mm *= (1.0 + phi_creep)
+    delta_mm *= 1.0 + phi_creep
 
     # Limite
     limit_ratio = calc_input.extra.get("deflection_limit_ratio", 250.0)
@@ -1911,7 +1983,9 @@ def check_deformazioni_sle(
         },
         norm_references=[
             NormReference(
-                norm_code="NTC2018", chapter="4.1", paragraph="4.1.2.2.2",
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.2.2",
                 formula_label="EC2 (7.18)-(7.19)",
                 description_it="Verifica frecce con rigidezza interpolata",
             ),

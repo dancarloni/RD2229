@@ -11,8 +11,10 @@ Richiede: PySide6 o PyQt6 + matplotlib[backend_qt]
 from __future__ import annotations
 
 try:
-    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-    from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+    from matplotlib.backends.backend_qtagg import (
+        FigureCanvasQTAgg as FigureCanvas,
+        NavigationToolbar2QT as NavigationToolbar,
+    )
     from matplotlib.figure import Figure
 
     try:
@@ -26,6 +28,7 @@ try:
             QVBoxLayout,
             QWidget,
         )
+
         _QT_AVAILABLE = True
     except ImportError:
         try:
@@ -39,6 +42,7 @@ try:
                 QVBoxLayout,
                 QWidget,
             )
+
             _QT_AVAILABLE = True
         except ImportError:
             _QT_AVAILABLE = False
@@ -105,9 +109,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             # --- Canvas matplotlib ---
             self._fig = Figure(figsize=(10, 6), tight_layout=True)
             self._canvas = FigureCanvas(self._fig)
-            self._canvas.setSizePolicy(
-                QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-            )
+            self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             layout.addWidget(self._canvas)
 
             # --- Toolbar navigazione ---
@@ -131,9 +133,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             scala = self._spin_scala.value()
             ax_v = self._fig.add_subplot(2, 1, 1)
             ax_u = self._fig.add_subplot(2, 1, 2, sharex=ax_v)
-            grafico_spostamenti(
-                self._diagramma, ax_v=ax_v, ax_u=ax_u, fig=self._fig, scala=scala
-            )
+            grafico_spostamenti(self._diagramma, ax_v=ax_v, ax_u=ax_u, fig=self._fig, scala=scala)
             self._canvas.draw()
 
         def _dialogo_esporta(self) -> None:
@@ -156,6 +156,4 @@ else:
         """Stub usato quando PySide6/matplotlib non sono disponibili."""
 
         def __init__(self, *args, **kwargs) -> None:
-            raise ImportError(
-                "SpostamentiCanvas richiede PySide6/PyQt6 e matplotlib."
-            )
+            raise ImportError("SpostamentiCanvas richiede PySide6/PyQt6 e matplotlib.")

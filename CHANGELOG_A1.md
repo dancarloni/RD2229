@@ -51,6 +51,6 @@ repository → resolve_inputs → action_repo → report renderers → export
 
 ---
 
-**Data**: 2026-02-11  
-**Tipo**: Ristrutturazione completa (A1)  
+**Data**: 2026-02-11
+**Tipo**: Ristrutturazione completa (A1)
 **Stato**: Struttura base completata, implementazione da espandere

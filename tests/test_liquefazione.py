@@ -15,11 +15,7 @@ from src.geotecnica.liquefazione import (
     correggi_n160,
     fattore_riduzione_r_d,
 )
-from src.geotecnica.models import (
-    ClasseLiquefazione,
-    InputLiquefazione,
-    StratoLiquefazione,
-)
+from src.geotecnica.models import ClasseLiquefazione, InputLiquefazione, StratoLiquefazione
 
 # ---------------------------------------------------------------------------
 # Fattore di riduzione r_d

@@ -49,16 +49,18 @@ def _scale_pressures(
     """Scala le pressioni per un fattore (γ o ψ)."""
     scaled = []
     for p in pressures:
-        scaled.append(PressureZoneResults(
-            zone_id=p.zone_id,
-            description=p.description,
-            cpe=p.cpe,
-            cpi=p.cpi,
-            we_kN_m2=round(p.we_kN_m2 * factor, 4),
-            wi_kN_m2=round(p.wi_kN_m2 * factor, 4),
-            net_kN_m2=round(p.net_kN_m2 * factor, 4),
-            area_m2=p.area_m2,
-        ))
+        scaled.append(
+            PressureZoneResults(
+                zone_id=p.zone_id,
+                description=p.description,
+                cpe=p.cpe,
+                cpi=p.cpi,
+                we_kN_m2=round(p.we_kN_m2 * factor, 4),
+                wi_kN_m2=round(p.wi_kN_m2 * factor, 4),
+                net_kN_m2=round(p.net_kN_m2 * factor, 4),
+                area_m2=p.area_m2,
+            )
+        )
     return scaled
 
 
@@ -69,13 +71,15 @@ def _scale_forces(
     """Scala le forze per un fattore."""
     scaled = []
     for f in forces:
-        scaled.append(ZoneForce(
-            zone_id=f.zone_id,
-            F_kN=round(f.F_kN * factor, 4),
-            direction=f.direction,
-            tributary_area_m2=f.tributary_area_m2,
-            application_point_m=f.application_point_m,
-        ))
+        scaled.append(
+            ZoneForce(
+                zone_id=f.zone_id,
+                F_kN=round(f.F_kN * factor, 4),
+                direction=f.direction,
+                tributary_area_m2=f.tributary_area_m2,
+                application_point_m=f.application_point_m,
+            )
+        )
     return scaled
 
 
@@ -100,53 +104,63 @@ def generate_wind_combinations(
     combos = []
 
     # SLU — vento sfavorevole (γ_w = 1.5)
-    combos.append(WindCombination(
-        combo_id="SLU_1.5",
-        description="SLU — vento sfavorevole (γ_w=1.5)",
-        gamma_w=1.5,
-        psi=1.0,
-        pressures=_scale_pressures(pressures, 1.5),
-        resultant_forces=_scale_forces(forces, 1.5),
-    ))
+    combos.append(
+        WindCombination(
+            combo_id="SLU_1.5",
+            description="SLU — vento sfavorevole (γ_w=1.5)",
+            gamma_w=1.5,
+            psi=1.0,
+            pressures=_scale_pressures(pressures, 1.5),
+            resultant_forces=_scale_forces(forces, 1.5),
+        )
+    )
 
     # SLU — vento favorevole (γ_w = 0.0)
-    combos.append(WindCombination(
-        combo_id="SLU_0.0",
-        description="SLU — vento favorevole (γ_w=0.0)",
-        gamma_w=0.0,
-        psi=1.0,
-        pressures=_scale_pressures(pressures, 0.0),
-        resultant_forces=_scale_forces(forces, 0.0),
-    ))
+    combos.append(
+        WindCombination(
+            combo_id="SLU_0.0",
+            description="SLU — vento favorevole (γ_w=0.0)",
+            gamma_w=0.0,
+            psi=1.0,
+            pressures=_scale_pressures(pressures, 0.0),
+            resultant_forces=_scale_forces(forces, 0.0),
+        )
+    )
 
     # SLE caratteristica (ψ0)
-    combos.append(WindCombination(
-        combo_id="SLE_car",
-        description=f"SLE caratteristica (ψ0={psi['psi_0']})",
-        gamma_w=1.0,
-        psi=psi["psi_0"],
-        pressures=_scale_pressures(pressures, psi["psi_0"]),
-        resultant_forces=_scale_forces(forces, psi["psi_0"]),
-    ))
+    combos.append(
+        WindCombination(
+            combo_id="SLE_car",
+            description=f"SLE caratteristica (ψ0={psi['psi_0']})",
+            gamma_w=1.0,
+            psi=psi["psi_0"],
+            pressures=_scale_pressures(pressures, psi["psi_0"]),
+            resultant_forces=_scale_forces(forces, psi["psi_0"]),
+        )
+    )
 
     # SLE frequente (ψ1)
-    combos.append(WindCombination(
-        combo_id="SLE_freq",
-        description=f"SLE frequente (ψ1={psi['psi_1']})",
-        gamma_w=1.0,
-        psi=psi["psi_1"],
-        pressures=_scale_pressures(pressures, psi["psi_1"]),
-        resultant_forces=_scale_forces(forces, psi["psi_1"]),
-    ))
+    combos.append(
+        WindCombination(
+            combo_id="SLE_freq",
+            description=f"SLE frequente (ψ1={psi['psi_1']})",
+            gamma_w=1.0,
+            psi=psi["psi_1"],
+            pressures=_scale_pressures(pressures, psi["psi_1"]),
+            resultant_forces=_scale_forces(forces, psi["psi_1"]),
+        )
+    )
 
     # SLE quasi-permanente (ψ2)
-    combos.append(WindCombination(
-        combo_id="SLE_qp",
-        description=f"SLE quasi-permanente (ψ2={psi['psi_2']})",
-        gamma_w=1.0,
-        psi=psi["psi_2"],
-        pressures=_scale_pressures(pressures, psi["psi_2"]),
-        resultant_forces=_scale_forces(forces, psi["psi_2"]),
-    ))
+    combos.append(
+        WindCombination(
+            combo_id="SLE_qp",
+            description=f"SLE quasi-permanente (ψ2={psi['psi_2']})",
+            gamma_w=1.0,
+            psi=psi["psi_2"],
+            pressures=_scale_pressures(pressures, psi["psi_2"]),
+            resultant_forces=_scale_forces(forces, psi["psi_2"]),
+        )
+    )
 
     return combos

@@ -36,8 +36,7 @@ def calcola_pressoflessione_deviata(spec: PressoflessSpec) -> PressoflessResult:
     """
     if spec.norma not in NORME:
         raise ValueError(
-            f"Norma '{spec.norma}' non supportata. "
-            f"Norme disponibili: {sorted(NORME)}"
+            f"Norma '{spec.norma}' non supportata. " f"Norme disponibili: {sorted(NORME)}"
         )
 
     # Amplificazione instabilita' (opzionale)
@@ -49,10 +48,16 @@ def calcola_pressoflessione_deviata(spec: PressoflessSpec) -> PressoflessResult:
 
     if spec.amplifica_instabilita and spec.l0_x_cm and spec.l0_y_cm:
         omega_x, omega_y, Mx_eff, My_eff, instab_details = amplifica_momenti_biassiale(
-            spec.N_kg, spec.Mx_kgcm, spec.My_kgcm,
-            spec.section, spec.barre, spec.n,
-            spec.l0_x_cm, spec.l0_y_cm,
-            spec.sigma_c_adm_kgcm2, spec.E_c_kgcm2,
+            spec.N_kg,
+            spec.Mx_kgcm,
+            spec.My_kgcm,
+            spec.section,
+            spec.barre,
+            spec.n,
+            spec.l0_x_cm,
+            spec.l0_y_cm,
+            spec.sigma_c_adm_kgcm2,
+            spec.E_c_kgcm2,
         )
         # Crea spec con momenti amplificati
         spec = PressoflessSpec(
@@ -86,9 +91,10 @@ def calcola_pressoflessione_deviata(spec: PressoflessSpec) -> PressoflessResult:
         result.Mx_amplificato_kgcm = round(Mx_eff, 4)
         result.My_amplificato_kgcm = round(My_eff, 4)
         result.details.update(instab_details)
-        result.passaggi_calcolo.insert(0,
+        result.passaggi_calcolo.insert(
+            0,
             f"Instabilita' biassiale: omega_x={omega_x:.4f}, omega_y={omega_y:.4f}, "
-            f"Mx_amp={Mx_eff:.1f}, My_amp={My_eff:.1f}"
+            f"Mx_amp={Mx_eff:.1f}, My_amp={My_eff:.1f}",
         )
 
     return result

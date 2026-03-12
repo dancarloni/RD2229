@@ -28,6 +28,7 @@ from src.wind.shielding import (
 # Combinazioni
 # ===========================================================================
 
+
 class TestCombinations:
     def _sample_pressures(self):
         return [
@@ -71,6 +72,7 @@ class TestCombinations:
 # ===========================================================================
 # Forze risultanti
 # ===========================================================================
+
 
 class TestResultantForces:
     def test_zone_force(self):
@@ -128,6 +130,7 @@ class TestResultantForces:
 # Attrito
 # ===========================================================================
 
+
 class TestFriction:
     def test_smooth_coefficient(self):
         cfr = get_friction_coefficient("SMOOTH")
@@ -164,6 +167,7 @@ class TestFriction:
 # ===========================================================================
 # Schermatura
 # ===========================================================================
+
 
 class TestShielding:
     def test_no_shielding_far(self):

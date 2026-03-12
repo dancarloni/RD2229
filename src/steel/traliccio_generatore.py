@@ -40,6 +40,7 @@ from .traliccio_2d import Asta, Nodo, TipoVincolo
 #  Topologia base comune a Howe e Pratt
 # ═══════════════════════════════════════════════════════════
 
+
 def _genera_topologia_base(
     L: float,
     h: float,
@@ -83,18 +84,28 @@ def _genera_topologia_base(
 
     # Corrente superiore: (n+1)→(n+2)→...→(2n+1)
     for k in range(n):
-        aste.append(Asta(
-            id=id_asta, nodo_i=n + 1 + k, nodo_j=n + 1 + k + 1,
-            A=A_c, nome_profilo=nome_c,
-        ))
+        aste.append(
+            Asta(
+                id=id_asta,
+                nodo_i=n + 1 + k,
+                nodo_j=n + 1 + k + 1,
+                A=A_c,
+                nome_profilo=nome_c,
+            )
+        )
         id_asta += 1
 
     # Montanti verticali: inf[k]→sup[k] per k=0..n  (n+1 montanti, inclusi gli estremi)
     for k in range(n + 1):
-        aste.append(Asta(
-            id=id_asta, nodo_i=k, nodo_j=n + 1 + k,
-            A=A_c, nome_profilo=nome_c,
-        ))
+        aste.append(
+            Asta(
+                id=id_asta,
+                nodo_i=k,
+                nodo_j=n + 1 + k,
+                A=A_c,
+                nome_profilo=nome_c,
+            )
+        )
         id_asta += 1
 
     return nodi, aste, id_nodo, id_asta, a
@@ -103,6 +114,7 @@ def _genera_topologia_base(
 # ═══════════════════════════════════════════════════════════
 #  Schema Howe
 # ═══════════════════════════════════════════════════════════
+
 
 def genera_howe(
     L: float,
@@ -133,7 +145,10 @@ def genera_howe(
         (nodi, aste) — senza vincoli e senza forze esterne
     """
     nodi, aste, _, id_asta, _ = _genera_topologia_base(
-        L, h, n_campate, sezione_corrente,
+        L,
+        h,
+        n_campate,
+        sezione_corrente,
     )
     n = n_campate
     A_d = sezione_diagonale.A
@@ -141,12 +156,15 @@ def genera_howe(
 
     # Diagonali Howe: inf[k] → sup[k+1]  (ascendenti da sinistra a destra)
     for k in range(n):
-        aste.append(Asta(
-            id=id_asta,
-            nodo_i=k,          # inf[k]
-            nodo_j=n + 1 + k + 1,  # sup[k+1]
-            A=A_d, nome_profilo=nome_d,
-        ))
+        aste.append(
+            Asta(
+                id=id_asta,
+                nodo_i=k,  # inf[k]
+                nodo_j=n + 1 + k + 1,  # sup[k+1]
+                A=A_d,
+                nome_profilo=nome_d,
+            )
+        )
         id_asta += 1
 
     return nodi, aste
@@ -155,6 +173,7 @@ def genera_howe(
 # ═══════════════════════════════════════════════════════════
 #  Schema Pratt
 # ═══════════════════════════════════════════════════════════
+
 
 def genera_pratt(
     L: float,
@@ -187,7 +206,9 @@ def genera_pratt(
         (nodi, aste) — senza vincoli e senza forze esterne
     """
     nodi, aste, _, id_asta, _ = _genera_topologia_base(
-        L, h, n_campate,
+        L,
+        h,
+        n_campate,
         sezione_montante if sezione_montante is not None else sezione_corrente,
     )
     n = n_campate
@@ -199,12 +220,15 @@ def genera_pratt(
 
     # Diagonali Pratt: sup[k] → inf[k+1]  (discendenti da sinistra a destra)
     for k in range(n):
-        aste.append(Asta(
-            id=id_asta,
-            nodo_i=n + 1 + k,  # sup[k]
-            nodo_j=k + 1,       # inf[k+1]
-            A=A_d, nome_profilo=nome_d,
-        ))
+        aste.append(
+            Asta(
+                id=id_asta,
+                nodo_i=n + 1 + k,  # sup[k]
+                nodo_j=k + 1,  # inf[k+1]
+                A=A_d,
+                nome_profilo=nome_d,
+            )
+        )
         id_asta += 1
 
     return nodi, aste
@@ -213,6 +237,7 @@ def genera_pratt(
 # ═══════════════════════════════════════════════════════════
 #  Vincoli alle estremità
 # ═══════════════════════════════════════════════════════════
+
 
 def applica_vincoli_cordolo(
     nodi: list[Nodo],
@@ -243,8 +268,7 @@ def applica_vincoli_cordolo(
     """
     n = n_campate
     nodi_out = [
-        Nodo(id=nd.id, x=nd.x, y=nd.y, vincolo=nd.vincolo, Fx=nd.Fx, Fy=nd.Fy)
-        for nd in nodi
+        Nodo(id=nd.id, x=nd.x, y=nd.y, vincolo=nd.vincolo, Fx=nd.Fx, Fy=nd.Fy) for nd in nodi
     ]
 
     if tipo_estremi == "incastro":
@@ -255,13 +279,13 @@ def applica_vincoli_cordolo(
 
     for nd in nodi_out:
         if nd.id == 0:
-            nd.vincolo = TipoVincolo.CERNIERA   # inf, x=0
+            nd.vincolo = TipoVincolo.CERNIERA  # inf, x=0
         elif nd.id == n + 1:
-            nd.vincolo = TipoVincolo.CERNIERA   # sup, x=0
+            nd.vincolo = TipoVincolo.CERNIERA  # sup, x=0
         elif nd.id == n:
-            nd.vincolo = vincolo_destra         # inf, x=L
+            nd.vincolo = vincolo_destra  # inf, x=L
         elif nd.id == 2 * n + 1:
-            nd.vincolo = vincolo_destra         # sup, x=L
+            nd.vincolo = vincolo_destra  # sup, x=L
 
     return nodi_out
 
@@ -269,6 +293,7 @@ def applica_vincoli_cordolo(
 # ═══════════════════════════════════════════════════════════
 #  Utilità
 # ═══════════════════════════════════════════════════════════
+
 
 def n_campate_default(L: float, h: float) -> int:
     """Numero di campate di default per schema Howe/Pratt.
@@ -310,7 +335,7 @@ def valida_geometria(
 
         dx = nj.x - ni.x
         dy = nj.y - ni.y
-        L_asta = math.sqrt(dx ** 2 + dy ** 2)
+        L_asta = math.sqrt(dx**2 + dy**2)
 
         if L_asta < 1e-6:
             messaggi.append(f"ERRORE: Asta {asta.id} — lunghezza zero")
@@ -389,6 +414,7 @@ def disegna_schema_traliccio(
     """
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.patches as mpatches
         import matplotlib.pyplot as plt
@@ -422,8 +448,7 @@ def disegna_schema_traliccio(
 
     for n in nodi:
         ax.plot(n.x, n.y, "ko", ms=4)
-        ax.annotate(str(n.id), (n.x, n.y), textcoords="offset points",
-                    xytext=(2, 4), fontsize=7)
+        ax.annotate(str(n.id), (n.x, n.y), textcoords="offset points", xytext=(2, 4), fontsize=7)
 
     legenda = [
         mpatches.Patch(color="blue", label="Trazione"),

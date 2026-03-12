@@ -181,7 +181,7 @@ def compute_peak_velocity_pressure(
     # Iv(z) = kI / ln(z_eff / z0), kI = 1.0
     iv = 1.0 / math.log(z_eff / z0)
 
-    qp_Pa = (1.0 + 7.0 * iv) * 0.5 * _RHO_AIR * vm ** 2
+    qp_Pa = (1.0 + 7.0 * iv) * 0.5 * _RHO_AIR * vm**2
     return qp_Pa / 1000.0
 
 
@@ -190,7 +190,7 @@ def compute_kinetic_pressure_en(v_ms: float) -> float:
 
     ρ = 1.25 kg/m³ (EN 1991-1-4 §4.5 Note 2).
     """
-    q_Pa = 0.5 * _RHO_AIR * v_ms ** 2
+    q_Pa = 0.5 * _RHO_AIR * v_ms**2
     return q_Pa / 1000.0
 
 
@@ -220,7 +220,9 @@ def compute_base_velocity(
 
     zone = get_na_zone(zone_id)
     if zone is None:
-        logger.warning("Zona NA '%s' non trovata; uso vb,0 default = %.1f m/s", zone_id, _VB0_DEFAULT_MS)
+        logger.warning(
+            "Zona NA '%s' non trovata; uso vb,0 default = %.1f m/s", zone_id, _VB0_DEFAULT_MS
+        )
         return _VB0_DEFAULT_MS
 
     vb0 = zone["vb0_ms"]
@@ -259,9 +261,7 @@ def run_en1991_1_4_wind(
         if zone_id:
             zone_info = get_na_zone(zone_id)
             desc = zone_info["description"] if zone_info else f"zona {zone_id}"
-            warnings.append(
-                f"Velocità base calcolata da NA italiano: vb = {v_b:.1f} m/s ({desc})."
-            )
+            warnings.append(f"Velocità base calcolata da NA italiano: vb = {v_b:.1f} m/s ({desc}).")
         else:
             warnings.append(
                 f"Velocità base vb non specificata; usato default {v_b} m/s. "
@@ -291,18 +291,23 @@ def run_en1991_1_4_wind(
 
         q_at_h = profile[-1].q_kN_m2 if profile else q_b
         zones_data = compute_building_pressure_zones(
-            h, building.width_m, building.depth_m, q_at_h,
+            h,
+            building.width_m,
+            building.depth_m,
+            q_at_h,
         )
         for zd in zones_data:
-            pressure_zones.append(PressureZoneResults(
-                zone_id=zd["zone_id"],
-                description=zd["description"],
-                cpe=zd["cpe"],
-                cpi=zd["cpi"],
-                we_kN_m2=zd["we_kN_m2"],
-                wi_kN_m2=zd["wi_kN_m2"],
-                net_kN_m2=zd["net_kN_m2"],
-            ))
+            pressure_zones.append(
+                PressureZoneResults(
+                    zone_id=zd["zone_id"],
+                    description=zd["description"],
+                    cpe=zd["cpe"],
+                    cpi=zd["cpi"],
+                    we_kN_m2=zd["we_kN_m2"],
+                    wi_kN_m2=zd["wi_kN_m2"],
+                    net_kN_m2=zd["net_kN_m2"],
+                )
+            )
 
     # Metadati NA
     na = _load_national_annex()

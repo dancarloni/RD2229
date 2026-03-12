@@ -27,6 +27,7 @@ _logger = logging.getLogger(__name__)
 
 class FamigliaProfilo(str, Enum):
     """Famiglie di profili laminati a caldo."""
+
     IPE = "IPE"
     HEA = "HEA"
     HEB = "HEB"
@@ -41,40 +42,41 @@ class ProfiloAcciaio:
     Tutte le dimensioni in cm, aree in cm², moduli in cm³,
     inerzie in cm⁴, massa in kg/m.
     """
-    nome: str                    # es. "IPE 200"
-    famiglia: str                # es. "IPE"
+
+    nome: str  # es. "IPE 200"
+    famiglia: str  # es. "IPE"
 
     # Dimensioni geometriche
-    h: float                     # altezza totale [cm]
-    b: float                     # larghezza ala [cm]
-    tw: float                    # spessore anima [cm]
-    tf: float                    # spessore ala [cm]
-    r: float                     # raggio raccordo [cm]
+    h: float  # altezza totale [cm]
+    b: float  # larghezza ala [cm]
+    tw: float  # spessore anima [cm]
+    tf: float  # spessore ala [cm]
+    r: float  # raggio raccordo [cm]
 
     # Proprietà della sezione
-    A: float                     # area [cm²]
-    massa_kg_m: float            # massa per metro [kg/m]
+    A: float  # area [cm²]
+    massa_kg_m: float  # massa per metro [kg/m]
 
     # Asse forte (x-x)
-    Ix: float                    # momento d'inerzia [cm⁴]
-    Wx: float                    # modulo elastico [cm³]
-    Wpl_x: float                 # modulo plastico [cm³]
-    ix: float                    # raggio d'inerzia [cm]
+    Ix: float  # momento d'inerzia [cm⁴]
+    Wx: float  # modulo elastico [cm³]
+    Wpl_x: float  # modulo plastico [cm³]
+    ix: float  # raggio d'inerzia [cm]
 
     # Asse debole (y-y)
-    Iy: float                    # momento d'inerzia [cm⁴]
-    Wy: float                    # modulo elastico [cm³]
-    Wpl_y: float                 # modulo plastico [cm³]
-    iy: float                    # raggio d'inerzia [cm]
+    Iy: float  # momento d'inerzia [cm⁴]
+    Wy: float  # modulo elastico [cm³]
+    Wpl_y: float  # modulo plastico [cm³]
+    iy: float  # raggio d'inerzia [cm]
 
     # Proprietà torsionali (opzionali)
-    It: float = 0.0              # costante di torsione (St. Venant) [cm⁴]
-    Iw: float = 0.0              # costante di ingobbamento [cm⁶]
+    It: float = 0.0  # costante di torsione (St. Venant) [cm⁴]
+    Iw: float = 0.0  # costante di ingobbamento [cm⁶]
 
     # Proprietà aggiuntive
-    hi: float = 0.0              # altezza anima (h - 2·tf) [cm]
-    d: float = 0.0               # altezza diritta anima (h - 2·tf - 2·r) [cm]
-    AL: float = 0.0              # superficie laterale per metro [m²/m]
+    hi: float = 0.0  # altezza anima (h - 2·tf) [cm]
+    d: float = 0.0  # altezza diritta anima (h - 2·tf - 2·r) [cm]
+    AL: float = 0.0  # superficie laterale per metro [m²/m]
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -101,9 +103,23 @@ class ProfiloAcciaio:
 # ── Costanti per import CSV ──────────────────────────────────────────────────
 
 _CAMPI_OBBLIGATORI: tuple[str, ...] = (
-    "nome", "famiglia", "h", "b", "tw", "tf", "r",
-    "A", "massa_kg_m", "Ix", "Wx", "Wpl_x", "ix",
-    "Iy", "Wy", "Wpl_y", "iy",
+    "nome",
+    "famiglia",
+    "h",
+    "b",
+    "tw",
+    "tf",
+    "r",
+    "A",
+    "massa_kg_m",
+    "Ix",
+    "Wx",
+    "Wpl_x",
+    "ix",
+    "Iy",
+    "Wy",
+    "Wpl_y",
+    "iy",
 )
 _CAMPI_OPZIONALI: tuple[str, ...] = ("It", "Iw", "hi", "d", "AL")
 _POSITIVI: frozenset[str] = frozenset(
@@ -182,10 +198,7 @@ class SagomarioAcciaio:
         self, Wx_min: float, famiglia: str | None = None
     ) -> list[ProfiloAcciaio]:
         """Cerca profili con Wx >= Wx_min, ordinati per Wx crescente."""
-        profili = (
-            self.list_by_famiglia(famiglia) if famiglia
-            else list(self._profili.values())
-        )
+        profili = self.list_by_famiglia(famiglia) if famiglia else list(self._profili.values())
         result = [p for p in profili if p.Wx >= Wx_min]
         return sorted(result, key=lambda p: p.Wx)
 
@@ -193,16 +206,11 @@ class SagomarioAcciaio:
         self, h_min: float, h_max: float, famiglia: str | None = None
     ) -> list[ProfiloAcciaio]:
         """Cerca profili con h_min <= h <= h_max."""
-        profili = (
-            self.list_by_famiglia(famiglia) if famiglia
-            else list(self._profili.values())
-        )
+        profili = self.list_by_famiglia(famiglia) if famiglia else list(self._profili.values())
         result = [p for p in profili if h_min <= p.h <= h_max]
         return sorted(result, key=lambda p: p.h)
 
-    def profilo_ottimale(
-        self, Wx_min: float, famiglia: str | None = None
-    ) -> ProfiloAcciaio | None:
+    def profilo_ottimale(self, Wx_min: float, famiglia: str | None = None) -> ProfiloAcciaio | None:
         """Ritorna il profilo più leggero con Wx >= Wx_min."""
         candidati = self.cerca_per_Wx_minimo(Wx_min, famiglia)
         if not candidati:

@@ -137,7 +137,7 @@ test_ntc2018_hazard_profile_persistence.py NEW – round‑trip test via Verific
 ntc2018_hazard_paste_panel.py NEW – thin Tkinter panel implementing the UI spec (fields, textarea, analyse/preview, save button).
 verification_project.py MODIFIED – added SeismicInputs dataclass, seismic_inputs field, load/save logic for ntc2018_hazard_profile with backward compatibility.
 module_selector.py MODIFIED – added button “Spettro NTC2018 (Paste)” and_open_hazard_paste() handler.
-(plus incidental formatting changes) 
+(plus incidental formatting changes)
 🧪 Manual UI testing steps
 Launch the app (start module_selector as usual).
 Click “Parametri sismici NTC2018 (Paste)” in the Parametri Normativa section.

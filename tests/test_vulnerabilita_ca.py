@@ -4,26 +4,27 @@ Pilastro tipo 'anni '60': 30×30 cm, Ø8/20, RCk150, fc=1.35.
 """
 
 import dataclasses
+
 import pytest
 
 from src.esistenti.vulnerabilita_ca import (
-    TipoElemento,
     ClasseVulnerabilita,
-    SoglieRho,
     ConfigVulnerabilitaCA,
     ElementoCA,
-    RisultatoElementoCA,
     IndiceVulnerabilitaCA,
-    verifica_elemento_ca,
-    analisi_vulnerabilita_ca,
+    RisultatoElementoCA,
+    SoglieRho,
+    TipoElemento,
     _capacita_flessione,
-    _capacita_taglio,
     _capacita_pressoflessione,
+    _capacita_taglio,
     _duttilita_chord_rotation,
+    analisi_vulnerabilita_ca,
+    verifica_elemento_ca,
 )
 
-
 # ─── Fixture pilastro anni '60 ───────────────────────────────────────────────
+
 
 @pytest.fixture
 def pilastro_60():
@@ -37,15 +38,15 @@ def pilastro_60():
         h_sez=30.0,
         d=26.5,
         d_primo=3.5,
-        As=4 * 0.503,       # 4Ø8 = 4×0.503 cm²
+        As=4 * 0.503,  # 4Ø8 = 4×0.503 cm²
         As_primo=4 * 0.503,
-        Asw=None,           # senza staffe (scenario critico)
+        Asw=None,  # senza staffe (scenario critico)
         s_staffe=None,
-        f_cd=60.0,          # kg/cm² — fck già diviso per FC
-        f_yd=2_200.0,       # kg/cm² — FeB32k
-        N_ed=5_000.0,       # kg compressione
-        Mx_ed=1_500.0,      # kg·cm
-        Ty_ed=50.0,         # kg
+        f_cd=60.0,  # kg/cm² — fck già diviso per FC
+        f_yd=2_200.0,  # kg/cm² — FeB32k
+        N_ed=5_000.0,  # kg compressione
+        Mx_ed=1_500.0,  # kg·cm
+        Ty_ed=50.0,  # kg
         luce=300.0,
         piano="1",
     )
@@ -61,7 +62,7 @@ def trave_senza_staffe():
         h_sez=40.0,
         d=36.0,
         d_primo=4.0,
-        As=2 * 1.131,       # 2Ø12
+        As=2 * 1.131,  # 2Ø12
         As_primo=0.0,
         Asw=None,
         s_staffe=None,
@@ -82,6 +83,7 @@ def config_std():
 
 # ─── Test _capacita_flessione ────────────────────────────────────────────────
 
+
 class TestCapacitaFlessione:
     def test_mrd_positivo(self, pilastro_60):
         MRd, passi = _capacita_flessione(pilastro_60)
@@ -100,6 +102,7 @@ class TestCapacitaFlessione:
 
 
 # ─── Test _capacita_taglio ───────────────────────────────────────────────────
+
 
 class TestCapacitaTaglio:
     def test_vrd_senza_staffe(self, pilastro_60):
@@ -122,12 +125,11 @@ class TestCapacitaTaglio:
 
 # ─── Test _capacita_pressoflessione ─────────────────────────────────────────
 
+
 class TestCapacitaPressoflessione:
     def test_mrd_pf_aumenta_con_N(self, pilastro_60):
         """Compressione moderata aumenta la capacità a presso-flessione."""
-        MRd_no_N, _ = _capacita_pressoflessione(
-            dataclasses.replace(pilastro_60, N_ed=0.0)
-        )
+        MRd_no_N, _ = _capacita_pressoflessione(dataclasses.replace(pilastro_60, N_ed=0.0))
         MRd_N, _ = _capacita_pressoflessione(pilastro_60)
         assert MRd_N >= MRd_no_N
 
@@ -139,6 +141,7 @@ class TestCapacitaPressoflessione:
 
 # ─── Test _duttilita_chord_rotation ─────────────────────────────────────────
 
+
 class TestDuttilita:
     def test_theta_u_positivo(self, pilastro_60):
         θ_u, θ_y, μ = _duttilita_chord_rotation(pilastro_60)
@@ -146,7 +149,7 @@ class TestDuttilita:
         assert θ_y > 0
         assert μ >= 1.0
 
-    def test_theta_u_con_staffe_>=_senza(self, pilastro_60):
+    def test_theta_u_con_staffe_maggiore_uguale_senza(self, pilastro_60):
         """Con staffe la duttilità è ≥ caso senza staffe."""
         θ_u_no, _, _ = _duttilita_chord_rotation(pilastro_60)
         p2 = dataclasses.replace(pilastro_60, Asw=0.503, s_staffe=15.0)
@@ -155,6 +158,7 @@ class TestDuttilita:
 
 
 # ─── Test verifica_elemento_ca ───────────────────────────────────────────────
+
 
 class TestVerificaElementoCA:
     def test_risultato_ha_campi_aspettati(self, pilastro_60, config_std):
@@ -168,10 +172,15 @@ class TestVerificaElementoCA:
         elem = ElementoCA(
             id_elemento="P_critico",
             tipo=TipoElemento.PILASTRO,
-            b=20.0, h_sez=20.0, d=16.0, d_primo=4.0,
-            f_cd=50.0, f_yd=2_000.0,
-            As=0.503, As_primo=0.0,
-            Mx_ed=50_000.0,   # molto superiore alla capacità
+            b=20.0,
+            h_sez=20.0,
+            d=16.0,
+            d_primo=4.0,
+            f_cd=50.0,
+            f_yd=2_000.0,
+            As=0.503,
+            As_primo=0.0,
+            Mx_ed=50_000.0,  # molto superiore alla capacità
             Ty_ed=2_000.0,
             N_ed=0.0,
             luce=300.0,
@@ -184,11 +193,17 @@ class TestVerificaElementoCA:
         elem = ElementoCA(
             id_elemento="P_buono",
             tipo=TipoElemento.PILASTRO,
-            b=40.0, h_sez=40.0, d=35.0, d_primo=5.0,
-            f_cd=120.0, f_yd=3_600.0,
-            As=20.0, As_primo=20.0,
-            Asw=1.0, s_staffe=10.0,
-            Mx_ed=1.0,    # domanda trascurabile
+            b=40.0,
+            h_sez=40.0,
+            d=35.0,
+            d_primo=5.0,
+            f_cd=120.0,
+            f_yd=3_600.0,
+            As=20.0,
+            As_primo=20.0,
+            Asw=1.0,
+            s_staffe=10.0,
+            Mx_ed=1.0,  # domanda trascurabile
             Ty_ed=1.0,
             N_ed=0.0,
             luce=300.0,
@@ -203,11 +218,10 @@ class TestVerificaElementoCA:
 
 # ─── Test analisi_vulnerabilita_ca ───────────────────────────────────────────
 
+
 class TestAnalisiVulnerabilitaCA:
     def test_indice_base(self, pilastro_60, trave_senza_staffe, config_std):
-        indice, risultati = analisi_vulnerabilita_ca(
-            [pilastro_60, trave_senza_staffe], config_std
-        )
+        indice, risultati = analisi_vulnerabilita_ca([pilastro_60, trave_senza_staffe], config_std)
         assert isinstance(indice, IndiceVulnerabilitaCA)
         assert len(risultati) == 2
 
@@ -217,24 +231,22 @@ class TestAnalisiVulnerabilitaCA:
         assert totale == 1
 
     def test_rho_globale_range(self, pilastro_60, trave_senza_staffe, config_std):
-        indice, _ = analisi_vulnerabilita_ca(
-            [pilastro_60, trave_senza_staffe], config_std
-        )
+        indice, _ = analisi_vulnerabilita_ca([pilastro_60, trave_senza_staffe], config_std)
         assert 0.0 < indice.rho_globale
 
     def test_ranking_non_vuoto(self, pilastro_60, trave_senza_staffe, config_std):
-        indice, _ = analisi_vulnerabilita_ca(
-            [pilastro_60, trave_senza_staffe], config_std
-        )
+        indice, _ = analisi_vulnerabilita_ca([pilastro_60, trave_senza_staffe], config_std)
         assert len(indice.ranking) == 2
 
     def test_soglie_personalizzate(self, pilastro_60, config_std):
         """Soglie personalizzate cambiano la classificazione attesa."""
-        config_stretta = ConfigVulnerabilitaCA(
-            soglie=SoglieRho(verificato=1.2, critico=1.0)
-        )
+        config_stretta = ConfigVulnerabilitaCA(soglie=SoglieRho(verificato=1.2, critico=1.0))
         r1 = verifica_elemento_ca(pilastro_60, config_std)
         r2 = verifica_elemento_ca(pilastro_60, config_stretta)
         # Con soglie più strette la classe non può essere migliore
-        classes = [ClasseVulnerabilita.VERIFICATO, ClasseVulnerabilita.CRITICO, ClasseVulnerabilita.NON_VERIFICATO]
+        classes = [
+            ClasseVulnerabilita.VERIFICATO,
+            ClasseVulnerabilita.CRITICO,
+            ClasseVulnerabilita.NON_VERIFICATO,
+        ]
         assert classes.index(r2.classe) >= classes.index(r1.classe)

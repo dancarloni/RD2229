@@ -670,38 +670,38 @@ Usa queste fonti online per estrarre indicazioni normative e modelli di calcolo 
 
 NTC 2018 — Capitolo 7:
 
-- Testo Gazzetta Ufficiale (cap. 7, §7.2 elementi non strutturali):  
+- Testo Gazzetta Ufficiale (cap. 7, §7.2 elementi non strutturali):
   <https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG>  [1](https://www.gazzettaufficiale.it/do/atto/serie_generale/caricaPdf?cdimg=18A0071600100010110001&dgu=2018-02-20&art.dataPubblicazioneGazzetta=2018-02-20&art.codiceRedazionale=18A00716&art.num=1&art.tiposerie=SG)
 - Estratto Cap.7 PDF: <https://www.studiopetrillo.com/files/ntc2018/cap7.pdf>  [2](https://www.studiopetrillo.com/files/ntc2018/cap7.pdf)
 - Ulteriore estratto NTC2018 Cap.7: <https://www.bertolinoengineering.it/wp-content/uploads/2024/08/NTC2018_cap7.pdf>  [3](https://www.bertolinoengineering.it/wp-content/uploads/2024/08/NTC2018_cap7.pdf)
 
 Approfondimenti sugli elementi non strutturali (NTC):
 
-- “Elementi non strutturali in zona sismica, NTC 2008 vs NTC 2018”:  
+- “Elementi non strutturali in zona sismica, NTC 2008 vs NTC 2018”:
   <https://www.ingenio-web.it/articoli/elementi-costruttivi-non-strutturali-negli-edifici-in-c-a-in-zona-sismica-cosa-cambia-con-le-ntc-2018/>  [4](https://www.ingenio-web.it/articoli/elementi-costruttivi-non-strutturali-negli-edifici-in-c-a-in-zona-sismica-cosa-cambia-con-le-ntc-2018/)
-- “Verifiche elementi non strutturali – quadro completo”:  
+- “Verifiche elementi non strutturali – quadro completo”:
   <https://ediltecnico.it/verifiche-elementi-non-strutturali/>  [5](https://ediltecnico.it/verifiche-elementi-non-strutturali/)
-- “Dettagli tecnici elementi non strutturali (NTC 2018)”:  
+- “Dettagli tecnici elementi non strutturali (NTC 2018)”:
   <https://www.bmigroup.com/it/intervenire-sul-tetto/progettare-il-tetto/sismico/verifica-vulnerabilita-sismica-ntc/>  [6](https://www.bmigroup.com/it/intervenire-sul-tetto/progettare-il-tetto/sismico/verifica-vulnerabilita-sismica-ntc/)
 
 EUROCODICE 8 — ELEMENTI NON STRUTTURALI:
 
-- Testo completo EN 1998‑1 (PDF):  
+- Testo completo EN 1998‑1 (PDF):
   <https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf>  [7](https://www.phd.eng.br/wp-content/uploads/2015/02/en.1998.1.2004.pdf)
-- Guida Prota “Seismic forces on non-structural members (EC8 4.3.5)”:  
+- Guida Prota “Seismic forces on non-structural members (EC8 4.3.5)”:
   <https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members>  [8](https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members)
-- White paper: “Non-Structural Member Forces EC8”:  
+- White paper: “Non-Structural Member Forces EC8”:
   <https://protasoftware.com/white-paper/non-structural-member-forces-ec8/>  [9](https://protasoftware.com/white-paper/non-structural-member-forces-ec8/)
-- JRC Worked Examples – EC8:  
+- JRC Worked Examples – EC8:
   <https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-worked_examples-main_only.pdf>  [10](https://eurocodes.jrc.ec.europa.eu/sites/default/files/2022-06/EC8_Seismic_Design_of_Buildings-Worked_examples-main_only.pdf)
 
 ESEMPI NUMERICI PER TEST DI VALIDAZIONE:
 
-- Verifica tamponature con spettri di piano (NTC2018 + Circ. 2019):  
+- Verifica tamponature con spettri di piano (NTC2018 + Circ. 2019):
   <https://biblus.acca.it/la-verifica-delle-tamponature-secondo-le-nuove-ntc-2018-e-la-circolare-2019/>  [11](https://biblus.acca.it/la-verifica-delle-tamponature-secondo-le-nuove-ntc-2018-e-la-circolare-2019/)
-- Esempio EC8 di calcolo forze su elementi non strutturali (Prota):  
+- Esempio EC8 di calcolo forze su elementi non strutturali (Prota):
   <https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members>  [8](https://support.protasoftware.com/portal/en/kb/articles/seismic-forces-on-non-structural-members)
-- EC8 worked examples – drift e componenti fragili:  
+- EC8 worked examples – drift e componenti fragili:
   <https://www.slideshare.net/slideshow/ec8-seismic-designofbuildingsworkedexamples/48158324>  [12](https://www.slideshare.net/slideshow/ec8-seismic-designofbuildingsworkedexamples/48158324)
 
 CATEGORIE DI ELEMENTI NON STRUTTURALI DA INCLUDERE:

@@ -175,7 +175,7 @@ class TestVerificaTorsioneTA:
     def test_verifica_armatura_sufficiente(self) -> None:
         """Verifica con armatura sufficiente."""
         inp = self._input_rettangolare(Mx=200000.0)
-        inp.Al_to = 20.0   # cm² abbondante
+        inp.Al_to = 20.0  # cm² abbondante
         inp.Asw_to = 0.5
         inp.Pst_to = 10.0
         ris = verifica_torsione_ta(inp, modo_verifica=True)
@@ -188,8 +188,11 @@ class TestVerificaTorsioneTA:
         inp = InputTorsione(
             Mx=100000.0,
             tipo_sezione=TipoSezione.CIRCOLARE,
-            tau_c0=5.0, tau_c1=14.0, sigma_s_adm=1200.0,
-            D=40.0, Di=0.0,
+            tau_c0=5.0,
+            tau_c1=14.0,
+            sigma_s_adm=1200.0,
+            D=40.0,
+            Di=0.0,
         )
         ris = verifica_torsione_ta(inp)
         assert ris.tau_max > 0
@@ -199,8 +202,12 @@ class TestVerificaTorsioneTA:
         inp = InputTorsione(
             Mx=300000.0,
             tipo_sezione=TipoSezione.SCATOLARE,
-            tau_c0=5.0, tau_c1=14.0, sigma_s_adm=1200.0,
-            B=40.0, H=60.0, S=8.0,
+            tau_c0=5.0,
+            tau_c1=14.0,
+            sigma_s_adm=1200.0,
+            B=40.0,
+            H=60.0,
+            S=8.0,
         )
         ris = verifica_torsione_ta(inp)
         assert ris.tau_max > 0

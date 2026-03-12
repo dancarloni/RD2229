@@ -19,6 +19,7 @@ from src.wind.aeroelastic import (
 # Velocità critica e Strouhal
 # ===========================================================================
 
+
 class TestCriticalWindSpeed:
     def test_basic(self):
         """v_cr = n1 · b / St."""
@@ -55,11 +56,14 @@ class TestStrouhalNumber:
 # Verifica distacco vortici
 # ===========================================================================
 
+
 class TestVortexShedding:
     def test_not_susceptible(self):
         """High v_cr → not susceptible."""
         result = check_vortex_shedding(
-            n1_hz=5.0, b_m=0.3, v_mean_ms=10.0,
+            n1_hz=5.0,
+            b_m=0.3,
+            v_mean_ms=10.0,
             section_type="circular",
         )
         # v_cr = 5.0 * 0.3 / 0.18 ≈ 8.33, ratio ≈ 0.83 < 1.25 → susceptible
@@ -70,7 +74,9 @@ class TestVortexShedding:
     def test_susceptible_low_frequency(self):
         """Low frequency → low v_cr → susceptible."""
         result = check_vortex_shedding(
-            n1_hz=0.5, b_m=1.0, v_mean_ms=20.0,
+            n1_hz=0.5,
+            b_m=1.0,
+            v_mean_ms=20.0,
             section_type="circular",
         )
         # v_cr = 0.5 * 1.0 / 0.18 ≈ 2.78, ratio ≈ 0.14 < 1.25
@@ -80,7 +86,9 @@ class TestVortexShedding:
     def test_not_susceptible_high_frequency(self):
         """High frequency → high v_cr → not susceptible."""
         result = check_vortex_shedding(
-            n1_hz=50.0, b_m=0.1, v_mean_ms=10.0,
+            n1_hz=50.0,
+            b_m=0.1,
+            v_mean_ms=10.0,
             section_type="circular",
         )
         # v_cr = 50 * 0.1 / 0.18 ≈ 27.8, ratio ≈ 2.78 > 1.25
@@ -89,7 +97,9 @@ class TestVortexShedding:
 
     def test_has_warnings(self):
         result = check_vortex_shedding(
-            n1_hz=1.0, b_m=0.5, v_mean_ms=10.0,
+            n1_hz=1.0,
+            b_m=0.5,
+            v_mean_ms=10.0,
         )
         assert len(result.warnings) > 0
 
@@ -101,7 +111,9 @@ class TestVortexShedding:
     def test_amplitude_estimated_with_mass(self):
         """When mass is provided, amplitude is estimated."""
         result = check_vortex_shedding(
-            n1_hz=0.5, b_m=1.0, v_mean_ms=20.0,
+            n1_hz=0.5,
+            b_m=1.0,
+            v_mean_ms=20.0,
             section_type="circular",
             mass_per_length_kg_m=100.0,
             damping_log_dec=0.03,
@@ -111,7 +123,9 @@ class TestVortexShedding:
 
     def test_reynolds_number(self):
         result = check_vortex_shedding(
-            n1_hz=1.0, b_m=0.5, v_mean_ms=10.0,
+            n1_hz=1.0,
+            b_m=0.5,
+            v_mean_ms=10.0,
         )
         assert result.Re_cr > 0
 
@@ -120,11 +134,14 @@ class TestVortexShedding:
 # Verifica galloping
 # ===========================================================================
 
+
 class TestGalloping:
     def test_circular_not_susceptible(self):
         """Circular sections are not susceptible to galloping."""
         result = check_galloping(
-            n1_hz=1.0, b_m=0.5, v_mean_ms=20.0,
+            n1_hz=1.0,
+            b_m=0.5,
+            v_mean_ms=20.0,
             section_type="circular",
         )
         assert result.is_susceptible is False
@@ -132,7 +149,9 @@ class TestGalloping:
     def test_square_susceptible(self):
         """Square sections are susceptible to galloping."""
         result = check_galloping(
-            n1_hz=1.0, b_m=0.5, v_mean_ms=20.0,
+            n1_hz=1.0,
+            b_m=0.5,
+            v_mean_ms=20.0,
             section_type="square",
             mass_per_length_kg_m=50.0,
             damping_log_dec=0.02,
@@ -143,7 +162,9 @@ class TestGalloping:
     def test_custom_a_G(self):
         """Custom a_G override works."""
         result = check_galloping(
-            n1_hz=1.0, b_m=0.5, v_mean_ms=20.0,
+            n1_hz=1.0,
+            b_m=0.5,
+            v_mean_ms=20.0,
             section_type="circular",
             mass_per_length_kg_m=100.0,
             damping_log_dec=0.05,
@@ -153,7 +174,9 @@ class TestGalloping:
 
     def test_has_warnings(self):
         result = check_galloping(
-            n1_hz=1.0, b_m=0.5, v_mean_ms=20.0,
+            n1_hz=1.0,
+            b_m=0.5,
+            v_mean_ms=20.0,
             section_type="square",
             mass_per_length_kg_m=100.0,
             damping_log_dec=0.05,
@@ -162,7 +185,9 @@ class TestGalloping:
 
     def test_insufficient_mass(self):
         result = check_galloping(
-            n1_hz=1.0, b_m=0.5, v_mean_ms=20.0,
+            n1_hz=1.0,
+            b_m=0.5,
+            v_mean_ms=20.0,
             section_type="square",
             mass_per_length_kg_m=0.0,
         )
@@ -173,10 +198,13 @@ class TestGalloping:
 # Verifica complessiva
 # ===========================================================================
 
+
 class TestAeroelasticCheck:
     def test_returns_combined_result(self):
         result = check_aeroelastic_effects(
-            n1_hz=1.0, b_m=0.5, v_mean_ms=15.0,
+            n1_hz=1.0,
+            b_m=0.5,
+            v_mean_ms=15.0,
             section_type="circular",
         )
         assert isinstance(result, AeroelasticCheckResult)
@@ -186,7 +214,9 @@ class TestAeroelasticCheck:
     def test_safe_structure(self):
         """Stiff structure → not susceptible."""
         result = check_aeroelastic_effects(
-            n1_hz=50.0, b_m=0.1, v_mean_ms=10.0,
+            n1_hz=50.0,
+            b_m=0.1,
+            v_mean_ms=10.0,
             section_type="circular",
         )
         assert result.requires_detailed_analysis is False
@@ -194,7 +224,9 @@ class TestAeroelasticCheck:
     def test_flexible_structure_flagged(self):
         """Flexible structure → flagged for detailed analysis."""
         result = check_aeroelastic_effects(
-            n1_hz=0.3, b_m=1.0, v_mean_ms=25.0,
+            n1_hz=0.3,
+            b_m=1.0,
+            v_mean_ms=25.0,
             section_type="circular",
             mass_per_length_kg_m=100.0,
         )

@@ -34,13 +34,13 @@
 
 Creare/aggiornare i seguenti file:
 
-1) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_SERVICE_PLAN.md`  
+1) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_SERVICE_PLAN.md`
    - (questo documento)
 
-2) `docs/MEGAPLAN/SPEC_NTC2018_HAZARD_PASTE.md`  
+2) `docs/MEGAPLAN/SPEC_NTC2018_HAZARD_PASTE.md`
    - specifica vincolante: schema dati + etichette + regole parsing + validazioni minime
 
-3) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_AUTOMATION.md`  
+3) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_AUTOMATION.md`
    - automazione vincolante: lista file target (create/touch), integrazione UI, persistenza, test
 
 ---

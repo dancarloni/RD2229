@@ -53,9 +53,9 @@ class HTMLReportRenderer:
 
         parts = [
             "<!DOCTYPE html>",
-            "<html lang=\"it\">",
+            '<html lang="it">',
             "<head>",
-            "  <meta charset=\"utf-8\">",
+            '  <meta charset="utf-8">',
             f"  <title>Report — {_esc(project)}</title>",
             f"  <style>{_CSS}</style>",
             "</head>",
@@ -94,31 +94,40 @@ class HTMLReportRenderer:
         return "\n".join(parts)
 
     def _render_elements_table(self, elements: list[dict]) -> str:
-        rows = ["  <table>", "    <tr><th>#</th><th>ID</th><th>Tipo</th>"
-                "<th>b [cm]</th><th>h [cm]</th><th>As [cm²]</th></tr>"]
+        rows = [
+            "  <table>",
+            "    <tr><th>#</th><th>ID</th><th>Tipo</th>"
+            "<th>b [cm]</th><th>h [cm]</th><th>As [cm²]</th></tr>",
+        ]
         for i, el in enumerate(elements, 1):
             eid = _esc(str(el.get("id", el.get("element_id", f"E{i}"))))
             tipo = _esc(str(el.get("type", el.get("tipo", "-"))))
             b = el.get("b", el.get("width_cm", "-"))
             h = el.get("h", el.get("height_cm", "-"))
             As = el.get("As", "-")
-            rows.append(f"    <tr><td>{i}</td><td>{eid}</td><td>{tipo}</td>"
-                        f"<td>{b}</td><td>{h}</td><td>{As}</td></tr>")
+            rows.append(
+                f"    <tr><td>{i}</td><td>{eid}</td><td>{tipo}</td>"
+                f"<td>{b}</td><td>{h}</td><td>{As}</td></tr>"
+            )
         rows.append("  </table>")
         return "\n".join(rows)
 
     def _render_results_table(self, results: list[dict]) -> str:
-        rows = ["  <table>", "    <tr><th>#</th><th>Verifica</th>"
-                "<th>Esito</th><th>Messaggio</th></tr>"]
+        rows = [
+            "  <table>",
+            "    <tr><th>#</th><th>Verifica</th>" "<th>Esito</th><th>Messaggio</th></tr>",
+        ]
         for i, r in enumerate(results, 1):
             action_id = _esc(r.get("action_id", "-"))
             ok = r.get("ok", False)
             css = "ok" if ok else "fail"
             label = "OK" if ok else "NON VERIFICATO"
             msgs = "; ".join(r.get("messages", []))
-            rows.append(f'    <tr><td>{i}</td><td>{action_id}</td>'
-                        f'<td class="{css}">{label}</td>'
-                        f'<td>{_esc(msgs)}</td></tr>')
+            rows.append(
+                f"    <tr><td>{i}</td><td>{action_id}</td>"
+                f'<td class="{css}">{label}</td>'
+                f"<td>{_esc(msgs)}</td></tr>"
+            )
         rows.append("  </table>")
         return "\n".join(rows)
 
@@ -126,16 +135,21 @@ class HTMLReportRenderer:
         total = len(results)
         passed = sum(1 for r in results if r.get("ok"))
         failed = total - passed
-        return (f'  <p><strong>Riepilogo:</strong> {passed}/{total} verificate, '
-                f'{failed} non verificate.</p>')
+        return (
+            f"  <p><strong>Riepilogo:</strong> {passed}/{total} verificate, "
+            f"{failed} non verificate.</p>"
+        )
 
     def _render_result_detail(self, result: dict, idx: int) -> str:
         partials = result.get("partials", {})
         if not partials:
             return ""
         action_id = _esc(result.get("action_id", f"check_{idx}"))
-        lines = [f"  <h3>{idx + 1}. {action_id}</h3>", '  <table class="partials">',
-                 "    <tr><th>Parametro</th><th>Valore</th></tr>"]
+        lines = [
+            f"  <h3>{idx + 1}. {action_id}</h3>",
+            '  <table class="partials">',
+            "    <tr><th>Parametro</th><th>Valore</th></tr>",
+        ]
         for k, v in partials.items():
             lines.append(f"    <tr><td>{_esc(k)}</td><td>{v}</td></tr>")
         lines.append("  </table>")

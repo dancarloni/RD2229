@@ -91,7 +91,7 @@ Esito L3: ❌ NOT_OK (R90 non pienamente soddisfatta)
 
 Aspetto L2 L3
 Tipo di analisi Sezione efficace FEM beam‑fiber
-  
+
 1. Interpretazione ingegneristica
 Il confronto evidenzia che:
 

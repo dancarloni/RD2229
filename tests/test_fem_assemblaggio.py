@@ -14,8 +14,8 @@ import pytest
 import scipy.sparse as sp
 
 from src.fem import (
-    Assemblatore,
     ApplicatoreBC,
+    Assemblatore,
     CaricoDistribuitoUniforme,
     DiagrammaElemento,
     ElementoFEM,
@@ -45,6 +45,7 @@ def _trave_appoggiata_1elem(
 # ---------------------------------------------------------------------------
 # Test NodoFEM e ElementoFEM
 # ---------------------------------------------------------------------------
+
 
 class TestNodoFEM:
     def test_gdl_base_id_zero(self) -> None:
@@ -94,6 +95,7 @@ class TestElementoFEM:
 # Test Assemblatore (M.2)
 # ---------------------------------------------------------------------------
 
+
 class TestAssemblatore:
     def test_n_gdl_2nodi(self) -> None:
         ni = NodoFEM(id=0, x=0.0, y=0.0)
@@ -128,7 +130,12 @@ class TestAssemblatore:
         nodo_j = NodoFEM(id=1, x=600.0, y=0.0)
         q = -2.0  # kg/cm (verso il basso)
         elem = ElementoFEM.da_nodi(
-            0, nodo_i, nodo_j, E=30000.0, A=100.0, I=10000.0,
+            0,
+            nodo_i,
+            nodo_j,
+            E=30000.0,
+            A=100.0,
+            I=10000.0,
             carichi=[CaricoDistribuitoUniforme(intensita=q)],
         )
         asm = Assemblatore(nodi=[nodo_i, nodo_j], elementi=[elem])
@@ -169,6 +176,7 @@ class TestAssemblatore:
 # ---------------------------------------------------------------------------
 # Test TipoVincolo e VincoloNodo (M.3)
 # ---------------------------------------------------------------------------
+
 
 class TestVincoliNodo:
     def test_incastro_vincola_3gdl(self) -> None:
@@ -257,6 +265,7 @@ class TestApplicatoreBC:
 # Test SolutoreFEMSparso (M.4)
 # ---------------------------------------------------------------------------
 
+
 class TestSolutoreFEMSparso:
     def test_matrice_singolare_raise(self) -> None:
         K = sp.csr_matrix(np.zeros((3, 3)))
@@ -280,9 +289,7 @@ class TestSolutoreFEMSparso:
         K = sp.diags([2.0, 4.0, 8.0], format="csr")
         F = np.array([4.0, 8.0, 16.0])
         res = SolutoreFEMSparso().risolvi(K, F, gdl_liberi=[0, 1, 2], n_gdl_totale=3)
-        np.testing.assert_allclose(
-            res.spostamenti_completi, [2.0, 2.0, 2.0], rtol=1e-10
-        )
+        np.testing.assert_allclose(res.spostamenti_completi, [2.0, 2.0, 2.0], rtol=1e-10)
 
     def test_ricostruzione_spostamenti_completi(self) -> None:
         K = sp.diags([5.0, 10.0], format="csr")
@@ -312,6 +319,7 @@ class TestSolutoreFEMSparso:
 # Test PostProcessorFEM (M.5)
 # ---------------------------------------------------------------------------
 
+
 class TestPostProcessorFEM:
     def _crea_trave_risolta(
         self,
@@ -325,16 +333,23 @@ class TestPostProcessorFEM:
         nodo_i = NodoFEM(id=0, x=0.0, y=0.0)
         nodo_j = NodoFEM(id=1, x=L, y=0.0)
         elem = ElementoFEM.da_nodi(
-            0, nodo_i, nodo_j, E=E, A=A, I=I,
+            0,
+            nodo_i,
+            nodo_j,
+            E=E,
+            A=A,
+            I=I,
             carichi=[CaricoDistribuitoUniforme(intensita=q)],
         )
         asm = Assemblatore(nodi=[nodo_i, nodo_j], elementi=[elem])
         K, F = asm.assembla()
         # BC: cerniere ai due nodi (u=0, v=0 a entrambi)
-        bc = ApplicatoreBC(vincoli=[
-            VincoloNodo(id_nodo=0, tipo=TipoVincolo.CERNIERA),
-            VincoloNodo(id_nodo=1, tipo=TipoVincolo.CERNIERA),
-        ])
+        bc = ApplicatoreBC(
+            vincoli=[
+                VincoloNodo(id_nodo=0, tipo=TipoVincolo.CERNIERA),
+                VincoloNodo(id_nodo=1, tipo=TipoVincolo.CERNIERA),
+            ]
+        )
         K_rid, F_rid, liberi, _ = bc.applica(K, F)
         res = SolutoreFEMSparso().risolvi(K_rid, F_rid, liberi, asm.n_gdl)
         return elem, asm, res, q, L, E, I

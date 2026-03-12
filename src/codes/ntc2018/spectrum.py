@@ -33,8 +33,10 @@ if TYPE_CHECKING:
 # Enumerazioni NTC2018
 # ---------------------------------------------------------------------------
 
+
 class CategoriaSuolo(Enum):
     """Categoria di sottosuolo NTC2018 Tab. 3.2.II."""
+
     A = "A"  # Roccia o terreni molto rigidi
     B = "B"  # Rocce tenere, depositi molto addensati
     C = "C"  # Depositi di sabbie o ghiaie mediamente addensate
@@ -44,6 +46,7 @@ class CategoriaSuolo(Enum):
 
 class CategoriaTopografica(Enum):
     """Categoria topografica NTC2018 Tab. 3.2.VI."""
+
     T1 = "T1"  # Superficie pianeggiante, pendii <= 15deg; ST = 1.0
     T2 = "T2"  # Pendii > 15deg; ST = 1.2
     T3 = "T3"  # Rilievi isolati, inclinazione 15-30deg; ST = 1.2
@@ -52,10 +55,11 @@ class CategoriaTopografica(Enum):
 
 class ClasseUso(Enum):
     """Classe d'uso NTC2018 Tab. 2.4.II."""
-    I = "I"      # noqa: E741 — nome normativo NTC2018; Agricole/industriali; Cu = 0.7
-    II = "II"    # Edifici ordinari; Cu = 1.0
+
+    I = "I"  # noqa: E741 — nome normativo NTC2018; Agricole/industriali; Cu = 0.7
+    II = "II"  # Edifici ordinari; Cu = 1.0
     III = "III"  # Affollamento significativo; Cu = 1.5
-    IV = "IV"    # Funzioni pubbliche essenziali; Cu = 2.0
+    IV = "IV"  # Funzioni pubbliche essenziali; Cu = 2.0
 
 
 # ---------------------------------------------------------------------------
@@ -79,7 +83,7 @@ _ST: dict[CategoriaTopografica, float] = {
 # Coefficiente CC: formula power-law (esponente, fattore).
 # CC = fattore * tc_star ^ esponente  (NTC2018 Tab. 3.2.IV)
 _CC_PARAMS: dict[CategoriaSuolo, tuple[float, float]] = {
-    CategoriaSuolo.A: (0.00, 1.000),   # 1.0 costante
+    CategoriaSuolo.A: (0.00, 1.000),  # 1.0 costante
     CategoriaSuolo.B: (-0.20, 1.100),  # 1.1  * tc*^(-0.20)
     CategoriaSuolo.C: (-0.33, 1.050),  # 1.05 * tc*^(-0.33)
     CategoriaSuolo.D: (-0.50, 1.250),  # 1.25 * tc*^(-0.50)
@@ -104,6 +108,7 @@ _G = 9.81  # m/s^2
 # Vita di riferimento
 # ---------------------------------------------------------------------------
 
+
 def calcola_VR(vita_nominale: int, classe_uso: ClasseUso) -> int:
     """Vita di riferimento VR = VN * Cu (NTC2018 §2.4.1).
 
@@ -125,6 +130,7 @@ def calcola_VR(vita_nominale: int, classe_uso: ClasseUso) -> int:
 # Coefficienti di sito
 # ---------------------------------------------------------------------------
 
+
 def calcola_CC(cat_suolo: CategoriaSuolo, tc_star: float) -> float:
     """Coefficiente CC da categoria suolo e TC* (NTC2018 Tab. 3.2.IV).
 
@@ -142,7 +148,7 @@ def calcola_CC(cat_suolo: CategoriaSuolo, tc_star: float) -> float:
     if tc_star <= 0:
         raise ValueError(f"TC* deve essere > 0, ricevuto {tc_star}")
     esp, fatt = _CC_PARAMS[cat_suolo]
-    return fatt * (tc_star ** esp)
+    return fatt * (tc_star**esp)
 
 
 def calcola_SS(ag_g: float, F0: float, cat_suolo: CategoriaSuolo) -> float:
@@ -196,9 +202,8 @@ def calcola_ST(cat_topografica: CategoriaTopografica) -> float:
 # Periodi caratteristici
 # ---------------------------------------------------------------------------
 
-def calcola_periodi(
-    TC_star: float, CC: float, ag_g: float
-) -> tuple[float, float, float]:
+
+def calcola_periodi(TC_star: float, CC: float, ag_g: float) -> tuple[float, float, float]:
     """Calcola i periodi caratteristici TB, TC, TD dello spettro.
 
     TC = CC * TC*
@@ -223,6 +228,7 @@ def calcola_periodi(
 # Accelerazione spettrale di piano
 # ---------------------------------------------------------------------------
 
+
 def calcola_alpha_S(ag_g: float, SS: float, ST: float) -> float:
     """Calcola alpha_S = (ag/g) * SS * ST.
 
@@ -242,6 +248,7 @@ def calcola_alpha_S(ag_g: float, SS: float, ST: float) -> float:
 # ---------------------------------------------------------------------------
 # Spettro elastico e di progetto
 # ---------------------------------------------------------------------------
+
 
 def spettro_elastico(
     ag_g: float,
@@ -291,7 +298,7 @@ def spettro_elastico(
     elif T < TD:
         Se = ag * S * eta * F0 * (TC / T)
     else:
-        Se = ag * S * eta * F0 * (TC * TD / T ** 2)
+        Se = ag * S * eta * F0 * (TC * TD / T**2)
 
     return Se
 
@@ -418,6 +425,7 @@ def calcola_S_d_T1(
 # ---------------------------------------------------------------------------
 # Funzione end-to-end
 # ---------------------------------------------------------------------------
+
 
 def spettro_da_hazard_row(
     row: Ntc2018HazardRow,

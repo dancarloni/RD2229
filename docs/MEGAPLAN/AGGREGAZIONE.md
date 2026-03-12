@@ -92,11 +92,11 @@ Di seguito trovi la descrizione completa, in formato pianificabile, dei campi, d
 | `orientation` | float | deg | orientazione pianimetrica (per wind/sismic) | opzionale |
 | `notes_it` | stringa | – | campo libero per annotazioni | |
 
-> **Flag operativi**  
+> **Flag operativi**
 >
-> - `is_structural`: bool (derivato da `element_type`)  
-> - `requires_seismic_check`: bool (determina generazione combinazioni)  
-> - `library_preset`: stringa (nome preset di libreria, se applicabile)  
+> - `is_structural`: bool (derivato da `element_type`)
+> - `requires_seismic_check`: bool (determina generazione combinazioni)
+> - `library_preset`: stringa (nome preset di libreria, se applicabile)
 > - `out_of_scope`: bool (settaggio manuale se elemento non gestito)
 
 ---
@@ -104,13 +104,13 @@ Di seguito trovi la descrizione completa, in formato pianificabile, dei campi, d
 ## 2. **Regole di validazione e campo di applicabilità**
 
 - **Blocchi geometrici**: ogni tipo ha un sotto‑schema. ad es. per `PARTITION` serve almeno `width`, `height`; per `CHIMNEY` `diameter`, `height`; per `CANTILEVER` lunghezza e sezione trasversale.
-- **Condizioni normative**:  
+- **Condizioni normative**:
   - Se `element_type` è `PARAPET` e `height < 0.1 m` oppure `mass < 0.1 kg/m²` → `NOT_APPLICABLE`.
   - Se `loads.seismic` manca ma `requires_seismic_check == True` → warning / error.
-- **Vincoli dei campi**:  
+- **Vincoli dei campi**:
   - `mass` calcolabile come densità·volume se non fornito; valicare sempre `>= 0`.
   - `z_level` deve essere riferimento positivo e coerente con modello globale.
-- **Applicabilità**:  
+- **Applicabilità**:
   - Alcuni tipi richiedono `attachment` definito (ad es. `SIGNAGE`, `SUSPENDED`); in sua assenza la validazione produce warning e setta `out_of_scope`.
   - `stiffness` obbligatoria se `requires_seismic_check` true e `element_type` in {PARTITION, PARAPET}.
 
@@ -118,9 +118,9 @@ Di seguito trovi la descrizione completa, in formato pianificabile, dei campi, d
 
 ## 3. **Relazione con altri oggetti**
 
-- **Materiali**: `material_code` è chiave esterna verso `MaterialRepository`; la GUI mostrerà un selettore.  
+- **Materiali**: `material_code` è chiave esterna verso `MaterialRepository`; la GUI mostrerà un selettore.
 - **Sezioni**: per elementi a mensola/incastrati, `geometry` può includere `section_id` che punta a `SectionGeometry` esistente.
-- **Combinazioni**:  
+- **Combinazioni**:
   - `loads` fornirà input al generatore combinazioni; il campo `seismic` popola i parametri NTC2018/EC8.
 - **Metriche calcolo**: campi quali `mass` e `z_level` vengono mappati in `CalcInput` usato dai `check_secondary_*`.
 
@@ -279,7 +279,7 @@ Searched for files matching `**/tests/test_secondary_elements_*`, no matches
 
 Searched for files matching `**/config/calculation_codes/SECONDARY_ELEMENTS.jsoncode`, no matches
 
-Ecco il piano di **Fase 2** per portare il modulo “Elementi Secondari / Non strutturali” dallo stato *skeleton* alla prima integrazione effettiva.  
+Ecco il piano di **Fase 2** per portare il modulo “Elementi Secondari / Non strutturali” dallo stato *skeleton* alla prima integrazione effettiva.
 La risposta è suddivisa nei punti richiesti: analisi AS‑IS, mappatura, roadmap, contratti di test e un bozza completa del nuovo file STEP2_INTEGRATION_SECONDARY_ELEMENTS.md.
 
 ---
@@ -327,15 +327,15 @@ La risposta è suddivisa nei punti richiesti: analisi AS‑IS, mappatura, roadma
 |------|-------------|------------|---------------------|
 | **2.1 – Struttura & skeleton** | Creare `methods/verification/secondary_elements` con file listati in AUTOMATION; inizializzare dispatcher vuoto e dataclass minima | nessuna | direttorio e file esistenti vuoti |
 | **2.2 – Configurazione normativa** | aggiungere `config/calculation_codes/SECONDARY_ELEMENTS.jsoncode` con blocchi obbligatori; aggiornare `calculation_codes_loader` per riconoscerlo | 2.1 | loader carica file, il modulo appare in `available_checks()` (anche se vuote) |
-| **2.3 – Integrazione core/engine** |  
+| **2.3 – Integrazione core/engine** |
 
-- estendere input/output schema (proj schema, verifiche engine)  
-- implementare dispatcher: registro namespace, instradamento SLU/SLE  
-- ampliare models.py con campi minimi; adattare storage_adapter a interfaccia persistente  
+- estendere input/output schema (proj schema, verifiche engine)
+- implementare dispatcher: registro namespace, instradamento SLU/SLE
+- ampliare models.py con campi minimi; adattare storage_adapter a interfaccia persistente
 - garantire che ogni `check_*` restituisca `trace.run_id` e `norm_references[]` | 2.1–2.2 | engine esegue `namespace secondary_elements`; input arrivi validati; output contiene i contratti |
-| **2.4 – GUI & test** |  
-- aggiungere modulo selector, colonne e warning in tabelle UI  
-- creare tre file test (slu, sle, gating) e implementare casi contrattuali  
+| **2.4 – GUI & test** |
+- aggiungere modulo selector, colonne e warning in tabelle UI
+- creare tre file test (slu, sle, gating) e implementare casi contrattuali
 - estendere progetto di test per caricare config e schema | 2.3 | GUI presenta modulo e colonne; test verdi sulle regole contrattuali |
 
 > **Rischi / mitigazioni**
@@ -467,7 +467,7 @@ E) Bozza completa STEP2 integration file
 
 INIZIA ORA.
 
-GitHub Copilot: Ecco la sintesi richiesta per la **Fase 2 – integrazione del modulo Secondary Elements**, organizzata nei cinque punti indicati.  
+GitHub Copilot: Ecco la sintesi richiesta per la **Fase 2 – integrazione del modulo Secondary Elements**, organizzata nei cinque punti indicati.
 Resto in modalità **PLAN‑ONLY**: nessun codice, nessun file creato.
 
 ---
@@ -684,7 +684,7 @@ Read [](file:///c%3A/Users/danca/workspaces/RD2229/src/ui/module_selector.py#1-1
 
 Searched for text `CodeSettingsWindow`, 9 results
 
-Ho esplorato il repository e le SPEC/PLAN già presenti. **Non ho trovato** attualmente alcun campo `seismic_inputs` nel codice, quindi il lavoro consiste nell’estenderlo dove già esistono le strutture di progetto e nelle interfacce esposte dalla GUI.  
+Ho esplorato il repository e le SPEC/PLAN già presenti. **Non ho trovato** attualmente alcun campo `seismic_inputs` nel codice, quindi il lavoro consiste nell’estenderlo dove già esistono le strutture di progetto e nelle interfacce esposte dalla GUI.
 Di seguito trovi l’analisi richiesta e la proposta di sequenza operativa.
 
 ---
@@ -763,9 +763,9 @@ Di seguito trovi l’analisi richiesta e la proposta di sequenza operativa.
 
 ## D) Check finale
 
-Ho identificato i file necessari per gestire tutti i requisiti (modello, persistenza, servizio, UI).  
-Non è previsto alcun **file extra** oltre a quelli elencati; tutto il flusso può essere implementato toccando/creando soltanto le entità in tabella A.  
-Se durante l’implementazione emerge la necessità di aggiungere un altro modulo (es. helper di utilità), dovrà essere dichiarato esplicitamente come nuovo requisito.  
+Ho identificato i file necessari per gestire tutti i requisiti (modello, persistenza, servizio, UI).
+Non è previsto alcun **file extra** oltre a quelli elencati; tutto il flusso può essere implementato toccando/creando soltanto le entità in tabella A.
+Se durante l’implementazione emerge la necessità di aggiungere un altro modulo (es. helper di utilità), dovrà essere dichiarato esplicitamente come nuovo requisito.
 Al momento la lista è *completa*: nessun altro file è necessario per il servizio di paste.
 
 User: Sei in modalità PLAN (non implementare codice). Devi analizzare e pianificare l’integrazione dello scaffold RD2229/39 già estratto nel workspace, allineandolo all’architettura reale del repository RD2229.
@@ -875,13 +875,13 @@ Searched for files matching `**/src/rd2229/__init__*.py`, no matches
 
 Searched for text `TraceRecord`, 10 results
 
-### A) Executive summary  
+### A) Executive summary
 
 Il “scaffold” RD2229/39 è già presente sotto rd2229_39 con
 provider, modelli, metodi, policies e validator; i test `tests/rd2229_39/*` esercitano
 fattore 1.25 e presenza di trace. Il repository principale usa un layout `src/…`
 con package namespace `rd2229` e pytest configurato su tests con `PYTHONPATH="."`,
-quindi l’inclusione del modulo è naturale.  
+quindi l’inclusione del modulo è naturale.
 L’integrazione richiede solo piccoli tocchi: aggiungere eventuali import o
 registrazione nel kernel normativo, controllare la persistenza di trace comune e
 fare in modo che il codice soddisfi lint/typing. Nessun conflitto di naming è
@@ -1088,14 +1088,14 @@ FILE DA ESPORRE AL PLAN (context)
 
 GitHub Copilot: Read [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/seismic/rd2229_39/docs_ref/norm_refs.py)
 
-### A) Executive summary  
+### A) Executive summary
 
 Lo **STEP 4A** introduce la possibilità di determinare il coefficiente `p` da una tabella JSON
 (p.es. il foglio “pericolosità” RD2229/39) pur mantenendo il comportamento esistente (p
-manuale) e la traccia normativa.  
+manuale) e la traccia normativa.
 Il datasource statico risiede sotto `data/rd2229/seismic/`; un resolver dedicato legge il file.
 La richiesta `FloorForcesRequest` guadagna parametri opzionali (`p_mode`, `p_table_path`,
-`p_table_key`) senza rompere i client che già passano `p`.  
+`p_table_key`) senza rompere i client che già passano `p`.
 I test esistenti nel pacchetto rd2229_39 vengono estesi con casi per la tabella e per la
 tracciatura di `p`. La modifica è limitata al modulo `rd2229_39` più un paio di nuovi file di
 dati e test; non tocca la struttura src né la configurazione pytest.
@@ -1294,7 +1294,7 @@ Fornire all’agent i seguenti file in ordine per applicare le modifiche:
 8. test_trace_presence.py (modificato)
 9. `tests/rd2229_39/test_p_from_table.py` (nuovo)
 
-**Ordine suggerito per le modifiche**:  
+**Ordine suggerito per le modifiche**:
 1 → 2 → 3 → 4 → 5/6 → 7/8 → 9 → eseguire comandi di verifica.
 
 Con questo piano il coefficiente `p` tabellare si integra col minimo impatto, la base
@@ -1337,10 +1337,10 @@ GitHub Copilot: Searched for text `tkinter`, 20 results
 ```markdown
 # STEP : Refactor generale – migrazione da Tkinter a PySide6
 
-**Contesto**  
+**Contesto**
 Il repository contiene ancora una GUI Tkinter “demo” generata da `scripts/run_verification_demo.py`
 e dalla classe `src/ui/module_selector.py`; l’errore `TypeError: VerificationInput.__init__()…`
-mostra che la GUI è obsoleta e non allineata al core.  
+mostra che la GUI è obsoleta e non allineata al core.
 Lo scopo del refactor è abbandonare definitivamente Tkinter, isolare il codice legacy,
 fornire un *MVP* PySide6 e rendere il pacchetto installabile (`pip install -e .`) senza
 impostare manualmente `PYTHONPATH`.
@@ -1556,8 +1556,8 @@ Regole:
 GitHub Copilot: ```markdown
 # Piano di rifattorizzazione – migrazione GUI Tkinter → PySide6
 
-**Data:** 24 Feb 2026  
-**Autore:** Senior Software Architect (Python/Qt)  
+**Data:** 24 Feb 2026
+**Autore:** Senior Software Architect (Python/Qt)
 **Modalità:** PLAN‑ONLY – nessun codice generato.
 
 ---
@@ -1712,18 +1712,18 @@ include = ["src*", "src.*"]  # assicurarsi che il package root 'src' venga trova
 
 ## 6. Test minimi da aggiungere
 
-1. **`tests/test_app_launch.py`**  
+1. **`tests/test_app_launch.py`**
    - crea `QApplication` e invoca `src.ui_qt.app.main()` in modalità headless
-     (xvfb).  
+     (xvfb).
    - assert no exception & `app` restituisce 0.
 
 2. **Project store round-trip** (già menzionato).
 
-3. **Page instantiation tests**  
+3. **Page instantiation tests**
    - test per ogni pagina Qt: importare, creare widget con un progetto dummy,
      verificare che i principali elementi esistano (`assert isinstance(..., QWidget)`).
 
-4. **Guardia anti-Tkinter**  
+4. **Guardia anti-Tkinter**
    - `tests/test_no_tkinter_imports.py` che esegue
 
      ```python
@@ -1735,7 +1735,7 @@ include = ["src*", "src.*"]  # assicurarsi che il package root 'src' venga trova
 
      (ma permettere import sotto `src/ui_legacy`).
 
-5. **Legacy tests**  
+5. **Legacy tests**
    - spostare tutti i file della cartella tests_legacy come sono; configurare
      un job CI separato per eseguirli solo se `RD2229_LEGACY_UI` è impostata.
 
@@ -1775,16 +1775,16 @@ include = ["src*", "src.*"]  # assicurarsi che il package root 'src' venga trova
 
 ---
 
-> *Promt agent inputs*:  
+> *Promt agent inputs*:
 > fornire al successivo agente i file chiave per la migrazione, nell’ordine
-> suggerito dalla roadmap (vedere sezione precedente).  
+> suggerito dalla roadmap (vedere sezione precedente).
 >
-> 1. module_selector.py + altro `src/ui/*`  
-> 2. l’intero package `src/ui_legacy` (da creare)  
-> 3. file per `ui_qt` skeleton (`app.py`, `pages/`, etc.)  
-> 4. pyproject.toml (aggiorni extras/scripts)  
-> 5. test file guardiani e nuovi smoke test  
-> 6. README + documenti MIGRATION  
+> 1. module_selector.py + altro `src/ui/*`
+> 2. l’intero package `src/ui_legacy` (da creare)
+> 3. file per `ui_qt` skeleton (`app.py`, `pages/`, etc.)
+> 4. pyproject.toml (aggiorni extras/scripts)
+> 5. test file guardiani e nuovi smoke test
+> 6. README + documenti MIGRATION
 
 Con questo piano si può affrontare la migrazione gradualmente, con checkpoint
 e without breaking the core functionality.
@@ -2119,12 +2119,12 @@ class FireSafetyFeature(FeatureSpec):
 register(FireSafetyFeature())
 ```
 
-*Commenti*  
+*Commenti*
 
 - le classi esistenti (es. `ProjectInfoWidget`) vengono importate e messe nello
-  `stack` senza modifiche; il launcher funge da “wiring” centrale.  
+  `stack` senza modifiche; il launcher funge da “wiring” centrale.
 - per finestre stand‑alone (QDialog) semplicemente si lancia `dlg.exec()` dal
-  menu o dalla pagina.  
+  menu o dalla pagina.
 - il `run_vm`, `project_vm`, `results_vm` sono istanze condivise fornite al
   launcher e passate alle pagine se necessarie.
 
@@ -2312,7 +2312,7 @@ Per ogni sezione:
 
 GitHub Copilot: ### ✅ Come ho compreso il problema
 
-Stiamo cercando di trasformare un’applicazione tecnica Python che oggi è un “mosaico” di finestre e dialog PyQt6 (con residui Tkinter/​PySide6), in una **piattaforma modulare coerente**. L’obiettivo è avere una singola interfaccia principale che faccia da launcher per tutti i diversi tipi di verifiche (strutturali, antincendio, ecc.), gestisca progetti e impostazioni, e si colleghi a servizi di calcolo e generazione dei report. In parallelo vogliamo consolidare la struttura del codice (core, UI, data layer), configurazione e output, e predisporre il terreno per aggiungere nuove normative/​funzionalità in futuro.  
+Stiamo cercando di trasformare un’applicazione tecnica Python che oggi è un “mosaico” di finestre e dialog PyQt6 (con residui Tkinter/​PySide6), in una **piattaforma modulare coerente**. L’obiettivo è avere una singola interfaccia principale che faccia da launcher per tutti i diversi tipi di verifiche (strutturali, antincendio, ecc.), gestisca progetti e impostazioni, e si colleghi a servizi di calcolo e generazione dei report. In parallelo vogliamo consolidare la struttura del codice (core, UI, data layer), configurazione e output, e predisporre il terreno per aggiungere nuove normative/​funzionalità in futuro.
 
 Il refactor dovrà essere pianificato, non eseguito subito; per evitare sorprese, dobbiamo esplorare il dominio, inventario delle GUI esistenti, e definire un’architettura package/config/dati prima di toccare il codice.
 
@@ -2365,8 +2365,8 @@ Rimani in modalità PIANIFICAZIONE PROFONDA per tutto il tempo possibile.
 
 📌 RESPONSABILITÀ PRINCIPALI (in questa fase)
 
-- Analizzare autonomamente tutti i file `.md` presenti in `docs/` nel workspace VS Code.  
-  Ogni volta che ti servono informazioni, cerca **prima nei markdown**.  
+- Analizzare autonomamente tutti i file `.md` presenti in `docs/` nel workspace VS Code.
+  Ogni volta che ti servono informazioni, cerca **prima nei markdown**.
 - Costruire e verificare continuamente una visione architetturale globale.
 - Emettere molte domande chiarificatrici, preferibilmente **a scelta multipla**, per eliminare ambiguità e migliorare precisione del piano.
 - Rimanere in modalità PLAN e NON emettere codice, nemmeno di esempio.
@@ -2409,38 +2409,38 @@ Ogni volta che affronti una sezione del piano:
 Le domande devono essere a scelta multipla, ad esempio:
 
 - **Quale livello di modularità preferiamo per il data layer?**
-  A) Repository per dominio  
-  B) Repository per entità  
-  C) Unit of Work + Repository  
-  D) File system isolato per progetto  
+  A) Repository per dominio
+  B) Repository per entità
+  C) Unit of Work + Repository
+  D) File system isolato per progetto
 
 - **Come devono essere strutturati i file di configurazione?**
-  A) Un singolo file globale + override per progetto  
-  B) Config separata per modulo  
-  C) Config centralizzata con schema rigido  
-  D) Config generata automaticamente dal launcher  
+  A) Un singolo file globale + override per progetto
+  B) Config separata per modulo
+  C) Config centralizzata con schema rigido
+  D) Config generata automaticamente dal launcher
 
 - **Quale modalità preferiamo per orchestrare le verifiche?**
-  A) Pipeline centralizzata  
-  B) Moduli autonomi con API comuni  
-  C) Event bus interno  
-  D) Plugin caricati dinamicamente  
+  A) Pipeline centralizzata
+  B) Moduli autonomi con API comuni
+  C) Event bus interno
+  D) Plugin caricati dinamicamente
 
 Fornisci anche una domanda “E) Altro: ____” quando rilevante.
 
 📦 STRUTTURA DEL PIANO (che andremo a riempire insieme)
 
-1. Comprensione del dominio  
-2. Inventario funzionale e moduli logici  
-3. Architettura complessiva (UI, core, servizi, dati)  
-4. File di configurazione  
-5. Data layer + database  
-6. Repository comuni  
-7. Output comuni e standardizzati  
-8. UI PyQt6 — launcher modulare  
-9. Strategia di migrazione legacy  
-10. Diagrammi testuali/albero moduli  
-11. Roadmap ad alto livello  
+1. Comprensione del dominio
+2. Inventario funzionale e moduli logici
+3. Architettura complessiva (UI, core, servizi, dati)
+4. File di configurazione
+5. Data layer + database
+6. Repository comuni
+7. Output comuni e standardizzati
+8. UI PyQt6 — launcher modulare
+9. Strategia di migrazione legacy
+10. Diagrammi testuali/albero moduli
+11. Roadmap ad alto livello
 
 🚫 COSA NON DEVI FARE
 
@@ -2453,8 +2453,8 @@ Fornisci anche una domanda “E) Altro: ____” quando rilevante.
 
 🔰 **PRIMA AZIONE CHE DEVI FARE**
 
-1. Analizza i file in `docs/`, riassumi ciò che trovi sul dominio.  
-2. Identifica eventuali incongruenze o lacune informative.  
+1. Analizza i file in `docs/`, riassumi ciò che trovi sul dominio.
+2. Identifica eventuali incongruenze o lacune informative.
 3. Genera **le prime 5–8 domande a scelta multipla**, basandoti sia sui documenti che sulle parti mancanti.
 
 Rimani in modalità PLAN.
@@ -2491,60 +2491,60 @@ L’inventario mostra anche placeholders per FRC e altri ingredienti storici che
 
 ### ❓ Domande a scelta multipla (prima serie)
 
-1. **Quale insieme di verifiche rientra nella “parte strutturale” del dominio?**  
-   A) solo SLU/SLE a sezioni rettangolari  
-   B) TA + SLU + SLE + verifiche geotecniche  
-   C) SLU/SLE/TA con combinazioni, fessurazione, deformazioni; futuramente torsione/taglio + altri materiali  
-   D) tutti gli stati limite più verifica dinamica completare  
+1. **Quale insieme di verifiche rientra nella “parte strutturale” del dominio?**
+   A) solo SLU/SLE a sezioni rettangolari
+   B) TA + SLU + SLE + verifiche geotecniche
+   C) SLU/SLE/TA con combinazioni, fessurazione, deformazioni; futuramente torsione/taglio + altri materiali
+   D) tutti gli stati limite più verifica dinamica completare
    E) Altro: __________
 
-2. **Come credi siano organizzati i calcoli reciproci tra codice e GUI oggi?**  
-   A) GUI chiama direttamente funzioni in `methods/*`, nessun engine centrale  
+2. **Come credi siano organizzati i calcoli reciproci tra codice e GUI oggi?**
+   A) GUI chiama direttamente funzioni in `methods/*`, nessun engine centrale
    B) c’è un `VerificationEngine` che riceve oggetti di input e seleziona moduli
-   C) i calcoli sono effettuati via script VBA importati (legacy)  
-   D) i moduli sono caricati dinamicamente via entry‑point plugin  
+   C) i calcoli sono effettuati via script VBA importati (legacy)
+   D) i moduli sono caricati dinamicamente via entry‑point plugin
    E) Altro: __________
 
-3. **Quale architettura dati sembra usata per i progetti?**  
-   A) un unico file JSON contenente materiali/sezioni/elementi/risultati  
-   B) database SQLite strutturato con più tabelle  
-   C) oggetti in memoria serializzati con pickle  
-   D) file separati per materiali e progetti con riferimenti  
+3. **Quale architettura dati sembra usata per i progetti?**
+   A) un unico file JSON contenente materiali/sezioni/elementi/risultati
+   B) database SQLite strutturato con più tabelle
+   C) oggetti in memoria serializzati con pickle
+   D) file separati per materiali e progetti con riferimenti
    E) Altro: __________
 
-4. **Quale ruolo hanno i file `.jsoncode` nella configurazione?**  
-   A) storage dei risultati delle verifiche  
-   B) parametri normativi e coefficienti (TA/SLU/SLE, materiali)  
-   C) definizione delle interfacce GUI  
-   D) logging e tracciabilità  
+4. **Quale ruolo hanno i file `.jsoncode` nella configurazione?**
+   A) storage dei risultati delle verifiche
+   B) parametri normativi e coefficienti (TA/SLU/SLE, materiali)
+   C) definizione delle interfacce GUI
+   D) logging e tracciabilità
    E) Altro: __________
 
-5. **Per il modulo incendio, quale delle seguenti affermazioni è vera?**  
-   A) È solo un plugin opzionale con funzionalità minime  
-   B) È separato dal calcolo strutturale e ha propria pipeline termico‑meccanica  
-   C) Richiede sempre un modello globale FEM della struttura  
-   D) È implementato interamente in VBA e avviato da Qt  
+5. **Per il modulo incendio, quale delle seguenti affermazioni è vera?**
+   A) È solo un plugin opzionale con funzionalità minime
+   B) È separato dal calcolo strutturale e ha propria pipeline termico‑meccanica
+   C) Richiede sempre un modello globale FEM della struttura
+   D) È implementato interamente in VBA e avviato da Qt
    E) Altro: __________
 
-6. **Chi sono gli utenti tipici e quali workflow si aspettano?**  
-   A) ingegnere singolo che lavora offline su un progetto per volta  
-   B) studio tecnico con gestione multiconcorrenza e versioning via git  
-   C) comunità online con modelli condivisi in cloud  
-   D) R&D che eseguono esperimenti numerici su vasti dataset  
+6. **Chi sono gli utenti tipici e quali workflow si aspettano?**
+   A) ingegnere singolo che lavora offline su un progetto per volta
+   B) studio tecnico con gestione multiconcorrenza e versioning via git
+   C) comunità online con modelli condivisi in cloud
+   D) R&D che eseguono esperimenti numerici su vasti dataset
    E) Altro: __________
 
-7. **Come preferiamo estendere l’app in futuro?**  
-   A) aggiungendo file Python sparsi in mods/  
-   B) tramite sistema di plugin con discovery automatica (MODULE_SPEC)  
-   C) modificando direttamente il core in `core_calculus`  
-   D) tramite script esterni che generano nuovi moduli  
+7. **Come preferiamo estendere l’app in futuro?**
+   A) aggiungendo file Python sparsi in mods/
+   B) tramite sistema di plugin con discovery automatica (MODULE_SPEC)
+   C) modificando direttamente il core in `core_calculus`
+   D) tramite script esterni che generano nuovi moduli
    E) Altro: __________
 
-8. **Quale livello di modularità data layer dovremmo privilegiare?**  
-   A) Repository per entità (progetto, materiale, sezione)  
-   B) Repository per dominio (calcoli strutturali, incendio)  
-   C) Unit‑of‑Work + repository  
-   D) Accesso diretto file JSON/SQLite in ogni modulo  
+8. **Quale livello di modularità data layer dovremmo privilegiare?**
+   A) Repository per entità (progetto, materiale, sezione)
+   B) Repository per dominio (calcoli strutturali, incendio)
+   C) Unit‑of‑Work + repository
+   D) Accesso diretto file JSON/SQLite in ogni modulo
    E) Altro: __________
 
 ---
@@ -2553,41 +2553,41 @@ Queste domande ci permetteranno di chiarire i punti ambigui e di allineare il pi
 
 User: 1-C, 2-E i calcoli via script VBA devono essere convertiti in modo moderno se non è già stato fatto, 3-E valuta il metodo migliore, 4-E vedi tu a cosa servono, 5-B, 6-A, 7-B, 8-E segui il migliore giudizio ma preferenziale A
 
-GitHub Copilot: ### ✅ Domanda 1: dominio strutturale  
+GitHub Copilot: ### ✅ Domanda 1: dominio strutturale
 Hai confermato (risposta **C**) che il «core» strutturale copre:
 
-- **tensioni ammissibili (TA)**,  
-- **stati limite ultimi (SLU)** e di esercizio (SLE)  
-- tutte le relative combinazioni, fessurazione, deformazioni ecc.  
+- **tensioni ammissibili (TA)**,
+- **stati limite ultimi (SLU)** e di esercizio (SLE)
+- tutte le relative combinazioni, fessurazione, deformazioni ecc.
 
 😃 Buono – il piano dovrà quindi prevedere un modulo verifiche con questi sotto‑sistemi e parametri .jsoncode.
 
-### ✅ Domanda 2: calcoli storici VBA  
+### ✅ Domanda 2: calcoli storici VBA
 
-Hai scelto **E** – cioè i calcoli sono ancora via script VBA e **devono essere convertiti** in un formato “moderno” (Python, engine interno).  
+Hai scelto **E** – cioè i calcoli sono ancora via script VBA e **devono essere convertiti** in un formato “moderno” (Python, engine interno).
 → questo mette in evidenza un’area critica: **trasformazione/rifattorizzazione del backend** in un modulo condiviso prima di legarlo al launcher.
 
-### ✅ Domanda 3: storage progetti  
+### ✅ Domanda 3: storage progetti
 
 Hai risposto **E** (valutiamo il metodo migliore) ma con preferenza A (repository per entità) — confermo: è ragionevole adottare un layer repository “per entità” come base, poi eventualmente sopra un Unit‑of‑Work se necessario.
 
-### ✅ Domanda 4: `.jsoncode`  
+### ✅ Domanda 4: `.jsoncode`
 
 Hai scelto **E** cioè lasci a me decidere a cosa servano: dai documenti emerge che servono a **parametrizzare norme, coefficienti e materiali**; sono quindi la base per la configurazione normativa centralizzata.
 
-### ✅ Domanda 5: incendio  
+### ✅ Domanda 5: incendio
 
 Con **B** mi confermi che il modulo incendio è **separato** e ha un proprio flusso termico‑meccanico; non deve essere fuso con le verifiche strutturali.
 
-### ✅ Domanda 6: utenti e workflow  
+### ✅ Domanda 6: utenti e workflow
 
 Con **A** intendiamo un ingegnere che lavora offline su un progetto per volta; l’app quindi non necessita di multi‑utenza o sincronizzazione cloud immediata, ma potremmo pianificare servizi di condivisione in futuro.
 
-### ✅ Domanda 7: estensibilità  
+### ✅ Domanda 7: estensibilità
 
 Hai preferito **B** – il sistema Plugin/`MODULE_SPEC` già esistente — conferma la direzione modulare e discovery automatica, che dovremo mantenere/estendere.
 
-### ✅ Domanda 8: modularità data layer  
+### ✅ Domanda 8: modularità data layer
 
 Hai selezionato **E** con preferenza per A (repository per entità).    Quindi useremo una struttura base con repository individuali (Progetto, Materiale, Sezione, Verifica …) e valuteremo ulteriori pattern (Unit‑of‑Work) se emergono esigenze di transazioni complesse.
 
@@ -2701,54 +2701,54 @@ Questo documento illustra il **modello concettuale** del dominio per l’applica
 
 ## Entità principali
 
-1. **Project**  
-   - *Attrib.*: `id`, `name`, `description`, `created_at`, `modified_at`, `code_settings` (norma attiva, calcolo code etc.), `schema_version`.  
-   - *Relazioni*: 1→N `Material`, 1→N `Section`, 1→N `Element`, 1→N `LoadCase`, 1→N `Combination`, 1→N `VerificationResult`.  
+1. **Project**
+   - *Attrib.*: `id`, `name`, `description`, `created_at`, `modified_at`, `code_settings` (norma attiva, calcolo code etc.), `schema_version`.
+   - *Relazioni*: 1→N `Material`, 1→N `Section`, 1→N `Element`, 1→N `LoadCase`, 1→N `Combination`, 1→N `VerificationResult`.
    - *Invarianti*: id unico; schema_version incrementale; norma_attiva obbligatoria per esecuzione.
 
-2. **Material**  
-   - tipo (`concrete`/`steel`/`other`), `code` (es. C25/30), proprietà (`fck`, `fyk`, `E`, curve degradazione`…), metadata normativi.  
-   - *Relazioni*: 0→N `Section` (sezioni che lo usano).  
+2. **Material**
+   - tipo (`concrete`/`steel`/`other`), `code` (es. C25/30), proprietà (`fck`, `fyk`, `E`, curve degradazione`…), metadata normativi.
+   - *Relazioni*: 0→N `Section` (sezioni che lo usano).
    - *Invarianti*: proprietà coerenti alle norme selezionate.
 
-3. **Section**  
-   - `id`, geometria (parametri, file CAD opzionale), categoria (`rectangular`/`circular`/…), `material_id` o `material_long`/`material_transv`.  
-   - *Relazioni*: 1→N `Element`.  
+3. **Section**
+   - `id`, geometria (parametri, file CAD opzionale), categoria (`rectangular`/`circular`/…), `material_id` o `material_long`/`material_transv`.
+   - *Relazioni*: 1→N `Element`.
    - *Invarianti*: geometria consistente (base>0, area>0).
 
-4. **Element** (strutturale)  
-   - `id`, `section_id`, `material_id` (optional override), `name`, `position`, `fire_required` (bool), parametri incendio, `element_type` (pillar, beam, slab,…).  
-   - *Relazioni*: 1→N `LoadCase` (association), 1→N `VerificationResult`.  
+4. **Element** (strutturale)
+   - `id`, `section_id`, `material_id` (optional override), `name`, `position`, `fire_required` (bool), parametri incendio, `element_type` (pillar, beam, slab,…).
+   - *Relazioni*: 1→N `LoadCase` (association), 1→N `VerificationResult`.
    - *Invarianti*: se `fire_required` allora campi incendio validati.
 
-5. **LoadCase**  
-   - `id`, `project_id`, `name`, `type` (`permanent`/`variable`/`seismic`/`snow`/…), `combination_type` (rare/frequent/…), vettore carichi (N, Mx, My, Tx, Ty, Mz, etc.), `seismic_parameters` (ag, importance,…).  
-   - *Relazioni*: N→M `Element` (via `ElementLoad`), 1→N `Combination` (in generazione)  
+5. **LoadCase**
+   - `id`, `project_id`, `name`, `type` (`permanent`/`variable`/`seismic`/`snow`/…), `combination_type` (rare/frequent/…), vettore carichi (N, Mx, My, Tx, Ty, Mz, etc.), `seismic_parameters` (ag, importance,…).
+   - *Relazioni*: N→M `Element` (via `ElementLoad`), 1→N `Combination` (in generazione)
    - *Invarianti*: tutti i carichi sono numerici; `type` influenza campi obbligatori.
 
-6. **Combination**  
-   - `id`, `project_id`, elenco di `LoadCase` con fattori, norma applicata, `name`.  
-   - *Relazioni*: 1→N `VerificationRequest`.  
+6. **Combination**
+   - `id`, `project_id`, elenco di `LoadCase` con fattori, norma applicata, `name`.
+   - *Relazioni*: 1→N `VerificationRequest`.
    - *Invarianti*: fattori sommati correttamente; norma compatibile con codice.
 
-7. **VerificationRequest**  
-   - *Attrib.*: `id`, `element_id`, `combination_id`, `limit_state` (SLU/SLE/TA/Fire), `parameters` (ad-hoc), `status`.  
-   - *Relazioni*: 1→1 `VerificationResult`.  
+7. **VerificationRequest**
+   - *Attrib.*: `id`, `element_id`, `combination_id`, `limit_state` (SLU/SLE/TA/Fire), `parameters` (ad-hoc), `status`.
+   - *Relazioni*: 1→1 `VerificationResult`.
    - *Invarianti*: richiesta unica per coppia elemento/combinazione/limit_state.
 
-8. **VerificationResult**  
-   - `id`, `request_id`, `ok` (bool), `utilisation` (float), `outputs` (dettagli), `timestamp`, `trace` (see glossario).  
-   - *Relazioni*: 0→N `LogEntry`.  
+8. **VerificationResult**
+   - `id`, `request_id`, `ok` (bool), `utilisation` (float), `outputs` (dettagli), `timestamp`, `trace` (see glossario).
+   - *Relazioni*: 0→N `LogEntry`.
    - *Invarianti*: `trace` non vuoto; `outputs` validi per tipo di verifica.
 
-9. **FireProfile** (separata dal core)  
-   - definisce `fire_method`, `exposure`, curve, protezioni, `time_target`.  
+9. **FireProfile** (separata dal core)
+   - definisce `fire_method`, `exposure`, curve, protezioni, `time_target`.
    - associata a Element o a Project a seconda del flusso (prefer Project).
 
-10. **TraceRecord**  
+10. **TraceRecord**
     - dati di tracciabilità (norma, metodo, parametri, plugin_version, assumptions, warnings).
 
-11. **LogEntry**  
+11. **LogEntry**
     - `id`, `result_id`, `level` (INFO/WARN/ERROR), `message`, `timestamp`.
 
 ---
@@ -2854,46 +2854,46 @@ GitHub Copilot: ### 🔧 Risoluzione insufficienze dati
 
 #### **1. Attributi di `LoadCase` per neve/vento/variabili non meccaniche**
 
-**Problema**  
-Il modello precedente generico `LoadCase` non specifica quali campi servano per i carichi ambientali (neve, vento) o altre variabili (temperatura, ecc.).  
+**Problema**
+Il modello precedente generico `LoadCase` non specifica quali campi servano per i carichi ambientali (neve, vento) o altre variabili (temperatura, ecc.).
 Senza questa chiarezza, sono possibili ambiguità nella costruzione delle combinazioni e nella serializzazione dei progetti.
 
 **Opzioni**
 
-- **A) Estendere `LoadCase` con campi opzionali dedicati**  
-  `snow_load: float`, `wind_speed: float`, `direction: float`, `temperature: float`…  
-  *Pro*: chiaro, valori direttamente accessibili; semplice repository JSON.  
+- **A) Estendere `LoadCase` con campi opzionali dedicati**
+  `snow_load: float`, `wind_speed: float`, `direction: float`, `temperature: float`…
+  *Pro*: chiaro, valori direttamente accessibili; semplice repository JSON.
   *Contro*: schema inflazionato; eventuali nuovi tipi richiedono aggiornamento.
 
-- **B) Usare un campo generico `environmental: Dict[str,float]`**  
-  qualsiasi variabile può essere aggiunta con chiave; `type` specifica `snow`/`wind`…  
-  *Pro*: massima flessibilità, nessuna modifica codice per nuovi carichi.  
+- **B) Usare un campo generico `environmental: Dict[str,float]`**
+  qualsiasi variabile può essere aggiunta con chiave; `type` specifica `snow`/`wind`…
+  *Pro*: massima flessibilità, nessuna modifica codice per nuovi carichi.
   *Contro*: meno tipizzato, validazione più complessa, difficile autocompletamento UI.
 
-- **C) Definire sottotipi specializzati `SnowCase`, `WindCase` tramite subclassing**  
-  `class SnowCase(LoadCase): snow_depth`, etc.  
-  *Pro*: tipizzazione forte, plugin system può registrare nuovi tipi.  
+- **C) Definire sottotipi specializzati `SnowCase`, `WindCase` tramite subclassing**
+  `class SnowCase(LoadCase): snow_depth`, etc.
+  *Pro*: tipizzazione forte, plugin system può registrare nuovi tipi.
   *Contro*: più complesso per repository (diversificare deserializzazione), aumento del numero di classi.
 
-**Raccomandazione**  
+**Raccomandazione**
 Adotto l’opzione **A** con un piccolo insieme di campi opzionali e `environmental:Dict[str,float]` come estensione secondaria. Questa scelta mantiene chiarezza e non impedisce un design ibrido (campi primari + mappa).
 
 ---
 
 #### **2. Elementi primari vs secondari / non strutturali**
 
-**Problema**  
+**Problema**
 Non è esplicitata una distinzione concettuale tra gli elementi che partecipano al modello strutturale e quelli “non strutturali” (es. tamponature, parapetti) che subiscono solo carichi sismici.
 
 **Opzioni**
 
-- **A) Un’unica entità `Element` con flag `role = PRIMARY | SECONDARY`**  
+- **A) Un’unica entità `Element` con flag `role = PRIMARY | SECONDARY`**
   campi opzionali aggiuntivi se SECONDARY (mass, stiffness, attachment…).
 
-- **B) Sottotipo `PrimaryElement` e `SecondaryElement` (inheritance)**  
+- **B) Sottotipo `PrimaryElement` e `SecondaryElement` (inheritance)**
   `SecondaryElement` può avere campi specifici (fire_required? o load_only?).
 
-- **C) Tenere solo `Element` e gestire la nascosta distinzione nelle combinazioni/parametri**  
+- **C) Tenere solo `Element` e gestire la nascosta distinzione nelle combinazioni/parametri**
   nessuna modifica al modello, distinzione applicata a runtime (p.ex. `if element_type in {...}`).
 
 **Pro/Contro**
@@ -2904,37 +2904,37 @@ B più pulito dal punto di vista OOP; permette repository specializzati; ma magg
 
 C minimizza il modello ma lascia ambiguità e codice disperso.
 
-**Raccomandazione**  
+**Raccomandazione**
 Scegliere **A**: aggiungo a `Element` campo `role` e, se utile, campo `is_structural: bool` già presente implicitamente; con questo si documenta il concetto senza cambiare l’architettura.
 
 ---
 
 #### **3. Ruolo di `FireProfile`**
 
-**Problema**  
+**Problema**
 Non è chiaro se il profilo incendio sia entità autonoma o semplice campo di `Element`, e se associarlo al progetto o all’elemento.
 
 **Opzioni**
 
-- **A) Entità separata `FireProfile` (1→N Project) con riferimenti dagli elementi**  
+- **A) Entità separata `FireProfile` (1→N Project) con riferimenti dagli elementi**
   permette riuso di profili multipli nello stesso progetto.
 
-- **B) Campi diretti in `Element`**  
+- **B) Campi diretti in `Element`**
   keep it simple: ogni elemento può avere i propri parametri incendio.
 
-- **C) Misto: profili globali e override per elemento**  
+- **C) Misto: profili globali e override per elemento**
   `Project.fire_profiles: List[FireProfile]` + `Element.fire_profile_id: Optional`.
 
 **Pro/Contro**
 
-A favore A: riuso e gestione centralizzata; utile se molti elementi condividono lo stesso scenario di incendio.  
+A favore A: riuso e gestione centralizzata; utile se molti elementi condividono lo stesso scenario di incendio.
 Contro A: necessità di lookup e più entità nel repository.
 
 B semplifica il data model; ma niente riuso e possibile duplicazione se il profilo è uguale per molti elementi.
 
 C flessibile ma introduce complessità di override e logica “eredità”.
 
-**Raccomandazione**  
+**Raccomandazione**
 Proporre **C** come soluzione più robusta. Un profilo definito a livello progetto può essere assegnato (o override) a elementi specifici. Questo copre anche il caso minimo (solo un profilo per progetto).
 
 ---
@@ -2968,7 +2968,7 @@ FireProfile (new entity)
 - `Project`
   - `fire_profiles: List[FireProfile]`
 
-- `Element` (modificato sopra)  
+- `Element` (modificato sopra)
   - `role` e `fire_profile_id` (opzionali).
 
 #### Glossario aggiornato
@@ -2984,22 +2984,22 @@ FireProfile (new entity)
 
 ### 📌 Impatto delle integrazioni
 
-- **Flussi funzionali**:  
-  - Creazione carico ora richiede campi neve/vento se pertinenti.  
+- **Flussi funzionali**:
+  - Creazione carico ora richiede campi neve/vento se pertinenti.
   - Flusso verifica deve controllare `element.role` per decidere se usare
-    loadcase standard o sismico secondario.  
+    loadcase standard o sismico secondario.
   - Profili incendio gestiti globalmente e assegnabili.
 
-- **Data layer/repository**:  
-  - Repositories aggiornati: `LoadCaseRepo` deve gestire i nuovi campi.  
+- **Data layer/repository**:
+  - Repositories aggiornati: `LoadCaseRepo` deve gestire i nuovi campi.
   - `FireProfileRepo` nuovo per gestire entità; `ElementRepo` supporta
-    `fire_profile_id` e logica di override.  
+    `fire_profile_id` e logica di override.
   - Versioning: schema_version incrementato, con migrazione automatica immettendo
     valori di default (snow_load=0, role="PRIMARY").
 
-- **Plugin system**:  
+- **Plugin system**:
   - Plugin che definiscono nuovi `LoadCase` type o `Element` subtype possono
-    utilizzare i campi generici `environmental`.  
+    utilizzare i campi generici `environmental`.
   - Fire module diventa plugin che registra `FireProfile` e aggiunge campi UI.
 
 ---
@@ -3016,7 +3016,7 @@ FireProfile (new entity)
 ### ✅ Nessun’altra modifica richiesta
 
 I tre punti di insufficienza sono stati risolti con estensioni minime e chiare.
-Non sono necessarie ulteriori modifiche al modello concettuale attuale.  
+Non sono necessarie ulteriori modifiche al modello concettuale attuale.
 Il glue code (engine, UI, repository) sarà definito in fasi successive, ora che
 il modello dati è completo.
 

@@ -44,7 +44,9 @@ def portanza_punta_argilla_kg(diametro_cm: float, c_u_kg_cm2: float) -> float:
     return _NC_PALO * c_u_kg_cm2 * _area_punta_cm2(diametro_cm)
 
 
-def portanza_laterale_argilla_kg(diametro_cm: float, lunghezza_cm: float, c_u_kg_cm2: float) -> float:
+def portanza_laterale_argilla_kg(
+    diametro_cm: float, lunghezza_cm: float, c_u_kg_cm2: float
+) -> float:
     """Portanza laterale in argilla: Q_s = α * c_u * A_s.
 
     Il fattore α (adesione) è stimato con relazione di Terzaghi:

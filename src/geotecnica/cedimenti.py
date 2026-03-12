@@ -61,7 +61,7 @@ def grado_consolidazione_medio(t_v: float) -> float:
         return 0.0
     if t_v < 0.2:
         return min((2.0 / math.sqrt(math.pi)) * math.sqrt(t_v), 1.0)
-    return min(1.0 - math.exp(-math.pi**2 * t_v / 4.0), 1.0)
+    return min(1.0 - math.exp(-(math.pi**2) * t_v / 4.0), 1.0)
 
 
 def coefficiente_tempo_consolidazione(c_v_cm2_s: float, t_secondi: float, h_d_cm: float) -> float:

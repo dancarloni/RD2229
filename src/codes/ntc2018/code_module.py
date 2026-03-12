@@ -87,6 +87,7 @@ class NTC2018CodeModule:
 
         if check_id == "vrdc_no_stirrups":
             from src.codes.ntc2018.checks_vrdc import vrdc_no_stirrups
+
             result = vrdc_no_stirrups(inputs)
             if "trace" in result:
                 result["trace"]["run_id"] = result["trace"].get("run_id", run_id)

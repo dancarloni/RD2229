@@ -26,11 +26,7 @@ import math
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from src.core_calculus.contracts import (
-    CalcInput,
-    SingleCheckResult,
-    VerificationTemplate,
-)
+from src.core_calculus.contracts import CalcInput, SingleCheckResult, VerificationTemplate
 from src.methods.rd2229.checks import (
     check_flessione_ta_rett,
     check_minimi_armatura_ta,
@@ -38,11 +34,7 @@ from src.methods.rd2229.checks import (
     check_taglio_ta_rett,
 )
 from src.methods.rd2229.telaio.combinazioni_rd2229 import InviluppoSollecitazioniAsta
-from src.methods.rd2229.telaio.modello_telaio import (
-    AstaTelaio,
-    ModelloTelaio,
-    TipoAsta,
-)
+from src.methods.rd2229.telaio.modello_telaio import AstaTelaio, ModelloTelaio, TipoAsta
 
 if TYPE_CHECKING:
     pass  # placeholder per future importazioni circolari
@@ -52,8 +44,8 @@ if TYPE_CHECKING:
 # ==============================================================================
 
 # Tensioni ammissibili default RD 2229/39 per calcestruzzo R16
-SIGMA_C_ADM_DEFAULT = 80.0       # kg/cm²  (R16: sigma_c28=160, adm=0.5×160)
-SIGMA_S_ADM_DEFAULT = 1400.0     # kg/cm²  (acciaio liscio Fe37: ~0.5×2800)
+SIGMA_C_ADM_DEFAULT = 80.0  # kg/cm²  (R16: sigma_c28=160, adm=0.5×160)
+SIGMA_S_ADM_DEFAULT = 1400.0  # kg/cm²  (acciaio liscio Fe37: ~0.5×2800)
 
 # Copriferro geometrico nominale (cm) per stima altezza utile d
 COPRIFERRO_TRAVE_CM = 3.0
@@ -72,8 +64,8 @@ N_PILASTRO_KG = 5100.0
 class _SezioneProxy:
     """Proxy section per CalcInput: espone width/height in mm."""
 
-    b_cm: float   # larghezza [cm]
-    h_cm: float   # altezza [cm]
+    b_cm: float  # larghezza [cm]
+    h_cm: float  # altezza [cm]
 
     @property
     def width(self) -> float:
@@ -90,8 +82,8 @@ class _SezioneProxy:
 class _MaterialeProxy:
     """Proxy materiale per CalcInput: espone sigma_c_adm/sigma_s_adm in kg/cm²."""
 
-    sigma_c_adm: float   # tensione ammissibile cls [kg/cm²]
-    sigma_s_adm: float   # tensione ammissibile acciaio [kg/cm²]
+    sigma_c_adm: float  # tensione ammissibile cls [kg/cm²]
+    sigma_s_adm: float  # tensione ammissibile acciaio [kg/cm²]
 
     @property
     def sigma_c28(self) -> float:
@@ -185,12 +177,12 @@ class ArmaturaSezioneSemplice:
     """
 
     id_asta: int
-    posizione: str           # "estremo_i" | "mezzeria" | "estremo_j"
+    posizione: str  # "estremo_i" | "mezzeria" | "estremo_j"
 
     # Armatura longitudinale
-    n_inf: int = 0           # numero barre inferiori
+    n_inf: int = 0  # numero barre inferiori
     diam_inf_mm: float = 0.0  # diametro [mm]
-    n_sup: int = 0           # numero barre superiori
+    n_sup: int = 0  # numero barre superiori
     diam_sup_mm: float = 0.0  # [mm]
 
     # Aree calcolate (cm²) — auto-aggiornate da aggiorna_aree()
@@ -199,9 +191,9 @@ class ArmaturaSezioneSemplice:
 
     # Staffe
     n_bracci_staffe: int = 2
-    diam_staffa_mm: float = 0.0   # [mm]
+    diam_staffa_mm: float = 0.0  # [mm]
     passo_staffe_cm: float = 0.0  # [cm]
-    Asw_cm2_cm: float = 0.0       # area staffe per unità lunghezza [cm²/cm]
+    Asw_cm2_cm: float = 0.0  # area staffe per unità lunghezza [cm²/cm]
 
     # Metadati
     note: str = ""
@@ -219,15 +211,9 @@ class ArmaturaSezioneSemplice:
         else:
             self.As_sup = 0.0
 
-        if (
-            self.diam_staffa_mm > 0
-            and self.n_bracci_staffe > 0
-            and self.passo_staffe_cm > 0
-        ):
+        if self.diam_staffa_mm > 0 and self.n_bracci_staffe > 0 and self.passo_staffe_cm > 0:
             area_1_staffa = math.pi * (self.diam_staffa_mm / 10.0) ** 2 / 4.0
-            self.Asw_cm2_cm = (
-                self.n_bracci_staffe * area_1_staffa / self.passo_staffe_cm
-            )
+            self.Asw_cm2_cm = self.n_bracci_staffe * area_1_staffa / self.passo_staffe_cm
         else:
             self.Asw_cm2_cm = 0.0
 
@@ -370,10 +356,10 @@ class RisultatoVerificaSezione:
     """Risultato verifica TA per una singola sezione di un'asta."""
 
     id_asta: int
-    posizione: str           # "estremo_i" | "mezzeria" | "estremo_j"
-    M_kgcm: float            # sollecitazione di verifica [kg·cm]
-    V_kg: float              # taglio di verifica [kg]
-    N_kg: float              # sforzo normale [kg]
+    posizione: str  # "estremo_i" | "mezzeria" | "estremo_j"
+    M_kgcm: float  # sollecitazione di verifica [kg·cm]
+    V_kg: float  # taglio di verifica [kg]
+    N_kg: float  # sforzo normale [kg]
 
     # Risultati check (None se check non eseguito)
     flessione: SingleCheckResult | None = None
@@ -441,7 +427,7 @@ class RisultatoVerificaAsta:
 
     id_asta: int
     etichetta: str
-    tipo: str   # "trave" | "pilastro" | ...
+    tipo: str  # "trave" | "pilastro" | ...
     sezioni: dict[str, RisultatoVerificaSezione] = field(default_factory=dict)
     # chiavi: "estremo_i", "mezzeria", "estremo_j"
 
@@ -451,7 +437,9 @@ class RisultatoVerificaAsta:
 
     @property
     def utilizzazione_max(self) -> float | None:
-        vals = [s.utilizzazione_max for s in self.sezioni.values() if s.utilizzazione_max is not None]
+        vals = [
+            s.utilizzazione_max for s in self.sezioni.values() if s.utilizzazione_max is not None
+        ]
         return max(vals) if vals else None
 
     def to_dict(self) -> dict:
@@ -498,10 +486,7 @@ def verifica_sezione_ta(
         RisultatoVerificaSezione con tutti i check eseguiti.
     """
     # Classificazione elemento
-    e_pilastro = (
-        asta.tipo in (TipoAsta.PILASTRO, TipoAsta.SETTO)
-        or abs(N_kg) >= N_PILASTRO_KG
-    )
+    e_pilastro = asta.tipo in (TipoAsta.PILASTRO, TipoAsta.SETTO) or abs(N_kg) >= N_PILASTRO_KG
     tipo_elemento = "pilastro" if e_pilastro else "trave"
 
     risultato = RisultatoVerificaSezione(
@@ -585,9 +570,9 @@ def verifica_completa_telaio(
 
         # --- Verifica 3 sezioni ---
         posizioni = [
-            ("estremo_i",  0),  # indice sezione 0
-            ("mezzeria",   1),  # indice sezione 1
-            ("estremo_j",  2),  # indice sezione 2
+            ("estremo_i", 0),  # indice sezione 0
+            ("mezzeria", 1),  # indice sezione 1
+            ("estremo_j", 2),  # indice sezione 2
         ]
 
         for posizione, idx in posizioni:

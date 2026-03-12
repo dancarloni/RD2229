@@ -16,14 +16,18 @@ from src.methods.muratura.modello_edificio import MaterialeMuratura
 #  Fixtures
 # ═══════════════════════════════════════════════════════════
 
+
 @pytest.fixture
 def materiale():
     return MaterialeMuratura(
         nome="Mattoni pieni",
-        f=32.0, tau_0=0.76,
-        E=15000, G=5000,
+        f=32.0,
+        tau_0=0.76,
+        E=15000,
+        G=5000,
         gamma=0.0018,  # 1800 kg/m³
-        gamma_M=2.0, FC=1.20,
+        gamma_M=2.0,
+        FC=1.20,
     )
 
 
@@ -32,21 +36,36 @@ def maschi_3(materiale):
     """3 maschi sulla stessa parete (id_parete=1)."""
     return [
         Maschio(
-            id_maschio=0, id_parete=1, id_piano=0,
-            L=100, t=30, h=300,
-            x_ini_locale=0, x_fin_locale=100,
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=100,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=100,
             materiale=materiale,
         ),
         Maschio(
-            id_maschio=1, id_parete=1, id_piano=0,
-            L=80, t=30, h=300,
-            x_ini_locale=200, x_fin_locale=280,
+            id_maschio=1,
+            id_parete=1,
+            id_piano=0,
+            L=80,
+            t=30,
+            h=300,
+            x_ini_locale=200,
+            x_fin_locale=280,
             materiale=materiale,
         ),
         Maschio(
-            id_maschio=2, id_parete=1, id_piano=0,
-            L=120, t=30, h=300,
-            x_ini_locale=380, x_fin_locale=500,
+            id_maschio=2,
+            id_parete=1,
+            id_piano=0,
+            L=120,
+            t=30,
+            h=300,
+            x_ini_locale=380,
+            x_fin_locale=500,
             materiale=materiale,
         ),
     ]
@@ -56,8 +75,8 @@ def maschi_3(materiale):
 #  CaricoSolaio
 # ═══════════════════════════════════════════════════════════
 
-class TestCaricoSolaio:
 
+class TestCaricoSolaio:
     def test_luce_influenza(self):
         cs = CaricoSolaio(luce_sx=400, luce_dx=300)
         assert cs.luce_influenza == pytest.approx(350)
@@ -87,16 +106,19 @@ class TestCaricoSolaio:
 #  CaricoMaschio
 # ═══════════════════════════════════════════════════════════
 
-class TestCaricoMaschio:
 
+class TestCaricoMaschio:
     def test_N_G1_include_peso_proprio(self):
         cm = CaricoMaschio(peso_proprio=500, N_solaio_G1=1000, N_superiore=2000)
         assert cm.N_G1 == pytest.approx(3500)
 
     def test_N_caratteristico(self):
         cm = CaricoMaschio(
-            peso_proprio=500, N_solaio_G1=1000,
-            N_solaio_G2=300, N_solaio_Q=200, N_superiore=0,
+            peso_proprio=500,
+            N_solaio_G1=1000,
+            N_solaio_G2=300,
+            N_solaio_Q=200,
+            N_superiore=0,
         )
         assert cm.N_caratteristico == pytest.approx(2000)
 
@@ -111,11 +133,19 @@ class TestCaricoMaschio:
 #  Area di influenza
 # ═══════════════════════════════════════════════════════════
 
-class TestAreaInfluenza:
 
+class TestAreaInfluenza:
     def test_maschio_unico(self, materiale):
-        m = Maschio(id_maschio=0, id_parete=1, L=200, t=30, h=300,
-                    x_ini_locale=0, x_fin_locale=200, materiale=materiale)
+        m = Maschio(
+            id_maschio=0,
+            id_parete=1,
+            L=200,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=200,
+            materiale=materiale,
+        )
         larghezza = _area_influenza_maschio(m, [m])
         assert larghezza == pytest.approx(200)
 
@@ -148,10 +178,26 @@ class TestAreaInfluenza:
 
     def test_maschi_due_pareti_diverse(self, materiale):
         """Maschi su pareti diverse non si influenzano."""
-        m1 = Maschio(id_maschio=0, id_parete=1, L=100, t=30, h=300,
-                     x_ini_locale=0, x_fin_locale=100, materiale=materiale)
-        m2 = Maschio(id_maschio=1, id_parete=2, L=100, t=30, h=300,
-                     x_ini_locale=0, x_fin_locale=100, materiale=materiale)
+        m1 = Maschio(
+            id_maschio=0,
+            id_parete=1,
+            L=100,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=100,
+            materiale=materiale,
+        )
+        m2 = Maschio(
+            id_maschio=1,
+            id_parete=2,
+            L=100,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=100,
+            materiale=materiale,
+        )
         larghezza = _area_influenza_maschio(m1, [m1, m2])
         assert larghezza == pytest.approx(100)
 
@@ -160,19 +206,26 @@ class TestAreaInfluenza:
 #  Distribuzione carichi
 # ═══════════════════════════════════════════════════════════
 
-class TestDistribuzioneCarichi:
 
+class TestDistribuzioneCarichi:
     def test_peso_proprio_maschio(self, materiale):
-        m = Maschio(id_maschio=0, id_parete=1, L=100, t=30, h=300,
-                    x_ini_locale=0, x_fin_locale=100, materiale=materiale)
+        m = Maschio(
+            id_maschio=0,
+            id_parete=1,
+            L=100,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=100,
+            materiale=materiale,
+        )
         ris = distribuisci_carichi_solaio([m], [])
         cm = ris[0]
         # Wp = 100 × 30 × 300 × 0.0018 = 1620 kg
         assert cm.peso_proprio == pytest.approx(1620)
 
     def test_carico_solaio_distribuito(self, maschi_3):
-        cs = CaricoSolaio(id_parete=1, G1=0.04, G2=0.01, Q=0.02,
-                          luce_sx=400, luce_dx=400)
+        cs = CaricoSolaio(id_parete=1, G1=0.04, G2=0.01, Q=0.02, luce_sx=400, luce_dx=400)
         ris = distribuisci_carichi_solaio(maschi_3, [cs])
         # luce_influenza = 400
         # q_lin_G1 = 0.04 × 400 = 16 kg/cm
@@ -194,18 +247,32 @@ class TestDistribuzioneCarichi:
 #  Accumulo multipiano
 # ═══════════════════════════════════════════════════════════
 
-class TestAccumuloMultipiano:
 
+class TestAccumuloMultipiano:
     def test_due_piani(self, materiale):
         """Due piani identici: piano 0 riceve N dal piano 1."""
-        m_p0 = Maschio(id_maschio=0, id_parete=1, id_piano=0,
-                       L=100, t=30, h=300,
-                       x_ini_locale=0, x_fin_locale=100,
-                       materiale=materiale)
-        m_p1 = Maschio(id_maschio=10, id_parete=1, id_piano=1,
-                       L=100, t=30, h=300,
-                       x_ini_locale=0, x_fin_locale=100,
-                       materiale=materiale)
+        m_p0 = Maschio(
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=100,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=100,
+            materiale=materiale,
+        )
+        m_p1 = Maschio(
+            id_maschio=10,
+            id_parete=1,
+            id_piano=1,
+            L=100,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=100,
+            materiale=materiale,
+        )
 
         carichi = {
             0: [CaricoSolaio(id_parete=1, G1=0.04, luce_sx=400, luce_dx=400)],
@@ -230,11 +297,19 @@ class TestAccumuloMultipiano:
 
     def test_override_N(self, materiale):
         """Maschio con N_override non viene modificato."""
-        m = Maschio(id_maschio=0, id_parete=1, id_piano=0,
-                    L=100, t=30, h=300,
-                    x_ini_locale=0, x_fin_locale=100,
-                    materiale=materiale,
-                    N_gravitazionale=99999, N_override=True)
+        m = Maschio(
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=100,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=100,
+            materiale=materiale,
+            N_gravitazionale=99999,
+            N_override=True,
+        )
         ris, passaggi = calcola_N_multipiano(
             maschi_per_piano={0: [m]},
             carichi_per_piano={0: [CaricoSolaio(id_parete=1, G1=0.1, luce_sx=400, luce_dx=400)]},
@@ -243,10 +318,17 @@ class TestAccumuloMultipiano:
         assert m.N_gravitazionale == pytest.approx(99999)
 
     def test_passaggi_non_vuoti(self, materiale):
-        m = Maschio(id_maschio=0, id_parete=1, id_piano=0,
-                    L=100, t=30, h=300,
-                    x_ini_locale=0, x_fin_locale=100,
-                    materiale=materiale)
+        m = Maschio(
+            id_maschio=0,
+            id_parete=1,
+            id_piano=0,
+            L=100,
+            t=30,
+            h=300,
+            x_ini_locale=0,
+            x_fin_locale=100,
+            materiale=materiale,
+        )
         _, passaggi = calcola_N_multipiano(
             maschi_per_piano={0: [m]},
             carichi_per_piano={0: []},
@@ -259,12 +341,19 @@ class TestAccumuloMultipiano:
         maschi = {}
         carichi = {}
         for p in range(3):
-            maschi[p] = [Maschio(
-                id_maschio=p * 10, id_parete=1, id_piano=p,
-                L=100, t=30, h=300,
-                x_ini_locale=0, x_fin_locale=100,
-                materiale=materiale,
-            )]
+            maschi[p] = [
+                Maschio(
+                    id_maschio=p * 10,
+                    id_parete=1,
+                    id_piano=p,
+                    L=100,
+                    t=30,
+                    h=300,
+                    x_ini_locale=0,
+                    x_fin_locale=100,
+                    materiale=materiale,
+                )
+            ]
             carichi[p] = [CaricoSolaio(id_parete=1, G1=0.03, luce_sx=300, luce_dx=300)]
 
         ris, _ = calcola_N_multipiano(maschi, carichi, [0, 1, 2])

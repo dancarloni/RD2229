@@ -115,14 +115,10 @@ def calcola_parametri_derivati(
     # f_ctm (EC2 §3.1.2)
     if f_ck_is_mpa <= 50.0:
         f_ctm = 0.30 * f_ck_is_mpa ** (2.0 / 3.0)
-        passaggi.append(
-            f"f_ctm = 0.30*f_ck^(2/3) = 0.30*{f_ck_is_mpa:.3f}^0.667 = {f_ctm:.3f} MPa"
-        )
+        passaggi.append(f"f_ctm = 0.30*f_ck^(2/3) = 0.30*{f_ck_is_mpa:.3f}^0.667 = {f_ctm:.3f} MPa")
     else:
         f_ctm = 2.12 * math.log(1.0 + f_cm / 10.0)
-        passaggi.append(
-            f"f_ctm = 2.12*ln(1+f_cm/10) = 2.12*ln(1+{f_cm:.3f}/10) = {f_ctm:.3f} MPa"
-        )
+        passaggi.append(f"f_ctm = 2.12*ln(1+f_cm/10) = 2.12*ln(1+{f_cm:.3f}/10) = {f_ctm:.3f} MPa")
 
     # Frattili trazione
     f_ctk_005 = 0.70 * f_ctm
@@ -137,9 +133,7 @@ def calcola_parametri_derivati(
     # sigma_c_adm storica
     Rck_kgcm2 = Rck * _MPA_TO_KG_CM2
     sigma_adm = _sigma_c_adm_storica(Rck_kgcm2)
-    passaggi.append(
-        f"Rck = {Rck_kgcm2:.1f} kg/cm² -> σ_c_adm = {sigma_adm:.1f} kg/cm² (storica)"
-    )
+    passaggi.append(f"Rck = {Rck_kgcm2:.1f} kg/cm² -> σ_c_adm = {sigma_adm:.1f} kg/cm² (storica)")
 
     return DerivedConcreteParams(
         f_ck_is_mpa=f_ck_is_mpa,

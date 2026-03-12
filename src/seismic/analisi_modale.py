@@ -57,7 +57,9 @@ def massa_modale_effettiva(masse: np.ndarray, modo: np.ndarray) -> float:
     return gamma * gamma * den
 
 
-def verifica_partecipazione_minima(masse_effettive: np.ndarray, masse_totali: np.ndarray, soglia: float = 0.85) -> bool:
+def verifica_partecipazione_minima(
+    masse_effettive: np.ndarray, masse_totali: np.ndarray, soglia: float = 0.85
+) -> bool:
     """Verifica criterio >= 85% massa totale."""
 
     m_eff = float(np.sum(masse_effettive))

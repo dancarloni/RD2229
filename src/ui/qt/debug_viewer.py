@@ -18,6 +18,7 @@ from typing import Any
 
 try:
     from PyQt6.QtCore import Qt, QTimer  # noqa: F401
+    from PyQt6.QtWidgets import QSplitter  # noqa: F401
     from PyQt6.QtWidgets import (
         QComboBox,
         QFileDialog,
@@ -26,7 +27,6 @@ try:
         QLineEdit,
         QPushButton,
         QSizePolicy,
-        QSplitter,  # noqa: F401
         QTextEdit,
         QVBoxLayout,
         QWidget,
@@ -52,11 +52,11 @@ logger = logging.getLogger(__name__)
 
 # Mappa livello → colore per evidenziazione
 _COLORI_LIVELLO: dict[LivelloLog, str] = {
-    LivelloLog.INFO: "#2196F3",      # Blu
-    LivelloLog.AVVISO: "#FF9800",    # Arancione
-    LivelloLog.ERRORE: "#F44336",    # Rosso
-    LivelloLog.CALCOLO: "#4CAF50",   # Verde
-    LivelloLog.DEBUG: "#9E9E9E",     # Grigio
+    LivelloLog.INFO: "#2196F3",  # Blu
+    LivelloLog.AVVISO: "#FF9800",  # Arancione
+    LivelloLog.ERRORE: "#F44336",  # Rosso
+    LivelloLog.CALCOLO: "#4CAF50",  # Verde
+    LivelloLog.DEBUG: "#9E9E9E",  # Grigio
 }
 
 
@@ -114,8 +114,7 @@ class DebugViewerWindow(QWidget):
         self._area_log.setFontFamily("Courier New")
         self._area_log.setFontPointSize(9)
         self._area_log.setStyleSheet(
-            "QTextEdit { background-color: #1E1E1E; color: #D4D4D4; "
-            "border: 1px solid #333; }"
+            "QTextEdit { background-color: #1E1E1E; color: #D4D4D4; " "border: 1px solid #333; }"
         )
         layout_principale.addWidget(self._area_log)
 
@@ -188,7 +187,7 @@ class DebugViewerWindow(QWidget):
                 f'<span style="color:#808080">[{voce.timestamp}]</span> '
                 f'<span style="color:{colore}"><b>[{voce.livello.value}]</b></span> '
                 f'<span style="color:#569CD6">[{voce.modulo}]</span> '
-                f'{_escape_html(voce.operazione)}'
+                f"{_escape_html(voce.operazione)}"
             )
             # Dettagli aggiuntivi (se presenti)
             if voce.normativa:
@@ -208,7 +207,11 @@ class DebugViewerWindow(QWidget):
                     f'  <span style="color:#B5CEA8">Output: {_escape_html(str(voce.output_dati))}</span>'
                 )
             if voce.esito:
-                colore_esito = "#4EC9B0" if "VERIFICATO" in voce.esito.upper() and "NON" not in voce.esito.upper() else "#F44336"
+                colore_esito = (
+                    "#4EC9B0"
+                    if "VERIFICATO" in voce.esito.upper() and "NON" not in voce.esito.upper()
+                    else "#F44336"
+                )
                 html_righe.append(
                     f'  <span style="color:{colore_esito}"><b>Esito: {_escape_html(voce.esito)}</b></span>'
                 )

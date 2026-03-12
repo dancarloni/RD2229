@@ -92,10 +92,10 @@ Di seguito trovi la descrizione completa, in formato pianificabile, dei campi, d
 | `orientation` | float | deg | orientazione pianimetrica (per wind/sismic) | opzionale |
 | `notes_it` | stringa | – | campo libero per annotazioni | |
 
-> **Flag operativi**  
-> - `is_structural`: bool (derivato da `element_type`)  
-> - `requires_seismic_check`: bool (determina generazione combinazioni)  
-> - `library_preset`: stringa (nome preset di libreria, se applicabile)  
+> **Flag operativi**
+> - `is_structural`: bool (derivato da `element_type`)
+> - `requires_seismic_check`: bool (determina generazione combinazioni)
+> - `library_preset`: stringa (nome preset di libreria, se applicabile)
 > - `out_of_scope`: bool (settaggio manuale se elemento non gestito)
 
 ---
@@ -103,13 +103,13 @@ Di seguito trovi la descrizione completa, in formato pianificabile, dei campi, d
 ## 2. **Regole di validazione e campo di applicabilità**
 
 - **Blocchi geometrici**: ogni tipo ha un sotto‑schema. ad es. per `PARTITION` serve almeno `width`, `height`; per `CHIMNEY` `diameter`, `height`; per `CANTILEVER` lunghezza e sezione trasversale.
-- **Condizioni normative**:  
+- **Condizioni normative**:
   - Se `element_type` è `PARAPET` e `height < 0.1 m` oppure `mass < 0.1 kg/m²` → `NOT_APPLICABLE`.
   - Se `loads.seismic` manca ma `requires_seismic_check == True` → warning / error.
-- **Vincoli dei campi**:  
+- **Vincoli dei campi**:
   - `mass` calcolabile come densità·volume se non fornito; valicare sempre `>= 0`.
   - `z_level` deve essere riferimento positivo e coerente con modello globale.
-- **Applicabilità**:  
+- **Applicabilità**:
   - Alcuni tipi richiedono `attachment` definito (ad es. `SIGNAGE`, `SUSPENDED`); in sua assenza la validazione produce warning e setta `out_of_scope`.
   - `stiffness` obbligatoria se `requires_seismic_check` true e `element_type` in {PARTITION, PARAPET}.
 
@@ -117,9 +117,9 @@ Di seguito trovi la descrizione completa, in formato pianificabile, dei campi, d
 
 ## 3. **Relazione con altri oggetti**
 
-- **Materiali**: `material_code` è chiave esterna verso `MaterialRepository`; la GUI mostrerà un selettore.  
+- **Materiali**: `material_code` è chiave esterna verso `MaterialRepository`; la GUI mostrerà un selettore.
 - **Sezioni**: per elementi a mensola/incastrati, `geometry` può includere `section_id` che punta a `SectionGeometry` esistente.
-- **Combinazioni**:  
+- **Combinazioni**:
   - `loads` fornirà input al generatore combinazioni; il campo `seismic` popola i parametri NTC2018/EC8.
 - **Metriche calcolo**: campi quali `mass` e `z_level` vengono mappati in `CalcInput` usato dai `check_secondary_*`.
 
@@ -274,7 +274,7 @@ Searched for files matching `**/tests/test_secondary_elements_*`, no matches
 
 Searched for files matching `**/config/calculation_codes/SECONDARY_ELEMENTS.jsoncode`, no matches
 
-Ecco il piano di **Fase 2** per portare il modulo “Elementi Secondari / Non strutturali” dallo stato *skeleton* alla prima integrazione effettiva.  
+Ecco il piano di **Fase 2** per portare il modulo “Elementi Secondari / Non strutturali” dallo stato *skeleton* alla prima integrazione effettiva.
 La risposta è suddivisa nei punti richiesti: analisi AS‑IS, mappatura, roadmap, contratti di test e un bozza completa del nuovo file STEP2_INTEGRATION_SECONDARY_ELEMENTS.md.
 
 ---
@@ -322,14 +322,14 @@ La risposta è suddivisa nei punti richiesti: analisi AS‑IS, mappatura, roadma
 |------|-------------|------------|---------------------|
 | **2.1 – Struttura & skeleton** | Creare `methods/verification/secondary_elements` con file listati in AUTOMATION; inizializzare dispatcher vuoto e dataclass minima | nessuna | direttorio e file esistenti vuoti |
 | **2.2 – Configurazione normativa** | aggiungere `config/calculation_codes/SECONDARY_ELEMENTS.jsoncode` con blocchi obbligatori; aggiornare `calculation_codes_loader` per riconoscerlo | 2.1 | loader carica file, il modulo appare in `available_checks()` (anche se vuote) |
-| **2.3 – Integrazione core/engine** |  
-  - estendere input/output schema (proj schema, verifiche engine)  
-  - implementare dispatcher: registro namespace, instradamento SLU/SLE  
-  - ampliare models.py con campi minimi; adattare storage_adapter a interfaccia persistente  
+| **2.3 – Integrazione core/engine** |
+  - estendere input/output schema (proj schema, verifiche engine)
+  - implementare dispatcher: registro namespace, instradamento SLU/SLE
+  - ampliare models.py con campi minimi; adattare storage_adapter a interfaccia persistente
   - garantire che ogni `check_*` restituisca `trace.run_id` e `norm_references[]` | 2.1–2.2 | engine esegue `namespace secondary_elements`; input arrivi validati; output contiene i contratti |
-| **2.4 – GUI & test** |  
-  - aggiungere modulo selector, colonne e warning in tabelle UI  
-  - creare tre file test (slu, sle, gating) e implementare casi contrattuali  
+| **2.4 – GUI & test** |
+  - aggiungere modulo selector, colonne e warning in tabelle UI
+  - creare tre file test (slu, sle, gating) e implementare casi contrattuali
   - estendere progetto di test per caricare config e schema | 2.3 | GUI presenta modulo e colonne; test verdi sulle regole contrattuali |
 
 > **Rischi / mitigazioni**
@@ -460,7 +460,7 @@ INIZIA ORA.
 
 
 
-GitHub Copilot: Ecco la sintesi richiesta per la **Fase 2 – integrazione del modulo Secondary Elements**, organizzata nei cinque punti indicati.  
+GitHub Copilot: Ecco la sintesi richiesta per la **Fase 2 – integrazione del modulo Secondary Elements**, organizzata nei cinque punti indicati.
 Resto in modalità **PLAN‑ONLY**: nessun codice, nessun file creato.
 
 ---
@@ -674,7 +674,7 @@ Read [](file:///c%3A/Users/danca/workspaces/RD2229/src/ui/module_selector.py#1-1
 
 Searched for text `CodeSettingsWindow`, 9 results
 
-Ho esplorato il repository e le SPEC/PLAN già presenti. **Non ho trovato** attualmente alcun campo `seismic_inputs` nel codice, quindi il lavoro consiste nell’estenderlo dove già esistono le strutture di progetto e nelle interfacce esposte dalla GUI.  
+Ho esplorato il repository e le SPEC/PLAN già presenti. **Non ho trovato** attualmente alcun campo `seismic_inputs` nel codice, quindi il lavoro consiste nell’estenderlo dove già esistono le strutture di progetto e nelle interfacce esposte dalla GUI.
 Di seguito trovi l’analisi richiesta e la proposta di sequenza operativa.
 
 ---
@@ -753,9 +753,9 @@ Di seguito trovi l’analisi richiesta e la proposta di sequenza operativa.
 
 ## D) Check finale
 
-Ho identificato i file necessari per gestire tutti i requisiti (modello, persistenza, servizio, UI).  
-Non è previsto alcun **file extra** oltre a quelli elencati; tutto il flusso può essere implementato toccando/creando soltanto le entità in tabella A.  
-Se durante l’implementazione emerge la necessità di aggiungere un altro modulo (es. helper di utilità), dovrà essere dichiarato esplicitamente come nuovo requisito.  
+Ho identificato i file necessari per gestire tutti i requisiti (modello, persistenza, servizio, UI).
+Non è previsto alcun **file extra** oltre a quelli elencati; tutto il flusso può essere implementato toccando/creando soltanto le entità in tabella A.
+Se durante l’implementazione emerge la necessità di aggiungere un altro modulo (es. helper di utilità), dovrà essere dichiarato esplicitamente come nuovo requisito.
 Al momento la lista è *completa*: nessun altro file è necessario per il servizio di paste.
 
 User: Sei in modalità PLAN (non implementare codice). Devi analizzare e pianificare l’integrazione dello scaffold RD2229/39 già estratto nel workspace, allineandolo all’architettura reale del repository RD2229.
@@ -861,12 +861,12 @@ Searched for files matching `**/src/rd2229/__init__*.py`, no matches
 
 Searched for text `TraceRecord`, 10 results
 
-### A) Executive summary  
+### A) Executive summary
 Il “scaffold” RD2229/39 è già presente sotto rd2229_39 con
 provider, modelli, metodi, policies e validator; i test `tests/rd2229_39/*` esercitano
 fattore 1.25 e presenza di trace. Il repository principale usa un layout `src/…`
 con package namespace `rd2229` e pytest configurato su tests con `PYTHONPATH="."`,
-quindi l’inclusione del modulo è naturale.  
+quindi l’inclusione del modulo è naturale.
 L’integrazione richiede solo piccoli tocchi: aggiungere eventuali import o
 registrazione nel kernel normativo, controllare la persistenza di trace comune e
 fare in modo che il codice soddisfi lint/typing. Nessun conflitto di naming è
@@ -1011,7 +1011,7 @@ User: Sei in modalità PLAN (non implementare codice). Pianifica lo STEP 4A: ris
 CONTESTO
 - Modulo esistente: src/rd2229/seismic/rd2229_39/ con metodi ONDULATORY e SUSSULTORY e trace.
 - Esiste un package top-level "src" (src/__init__.py): mantenere import coerenti con src.... (non cambiare questa scelta).
-- Pytest è configurato sia in pytest.ini (testpaths=tests, ignore tests_legacy) sia in pyproject.toml [tool.pytest.ini_options]: non introdurre divergenze, mantenere coerenza. 
+- Pytest è configurato sia in pytest.ini (testpaths=tests, ignore tests_legacy) sia in pyproject.toml [tool.pytest.ini_options]: non introdurre divergenze, mantenere coerenza.
 
 SCELTA DATI (DECISA)
 - Il datasource JSON deve stare in: data/rd2229/seismic/
@@ -1066,13 +1066,13 @@ FILE DA ESPORRE AL PLAN (context)
 
 GitHub Copilot: Read [](file:///c%3A/Users/danca/workspaces/RD2229/src/rd2229/seismic/rd2229_39/docs_ref/norm_refs.py)
 
-### A) Executive summary  
+### A) Executive summary
 Lo **STEP 4A** introduce la possibilità di determinare il coefficiente `p` da una tabella JSON
 (p.es. il foglio “pericolosità” RD2229/39) pur mantenendo il comportamento esistente (p
-manuale) e la traccia normativa.  
+manuale) e la traccia normativa.
 Il datasource statico risiede sotto `data/rd2229/seismic/`; un resolver dedicato legge il file.
 La richiesta `FloorForcesRequest` guadagna parametri opzionali (`p_mode`, `p_table_path`,
-`p_table_key`) senza rompere i client che già passano `p`.  
+`p_table_key`) senza rompere i client che già passano `p`.
 I test esistenti nel pacchetto rd2229_39 vengono estesi con casi per la tabella e per la
 tracciatura di `p`. La modifica è limitata al modulo `rd2229_39` più un paio di nuovi file di
 dati e test; non tocca la struttura src né la configurazione pytest.
@@ -1271,7 +1271,7 @@ Fornire all’agent i seguenti file in ordine per applicare le modifiche:
 8. test_trace_presence.py (modificato)
 9. `tests/rd2229_39/test_p_from_table.py` (nuovo)
 
-**Ordine suggerito per le modifiche**:  
+**Ordine suggerito per le modifiche**:
 1 → 2 → 3 → 4 → 5/6 → 7/8 → 9 → eseguire comandi di verifica.
 
 Con questo piano il coefficiente `p` tabellare si integra col minimo impatto, la base
@@ -1513,8 +1513,8 @@ Read [](file:///c%3A/Users/danca/workspaces/RD2229/src/codes/ntc2018/secondary_e
 
 Checked [](file:///c%3A/Users/danca/workspaces/RD2229/src/codes/ntc2018/secondary_elements/models.py), [](file:///c%3A/Users/danca/workspaces/RD2229/src/codes/ntc2018/secondary_elements/checks.py), [](file:///c%3A/Users/danca/workspaces/RD2229/verifications/secondary_elements/dispatcher.py), no problems found
 
-✅ **STEP2 – Secondary Elements implementation (Premium One‑Shot)**  
-All requirements from the user request have been addressed in a controlled, minimal and deterministic way.  
+✅ **STEP2 – Secondary Elements implementation (Premium One‑Shot)**
+All requirements from the user request have been addressed in a controlled, minimal and deterministic way.
 No files outside the “baseline congelata” were touched.  The solution strictly respects the 2A‑1 decision and all PLAN/STEP2 documents.
 
 ---
@@ -1522,7 +1522,7 @@ No files outside the “baseline congelata” were touched.  The solution strict
 ## 🔧 Changes Applied
 
 ### 📁 Configuration
-- Added **SECONDARY_ELEMENTS.jsoncode**  
+- Added **SECONDARY_ELEMENTS.jsoncode**
   - Declares `NS_SLU_InertialForce` and `NS_SLE_DriftCompatibility`
   - Sets policies:
     - `drift_method_default = "SHEAR_BUILDING_PROXY"`
@@ -1600,7 +1600,7 @@ All existing tests run cleanly; full suite passes (`pytest -q`).
 
 ---
 
-You're now ready to move to STEP3 when needed.  
+You're now ready to move to STEP3 when needed.
 Let me know if you want assistance drafting the next plan or beginning development on the interfaces created here!
 
 Made changes.
@@ -1619,7 +1619,7 @@ It requested auth; might require manual. However push has been initiated. At thi
 
 I'll respond accordingly.The changes have been staged and committed locally with a descriptive message.
 
-A `git push` was initiated; the remote is asking for browser‑based authentication to complete.  
+A `git push` was initiated; the remote is asking for browser‑based authentication to complete.
 Once you authenticate, the new branch/commit will be uploaded.
 
 ✅ All STEP2 work is now recorded in version control.
@@ -1658,13 +1658,13 @@ User: # NTC2018 — Spectrum Paste Service (EdiLus‑MS) — PLAN‑ONLY
 ### 2.1 Documenti MEGAPLAN (repository)
 Creare/aggiornare i seguenti file:
 
-1) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_SERVICE_PLAN.md`  
+1) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_SERVICE_PLAN.md`
    - (questo documento)
 
-2) `docs/MEGAPLAN/SPEC_NTC2018_HAZARD_PASTE.md`  
+2) `docs/MEGAPLAN/SPEC_NTC2018_HAZARD_PASTE.md`
    - specifica vincolante: schema dati + etichette + regole parsing + validazioni minime
 
-3) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_AUTOMATION.md`  
+3) `docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_AUTOMATION.md`
    - automazione vincolante: lista file target (create/touch), integrazione UI, persistenza, test
 
 ---
@@ -1760,7 +1760,7 @@ Solo dopo questa checklist si procede all’implementazione.
 
 GitHub Copilot: Searched for files matching `**/docs/MEGAPLAN/NTC2018_SPECTRUM_PASTE_SERVICE_PLAN.md`, 1 match
 
-User: 
+User:
 PROMPT IMPLEMENTAZIONE — NTC2018 Spectrum Paste Service (AGGIORNATO E COMPLETO)
 
 
@@ -2069,7 +2069,7 @@ Ran terminal command: C:/Users/danca/workspaces/RD2229/.venv/Scripts/python.exe 
 - 🚫 **No interpolation or pericolosità calculation**; the service only parses user‑pasted data.
 - 🚫 **No Sa(T) spectrum computation** has been implemented.
 
-> All behaviour strictly follows the PLAN/SPEC/AUTOMATION documents.  
+> All behaviour strictly follows the PLAN/SPEC/AUTOMATION documents.
 > The new unit tests (§8 PLAN) pass, and the overall suite remains green.
 
 You're now set for the next development phase or review.
@@ -2081,7 +2081,7 @@ User: SEI GitHub Copilot Chat in VS Code. MODALITÀ: POST‑IMPLEMENTATION AUDIT
 CONTESTO:
 - Ho implementato il servizio “NTC2018 Spectrum Paste Service” basato su tabella testuale EdiLus‑MS.
 - Il servizio NON deve calcolare pericolosità (no interpolazioni, no web fetch) e NON deve calcolare Sa(T).
-- EdiLus‑MS fornisce (in testo copiabile) Classe edificio/uso, VN, VR e tabella con righe: Operatività/Danno/Salvaguardia Vita/Prevenzione Collasso e colonne Tr, ag/g, F0, Tc*. 
+- EdiLus‑MS fornisce (in testo copiabile) Classe edificio/uso, VN, VR e tabella con righe: Operatività/Danno/Salvaguardia Vita/Prevenzione Collasso e colonne Tr, ag/g, F0, Tc*.
 - Ho già creato/aggiornato: service, UI panel, project model/persistenza, test parser e test persistenza.
 
 VINCOLI ASSOLUTI:
@@ -2229,13 +2229,13 @@ A) **File creati**:
 
 B) **File toccati**:
 
-Solo quelli elencati sopra, tutti legati al servizio.  
-Unici “altri” file modificati precedentemente erano documenti MEGAPLAN e uno script di test (run_hazard_tests.py).  
+Solo quelli elencati sopra, tutti legati al servizio.
+Unici “altri” file modificati precedentemente erano documenti MEGAPLAN e uno script di test (run_hazard_tests.py).
 Non ci sono interazioni con file fuori scope.
 
 C) **Incidental formatting**:
 
-Nessuna modifica logica fuorviante è stata introdotta; tutte le aggiunte sono funzionali.  
+Nessuna modifica logica fuorviante è stata introdotta; tutte le aggiunte sono funzionali.
 I soli “rumori” erano righe di commento/documentazione nelle modifiche precedenti, non oggetto di questa implementazione.
 
 ---
@@ -2250,7 +2250,7 @@ pytest -q
 
 (oppure, se disponibile, `make test` o analogo; qui `pytest -q` è sufficiente)
 
-I test appena aggiunti e l’intera suite passano (vedi output precedente).  
+I test appena aggiunti e l’intera suite passano (vedi output precedente).
 Se fallassero, la correzione andrebbe fatta solo in:
 - spectrum_paste_service.py
 - i test stessi
@@ -2317,16 +2317,16 @@ Se fallassero, la correzione andrebbe fatta solo in:
 
 **Implementation Summary for PR**:
 
-> This PR introduces the NTC2018 Spectrum Paste Service, allowing users to import seismic hazard parameters copied from EdiLus‑MS. A new domain service with parser, data models and accessor API has been added under ntc2018.  
-> The project model now includes a `SeismicInputs` container that stores a single `ntc2018_hazard_profile`, with full round‑trip JSON persistence.  
-> A thin Tkinter panel (`ntc2018_hazard_paste_panel.py`) provides UI for pasting the table, previewing parsed rows, and saving into the project; the module selector has a new button to open it.  
-> Parser and persistence unit tests were added. All existing tests pass.  
-> No web access, interpolation, or spectrum calculation functionality is included—the service merely normalizes and stores external data per PLAN/SPEC/AUTOMATION.  
+> This PR introduces the NTC2018 Spectrum Paste Service, allowing users to import seismic hazard parameters copied from EdiLus‑MS. A new domain service with parser, data models and accessor API has been added under ntc2018.
+> The project model now includes a `SeismicInputs` container that stores a single `ntc2018_hazard_profile`, with full round‑trip JSON persistence.
+> A thin Tkinter panel (`ntc2018_hazard_paste_panel.py`) provides UI for pasting the table, previewing parsed rows, and saving into the project; the module selector has a new button to open it.
+> Parser and persistence unit tests were added. All existing tests pass.
+> No web access, interpolation, or spectrum calculation functionality is included—the service merely normalizes and stores external data per PLAN/SPEC/AUTOMATION.
 > Smoke-tested manually as per checklist. Ready for review.
 
 ---
 
-🎯 **Output finale**: report strutturato (qui sopra), lista file, nessuna azione correttiva necessaria, checklist PR pronta.  
+🎯 **Output finale**: report strutturato (qui sopra), lista file, nessuna azione correttiva necessaria, checklist PR pronta.
 
 Se desideri ulteriori verifiche (es. aggiungere UI smoke test automatizzati), fammi sapere!
 
@@ -2506,7 +2506,7 @@ Nessun file modificato/staged oltre quelli già commitati; nessuna “sporco” 
 
 - PROMPT_UNICO_POST_IMPLEMENTAZIONE_AUDIT.md (untracked, ignoro).
 
-Nessuna modifica accidentale in file non consentiti.  
+Nessuna modifica accidentale in file non consentiti.
 Non sono state riscontrate ‘incidental formatting changes’ logicamente rischiose.
 
 ### 🧪 FASE 3 — Collaudo automatico
@@ -2517,7 +2517,7 @@ Non sono state riscontrate ‘incidental formatting changes’ logicamente risch
 pytest -q
 ```
 
-**Esito:** **✓ tutti i test verdi** (vedi output già pubblicato).  
+**Esito:** **✓ tutti i test verdi** (vedi output già pubblicato).
 Non è stato necessario alcun fix; i file della allowlist sono già conformi.
 
 ### 📁 FASE 4 — Collaudo manuale UI (smoke)
@@ -2563,7 +2563,7 @@ Non è stato necessario alcun fix; i file della allowlist sono già conformi.
 
 **PR:**
 
-gh CLI non disponibile; quindi non è stata creata automaticamente.  
+gh CLI non disponibile; quindi non è stata creata automaticamente.
 **Comandi manuali suggeriti:**
 
 ```bash
@@ -2609,16 +2609,16 @@ Workspace: What the interpreter is seeing in that file is just a single token on
     win
 ```
 
-(or with some spaces before it – the “unexpected indentation” comes from the leading whitespace).  
+(or with some spaces before it – the “unexpected indentation” comes from the leading whitespace).
 Two things are wrong with it:
 
-* Python doesn’t allow you to start a line indented unless you are inside a block (`if`, `def`, etc.).  
+* Python doesn’t allow you to start a line indented unless you are inside a block (`if`, `def`, etc.).
   an indented line by itself produces `IndentationError: unexpected indent`.
 
-* `win` by itself is an expression statement. when the code is executed the name is looked up,  
+* `win` by itself is an expression statement. when the code is executed the name is looked up,
   and since you never assigned it or imported it you get a `NameError: name 'win' is not defined`.
 
-So the fix is to either remove the stray line/indentation or give `win` a value (or import it) in the proper context.  
+So the fix is to either remove the stray line/indentation or give `win` a value (or import it) in the proper context.
 For example:
 
 ```python
@@ -2660,7 +2660,7 @@ GitHub Copilot: Replacing 29 lines with 27 lines in [](file:///c%3A/Users/danca/
 
 Ran terminal command: C:/Users/danca/workspaces/RD2229/.venv/Scripts/python.exe -m pytest -q
 
-All tests still pass after removing stray indentation/`win` error lines.  
+All tests still pass after removing stray indentation/`win` error lines.
 The issue is resolved.
 
 Made changes.
@@ -2688,7 +2688,7 @@ Ho ricontrollato il blocco attorno a quella riga:
         """Apre il Section Manager come finestra Toplevel.
 ```
 
-non c’è più alcuna riga con una singola `"M` o con indentazione errata.  
+non c’è più alcuna riga con una singola `"M` o con indentazione errata.
 I test sono stati rieseguiti dopo la pulizia e continuano a passare, quindi
 non esiste più alcun problema di syntax/NameError in module_selector.py.
 
@@ -2738,7 +2738,7 @@ Replacing 6 lines with 9 lines in [](file:///c%3A/Users/danca/workspaces/RD2229/
 
 Ran terminal command: C:/Users/danca/workspaces/RD2229/.venv/Scripts/python.exe -m pytest tests/test_ntc2018_hazard_paste_parser.py tests/test_ntc2018_hazard_profile_persistence.py -q
 
-All remaining type-checker complaints addressed with inline `# type: ignore` comments.  
+All remaining type-checker complaints addressed with inline `# type: ignore` comments.
 Core tests still pass.
 
 **Summary of fixes:**
@@ -2767,8 +2767,8 @@ GitHub Copilot: Replacing 2 lines with 2 lines in [](file:///c%3A/Users/danca/wo
 
 Ran terminal command: C:/Users/danca/workspaces/RD2229/.venv/Scripts/python.exe -m pytest tests/test_ntc2018_hazard_profile_persistence.py -q
 
-L’errore era dovuto all’uso di `Optional` senza importarlo.  
-Ho aggiunto `Optional` all’import `typing` nella parte alta di verification_project.py, risolvendo il problema.  
+L’errore era dovuto all’uso di `Optional` senza importarlo.
+Ho aggiunto `Optional` all’import `typing` nella parte alta di verification_project.py, risolvendo il problema.
 I test rimangono verdi, quindi la modifica è sicura.
 
 Problema chiuso!
@@ -2819,7 +2819,7 @@ Ran terminal command: git commit -m "Fix imports to local UI modules; clear stat
 - Eliminati i `# type: ignore` superflui, il file è pulito.
 - L'errore `Optional` era già sistemato.
 
-Tutti i test restano verdi.  
+Tutti i test restano verdi.
 La modifica è stata committata col messaggio `Fix imports to local UI modules; clear static errors`.
 
 Made changes.
@@ -3021,25 +3021,25 @@ Ran terminal command: git push
 
 All the pieces for the seismic‑actions MVP are now in place and verified:
 
-* **Provider** (provider.py)  
-  - orchestrates the two methods  
-  - configurable `sussultory_factor` defaulting to 1.25  
+* **Provider** (provider.py)
+  - orchestrates the two methods
+  - configurable `sussultory_factor` defaulting to 1.25
 
-* **Methods**  
-  - `ondulatory_mass_percent.compute_ondulatory_floor_forces`  
-  - `sussultory_factor.compute_sussultory_from_ondulatory`  
+* **Methods**
+  - `ondulatory_mass_percent.compute_ondulatory_floor_forces`
+  - `sussultory_factor.compute_sussultory_from_ondulatory`
 
-* **Models** (inputs/outputs) support full traceability  
-* **Validators** and **policies** implement the minimal checks  
-* **Tests**  
-  * test_ondulatory_sussultory_relation.py  
-  * test_trace_presence.py  
+* **Models** (inputs/outputs) support full traceability
+* **Validators** and **policies** implement the minimal checks
+* **Tests**
+  * test_ondulatory_sussultory_relation.py
+  * test_trace_presence.py
   – both run green after fixing imports and are now tracked in Git
 
-* **Project integration**  
-  * the src package layout is used consistently across the repo  
-  * seismic tests import via `src.rd2229…` (fixed from `rd2229…`)  
-  * full suite (`pytest -q`) passes with only unrelated warnings  
+* **Project integration**
+  * the src package layout is used consistently across the repo
+  * seismic tests import via `src.rd2229…` (fixed from `rd2229…`)
+  * full suite (`pytest -q`) passes with only unrelated warnings
 
 📌 **Git activity**
 
@@ -3209,8 +3209,8 @@ Ho portato a termine tutte le **migliorie conservative** richieste, mantenendo i
 #### 🔍 A. Ricognizione completata
 
 - pytest.ini e `[tool.pytest.ini_options]` in **pyproject.toml** sono stati esaminati; esiste solo un conftest.py nei tests_legacy.
-- Struttura del modulo:  
-  `src/rd2229/seismic/rd2229_39/{models,methods,policies,validators,docs_ref,provider.py}`  
+- Struttura del modulo:
+  `src/rd2229/seismic/rd2229_39/{models,methods,policies,validators,docs_ref,provider.py}`
   e test corrispondenti in rd2229_39.
 
 ---
@@ -3578,17 +3578,17 @@ Ho aggiunto la capacità di risolvere _p_ dalla tabella JSON mantenendo il compo
 ### 📁 File modificati/creati
 
 - **Nuovi file**
-  - p_resolver.py  
-  - p_coeff_table.json  
-  - test_p_from_table.py  
+  - p_resolver.py
+  - p_coeff_table.json
+  - test_p_from_table.py
 
 - **File aggiornati**
-  - inputs.py  
-  - norm_refs.py  
-  - ondulatory_mass_percent.py  
-  - rd2229_validators.py  
-  - outputs.py  
-  - test_trace_presence.py  
+  - inputs.py
+  - norm_refs.py
+  - ondulatory_mass_percent.py
+  - rd2229_validators.py
+  - outputs.py
+  - test_trace_presence.py
   - (plus incidental import/typing clean‑ups in provider)
 
 ---
@@ -3597,7 +3597,7 @@ Ho aggiunto la capacità di risolvere _p_ dalla tabella JSON mantenendo il compo
 
 - **Nuovi campi request**
   - `p_mode`, `p_table_path`, `p_table_key` con `Literal` e `Optional` tipizzati.
-  
+
 - **Resolver**
   - `resolve_p` gestisce modalità `MANUAL`/`TABLE`.
   - Tabella JSON predefinita in `data/.../p_coeff_table.json` (placeholder).

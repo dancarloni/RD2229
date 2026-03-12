@@ -26,6 +26,7 @@ class PDFReportRenderer:
         if self._weasyprint_available is None:
             try:
                 import weasyprint  # noqa: F401
+
                 self._weasyprint_available = True
             except ImportError:
                 self._weasyprint_available = False
@@ -48,6 +49,7 @@ class PDFReportRenderer:
 
         if self._check_weasyprint():
             import weasyprint
+
             doc = weasyprint.HTML(string=html_content)
             doc.write_pdf(output_path)
             logger.info("Report PDF generato in '%s'.", output_path)
@@ -69,4 +71,5 @@ class PDFReportRenderer:
     def render_html_only(self, data: dict[str, Any]) -> str:
         """Genera solo il contenuto HTML (senza conversione PDF)."""
         from .renderer_html import HTMLReportRenderer
+
         return HTMLReportRenderer().render(data)

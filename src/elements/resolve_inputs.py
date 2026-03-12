@@ -59,9 +59,21 @@ def resolve_verification_inputs(
     for el in element_repo.list_all():
         if el.material is not None:
             m = el.material
-            for key in ("f_ck", "f_cd", "f_yd", "f_yk", "E_cm", "E_s",
-                        "f_ctm", "sigma_c_adm", "sigma_s_adm",
-                        "tau_c1_adm", "n_omogenizzazione", "gamma_c", "gamma_s"):
+            for key in (
+                "f_ck",
+                "f_cd",
+                "f_yd",
+                "f_yk",
+                "E_cm",
+                "E_s",
+                "f_ctm",
+                "sigma_c_adm",
+                "sigma_s_adm",
+                "tau_c1_adm",
+                "n_omogenizzazione",
+                "gamma_c",
+                "gamma_s",
+            ):
                 val = m.get_param(key)
                 if val is not None:
                     mat_params[key] = float(val)

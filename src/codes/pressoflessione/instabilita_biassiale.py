@@ -78,8 +78,8 @@ def amplifica_momenti_biassiale(
 
     # Carichi critici Euleriani (0.4*Ec per viscosita')
     E_rid = 0.4 * E_c_kgcm2
-    Pcr_x = math.pi ** 2 * E_rid * I_x / l0_x_cm ** 2 if l0_x_cm > 0 else float("inf")
-    Pcr_y = math.pi ** 2 * E_rid * I_y / l0_y_cm ** 2 if l0_y_cm > 0 else float("inf")
+    Pcr_x = math.pi**2 * E_rid * I_x / l0_x_cm**2 if l0_x_cm > 0 else float("inf")
+    Pcr_y = math.pi**2 * E_rid * I_y / l0_y_cm**2 if l0_y_cm > 0 else float("inf")
 
     # Coefficienti amplificazione momento
     N_abs = abs(N_kg)

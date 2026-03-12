@@ -25,6 +25,7 @@ from .modello_telaio import AstaTelaio, CaricoAsta, TipoCarico
 # FORMULE MIP ELEMENTARI
 # ==============================================================================
 
+
 def mip_uniforme(w: float, L: float) -> tuple[float, float]:
     """MIP per carico distribuito uniforme verso il basso su trave incastrata.
 
@@ -239,6 +240,7 @@ def mip_cedimento(
 # CALCOLO MIP GLOBALE PER ASTA
 # ==============================================================================
 
+
 def calcola_mip_asta(
     asta: AstaTelaio,
     L: float,
@@ -271,9 +273,7 @@ def calcola_mip_asta(
     M_j_tot = 0.0
     contributi: list[dict] = []
     passaggi: list[str] = []
-    ha_peso_proprio_esplicito = any(
-        c.tipo == TipoCarico.PESO_PROPRIO for c in asta.carichi
-    )
+    ha_peso_proprio_esplicito = any(c.tipo == TipoCarico.PESO_PROPRIO for c in asta.carichi)
 
     # ---- Peso proprio automatico ----
     if includi_peso_proprio and not ha_peso_proprio_esplicito:
@@ -282,18 +282,18 @@ def calcola_mip_asta(
             M_i, M_j = mip_uniforme(w_pp, L)
             M_i_tot += M_i
             M_j_tot += M_j
-            contributi.append({
-                "descrizione": "Peso proprio",
-                "tipo": "peso_proprio",
-                "w": round(w_pp, 4),
-                "L": round(L, 1),
-                "formula": "±wL²/12",
-                "M_i": round(M_i, 1),
-                "M_j": round(M_j, 1),
-            })
-            passaggi.append(
-                f"  PP: w={w_pp:.4f} kg/cm → M_i={M_i:.1f}, M_j={M_j:.1f} kg·cm"
+            contributi.append(
+                {
+                    "descrizione": "Peso proprio",
+                    "tipo": "peso_proprio",
+                    "w": round(w_pp, 4),
+                    "L": round(L, 1),
+                    "formula": "±wL²/12",
+                    "M_i": round(M_i, 1),
+                    "M_j": round(M_j, 1),
+                }
             )
+            passaggi.append(f"  PP: w={w_pp:.4f} kg/cm → M_i={M_i:.1f}, M_j={M_j:.1f} kg·cm")
 
     # ---- Carichi espliciti ----
     for carico in asta.carichi:
@@ -302,24 +302,22 @@ def calcola_mip_asta(
         M_j_tot += M_j
 
         label = _etichetta_carico(carico)
-        contributi.append({
-            "descrizione": label,
-            "tipo": carico.tipo.value,
-            "valore_sx": carico.valore_sx,
-            "valore_dx": carico.valore_dx,
-            "posizione_a": carico.posizione_a,
-            "L": round(L, 1),
-            "formula": _formula_carico(carico),
-            "M_i": round(M_i, 1),
-            "M_j": round(M_j, 1),
-        })
-        passaggi.append(
-            f"  {label}: M_i={M_i:.1f}, M_j={M_j:.1f} kg·cm"
+        contributi.append(
+            {
+                "descrizione": label,
+                "tipo": carico.tipo.value,
+                "valore_sx": carico.valore_sx,
+                "valore_dx": carico.valore_dx,
+                "posizione_a": carico.posizione_a,
+                "L": round(L, 1),
+                "formula": _formula_carico(carico),
+                "M_i": round(M_i, 1),
+                "M_j": round(M_j, 1),
+            }
         )
+        passaggi.append(f"  {label}: M_i={M_i:.1f}, M_j={M_j:.1f} kg·cm")
 
-    passaggi.append(
-        f"  TOTALE: M_i={M_i_tot:.1f}, M_j={M_j_tot:.1f} kg·cm"
-    )
+    passaggi.append(f"  TOTALE: M_i={M_i_tot:.1f}, M_j={M_j_tot:.1f} kg·cm")
 
     return {
         "M_i": M_i_tot,
@@ -366,10 +364,7 @@ def _etichetta_carico(carico: CaricoAsta) -> str:
     if t == TipoCarico.DISTRIBUITO_UNIFORME:
         return f"Distr. uniforme q={carico.valore_sx:.3g} kg/cm"
     elif t == TipoCarico.DISTRIBUITO_TRAPEZ:
-        return (
-            f"Distr. trapez. q_i={carico.valore_sx:.3g}, "
-            f"q_j={carico.valore_dx:.3g} kg/cm"
-        )
+        return f"Distr. trapez. q_i={carico.valore_sx:.3g}, " f"q_j={carico.valore_dx:.3g} kg/cm"
     elif t == TipoCarico.CONCENTRATO:
         return f"Concentrato P={carico.valore_sx:.3g} kg @ a={carico.posizione_a:.1f} cm"
     elif t == TipoCarico.MOMENTO_NODO:

@@ -115,9 +115,7 @@ def get_cpi_values(
             cpi = compute_cpi_detailed(config.mu)
             return (cpi, cpi)
 
-        logger.warning(
-            "Metodo 'detailed' richiede mu o dominant_opening; uso semplificato."
-        )
+        logger.warning("Metodo 'detailed' richiede mu o dominant_opening; uso semplificato.")
         return compute_cpi_simplified()
 
     logger.warning("Metodo pressione interna '%s' non riconosciuto; uso semplificato.", method)

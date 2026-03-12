@@ -66,7 +66,10 @@ def reset_fire_table_cache() -> None:
 
 
 def _lookup_fire_requirements(
-    table: dict, element_type: str, rating_minutes: int, exposure_sides: int,
+    table: dict,
+    element_type: str,
+    rating_minutes: int,
+    exposure_sides: int,
 ) -> dict[str, float] | None:
     """Cerca i requisiti minimi dalla tabella, con fallback per tipo elemento.
 
@@ -205,16 +208,24 @@ def run_rc_fire_check(
         ok_dim = h_mm >= h_min_mm
         metrics["ok_dimensione"] = ok_dim
         if ok_dim:
-            messages.append(f"OK – altezza {h_mm:.1f} mm >= h_min {h_min_mm:.1f} mm (R{required_min}).")
+            messages.append(
+                f"OK – altezza {h_mm:.1f} mm >= h_min {h_min_mm:.1f} mm (R{required_min})."
+            )
         else:
-            messages.append(f"KO – altezza {h_mm:.1f} mm < h_min {h_min_mm:.1f} mm (R{required_min}).")
+            messages.append(
+                f"KO – altezza {h_mm:.1f} mm < h_min {h_min_mm:.1f} mm (R{required_min})."
+            )
     else:
         ok_dim = b_mm >= b_min_mm
         metrics["ok_larghezza"] = ok_dim
         if ok_dim:
-            messages.append(f"OK – larghezza {b_mm:.1f} mm >= b_min {b_min_mm:.1f} mm (R{required_min}).")
+            messages.append(
+                f"OK – larghezza {b_mm:.1f} mm >= b_min {b_min_mm:.1f} mm (R{required_min})."
+            )
         else:
-            messages.append(f"KO – larghezza {b_mm:.1f} mm < b_min {b_min_mm:.1f} mm (R{required_min}).")
+            messages.append(
+                f"KO – larghezza {b_mm:.1f} mm < b_min {b_min_mm:.1f} mm (R{required_min})."
+            )
 
     # Verifica asse-distanza armatura (copriferro)
     if cover_mm is None:
@@ -224,9 +235,13 @@ def run_rc_fire_check(
         ok_a = cover_mm >= a_min_mm
         metrics["ok_asse_distanza"] = ok_a
         if ok_a:
-            messages.append(f"OK – copriferro {cover_mm:.1f} mm >= a_min {a_min_mm:.1f} mm (R{required_min}).")
+            messages.append(
+                f"OK – copriferro {cover_mm:.1f} mm >= a_min {a_min_mm:.1f} mm (R{required_min})."
+            )
         else:
-            messages.append(f"KO – copriferro {cover_mm:.1f} mm < a_min {a_min_mm:.1f} mm (R{required_min}).")
+            messages.append(
+                f"KO – copriferro {cover_mm:.1f} mm < a_min {a_min_mm:.1f} mm (R{required_min})."
+            )
 
     overall_ok = ok_dim and (cover_mm is not None) and ok_a
     status = "OK" if overall_ok else "KO"
@@ -284,8 +299,10 @@ def run_fire_check_standalone(
         "ok": ok_dim and ok_a,
         "messages": messages,
         "metrics": {
-            "b_min_mm": b_min, "a_min_mm": a_min,
-            "b_mm": b_mm, "cover_mm": cover_mm,
+            "b_min_mm": b_min,
+            "a_min_mm": a_min,
+            "b_mm": b_mm,
+            "cover_mm": cover_mm,
             "rating_minutes": rating_minutes,
         },
     }

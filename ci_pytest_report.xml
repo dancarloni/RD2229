@@ -12,7 +12,7 @@ monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025DA266DBA0&g
         mock_repo = MagicMock()
         mock_repo.add_section = MagicMock(return_value=True)
         monkeypatch.setattr("sections_app.ui.module_selector.GeometryRepository", lambda *a, **kw: mock_repo)
-    
+
         controller.load_sections("test.csv")
         # repository should be created and add_section called twice
         assert hasattr(controller, "section_repo")

@@ -16,6 +16,7 @@ from src.wind.models import InternalPressureConfig
 # compute_cpi_simplified
 # ===========================================================================
 
+
 class TestCpiSimplified:
     def test_returns_tuple(self):
         result = compute_cpi_simplified()
@@ -35,6 +36,7 @@ class TestCpiSimplified:
 # ===========================================================================
 # compute_cpi_detailed — EC1 Fig. 7.13
 # ===========================================================================
+
 
 class TestCpiDetailed:
     def test_mu_0_negative(self):
@@ -86,6 +88,7 @@ class TestCpiDetailed:
 # compute_cpi_dominant_opening
 # ===========================================================================
 
+
 class TestCpiDominantOpening:
     def test_positive_cpe(self):
         """Dominant opening on windward face (cpe > 0)."""
@@ -105,6 +108,7 @@ class TestCpiDominantOpening:
 # ===========================================================================
 # get_cpi_values — router
 # ===========================================================================
+
 
 class TestGetCpiValues:
     def test_none_config_simplified(self):
@@ -127,7 +131,8 @@ class TestGetCpiValues:
 
     def test_detailed_dominant_opening(self):
         config = InternalPressureConfig(
-            method="detailed", dominant_opening=True,
+            method="detailed",
+            dominant_opening=True,
         )
         v1, v2 = get_cpi_values(config, cpe_dominant=0.8)
         expected = 0.75 * 0.8

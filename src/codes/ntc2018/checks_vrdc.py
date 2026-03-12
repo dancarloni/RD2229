@@ -84,7 +84,7 @@ def vrdc_no_stirrups(inputs: dict) -> dict:
     steps.append(f"V_Rd,c (formula) = {V_Rd_c_1:.1f} N")
 
     # v_min
-    v_min = 0.035 * k ** 1.5 * f_ck ** 0.5
+    v_min = 0.035 * k**1.5 * f_ck**0.5
     V_Rd_c_min = (v_min + k_1 * sigma_cp) * b_w * d
     steps.append(f"V_Rd,c,min (v_min={v_min:.4f}) = {V_Rd_c_min:.1f} N")
 
@@ -97,7 +97,9 @@ def vrdc_no_stirrups(inputs: dict) -> dict:
     if V_Ed > 0:
         utilisation = V_Ed / V_Rd_c if V_Rd_c > 0 else 999.0
         ok = V_Ed <= V_Rd_c
-        steps.append(f"V_Ed = {V_Ed:.1f} N, utilisation = {utilisation:.4f} → {'OK' if ok else 'NON OK'}")
+        steps.append(
+            f"V_Ed = {V_Ed:.1f} N, utilisation = {utilisation:.4f} → {'OK' if ok else 'NON OK'}"
+        )
     else:
         steps.append("V_Ed non fornito: solo calcolo V_Rd,c")
 

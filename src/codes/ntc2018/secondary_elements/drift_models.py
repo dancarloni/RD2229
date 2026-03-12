@@ -112,6 +112,7 @@ def estimate_drift_global(value: float) -> dict[str, Any]:
 # Utilita' interne
 # ---------------------------------------------------------------------------
 
+
 def _require_positive(spec: dict[str, Any], key: str, label: str) -> float:
     """Estrae e valida un parametro positivo dallo spec."""
     val = spec.get(key)

@@ -47,9 +47,7 @@ class DiagrammaSollecitazioni:
     def __post_init__(self) -> None:
         n = len(self.x_cm)
         if len(self.M_kgcm) != n or len(self.T_kg) != n or len(self.N_kg) != n:
-            raise ValueError(
-                "M_kgcm, T_kg e N_kg devono avere la stessa lunghezza di x_cm."
-            )
+            raise ValueError("M_kgcm, T_kg e N_kg devono avere la stessa lunghezza di x_cm.")
 
     @classmethod
     def da_valori_estremi(
@@ -100,6 +98,7 @@ class DiagrammaSollecitazioni:
         Il diagramma risultante è costante lungo la luce (domanda uniforme).
         Per diagrammi variabili, usare il costruttore diretto.
         """
+
         def _prendi(d: dict, *chiavi: str, default: float = 0.0) -> float:
             for k in chiavi:
                 if k in d and d[k] is not None:
@@ -146,9 +145,9 @@ def grafico_sollecitazioni(
         raise ImportError("matplotlib richiesto per grafico_sollecitazioni.") from exc
 
     x = np.asarray(diagramma.x_cm)
-    M = np.asarray(diagramma.M_kgcm) / 1e4   # kg·cm → t·m
-    T = np.asarray(diagramma.T_kg) / 1e3      # kg → t
-    N = np.asarray(diagramma.N_kg) / 1e3      # kg → t
+    M = np.asarray(diagramma.M_kgcm) / 1e4  # kg·cm → t·m
+    T = np.asarray(diagramma.T_kg) / 1e3  # kg → t
+    N = np.asarray(diagramma.N_kg) / 1e3  # kg → t
     zeros = np.zeros_like(x)
 
     crea_fig = ax_M is None or ax_T is None or ax_N is None

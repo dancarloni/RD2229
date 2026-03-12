@@ -65,6 +65,7 @@ class RigaCalcolo:
         unita: Unità di misura del risultato.
         nota: Nota aggiuntiva opzionale (riferimento normativo puntuale).
     """
+
     descrizione: str = ""
     formula: str = ""
     sostituzione: str = ""
@@ -80,6 +81,7 @@ class SezioneInput:
     Attributi:
         parametri: Dizionario {nome: (descrizione, valore, unità)}.
     """
+
     parametri: dict[str, tuple[str, Any, str]] = field(default_factory=dict)
 
 
@@ -96,6 +98,7 @@ class EsitoVerifica:
         nome_domanda: Nome del parametro di domanda (es. "M_Ed").
         nome_capacita: Nome del parametro di capacità (es. "M_Rd").
     """
+
     domanda: float = 0.0
     capacita: float = 0.0
     rapporto_DC: float = 0.0
@@ -195,7 +198,7 @@ class TabulatoCalcolo:
         Restituisce:
             L'esito della verifica.
         """
-        rapporto = domanda / capacita if capacita != 0 else float('inf')
+        rapporto = domanda / capacita if capacita != 0 else float("inf")
         self._esito = EsitoVerifica(
             domanda=domanda,
             capacita=capacita,
@@ -234,8 +237,10 @@ class TabulatoCalcolo:
             righe.append(_centra("DATI DI INPUT", larghezza))
             righe.append("╟" + "─" * larghezza + "╢")
             righe.append(
-                "║ " + f"{'Simbolo':<10} {'Descrizione':<35} {'Valore':>12} {'Unità':<10}" +
-                " " * (larghezza - 69) + "║"
+                "║ "
+                + f"{'Simbolo':<10} {'Descrizione':<35} {'Valore':>12} {'Unità':<10}"
+                + " " * (larghezza - 69)
+                + "║"
             )
             righe.append("╟" + "─" * larghezza + "╢")
             for simbolo, (desc, valore, unita) in self._input.parametri.items():
@@ -253,7 +258,8 @@ class TabulatoCalcolo:
                 # Descrizione
                 righe.append(
                     f"║ {i:>2}. {riga_calc.descrizione}"
-                    + " " * max(0, larghezza - len(f" {i:>2}. {riga_calc.descrizione}") - 1) + "║"
+                    + " " * max(0, larghezza - len(f" {i:>2}. {riga_calc.descrizione}") - 1)
+                    + "║"
                 )
                 # Formula
                 if riga_calc.formula:
@@ -285,7 +291,9 @@ class TabulatoCalcolo:
 
             testo_d = f"     {self._esito.nome_domanda} = {d_str} {self._esito.unita}"
             testo_c = f"     {self._esito.nome_capacita} = {c_str} {self._esito.unita}"
-            testo_dc = f"     D/C = {self._esito.nome_domanda}/{self._esito.nome_capacita} = {dc_str}"
+            testo_dc = (
+                f"     D/C = {self._esito.nome_domanda}/{self._esito.nome_capacita} = {dc_str}"
+            )
             testo_e = f"     Esito: {esito_str}"
 
             for t in [testo_d, testo_c, testo_dc, testo_e]:
@@ -299,7 +307,7 @@ class TabulatoCalcolo:
                 # Gestisci righe lunghe
                 while len(testo_nota) > larghezza - 2:
                     righe.append(f"║ {testo_nota[:larghezza - 2]}" + "║")
-                    testo_nota = "        " + testo_nota[larghezza - 2:]
+                    testo_nota = "        " + testo_nota[larghezza - 2 :]
                 righe.append(f"║{testo_nota}" + " " * max(0, larghezza - len(testo_nota)) + "║")
 
         # Chiusura
@@ -315,48 +323,50 @@ class TabulatoCalcolo:
         """
         html = []
         html.append(f'<div class="tabulato-calcolo" data-modulo="{self.modulo}">')
-        html.append(f'<h3>{_escape_html(self.titolo)}</h3>')
+        html.append(f"<h3>{_escape_html(self.titolo)}</h3>")
         html.append(f'<p class="normativa"><b>Normativa:</b> {_escape_html(self.normativa)}</p>')
 
         # Input
         if self._input.parametri:
-            html.append('<h4>Dati di Input</h4>')
+            html.append("<h4>Dati di Input</h4>")
             html.append(
                 '<table class="input-table" border="1" cellpadding="4" cellspacing="0" '
                 'style="border-collapse:collapse;">'
             )
-            html.append('<tr style="background:#e8e8e8;"><th>Simbolo</th>'
-                        '<th>Descrizione</th><th>Valore</th><th>Unità</th></tr>')
+            html.append(
+                '<tr style="background:#e8e8e8;"><th>Simbolo</th>'
+                "<th>Descrizione</th><th>Valore</th><th>Unità</th></tr>"
+            )
             for simbolo, (desc, valore, unita) in self._input.parametri.items():
                 val_str = _formatta_numero(valore)
                 html.append(
-                    f'<tr><td><code>{_escape_html(simbolo)}</code></td>'
-                    f'<td>{_escape_html(desc)}</td>'
+                    f"<tr><td><code>{_escape_html(simbolo)}</code></td>"
+                    f"<td>{_escape_html(desc)}</td>"
                     f'<td style="text-align:right;">{val_str}</td>'
-                    f'<td>{_escape_html(unita)}</td></tr>'
+                    f"<td>{_escape_html(unita)}</td></tr>"
                 )
-            html.append('</table>')
+            html.append("</table>")
 
         # Calcolo
         if self._righe_calcolo:
-            html.append('<h4>Passaggi di Calcolo</h4>')
+            html.append("<h4>Passaggi di Calcolo</h4>")
             html.append('<ol class="passaggi-calcolo">')
             for riga in self._righe_calcolo:
-                html.append('<li>')
-                html.append(f'<b>{_escape_html(riga.descrizione)}</b><br>')
+                html.append("<li>")
+                html.append(f"<b>{_escape_html(riga.descrizione)}</b><br>")
                 if riga.formula:
                     html.append(
                         f'<code style="background:#f0f0f0;padding:2px 6px;">'
-                        f'{_escape_html(riga.formula)}</code><br>'
+                        f"{_escape_html(riga.formula)}</code><br>"
                     )
                 if riga.sostituzione:
-                    html.append(f'<code>{_escape_html(riga.sostituzione)}</code><br>')
+                    html.append(f"<code>{_escape_html(riga.sostituzione)}</code><br>")
                 val_str = _formatta_numero(riga.risultato)
-                html.append(f'<b>= {val_str} {_escape_html(riga.unita)}</b>')
+                html.append(f"<b>= {val_str} {_escape_html(riga.unita)}</b>")
                 if riga.nota:
                     html.append(f'<br><i style="color:#666;">Rif.: {_escape_html(riga.nota)}</i>')
-                html.append('</li>')
-            html.append('</ol>')
+                html.append("</li>")
+            html.append("</ol>")
 
         # Esito
         if self._esito:
@@ -366,22 +376,24 @@ class TabulatoCalcolo:
             d_str = _formatta_numero(self._esito.domanda)
             c_str = _formatta_numero(self._esito.capacita)
 
-            html.append(f'<div class="esito" style="border:2px solid {colore};'
-                        f'padding:12px;margin:8px 0;border-radius:6px;">')
+            html.append(
+                f'<div class="esito" style="border:2px solid {colore};'
+                f'padding:12px;margin:8px 0;border-radius:6px;">'
+            )
             html.append(f'<h4 style="color:{colore};margin:0;">Esito: {esito_txt}</h4>')
             html.append(
-                f'<p>{_escape_html(self._esito.nome_domanda)} = {d_str} {_escape_html(self._esito.unita)}<br>'
-                f'{_escape_html(self._esito.nome_capacita)} = {c_str} {_escape_html(self._esito.unita)}<br>'
-                f'<b>D/C = {dc_str}</b></p>'
+                f"<p>{_escape_html(self._esito.nome_domanda)} = {d_str} {_escape_html(self._esito.unita)}<br>"
+                f"{_escape_html(self._esito.nome_capacita)} = {c_str} {_escape_html(self._esito.unita)}<br>"
+                f"<b>D/C = {dc_str}</b></p>"
             )
-            html.append('</div>')
+            html.append("</div>")
 
         # Note
         for nota in self._note_aggiuntive:
             html.append(f'<p class="nota"><i>Nota: {_escape_html(nota)}</i></p>')
 
-        html.append('</div>')
-        return '\n'.join(html)
+        html.append("</div>")
+        return "\n".join(html)
 
     def come_dizionario(self) -> dict[str, Any]:
         """Esporta il tabulato come dizionario (per serializzazione JSON).
@@ -408,14 +420,16 @@ class TabulatoCalcolo:
             }
 
         for riga in self._righe_calcolo:
-            risultato["calcolo"].append({
-                "descrizione": riga.descrizione,
-                "formula": riga.formula,
-                "sostituzione": riga.sostituzione,
-                "risultato": riga.risultato,
-                "unita": riga.unita,
-                "nota": riga.nota,
-            })
+            risultato["calcolo"].append(
+                {
+                    "descrizione": riga.descrizione,
+                    "formula": riga.formula,
+                    "sostituzione": riga.sostituzione,
+                    "risultato": riga.risultato,
+                    "unita": riga.unita,
+                    "nota": riga.nota,
+                }
+            )
 
         if self._esito:
             risultato["esito"] = {
@@ -432,6 +446,7 @@ class TabulatoCalcolo:
 
 
 # --- Funzioni di utilità ---
+
 
 def _formatta_numero(valore: Any) -> str:
     """Formatta un numero per la visualizzazione nel tabulato."""
@@ -504,7 +519,9 @@ def sezione_cordolo_reticolare(risultato: object) -> str:
 
     # --- Tabella aste ---
     linee.append("  VERIFICHE ASTE")
-    linee.append(f"  {'ID':>4}  {'Tipo':<12}  {'L[cm]':>7}  {'N[kg]':>9}  {'σ[kg/cm²]':>10}  {'Sfrutt':>7}  {'Esito':<12}")
+    linee.append(
+        f"  {'ID':>4}  {'Tipo':<12}  {'L[cm]':>7}  {'N[kg]':>9}  {'σ[kg/cm²]':>10}  {'Sfrutt':>7}  {'Esito':<12}"
+    )
     linee.append("  " + "-" * 68)
     for v in r.verifiche_aste:
         id_asta = v.get("id_asta", "?")
@@ -536,134 +553,139 @@ def sezione_cordolo_reticolare(risultato: object) -> str:
     linee.append(SEP)
 
     return "\n".join(linee)
-def sezione_meccanismo_cantonale(risultato: object) -> str:
-    r = risultato
-    linee = []
-    SEP = '═' * 72
-    sep = '─' * 72
-    linee.append(SEP)
-    linee.append('  RIBALTAMENTO CANTONALE 3D — Verifica Cinematica (Fase E.6.1)')
-    linee.append(SEP)
 
-    # Dati riepilogativi
-    esito = 'VERIFICATO' if getattr(r, 'is_verificato', False) else 'NON VERIFICATO'
-    linee.append(f'  Esito verifica: {esito}')
-    if hasattr(r, 'alpha_0'):
-        linee.append(f'  Moltiplicatore collasso alpha_0 = {r.alpha_0:.4f}')
-    if hasattr(r, 'peso_cuneo_kg'):
-        linee.append(f'  Peso cuneo cinematico V_c = {r.peso_cuneo_kg:.1f} kg')
-    if hasattr(r, 'momento_ribaltante_kg_cm'):
-        linee.append(f'  M_ribaltante = {r.momento_ribaltante_kg_cm:.1f} kg*cm')
-        linee.append(f'  M_stabilizzante = {r.momento_stabilizzante_kg_cm:.1f} kg*cm')
-    linee.append(sep)
-
-    # Lista passaggi calcolo
-    passaggi = getattr(r, 'passaggi_calcolo', [])
-    if passaggi:
-        linee.append('  PASSAGGI DI CALCOLO:')
-        for p in passaggi:
-            linee.append(f'   - {p}')
-        linee.append(sep)
-
-    # Warnings
-    warnings = getattr(r, 'warnings', [])
-    if warnings:
-        linee.append('  WARNINGS E LIMITAZIONI:')
-        for w in warnings:
-            linee.append(f'   ! {w}')
-        linee.append(sep)
-
-    return '\n'.join(linee)
-
-def sezione_diagnostica_angolo(risultato: object) -> str:
-    r = risultato
-    linee = []
-    SEP = '═' * 72
-    sep = '─' * 72
-    linee.append(SEP)
-    linee.append('  DIAGNOSTICA APERTURE D\'ANGOLO — Riduzione Cantonale (Fase E.6.2)')
-    linee.append(SEP)
-
-    status = getattr(r, 'status', 'N/D')
-    k = getattr(r, 'coeff_riduzione_k', 1.0)
-    d = getattr(r, 'distanza_minima_richiesta_cm', 0.0)
-
-    linee.append(f'  Stato diagnostica: {status}')
-    linee.append(f'  Distanza minima richiesta (d_min) = {d:.1f} cm')
-    linee.append(f'  Coefficiente di riduzione (k)     = {k:.3f}')
-    linee.append(sep)
-
-    passaggi = getattr(r, 'passaggi_calcolo', [])
-    if passaggi:
-        linee.append('  LOG DECISIONALE:')
-        for p in passaggi:
-            linee.append(f'   - {p}')
-        linee.append(sep)
-
-    return '\n'.join(linee)
 
 def sezione_meccanismo_cantonale(risultato: object) -> str:
     r = risultato
     linee = []
-    SEP = '═' * 72
-    sep = '─' * 72
+    SEP = "═" * 72
+    sep = "─" * 72
     linee.append(SEP)
-    linee.append('  RIBALTAMENTO CANTONALE 3D — Verifica Cinematica (Fase E.6.1)')
+    linee.append("  RIBALTAMENTO CANTONALE 3D — Verifica Cinematica (Fase E.6.1)")
     linee.append(SEP)
 
     # Dati riepilogativi
-    esito = 'VERIFICATO' if getattr(r, 'is_verificato', False) else 'NON VERIFICATO'
-    linee.append(f'  Esito verifica: {esito}')
-    if hasattr(r, 'alpha_0'):
-        linee.append(f'  Moltiplicatore collasso alpha_0 = {r.alpha_0:.4f}')
-    if hasattr(r, 'peso_cuneo_kg'):
-        linee.append(f'  Peso cuneo cinematico V_c = {r.peso_cuneo_kg:.1f} kg')
-    if hasattr(r, 'momento_ribaltante_kg_cm'):
-        linee.append(f'  M_ribaltante = {r.momento_ribaltante_kg_cm:.1f} kg*cm')
-        linee.append(f'  M_stabilizzante = {r.momento_stabilizzante_kg_cm:.1f} kg*cm')
+    esito = "VERIFICATO" if getattr(r, "is_verificato", False) else "NON VERIFICATO"
+    linee.append(f"  Esito verifica: {esito}")
+    if hasattr(r, "alpha_0"):
+        linee.append(f"  Moltiplicatore collasso alpha_0 = {r.alpha_0:.4f}")
+    if hasattr(r, "peso_cuneo_kg"):
+        linee.append(f"  Peso cuneo cinematico V_c = {r.peso_cuneo_kg:.1f} kg")
+    if hasattr(r, "momento_ribaltante_kg_cm"):
+        linee.append(f"  M_ribaltante = {r.momento_ribaltante_kg_cm:.1f} kg*cm")
+        linee.append(f"  M_stabilizzante = {r.momento_stabilizzante_kg_cm:.1f} kg*cm")
     linee.append(sep)
 
     # Lista passaggi calcolo
-    passaggi = getattr(r, 'passaggi_calcolo', [])
+    passaggi = getattr(r, "passaggi_calcolo", [])
     if passaggi:
-        linee.append('  PASSAGGI DI CALCOLO:')
+        linee.append("  PASSAGGI DI CALCOLO:")
         for p in passaggi:
-            linee.append(f'   - {p}')
+            linee.append(f"   - {p}")
         linee.append(sep)
 
     # Warnings
-    warnings = getattr(r, 'warnings', [])
+    warnings = getattr(r, "warnings", [])
     if warnings:
-        linee.append('  WARNINGS E LIMITAZIONI:')
+        linee.append("  WARNINGS E LIMITAZIONI:")
         for w in warnings:
-            linee.append(f'   ! {w}')
+            linee.append(f"   ! {w}")
         linee.append(sep)
 
-    return '\n'.join(linee)
+    return "\n".join(linee)
+
 
 def sezione_diagnostica_angolo(risultato: object) -> str:
     r = risultato
     linee = []
-    SEP = '═' * 72
-    sep = '─' * 72
+    SEP = "═" * 72
+    sep = "─" * 72
     linee.append(SEP)
-    linee.append('  DIAGNOSTICA APERTURE D\'ANGOLO — Riduzione Cantonale (Fase E.6.2)')
+    linee.append("  DIAGNOSTICA APERTURE D'ANGOLO — Riduzione Cantonale (Fase E.6.2)")
     linee.append(SEP)
 
-    status = getattr(r, 'status', 'N/D')
-    k = getattr(r, 'coeff_riduzione_k', 1.0)
-    d = getattr(r, 'distanza_minima_richiesta_cm', 0.0)
+    status = getattr(r, "status", "N/D")
+    k = getattr(r, "coeff_riduzione_k", 1.0)
+    d = getattr(r, "distanza_minima_richiesta_cm", 0.0)
 
-    linee.append(f'  Stato diagnostica: {status}')
-    linee.append(f'  Distanza minima richiesta (d_min) = {d:.1f} cm')
-    linee.append(f'  Coefficiente di riduzione (k)     = {k:.3f}')
+    linee.append(f"  Stato diagnostica: {status}")
+    linee.append(f"  Distanza minima richiesta (d_min) = {d:.1f} cm")
+    linee.append(f"  Coefficiente di riduzione (k)     = {k:.3f}")
     linee.append(sep)
 
-    passaggi = getattr(r, 'passaggi_calcolo', [])
+    passaggi = getattr(r, "passaggi_calcolo", [])
     if passaggi:
-        linee.append('  LOG DECISIONALE:')
+        linee.append("  LOG DECISIONALE:")
         for p in passaggi:
-            linee.append(f'   - {p}')
+            linee.append(f"   - {p}")
         linee.append(sep)
 
-    return '\n'.join(linee)
+    return "\n".join(linee)
+
+
+def sezione_meccanismo_cantonale(risultato: object) -> str:
+    r = risultato
+    linee = []
+    SEP = "═" * 72
+    sep = "─" * 72
+    linee.append(SEP)
+    linee.append("  RIBALTAMENTO CANTONALE 3D — Verifica Cinematica (Fase E.6.1)")
+    linee.append(SEP)
+
+    # Dati riepilogativi
+    esito = "VERIFICATO" if getattr(r, "is_verificato", False) else "NON VERIFICATO"
+    linee.append(f"  Esito verifica: {esito}")
+    if hasattr(r, "alpha_0"):
+        linee.append(f"  Moltiplicatore collasso alpha_0 = {r.alpha_0:.4f}")
+    if hasattr(r, "peso_cuneo_kg"):
+        linee.append(f"  Peso cuneo cinematico V_c = {r.peso_cuneo_kg:.1f} kg")
+    if hasattr(r, "momento_ribaltante_kg_cm"):
+        linee.append(f"  M_ribaltante = {r.momento_ribaltante_kg_cm:.1f} kg*cm")
+        linee.append(f"  M_stabilizzante = {r.momento_stabilizzante_kg_cm:.1f} kg*cm")
+    linee.append(sep)
+
+    # Lista passaggi calcolo
+    passaggi = getattr(r, "passaggi_calcolo", [])
+    if passaggi:
+        linee.append("  PASSAGGI DI CALCOLO:")
+        for p in passaggi:
+            linee.append(f"   - {p}")
+        linee.append(sep)
+
+    # Warnings
+    warnings = getattr(r, "warnings", [])
+    if warnings:
+        linee.append("  WARNINGS E LIMITAZIONI:")
+        for w in warnings:
+            linee.append(f"   ! {w}")
+        linee.append(sep)
+
+    return "\n".join(linee)
+
+
+def sezione_diagnostica_angolo(risultato: object) -> str:
+    r = risultato
+    linee = []
+    SEP = "═" * 72
+    sep = "─" * 72
+    linee.append(SEP)
+    linee.append("  DIAGNOSTICA APERTURE D'ANGOLO — Riduzione Cantonale (Fase E.6.2)")
+    linee.append(SEP)
+
+    status = getattr(r, "status", "N/D")
+    k = getattr(r, "coeff_riduzione_k", 1.0)
+    d = getattr(r, "distanza_minima_richiesta_cm", 0.0)
+
+    linee.append(f"  Stato diagnostica: {status}")
+    linee.append(f"  Distanza minima richiesta (d_min) = {d:.1f} cm")
+    linee.append(f"  Coefficiente di riduzione (k)     = {k:.3f}")
+    linee.append(sep)
+
+    passaggi = getattr(r, "passaggi_calcolo", [])
+    if passaggi:
+        linee.append("  LOG DECISIONALE:")
+        for p in passaggi:
+            linee.append(f"   - {p}")
+        linee.append(sep)
+
+    return "\n".join(linee)

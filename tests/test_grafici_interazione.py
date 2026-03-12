@@ -19,6 +19,7 @@ from src.grafici.interazione import (
 # PuntoLavoro
 # ---------------------------------------------------------------------------
 
+
 class TestPuntoLavoro:
     def test_costruttore_minimo(self):
         p = PuntoLavoro(N_Ed_kg=5000.0)
@@ -43,6 +44,7 @@ class TestPuntoLavoro:
 # _normalizza_norma
 # ---------------------------------------------------------------------------
 
+
 class TestNormalizzaNorma:
     def test_maiuscolo(self):
         assert _normalizza_norma("ntc2018") == "NTC2018"
@@ -57,6 +59,7 @@ class TestNormalizzaNorma:
 # ---------------------------------------------------------------------------
 # DominioFactory.norme_disponibili
 # ---------------------------------------------------------------------------
+
 
 class TestNormeDisponibili:
     def test_contiene_norme_ta(self):
@@ -78,6 +81,7 @@ class TestNormeDisponibili:
 # DominioFactory.registra (registry custom)
 # ---------------------------------------------------------------------------
 
+
 class TestDominioFactoryRegistra:
     def test_registra_e_usa(self):
         """Una funzione custom registrata deve essere richiamata dalla factory."""
@@ -90,6 +94,7 @@ class TestDominioFactoryRegistra:
         DominioFactory.registra("NORMA_TEST_XYZ", _mia_funzione)
         try:
             from unittest.mock import MagicMock
+
             spec = MagicMock()
             spec.norma = "NORMA_TEST_XYZ"
             risultato = DominioFactory.calcola(spec, norma="NORMA_TEST_XYZ")
@@ -101,6 +106,7 @@ class TestDominioFactoryRegistra:
 
     def test_norma_sconosciuta_raise(self):
         from unittest.mock import MagicMock
+
         spec = MagicMock()
         spec.norma = "NORMA_INESISTENTE_ABC"
         with pytest.raises(ValueError, match="non supportata"):
@@ -111,11 +117,11 @@ class TestDominioFactoryRegistra:
 # sovrapponi_punto_lavoro (headless)
 # ---------------------------------------------------------------------------
 
+
 class TestSovrappontiPuntoLavoro:
     matplotlib = pytest.importorskip("matplotlib")
 
     def test_disegna_senza_errori(self):
-
         import matplotlib.pyplot as plt
 
         fig, ax = plt.subplots()

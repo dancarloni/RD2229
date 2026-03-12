@@ -188,7 +188,10 @@ def compute_shear_area(section: Any) -> tuple[float, float]:
 
     logger.debug(
         "Shear area fallback per '%s' (type=%s): kappa=%.4f, A=%.1f",
-        shape_id, section_type, kx, A,
+        shape_id,
+        section_type,
+        kx,
+        A,
     )
     return (kx * A, ky * A)
 

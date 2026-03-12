@@ -112,7 +112,13 @@ def calcola_alpha_u_alpha_1_da_curva(curva: CurvaPushover) -> float:
     return v_max / v_1
 
 
-def converti_adrs(tagli_base: np.ndarray, spostamenti_top: np.ndarray, m_eff: float, gamma_1: float, g: float = 9.81) -> tuple[np.ndarray, np.ndarray]:
+def converti_adrs(
+    tagli_base: np.ndarray,
+    spostamenti_top: np.ndarray,
+    m_eff: float,
+    gamma_1: float,
+    g: float = 9.81,
+) -> tuple[np.ndarray, np.ndarray]:
     """Converte curva F-delta in Sa-Sd (ADRS)."""
 
     if m_eff <= 0.0 or gamma_1 <= 0.0 or g <= 0.0:
@@ -128,7 +134,9 @@ def converti_adrs(tagli_base: np.ndarray, spostamenti_top: np.ndarray, m_eff: fl
     return sa, sd
 
 
-def punto_prestazione_intersezione(sd_cap: np.ndarray, sa_cap: np.ndarray, sd_dom: np.ndarray, sa_dom: np.ndarray) -> tuple[float, float]:
+def punto_prestazione_intersezione(
+    sd_cap: np.ndarray, sa_cap: np.ndarray, sd_dom: np.ndarray, sa_dom: np.ndarray
+) -> tuple[float, float]:
     """Stima intersezione tra curva capacita e domanda su griglia comune."""
 
     sdc = np.asarray(sd_cap, dtype=float)

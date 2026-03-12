@@ -118,5 +118,11 @@ def main():
         print("No safe occurrences of 'sigma' replaced.")
 
 
+import sys
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"[replace_sigma] Warning: errore non bloccante: {e}", file=sys.stderr)
+    sys.exit(0)

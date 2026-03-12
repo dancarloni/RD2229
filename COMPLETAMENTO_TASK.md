@@ -95,7 +95,7 @@ Successfully installed:
 
 ```
 ✅ Import matplotlib - OK
-✅ Import pandas - OK  
+✅ Import pandas - OK
 ✅ Import numpy - OK
 ✅ Plotting base - OK
 ✅ Demo completo - OK (3 grafici generati)
@@ -116,7 +116,7 @@ python demo_matplotlib_integration.py
 
 # Lista pacchetti
 pip list | grep -E "matplotlib|pandas|RD2229"
-# Output: 
+# Output:
 #   matplotlib 3.10.8
 #   pandas 3.0.0
 #   RD2229 0.0.1 /home/runner/work/RD2229/RD2229
@@ -192,10 +192,10 @@ plt.show()
 def test_my_plot():
     import matplotlib
     matplotlib.use('Agg')  # Non-interactive backend
-    
+
     # Your plotting code here
     fig, ax = plot_something()
-    
+
     # Verify and cleanup
     assert fig is not None
     plt.close(fig)
@@ -235,6 +235,6 @@ Il progetto è pronto per:
 
 ---
 
-**Data Completamento:** 6 Febbraio 2026  
-**Status:** ✅ COMPLETATO  
+**Data Completamento:** 6 Febbraio 2026
+**Status:** ✅ COMPLETATO
 **Richiesta Utente:** "entrambe le opzioni" - SODDISFATTA

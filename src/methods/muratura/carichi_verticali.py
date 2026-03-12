@@ -30,6 +30,7 @@ from src.methods.muratura.discretizzazione import Maschio
 #  Modello carichi solaio
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class CaricoSolaio:
     """Carico del solaio gravante su una parete.
@@ -38,20 +39,21 @@ class CaricoSolaio:
     (distanza dal bordo parete al supporto successivo).
     Il carico sulla parete è: q_tot × (luce_sx + luce_dx) / 2 × L_parete.
     """
+
     id_parete: int = 0
     id_piano: int = 0
 
     # Carichi superficiali [kg/cm²]
-    G1: float = 0.0              # peso proprio solaio (strutturale)
-    G2: float = 0.0              # permanenti non strutturali (pavimento, massetto)
-    Q: float = 0.0               # variabile (abitazione, uffici)
+    G1: float = 0.0  # peso proprio solaio (strutturale)
+    G2: float = 0.0  # permanenti non strutturali (pavimento, massetto)
+    Q: float = 0.0  # variabile (abitazione, uffici)
 
     # Luci di influenza [cm]
-    luce_sx: float = 0.0         # luce solaio lato sinistro
-    luce_dx: float = 0.0         # luce solaio lato destro
+    luce_sx: float = 0.0  # luce solaio lato sinistro
+    luce_dx: float = 0.0  # luce solaio lato destro
 
     # Categoria d'uso (per ψ₀)
-    categoria: str = "A"         # A=residenziale, B=uffici, C=affollamento, ecc.
+    categoria: str = "A"  # A=residenziale, B=uffici, C=affollamento, ecc.
 
     @property
     def luce_influenza(self) -> float:
@@ -96,17 +98,19 @@ class CaricoSolaio:
 #  Distribuzione carichi su maschi
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class CaricoMaschio:
     """Carichi verticali su un singolo maschio, scomposti per tipo."""
+
     id_maschio: int = 0
 
     # Componenti [kg]
-    peso_proprio: float = 0.0    # γ × L × t × h
-    N_solaio_G1: float = 0.0     # da solaio (permanente strutturale)
-    N_solaio_G2: float = 0.0     # da solaio (permanente non strutturale)
-    N_solaio_Q: float = 0.0      # da solaio (variabile)
-    N_superiore: float = 0.0     # cumulato dal piano superiore
+    peso_proprio: float = 0.0  # γ × L × t × h
+    N_solaio_G1: float = 0.0  # da solaio (permanente strutturale)
+    N_solaio_G2: float = 0.0  # da solaio (permanente non strutturale)
+    N_solaio_Q: float = 0.0  # da solaio (variabile)
+    N_superiore: float = 0.0  # cumulato dal piano superiore
 
     @property
     def N_G1(self) -> float:
@@ -160,9 +164,11 @@ def _area_influenza_maschio(
         Larghezza di competenza [cm]
     """
     # Filtra maschi della stessa parete
-    stessa_parete = [m for m in maschi_parete
-                     if m.id_parete == maschio.id_parete
-                     and m.id_maschio != maschio.id_maschio]
+    stessa_parete = [
+        m
+        for m in maschi_parete
+        if m.id_parete == maschio.id_parete and m.id_maschio != maschio.id_maschio
+    ]
 
     if not stessa_parete:
         return maschio.L
@@ -209,9 +215,7 @@ def distribuisci_carichi_solaio(
         {id_maschio: CaricoMaschio}
     """
     # Mappa carichi per parete
-    carico_per_parete: dict[int, CaricoSolaio] = {
-        c.id_parete: c for c in carichi
-    }
+    carico_per_parete: dict[int, CaricoSolaio] = {c.id_parete: c for c in carichi}
 
     risultato: dict[int, CaricoMaschio] = {}
 
@@ -238,6 +242,7 @@ def distribuisci_carichi_solaio(
 # ═══════════════════════════════════════════════════════════
 #  Accumulo multipiano (top-down)
 # ═══════════════════════════════════════════════════════════
+
 
 def calcola_N_multipiano(
     maschi_per_piano: dict[int, list[Maschio]],
@@ -287,8 +292,10 @@ def calcola_N_multipiano(
                 # Trova maschio soprastante (stessa parete, posizione locale simile)
                 maschi_sup = maschi_per_piano.get(piano_sup, [])
                 for m_sup in maschi_sup:
-                    if (m_sup.id_parete == m.id_parete and
-                            abs(m_sup.x_ini_locale - m.x_ini_locale) < 1.0):
+                    if (
+                        m_sup.id_parete == m.id_parete
+                        and abs(m_sup.x_ini_locale - m.x_ini_locale) < 1.0
+                    ):
                         cm_sup = carichi_sup.get(m_sup.id_maschio)
                         if cm_sup is not None:
                             carichi_maschi[m.id_maschio].N_superiore = cm_sup.N_caratteristico

@@ -6,10 +6,8 @@ Parete tipo muratura piena: t=50 cm, L=300 cm, h=300 cm.
 import pytest
 
 from src.esistenti.vulnerabilita_mur import (
-    ClasseVulnerabilitaMur,
     ConfigVulnerabilitaMur,
     DegradoPreset,
-    FormuleLV1,
     IndiceVulnerabilitaMur,
     PareteVulnerabile,
     RisultatoParete,

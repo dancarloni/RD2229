@@ -25,6 +25,7 @@ def sezione_base():
 #  Schema Howe — topologia
 # ───────────────────────────────────────────────
 
+
 class TestHowe:
     def test_howe_4_campate_nodi(self, sezione_base):
         nodi, _ = genera_howe(400.0, 30.0, 4, sezione_base, sezione_base)
@@ -56,8 +57,8 @@ class TestHowe:
 
     def test_howe_2_campate(self, sezione_base):
         nodi, aste = genera_howe(200.0, 30.0, 2, sezione_base, sezione_base)
-        assert len(nodi) == 6   # 3+3
-        assert len(aste) == 9   # 4n+1 = 9
+        assert len(nodi) == 6  # 3+3
+        assert len(aste) == 9  # 4n+1 = 9
 
     def test_howe_6_campate(self, sezione_base):
         nodi, aste = genera_howe(600.0, 40.0, 6, sezione_base, sezione_base)
@@ -85,6 +86,7 @@ class TestHowe:
 #  Schema Pratt — topologia
 # ───────────────────────────────────────────────
 
+
 class TestPratt:
     def test_pratt_4_campate_aste(self, sezione_base):
         _, aste = genera_pratt(400.0, 30.0, 4, sezione_base, sezione_base)
@@ -97,7 +99,7 @@ class TestPratt:
 
     def test_pratt_2_campate(self, sezione_base):
         _, aste = genera_pratt(200.0, 30.0, 2, sezione_base, sezione_base)
-        assert len(aste) == 9   # 4n+1
+        assert len(aste) == 9  # 4n+1
 
     def test_pratt_6_campate(self, sezione_base):
         _, aste = genera_pratt(600.0, 40.0, 6, sezione_base, sezione_base)
@@ -125,13 +127,14 @@ class TestPratt:
 #  Vincoli cordolo
 # ───────────────────────────────────────────────
 
+
 class TestVincoli:
     def test_vincoli_cerniera(self, sezione_base):
         nodi, _ = genera_howe(400.0, 30.0, 4, sezione_base, sezione_base)
         nodi = applica_vincoli_cordolo(nodi, n_campate=4, tipo_estremi="cerniera")
         m = {n.id: n for n in nodi}
-        assert m[0].vincolo == TipoVincolo.CERNIERA    # inf, x=0
-        assert m[5].vincolo == TipoVincolo.CERNIERA    # sup, x=0
+        assert m[0].vincolo == TipoVincolo.CERNIERA  # inf, x=0
+        assert m[5].vincolo == TipoVincolo.CERNIERA  # sup, x=0
         assert m[4].vincolo == TipoVincolo.CARRELLO_X  # inf, x=L
         assert m[9].vincolo == TipoVincolo.CARRELLO_X  # sup, x=L
 
@@ -139,10 +142,10 @@ class TestVincoli:
         nodi, _ = genera_howe(400.0, 30.0, 4, sezione_base, sezione_base)
         nodi = applica_vincoli_cordolo(nodi, n_campate=4, tipo_estremi="incastro")
         m = {n.id: n for n in nodi}
-        assert m[0].vincolo == TipoVincolo.CERNIERA   # inf, x=0
-        assert m[5].vincolo == TipoVincolo.CERNIERA   # sup, x=0
-        assert m[4].vincolo == TipoVincolo.CERNIERA   # inf, x=L (incastro)
-        assert m[9].vincolo == TipoVincolo.CERNIERA   # sup, x=L (incastro)
+        assert m[0].vincolo == TipoVincolo.CERNIERA  # inf, x=0
+        assert m[5].vincolo == TipoVincolo.CERNIERA  # sup, x=0
+        assert m[4].vincolo == TipoVincolo.CERNIERA  # inf, x=L (incastro)
+        assert m[9].vincolo == TipoVincolo.CERNIERA  # sup, x=L (incastro)
 
     def test_vincoli_semi_incastro_come_cerniera(self, sezione_base):
         nodi, _ = genera_howe(400.0, 30.0, 4, sezione_base, sezione_base)
@@ -156,6 +159,7 @@ class TestVincoli:
 # ───────────────────────────────────────────────
 #  n_campate_default
 # ───────────────────────────────────────────────
+
 
 class TestNCampateDefault:
     def test_sempre_pari(self):
@@ -174,6 +178,7 @@ class TestNCampateDefault:
 #  valida_geometria
 # ───────────────────────────────────────────────
 
+
 class TestValidaGeometria:
     def test_angolo_piatto_warning(self, sezione_base):
         # h/a = 30/100 = 0.3 → angolo diagonale 16.7° < 20° → warning
@@ -191,6 +196,7 @@ class TestValidaGeometria:
 # ───────────────────────────────────────────────
 #  predimensiona_sezione
 # ───────────────────────────────────────────────
+
 
 class TestPredimensiona:
     def test_trazione_trova_profilo(self):

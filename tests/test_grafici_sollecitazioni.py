@@ -1,12 +1,8 @@
 """Test per src/grafici/sollecitazioni.py e src/grafici/inviluppi.py."""
 
-
 import pytest
 
-from src.grafici.inviluppi import (
-    grafico_inviluppo,
-    inviluppo_sollecitazioni,
-)
+from src.grafici.inviluppi import grafico_inviluppo, inviluppo_sollecitazioni
 from src.grafici.sollecitazioni import DiagrammaSollecitazioni, grafico_sollecitazioni
 
 matplotlib = pytest.importorskip("matplotlib")
@@ -15,6 +11,7 @@ matplotlib = pytest.importorskip("matplotlib")
 # ---------------------------------------------------------------------------
 # DiagrammaSollecitazioni
 # ---------------------------------------------------------------------------
+
 
 class TestDiagrammaSollecitazioni:
     def test_costruttore_diretto(self):
@@ -96,6 +93,7 @@ class TestDiagrammaSollecitazioni:
 # grafico_sollecitazioni (headless)
 # ---------------------------------------------------------------------------
 
+
 class TestGraficoSollecitazioni:
     def test_crea_figura(self):
         d = DiagrammaSollecitazioni.da_valori_estremi(
@@ -112,13 +110,14 @@ class TestGraficoSollecitazioni:
         assert ax_T is not None
         assert ax_N is not None
         import matplotlib
+
         matplotlib.pyplot.close(fig)
 
     def test_assi_preesistenti(self):
         import matplotlib.pyplot as plt
+
         d = DiagrammaSollecitazioni.da_valori_estremi(
-            L_cm=200.0, M_sx_kgcm=0.0, M_dx_kgcm=0.0,
-            T_sx_kg=500.0, T_dx_kg=500.0, n_punti=5
+            L_cm=200.0, M_sx_kgcm=0.0, M_dx_kgcm=0.0, T_sx_kg=500.0, T_dx_kg=500.0, n_punti=5
         )
         fig, (ax_M, ax_T, ax_N) = plt.subplots(3, 1)
         fig_out, axes_out = grafico_sollecitazioni(d, ax_M=ax_M, ax_T=ax_T, ax_N=ax_N, fig=fig)
@@ -129,6 +128,7 @@ class TestGraficoSollecitazioni:
 # ---------------------------------------------------------------------------
 # InviluppoSollecitazioni
 # ---------------------------------------------------------------------------
+
 
 class TestInviluppoSollecitazioni:
     def _diagrammi(self):
@@ -185,4 +185,5 @@ class TestInviluppoSollecitazioni:
         fig, (ax_M, ax_T, ax_N) = grafico_inviluppo(inv, diagrammi=[d1, d2])
         assert fig is not None
         import matplotlib
+
         matplotlib.pyplot.close(fig)

@@ -135,10 +135,10 @@ class SectionProperties:
     shear_area_z: float | None = None
 
     # Torsional properties (St. Venant)
-    j_t: float | None = None      # Costante torsionale St. Venant [cm⁴]
-    c_w: float | None = None      # Costante di ingobbamento [cm⁶]
-    x_s: float | None = None      # Coord. x centro di taglio [cm]
-    y_s: float | None = None      # Coord. y centro di taglio [cm]
+    j_t: float | None = None  # Costante torsionale St. Venant [cm⁴]
+    c_w: float | None = None  # Costante di ingobbamento [cm⁶]
+    x_s: float | None = None  # Coord. x centro di taglio [cm]
+    y_s: float | None = None  # Coord. y centro di taglio [cm]
 
 
 @dataclass
@@ -351,10 +351,10 @@ class Section:
 
         elif st == "RECTANGULAR_HOLLOW":
             t = self.thickness
-            b_m = self.width - t     # larghezza media
-            h_m = self.height - t    # altezza media
+            b_m = self.width - t  # larghezza media
+            h_m = self.height - t  # altezza media
             if b_m > 0 and h_m > 0:
-                A_m = b_m * h_m      # area racchiusa dalla linea media
+                A_m = b_m * h_m  # area racchiusa dalla linea media
                 p_m = 2 * (b_m + h_m)  # perimetro medio
                 props.j_t = 4 * A_m**2 * t / p_m  # Bredt
             else:
@@ -390,7 +390,9 @@ class Section:
             # Centro di taglio: sull'asse di simmetria verticale
             # Per sezione T: centro di taglio al giunto ala-anima (approssimazione)
             props.x_s = props.centroid_x  # simmetria
-            props.y_s = self.web_height + self.flange_thickness  # all'intersezione ala-anima (sommità anima)
+            props.y_s = (
+                self.web_height + self.flange_thickness
+            )  # all'intersezione ala-anima (sommità anima)
 
         elif st == "INVERTED_T_SECTION":
             bf = self.flange_width
@@ -403,7 +405,7 @@ class Section:
             props.y_s = tf  # giunto ala-anima (base anima)
 
         elif st == "C_SECTION":
-            bf = self.width        # larghezza ali
+            bf = self.width  # larghezza ali
             tf = self.flange_thickness
             hw = self.height - 2 * tf
             tw = self.web_thickness

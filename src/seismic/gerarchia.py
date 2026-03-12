@@ -8,8 +8,8 @@ Implementa verifiche base:
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 
 @dataclass
@@ -87,7 +87,9 @@ def verifica_nodo_gerarchia(
     )
 
 
-def calcola_v_cd_trave(m_rb_sinistra: float, m_rb_destra: float, luce_netta: float, v_g_pm_e_su_2: float = 0.0) -> float:
+def calcola_v_cd_trave(
+    m_rb_sinistra: float, m_rb_destra: float, luce_netta: float, v_g_pm_e_su_2: float = 0.0
+) -> float:
     """Taglio di progetto trave da gerarchia.
 
     V_CD = (M_Rb,l + M_Rb,r) / L_cl + V_G±E/2
@@ -99,7 +101,9 @@ def calcola_v_cd_trave(m_rb_sinistra: float, m_rb_destra: float, luce_netta: flo
     return (abs(m_rb_sinistra) + abs(m_rb_destra)) / luce_netta + v_g_pm_e_su_2
 
 
-def calcola_v_cd_pilastro(m_rc_top: float, m_rc_bot: float, altezza_netta: float, gamma_rd_target: float) -> float:
+def calcola_v_cd_pilastro(
+    m_rc_top: float, m_rc_bot: float, altezza_netta: float, gamma_rd_target: float
+) -> float:
     """Taglio di progetto pilastro da gerarchia.
 
     V_CD = gamma_Rd * (M_Rc,top + M_Rc,bot) / H_cl

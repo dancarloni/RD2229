@@ -65,6 +65,7 @@ def _interpolate(x: float, xs: list[float], ys: list[float]) -> float:
 # Tettoie (Canopies) — EC1 §7.3
 # ===========================================================================
 
+
 def get_canopy_cp(
     canopy_type: str,
     angle_deg: float,
@@ -183,23 +184,28 @@ def compute_canopy_pressures(
         for zone in ("A", "B", "C"):
             ov = overrides.get(zone, {})
             cp_max, cp_min = get_canopy_cp(
-                canopy_type, angle_deg, blockage_ratio, zone,
+                canopy_type,
+                angle_deg,
+                blockage_ratio,
+                zone,
                 override_max=ov.get("cp_net_max"),
                 override_min=ov.get("cp_net_min"),
             )
             cp_max *= bay_factor
             cp_min *= bay_factor
 
-            results.append({
-                "zone_id": f"canopy_{zone}{bay_label}",
-                "description": f"Tettoia zona {zone}{bay_label}",
-                "cp_net_max": round(cp_max, 3),
-                "cp_net_min": round(cp_min, 3),
-                "w_max_kN_m2": round(cp_max * q_p_kN_m2, 4),
-                "w_min_kN_m2": round(cp_min * q_p_kN_m2, 4),
-                "bay_factor": bay_factor,
-                "force_application_d_fraction": 0.25,
-            })
+            results.append(
+                {
+                    "zone_id": f"canopy_{zone}{bay_label}",
+                    "description": f"Tettoia zona {zone}{bay_label}",
+                    "cp_net_max": round(cp_max, 3),
+                    "cp_net_min": round(cp_min, 3),
+                    "w_max_kN_m2": round(cp_max * q_p_kN_m2, 4),
+                    "w_min_kN_m2": round(cp_min * q_p_kN_m2, 4),
+                    "bay_factor": bay_factor,
+                    "force_application_d_fraction": 0.25,
+                }
+            )
 
     return results
 
@@ -249,7 +255,10 @@ def compute_shelter_pressures(
         Lista pressioni per zona.
     """
     base_results = compute_canopy_pressures(
-        "CANOPY_MONO", angle_deg, blockage_ratio, q_p_kN_m2,
+        "CANOPY_MONO",
+        angle_deg,
+        blockage_ratio,
+        q_p_kN_m2,
         overrides=overrides,
     )
 
@@ -268,6 +277,7 @@ def compute_shelter_pressures(
 # ===========================================================================
 # Insegne (Signs) — EC1 §7.4.3
 # ===========================================================================
+
 
 def get_sign_cf(
     b_m: float,
@@ -364,7 +374,8 @@ def compute_sign_force(
         Dict con cf, area, F_kN, eccentricity_m.
     """
     cf = get_sign_cf(
-        b_m, h_m,
+        b_m,
+        h_m,
         solidity_ratio=solidity_ratio,
         ground_clearance_m=ground_clearance_m,
         is_lattice=is_lattice,
@@ -447,20 +458,52 @@ def compute_sign_zone_pressures(
         w_B = b_m / 2.0
         area_A = w_A * h_m * solidity_ratio
         area_B = w_B * h_m * solidity_ratio
-        zones.append(_zone_entry("sign_A", "Insegna zona A (bordo sopravento)",
-                                 cpn_A * eta, area_A, q_p_kN_m2, app_point))
-        zones.append(_zone_entry("sign_B", "Insegna zona B (bordo sottovento)",
-                                 cpn_B * eta, area_B, q_p_kN_m2, app_point))
+        zones.append(
+            _zone_entry(
+                "sign_A",
+                "Insegna zona A (bordo sopravento)",
+                cpn_A * eta,
+                area_A,
+                q_p_kN_m2,
+                app_point,
+            )
+        )
+        zones.append(
+            _zone_entry(
+                "sign_B",
+                "Insegna zona B (bordo sottovento)",
+                cpn_B * eta,
+                area_B,
+                q_p_kN_m2,
+                app_point,
+            )
+        )
     elif b_h <= 2.0:
         # Zona A (larghezza h) + Zona B (b - h)
         w_A = h_m
         w_B = b_m - h_m
         area_A = w_A * h_m * solidity_ratio
         area_B = w_B * h_m * solidity_ratio
-        zones.append(_zone_entry("sign_A", "Insegna zona A (bordo sopravento)",
-                                 cpn_A * eta, area_A, q_p_kN_m2, app_point))
-        zones.append(_zone_entry("sign_B", "Insegna zona B (bordo sottovento)",
-                                 cpn_B * eta, area_B, q_p_kN_m2, app_point))
+        zones.append(
+            _zone_entry(
+                "sign_A",
+                "Insegna zona A (bordo sopravento)",
+                cpn_A * eta,
+                area_A,
+                q_p_kN_m2,
+                app_point,
+            )
+        )
+        zones.append(
+            _zone_entry(
+                "sign_B",
+                "Insegna zona B (bordo sottovento)",
+                cpn_B * eta,
+                area_B,
+                q_p_kN_m2,
+                app_point,
+            )
+        )
     else:
         # Zona A (h) + Zona C (b-2h) + Zona B (h)
         w_A = h_m
@@ -469,17 +512,39 @@ def compute_sign_zone_pressures(
         area_A = w_A * h_m * solidity_ratio
         area_C = w_C * h_m * solidity_ratio
         area_B = w_B * h_m * solidity_ratio
-        zones.append(_zone_entry("sign_A", "Insegna zona A (bordo sopravento)",
-                                 cpn_A * eta, area_A, q_p_kN_m2, app_point))
-        zones.append(_zone_entry("sign_C", "Insegna zona C (centrale)",
-                                 cpn_C * eta, area_C, q_p_kN_m2, app_point))
-        zones.append(_zone_entry("sign_B", "Insegna zona B (bordo sottovento)",
-                                 cpn_B * eta, area_B, q_p_kN_m2, app_point))
+        zones.append(
+            _zone_entry(
+                "sign_A",
+                "Insegna zona A (bordo sopravento)",
+                cpn_A * eta,
+                area_A,
+                q_p_kN_m2,
+                app_point,
+            )
+        )
+        zones.append(
+            _zone_entry(
+                "sign_C", "Insegna zona C (centrale)", cpn_C * eta, area_C, q_p_kN_m2, app_point
+            )
+        )
+        zones.append(
+            _zone_entry(
+                "sign_B",
+                "Insegna zona B (bordo sottovento)",
+                cpn_B * eta,
+                area_B,
+                q_p_kN_m2,
+                app_point,
+            )
+        )
 
     # Zona D: fasce superiore e inferiore (h/10 di altezza)
     area_D = b_m * h_D * solidity_ratio
-    zones.append(_zone_entry("sign_D", "Insegna zona D (fasce sup./inf.)",
-                             cpn_D * eta, area_D, q_p_kN_m2, app_point))
+    zones.append(
+        _zone_entry(
+            "sign_D", "Insegna zona D (fasce sup./inf.)", cpn_D * eta, area_D, q_p_kN_m2, app_point
+        )
+    )
 
     return zones
 
@@ -510,6 +575,7 @@ def _zone_entry(
 # ===========================================================================
 # Pannelli fotovoltaici (Solar panels)
 # ===========================================================================
+
 
 def get_solar_panel_cp(
     layout: str,
@@ -560,7 +626,10 @@ def get_solar_panel_cp(
 
 
 def _solar_ground_cp(
-    data: dict, tilt_deg: float, position: str, row_index: int,
+    data: dict,
+    tilt_deg: float,
+    position: str,
+    row_index: int,
 ) -> tuple[float, float]:
     """CP per pannelli a terra."""
     gm = data.get("ground_mounted", {})
@@ -586,7 +655,9 @@ def _solar_ground_cp(
 
 
 def _solar_flat_roof_cp(
-    data: dict, tilt_deg: float, position: str,
+    data: dict,
+    tilt_deg: float,
+    position: str,
 ) -> tuple[float, float]:
     """CP per pannelli su tetto piano."""
     fr = data.get("flat_roof", {})
@@ -606,7 +677,9 @@ def _solar_flat_roof_cp(
 
 
 def _solar_pitched_roof_cp(
-    data: dict, tilt_deg: float, roof_angle_deg: float,
+    data: dict,
+    tilt_deg: float,
+    roof_angle_deg: float,
 ) -> tuple[float, float]:
     """CP per pannelli su tetto inclinato (parametrico)."""
     pr = data.get("pitched_roof", {})
@@ -634,7 +707,9 @@ def _solar_pitched_roof_cp(
 
 
 def _solar_tracker_cp(
-    data: dict, tracking_angle_deg: float, position: str,
+    data: dict,
+    tracking_angle_deg: float,
+    position: str,
 ) -> tuple[float, float]:
     """CP per inseguitori solari monoassiali."""
     tr = data.get("tracker", {})
@@ -687,7 +762,9 @@ def compute_solar_pressures(
             pos = "edge" if row_idx == 0 else "interior"
 
         cp_max, cp_min = get_solar_panel_cp(
-            layout, tilt_deg, pos,
+            layout,
+            tilt_deg,
+            pos,
             roof_angle_deg=roof_angle_deg,
             row_index=row_idx,
             tracking_angle_deg=tracking_angle_deg,
@@ -695,16 +772,18 @@ def compute_solar_pressures(
             override_min=overrides.get(f"row{row_idx}_min"),
         )
 
-        results.append({
-            "zone_id": f"pv_row{row_idx + 1}_{pos}",
-            "description": f"PV fila {row_idx + 1} ({pos})",
-            "cp_net_max": cp_max,
-            "cp_net_min": cp_min,
-            "w_max_kN_m2": round(cp_max * q_p_kN_m2, 4),
-            "w_min_kN_m2": round(cp_min * q_p_kN_m2, 4),
-            "row_index": row_idx,
-            "position": pos,
-        })
+        results.append(
+            {
+                "zone_id": f"pv_row{row_idx + 1}_{pos}",
+                "description": f"PV fila {row_idx + 1} ({pos})",
+                "cp_net_max": cp_max,
+                "cp_net_min": cp_min,
+                "w_max_kN_m2": round(cp_max * q_p_kN_m2, 4),
+                "w_min_kN_m2": round(cp_min * q_p_kN_m2, 4),
+                "row_index": row_idx,
+                "position": pos,
+            }
+        )
 
     return results
 
@@ -712,6 +791,7 @@ def compute_solar_pressures(
 # ===========================================================================
 # Muri isolati / parapetti / recinzioni — EC1 §7.4.1
 # ===========================================================================
+
 
 def get_freestanding_wall_cp(
     length_m: float,

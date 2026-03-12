@@ -24,6 +24,7 @@ from src.ui.qt.cordoli_widget import CordoliWidget
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def widget(qtbot):
     """CordoliWidget istanziato e registrato con qtbot."""
@@ -33,6 +34,7 @@ def widget(qtbot):
 
 
 # ── Test ──────────────────────────────────────────────────────────────────────
+
 
 class TestCordoliWidgetQt:
     def test_crea_senza_errori(self, widget):

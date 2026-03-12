@@ -141,7 +141,7 @@ def sezione_intestazione(inp: InputReport) -> str:
 
     lines = [
         _SEP_DOPPIO,
-        f"  RELAZIONE DI VALUTAZIONE DELLA SICUREZZA SISMICA",
+        "  RELAZIONE DI VALUTAZIONE DELLA SICUREZZA SISMICA",
         f"  Norma di riferimento: {inp.normativa_principale}",
         f"  Versione report: {_VERSIONE_REPORT} — Data: {data}",
         _SEP_DOPPIO,
@@ -490,7 +490,7 @@ def sezione_conclusioni(inp: InputReport) -> str:
         sc = inp.scenario_proposto
         lines += [
             "",
-            f"  Con interventi proposti:",
+            "  Con interventi proposti:",
             f"    ρ_post = {sc.rho_post:.3f}  (era {sc.rho_pre:.3f})",
             f"    α_post = {sc.alpha_post:.3f}  (era {sc.alpha_pre:.3f})",
         ]

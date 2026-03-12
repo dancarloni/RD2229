@@ -22,6 +22,7 @@ from enum import Enum
 
 class TipoMuratura(str, Enum):
     """Tipo di muratura."""
+
     MATTONI_PIENI = "mattoni_pieni"
     MATTONI_FORATI = "mattoni_forati"
     BLOCCHI_CLS = "blocchi_cls"
@@ -33,6 +34,7 @@ class TipoMuratura(str, Enum):
 
 class NormaMuratura(str, Enum):
     """Norma di riferimento per le verifiche."""
+
     NTC2018 = "NTC2018"
     DM87 = "DM87"
     CIRC81 = "Circ81"
@@ -109,12 +111,7 @@ def interpola_phi(lam: float, e_t: float) -> float:
     f01 = PHI_TABLE[li][ei + 1]
     f11 = PHI_TABLE[li + 1][ei + 1]
 
-    phi = (
-        f00 * (1 - tl) * (1 - te)
-        + f10 * tl * (1 - te)
-        + f01 * (1 - tl) * te
-        + f11 * tl * te
-    )
+    phi = f00 * (1 - tl) * (1 - te) + f10 * tl * (1 - te) + f01 * (1 - tl) * te + f11 * tl * te
     return max(phi, 0.0)
 
 
@@ -122,24 +119,26 @@ def interpola_phi(lam: float, e_t: float) -> float:
 #  E.1 — Compressione + snellezza
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class InputCompressione:
     """Input verifica a compressione muratura."""
+
     # Geometria parete
-    L: float                     # lunghezza parete [cm]
-    t: float                     # spessore parete [cm]
-    h: float                     # altezza piano [cm]
+    L: float  # lunghezza parete [cm]
+    t: float  # spessore parete [cm]
+    h: float  # altezza piano [cm]
 
     # Vincoli per lunghezza libera
-    rho: float = 1.0             # fattore vincolo (0.75 incastro-incastro, 1.0 appoggio)
+    rho: float = 1.0  # fattore vincolo (0.75 incastro-incastro, 1.0 appoggio)
 
     # Sollecitazioni
-    N: float = 0.0               # sforzo normale compressione [kg] (positivo = compressione)
-    M: float = 0.0               # momento flettente [kg·cm]
+    N: float = 0.0  # sforzo normale compressione [kg] (positivo = compressione)
+    M: float = 0.0  # momento flettente [kg·cm]
 
     # Materiale
-    fd: float = 0.0              # resistenza di calcolo a compressione [kg/cm²]
-    gamma_M: float = 3.0         # coefficiente parziale materiale
+    fd: float = 0.0  # resistenza di calcolo a compressione [kg/cm²]
+    gamma_M: float = 3.0  # coefficiente parziale materiale
 
     # Normativa
     norma: str = "NTC2018"
@@ -148,16 +147,17 @@ class InputCompressione:
 @dataclass
 class RisultatoCompressione:
     """Risultato verifica compressione muratura."""
-    N: float                     # carico [kg]
-    A: float                     # area sezione [cm²]
-    sigma: float                 # tensione σ = N/A [kg/cm²]
-    e: float                     # eccentricità [cm]
-    e_t: float                   # eccentricità relativa e/t
-    h_eff: float                 # altezza efficace [cm]
-    lam: float                   # snellezza λ = h_eff/t
-    phi: float                   # coefficiente Φ
-    N_Rd: float                  # resistenza di calcolo [kg]
-    sfruttamento: float          # N/N_Rd
+
+    N: float  # carico [kg]
+    A: float  # area sezione [cm²]
+    sigma: float  # tensione σ = N/A [kg/cm²]
+    e: float  # eccentricità [cm]
+    e_t: float  # eccentricità relativa e/t
+    h_eff: float  # altezza efficace [cm]
+    lam: float  # snellezza λ = h_eff/t
+    phi: float  # coefficiente Φ
+    N_Rd: float  # resistenza di calcolo [kg]
+    sfruttamento: float  # N/N_Rd
     verificato: bool
     passaggi: list[str] = field(default_factory=list)
 
@@ -224,9 +224,7 @@ def verifica_compressione(inp: InputCompressione) -> RisultatoCompressione:
 
     verificato = inp.N <= N_Rd and lam <= 27
 
-    passaggi.append(
-        f"N_Rd = Φ×fd×A = {phi:.4f}×{inp.fd:.1f}×{A:.0f} = {N_Rd:.0f} kg"
-    )
+    passaggi.append(f"N_Rd = Φ×fd×A = {phi:.4f}×{inp.fd:.1f}×{A:.0f} = {N_Rd:.0f} kg")
     passaggi.append(
         f"N = {inp.N:.0f} {'≤' if verificato else '>'} N_Rd = {N_Rd:.0f} "
         f"→ {'OK' if verificato else 'NON VERIFICATO'} "
@@ -234,9 +232,14 @@ def verifica_compressione(inp: InputCompressione) -> RisultatoCompressione:
     )
 
     return RisultatoCompressione(
-        N=inp.N, A=A, sigma=sigma,
-        e=e, e_t=e_t,
-        h_eff=h_eff, lam=lam, phi=phi,
+        N=inp.N,
+        A=A,
+        sigma=sigma,
+        e=e,
+        e_t=e_t,
+        h_eff=h_eff,
+        lam=lam,
+        phi=phi,
         N_Rd=N_Rd,
         sfruttamento=sfruttamento,
         verificato=verificato,
@@ -248,46 +251,50 @@ def verifica_compressione(inp: InputCompressione) -> RisultatoCompressione:
 #  E.2 — Taglio nel piano
 # ═══════════════════════════════════════════════════════════
 
+
 class CriterioTaglio(str, Enum):
     """Criterio di rottura a taglio."""
-    DIAGONALE = "diagonale"         # Turnšek-Čačovič (fessurazione diagonale)
-    SCORRIMENTO = "scorrimento"     # attrito + coesione (Mohr-Coulomb)
+
+    DIAGONALE = "diagonale"  # Turnšek-Čačovič (fessurazione diagonale)
+    SCORRIMENTO = "scorrimento"  # attrito + coesione (Mohr-Coulomb)
     PRESSOFLESSIONE = "pressoflessione"  # rottura per schiacciamento
 
 
 @dataclass
 class InputTaglio:
     """Input verifica taglio nel piano muratura."""
+
     # Geometria pannello murario
-    L: float                     # lunghezza pannello [cm]
-    t: float                     # spessore [cm]
-    h: float                     # altezza pannello [cm]
+    L: float  # lunghezza pannello [cm]
+    t: float  # spessore [cm]
+    h: float  # altezza pannello [cm]
 
     # Sollecitazioni
-    V: float = 0.0               # taglio [kg]
-    N: float = 0.0               # sforzo normale (compressione positiva) [kg]
+    V: float = 0.0  # taglio [kg]
+    N: float = 0.0  # sforzo normale (compressione positiva) [kg]
 
     # Materiale
-    tau_0: float = 0.0           # resistenza a taglio senza compressione [kg/cm²]
-    fd: float = 0.0              # resistenza a compressione [kg/cm²]
-    fvk0: float = 0.0            # resistenza caratteristica a taglio [kg/cm²]
-    mu: float = 0.4              # coefficiente d'attrito
+    tau_0: float = 0.0  # resistenza a taglio senza compressione [kg/cm²]
+    fd: float = 0.0  # resistenza a compressione [kg/cm²]
+    fvk0: float = 0.0  # resistenza caratteristica a taglio [kg/cm²]
+    mu: float = 0.4  # coefficiente d'attrito
 
     # Coefficienti
     gamma_M: float = 3.0
-    b_coeff: float = 1.0         # coefficiente distribuzione tensioni (1.0÷1.5)
+    b_coeff: float = 1.0  # coefficiente distribuzione tensioni (1.0÷1.5)
 
     # Condizioni di vincolo
-    psi: float = 1.0             # ψ = h₀/L rapporto di taglio (1.0 = doppio incastro)
+    psi: float = 1.0  # ψ = h₀/L rapporto di taglio (1.0 = doppio incastro)
 
 
 @dataclass
 class RisultatoTaglio:
     """Risultato verifica taglio nel piano."""
+
     criterio: str
-    V: float                     # taglio applicato [kg]
-    V_Rd: float                  # resistenza a taglio [kg]
-    sigma_0: float               # tensione media compressione [kg/cm²]
+    V: float  # taglio applicato [kg]
+    V_Rd: float  # resistenza a taglio [kg]
+    sigma_0: float  # tensione media compressione [kg/cm²]
     sfruttamento: float
     verificato: bool
     passaggi: list[str] = field(default_factory=list)
@@ -346,9 +353,7 @@ def taglio_diagonale(inp: InputTaglio) -> RisultatoTaglio:
         f"V_t = L×t×(1.5τ₀d/b)×√(1+σ₀/(1.5τ₀d)) = "
         f"{inp.L:.0f}×{inp.t:.0f}×({1.5*tau_0d:.3f}/{b:.2f})×√(1+{sigma_0:.2f}/{1.5*tau_0d:.3f})"
     )
-    passaggi.append(
-        f"V_t = {V_Rd:.0f} kg"
-    )
+    passaggi.append(f"V_t = {V_Rd:.0f} kg")
     passaggi.append(
         f"|V| = {abs(inp.V):.0f} {'≤' if verificato else '>'} V_t = {V_Rd:.0f} "
         f"→ {'OK' if verificato else 'NON VERIFICATO'} (sfruttamento {sfruttamento:.1%})"
@@ -356,8 +361,11 @@ def taglio_diagonale(inp: InputTaglio) -> RisultatoTaglio:
 
     return RisultatoTaglio(
         criterio="diagonale",
-        V=abs(inp.V), V_Rd=V_Rd, sigma_0=sigma_0,
-        sfruttamento=sfruttamento, verificato=verificato,
+        V=abs(inp.V),
+        V_Rd=V_Rd,
+        sigma_0=sigma_0,
+        sfruttamento=sfruttamento,
+        verificato=verificato,
         passaggi=passaggi,
     )
 
@@ -384,7 +392,9 @@ def taglio_scorrimento(inp: InputTaglio) -> RisultatoTaglio:
 
     passaggi.append("Criterio scorrimento (Mohr-Coulomb)")
     passaggi.append(f"σ_n = N/(L×t) = {sigma_n:.2f} kg/cm²")
-    passaggi.append(f"fvk = fvk0 + μ×σ_n = {inp.fvk0:.3f} + {inp.mu}×{sigma_n:.2f} = {fvk:.3f} kg/cm²")
+    passaggi.append(
+        f"fvk = fvk0 + μ×σ_n = {inp.fvk0:.3f} + {inp.mu}×{sigma_n:.2f} = {fvk:.3f} kg/cm²"
+    )
     passaggi.append(f"fvd = fvk/γ_M = {fvk:.3f}/{inp.gamma_M:.1f} = {fvd:.4f} kg/cm²")
 
     # Lunghezza compressa (semplificazione: tutta la sezione)
@@ -394,9 +404,7 @@ def taglio_scorrimento(inp: InputTaglio) -> RisultatoTaglio:
     sfruttamento = abs(inp.V) / V_Rd if V_Rd > 0 else float("inf")
     verificato = abs(inp.V) <= V_Rd
 
-    passaggi.append(
-        f"V_Rd = fvd×L×t = {fvd:.4f}×{L_compr:.0f}×{inp.t:.0f} = {V_Rd:.0f} kg"
-    )
+    passaggi.append(f"V_Rd = fvd×L×t = {fvd:.4f}×{L_compr:.0f}×{inp.t:.0f} = {V_Rd:.0f} kg")
     passaggi.append(
         f"|V| = {abs(inp.V):.0f} {'≤' if verificato else '>'} V_Rd = {V_Rd:.0f} "
         f"→ {'OK' if verificato else 'NON VERIFICATO'} (sfruttamento {sfruttamento:.1%})"
@@ -404,8 +412,11 @@ def taglio_scorrimento(inp: InputTaglio) -> RisultatoTaglio:
 
     return RisultatoTaglio(
         criterio="scorrimento",
-        V=abs(inp.V), V_Rd=V_Rd, sigma_0=sigma_n,
-        sfruttamento=sfruttamento, verificato=verificato,
+        V=abs(inp.V),
+        V_Rd=V_Rd,
+        sigma_0=sigma_n,
+        sfruttamento=sfruttamento,
+        verificato=verificato,
         passaggi=passaggi,
     )
 
@@ -432,7 +443,7 @@ def taglio_pressoflessione(inp: InputTaglio) -> RisultatoTaglio:
     if fd_ridotto > 0 and h0 > 0 and sigma_0 > 0:
         rapporto = sigma_0 / fd_ridotto
         rapporto = min(rapporto, 1.0)  # non può superare 1
-        V_Rd = (inp.L ** 2 * inp.t * sigma_0) / (2 * h0) * (1 - rapporto)
+        V_Rd = (inp.L**2 * inp.t * sigma_0) / (2 * h0) * (1 - rapporto)
     else:
         V_Rd = 0.0
 
@@ -451,8 +462,11 @@ def taglio_pressoflessione(inp: InputTaglio) -> RisultatoTaglio:
 
     return RisultatoTaglio(
         criterio="pressoflessione",
-        V=abs(inp.V), V_Rd=V_Rd, sigma_0=sigma_0,
-        sfruttamento=sfruttamento, verificato=verificato,
+        V=abs(inp.V),
+        V_Rd=V_Rd,
+        sigma_0=sigma_0,
+        sfruttamento=sfruttamento,
+        verificato=verificato,
         passaggi=passaggi,
     )
 
@@ -482,22 +496,25 @@ def verifica_taglio_piano(inp: InputTaglio) -> list[RisultatoTaglio]:
 #  E.4 — Spanciamento (verifica snellezza)
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class InputSpanciamento:
     """Input verifica spanciamento (instabilità fuori piano)."""
-    h: float                     # altezza parete [cm]
-    t: float                     # spessore parete [cm]
-    rho: float = 1.0             # fattore vincolo
-    lambda_max: float = 20.0     # snellezza massima ammissibile
+
+    h: float  # altezza parete [cm]
+    t: float  # spessore parete [cm]
+    rho: float = 1.0  # fattore vincolo
+    lambda_max: float = 20.0  # snellezza massima ammissibile
 
 
 @dataclass
 class RisultatoSpanciamento:
     """Risultato verifica spanciamento."""
-    h_eff: float                 # altezza efficace [cm]
-    t: float                     # spessore [cm]
-    lam: float                   # snellezza λ = h_eff/t
-    lam_max: float               # limite snellezza
+
+    h_eff: float  # altezza efficace [cm]
+    t: float  # spessore [cm]
+    lam: float  # snellezza λ = h_eff/t
+    lam_max: float  # limite snellezza
     verificato: bool
     passaggi: list[str] = field(default_factory=list)
 
@@ -544,6 +561,10 @@ def verifica_spanciamento(inp: InputSpanciamento) -> RisultatoSpanciamento:
     )
 
     return RisultatoSpanciamento(
-        h_eff=h_eff, t=inp.t, lam=lam, lam_max=inp.lambda_max,
-        verificato=verificato, passaggi=passaggi,
+        h_eff=h_eff,
+        t=inp.t,
+        lam=lam,
+        lam_max=inp.lambda_max,
+        verificato=verificato,
+        passaggi=passaggi,
     )

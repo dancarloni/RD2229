@@ -15,17 +15,20 @@ from enum import Enum
 
 # ═══════════════════════ SALDATURE ═══════════════════════
 
+
 class TipoSaldatura(str, Enum):
     """Tipo di saldatura."""
-    CORDONE_ANGOLO = "cordone_angolo"       # a cordone d'angolo
-    TESTA_TESTA = "testa_testa"             # a completa penetrazione
-    PARZIALE = "parziale"                   # a parziale penetrazione
+
+    CORDONE_ANGOLO = "cordone_angolo"  # a cordone d'angolo
+    TESTA_TESTA = "testa_testa"  # a completa penetrazione
+    PARZIALE = "parziale"  # a parziale penetrazione
 
 
 class PosizioneSaldatura(str, Enum):
     """Posizione saldatura rispetto alla forza."""
-    FRONTALE = "frontale"       # cordone perpendicolare alla forza
-    LATERALE = "laterale"       # cordone parallelo alla forza
+
+    FRONTALE = "frontale"  # cordone perpendicolare alla forza
+    LATERALE = "laterale"  # cordone parallelo alla forza
 
 
 # Coefficiente di riduzione per saldatura a cordone d'angolo
@@ -43,16 +46,17 @@ BETA_W: dict[str, float] = {
 @dataclass
 class InputSaldatura:
     """Input per verifica saldatura a cordone d'angolo."""
+
     tipo: TipoSaldatura = TipoSaldatura.CORDONE_ANGOLO
 
     # Geometria cordone
-    a: float = 0.0          # altezza di gola [cm]
-    L: float = 0.0          # lunghezza cordone [cm]
-    n_cordoni: int = 1      # numero cordoni paralleli
+    a: float = 0.0  # altezza di gola [cm]
+    L: float = 0.0  # lunghezza cordone [cm]
+    n_cordoni: int = 1  # numero cordoni paralleli
 
     # Sollecitazioni sul cordone
-    N: float = 0.0          # forza assiale [kg] (perpendicolare per frontale)
-    V: float = 0.0          # taglio [kg] (parallelo per laterale)
+    N: float = 0.0  # forza assiale [kg] (perpendicolare per frontale)
+    V: float = 0.0  # taglio [kg] (parallelo per laterale)
 
     # Materiale
     tipo_acciaio: str = "Fe430"
@@ -62,15 +66,16 @@ class InputSaldatura:
 @dataclass
 class RisultatoSaldatura:
     """Risultato verifica saldatura."""
+
     tipo: str
-    a: float                    # gola [cm]
-    L: float                    # lunghezza [cm]
-    A_gola: float               # area resistente = a × L [cm²]
-    sigma_perp: float = 0.0     # tensione perpendicolare [kg/cm²]
-    tau_perp: float = 0.0       # taglio perpendicolare [kg/cm²]
-    tau_par: float = 0.0        # taglio parallelo [kg/cm²]
-    sigma_id: float = 0.0       # tensione ideale [kg/cm²]
-    sigma_adm_w: float = 0.0    # tensione ammissibile saldatura [kg/cm²]
+    a: float  # gola [cm]
+    L: float  # lunghezza [cm]
+    A_gola: float  # area resistente = a × L [cm²]
+    sigma_perp: float = 0.0  # tensione perpendicolare [kg/cm²]
+    tau_perp: float = 0.0  # taglio perpendicolare [kg/cm²]
+    tau_par: float = 0.0  # taglio parallelo [kg/cm²]
+    sigma_id: float = 0.0  # tensione ideale [kg/cm²]
+    sigma_adm_w: float = 0.0  # tensione ammissibile saldatura [kg/cm²]
     sfruttamento: float = 0.0
     verificato: bool = False
     passaggi: list[str] = field(default_factory=list)
@@ -112,7 +117,9 @@ def verifica_saldatura_ta(inp: InputSaldatura) -> RisultatoSaldatura:
 
     passaggi.append(f"Saldatura: {inp.tipo.value}, a={inp.a:.2f} cm, L={inp.L:.1f} cm")
     passaggi.append(f"N. cordoni: {inp.n_cordoni}, A_gola = {A_gola:.2f} cm²")
-    passaggi.append(f"β_w = {beta_w}, σ_adm,w = {beta_w}×{inp.sigma_adm_acciaio:.0f} = {sigma_adm_w:.0f} kg/cm²")
+    passaggi.append(
+        f"β_w = {beta_w}, σ_adm,w = {beta_w}×{inp.sigma_adm_acciaio:.0f} = {sigma_adm_w:.0f} kg/cm²"
+    )
 
     res = RisultatoSaldatura(
         tipo=inp.tipo.value,
@@ -127,7 +134,7 @@ def verifica_saldatura_ta(inp: InputSaldatura) -> RisultatoSaldatura:
         res.passaggi.append("ERRORE: area gola nulla")
         return res
 
-    F_totale = math.sqrt(inp.N ** 2 + inp.V ** 2)
+    F_totale = math.sqrt(inp.N**2 + inp.V**2)
 
     if inp.tipo == TipoSaldatura.CORDONE_ANGOLO:
         # Forza perpendicolare al cordone (frontale)
@@ -149,9 +156,7 @@ def verifica_saldatura_ta(inp: InputSaldatura) -> RisultatoSaldatura:
             )
 
         # Tensione ideale
-        res.sigma_id = math.sqrt(
-            res.sigma_perp ** 2 + res.tau_perp ** 2 + res.tau_par ** 2
-        )
+        res.sigma_id = math.sqrt(res.sigma_perp**2 + res.tau_perp**2 + res.tau_par**2)
 
     elif inp.tipo == TipoSaldatura.TESTA_TESTA:
         # A completa penetrazione: si verifica come materiale base
@@ -179,8 +184,10 @@ def verifica_saldatura_ta(inp: InputSaldatura) -> RisultatoSaldatura:
 
 # ═══════════════════════ BULLONATURE ═══════════════════════
 
+
 class ClasseBullone(str, Enum):
     """Classe di resistenza bullone."""
+
     CL_4_6 = "4.6"
     CL_5_6 = "5.6"
     CL_6_8 = "6.8"
@@ -190,20 +197,20 @@ class ClasseBullone(str, Enum):
 
 # Tensione di rottura f_ub [kg/cm²] per classe bullone
 F_UB: dict[str, float] = {
-    "4.6": 4080.0,     # 400 MPa
-    "5.6": 5100.0,     # 500 MPa
-    "6.8": 6120.0,     # 600 MPa
-    "8.8": 8160.0,     # 800 MPa
-    "10.9": 10200.0,   # 1000 MPa
+    "4.6": 4080.0,  # 400 MPa
+    "5.6": 5100.0,  # 500 MPa
+    "6.8": 6120.0,  # 600 MPa
+    "8.8": 8160.0,  # 800 MPa
+    "10.9": 10200.0,  # 1000 MPa
 }
 
 # Tensione di snervamento f_yb [kg/cm²] per classe bullone
 F_YB: dict[str, float] = {
-    "4.6": 2448.0,     # 240 MPa
-    "5.6": 3060.0,     # 300 MPa
-    "6.8": 4896.0,     # 480 MPa
-    "8.8": 6528.0,     # 640 MPa
-    "10.9": 9180.0,    # 900 MPa
+    "4.6": 2448.0,  # 240 MPa
+    "5.6": 3060.0,  # 300 MPa
+    "6.8": 4896.0,  # 480 MPa
+    "8.8": 6528.0,  # 640 MPa
+    "10.9": 9180.0,  # 900 MPa
 }
 
 # Area resistente a trazione A_res [cm²] per diametro nominale
@@ -237,47 +244,50 @@ A_GAMBO_BULLONE: dict[int, float] = {
 
 class TipoCollegamentoBullonato(str, Enum):
     """Tipo di collegamento bullonato."""
-    TAGLIO_GAMBO = "taglio_gambo"                   # gambo nella sezione di taglio
-    TAGLIO_FILETTO = "taglio_filetto"               # filetto nella sezione di taglio
-    TRAZIONE = "trazione"                           # bullone teso
-    INTERAZIONE_TAGLIO_TRAZIONE = "interazione"     # taglio + trazione
+
+    TAGLIO_GAMBO = "taglio_gambo"  # gambo nella sezione di taglio
+    TAGLIO_FILETTO = "taglio_filetto"  # filetto nella sezione di taglio
+    TRAZIONE = "trazione"  # bullone teso
+    INTERAZIONE_TAGLIO_TRAZIONE = "interazione"  # taglio + trazione
 
 
 @dataclass
 class InputBullone:
     """Input per verifica singolo bullone o gruppo."""
-    diametro: int = 20               # diametro nominale [mm]
-    classe: str = "8.8"              # classe resistenza
-    n_bulloni: int = 1               # numero bulloni
-    n_piani_taglio: int = 1          # numero piani di taglio
+
+    diametro: int = 20  # diametro nominale [mm]
+    classe: str = "8.8"  # classe resistenza
+    n_bulloni: int = 1  # numero bulloni
+    n_piani_taglio: int = 1  # numero piani di taglio
 
     # Sollecitazioni per bullone
-    V: float = 0.0                   # taglio per bullone [kg]
-    N: float = 0.0                   # trazione per bullone [kg]
+    V: float = 0.0  # taglio per bullone [kg]
+    N: float = 0.0  # trazione per bullone [kg]
 
     # Per verifica rifollamento
-    t: float = 0.0                   # spessore minimo lamiera [cm]
-    e1: float = 0.0                  # distanza dal bordo (dir. forza) [cm]
-    e2: float = 0.0                  # distanza dal bordo (perp. forza) [cm]
-    p1: float = 0.0                  # interasse bulloni (dir. forza) [cm]
-    fu_lamiera: float = 0.0          # resistenza rottura lamiera [kg/cm²]
+    t: float = 0.0  # spessore minimo lamiera [cm]
+    e1: float = 0.0  # distanza dal bordo (dir. forza) [cm]
+    e2: float = 0.0  # distanza dal bordo (perp. forza) [cm]
+    p1: float = 0.0  # interasse bulloni (dir. forza) [cm]
+    fu_lamiera: float = 0.0  # resistenza rottura lamiera [kg/cm²]
 
     # Metodo verifica
-    tipo_acciaio: str = "Fe430"      # per σ_adm
-    sigma_adm: float = 1900.0        # tensione ammissibile base [kg/cm²]
+    tipo_acciaio: str = "Fe430"  # per σ_adm
+    sigma_adm: float = 1900.0  # tensione ammissibile base [kg/cm²]
 
 
 @dataclass
 class RisultatoBullone:
     """Risultato verifica bullone/gruppo."""
+
     diametro: int
     classe: str
     n_bulloni: int
 
     # Resistenze
-    F_v_Rd: float = 0.0         # resistenza a taglio [kg]
-    F_t_Rd: float = 0.0         # resistenza a trazione [kg]
-    F_b_Rd: float = 0.0         # resistenza rifollamento [kg]
+    F_v_Rd: float = 0.0  # resistenza a taglio [kg]
+    F_t_Rd: float = 0.0  # resistenza a trazione [kg]
+    F_b_Rd: float = 0.0  # resistenza rifollamento [kg]
 
     # Sfruttamenti
     sfruttamento_taglio: float = 0.0
@@ -327,20 +337,14 @@ def verifica_bullone_ta(inp: InputBullone) -> RisultatoBullone:
     passaggi: list[str] = []
 
     d_cm = inp.diametro / 10.0  # mm → cm
-    A_gambo = A_GAMBO_BULLONE.get(inp.diametro, math.pi * d_cm ** 2 / 4)
+    A_gambo = A_GAMBO_BULLONE.get(inp.diametro, math.pi * d_cm**2 / 4)
     A_res = A_RES_BULLONE.get(inp.diametro, 0.75 * A_gambo)
     f_ub = F_UB.get(inp.classe, 8160.0)
     f_yb = F_YB.get(inp.classe, 6528.0)
 
-    passaggi.append(
-        f"Bullone M{inp.diametro} classe {inp.classe}, n={inp.n_bulloni}"
-    )
-    passaggi.append(
-        f"A_gambo = {A_gambo:.3f} cm², A_res = {A_res:.3f} cm²"
-    )
-    passaggi.append(
-        f"f_ub = {f_ub:.0f} kg/cm², f_yb = {f_yb:.0f} kg/cm²"
-    )
+    passaggi.append(f"Bullone M{inp.diametro} classe {inp.classe}, n={inp.n_bulloni}")
+    passaggi.append(f"A_gambo = {A_gambo:.3f} cm², A_res = {A_res:.3f} cm²")
+    passaggi.append(f"f_ub = {f_ub:.0f} kg/cm², f_yb = {f_yb:.0f} kg/cm²")
 
     # Tensioni ammissibili bullone (TA)
     # Taglio: τ_adm = 0.6 × f_ub / γ_Mb (γ_Mb = 1.25 per SLU, ~2.0 per TA)
@@ -368,12 +372,8 @@ def verifica_bullone_ta(inp: InputBullone) -> RisultatoBullone:
     F_t_1 = sigma_adm_b * A_res
     res.F_t_Rd = F_t_1 * inp.n_bulloni
 
-    passaggi.append(
-        f"F_v,Rd (1 bull.) = {F_v_1:.0f} kg × {inp.n_bulloni} = {res.F_v_Rd:.0f} kg"
-    )
-    passaggi.append(
-        f"F_t,Rd (1 bull.) = {F_t_1:.0f} kg × {inp.n_bulloni} = {res.F_t_Rd:.0f} kg"
-    )
+    passaggi.append(f"F_v,Rd (1 bull.) = {F_v_1:.0f} kg × {inp.n_bulloni} = {res.F_v_Rd:.0f} kg")
+    passaggi.append(f"F_t,Rd (1 bull.) = {F_t_1:.0f} kg × {inp.n_bulloni} = {res.F_t_Rd:.0f} kg")
 
     # --- Verifica taglio ---
     V_tot = abs(inp.V) * inp.n_bulloni if inp.n_bulloni > 0 else abs(inp.V)

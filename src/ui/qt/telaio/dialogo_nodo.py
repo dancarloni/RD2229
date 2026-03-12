@@ -32,23 +32,19 @@ except ImportError:
         QWidget,
     )
 
-from src.methods.rd2229.telaio.modello_telaio import (
-    NodoTelaio,
-    TipoVincoloEsterno,
-    VincoloEsterno,
-)
+from src.methods.rd2229.telaio.modello_telaio import NodoTelaio, TipoVincoloEsterno, VincoloEsterno
 
 # Descrizioni UI per i tipi di vincolo
 _DESCRIZIONI_VINCOLO = {
-    TipoVincoloEsterno.INCASTRO:    "[▪] Incastro         (ux=0, uy=0, θ=0)",
-    TipoVincoloEsterno.CERNIERA:    "[○] Cerniera         (ux=0, uy=0, θ libero)",
-    TipoVincoloEsterno.CARRELLO_X:  "[⊥] Carrello orizz.  (uy=0, scorre X)",
-    TipoVincoloEsterno.CARRELLO_Y:  "[∥] Carrello vert.   (ux=0, scorre Y)",
-    TipoVincoloEsterno.PATTINO_X:   "[⊟] Pattino orizz.   (uy=0, θ=0, scorre X)",
-    TipoVincoloEsterno.PATTINO_Y:   "[⊞] Pattino vert.    (ux=0, θ=0, scorre Y)",
-    TipoVincoloEsterno.PENDOLO:     "[/] Pendolo          (1 reaz. assiale)",
-    TipoVincoloEsterno.BIPENDOLO:   "[//] Bipendolo       (ux=0, uy=0, θ libero)",
-    TipoVincoloEsterno.LIBERO:      "[◯] Libero           (nodo interno)",
+    TipoVincoloEsterno.INCASTRO: "[▪] Incastro         (ux=0, uy=0, θ=0)",
+    TipoVincoloEsterno.CERNIERA: "[○] Cerniera         (ux=0, uy=0, θ libero)",
+    TipoVincoloEsterno.CARRELLO_X: "[⊥] Carrello orizz.  (uy=0, scorre X)",
+    TipoVincoloEsterno.CARRELLO_Y: "[∥] Carrello vert.   (ux=0, scorre Y)",
+    TipoVincoloEsterno.PATTINO_X: "[⊟] Pattino orizz.   (uy=0, θ=0, scorre X)",
+    TipoVincoloEsterno.PATTINO_Y: "[⊞] Pattino vert.    (ux=0, θ=0, scorre Y)",
+    TipoVincoloEsterno.PENDOLO: "[/] Pendolo          (1 reaz. assiale)",
+    TipoVincoloEsterno.BIPENDOLO: "[//] Bipendolo       (ux=0, uy=0, θ libero)",
+    TipoVincoloEsterno.LIBERO: "[◯] Libero           (nodo interno)",
 }
 
 
@@ -137,11 +133,10 @@ class DialogoNodo(QDialog):
             return
         v = VincoloEsterno(tipo=tipo)
         ux, uy, th = v.gdl_bloccati
-        gdl_str = ", ".join(
-            ([" ux"] if ux else [])
-            + ([" uy"] if uy else [])
-            + ([" θ"] if th else [])
-        ) or "nessuno"
+        gdl_str = (
+            ", ".join(([" ux"] if ux else []) + ([" uy"] if uy else []) + ([" θ"] if th else []))
+            or "nessuno"
+        )
         self._lbl_gdl.setText(gdl_str.strip())
         self._lbl_reazioni.setText(f"{v.n_reazioni}")
         self._spin_angolo_pendolo.setVisible(tipo == TipoVincoloEsterno.PENDOLO)

@@ -35,49 +35,50 @@ logger = logging.getLogger(__name__)
 
 class SistemaUnita(Enum):
     """Sistemi di unità di misura disponibili."""
-    KG_CM = "kg-cm"   # kg/cm² per tensioni, cm per geometria, kg⋅cm per momenti
-    KN_M = "kN-m"     # kPa per tensioni, m per geometria, kN⋅m per momenti
-    N_MM = "N-mm"     # MPa per tensioni, mm per geometria, N⋅mm per momenti
+
+    KG_CM = "kg-cm"  # kg/cm² per tensioni, cm per geometria, kg⋅cm per momenti
+    KN_M = "kN-m"  # kPa per tensioni, m per geometria, kN⋅m per momenti
+    N_MM = "N-mm"  # MPa per tensioni, mm per geometria, N⋅mm per momenti
 
 
 # Fattori di conversione DAL sistema interno (kg-cm) AL sistema target
 # Formato: {SistemaUnita: {grandezza: fattore_moltiplicativo}}
 _FATTORI_CONVERSIONE: dict[SistemaUnita, dict[str, float]] = {
     SistemaUnita.KG_CM: {
-        "lunghezza": 1.0,        # cm → cm
-        "area": 1.0,             # cm² → cm²
-        "volume": 1.0,           # cm³ → cm³
-        "forza": 1.0,            # kg → kg
-        "momento": 1.0,          # kg⋅cm → kg⋅cm
-        "tensione": 1.0,         # kg/cm² → kg/cm²
+        "lunghezza": 1.0,  # cm → cm
+        "area": 1.0,  # cm² → cm²
+        "volume": 1.0,  # cm³ → cm³
+        "forza": 1.0,  # kg → kg
+        "momento": 1.0,  # kg⋅cm → kg⋅cm
+        "tensione": 1.0,  # kg/cm² → kg/cm²
         "rigidezza_lineare": 1.0,  # kg/cm → kg/cm
-        "peso_specifico": 1.0,   # kg/cm³ → kg/cm³
-        "carico_lineare": 1.0,   # kg/cm → kg/cm
+        "peso_specifico": 1.0,  # kg/cm³ → kg/cm³
+        "carico_lineare": 1.0,  # kg/cm → kg/cm
         "carico_superficie": 1.0,  # kg/cm² → kg/cm²
     },
     SistemaUnita.KN_M: {
-        "lunghezza": 0.01,       # cm → m
-        "area": 1e-4,            # cm² → m²
-        "volume": 1e-6,          # cm³ → m³
-        "forza": 0.00980665,     # kg → kN
-        "momento": 0.0000980665, # kg⋅cm → kN⋅m
-        "tensione": 0.980665,    # kg/cm² → kPa
+        "lunghezza": 0.01,  # cm → m
+        "area": 1e-4,  # cm² → m²
+        "volume": 1e-6,  # cm³ → m³
+        "forza": 0.00980665,  # kg → kN
+        "momento": 0.0000980665,  # kg⋅cm → kN⋅m
+        "tensione": 0.980665,  # kg/cm² → kPa
         "rigidezza_lineare": 0.980665,  # kg/cm → kN/m
-        "peso_specifico": 9.80665e3,    # kg/cm³ → kN/m³
-        "carico_lineare": 0.0980665,    # kg/cm → kN/m
+        "peso_specifico": 9.80665e3,  # kg/cm³ → kN/m³
+        "carico_lineare": 0.0980665,  # kg/cm → kN/m
         "carico_superficie": 0.980665,  # kg/cm² → kN/m²
     },
     SistemaUnita.N_MM: {
-        "lunghezza": 10.0,       # cm → mm
-        "area": 100.0,           # cm² → mm²
-        "volume": 1000.0,        # cm³ → mm³
-        "forza": 9.80665,        # kg → N
-        "momento": 98.0665,      # kg⋅cm → N⋅mm
-        "tensione": 0.0980665,   # kg/cm² → MPa (N/mm²)
+        "lunghezza": 10.0,  # cm → mm
+        "area": 100.0,  # cm² → mm²
+        "volume": 1000.0,  # cm³ → mm³
+        "forza": 9.80665,  # kg → N
+        "momento": 98.0665,  # kg⋅cm → N⋅mm
+        "tensione": 0.0980665,  # kg/cm² → MPa (N/mm²)
         "rigidezza_lineare": 0.980665,  # kg/cm → N/mm
-        "peso_specifico": 9.80665e-6,   # kg/cm³ → N/mm³
-        "carico_lineare": 0.0980665,    # kg/cm → N/mm
-        "carico_superficie": 0.0980665, # kg/cm² → N/mm² (MPa)
+        "peso_specifico": 9.80665e-6,  # kg/cm³ → N/mm³
+        "carico_lineare": 0.0980665,  # kg/cm → N/mm
+        "carico_superficie": 0.0980665,  # kg/cm² → N/mm² (MPa)
     },
 }
 

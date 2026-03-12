@@ -14,8 +14,8 @@ from src.methods.muratura.combinazioni_muratura import (
 #  Coefficienti ψ
 # ═══════════════════════════════════════════════════════════
 
-class TestPsi:
 
+class TestPsi:
     def test_psi_0_residenziale(self):
         assert PSI_0["A"] == pytest.approx(0.7)
 
@@ -33,8 +33,8 @@ class TestPsi:
 #  CombinazioneCarico
 # ═══════════════════════════════════════════════════════════
 
-class TestCombinazioneCarico:
 
+class TestCombinazioneCarico:
     def test_calcola_N_SLU(self):
         """SLU fondamentale: 1.3×G1 + 1.5×G2 + 1.5×0.7×Q."""
         c = CombinazioneCarico(gamma_G1=1.3, gamma_G2=1.5, gamma_Q=1.5, psi=0.7)
@@ -65,8 +65,8 @@ class TestCombinazioneCarico:
 #  GestoreCombinazioni — default
 # ═══════════════════════════════════════════════════════════
 
-class TestGestoreDefault:
 
+class TestGestoreDefault:
     def test_default_genera_6_combinazioni(self):
         g = GestoreCombinazioni(categoria="A")
         assert g.n_combinazioni == 6
@@ -100,8 +100,8 @@ class TestGestoreDefault:
 #  CRUD
 # ═══════════════════════════════════════════════════════════
 
-class TestCRUD:
 
+class TestCRUD:
     def test_aggiungi(self):
         g = GestoreCombinazioni()
         n_prima = g.n_combinazioni
@@ -147,8 +147,8 @@ class TestCRUD:
 #  Attiva / Disattiva
 # ═══════════════════════════════════════════════════════════
 
-class TestAttivaDisattiva:
 
+class TestAttivaDisattiva:
     def test_disattiva(self):
         g = GestoreCombinazioni()
         primo = g.combinazioni[0]
@@ -180,8 +180,8 @@ class TestAttivaDisattiva:
 #  Ripristino default
 # ═══════════════════════════════════════════════════════════
 
-class TestRipristinoDefault:
 
+class TestRipristinoDefault:
     def test_ripristina_dopo_eliminazione(self):
         g = GestoreCombinazioni()
         # Elimina una predefinita
@@ -206,8 +206,8 @@ class TestRipristinoDefault:
 #  Calcolo N combinato
 # ═══════════════════════════════════════════════════════════
 
-class TestCalcoloNCombinato:
 
+class TestCalcoloNCombinato:
     def test_calcola_N_tutte(self):
         g = GestoreCombinazioni()
         risultati = g.calcola_N_tutte(G1=10000, G2=3000, Q=2000)

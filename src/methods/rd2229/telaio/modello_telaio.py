@@ -21,6 +21,7 @@ from enum import Enum
 # ENUMERAZIONI
 # ==============================================================================
 
+
 class TipoVincoloEsterno(str, Enum):
     """Vincoli ai nodi di appoggio (suolo o struttura esterna).
 
@@ -33,15 +34,16 @@ class TipoVincoloEsterno(str, Enum):
     - Bipendolo:   2 reazioni (H, V)    — ≡ cerniera tramite 2 bielle
     - Libero:      0 reazioni           — nodo interno non vincolato
     """
-    INCASTRO    = "incastro"     # ux=0, uy=0, θ=0  | reaz: H, V, M
-    CERNIERA    = "cerniera"     # ux=0, uy=0, θ≠0  | reaz: H, V
-    CARRELLO_X  = "carrello_x"   # uy=0, ux≠0, θ≠0  | reaz: V   (scorre in X)
-    CARRELLO_Y  = "carrello_y"   # ux=0, uy≠0, θ≠0  | reaz: H   (scorre in Y)
-    PATTINO_X   = "pattino_x"    # uy=0, θ=0, ux≠0  | reaz: V,M (guidato in X)
-    PATTINO_Y   = "pattino_y"    # ux=0, θ=0, uy≠0  | reaz: H,M (guidato in Y)
-    PENDOLO     = "pendolo"      # 1 reaz. assiale lungo asse asta pendolo
-    BIPENDOLO   = "bipendolo"    # 2 reaz. H,V (≡ cerniera tramite 2 bielle)
-    LIBERO      = "libero"       # nodo non vincolato (nodo interno)
+
+    INCASTRO = "incastro"  # ux=0, uy=0, θ=0  | reaz: H, V, M
+    CERNIERA = "cerniera"  # ux=0, uy=0, θ≠0  | reaz: H, V
+    CARRELLO_X = "carrello_x"  # uy=0, ux≠0, θ≠0  | reaz: V   (scorre in X)
+    CARRELLO_Y = "carrello_y"  # ux=0, uy≠0, θ≠0  | reaz: H   (scorre in Y)
+    PATTINO_X = "pattino_x"  # uy=0, θ=0, ux≠0  | reaz: V,M (guidato in X)
+    PATTINO_Y = "pattino_y"  # ux=0, θ=0, uy≠0  | reaz: H,M (guidato in Y)
+    PENDOLO = "pendolo"  # 1 reaz. assiale lungo asse asta pendolo
+    BIPENDOLO = "bipendolo"  # 2 reaz. H,V (≡ cerniera tramite 2 bielle)
+    LIBERO = "libero"  # nodo non vincolato (nodo interno)
 
 
 class TipoRilascioInterno(str, Enum):
@@ -54,35 +56,39 @@ class TipoRilascioInterno(str, Enum):
     - PATTINO:     k=EI/L,  c=-1.0 — V=0, rotaz. bloccata (sella Gerber, antisimm.)
     - BIPENDOLO:   k=3EI/L, c=0.0  — ≡ cerniera nel piano
     """
+
     NODO_RIGIDO = "nodo_rigido"
-    CERNIERA    = "cerniera"
-    MANICOTTO   = "manicotto"
-    PATTINO     = "pattino"
-    BIPENDOLO   = "bipendolo"
+    CERNIERA = "cerniera"
+    MANICOTTO = "manicotto"
+    PATTINO = "pattino"
+    BIPENDOLO = "bipendolo"
 
 
 class TipoAsta(str, Enum):
     """Tipo elemento strutturale."""
-    TRAVE     = "trave"
-    PILASTRO  = "pilastro"
-    SETTO     = "setto"
-    MENSOLA   = "mensola"
+
+    TRAVE = "trave"
+    PILASTRO = "pilastro"
+    SETTO = "setto"
+    MENSOLA = "mensola"
     INCLINATA = "inclinata"
-    PENDOLO   = "pendolo"   # asta biella: solo sforzo assiale, k flessionale = 0
+    PENDOLO = "pendolo"  # asta biella: solo sforzo assiale, k flessionale = 0
 
 
 class TipoCarico(str, Enum):
     """Tipo di carico applicabile a un'asta."""
+
     DISTRIBUITO_UNIFORME = "distribuito_uniforme"  # w [kg/cm]
-    DISTRIBUITO_TRAPEZ   = "distribuito_trapez"    # w_sx, w_dx [kg/cm]
-    CONCENTRATO          = "concentrato"           # P [kg] a posizione a [cm]
-    MOMENTO_NODO         = "momento_nodo"          # M [kg·cm] al nodo i o j
-    PESO_PROPRIO         = "peso_proprio"          # automatico da sezione+materiale
+    DISTRIBUITO_TRAPEZ = "distribuito_trapez"  # w_sx, w_dx [kg/cm]
+    CONCENTRATO = "concentrato"  # P [kg] a posizione a [cm]
+    MOMENTO_NODO = "momento_nodo"  # M [kg·cm] al nodo i o j
+    PESO_PROPRIO = "peso_proprio"  # automatico da sezione+materiale
 
 
 # ==============================================================================
 # DATACLASS VINCOLI E RILASCI
 # ==============================================================================
+
 
 @dataclass
 class VincoloEsterno:
@@ -94,6 +100,7 @@ class VincoloEsterno:
                             usato solo per TipoVincoloEsterno.PENDOLO
         descrizione:        nota descrittiva (non influenza il calcolo)
     """
+
     tipo: TipoVincoloEsterno
     angolo_pendolo_deg: float = 90.0
     descrizione: str = ""
@@ -102,15 +109,15 @@ class VincoloEsterno:
     def gdl_bloccati(self) -> tuple[bool, bool, bool]:
         """Ritorna (blocca_ux, blocca_uy, blocca_theta)."""
         mapping: dict[TipoVincoloEsterno, tuple[bool, bool, bool]] = {
-            TipoVincoloEsterno.INCASTRO:   (True,  True,  True),
-            TipoVincoloEsterno.CERNIERA:   (True,  True,  False),
-            TipoVincoloEsterno.CARRELLO_X: (False, True,  False),
-            TipoVincoloEsterno.CARRELLO_Y: (True,  False, False),
-            TipoVincoloEsterno.PATTINO_X:  (False, True,  True),
-            TipoVincoloEsterno.PATTINO_Y:  (True,  False, True),
-            TipoVincoloEsterno.PENDOLO:    (False, False, False),  # gestito separatamente
-            TipoVincoloEsterno.BIPENDOLO:  (True,  True,  False),
-            TipoVincoloEsterno.LIBERO:     (False, False, False),
+            TipoVincoloEsterno.INCASTRO: (True, True, True),
+            TipoVincoloEsterno.CERNIERA: (True, True, False),
+            TipoVincoloEsterno.CARRELLO_X: (False, True, False),
+            TipoVincoloEsterno.CARRELLO_Y: (True, False, False),
+            TipoVincoloEsterno.PATTINO_X: (False, True, True),
+            TipoVincoloEsterno.PATTINO_Y: (True, False, True),
+            TipoVincoloEsterno.PENDOLO: (False, False, False),  # gestito separatamente
+            TipoVincoloEsterno.BIPENDOLO: (True, True, False),
+            TipoVincoloEsterno.LIBERO: (False, False, False),
         }
         return mapping.get(self.tipo, (False, False, False))
 
@@ -129,15 +136,15 @@ class VincoloEsterno:
     def simbolo_grafico(self) -> str:
         """Simbolo per la GUI (canvas Qt)."""
         simboli = {
-            TipoVincoloEsterno.INCASTRO:   "▪",
-            TipoVincoloEsterno.CERNIERA:   "○",
+            TipoVincoloEsterno.INCASTRO: "▪",
+            TipoVincoloEsterno.CERNIERA: "○",
             TipoVincoloEsterno.CARRELLO_X: "⊥",
             TipoVincoloEsterno.CARRELLO_Y: "∥",
-            TipoVincoloEsterno.PATTINO_X:  "⊟",
-            TipoVincoloEsterno.PATTINO_Y:  "⊞",
-            TipoVincoloEsterno.PENDOLO:    "/",
-            TipoVincoloEsterno.BIPENDOLO:  "//",
-            TipoVincoloEsterno.LIBERO:     "◯",
+            TipoVincoloEsterno.PATTINO_X: "⊟",
+            TipoVincoloEsterno.PATTINO_Y: "⊞",
+            TipoVincoloEsterno.PENDOLO: "/",
+            TipoVincoloEsterno.BIPENDOLO: "//",
+            TipoVincoloEsterno.LIBERO: "◯",
         }
         return simboli.get(self.tipo, "?")
 
@@ -172,6 +179,7 @@ class RilascioEstremita:
 
     Riferimento: Pozzati vol.II §3.3; Santarella cap. 3.
     """
+
     tipo: TipoRilascioInterno
 
     @property
@@ -179,10 +187,10 @@ class RilascioEstremita:
         """Fattore moltiplicativo per k = k_factor × E × I / L."""
         mapping = {
             TipoRilascioInterno.NODO_RIGIDO: 4.0,
-            TipoRilascioInterno.CERNIERA:    3.0,
-            TipoRilascioInterno.BIPENDOLO:   3.0,
-            TipoRilascioInterno.MANICOTTO:   4.0,
-            TipoRilascioInterno.PATTINO:     1.0,
+            TipoRilascioInterno.CERNIERA: 3.0,
+            TipoRilascioInterno.BIPENDOLO: 3.0,
+            TipoRilascioInterno.MANICOTTO: 4.0,
+            TipoRilascioInterno.PATTINO: 1.0,
         }
         return mapping[self.tipo]
 
@@ -190,11 +198,11 @@ class RilascioEstremita:
     def carry_over(self) -> float:
         """Fattore di trasporto (carry-over) c."""
         mapping = {
-            TipoRilascioInterno.NODO_RIGIDO:  0.5,
-            TipoRilascioInterno.CERNIERA:     0.0,
-            TipoRilascioInterno.BIPENDOLO:    0.0,
-            TipoRilascioInterno.MANICOTTO:    0.5,
-            TipoRilascioInterno.PATTINO:     -1.0,
+            TipoRilascioInterno.NODO_RIGIDO: 0.5,
+            TipoRilascioInterno.CERNIERA: 0.0,
+            TipoRilascioInterno.BIPENDOLO: 0.0,
+            TipoRilascioInterno.MANICOTTO: 0.5,
+            TipoRilascioInterno.PATTINO: -1.0,
         }
         return mapping[self.tipo]
 
@@ -215,11 +223,11 @@ class RilascioEstremita:
     def simbolo_grafico(self) -> str:
         """Simbolo per la GUI canvas."""
         simboli = {
-            TipoRilascioInterno.NODO_RIGIDO: "",    # nessun simbolo (default)
-            TipoRilascioInterno.CERNIERA:    "○",   # cerchietto
-            TipoRilascioInterno.MANICOTTO:   "□",   # quadratino
-            TipoRilascioInterno.PATTINO:     "⊟",   # pattino
-            TipoRilascioInterno.BIPENDOLO:   "⊙",   # doppia cerniera
+            TipoRilascioInterno.NODO_RIGIDO: "",  # nessun simbolo (default)
+            TipoRilascioInterno.CERNIERA: "○",  # cerchietto
+            TipoRilascioInterno.MANICOTTO: "□",  # quadratino
+            TipoRilascioInterno.PATTINO: "⊟",  # pattino
+            TipoRilascioInterno.BIPENDOLO: "⊙",  # doppia cerniera
         }
         return simboli.get(self.tipo, "")
 
@@ -234,16 +242,17 @@ class RilascioEstremita:
 
 
 # Costanti per rilasci predefiniti (evita istanziazione ripetuta)
-RILASCIO_RIGIDO    = RilascioEstremita(TipoRilascioInterno.NODO_RIGIDO)
-RILASCIO_CERNIERA  = RilascioEstremita(TipoRilascioInterno.CERNIERA)
+RILASCIO_RIGIDO = RilascioEstremita(TipoRilascioInterno.NODO_RIGIDO)
+RILASCIO_CERNIERA = RilascioEstremita(TipoRilascioInterno.CERNIERA)
 RILASCIO_MANICOTTO = RilascioEstremita(TipoRilascioInterno.MANICOTTO)
-RILASCIO_PATTINO   = RilascioEstremita(TipoRilascioInterno.PATTINO)
+RILASCIO_PATTINO = RilascioEstremita(TipoRilascioInterno.PATTINO)
 RILASCIO_BIPENDOLO = RilascioEstremita(TipoRilascioInterno.BIPENDOLO)
 
 
 # ==============================================================================
 # DATACLASS CARICHI
 # ==============================================================================
+
 
 @dataclass
 class CaricoAsta:
@@ -259,6 +268,7 @@ class CaricoAsta:
         al_nodo_i:    True se MOMENTO_NODO è applicato al nodo i, False se al nodo j
         descrizione:  nota descrittiva (non influenza il calcolo)
     """
+
     tipo: TipoCarico
     valore_sx: float
     valore_dx: float = 0.0
@@ -283,6 +293,7 @@ class CaricoAsta:
 # DATACLASS SEZIONE
 # ==============================================================================
 
+
 @dataclass
 class SezioneTelaio:
     """Proprietà sezionali di un'asta per il calcolo a telaio.
@@ -303,14 +314,15 @@ class SezioneTelaio:
         section_ref:  chiave in section_manager (opzionale, per dropdown Qt)
         extra:        parametri aggiuntivi (alette T, ali I, ecc.)
     """
+
     tipo: str
-    b: float        # [cm]
-    h: float        # [cm]
-    I: float        # [cm⁴]
-    A: float        # [cm²]
-    Wx: float       # [cm³]
-    E: float        # [kg/cm²]
-    gamma: float    # [kg/cm³]
+    b: float  # [cm]
+    h: float  # [cm]
+    I: float  # [cm⁴]
+    A: float  # [cm²]
+    Wx: float  # [cm³]
+    E: float  # [kg/cm²]
+    gamma: float  # [kg/cm³]
     section_ref: str = ""
     extra: dict = field(default_factory=dict)
 
@@ -357,6 +369,7 @@ class SezioneTelaio:
 # DATACLASS NODO
 # ==============================================================================
 
+
 @dataclass
 class NodoTelaio:
     """Nodo strutturale del telaio piano.
@@ -369,6 +382,7 @@ class NodoTelaio:
         piano:    piano di appartenenza (0=fondazione, 1=1° piano, 2=2° piano, ...)
         etichetta: stringa identificativa per tabulati (es. "A", "B1", "C2")
     """
+
     id: int
     x: float
     y: float
@@ -397,6 +411,7 @@ class NodoTelaio:
 # DATACLASS ASTA
 # ==============================================================================
 
+
 @dataclass
 class AstaTelaio:
     """Elemento strutturale del telaio piano (trave, pilastro, setto, mensola, ecc.).
@@ -418,6 +433,7 @@ class AstaTelaio:
           k_from_i = rilascio_j.k_factor × E × I / L
         Il carry-over da i verso j dipende da rilascio_j.carry_over.
     """
+
     id: int
     nodo_i: int
     nodo_j: int
@@ -483,6 +499,7 @@ class AstaTelaio:
 # DATACLASS PIANO
 # ==============================================================================
 
+
 @dataclass
 class PianoTelaio:
     """Dati di un piano del telaio (per calcolo sismico).
@@ -496,6 +513,7 @@ class PianoTelaio:
         forza_sismica_z: forza sismica verticale sussultorio [kg]
         descrizione:     nota (es. "Piano tipo", "Copertura")
     """
+
     id_piano: int
     quota: float
     peso_piano: float = 0.0
@@ -518,6 +536,7 @@ class PianoTelaio:
 # DATACLASS MODELLO TELAIO
 # ==============================================================================
 
+
 @dataclass
 class ModelloTelaio:
     """Modello completo del telaio piano.
@@ -533,6 +552,7 @@ class ModelloTelaio:
         zona_sismica:  "non_sismico", "bassa", "media", "alta" (RD2229)
         note:          note generali
     """
+
     nome: str
     nodi: list[NodoTelaio]
     aste: list[AstaTelaio]
@@ -599,7 +619,8 @@ class ModelloTelaio:
     def travi_piano(self, id_piano: int) -> list[AstaTelaio]:
         """Travi (tipo TRAVE) del piano id_piano."""
         return [
-            a for a in self.aste
+            a
+            for a in self.aste
             if a.tipo == TipoAsta.TRAVE
             and self._nodi_map.get(a.nodo_i, None) is not None
             and self._nodi_map[a.nodo_i].piano == id_piano
@@ -679,6 +700,7 @@ class ModelloTelaio:
     @classmethod
     def from_dict(cls, d: dict) -> ModelloTelaio:
         """Ricostruisce il modello da un dict (es. da JSON)."""
+
         def _vincolo(v: dict) -> VincoloEsterno:
             return VincoloEsterno(
                 tipo=TipoVincoloEsterno(v["tipo"]),
@@ -692,8 +714,13 @@ class ModelloTelaio:
         def _sezione(s: dict) -> SezioneTelaio:
             return SezioneTelaio(
                 tipo=s["tipo"],
-                b=s["b"], h=s["h"], I=s["I"], A=s["A"],
-                Wx=s["Wx"], E=s["E"], gamma=s["gamma"],
+                b=s["b"],
+                h=s["h"],
+                I=s["I"],
+                A=s["A"],
+                Wx=s["Wx"],
+                E=s["E"],
+                gamma=s["gamma"],
                 section_ref=s.get("section_ref", ""),
             )
 
@@ -710,7 +737,9 @@ class ModelloTelaio:
 
         nodi = [
             NodoTelaio(
-                id=n["id"], x=n["x"], y=n["y"],
+                id=n["id"],
+                x=n["x"],
+                y=n["y"],
                 vincolo=_vincolo(n["vincolo"]),
                 piano=n.get("piano", 0),
                 etichetta=n.get("etichetta", str(n["id"])),

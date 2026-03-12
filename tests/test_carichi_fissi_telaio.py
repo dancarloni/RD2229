@@ -24,12 +24,15 @@ def _check(calcolato: float, atteso: float, msg: str = "") -> None:
         assert abs(calcolato) < 1e-6, f"{msg}: atteso ~0, calcolato {calcolato}"
     else:
         err_rel = abs((calcolato - atteso) / atteso)
-        assert err_rel < TOL, f"{msg}: atteso {atteso:.4f}, calcolato {calcolato:.4f} (err={err_rel:.4%})"
+        assert (
+            err_rel < TOL
+        ), f"{msg}: atteso {atteso:.4f}, calcolato {calcolato:.4f} (err={err_rel:.4%})"
 
 
 # ==============================================================================
 # TEST 1 — mip_uniforme
 # ==============================================================================
+
 
 class TestMipUniforme:
     """Santarella Tab.9 — carico distribuito uniforme."""
@@ -58,6 +61,7 @@ class TestMipUniforme:
 # ==============================================================================
 # TEST 2 — mip_concentrato
 # ==============================================================================
+
 
 class TestMipConcentrato:
     """Santarella Tab.9 — carico concentrato."""
@@ -93,6 +97,7 @@ class TestMipConcentrato:
 # TEST 3 — mip_trapezoidale
 # ==============================================================================
 
+
 class TestMipTrapezoidale:
     """Decomposizione: uniforme + triangolare."""
 
@@ -125,6 +130,7 @@ class TestMipTrapezoidale:
 # ==============================================================================
 # TEST 4 — mip_triangolare_crescente e decrescente
 # ==============================================================================
+
 
 class TestMipTriangolare:
     """Santarella Tab.9 — triangolare."""
@@ -159,6 +165,7 @@ class TestMipTriangolare:
 # TEST 5 — mip_cedimento (sway)
 # ==============================================================================
 
+
 class TestMipCedimento:
     """MIP cedimento unitario per correzione sway."""
 
@@ -182,6 +189,7 @@ class TestMipCedimento:
 # ==============================================================================
 # TEST 6 — mip_momento_nodale
 # ==============================================================================
+
 
 class TestMipMomentoNodale:
     """MIP per momento applicato al nodo."""

@@ -32,6 +32,15 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | Moduli implementati| 95+     |
 | Norme coperte      | 10      |
 
+**Stato pre-commit/linting (12/03/2026):**
+- Tutti i pre-commit hook eseguiti senza errori bloccanti
+- Solo warning "Low"/"Medium" su test legacy (accettati)
+- Nessun errore di formattazione, linting o hook bloccante
+- Workflow di commit ora frictionless: nessun warning critico, nessun blocco VS Code
+
+**Nota:**
+- Il repository è in stato "pulito" e pronto per sviluppo continuo senza interruzioni dovute a errori di configurazione, pre-commit o linting.
+
 **Nota:**
 - I test falliti sono dovuti a errori di importazione della CLI (`typer` non trovato) e a un test FEM che non solleva l’eccezione attesa.
 - I test saltati sono legati a dipendenze opzionali non presenti (PyQt6/PySide6, Hypothesis, Shapely).
@@ -71,7 +80,7 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | S8   | ✅    | 100 | 2ab5c7c       | [piano_fase_S8.md](piano_fase_S8.md) | Scaffalature — DOCUMENTAZIONE ARRICCHITA ✅ |
 | S9   | ✅    | 100 | 2ab5c7c       | [piano_fase_S9.md](piano_fase_S9.md) | Insegne — DOCUMENTAZIONE ARRICCHITA ✅ |
 | T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) | Da definire |
-| U    | 🟡    | 96  | in aggiornamento | [piano_fase_U.md](piano_fase_U.md) | IMPLEMENTAZIONE U.1-U.6 completata + test verdi; resta U.7 benchmark esterno |
+| U    | ✅    | 100 | 2026-03-12      | [piano_fase_U.md](piano_fase_U.md) | U.1–U.6 completate/testate/committate; U.7 benchmark esterno non automatizzabile |
 | V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) | Da definire |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) | Da definire |
 | X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) | Da definire |

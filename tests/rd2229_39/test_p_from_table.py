@@ -1,7 +1,4 @@
-from src.rd2229.seismic.rd2229_39.models.inputs import (
-    FloorForcesRequest,
-    FloorMassBreakdown,
-)
+from src.rd2229.seismic.rd2229_39.models.inputs import FloorForcesRequest, FloorMassBreakdown
 from src.rd2229.seismic.rd2229_39.provider import RD2229SeismicProvider
 
 

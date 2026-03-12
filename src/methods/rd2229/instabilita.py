@@ -45,7 +45,7 @@ class EsitoStabilita(str, Enum):
 
     VERIFICATA = "verificata"
     NON_VERIFICATA = "non_verificata"
-    NON_COMPRESSA = "non_compressa"          # Nr ≥ 0 (trazione)
+    NON_COMPRESSA = "non_compressa"  # Nr ≥ 0 (trazione)
     SNELLEZZA_ECCESSIVA = "snellezza_eccessiva"  # λ > 140
 
 
@@ -57,32 +57,32 @@ class InputStabilita:
     """
 
     # Sollecitazioni
-    Nr: float     # kg — sforzo normale (negativo = compressione)
-    Mr: float     # kg·cm — momento flettente risultante
+    Nr: float  # kg — sforzo normale (negativo = compressione)
+    Mr: float  # kg·cm — momento flettente risultante
 
     # Geometria sezione
-    B: float      # cm — larghezza
-    H: float      # cm — altezza
+    B: float  # cm — larghezza
+    H: float  # cm — altezza
 
     # Proprietà sezione omogenizzata
     A_sez: float  # cm² — area cls sezione lorda
-    I_yp: float   # cm⁴ — inerzia y (sezione omogenizzata)
-    I_zp: float   # cm⁴ — inerzia z (sezione omogenizzata)
-    A_ci: float   # cm² — area cls ideale (cls + n·A_s)
-    r_yp: float   # cm — raggio d'inerzia y (sezione omogenizzata)
-    r_zp: float   # cm — raggio d'inerzia z (sezione omogenizzata)
+    I_yp: float  # cm⁴ — inerzia y (sezione omogenizzata)
+    I_zp: float  # cm⁴ — inerzia z (sezione omogenizzata)
+    A_ci: float  # cm² — area cls ideale (cls + n·A_s)
+    r_yp: float  # cm — raggio d'inerzia y (sezione omogenizzata)
+    r_zp: float  # cm — raggio d'inerzia z (sezione omogenizzata)
 
     # Armatura totale
-    A_ft: float   # cm² — area totale armatura
+    A_ft: float  # cm² — area totale armatura
 
     # Materiali
     sigma_c_adm: float  # kg/cm² — σ_c ammissibile (compressione semplice)
     sigma_s_adm: float  # kg/cm² — σ_s ammissibile acciaio
-    E_c: float          # kg/cm² — modulo elastico cls
-    n: float = 15.0     # coefficiente di omogenizzazione
+    E_c: float  # kg/cm² — modulo elastico cls
+    n: float = 15.0  # coefficiente di omogenizzazione
 
     # Lunghezza asta e vincoli
-    L: float = 0.0       # cm — lunghezza asta
+    L: float = 0.0  # cm — lunghezza asta
     beta_y: float = 1.0  # coefficiente lunghezza libera piano xz
     beta_z: float = 1.0  # coefficiente lunghezza libera piano xy
 
@@ -92,21 +92,21 @@ class RisultatoStabilita:
     """Risultato della verifica di stabilità TA."""
 
     esito: EsitoStabilita
-    lambda_y: float = 0.0       # snellezza piano xz
-    lambda_z: float = 0.0       # snellezza piano xy
-    lambda_max: float = 0.0     # snellezza massima
-    L0_y: float = 0.0           # cm — lunghezza libera y
-    L0_z: float = 0.0           # cm — lunghezza libera z
-    Pcr_y: float = 0.0          # kg — carico critico Euleriano y
-    Pcr_z: float = 0.0          # kg — carico critico Euleriano z
-    Pcr: float = 0.0            # kg — carico critico minimo
-    sigma_cr: float = 0.0       # kg/cm² — tensione critica Euleriana
-    omega: float = 1.0          # coefficiente ω
-    alpha_M: float = 1.0        # coefficiente amplificazione momento
+    lambda_y: float = 0.0  # snellezza piano xz
+    lambda_z: float = 0.0  # snellezza piano xy
+    lambda_max: float = 0.0  # snellezza massima
+    L0_y: float = 0.0  # cm — lunghezza libera y
+    L0_z: float = 0.0  # cm — lunghezza libera z
+    Pcr_y: float = 0.0  # kg — carico critico Euleriano y
+    Pcr_z: float = 0.0  # kg — carico critico Euleriano z
+    Pcr: float = 0.0  # kg — carico critico minimo
+    sigma_cr: float = 0.0  # kg/cm² — tensione critica Euleriana
+    omega: float = 1.0  # coefficiente ω
+    alpha_M: float = 1.0  # coefficiente amplificazione momento
 
     # Tensioni verifica 1 (compressione semplice amplificata)
-    sigma_c_1: float = 0.0      # kg/cm²
-    sigma_s_1: float = 0.0      # kg/cm²
+    sigma_c_1: float = 0.0  # kg/cm²
+    sigma_s_1: float = 0.0  # kg/cm²
     verifica_1: bool = False
 
     # Tensioni verifica 2 (N e M amplificati)
@@ -218,7 +218,9 @@ def verifica_stabilita_ta(inp: InputStabilita) -> RisultatoStabilita:
 
     # Asta non compressa (Nr ≥ 0 → trazione)
     if inp.Nr >= 0:
-        passaggi.append("Sforzo normale non di compressione → verifica a carico di punta non necessaria.")
+        passaggi.append(
+            "Sforzo normale non di compressione → verifica a carico di punta non necessaria."
+        )
         ris.verifica_soddisfatta = True
         return ris
 
@@ -338,7 +340,7 @@ def verifica_stabilita_ta(inp: InputStabilita) -> RisultatoStabilita:
         sigma_s_1 = inp.n * sigma_c_1
         ris.sigma_c_1 = sigma_c_1
         ris.sigma_s_1 = sigma_s_1
-        ris.verifica_1 = (sigma_c_1 <= sigma_car and sigma_s_1 <= inp.sigma_s_adm)
+        ris.verifica_1 = sigma_c_1 <= sigma_car and sigma_s_1 <= inp.sigma_s_adm
         passaggi.append(
             f"1ª verifica (N amplificato): σ_c = {sigma_c_1:.2f}, σ_s = {sigma_s_1:.2f} kg/cm² "
             f"→ {'OK' if ris.verifica_1 else 'NON OK'}"
@@ -354,7 +356,7 @@ def verifica_stabilita_ta(inp: InputStabilita) -> RisultatoStabilita:
         )
         ris.sigma_c_2 = sigma_c_2
         ris.sigma_s_2 = sigma_s_2
-        ris.verifica_2 = (sigma_c_2 <= sigma_car and sigma_s_2 <= inp.sigma_s_adm)
+        ris.verifica_2 = sigma_c_2 <= sigma_car and sigma_s_2 <= inp.sigma_s_adm
         passaggi.append(
             f"2ª verifica (ω·N + α_M·M): σ_c = {sigma_c_2:.2f}, σ_s = {sigma_s_2:.2f} kg/cm² "
             f"→ {'OK' if ris.verifica_2 else 'NON OK'}"
@@ -363,12 +365,10 @@ def verifica_stabilita_ta(inp: InputStabilita) -> RisultatoStabilita:
         # 3ª verifica: N non amplificato, M amplificato
         N_3 = abs(Nr)
         M_3 = alpha_M * abs(Mr)
-        sigma_c_3, sigma_s_3 = _tensioni_pressoflessione(
-            N_3, M_3, inp.A_ci, inp.I_yp, inp.H, inp.n
-        )
+        sigma_c_3, sigma_s_3 = _tensioni_pressoflessione(N_3, M_3, inp.A_ci, inp.I_yp, inp.H, inp.n)
         ris.sigma_c_3 = sigma_c_3
         ris.sigma_s_3 = sigma_s_3
-        ris.verifica_3 = (sigma_c_3 <= sigma_car and sigma_s_3 <= inp.sigma_s_adm)
+        ris.verifica_3 = sigma_c_3 <= sigma_car and sigma_s_3 <= inp.sigma_s_adm
         passaggi.append(
             f"3ª verifica (N + α_M·M): σ_c = {sigma_c_3:.2f}, σ_s = {sigma_s_3:.2f} kg/cm² "
             f"→ {'OK' if ris.verifica_3 else 'NON OK'}"

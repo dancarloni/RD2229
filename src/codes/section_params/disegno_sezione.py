@@ -26,6 +26,7 @@ try:
     import matplotlib.patches as mpatches
     import matplotlib.pyplot as plt
     from matplotlib.figure import Figure
+
     _HAS_MPL = True
 except ImportError:  # pragma: no cover
     _HAS_MPL = False
@@ -68,10 +69,10 @@ def _section_outline_xy(
 
 def disegna_sezione(
     section: Any,
-    barre: list[Any],                   # lista BarraArmatura
+    barre: list[Any],  # lista BarraArmatura
     *,
-    y_na: float | None = None,          # asse neutro dal lembo compresso [cm]
-    sigma_c_max: float | None = None,   # tensione max cls [kg/cm²]
+    y_na: float | None = None,  # asse neutro dal lembo compresso [cm]
+    sigma_c_max: float | None = None,  # tensione max cls [kg/cm²]
     barre_sigma: list[dict] | None = None,  # output calcola_tensioni_sle
     n: float | None = None,
     titolo: str = "Sezione in c.a.",
@@ -141,6 +142,7 @@ def disegna_sezione(
             sigma_map[bs["y_cm"]] = bs["sigma_s_kgcm2"]
 
     from math import pi, sqrt
+
     for bar in barre:
         y_g = h - bar.y  # flip
         r_bar = sqrt(bar.A / pi)  # raggio equivalente
@@ -154,8 +156,13 @@ def disegna_sezione(
     if y_na is not None:
         y_na_g = h - y_na
         max_hw = max(abs(x) for x in xs) * 1.2
-        ax_sez.axhline(y=y_na_g, color="#FF6600", linestyle="--", linewidth=1.5,
-                       label=f"Asse neutro (y_na={y_na:.2f} cm)")
+        ax_sez.axhline(
+            y=y_na_g,
+            color="#FF6600",
+            linestyle="--",
+            linewidth=1.5,
+            label=f"Asse neutro (y_na={y_na:.2f} cm)",
+        )
 
     # Assi e etichette sezione
     ax_sez.set_aspect("equal")
@@ -167,9 +174,7 @@ def disegna_sezione(
 
     # --- Diagramma tensioni ---
     if sigma_c_max is not None and y_na is not None:
-        _disegna_diagramma_tensioni(
-            ax_stress, h, y_na, sigma_c_max, barre, barre_sigma, n
-        )
+        _disegna_diagramma_tensioni(ax_stress, h, y_na, sigma_c_max, barre, barre_sigma, n)
     else:
         ax_stress.set_visible(False)
 

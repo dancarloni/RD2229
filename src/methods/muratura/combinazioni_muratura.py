@@ -27,14 +27,14 @@ from dataclasses import dataclass
 # ═══════════════════════════════════════════════════════════
 
 PSI_0: dict[str, float] = {
-    "A": 0.7,    # residenziale
-    "B": 0.7,    # uffici
-    "C": 0.7,    # affollamento
-    "D": 0.7,    # commerciale
-    "E": 1.0,    # magazzini
-    "F": 0.6,    # rimesse peso ≤ 30 kN
-    "G": 0.3,    # rimesse peso > 30 kN
-    "H": 0.0,    # coperture
+    "A": 0.7,  # residenziale
+    "B": 0.7,  # uffici
+    "C": 0.7,  # affollamento
+    "D": 0.7,  # commerciale
+    "E": 1.0,  # magazzini
+    "F": 0.6,  # rimesse peso ≤ 30 kN
+    "G": 0.3,  # rimesse peso > 30 kN
+    "H": 0.0,  # coperture
 }
 
 PSI_1: dict[str, float] = {
@@ -64,6 +64,7 @@ PSI_2: dict[str, float] = {
 #  Combinazione di carico
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class CombinazioneCarico:
     """Singola combinazione di carico.
@@ -73,21 +74,22 @@ class CombinazioneCarico:
     Per combinazioni sismiche:
     N_Ed = G1 + G2 + ψ_2 × Q  (NTC2018 §2.5.3)
     """
+
     nome: str = ""
-    tipo: str = "SLU"             # "SLU", "SLE_rara", "SLE_freq", "SLE_qperm", "sismica"
+    tipo: str = "SLU"  # "SLU", "SLE_rara", "SLE_freq", "SLE_qperm", "sismica"
 
     # Coefficienti parziali
-    gamma_G1: float = 1.3         # permanente strutturale
-    gamma_G2: float = 1.5         # permanente non strutturale
-    gamma_Q: float = 1.5          # variabile
+    gamma_G1: float = 1.3  # permanente strutturale
+    gamma_G2: float = 1.5  # permanente non strutturale
+    gamma_Q: float = 1.5  # variabile
 
     # Coefficiente combinazione
-    psi: float = 0.7              # ψ₀ per SLU, ψ₁ per SLE freq, ψ₂ per SLE qperm/sismica
+    psi: float = 0.7  # ψ₀ per SLU, ψ₁ per SLE freq, ψ₂ per SLE qperm/sismica
 
     # Gestione utente
-    attiva: bool = True           # se False, combinazione non usata nel calcolo
-    predefinita: bool = False     # True se generata automaticamente
-    id_combinazione: int = 0      # identificativo univoco
+    attiva: bool = True  # se False, combinazione non usata nel calcolo
+    predefinita: bool = False  # True se generata automaticamente
+    id_combinazione: int = 0  # identificativo univoco
 
     def calcola_N(self, G1: float, G2: float, Q: float) -> float:
         """Calcola N_Ed combinato.
@@ -120,6 +122,7 @@ class CombinazioneCarico:
 #  Combinazioni default NTC2018
 # ═══════════════════════════════════════════════════════════
 
+
 def _combinazioni_default_ntc2018(categoria: str = "A") -> list[CombinazioneCarico]:
     """Genera le combinazioni default per NTC2018 §2.5.3.
 
@@ -138,7 +141,9 @@ def _combinazioni_default_ntc2018(categoria: str = "A") -> list[CombinazioneCari
         CombinazioneCarico(
             nome="SLU fondamentale (sfavorevole)",
             tipo="SLU",
-            gamma_G1=1.3, gamma_G2=1.5, gamma_Q=1.5,
+            gamma_G1=1.3,
+            gamma_G2=1.5,
+            gamma_Q=1.5,
             psi=psi_0,
             predefinita=True,
             id_combinazione=1,
@@ -147,7 +152,9 @@ def _combinazioni_default_ntc2018(categoria: str = "A") -> list[CombinazioneCari
         CombinazioneCarico(
             nome="SLU fondamentale (favorevole)",
             tipo="SLU",
-            gamma_G1=1.0, gamma_G2=0.0, gamma_Q=0.0,
+            gamma_G1=1.0,
+            gamma_G2=0.0,
+            gamma_Q=0.0,
             psi=0.0,
             predefinita=True,
             id_combinazione=2,
@@ -156,7 +163,9 @@ def _combinazioni_default_ntc2018(categoria: str = "A") -> list[CombinazioneCari
         CombinazioneCarico(
             nome="SLE rara",
             tipo="SLE_rara",
-            gamma_G1=1.0, gamma_G2=1.0, gamma_Q=1.0,
+            gamma_G1=1.0,
+            gamma_G2=1.0,
+            gamma_Q=1.0,
             psi=psi_0,
             predefinita=True,
             id_combinazione=3,
@@ -165,7 +174,9 @@ def _combinazioni_default_ntc2018(categoria: str = "A") -> list[CombinazioneCari
         CombinazioneCarico(
             nome="SLE frequente",
             tipo="SLE_freq",
-            gamma_G1=1.0, gamma_G2=1.0, gamma_Q=1.0,
+            gamma_G1=1.0,
+            gamma_G2=1.0,
+            gamma_Q=1.0,
             psi=psi_1,
             predefinita=True,
             id_combinazione=4,
@@ -174,7 +185,9 @@ def _combinazioni_default_ntc2018(categoria: str = "A") -> list[CombinazioneCari
         CombinazioneCarico(
             nome="SLE quasi permanente",
             tipo="SLE_qperm",
-            gamma_G1=1.0, gamma_G2=1.0, gamma_Q=1.0,
+            gamma_G1=1.0,
+            gamma_G2=1.0,
+            gamma_Q=1.0,
             psi=psi_2,
             predefinita=True,
             id_combinazione=5,
@@ -183,7 +196,9 @@ def _combinazioni_default_ntc2018(categoria: str = "A") -> list[CombinazioneCari
         CombinazioneCarico(
             nome="Sismica (SLV)",
             tipo="sismica",
-            gamma_G1=1.0, gamma_G2=1.0, gamma_Q=1.0,
+            gamma_G1=1.0,
+            gamma_G2=1.0,
+            gamma_Q=1.0,
             psi=psi_2,
             predefinita=True,
             id_combinazione=6,
@@ -194,6 +209,7 @@ def _combinazioni_default_ntc2018(categoria: str = "A") -> list[CombinazioneCari
 # ═══════════════════════════════════════════════════════════
 #  Gestore combinazioni
 # ═══════════════════════════════════════════════════════════
+
 
 class GestoreCombinazioni:
     """Gestore combinazioni di carico personalizzabili.

@@ -47,15 +47,11 @@ def estimate_ta(spec: dict[str, Any]) -> dict[str, Any]:
 
     elif model == "CANTILEVER_EQ":
         T_a = _ta_cantilever_eq(spec)
-        decision_log.append(
-            f"Modello CANTILEVER_EQ: T_a = 2*pi*sqrt(m*H^3/(3*E*I)) = {T_a:.4f} s"
-        )
+        decision_log.append(f"Modello CANTILEVER_EQ: T_a = 2*pi*sqrt(m*H^3/(3*E*I)) = {T_a:.4f} s")
 
     elif model == "SDOF_EQ":
         T_a = _ta_sdof_eq(spec)
-        decision_log.append(
-            f"Modello SDOF_EQ: T_a = 2*pi*sqrt(m/k) = {T_a:.4f} s"
-        )
+        decision_log.append(f"Modello SDOF_EQ: T_a = 2*pi*sqrt(m/k) = {T_a:.4f} s")
 
     elif model == "MANUAL":
         T_a = _ta_manual(spec)
@@ -191,6 +187,7 @@ def spectral_acceleration_floor_from_site(
 # ---------------------------------------------------------------------------
 # Utilita' interne
 # ---------------------------------------------------------------------------
+
 
 def _require_positive(spec: dict[str, Any], key: str, label: str) -> float:
     """Estrae e valida un parametro positivo dallo spec."""

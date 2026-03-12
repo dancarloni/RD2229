@@ -30,14 +30,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .carichi_fissi import calcola_mip_asta, mip_cedimento
-from .modello_telaio import (
-    AstaTelaio,
-    ModelloTelaio,
-)
+from .modello_telaio import AstaTelaio, ModelloTelaio
 
 # ==============================================================================
 # STRUTTURE DATI RISULTATO
 # ==============================================================================
+
 
 @dataclass
 class RigaIterazioneCross:
@@ -49,8 +47,9 @@ class RigaIterazioneCross:
         - tipo "t/o":   incrementi di trasporto (carry-over)
         - tipo "totale": somma finale
     """
-    numero: int                     # 0 = MIP, 1,2,... = iterazione, -1 = totale
-    tipo: str                       # "MIP", "dist", "t/o", "totale"
+
+    numero: int  # 0 = MIP, 1,2,... = iterazione, -1 = totale
+    tipo: str  # "MIP", "dist", "t/o", "totale"
     # Momenti per ogni fine asta — chiave: "{etichetta_asta}_{i|j}"
     # es. {"AB_i": -6250.0, "AB_j": +3125.0, "BA_i": 0.0, ...}
     momenti: dict[str, float]
@@ -76,17 +75,18 @@ class DatiCross:
 
     Corrisponde esattamente alle tabelle presentate nel Santarella e nel Pozzati.
     """
+
     # Chiave riga: id_asta
-    rigidezze_from_i: dict[int, float]     # k vista da nodo_i [kg·cm/rad]
-    rigidezze_from_j: dict[int, float]     # k vista da nodo_j [kg·cm/rad]
-    lunghezze: dict[int, float]            # L per ogni asta [cm]
+    rigidezze_from_i: dict[int, float]  # k vista da nodo_i [kg·cm/rad]
+    rigidezze_from_j: dict[int, float]  # k vista da nodo_j [kg·cm/rad]
+    lunghezze: dict[int, float]  # L per ogni asta [cm]
 
     # {id_nodo: {id_asta: μ}}
     fattori_distribuzione: dict[int, dict[int, float]]
 
     # MIP: {id_asta: (M_i, M_j)} [kg·cm]
     mip: dict[int, tuple[float, float]]
-    mip_dettaglio: dict[int, dict]         # audit contributi per asta
+    mip_dettaglio: dict[int, dict]  # audit contributi per asta
 
     # Tabella iterazioni storiche (da visualizzare)
     iterazioni: list[RigaIterazioneCross]
@@ -96,7 +96,7 @@ class DatiCross:
 
     # Diagnostica
     n_iterazioni: int
-    errore_residuo: float    # max|momento_squilibrato| all'ultima iterazione
+    errore_residuo: float  # max|momento_squilibrato| all'ultima iterazione
     convergenza: bool
     passaggi: list[str]
 
@@ -127,6 +127,7 @@ class DatiCross:
 # STEP 1 — RIGIDEZZE
 # ==============================================================================
 
+
 def calcola_rigidezze(
     modello: ModelloTelaio,
 ) -> tuple[dict[int, float], dict[int, float], dict[int, float]]:
@@ -152,9 +153,7 @@ def calcola_rigidezze(
         L = modello.lunghezza_asta(asta.id)
         lunghezze[asta.id] = L
         if L < 1e-10:
-            raise ValueError(
-                f"Asta {asta.etichetta} (id={asta.id}): lunghezza nulla"
-            )
+            raise ValueError(f"Asta {asta.etichetta} (id={asta.id}): lunghezza nulla")
         k_i[asta.id] = asta.rigidezza_from_i(L)
         k_j[asta.id] = asta.rigidezza_from_j(L)
 
@@ -164,6 +163,7 @@ def calcola_rigidezze(
 # ==============================================================================
 # STEP 2 — FATTORI DI DISTRIBUZIONE
 # ==============================================================================
+
 
 def calcola_fattori_distribuzione(
     modello: ModelloTelaio,
@@ -223,6 +223,7 @@ def calcola_fattori_distribuzione(
 # ==============================================================================
 # STEP 3 — ALGORITMO CROSS NO-SWAY
 # ==============================================================================
+
 
 def esegui_cross_no_sway(
     modello: ModelloTelaio,
@@ -358,18 +359,22 @@ def esegui_cross_no_sway(
                 riga_to_momenti[chiave_lontano] += delta_M_lontano
 
         # Registra riga iterazione (dist + t/o su righe separate)
-        iterazioni.append(RigaIterazioneCross(
-            numero=n_iter, tipo="dist",
-            momenti={k: v for k, v in riga_dist_momenti.items() if abs(v) > 0.01},
-        ))
-        iterazioni.append(RigaIterazioneCross(
-            numero=n_iter, tipo="t/o",
-            momenti={k: v for k, v in riga_to_momenti.items() if abs(v) > 0.01},
-        ))
-
-        passaggi.append(
-            f"Iter {n_iter}: max|squilibrio| = {max_squilibrio:.2f} kg·cm"
+        iterazioni.append(
+            RigaIterazioneCross(
+                numero=n_iter,
+                tipo="dist",
+                momenti={k: v for k, v in riga_dist_momenti.items() if abs(v) > 0.01},
+            )
         )
+        iterazioni.append(
+            RigaIterazioneCross(
+                numero=n_iter,
+                tipo="t/o",
+                momenti={k: v for k, v in riga_to_momenti.items() if abs(v) > 0.01},
+            )
+        )
+
+        passaggi.append(f"Iter {n_iter}: max|squilibrio| = {max_squilibrio:.2f} kg·cm")
         errore_residuo = max_squilibrio
 
         if max_squilibrio <= tolleranza:
@@ -388,14 +393,11 @@ def esegui_cross_no_sway(
     for asta in modello.aste:
         totale_momenti[_chiave_i(asta)] = M_cur[asta.id][0]
         totale_momenti[_chiave_j(asta)] = M_cur[asta.id][1]
-    iterazioni.append(
-        RigaIterazioneCross(numero=-1, tipo="totale", momenti=totale_momenti)
-    )
+    iterazioni.append(RigaIterazioneCross(numero=-1, tipo="totale", momenti=totale_momenti))
 
     # ---- Momenti finali ----
     momenti_finali: dict[int, tuple[float, float]] = {
-        asta.id: (M_cur[asta.id][0], M_cur[asta.id][1])
-        for asta in modello.aste
+        asta.id: (M_cur[asta.id][0], M_cur[asta.id][1]) for asta in modello.aste
     }
 
     return DatiCross(
@@ -418,6 +420,7 @@ def esegui_cross_no_sway(
 # ==============================================================================
 # STEP 4 — CORREZIONE SWAY MULTI-PIANO (POZZATI §3.8)
 # ==============================================================================
+
 
 def calcola_taglio_piano_da_momenti(
     modello: ModelloTelaio,
@@ -608,9 +611,7 @@ def esegui_correzione_sway(
     R: list[float] = []
     for piano in piani:
         h = piano.id_piano
-        Q_ns = calcola_taglio_piano_da_momenti(
-            modello, risultato_no_sway.momenti_finali, h
-        )
+        Q_ns = calcola_taglio_piano_da_momenti(modello, risultato_no_sway.momenti_finali, h)
         F_est = forze_esterne_per_piano.get(h, 0.0)
         R_h = F_est - Q_ns
         R.append(R_h)
@@ -642,9 +643,7 @@ def esegui_correzione_sway(
                 modello, res_sway.momenti_finali, piano_i.id_piano
             )
             H_matrix[i][j] = Q_ij
-            passaggi.append(
-                f"    H[{piano_i.id_piano},{piano_j.id_piano}] = {Q_ij:.2f} kg/cm"
-            )
+            passaggi.append(f"    H[{piano_i.id_piano},{piano_j.id_piano}] = {Q_ij:.2f} kg/cm")
 
     # ---- Step 3: Risolvi H · λ = R ----
     lambda_vals = _risolvi_gauss(H_matrix, R)
@@ -682,11 +681,13 @@ def esegui_correzione_sway(
             M_i, M_j = risultati_sway[j].momenti_finali[asta.id]
             momenti_sway_scalati[f"{asta.etichetta}_i"] = lam * M_i
             momenti_sway_scalati[f"{asta.etichetta}_j"] = lam * M_j
-        iterazioni_finali.append(RigaIterazioneCross(
-            numero=1000 + piano_j.id_piano,
-            tipo=f"sway_piano_{piano_j.id_piano} (λ={lam:.4f})",
-            momenti={k: v for k, v in momenti_sway_scalati.items() if abs(v) > 0.01},
-        ))
+        iterazioni_finali.append(
+            RigaIterazioneCross(
+                numero=1000 + piano_j.id_piano,
+                tipo=f"sway_piano_{piano_j.id_piano} (λ={lam:.4f})",
+                momenti={k: v for k, v in momenti_sway_scalati.items() if abs(v) > 0.01},
+            )
+        )
 
     # Aggiorna riga totale finale
     totale_corretti: dict[str, float] = {}
@@ -698,10 +699,7 @@ def esegui_correzione_sway(
         RigaIterazioneCross(numero=-2, tipo="totale_con_sway", momenti=totale_corretti)
     )
 
-    n_iter_totali = (
-        risultato_no_sway.n_iterazioni
-        + sum(r.n_iterazioni for r in risultati_sway)
-    )
+    n_iter_totali = risultato_no_sway.n_iterazioni + sum(r.n_iterazioni for r in risultati_sway)
 
     return DatiCross(
         rigidezze_from_i=risultato_no_sway.rigidezze_from_i,
@@ -723,6 +721,7 @@ def esegui_correzione_sway(
 # ==============================================================================
 # ENTRY POINT PRINCIPALE
 # ==============================================================================
+
 
 def calcola_cross_pozzati(
     modello: ModelloTelaio,
@@ -765,9 +764,7 @@ def calcola_cross_pozzati(
 
     # ---- Step 2: Fattori di distribuzione ----
     fattori = calcola_fattori_distribuzione(modello, k_from_i, k_from_j)
-    passaggi_pre.append(
-        f"Fattori di distribuzione calcolati per {len(fattori)} nodi liberi"
-    )
+    passaggi_pre.append(f"Fattori di distribuzione calcolati per {len(fattori)} nodi liberi")
 
     # ---- Step 3: MIP per tutte le aste ----
     mip: dict[int, tuple[float, float]] = {}
@@ -797,9 +794,7 @@ def calcola_cross_pozzati(
 
     # ---- Step 5: Correzione sway (se richiesta) ----
     if forze_orizzontali_per_piano and len(modello.piani) > 0:
-        forze_non_nulle = {
-            k: v for k, v in forze_orizzontali_per_piano.items() if abs(v) > 0.1
-        }
+        forze_non_nulle = {k: v for k, v in forze_orizzontali_per_piano.items() if abs(v) > 0.1}
         if forze_non_nulle:
             risultato = esegui_correzione_sway(
                 modello=modello,

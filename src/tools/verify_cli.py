@@ -32,19 +32,30 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="CLI verifica strutturale — RD2229 / NTC2018",
     )
-    parser.add_argument("--config", type=str, default=None,
-                        help="File di configurazione progetto (JSON)")
-    parser.add_argument("--format", type=str, default="html",
-                        choices=["html", "md", "json", "csv"],
-                        help="Formato output: html, md, json, csv")
-    parser.add_argument("--output", "-o", type=str, default=None,
-                        help="Percorso file di output")
-    parser.add_argument("--norm", type=str, default=None,
-                        help="Norma di riferimento (es. NTC2018, RD2229)")
-    parser.add_argument("--checks", type=str, nargs="*", default=None,
-                        help="Lista azioni da eseguire (es. flexure_check shear_check)")
-    parser.add_argument("--elements", type=str, default=None,
-                        help="File JSON con elementi strutturali")
+    parser.add_argument(
+        "--config", type=str, default=None, help="File di configurazione progetto (JSON)"
+    )
+    parser.add_argument(
+        "--format",
+        type=str,
+        default="html",
+        choices=["html", "md", "json", "csv"],
+        help="Formato output: html, md, json, csv",
+    )
+    parser.add_argument("--output", "-o", type=str, default=None, help="Percorso file di output")
+    parser.add_argument(
+        "--norm", type=str, default=None, help="Norma di riferimento (es. NTC2018, RD2229)"
+    )
+    parser.add_argument(
+        "--checks",
+        type=str,
+        nargs="*",
+        default=None,
+        help="Lista azioni da eseguire (es. flexure_check shear_check)",
+    )
+    parser.add_argument(
+        "--elements", type=str, default=None, help="File JSON con elementi strutturali"
+    )
     parser.add_argument("--verbose", "-v", action="store_true")
     return parser.parse_args(argv)
 

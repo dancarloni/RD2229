@@ -7,8 +7,6 @@ Copertura:
 - Benchmark: validazione vs. letteratura
 """
 
-
-
 from src.codes.ntc2018.secondary_elements.tamponamenti import (
     PRESET_CLS_PREFABBRICATO,
     PRESET_MURATURA_TRADIZIONALE,

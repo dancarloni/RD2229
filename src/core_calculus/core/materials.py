@@ -17,9 +17,9 @@ class Material:
 
     name: str = ""
     material_type: str = ""  # "concrete", "steel"
-    E: float = 0.0           # Modulo elastico [MPa]
-    nu: float = 0.0          # Coefficiente di Poisson
-    density: float = 0.0     # Densità [kg/m³]
+    E: float = 0.0  # Modulo elastico [MPa]
+    nu: float = 0.0  # Coefficiente di Poisson
+    density: float = 0.0  # Densità [kg/m³]
 
     def __repr__(self) -> str:
         return f"Material(name={self.name!r}, type={self.material_type!r})"

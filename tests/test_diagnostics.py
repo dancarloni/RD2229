@@ -13,11 +13,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from src.rd2229.diagnostics import (
-    DiagnosticEvent,
-    get_diagnostics,
-    reset_diagnostics,
-)
+from src.rd2229.diagnostics import DiagnosticEvent, get_diagnostics, reset_diagnostics
 
 
 @pytest.fixture(autouse=True)

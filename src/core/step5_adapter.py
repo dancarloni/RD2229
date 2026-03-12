@@ -21,12 +21,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from src.core.results import ElementResult
-from src.project.schema import (
-    GeometryEntry,
-    LoadEntry,
-    MaterialEntry,
-    ProjectModel,
-)
+from src.project.schema import GeometryEntry, LoadEntry, MaterialEntry, ProjectModel
 
 logger = logging.getLogger(__name__)
 

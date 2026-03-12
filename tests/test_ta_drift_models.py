@@ -16,14 +16,12 @@ from src.codes.ntc2018.secondary_elements.drift_models import (
     estimate_drift_metodo_b,
     estimate_drift_user,
 )
-from src.codes.ntc2018.secondary_elements.ta_models import (
-    estimate_ta,
-    spectral_acceleration_floor,
-)
+from src.codes.ntc2018.secondary_elements.ta_models import estimate_ta, spectral_acceleration_floor
 
 # ===========================================================================
 # estimate_ta
 # ===========================================================================
+
 
 class TestEstimateTaRigid:
     def test_rigid_returns_zero(self):
@@ -138,6 +136,7 @@ class TestEstimateTaUnknown:
 # spectral_acceleration_floor (NTC2018 eq. 7.2.5)
 # ===========================================================================
 
+
 class TestSpectralAccelerationFloor:
     """S_a = alpha_S * max(3*(1+z/H)/(1+(1-T_a/T_1)^2) - 0.5, 1.0)"""
 
@@ -183,13 +182,14 @@ class TestSpectralAccelerationFloor:
 # estimate_drift_metodo_b
 # ===========================================================================
 
+
 class TestDriftMetodoB:
     """delta_r = S_d_T1 * (z_m / H_m) * soft_storey_factor / h_interpiano_m"""
 
     BASE_SPEC = {
-        "S_d_T1": 0.05,       # 5 cm spostamento spettrale
-        "z_m": 6.0,           # quota 6 m
-        "H_m": 12.0,          # edificio 12 m
+        "S_d_T1": 0.05,  # 5 cm spostamento spettrale
+        "z_m": 6.0,  # quota 6 m
+        "H_m": 12.0,  # edificio 12 m
         "h_interpiano_m": 3.0,
     }
 
@@ -239,6 +239,7 @@ class TestDriftMetodoB:
 # ===========================================================================
 # estimate_drift_user / estimate_drift_global
 # ===========================================================================
+
 
 class TestDriftUser:
     def test_returns_given_value(self):

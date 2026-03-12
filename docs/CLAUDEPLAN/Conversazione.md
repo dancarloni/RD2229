@@ -2132,7 +2132,7 @@ Write
 ti ho salvato la discussione di ieri in /docs/CLAUDEPLAN/Conversazione.md l'ho pushata qui: Automation Bot,  51 seconds ago (March 6, 2026 at 9:39 AM)
 Merge branch 'claude/materials-database-structure-Fh726' of <https://github.com/dancarloni/RD2229> into claude/materials-database-structure-Fh726
 4 files changed, 4 insertions(+)
-  claude/materials-database-structure-Fh726    origin/claude/materials-database-structure-Fh726  
+  claude/materials-database-structure-Fh726    origin/claude/materials-database-structure-Fh726
 6865af5   |   Open on GitHub
 
 L'utente ha aggiunto la conversazione di ieri. Sincronizzo il repository e leggo il file.

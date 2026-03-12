@@ -49,6 +49,7 @@ def cordolo_howe_base(piatto_80x8):
 #  Verifica cordolo Howe (caso golden)
 # ───────────────────────────────────────────────
 
+
 class TestVerificaCordoloHowe:
     def test_convergenza(self, cordolo_howe_base):
         res = verifica_cordolo_reticolare(cordolo_howe_base, F_y=1000.0)
@@ -97,9 +98,17 @@ class TestVerificaCordoloHowe:
     def test_to_dict_keys(self, cordolo_howe_base):
         res = verifica_cordolo_reticolare(cordolo_howe_base, F_y=1000.0)
         d = res.to_dict()
-        for chiave in ["convergenza", "K_globale", "delta_max", "N_max_compressione",
-                       "N_max_trazione", "F_ritegno_disponibile", "verifiche_aste",
-                       "verifica_collegamento", "verificato"]:
+        for chiave in [
+            "convergenza",
+            "K_globale",
+            "delta_max",
+            "N_max_compressione",
+            "N_max_trazione",
+            "F_ritegno_disponibile",
+            "verifiche_aste",
+            "verifica_collegamento",
+            "verificato",
+        ]:
             assert chiave in d
 
     def test_passaggi_non_vuoti(self, cordolo_howe_base):
@@ -109,9 +118,12 @@ class TestVerificaCordoloHowe:
     def test_F_y_proporzionale_N(self, piatto_80x8):
         # Raddoppiare F_y raddoppia N (linearità)
         c = CordoloReticolare(
-            schema=SchemaReticolare.HOWE, n_campate=4,
-            L=400.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.HOWE,
+            n_campate=4,
+            L=400.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
         )
         res1 = verifica_cordolo_reticolare(c, F_y=500.0)
         res2 = verifica_cordolo_reticolare(c, F_y=1000.0)
@@ -122,14 +134,20 @@ class TestVerificaCordoloHowe:
     def test_K_globale_inversamente_proporzionale_L(self, piatto_80x8):
         # Aumentando L a parità di schema: K diminuisce
         c1 = CordoloReticolare(
-            schema=SchemaReticolare.HOWE, n_campate=4,
-            L=400.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.HOWE,
+            n_campate=4,
+            L=400.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
         )
         c2 = CordoloReticolare(
-            schema=SchemaReticolare.HOWE, n_campate=4,
-            L=800.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.HOWE,
+            n_campate=4,
+            L=800.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
         )
         res1 = verifica_cordolo_reticolare(c1, F_y=1000.0)
         res2 = verifica_cordolo_reticolare(c2, F_y=1000.0)
@@ -138,15 +156,21 @@ class TestVerificaCordoloHowe:
 
     def test_incastro_piu_rigido_di_cerniera(self, piatto_80x8):
         c_cern = CordoloReticolare(
-            schema=SchemaReticolare.HOWE, n_campate=4,
-            L=400.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.HOWE,
+            n_campate=4,
+            L=400.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
             tipo_estremi="cerniera",
         )
         c_incastro = CordoloReticolare(
-            schema=SchemaReticolare.HOWE, n_campate=4,
-            L=400.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.HOWE,
+            n_campate=4,
+            L=400.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
             tipo_estremi="incastro",
         )
         res_c = verifica_cordolo_reticolare(c_cern, F_y=1000.0)
@@ -160,21 +184,28 @@ class TestVerificaCordoloHowe:
 #  Verifica cordolo Pratt
 # ───────────────────────────────────────────────
 
+
 class TestVerificaCordoloPratt:
     def test_pratt_convergenza(self, piatto_80x8):
         c = CordoloReticolare(
-            schema=SchemaReticolare.PRATT, n_campate=4,
-            L=400.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.PRATT,
+            n_campate=4,
+            L=400.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
         )
         res = verifica_cordolo_reticolare(c, F_y=1000.0)
         assert res.convergenza is True
 
     def test_pratt_verifiche_aste_17(self, piatto_80x8):
         c = CordoloReticolare(
-            schema=SchemaReticolare.PRATT, n_campate=4,
-            L=400.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.PRATT,
+            n_campate=4,
+            L=400.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
         )
         res = verifica_cordolo_reticolare(c, F_y=1000.0)
         # 4+4 correnti + 5 montanti + 4 diagonali = 17 = 4n+1
@@ -182,9 +213,12 @@ class TestVerificaCordoloPratt:
 
     def test_pratt_N_corrente_max_approx(self, piatto_80x8):
         c = CordoloReticolare(
-            schema=SchemaReticolare.PRATT, n_campate=4,
-            L=400.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.PRATT,
+            n_campate=4,
+            L=400.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
         )
         res = verifica_cordolo_reticolare(c, F_y=1000.0)
         N_max_abs = max(abs(res.N_max_compressione), abs(res.N_max_trazione))
@@ -195,13 +229,17 @@ class TestVerificaCordoloPratt:
 #  Verifica collegamento muro (F3)
 # ───────────────────────────────────────────────
 
+
 class TestCollegamento:
     def test_ancoraggi_3(self, piatto_80x8):
         # Con 3 ancoraggi: A_tot più grande
         c = CordoloReticolare(
-            schema=SchemaReticolare.HOWE, n_campate=4,
-            L=400.0, h=30.0,
-            sezione_corrente=piatto_80x8, sezione_diagonale=piatto_80x8,
+            schema=SchemaReticolare.HOWE,
+            n_campate=4,
+            L=400.0,
+            h=30.0,
+            sezione_corrente=piatto_80x8,
+            sezione_diagonale=piatto_80x8,
             n_ancoraggi_per_nodo=3,
         )
         res = verifica_cordolo_reticolare(c, F_y=1000.0)
@@ -212,6 +250,7 @@ class TestCollegamento:
 # ───────────────────────────────────────────────
 #  Nodo d'angolo (H1)
 # ───────────────────────────────────────────────
+
 
 class TestNodoAngolo:
     def test_nodo_90_risultante(self):
@@ -231,8 +270,11 @@ class TestNodoAngolo:
 
     def test_nodo_angolo_contiene_verifica_saldatura(self):
         inp = InputNodoAngolo(
-            F_muro1=500.0, F_muro2=500.0,
-            a_saldatura=0.6, L_saldatura=10.0, n_cordoni=2,
+            F_muro1=500.0,
+            F_muro2=500.0,
+            a_saldatura=0.6,
+            L_saldatura=10.0,
+            n_cordoni=2,
         )
         res = verifica_nodo_angolo(inp)
         assert "verifica_saldatura" in res
@@ -240,16 +282,22 @@ class TestNodoAngolo:
 
     def test_nodo_angolo_saldatura_grande_verifica(self):
         inp = InputNodoAngolo(
-            F_muro1=100.0, F_muro2=100.0,
-            a_saldatura=2.0, L_saldatura=30.0, n_cordoni=2,
+            F_muro1=100.0,
+            F_muro2=100.0,
+            a_saldatura=2.0,
+            L_saldatura=30.0,
+            n_cordoni=2,
         )
         res = verifica_nodo_angolo(inp)
         assert res["verificato"] is True
 
     def test_nodo_angolo_saldatura_piccola_non_verifica(self):
         inp = InputNodoAngolo(
-            F_muro1=50000.0, F_muro2=50000.0,
-            a_saldatura=0.1, L_saldatura=1.0, n_cordoni=1,
+            F_muro1=50000.0,
+            F_muro2=50000.0,
+            a_saldatura=0.1,
+            L_saldatura=1.0,
+            n_cordoni=1,
         )
         res = verifica_nodo_angolo(inp)
         assert res["verificato"] is False
@@ -259,10 +307,12 @@ class TestNodoAngolo:
 #  calcola_F_ritegno
 # ───────────────────────────────────────────────
 
+
 class TestCalcolaFRitegno:
     def _make_ris(self, alpha_0, M_stab, M_rib_coeff):
         class FakeRis:
             pass
+
         r = FakeRis()
         r.alpha_0 = alpha_0
         r.forze_stabilizzanti = M_stab
@@ -293,6 +343,7 @@ class TestCalcolaFRitegno:
 # ───────────────────────────────────────────────
 #  dimensiona_cordolo_reticolare
 # ───────────────────────────────────────────────
+
 
 class TestDimensiona:
     def test_dimensiona_trova_profilo(self):

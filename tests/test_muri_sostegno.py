@@ -6,11 +6,7 @@ import math
 
 import pytest
 
-from src.geotecnica.models import (
-    GeometriaMuro,
-    InputMuroSostegno,
-    ParametriTerreno,
-)
+from src.geotecnica.models import GeometriaMuro, InputMuroSostegno, ParametriTerreno
 from src.geotecnica.muri_sostegno import (
     ka_coulomb,
     ka_rankine,

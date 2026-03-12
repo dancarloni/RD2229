@@ -23,9 +23,17 @@ from typing import Any
 
 from .base import PianoEdificio
 
-NORME_SUPPORTATE = frozenset({
-    "RD2229", "DM92", "DM96", "OPCM3274", "EC8", "NTC2008", "NTC2018",
-})
+NORME_SUPPORTATE = frozenset(
+    {
+        "RD2229",
+        "DM92",
+        "DM96",
+        "OPCM3274",
+        "EC8",
+        "NTC2008",
+        "NTC2018",
+    }
+)
 
 
 def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str, Any]:
@@ -48,14 +56,14 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
 
     if norma not in NORME_SUPPORTATE:
         raise ValueError(
-            f"Norma '{norma_attiva}' non supportata. "
-            f"Valori ammessi: {sorted(NORME_SUPPORTATE)}"
+            f"Norma '{norma_attiva}' non supportata. " f"Valori ammessi: {sorted(NORME_SUPPORTATE)}"
         )
 
     piani = _parse_piani(spec.get("piani", []))
 
     if norma == "RD2229":
         from .rd2229 import calcola_azione_sismica_rd2229
+
         return calcola_azione_sismica_rd2229(
             piani,
             zona=spec["zona"],
@@ -64,6 +72,7 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
 
     if norma == "DM92":
         from .dm92 import calcola_azione_sismica_dm92
+
         return calcola_azione_sismica_dm92(
             piani,
             zona_sismica=int(spec["zona_sismica"]),
@@ -73,6 +82,7 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
 
     if norma == "DM96":
         from .dm96 import calcola_azione_sismica_dm96
+
         return calcola_azione_sismica_dm96(
             piani,
             zona_sismica=int(spec["zona_sismica"]),
@@ -82,6 +92,7 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
 
     if norma == "OPCM3274":
         from .opcm3274 import calcola_azione_sismica_opcm3274
+
         return calcola_azione_sismica_opcm3274(
             piani,
             zona=int(spec["zona"]),
@@ -93,6 +104,7 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
 
     if norma == "EC8":
         from .ec8 import calcola_azione_sismica_ec8
+
         return calcola_azione_sismica_ec8(
             piani,
             ag_g=float(spec["ag_g"]),
@@ -105,6 +117,7 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
 
     if norma == "NTC2008":
         from .ntc2008 import calcola_azione_sismica_ntc2008
+
         return calcola_azione_sismica_ntc2008(
             piani,
             ag_g=float(spec["ag_g"]),
@@ -146,10 +159,7 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
     ST = calcola_ST(cat_t)
     CC = calcola_CC(cat_s, TC_star)
     TB, TC, TD = calcola_periodi(TC_star, CC, ag_g)
-    log.append(
-        f"NTC2018: ag_g={ag_g}g, F0={F0}, TC*={TC_star}s, "
-        f"SS={SS:.4f}, ST={ST:.2f}"
-    )
+    log.append(f"NTC2018: ag_g={ag_g}g, F0={F0}, TC*={TC_star}s, " f"SS={SS:.4f}, ST={ST:.2f}")
 
     _G = 9.81
     Se_ms2 = spettro_elastico(ag_g, F0, SS, ST, TB, TC, TD, xi=xi, T=T_1)
@@ -161,16 +171,18 @@ def calcola_azione_sismica(norma_attiva: str, spec: dict[str, Any]) -> dict[str,
     C_eff = F_base / W_tot if W_tot > 0 else 0.0
     distribuzione = distribuzione_triangolare(F_base, piani)
 
-    result.update({
-        "norm_references": [_NORM_REF_NTC2018],
-        "F_base_kN": round(F_base, 3),
-        "C_effettivo": round(C_eff, 6),
-        "metodo": "SPETTRALE",
-        "distribuzione": distribuzione,
-        "ag_g": ag_g,
-        "Se_T1_ms2": round(Se_ms2, 4),
-        "T_1_s": T_1,
-    })
+    result.update(
+        {
+            "norm_references": [_NORM_REF_NTC2018],
+            "F_base_kN": round(F_base, 3),
+            "C_effettivo": round(C_eff, 6),
+            "metodo": "SPETTRALE",
+            "distribuzione": distribuzione,
+            "ag_g": ag_g,
+            "Se_T1_ms2": round(Se_ms2, 4),
+            "T_1_s": T_1,
+        }
+    )
     return result
 
 

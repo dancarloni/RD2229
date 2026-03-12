@@ -2,8 +2,8 @@
 
 ## Usabilità Reale per Modulo
 
-> **Metodologia**: questo documento deriva direttamente da `docs/RTM/RTM_MASTER.md` e `docs/modules/*.md`.  
-> "Utilizzabile in pratica?" = SI se il modulo ha entry point funzionante + test + nessun TODO critico nelle funzioni core.  
+> **Metodologia**: questo documento deriva direttamente da `docs/RTM/RTM_MASTER.md` e `docs/modules/*.md`.
+> "Utilizzabile in pratica?" = SI se il modulo ha entry point funzionante + test + nessun TODO critico nelle funzioni core.
 > Data: 2026-03-01 | Moduli analizzati: 27
 
 ---
@@ -99,11 +99,11 @@
 python tools/rtm_build.py
 ```
 
-Genera `docs/RTM/RTM_MASTER.md` e aggiorna questo file con analisi statica del repo.  
+Genera `docs/RTM/RTM_MASTER.md` e aggiorna questo file con analisi statica del repo.
 Non esegue codice del progetto — solo analisi testuale/import.
 
 ---
 
-*Per dettagli per modulo: `docs/modules/<modulo>.md`*  
-*Per fonti normative: `docs/NORMATIVE_SOURCES/sources.catalog.json`*  
+*Per dettagli per modulo: `docs/modules/<modulo>.md`*
+*Per fonti normative: `docs/NORMATIVE_SOURCES/sources.catalog.json`*
 *Per RTM completa: `docs/RTM/RTM_MASTER.md`*

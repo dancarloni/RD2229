@@ -22,16 +22,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from src.wind.models import (
-    BuildingGeom,
-    InternalPressureConfig,
-    StructureGeom,
-    WindSite,
-)
-from src.wind.outputs import (
-    PressureZoneResults,
-    WindResults,
-)
+from src.wind.models import BuildingGeom, InternalPressureConfig, StructureGeom, WindSite
+from src.wind.outputs import PressureZoneResults, WindResults
 
 logger = logging.getLogger(__name__)
 
@@ -224,12 +216,15 @@ class WindActionService:
             ct_z = compute_topography_factor(p.z_m, topo)
             v_new = p.v_m_s * ct_z
             from src.wind.ntc2018 import compute_kinetic_pressure
+
             q_new = compute_kinetic_pressure(v_new)
-            new_profile.append(WindProfilePoint(
-                z_m=p.z_m,
-                v_m_s=round(v_new, 3),
-                q_kN_m2=round(q_new, 4),
-            ))
+            new_profile.append(
+                WindProfilePoint(
+                    z_m=p.z_m,
+                    v_m_s=round(v_new, 3),
+                    q_kN_m2=round(q_new, 4),
+                )
+            )
 
         return dataclasses.replace(
             results,
@@ -247,7 +242,10 @@ class WindActionService:
         z_min = config.site.extra.get("z_min_m", 2.0)
 
         cscd = compute_structural_factor(
-            structure, config.site, z0=z0, z_min=z_min,
+            structure,
+            config.site,
+            z0=z0,
+            z_min=z_min,
             override=config.extra.get("cscd_override"),
         )
 
@@ -267,7 +265,9 @@ class WindActionService:
             return results
 
         # Pressione di picco alla quota di riferimento (sommità)
-        q_p = results.velocity_profile[-1].q_kN_m2 if results.velocity_profile else results.q_b_kN_m2
+        q_p = (
+            results.velocity_profile[-1].q_kN_m2 if results.velocity_profile else results.q_b_kN_m2
+        )
         q_p *= results.structural_factor  # Applica cs·cd
 
         from src.wind.internal_pressure import get_cpi_values
@@ -295,7 +295,10 @@ class WindActionService:
             return results
 
     def _pressures_building(
-        self, results: WindResults, config: WindConfig, q_p: float,
+        self,
+        results: WindResults,
+        config: WindConfig,
+        q_p: float,
         cpi_values: tuple[float, float],
     ) -> WindResults:
         from src.wind.pressure_coefficients import compute_building_pressure_zones
@@ -304,7 +307,10 @@ class WindActionService:
         overrides = config.extra.get("cpe_overrides", {})
 
         zones_data = compute_building_pressure_zones(
-            structure.height_m, structure.width_m, structure.depth_m, q_p,
+            structure.height_m,
+            structure.width_m,
+            structure.depth_m,
+            q_p,
             roof_angle_deg=structure.roof_angle_deg,
             cpi_values=cpi_values,
             overrides=overrides,
@@ -312,20 +318,25 @@ class WindActionService:
 
         zones = []
         for zd in zones_data:
-            zones.append(PressureZoneResults(
-                zone_id=zd["zone_id"],
-                description=zd["description"],
-                cpe=zd["cpe"],
-                cpi=zd["cpi"],
-                we_kN_m2=zd["we_kN_m2"],
-                wi_kN_m2=zd["wi_kN_m2"],
-                net_kN_m2=zd["net_kN_m2"],
-            ))
+            zones.append(
+                PressureZoneResults(
+                    zone_id=zd["zone_id"],
+                    description=zd["description"],
+                    cpe=zd["cpe"],
+                    cpi=zd["cpi"],
+                    we_kN_m2=zd["we_kN_m2"],
+                    wi_kN_m2=zd["wi_kN_m2"],
+                    net_kN_m2=zd["net_kN_m2"],
+                )
+            )
 
         return dataclasses.replace(results, pressure_zones=zones)
 
     def _pressures_canopy(
-        self, results: WindResults, config: WindConfig, q_p: float,
+        self,
+        results: WindResults,
+        config: WindConfig,
+        q_p: float,
     ) -> WindResults:
         from src.wind.special_structures import compute_canopy_pressures
 
@@ -334,30 +345,40 @@ class WindActionService:
         overrides = config.extra.get("canopy_overrides", {})
 
         zones_data = compute_canopy_pressures(
-            structure.structure_type, structure.roof_angle_deg,
-            structure.blockage_ratio, q_p,
-            num_bays=num_bays, overrides=overrides,
+            structure.structure_type,
+            structure.roof_angle_deg,
+            structure.blockage_ratio,
+            q_p,
+            num_bays=num_bays,
+            overrides=overrides,
         )
 
         zones = []
         for zd in zones_data:
-            zones.append(PressureZoneResults(
-                zone_id=zd["zone_id"],
-                description=zd["description"],
-                cpe=zd["cp_net_max"],  # Caso più sfavorevole
-                net_kN_m2=zd["w_max_kN_m2"],
-            ))
-            zones.append(PressureZoneResults(
-                zone_id=zd["zone_id"] + "_min",
-                description=zd["description"] + " (min)",
-                cpe=zd["cp_net_min"],
-                net_kN_m2=zd["w_min_kN_m2"],
-            ))
+            zones.append(
+                PressureZoneResults(
+                    zone_id=zd["zone_id"],
+                    description=zd["description"],
+                    cpe=zd["cp_net_max"],  # Caso più sfavorevole
+                    net_kN_m2=zd["w_max_kN_m2"],
+                )
+            )
+            zones.append(
+                PressureZoneResults(
+                    zone_id=zd["zone_id"] + "_min",
+                    description=zd["description"] + " (min)",
+                    cpe=zd["cp_net_min"],
+                    net_kN_m2=zd["w_min_kN_m2"],
+                )
+            )
 
         return dataclasses.replace(results, pressure_zones=zones)
 
     def _pressures_shelter(
-        self, results: WindResults, config: WindConfig, q_p: float,
+        self,
+        results: WindResults,
+        config: WindConfig,
+        q_p: float,
     ) -> WindResults:
         from src.wind.special_structures import compute_shelter_pressures
 
@@ -365,23 +386,30 @@ class WindActionService:
         overrides = config.extra.get("shelter_overrides", {})
 
         zones_data = compute_shelter_pressures(
-            structure.roof_angle_deg, structure.blockage_ratio, q_p,
+            structure.roof_angle_deg,
+            structure.blockage_ratio,
+            q_p,
             overrides=overrides,
         )
 
         zones = []
         for zd in zones_data:
-            zones.append(PressureZoneResults(
-                zone_id=zd["zone_id"],
-                description=zd["description"],
-                cpe=zd["cp_net_max"],
-                net_kN_m2=zd["w_max_kN_m2"],
-            ))
+            zones.append(
+                PressureZoneResults(
+                    zone_id=zd["zone_id"],
+                    description=zd["description"],
+                    cpe=zd["cp_net_max"],
+                    net_kN_m2=zd["w_max_kN_m2"],
+                )
+            )
 
         return dataclasses.replace(results, pressure_zones=zones)
 
     def _pressures_sign(
-        self, results: WindResults, config: WindConfig, q_p: float,
+        self,
+        results: WindResults,
+        config: WindConfig,
+        q_p: float,
     ) -> WindResults:
         from src.wind.special_structures import compute_sign_force, compute_sign_zone_pressures
 
@@ -390,7 +418,9 @@ class WindActionService:
 
         # Forza globale (cf complessivo)
         force_data = compute_sign_force(
-            structure.width_m, structure.height_m, q_p,
+            structure.width_m,
+            structure.height_m,
+            q_p,
             solidity_ratio=structure.solidity_ratio,
             ground_clearance_m=structure.ground_clearance_m,
             is_lattice=is_lattice,
@@ -402,27 +432,33 @@ class WindActionService:
 
         if use_zones and not is_lattice:
             zone_data = compute_sign_zone_pressures(
-                structure.width_m, structure.height_m, q_p,
+                structure.width_m,
+                structure.height_m,
+                q_p,
                 solidity_ratio=structure.solidity_ratio,
                 ground_clearance_m=structure.ground_clearance_m,
             )
             zones = []
             for zd in zone_data:
-                zones.append(PressureZoneResults(
-                    zone_id=zd["zone_id"],
-                    description=zd["description"],
-                    cpe=zd["cpn"],
-                    net_kN_m2=zd["w_kN_m2"],
-                    area_m2=zd["area_m2"],
-                ))
+                zones.append(
+                    PressureZoneResults(
+                        zone_id=zd["zone_id"],
+                        description=zd["description"],
+                        cpe=zd["cpn"],
+                        net_kN_m2=zd["w_kN_m2"],
+                        area_m2=zd["area_m2"],
+                    )
+                )
         else:
-            zones = [PressureZoneResults(
-                zone_id="sign",
-                description=force_data["description"],
-                cpe=force_data["cf"],
-                net_kN_m2=force_data["F_kN"] / max(force_data["area_ref_m2"], 0.01),
-                area_m2=force_data["area_ref_m2"],
-            )]
+            zones = [
+                PressureZoneResults(
+                    zone_id="sign",
+                    description=force_data["description"],
+                    cpe=force_data["cf"],
+                    net_kN_m2=force_data["F_kN"] / max(force_data["area_ref_m2"], 0.01),
+                    area_m2=force_data["area_ref_m2"],
+                )
+            ]
 
         # Salva eccentricità e punto di applicazione per forze risultanti
         extra = dict(results.extra)
@@ -433,7 +469,10 @@ class WindActionService:
         return dataclasses.replace(results, pressure_zones=zones, extra=extra)
 
     def _pressures_solar(
-        self, results: WindResults, config: WindConfig, q_p: float,
+        self,
+        results: WindResults,
+        config: WindConfig,
+        q_p: float,
     ) -> WindResults:
         from src.wind.special_structures import compute_solar_pressures
 
@@ -441,7 +480,9 @@ class WindActionService:
         overrides = config.extra.get("solar_overrides", {})
 
         zones_data = compute_solar_pressures(
-            structure.structure_type, structure.panel_tilt_deg, q_p,
+            structure.structure_type,
+            structure.panel_tilt_deg,
+            q_p,
             roof_angle_deg=structure.roof_angle_deg,
             num_rows=structure.panel_rows,
             tracking_angle_deg=config.extra.get("tracking_angle_deg", 0.0),
@@ -450,34 +491,43 @@ class WindActionService:
 
         zones = []
         for zd in zones_data:
-            zones.append(PressureZoneResults(
-                zone_id=zd["zone_id"],
-                description=zd["description"],
-                cpe=zd["cp_net_max"],
-                net_kN_m2=zd["w_max_kN_m2"],
-            ))
-            zones.append(PressureZoneResults(
-                zone_id=zd["zone_id"] + "_min",
-                description=zd["description"] + " (min)",
-                cpe=zd["cp_net_min"],
-                net_kN_m2=zd["w_min_kN_m2"],
-            ))
+            zones.append(
+                PressureZoneResults(
+                    zone_id=zd["zone_id"],
+                    description=zd["description"],
+                    cpe=zd["cp_net_max"],
+                    net_kN_m2=zd["w_max_kN_m2"],
+                )
+            )
+            zones.append(
+                PressureZoneResults(
+                    zone_id=zd["zone_id"] + "_min",
+                    description=zd["description"] + " (min)",
+                    cpe=zd["cp_net_min"],
+                    net_kN_m2=zd["w_min_kN_m2"],
+                )
+            )
 
         return dataclasses.replace(results, pressure_zones=zones)
 
     def _pressures_wall(
-        self, results: WindResults, config: WindConfig, q_p: float,
+        self,
+        results: WindResults,
+        config: WindConfig,
+        q_p: float,
     ) -> WindResults:
         from src.wind.special_structures import get_freestanding_wall_cp
 
         structure = config.structure
 
         cp_center = get_freestanding_wall_cp(
-            structure.width_m, structure.height_m,
+            structure.width_m,
+            structure.height_m,
             solidity_ratio=structure.solidity_ratio,
         )
         cp_corner = get_freestanding_wall_cp(
-            structure.width_m, structure.height_m,
+            structure.width_m,
+            structure.height_m,
             solidity_ratio=structure.solidity_ratio,
             return_corner=True,
         )
@@ -505,14 +555,19 @@ class WindActionService:
         from src.wind.friction import compute_building_friction
 
         building = config.get_building_geom()
-        q_p = results.velocity_profile[-1].q_kN_m2 if results.velocity_profile else results.q_b_kN_m2
+        q_p = (
+            results.velocity_profile[-1].q_kN_m2 if results.velocity_profile else results.q_b_kN_m2
+        )
 
         friction_class = "SMOOTH"
         if config.structure:
             friction_class = config.structure.friction_class
 
         forces = compute_building_friction(
-            building.height_m, building.width_m, building.depth_m, q_p,
+            building.height_m,
+            building.width_m,
+            building.depth_m,
+            q_p,
             friction_class=friction_class,
             override_cfr=config.extra.get("cfr_override"),
         )
@@ -550,7 +605,8 @@ class WindActionService:
 
         norm_code = config.method or "NTC2018"
         combos = generate_wind_combinations(
-            results.pressure_zones, norm_code,
+            results.pressure_zones,
+            norm_code,
             resultant_forces=results.resultant_forces,
         )
 

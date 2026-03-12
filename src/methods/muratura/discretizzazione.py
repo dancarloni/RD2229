@@ -32,33 +32,32 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
-from src.methods.muratura.modello_edificio import (
-    Apertura,
-    MaterialeMuratura,
-    Parete,
-    Piano,
-)
+from src.methods.muratura.modello_edificio import Apertura, MaterialeMuratura, Parete, Piano
 
 # ═══════════════════════════════════════════════════════════
 #  Enumerazioni
 # ═══════════════════════════════════════════════════════════
 
+
 class TipoElemento(str, Enum):
     """Tipo di elemento nel telaio equivalente."""
+
     MASCHIO = "maschio"
     FASCIA = "fascia"
 
 
 class TipoVincolo(str, Enum):
     """Tipo di vincolo alle estremità del maschio."""
-    INCASTRO = "incastro"        # doppio incastro (fascia forte)
-    CERNIERA = "cerniera"        # incastro-cerniera (fascia debole)
-    MENSOLA = "mensola"          # mensola (nessuna fascia)
+
+    INCASTRO = "incastro"  # doppio incastro (fascia forte)
+    CERNIERA = "cerniera"  # incastro-cerniera (fascia debole)
+    MENSOLA = "mensola"  # mensola (nessuna fascia)
 
 
 # ═══════════════════════════════════════════════════════════
 #  Maschio murario
 # ═══════════════════════════════════════════════════════════
+
 
 @dataclass
 class Maschio:
@@ -69,36 +68,37 @@ class Maschio:
     - Taglio orizzontale (V da azione sismica)
     - Pressoflessione nel piano
     """
+
     id_maschio: int = 0
     id_parete: int = 0
     id_piano: int = 0
 
     # Geometria
-    L: float = 0.0               # lunghezza (larghezza del maschio) [cm]
-    t: float = 0.0               # spessore [cm]
-    h: float = 0.0               # altezza [cm]
+    L: float = 0.0  # lunghezza (larghezza del maschio) [cm]
+    t: float = 0.0  # spessore [cm]
+    h: float = 0.0  # altezza [cm]
 
     # Posizione in pianta (baricentro)
     x_baricentro: float = 0.0
     y_baricentro: float = 0.0
 
     # Posizione lungo la parete
-    x_ini_locale: float = 0.0   # coordinata locale inizio lungo la parete [cm]
-    x_fin_locale: float = 0.0   # coordinata locale fine lungo la parete [cm]
+    x_ini_locale: float = 0.0  # coordinata locale inizio lungo la parete [cm]
+    x_fin_locale: float = 0.0  # coordinata locale fine lungo la parete [cm]
 
     # Materiale
     materiale: MaterialeMuratura | None = None
 
     # Carichi verticali
     N_gravitazionale: float = 0.0  # sforzo normale da carichi gravitazionali [kg]
-    N_override: bool = False       # True se N impostato manualmente
+    N_override: bool = False  # True se N impostato manualmente
 
     # Vincoli (determinati automaticamente o override manuale)
     vincolo: TipoVincolo = TipoVincolo.INCASTRO
     vincolo_override: bool = False  # True se vincolo impostato manualmente
 
     # Drift limite (configurabili, default NTC2018)
-    drift_taglio: float = 0.005           # 0.5% (NTC2018 §7.8.2.2.2)
+    drift_taglio: float = 0.005  # 0.5% (NTC2018 §7.8.2.2.2)
     drift_pressoflessione: float = 0.010  # 1.0% (NTC2018 §7.8.2.2.1)
 
     @property
@@ -109,7 +109,7 @@ class Maschio:
     @property
     def I_x(self) -> float:
         """Momento d'inerzia flessionale nel piano [cm⁴]."""
-        return self.t * self.L ** 3 / 12
+        return self.t * self.L**3 / 12
 
     @property
     def spostamento_limite_taglio(self) -> float:
@@ -141,6 +141,7 @@ class Maschio:
 #  Fascia di piano
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class Fascia:
     """Elemento fascia di piano (pannello orizzontale sopra/sotto apertura).
@@ -148,14 +149,15 @@ class Fascia:
     Accoppia i maschi adiacenti. La resistenza dipende dalla presenza
     di cordolo CA/metallico.
     """
+
     id_fascia: int = 0
     id_parete: int = 0
     id_piano: int = 0
 
     # Geometria
-    L: float = 0.0               # lunghezza (luce dell'apertura sottostante) [cm]
-    t: float = 0.0               # spessore [cm]
-    h: float = 0.0               # altezza fascia [cm]
+    L: float = 0.0  # lunghezza (luce dell'apertura sottostante) [cm]
+    t: float = 0.0  # spessore [cm]
+    h: float = 0.0  # altezza fascia [cm]
 
     # Posizione
     x_baricentro: float = 0.0
@@ -163,15 +165,15 @@ class Fascia:
     posizione: str = "superiore"  # "superiore" o "inferiore" rispetto all'apertura
 
     # Maschi collegati
-    id_maschio_sx: int = -1      # maschio a sinistra
-    id_maschio_dx: int = -1      # maschio a destra
+    id_maschio_sx: int = -1  # maschio a sinistra
+    id_maschio_dx: int = -1  # maschio a destra
 
     # Materiale
     materiale: MaterialeMuratura | None = None
 
     # Cordolo accoppiato (auto-detect da E.5)
     ha_cordolo: bool = False
-    tipo_cordolo: str = ""       # "ca", "metallico_singolo"
+    tipo_cordolo: str = ""  # "ca", "metallico_singolo"
 
     @property
     def area(self) -> float:
@@ -181,7 +183,7 @@ class Fascia:
     @property
     def I_x(self) -> float:
         """Momento d'inerzia flessionale [cm⁴]."""
-        return self.t * self.h ** 3 / 12
+        return self.t * self.h**3 / 12
 
     @property
     def e_biella(self) -> bool:
@@ -212,9 +214,11 @@ class Fascia:
 #  Risultato discretizzazione
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RisultatoDiscretizzazione:
     """Risultato della discretizzazione di un piano."""
+
     maschi: list[Maschio] = field(default_factory=list)
     fasce: list[Fascia] = field(default_factory=list)
     passaggi: list[str] = field(default_factory=list)
@@ -231,8 +235,7 @@ class RisultatoDiscretizzazione:
         """Filtra maschi per direzione della parete a cui appartengono."""
         # Usiamo la posizione: se x_baricentro varia di più tra i maschi
         # della stessa parete → parete in X
-        return [m for m in self.maschi
-                if _direzione_maschio(m) == direzione]
+        return [m for m in self.maschi if _direzione_maschio(m) == direzione]
 
     def to_dict(self) -> dict:
         return {
@@ -250,12 +253,13 @@ def _direzione_maschio(maschio: Maschio) -> str:
     Semplificazione: usiamo un attributo interno. In mancanza,
     fallback su 'X'.
     """
-    return getattr(maschio, '_direzione', 'X')
+    return getattr(maschio, "_direzione", "X")
 
 
 # ═══════════════════════════════════════════════════════════
 #  Discretizzazione automatica
 # ═══════════════════════════════════════════════════════════
+
 
 def discretizza_parete(
     parete: Parete,
@@ -321,6 +325,7 @@ def discretizza_parete(
 
     # Identifica zone maschio (tra inizio parete e aperture, tra aperture, dopo ultima)
     import math as _math
+
     cos_a = _math.cos(angolo)
     sin_a = _math.sin(angolo)
 
@@ -365,9 +370,7 @@ def discretizza_parete(
         )
         m._direzione = parete.direzione_principale  # type: ignore[attr-defined]
         maschi.append(m)
-        passaggi.append(
-            f"  Maschio {id_m}: x=[{x_ini:.0f}÷{x_fin:.0f}], L={L_maschio:.0f} cm"
-        )
+        passaggi.append(f"  Maschio {id_m}: x=[{x_ini:.0f}÷{x_fin:.0f}], L={L_maschio:.0f} cm")
         id_m += 1
 
     # Crea fasce (sopra e sotto ogni apertura)
@@ -398,9 +401,7 @@ def discretizza_parete(
                 materiale=materiale,
             )
             fasce.append(f)
-            passaggi.append(
-                f"  Fascia sup {id_f}: L={ap.larghezza:.0f}, h={h_fascia_sup:.0f} cm"
-            )
+            passaggi.append(f"  Fascia sup {id_f}: L={ap.larghezza:.0f}, h={h_fascia_sup:.0f} cm")
             id_f += 1
 
         # Fascia inferiore: dal pavimento alla base dell'apertura
@@ -427,9 +428,7 @@ def discretizza_parete(
                 materiale=materiale,
             )
             fasce.append(f)
-            passaggi.append(
-                f"  Fascia inf {id_f}: L={ap.larghezza:.0f}, h={h_fascia_inf:.0f} cm"
-            )
+            passaggi.append(f"  Fascia inf {id_f}: L={ap.larghezza:.0f}, h={h_fascia_inf:.0f} cm")
             id_f += 1
 
     return maschi, fasce, passaggi
@@ -465,6 +464,7 @@ def _trova_maschi_adiacenti(
 #  Discretizzazione piano completo
 # ═══════════════════════════════════════════════════════════
 
+
 def discretizza_piano(piano: Piano) -> RisultatoDiscretizzazione:
     """Discretizza tutte le pareti di un piano in maschi e fasce.
 
@@ -479,8 +479,7 @@ def discretizza_piano(piano: Piano) -> RisultatoDiscretizzazione:
     tutte_fasce: list[Fascia] = []
 
     passaggi.append(
-        f"═══ Discretizzazione Piano {piano.id_piano} "
-        f"(quota {piano.quota_z:.0f} cm) ═══"
+        f"═══ Discretizzazione Piano {piano.id_piano} " f"(quota {piano.quota_z:.0f} cm) ═══"
     )
 
     id_m = 0
@@ -501,9 +500,7 @@ def discretizza_piano(piano: Piano) -> RisultatoDiscretizzazione:
         id_m += len(maschi)
         id_f += len(fasce)
 
-    passaggi.append(
-        f"Totale: {len(tutti_maschi)} maschi, {len(tutte_fasce)} fasce"
-    )
+    passaggi.append(f"Totale: {len(tutti_maschi)} maschi, {len(tutte_fasce)} fasce")
 
     return RisultatoDiscretizzazione(
         maschi=tutti_maschi,
@@ -515,6 +512,7 @@ def discretizza_piano(piano: Piano) -> RisultatoDiscretizzazione:
 # ═══════════════════════════════════════════════════════════
 #  Calcolo automatico N gravitazionale
 # ═══════════════════════════════════════════════════════════
+
 
 def calcola_N_gravitazionale(
     maschi_per_piano: dict[int, list[Maschio]],
@@ -575,8 +573,10 @@ def calcola_N_gravitazionale(
                 maschi_sup = maschi_per_piano.get(piano_sup, [])
                 # Trova maschio soprastante (stessa parete, posizione simile)
                 for m_sup in maschi_sup:
-                    if (m_sup.id_parete == m.id_parete and
-                            abs(m_sup.x_ini_locale - m.x_ini_locale) < 1.0):
+                    if (
+                        m_sup.id_parete == m.id_parete
+                        and abs(m_sup.x_ini_locale - m.x_ini_locale) < 1.0
+                    ):
                         N_sup = m_sup.N_gravitazionale
                         break
 
@@ -594,6 +594,7 @@ def calcola_N_gravitazionale(
 # ═══════════════════════════════════════════════════════════
 #  Determinazione automatica vincoli maschi
 # ═══════════════════════════════════════════════════════════
+
 
 def determina_vincoli_maschi(
     maschi: list[Maschio],
@@ -618,31 +619,22 @@ def determina_vincoli_maschi(
 
     for m in maschi:
         if m.vincolo_override:
-            passaggi.append(
-                f"  Maschio {m.id_maschio}: vincolo={m.vincolo.value} (override)"
-            )
+            passaggi.append(f"  Maschio {m.id_maschio}: vincolo={m.vincolo.value} (override)")
             continue
 
         # Trova fasce collegate a questo maschio
         fasce_collegate = [
-            f for f in fasce
-            if f.id_maschio_sx == m.id_maschio or f.id_maschio_dx == m.id_maschio
+            f for f in fasce if f.id_maschio_sx == m.id_maschio or f.id_maschio_dx == m.id_maschio
         ]
 
         if not fasce_collegate:
             m.vincolo = TipoVincolo.MENSOLA
-            passaggi.append(
-                f"  Maschio {m.id_maschio}: nessuna fascia → mensola"
-            )
+            passaggi.append(f"  Maschio {m.id_maschio}: nessuna fascia → mensola")
         elif all(f.e_biella for f in fasce_collegate):
             m.vincolo = TipoVincolo.CERNIERA
-            passaggi.append(
-                f"  Maschio {m.id_maschio}: fasce biella → cerniera"
-            )
+            passaggi.append(f"  Maschio {m.id_maschio}: fasce biella → cerniera")
         else:
             m.vincolo = TipoVincolo.INCASTRO
-            passaggi.append(
-                f"  Maschio {m.id_maschio}: fasce con cordolo → incastro"
-            )
+            passaggi.append(f"  Maschio {m.id_maschio}: fasce con cordolo → incastro")
 
     return passaggi

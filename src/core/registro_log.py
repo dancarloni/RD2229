@@ -46,6 +46,7 @@ _logger = get_logger("registro_log")
 
 class LivelloLog(Enum):
     """Livello di log per le voci del registro."""
+
     INFO = "INFO"
     AVVISO = "AVVISO"
     ERRORE = "ERRORE"
@@ -70,7 +71,10 @@ class VoceLog:
         esito: Risultato della verifica: VERIFICATO/NON VERIFICATO (opzionale).
         dettagli: Testo libero con dettagli aggiuntivi (opzionale).
     """
-    timestamp: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3])
+
+    timestamp: str = field(
+        default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    )
     livello: LivelloLog = LivelloLog.INFO
     modulo: str = ""
     operazione: str = ""
@@ -118,13 +122,13 @@ class VoceLog:
             righe.append(f"| {'Normativa:':<14} {self.normativa:<{larghezza - 16}} |")
         if self.formula:
             # Formula può essere lunga, tronca se necessario
-            formula_troncata = self.formula[:larghezza - 16]
+            formula_troncata = self.formula[: larghezza - 16]
             righe.append(f"| {'Formula:':<14} {formula_troncata:<{larghezza - 16}} |")
         if self.input_dati:
-            testo_input = _formatta_dati(self.input_dati)[:larghezza - 16]
+            testo_input = _formatta_dati(self.input_dati)[: larghezza - 16]
             righe.append(f"| {'Input:':<14} {testo_input:<{larghezza - 16}} |")
         if self.output_dati:
-            testo_output = _formatta_dati(self.output_dati)[:larghezza - 16]
+            testo_output = _formatta_dati(self.output_dati)[: larghezza - 16]
             righe.append(f"| {'Output:':<14} {testo_output:<{larghezza - 16}} |")
         if self.esito:
             righe.append(f"| {'Esito:':<14} {self.esito:<{larghezza - 16}} |")
@@ -202,8 +206,7 @@ class RegistroLog:
         )
         self._aggiungi(voce)
         _logger.info(
-            "[CALC] %s | %s | %s | Esito: %s",
-            modulo, operazione, normativa, esito or "N/D"
+            "[CALC] %s | %s | %s | Esito: %s", modulo, operazione, normativa, esito or "N/D"
         )
         return voce
 
@@ -388,7 +391,7 @@ class RegistroLog:
             self._voci.append(voce)
             # Limita dimensione: rimuovi voci più vecchie se necessario
             if len(self._voci) > self._capacita_max:
-                self._voci = self._voci[-self._capacita_max:]
+                self._voci = self._voci[-self._capacita_max :]
 
         # Notifica listener (fuori dal lock per evitare deadlock)
         for listener in self._listener:
@@ -412,8 +415,12 @@ def _formatta_dati(dati: dict[str, Any]) -> str:
 def _voce_contiene(voce: VoceLog, testo: str) -> bool:
     """Verifica se una voce contiene il testo cercato in qualsiasi campo."""
     campi = [
-        voce.modulo, voce.operazione, voce.normativa,
-        voce.formula, voce.esito, voce.dettagli,
+        voce.modulo,
+        voce.operazione,
+        voce.normativa,
+        voce.formula,
+        voce.esito,
+        voce.dettagli,
     ]
     if voce.input_dati:
         campi.append(str(voce.input_dati))

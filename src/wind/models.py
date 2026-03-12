@@ -68,27 +68,27 @@ class BuildingGeom:
 
 # Tipologie di struttura supportate
 STRUCTURE_TYPES = (
-    "BUILDING",          # Edificio a pianta rettangolare
-    "CANOPY_MONO",       # Tettoia a falda unica (monopitch)
-    "CANOPY_DUO",        # Tettoia a due falde (duopitch)
-    "CANOPY_TROUGH",     # Tettoia a V invertita
-    "CANOPY_MULTI",      # Tettoia multi-campata
-    "SHELTER",           # Pensilina (addossata a edificio)
-    "SIGN",              # Insegna / pannello pubblicitario
-    "SIGN_LATTICE",      # Insegna su struttura reticolare
-    "SOLAR_GROUND",      # Pannello FV a terra
-    "SOLAR_FLAT_ROOF",   # Pannello FV su tetto piano
+    "BUILDING",  # Edificio a pianta rettangolare
+    "CANOPY_MONO",  # Tettoia a falda unica (monopitch)
+    "CANOPY_DUO",  # Tettoia a due falde (duopitch)
+    "CANOPY_TROUGH",  # Tettoia a V invertita
+    "CANOPY_MULTI",  # Tettoia multi-campata
+    "SHELTER",  # Pensilina (addossata a edificio)
+    "SIGN",  # Insegna / pannello pubblicitario
+    "SIGN_LATTICE",  # Insegna su struttura reticolare
+    "SOLAR_GROUND",  # Pannello FV a terra
+    "SOLAR_FLAT_ROOF",  # Pannello FV su tetto piano
     "SOLAR_PITCHED_ROOF",  # Pannello FV su tetto inclinato
-    "SOLAR_TRACKER",     # Pannello FV su inseguitore monoassiale
-    "WALL_FREE",         # Muro isolato / parapetto
-    "FENCE",             # Recinzione
+    "SOLAR_TRACKER",  # Pannello FV su inseguitore monoassiale
+    "WALL_FREE",  # Muro isolato / parapetto
+    "FENCE",  # Recinzione
 )
 
 # Classi di rugosità superficiale per attrito
 FRICTION_CLASSES = {
-    "SMOOTH": 0.01,       # Vetro, acciaio, cls liscio
-    "ROUGH": 0.02,        # Laterizio, cls grezzo
-    "VERY_ROUGH": 0.04,   # Lamiera grecata, ondulato
+    "SMOOTH": 0.01,  # Vetro, acciaio, cls liscio
+    "ROUGH": 0.02,  # Laterizio, cls grezzo
+    "VERY_ROUGH": 0.04,  # Lamiera grecata, ondulato
 }
 
 

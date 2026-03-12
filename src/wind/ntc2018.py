@@ -99,9 +99,7 @@ def _compute_reference_wind_speed_with_warnings(
                     "Verificare con NTC2018 Tabella 3.3.I."
                 )
         else:
-            warnings.append(
-                f"Zona '{zone_id}' non trovata nel database; uso valori default."
-            )
+            warnings.append(f"Zona '{zone_id}' non trovata nel database; uso valori default.")
 
     # Priorità 4: fallback
     if vb0 is None:
@@ -226,18 +224,23 @@ def run_ntc2018_wind(
 
         q_at_h = profile[-1].q_kN_m2 if profile else q_b
         zones_data = compute_building_pressure_zones(
-            h, building.width_m, building.depth_m, q_at_h,
+            h,
+            building.width_m,
+            building.depth_m,
+            q_at_h,
         )
         for zd in zones_data:
-            pressure_zones.append(PressureZoneResults(
-                zone_id=zd["zone_id"],
-                description=zd["description"],
-                cpe=zd["cpe"],
-                cpi=zd["cpi"],
-                we_kN_m2=zd["we_kN_m2"],
-                wi_kN_m2=zd["wi_kN_m2"],
-                net_kN_m2=zd["net_kN_m2"],
-            ))
+            pressure_zones.append(
+                PressureZoneResults(
+                    zone_id=zd["zone_id"],
+                    description=zd["description"],
+                    cpe=zd["cpe"],
+                    cpi=zd["cpi"],
+                    we_kN_m2=zd["we_kN_m2"],
+                    wi_kN_m2=zd["wi_kN_m2"],
+                    net_kN_m2=zd["net_kN_m2"],
+                )
+            )
 
     return WindResults(
         method="NTC2018",

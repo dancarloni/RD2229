@@ -24,10 +24,7 @@ from src.codes.section_params.composita import (
     calcola_sezione_composta,
     calcola_tensioni_sle_composita,
 )
-from src.codes.section_params.norme_n import (
-    RD2229_N_OPTIONS,
-    get_n_for_norm,
-)
+from src.codes.section_params.norme_n import RD2229_N_OPTIONS, get_n_for_norm
 from src.codes.section_params.omogenizzata import (
     BarraArmatura,
     calcola_asse_neutro_fessurato,
@@ -39,6 +36,7 @@ from src.codes.section_params.omogenizzata import (
 # ---------------------------------------------------------------------------
 # Helper mock sezione rettangolare
 # ---------------------------------------------------------------------------
+
 
 def _rect(width: float = 30.0, height: float = 50.0):
     return SimpleNamespace(section_type="RECTANGULAR", width=width, height=height)
@@ -61,6 +59,7 @@ def _t_sec(bf=40.0, tf=10.0, tw=15.0, hw=35.0):
 # ===========================================================================
 # TestNormaHnParams
 # ===========================================================================
+
 
 class TestNormaHnParams:
     """Test get_n_for_norm per tutte le norme."""
@@ -139,6 +138,7 @@ class TestNormaHnParams:
 # TestSezOmogenizzataRettangolare
 # ===========================================================================
 
+
 class TestSezOmogenizzataRettangolare:
     """Sezione 30×50 cm, As=10 cm² a d=45 cm, n=10.
 
@@ -186,12 +186,8 @@ class TestSezOmogenizzataRettangolare:
         s, barre, n = setup
         res = calcola_sezione_omogenizzata(s, barre, n)
         y_G_om = res["y_G_omogenizzata_cm"]
-        I_c = 30.0 * 50.0 ** 3 / 12.0
-        I_expected = (
-            I_c
-            + 1500.0 * (25.0 - y_G_om) ** 2
-            + 9.0 * 10.0 * (45.0 - y_G_om) ** 2
-        )
+        I_c = 30.0 * 50.0**3 / 12.0
+        I_expected = I_c + 1500.0 * (25.0 - y_G_om) ** 2 + 9.0 * 10.0 * (45.0 - y_G_om) ** 2
         assert res["I_omogenizzata_cm4"] == pytest.approx(I_expected, rel=0.005)
 
     def test_inerzia_maggiore_di_inerzia_cls(self, setup) -> None:
@@ -263,6 +259,7 @@ class TestSezOmogenizzataDueFile:
 # TestAssNeutroFessuratoRettangolare
 # ===========================================================================
 
+
 class TestAssNeutroFessuratoRettangolare:
     """Asse neutro fessurato per sezione rettangolare 30×50 cm.
 
@@ -285,7 +282,7 @@ class TestAssNeutroFessuratoRettangolare:
         a_q = b / 2.0
         b_q = n * As
         c_q = -(n * As * d)
-        disc = b_q ** 2 - 4.0 * a_q * c_q
+        disc = b_q**2 - 4.0 * a_q * c_q
         return (-b_q + math.sqrt(disc)) / (2.0 * a_q)
 
     def test_esito_ok(self, setup) -> None:
@@ -315,7 +312,7 @@ class TestAssNeutroFessuratoRettangolare:
         x = res["y_na_cm"]
         d = 45.0
         As = 10.0
-        I_expected = 30.0 * x ** 3 / 3.0 + n * As * (d - x) ** 2
+        I_expected = 30.0 * x**3 / 3.0 + n * As * (d - x) ** 2
         assert res["I_fess_cm4"] == pytest.approx(I_expected, rel=0.005)
 
     def test_equilibrio_verifica(self, setup) -> None:
@@ -324,7 +321,7 @@ class TestAssNeutroFessuratoRettangolare:
         res = calcola_asse_neutro_fessurato(s, barre, n)
         x = res["y_na_cm"]
         b, As, d = 30.0, 10.0, 45.0
-        lato_sx = b * x ** 2 / 2.0
+        lato_sx = b * x**2 / 2.0
         lato_dx = n * As * (d - x)
         assert lato_sx == pytest.approx(lato_dx, rel=0.005)
 
@@ -395,6 +392,7 @@ class TestAssNeutroFessuratoTSection:
 # ===========================================================================
 # TestTensioniSLE
 # ===========================================================================
+
 
 class TestTensioniSLE:
     """Tensioni SLE per sezione fessurata rettangolare 30×50 cm.
@@ -474,6 +472,7 @@ class TestTensioniSLE:
 # TestPipelineCompleta
 # ===========================================================================
 
+
 class TestPipelineCompleta:
     """Test pipeline calcola_parametri_sezione_completi."""
 
@@ -524,6 +523,7 @@ class TestPipelineCompleta:
 # TestAllSectionTypes (integra + fessurata)
 # ===========================================================================
 
+
 class TestAllSectionTypes:
     """Verifica che le funzioni girino senza errori per tutti i tipi di sezione."""
 
@@ -532,39 +532,53 @@ class TestAllSectionTypes:
         SimpleNamespace(section_type="CIRCULAR", diameter=40.0),
         SimpleNamespace(
             section_type="T_SECTION",
-            flange_width=40.0, flange_thickness=10.0,
-            web_thickness=15.0, web_height=35.0,
+            flange_width=40.0,
+            flange_thickness=10.0,
+            web_thickness=15.0,
+            web_height=35.0,
         ),
         SimpleNamespace(
             section_type="INVERTED_T_SECTION",
-            flange_width=40.0, flange_thickness=10.0,
-            web_thickness=15.0, web_height=35.0,
+            flange_width=40.0,
+            flange_thickness=10.0,
+            web_thickness=15.0,
+            web_height=35.0,
         ),
         SimpleNamespace(
             section_type="I_SECTION",
-            flange_width=20.0, flange_thickness=1.5,
-            web_thickness=1.0, web_height=30.0,
+            flange_width=20.0,
+            flange_thickness=1.5,
+            web_thickness=1.0,
+            web_height=30.0,
         ),
         SimpleNamespace(
             section_type="RECTANGULAR_HOLLOW",
-            width=30.0, height=50.0, thickness=3.0,
+            width=30.0,
+            height=50.0,
+            thickness=3.0,
         ),
         SimpleNamespace(
             section_type="C_SECTION",
-            width=10.0, height=30.0,
-            flange_thickness=1.5, web_thickness=1.0,
+            width=10.0,
+            height=30.0,
+            flange_thickness=1.5,
+            web_thickness=1.0,
         ),
         SimpleNamespace(
             section_type="L_SECTION",
-            width=10.0, height=15.0,
-            t_horizontal=1.5, t_vertical=1.5,
+            width=10.0,
+            height=15.0,
+            t_horizontal=1.5,
+            t_vertical=1.5,
         ),
     ]
 
     @pytest.mark.parametrize("s", SECTIONS, ids=[s.section_type for s in SECTIONS])
     def test_omogenizzata_ok(self, s) -> None:
-        h = getattr(s, "height", None) or getattr(s, "diameter", None) or (
-            getattr(s, "flange_thickness", 0) + getattr(s, "web_height", 0)
+        h = (
+            getattr(s, "height", None)
+            or getattr(s, "diameter", None)
+            or (getattr(s, "flange_thickness", 0) + getattr(s, "web_height", 0))
         )
         d = h * 0.9
         barre = [BarraArmatura(y=d, A=10.0, zona="tesa")]
@@ -575,8 +589,10 @@ class TestAllSectionTypes:
 
     @pytest.mark.parametrize("s", SECTIONS, ids=[s.section_type for s in SECTIONS])
     def test_asse_neutro_ok(self, s) -> None:
-        h = getattr(s, "height", None) or getattr(s, "diameter", None) or (
-            getattr(s, "flange_thickness", 0) + getattr(s, "web_height", 0)
+        h = (
+            getattr(s, "height", None)
+            or getattr(s, "diameter", None)
+            or (getattr(s, "flange_thickness", 0) + getattr(s, "web_height", 0))
         )
         d = h * 0.9
         barre = [BarraArmatura(y=d, A=10.0, zona="tesa")]
@@ -590,6 +606,7 @@ class TestAllSectionTypes:
 # ===========================================================================
 # TestSezioneComposta
 # ===========================================================================
+
 
 class TestSezioneComposta:
     """Test sezione composta IPE + soletta."""
@@ -662,6 +679,7 @@ class TestSezioneComposta:
 # TestDisegnoSezione
 # ===========================================================================
 
+
 class TestDisegnoSezione:
     """Test disegno sezione con matplotlib (headless)."""
 
@@ -697,10 +715,7 @@ class TestDisegnoSezione:
 
     def test_salva_figura(self, tmp_path) -> None:
         pytest.importorskip("matplotlib", reason="matplotlib non installato")
-        from src.codes.section_params.disegno_sezione import (
-            disegna_sezione,
-            salva_figura,
-        )
+        from src.codes.section_params.disegno_sezione import disegna_sezione, salva_figura
 
         s = _rect(30.0, 50.0)
         barre = [BarraArmatura(y=45.0, A=10.0)]

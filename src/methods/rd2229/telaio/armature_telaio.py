@@ -169,7 +169,7 @@ def _taglio_resistente_rett(
         V_R [kg].
     """
     d_cm = h_cm - COPRIFERRO_CM
-    tau_c1 = sigma_c_adm / 2.0   # kg/cm²
+    tau_c1 = sigma_c_adm / 2.0  # kg/cm²
     V_R = tau_c1 * b_cm * d_cm
     return V_R
 
@@ -365,10 +365,7 @@ def calcola_armatura_teorica_minima(
     sigma_s_adm = getattr(sez, "sigma_s_adm", SIGMA_S_ADM_DEFAULT)
 
     A_sez_cm2 = b_cm * h_cm
-    e_pilastro = (
-        asta.tipo in (TipoAsta.PILASTRO, TipoAsta.SETTO)
-        or abs(N_gov_kg) >= N_PILASTRO_KG
-    )
+    e_pilastro = asta.tipo in (TipoAsta.PILASTRO, TipoAsta.SETTO) or abs(N_gov_kg) >= N_PILASTRO_KG
 
     # --- Armatura longitudinale ---
     if e_pilastro:
@@ -458,7 +455,7 @@ def proponi_armature_telaio(
 
         posizioni = [
             ("estremo_i", 0),
-            ("mezzeria",  1),
+            ("mezzeria", 1),
             ("estremo_j", 2),
         ]
 

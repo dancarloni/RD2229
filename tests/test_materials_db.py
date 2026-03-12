@@ -233,9 +233,9 @@ class TestMaterialRepository:
         assert repo.count() == 18
         # Verifica famiglie
         assert len(repo.list_by_famiglia("calcestruzzo")) == 8  # 5 NTC + 3 TA
-        assert len(repo.list_by_famiglia("acciaio")) == 5       # 2 NTC + 3 TA
+        assert len(repo.list_by_famiglia("acciaio")) == 5  # 2 NTC + 3 TA
         assert len(repo.list_by_famiglia("muratura")) == 2
-        assert len(repo.list_by_famiglia("legno")) == 3          # C24, GL24h, GL28h
+        assert len(repo.list_by_famiglia("legno")) == 3  # C24, GL24h, GL28h
 
 
 class TestPersistenzaJSON:

@@ -5,10 +5,9 @@ from unittest.mock import patch
 
 os.environ["DISPLAY"] = ":0"
 
-from libs.app_module.ui.module_selector import ModuleSelectorWindow
-
 from apps.sections.services.repository import CsvSectionSerializer, SectionRepository
 from core_models.materials import MaterialRepository
+from libs.app_module.ui.module_selector import ModuleSelectorWindow
 
 
 class TestModuleSelectorFrcButtons(unittest.TestCase):

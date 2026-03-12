@@ -23,18 +23,19 @@ from src.codes.section_params.omogenizzata import BarraArmatura
 # Dataclass di input/output
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class PressoflessSpec:
     """Input per verifica pressoflessione deviata multinorma."""
 
-    section: Any              # duck-typed (section_type + attributi geometrici)
+    section: Any  # duck-typed (section_type + attributi geometrici)
     barre: list[BarraArmatura]
-    N_kg: float               # sforzo normale [kg], positivo = compressione
-    Mx_kgcm: float            # momento attorno asse x [kg·cm]
-    My_kgcm: float            # momento attorno asse y [kg·cm]
+    N_kg: float  # sforzo normale [kg], positivo = compressione
+    Mx_kgcm: float  # momento attorno asse x [kg·cm]
+    My_kgcm: float  # momento attorno asse y [kg·cm]
     sigma_c_adm_kgcm2: float  # tensione ammissibile cls [kg/cm²] (TA)
     sigma_s_adm_kgcm2: float = 0.0  # tensione ammissibile acciaio [kg/cm²]
-    n: float = 15.0           # rapporto di omogeneizzazione
+    n: float = 15.0  # rapporto di omogeneizzazione
     norma: str = "RD2229"
     metodo: str = "SOVRAPPOSIZIONE_ELASTICA"  # | "BRESLER_TA"
     alpha_bresler: float = 1.0  # esponente Bresler (1.0 TA, 4/3 Giangreco)
@@ -54,9 +55,9 @@ class DominioNMy:
 
     N_levels_kg: list[float]
     theta_rad: list[float]
-    Mx_Rd_kgcm: list[list[float]]   # shape (n_N, n_theta)
-    My_Rd_kgcm: list[list[float]]   # shape (n_N, n_theta)
-    metodo: str                      # "TA_ELASTICO" | "SLU_BRESLER"
+    Mx_Rd_kgcm: list[list[float]]  # shape (n_N, n_theta)
+    My_Rd_kgcm: list[list[float]]  # shape (n_N, n_theta)
+    metodo: str  # "TA_ELASTICO" | "SLU_BRESLER"
     norma: str
 
 
@@ -64,9 +65,9 @@ class DominioNMy:
 class PressoflessResult:
     """Risultato verifica pressoflessione deviata."""
 
-    esito: str          # "OK" | "NON_OK"
+    esito: str  # "OK" | "NON_OK"
     utilisation: float
-    metodo: str         # "SOVRAPPOSIZIONE_ELASTICA" | "BRESLER_TA" | "BRESLER_SLU"
+    metodo: str  # "SOVRAPPOSIZIONE_ELASTICA" | "BRESLER_TA" | "BRESLER_SLU"
     norma: str
     # TA
     sigma_c_max_kgcm2: float | None = None
@@ -93,6 +94,7 @@ class PressoflessResult:
 # ---------------------------------------------------------------------------
 # Helper armatura
 # ---------------------------------------------------------------------------
+
 
 def crea_armatura_rettangolare(
     b_cm: float,
@@ -155,18 +157,22 @@ def crea_armatura_rettangolare(
 # Sezione omogenizzata biassiale
 # ---------------------------------------------------------------------------
 
+
 def _width_at(section: Any, y: float) -> float:
     from src.methods.section_fiber import width_at_depth
+
     return width_at_depth(section, y)
 
 
 def _get_height(section: Any) -> float:
     from src.methods.section_fiber import get_section_height
+
     return get_section_height(section)
 
 
 def _get_width(section: Any) -> float:
     from src.methods.section_fiber import get_section_width
+
     return get_section_width(section)
 
 
@@ -221,7 +227,7 @@ def calcola_omogenizzata_biassiale(
         A_c += dA
         Q_c += dA * y_mid
         # Contributo alla I_y: ∫x² dA = b³/12 * dy (sezione simmetrica centrata)
-        I_y_c += (b ** 3 / 12.0) * dy
+        I_y_c += (b**3 / 12.0) * dy
 
     if A_c <= 0.0:
         result["esito"] = "ERRORE"
@@ -268,9 +274,7 @@ def calcola_omogenizzata_biassiale(
 
     # I_xy (prodotto d'inerzia) — 0 per sezioni + armature simmetriche
     # Per il cls simmetrico: I_xy_c = 0
-    I_xy_om = (n - 1.0) * sum(
-        bar.A * (bar.x - x_G_om) * (bar.y - y_G_om) for bar in barre
-    )
+    I_xy_om = (n - 1.0) * sum(bar.A * (bar.x - x_G_om) * (bar.y - y_G_om) for bar in barre)
 
     # Moduli resistenti
     y_sup = y_G_om
@@ -278,8 +282,8 @@ def calcola_omogenizzata_biassiale(
     Wx_sup = I_x_om / y_sup if y_sup > 1e-9 else 0.0
     Wx_inf = I_x_om / y_inf if y_inf > 1e-9 else 0.0
 
-    x_sx = w / 2.0 + x_G_om   # distanza dal baricentro al lembo sinistro
-    x_dx = w / 2.0 - x_G_om   # distanza dal baricentro al lembo destro
+    x_sx = w / 2.0 + x_G_om  # distanza dal baricentro al lembo sinistro
+    x_dx = w / 2.0 - x_G_om  # distanza dal baricentro al lembo destro
     Wy_sx = I_y_om / x_sx if x_sx > 1e-9 else 0.0
     Wy_dx = I_y_om / x_dx if x_dx > 1e-9 else 0.0
 
@@ -288,19 +292,21 @@ def calcola_omogenizzata_biassiale(
         f"I_x={I_x_om:.2f}, I_y={I_y_om:.2f}, I_xy={I_xy_om:.2f}"
     )
 
-    result.update({
-        "A_om_cm2": round(A_om, 4),
-        "y_G_om_cm": round(y_G_om, 6),
-        "x_G_om_cm": round(x_G_om, 6),
-        "I_x_om_cm4": round(I_x_om, 4),
-        "I_y_om_cm4": round(I_y_om, 4),
-        "I_xy_om_cm4": round(I_xy_om, 4),
-        "Wx_sup_cm3": round(Wx_sup, 4),
-        "Wx_inf_cm3": round(Wx_inf, 4),
-        "Wy_sx_cm3": round(Wy_sx, 4),
-        "Wy_dx_cm3": round(Wy_dx, 4),
-        "h_cm": round(h, 4),
-        "w_cm": round(w, 4),
-        "n": n,
-    })
+    result.update(
+        {
+            "A_om_cm2": round(A_om, 4),
+            "y_G_om_cm": round(y_G_om, 6),
+            "x_G_om_cm": round(x_G_om, 6),
+            "I_x_om_cm4": round(I_x_om, 4),
+            "I_y_om_cm4": round(I_y_om, 4),
+            "I_xy_om_cm4": round(I_xy_om, 4),
+            "Wx_sup_cm3": round(Wx_sup, 4),
+            "Wx_inf_cm3": round(Wx_inf, 4),
+            "Wy_sx_cm3": round(Wy_sx, 4),
+            "Wy_dx_cm3": round(Wy_dx, 4),
+            "h_cm": round(h, 4),
+            "w_cm": round(w, 4),
+            "n": n,
+        }
+    )
     return result

@@ -1612,7 +1612,7 @@ Key findings from exploration:
 
 - The project has a well-established architecture with contracts, registry, service, and check modules
 - RD2229 TA checks exist with 6 functions in checks_rd2229.py
-- NTC2018 SLU checks exist with 4 functions in checks_ntc2018.py  
+- NTC2018 SLU checks exist with 4 functions in checks_ntc2018.py
 - historical_ta/ module provides the core TA stress computation engine
 - DM92.jsoncode already exists with concrete classes (C12-C40) and steel types in SI units, but lacks TA-specific fields
 - The pattern for adding a new norm is clear: create checks file, add templates to registry, add validation rules, create tests
@@ -6607,7 +6607,7 @@ Let me go through the conversation chronologically to capture all important deta
    - Step 4: Update normative_registry.py with get_dm96_templates() + get_fire_templates()
    - Step 5: Update validation_engine.py for DM96 + FIRE_DM2007
    - Step 6: Create tests/test_dm96_checks.py
-   - Step 10: Create tests/test_fire_checks.py  
+   - Step 10: Create tests/test_fire_checks.py
    - Step 11: Run tests + lint
 
 Let me now document specific file contents and code patterns that were created.
@@ -7854,7 +7854,7 @@ ________________________ test_flessione_ta_dm96_non_ok ________________________
         section = MockDM96Section(b=200.0, h=350.0)
         material = MockDM96Material()
         template = _make_template("dm96_ta_flessione_rett", "TA")
-    
+
         calc_input = CalcInput(
             element_name="Trave Test DM96 NON OK",
             section=section,
@@ -7865,7 +7865,7 @@ ________________________ test_flessione_ta_dm96_non_ok ________________________
             As=4.0,  # cm� - armatura insufficiente
             d=30.0,  # cm
         )
-    
+
         result = check_flessione_ta_dm96(calc_input, template)
 >       assert not result.ok, "Verifica TA flessione dovrebbe fallire con armatura insufficiente"
 E       AssertionError: Verifica TA flessione dovrebbe fallire con armatura insufficiente
@@ -7882,7 +7882,7 @@ _____________________ test_flessione_slu_dm96_gamma_c_16 ______________________
         template = _make_template(
             "dm96_slu_flessione_rett", "SLU", gamma_c=1.6, gamma_s=1.15
         )
-    
+
         calc_input = CalcInput(
             element_name="Test gamma_c",
             section=section,
@@ -7893,7 +7893,7 @@ _____________________ test_flessione_slu_dm96_gamma_c_16 ______________________
             As=12.0,
             d=45.0,
         )
-    
+
         result = check_flessione_slu_dm96(calc_input, template)
         # gamma_c = 1.6 -> fcd = fck / 1.6 = 20 / 1.6 = 12.5 MPa
         if "f_cd_MPa" in result.details:
@@ -7912,14 +7912,14 @@ _______________ test_compute_precompression_effects_placeholder _______________
         section = MockDM96Section()
         material = MockDM96Material()
         template = _make_template("dm96_ta_prestress_stresses", "TA")
-    
+
         calc_input = CalcInput(
             element_name="Test CAP Effects",
             section=section,
             material=material,
             norm_code="DM96",
         )
-    
+
 >       result = compute_precompression_effects_dm96(calc_input, template)
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E       TypeError: compute_precompression_effects_dm96() missing 1 required positional argument: 'concrete_law'
@@ -7932,14 +7932,14 @@ _________________ test_estimate_prestress_losses_placeholder __________________
         section = MockDM96Section()
         material = MockDM96Material()
         template = _make_template("dm96_ta_prestress_stresses", "TA")
-    
+
         calc_input = CalcInput(
             element_name="Test CAP Losses",
             section=section,
             material=material,
             norm_code="DM96",
         )
-    
+
 >       result = estimate_prestress_losses_dm96(calc_input, template)
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E       TypeError: estimate_prestress_losses_dm96() missing 1 required positional argument: 'material_prestressing'
@@ -7992,7 +7992,7 @@ ________________________ test_flessione_ta_dm96_non_ok ________________________
         section = MockDM96Section(b=200.0, h=350.0)
         material = MockDM96Material()
         template = _make_template("dm96_ta_flessione_rett", "TA")
-    
+
         calc_input = CalcInput(
             element_name="Trave Test DM96 NON OK",
             section=section,
@@ -8003,7 +8003,7 @@ ________________________ test_flessione_ta_dm96_non_ok ________________________
             As=2.0,  # cm� - armatura molto insufficiente
             d=30.0,  # cm
         )
-    
+
         result = check_flessione_ta_dm96(calc_input, template)
 >       assert not result.ok, "Verifica TA flessione dovrebbe fallire con armatura insufficiente"
 E       AssertionError: Verifica TA flessione dovrebbe fallire con armatura insufficiente
@@ -8059,7 +8059,7 @@ __________________________ test_flessione_ta_non_ok ___________________________
         """Test flessione TA check - NON OK case with insufficient reinforcement."""
         section = MockRD2229Section(b=300.0, h=500.0)
         material = MockRD2229Material()
-    
+
         calc_input = CalcInput(
             element_name="Trave TA Test NON OK",
             section=section,
@@ -8072,10 +8072,10 @@ __________________________ test_flessione_ta_non_ok ___________________________
             lc="LC2",
             fc=1.20,
         )
-    
+
         template = MockRD2229Template(template_id="rd2229_ta_flessione_rett")
         result = check_flessione_ta_rett(calc_input, template)
-    
+
         # Should fail
 >       assert not result.ok, "Check should fail with excessive stress"
 E       AssertionError: Check should fail with excessive stress
@@ -8113,7 +8113,7 @@ __________________________ test_flessione_ta_non_ok ___________________________
         """Test flessione TA check - NON OK case with insufficient reinforcement."""
         section = MockRD2229Section(b=300.0, h=500.0)
         material = MockRD2229Material()
-    
+
         calc_input = CalcInput(
             element_name="Trave TA Test NON OK",
             section=section,
@@ -8126,10 +8126,10 @@ __________________________ test_flessione_ta_non_ok ___________________________
             lc="LC2",
             fc=1.20,
         )
-    
+
         template = MockRD2229Template(template_id="rd2229_ta_flessione_rett")
         result = check_flessione_ta_rett(calc_input, template)
-    
+
         # Should fail
 >       assert not result.ok, "Check should fail with excessive stress"
 E       AssertionError: Check should fail with excessive stress

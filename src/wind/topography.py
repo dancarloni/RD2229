@@ -59,9 +59,7 @@ def compute_topography_factor(
     if topo_type == "valley":
         return _ct_valley(z_m, topo)
 
-    logger.warning(
-        "Tipo topografico '%s' non riconosciuto; uso ct=1.0.", topo_type
-    )
+    logger.warning("Tipo topografico '%s' non riconosciuto; uso ct=1.0.", topo_type)
     return 1.0
 
 
@@ -84,7 +82,11 @@ def _ct_hill_ridge(z_m: float, topo: TopographyParams) -> float:
         return 1.0
 
     # Lunghezze caratteristiche
-    Lu = topo.lu_m if topo.lu_m > 0 else max(H / math.tan(math.radians(max(topo.slope_upwind_deg, 1.0))), 1.0)
+    Lu = (
+        topo.lu_m
+        if topo.lu_m > 0
+        else max(H / math.tan(math.radians(max(topo.slope_upwind_deg, 1.0))), 1.0)
+    )
     Le = min(Lu, H)  # Lunghezza effettiva
 
     # Pendenza φ = H / Lu
@@ -135,7 +137,11 @@ def _ct_escarpment(z_m: float, topo: TopographyParams) -> float:
     if H <= 0:
         return 1.0
 
-    Lu = topo.lu_m if topo.lu_m > 0 else max(H / math.tan(math.radians(max(topo.slope_upwind_deg, 1.0))), 1.0)
+    Lu = (
+        topo.lu_m
+        if topo.lu_m > 0
+        else max(H / math.tan(math.radians(max(topo.slope_upwind_deg, 1.0))), 1.0)
+    )
     Le = min(Lu, H)
 
     phi = H / Lu if Lu > 0 else 0.0

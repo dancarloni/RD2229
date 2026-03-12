@@ -8,7 +8,7 @@
 ## 1. Scopo
 
 Questo documento definisce le regole architetturali minime e le convenzioni di
-sviluppo che governano il progetto RD2229.  
+sviluppo che governano il progetto RD2229.
 Ogni contributo al repository deve rispettare questi principi. Nessuna eccezione
 senza ADR (Architecture Decision Record) esplicita.
 

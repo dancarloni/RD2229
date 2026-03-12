@@ -19,12 +19,12 @@ class CorrectionFactors:
     overrides: dizionario libero per sovrascritture utente (es. {"k_ld": 0.95}).
     """
 
-    k_ld: float = 1.0       # snellezza L/D
-    k_dir: float = 1.0      # direzione estrazione (1.0 vert, ~1.06-1.08 orizz)
-    k_arm: float = 1.0      # presenza armatura
-    k_um: float = 1.0       # umidita' (naturale/saturo/asciutto)
-    k_diam: float = 1.0     # normalizzazione a diametro 150 mm
-    k_dd: float = 1.0       # danno da estrazione
+    k_ld: float = 1.0  # snellezza L/D
+    k_dir: float = 1.0  # direzione estrazione (1.0 vert, ~1.06-1.08 orizz)
+    k_arm: float = 1.0  # presenza armatura
+    k_um: float = 1.0  # umidita' (naturale/saturo/asciutto)
+    k_diam: float = 1.0  # normalizzazione a diametro 150 mm
+    k_dd: float = 1.0  # danno da estrazione
     overrides: dict[str, float] = field(default_factory=dict)
 
     @property

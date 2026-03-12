@@ -24,6 +24,7 @@ scipy = pytest.importorskip("scipy")
 # DiagrammaSpostamenti
 # ---------------------------------------------------------------------------
 
+
 class TestDiagrammaSpostamenti:
     def test_costruttore(self):
         d = DiagrammaSpostamenti(
@@ -53,6 +54,7 @@ class TestDiagrammaSpostamenti:
 # ISolutoreSpostamenti — contratto ABC
 # ---------------------------------------------------------------------------
 
+
 class TestISolutore:
     def test_non_istanziabile_direttamente(self):
         with pytest.raises(TypeError):
@@ -62,6 +64,7 @@ class TestISolutore:
 # ---------------------------------------------------------------------------
 # SolutoreAnalitico — casi noti
 # ---------------------------------------------------------------------------
+
 
 class TestSolutoreAnalitico:
     """Casi noti: trave semplicemente appoggiata."""
@@ -84,10 +87,10 @@ class TestSolutoreAnalitico:
 
     def test_freccia_carico_concentrato_centro(self):
         """f_max = PL³/48EI, errore < 1% con n=100."""
-        L = 600.0          # cm
-        P = 5000.0         # kg
-        E = 210000.0       # kg/cm² (acciaio storico, valore indicativo)
-        I = 10000.0        # cm4
+        L = 600.0  # cm
+        P = 5000.0  # kg
+        E = 210000.0  # kg/cm² (acciaio storico, valore indicativo)
+        I = 10000.0  # cm4
         EI = E * I
 
         f_analitica = P * L**3 / (48.0 * EI)  # cm
@@ -106,7 +109,7 @@ class TestSolutoreAnalitico:
     def test_freccia_carico_distribuito(self):
         """f_max = 5qL⁴/384EI, errore < 1% con n=200."""
         L = 500.0
-        q = 10.0           # kg/cm
+        q = 10.0  # kg/cm
         E = 200000.0
         I = 8000.0
         EI = E * I
@@ -174,6 +177,7 @@ class TestSolutoreAnalitico:
 # SolutoreFEM — stub
 # ---------------------------------------------------------------------------
 
+
 class TestSolutoreFEM:
     def test_raise_not_implemented(self):
         sol = SolutoreFEM()
@@ -184,6 +188,7 @@ class TestSolutoreFEM:
 # ---------------------------------------------------------------------------
 # grafico_spostamenti (headless)
 # ---------------------------------------------------------------------------
+
 
 class TestGraficoSpostamenti:
     matplotlib = pytest.importorskip("matplotlib")

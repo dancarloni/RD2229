@@ -16,8 +16,6 @@ from materials_repository import MaterialsRepository
 from sections_app.models.sections import RectangularSection
 from sections_app.services.repository import (
     DEFAULT_JSON_FILE as SECTIONS_DEFAULT,
-)
-from sections_app.services.repository import (
     SectionRepository,
     load_sections_from_json,
     save_sections_to_json,

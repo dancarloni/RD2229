@@ -98,17 +98,24 @@ class TestVerificaStabilitaTA:
         A_ci = A_sez + n * A_s
         r = math.sqrt(I / A_sez)
         return InputStabilita(
-            Nr=Nr, Mr=Mr,
-            B=B, H=H,
-            A_sez=A_sez, I_yp=I, I_zp=I,
-            A_ci=A_ci, r_yp=r, r_zp=r,
+            Nr=Nr,
+            Mr=Mr,
+            B=B,
+            H=H,
+            A_sez=A_sez,
+            I_yp=I,
+            I_zp=I,
+            A_ci=A_ci,
+            r_yp=r,
+            r_zp=r,
             A_ft=A_s,
             sigma_c_adm=60.0,
             sigma_s_adm=1200.0,
             E_c=300000.0,
             n=n,
             L=L,
-            beta_y=1.0, beta_z=1.0,
+            beta_y=1.0,
+            beta_z=1.0,
         )
 
     def test_asta_tesa(self) -> None:
@@ -131,7 +138,10 @@ class TestVerificaStabilitaTA:
         """Pilastro snello con compressione molto alta → verifica NON OK."""
         inp = self._input_pilastro(Nr=-500000.0, L=800.0)
         ris = verifica_stabilita_ta(inp)
-        assert ris.esito == EsitoStabilita.NON_VERIFICATA or ris.esito == EsitoStabilita.SNELLEZZA_ECCESSIVA
+        assert (
+            ris.esito == EsitoStabilita.NON_VERIFICATA
+            or ris.esito == EsitoStabilita.SNELLEZZA_ECCESSIVA
+        )
 
     def test_snellezza_calcolo(self) -> None:
         """Verifica calcolo snellezza."""

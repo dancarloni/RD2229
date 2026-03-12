@@ -106,7 +106,7 @@ fig, ax = plt.subplots(figsize=(8, 6))
 ax.set_title('Sezione con Armatura')
 
 # Disegna la sezione
-rect = Rectangle((0, 0), 30, 50, fill=True, 
+rect = Rectangle((0, 0), 30, 50, fill=True,
                 facecolor='lightgray', edgecolor='black')
 ax.add_patch(rect)
 
@@ -130,9 +130,9 @@ y = np.linspace(0, 50, 100)
 stress = np.where(y > 30, (y - 30) * 0.5, -(30 - y) * 0.6)
 
 fig, ax = plt.subplots()
-ax.fill_betweenx(y, 0, stress, where=(stress >= 0), 
+ax.fill_betweenx(y, 0, stress, where=(stress >= 0),
                 color='blue', alpha=0.3, label='Compressione')
-ax.fill_betweenx(y, 0, stress, where=(stress < 0), 
+ax.fill_betweenx(y, 0, stress, where=(stress < 0),
                 color='red', alpha=0.3, label='Trazione')
 ax.axhline(y=30, color='green', linestyle='--', label='Asse Neutro')
 ax.legend()
@@ -194,13 +194,13 @@ def test_plot_section():
     matplotlib.use('Agg')
     from gui.section_gui import plot_section
     from core.geometry import RectangularSection
-    
+
     section = RectangularSection(width=20.0, height=30.0)
     fig, ax = plot_section(section, show=False)
-    
+
     assert fig is not None
     assert ax is not None
-    
+
     import matplotlib.pyplot as plt
     plt.close(fig)
 ```
@@ -256,6 +256,6 @@ Possibili miglioramenti futuri:
 
 ---
 
-**Data di integrazione**: Febbraio 2026  
-**Versione Matplotlib**: 3.10.8  
+**Data di integrazione**: Febbraio 2026
+**Versione Matplotlib**: 3.10.8
 **Versione Pandas**: 3.0.0

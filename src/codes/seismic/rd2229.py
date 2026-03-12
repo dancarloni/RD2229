@@ -23,9 +23,9 @@ _NORM_REF = "RD 2229/1939 (coefficienti empirici storici)"
 
 RD2229_COEFF: dict[str, float] = {
     "non_sismico": 0.00,
-    "bassa":       0.05,
-    "media":       0.07,
-    "alta":        0.10,
+    "bassa": 0.05,
+    "media": 0.07,
+    "alta": 0.10,
 }
 
 _ZONE_VALIDE = set(RD2229_COEFF)
@@ -51,16 +51,12 @@ def calcola_azione_sismica_rd2229(
 
     zona_norm = zona.lower().strip()
     if zona_norm not in _ZONE_VALIDE:
-        raise ValueError(
-            f"Zona '{zona}' non valida. Valori ammessi: {sorted(_ZONE_VALIDE)}"
-        )
+        raise ValueError(f"Zona '{zona}' non valida. Valori ammessi: {sorted(_ZONE_VALIDE)}")
 
     C = RD2229_COEFF[zona_norm]
     W_tot = sum(p.W_kN for p in piani)
 
-    log.append(
-        f"RD2229 coefficienti storici: zona={zona_norm}, C={C}, I={I}"
-    )
+    log.append(f"RD2229 coefficienti storici: zona={zona_norm}, C={C}, I={I}")
     log.append(
         "AVVISO: RD 2229/1939 non codifica ufficialmente l'azione sismica. "
         "I coefficienti C sono di uso professionale storico (ante-L64/1974)."
@@ -70,17 +66,20 @@ def calcola_azione_sismica_rd2229(
     log.append(f"F_base = C({C}) * I({I}) * W_tot({W_tot:.3f}) = {F_base:.3f} kN")
 
     C_eff = F_base / W_tot if W_tot > 0 else 0.0
-    distribuzione = distribuzione_triangolare(F_base, piani) if F_base > 0 else [
-        {"piano": p.piano, "h_m": p.h_m, "W_kN": p.W_kN, "F_kN": 0.0}
-        for p in piani
-    ]
+    distribuzione = (
+        distribuzione_triangolare(F_base, piani)
+        if F_base > 0
+        else [{"piano": p.piano, "h_m": p.h_m, "W_kN": p.W_kN, "F_kN": 0.0} for p in piani]
+    )
 
-    result.update({
-        "F_base_kN": round(F_base, 3),
-        "C_effettivo": round(C_eff, 6),
-        "metodo": "STATICO_EQUIVALENTE",
-        "distribuzione": distribuzione,
-        "zona": zona_norm,
-        "C_storico": C,
-    })
+    result.update(
+        {
+            "F_base_kN": round(F_base, 3),
+            "C_effettivo": round(C_eff, 6),
+            "metodo": "STATICO_EQUIVALENTE",
+            "distribuzione": distribuzione,
+            "zona": zona_norm,
+            "C_storico": C,
+        }
+    )
     return result

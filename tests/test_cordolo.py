@@ -18,6 +18,7 @@ from src.elements.cordolo import (
 
 # ═══════════════════ Cordolo CA ═══════════════════
 
+
 class TestCordoloCA:
     def test_area_armatura(self):
         ca = CordoloCA(b=30, h=25, n_barre_sup=2, n_barre_inf=2, phi_long=1.6)
@@ -36,9 +37,13 @@ class TestCordoloCA:
 
     def test_minimi_ntc2018_ok(self):
         ca = CordoloCA(
-            b=30, h=25,
-            n_barre_sup=2, n_barre_inf=2, phi_long=1.6,
-            phi_staffe=0.8, passo_staffe=20,
+            b=30,
+            h=25,
+            n_barre_sup=2,
+            n_barre_inf=2,
+            phi_long=1.6,
+            phi_staffe=0.8,
+            passo_staffe=20,
         )
         problemi = ca.verifica_minimi_ntc2018()
         assert len(problemi) == 0
@@ -50,8 +55,11 @@ class TestCordoloCA:
 
     def test_minimi_ntc2018_armatura_insufficiente(self):
         ca = CordoloCA(
-            b=30, h=25,
-            n_barre_sup=1, n_barre_inf=1, phi_long=1.2,
+            b=30,
+            h=25,
+            n_barre_sup=1,
+            n_barre_inf=1,
+            phi_long=1.2,
         )
         problemi = ca.verifica_minimi_ntc2018()
         assert any("A_s" in p for p in problemi)
@@ -66,8 +74,10 @@ class TestVerificaCordoloCA:
     def test_flessione_verificata(self):
         ca = CordoloCA(b=30, h=25, n_barre_inf=2, phi_long=1.6)
         cordolo = Cordolo(
-            tipo=TipoCordolo.CA, ca=ca,
-            Mx=100000, V=2000,
+            tipo=TipoCordolo.CA,
+            ca=ca,
+            Mx=100000,
+            V=2000,
         )
         res = verifica_cordolo(cordolo)
         assert res.verifica_flessione is True
@@ -75,8 +85,10 @@ class TestVerificaCordoloCA:
     def test_flessione_non_verificata(self):
         ca = CordoloCA(b=30, h=25, n_barre_inf=2, phi_long=1.0)  # barre piccole
         cordolo = Cordolo(
-            tipo=TipoCordolo.CA, ca=ca,
-            Mx=500000, V=2000,
+            tipo=TipoCordolo.CA,
+            ca=ca,
+            Mx=500000,
+            V=2000,
         )
         res = verifica_cordolo(cordolo)
         assert res.verifica_flessione is False
@@ -84,8 +96,10 @@ class TestVerificaCordoloCA:
     def test_taglio_verificato(self):
         ca = CordoloCA(b=30, h=25, phi_staffe=0.8, passo_staffe=15)
         cordolo = Cordolo(
-            tipo=TipoCordolo.CA, ca=ca,
-            Mx=50000, V=1000,
+            tipo=TipoCordolo.CA,
+            ca=ca,
+            Mx=50000,
+            V=1000,
         )
         res = verifica_cordolo(cordolo)
         assert res.verifica_taglio is True
@@ -101,24 +115,28 @@ class TestVerificaCordoloCA:
 
 # ═══════════════════ Cordolo metallico ═══════════════════
 
+
 class TestCordoloMetallico:
     def test_m_rd(self):
         met = CordoloMetallico(
             nome_profilo="IPE 200",
-            Wx=194.0, sigma_adm=1900.0,
+            Wx=194.0,
+            sigma_adm=1900.0,
         )
         assert met.M_Rd == pytest.approx(1900 * 194, rel=0.01)
 
     def test_v_rd(self):
         met = CordoloMetallico(
             nome_profilo="IPE 200",
-            A=28.5, sigma_adm=1900.0,
+            A=28.5,
+            sigma_adm=1900.0,
         )
         assert met.V_Rd > 0
 
     def test_ancoraggio(self):
         met = CordoloMetallico(
-            n_ancoraggi=4, phi_ancoraggio=1.6,
+            n_ancoraggi=4,
+            phi_ancoraggio=1.6,
         )
         A_anc = 4 * math.pi * 1.6**2 / 4
         assert met.A_ancoraggio_per_m == pytest.approx(A_anc, rel=0.01)
@@ -128,13 +146,16 @@ class TestVerificaCordoloMetallico:
     def test_flessione_verificata(self):
         met = CordoloMetallico(
             nome_profilo="IPE 200",
-            A=28.5, Wx=194.0, h=20.0,
+            A=28.5,
+            Wx=194.0,
+            h=20.0,
             sigma_adm=1900.0,
         )
         cordolo = Cordolo(
             tipo=TipoCordolo.METALLICO_SINGOLO,
             metallico=met,
-            Mx=200000, V=5000,
+            Mx=200000,
+            V=5000,
         )
         res = verifica_cordolo(cordolo)
         assert res.verifica_flessione is True
@@ -143,7 +164,9 @@ class TestVerificaCordoloMetallico:
     def test_flessione_non_verificata(self):
         met = CordoloMetallico(
             nome_profilo="IPE 100",
-            A=10.3, Wx=34.2, h=10.0,
+            A=10.3,
+            Wx=34.2,
+            h=10.0,
             sigma_adm=1900.0,
         )
         cordolo = Cordolo(
@@ -167,10 +190,12 @@ class TestVerificaCordoloMetallico:
 
 # ═══════════════════ Catene e paletti ═══════════════════
 
+
 class TestCatena:
     def test_trazione_verificata(self):
         inp = InputCatena(
-            phi_catena=2.0, sigma_s_adm=1400.0,
+            phi_catena=2.0,
+            sigma_s_adm=1400.0,
             F=3000,
             tipo_piastra=TipoPiastra.QUADRATA,
             lato_piastra=20.0,
@@ -192,7 +217,8 @@ class TestCatena:
 
     def test_punzonamento_verificato(self):
         inp = InputCatena(
-            phi_catena=2.0, F=3000,
+            phi_catena=2.0,
+            F=3000,
             tipo_piastra=TipoPiastra.QUADRATA,
             lato_piastra=20.0,
             fd_mur=10.0,
@@ -204,7 +230,8 @@ class TestCatena:
 
     def test_punzonamento_non_verificato(self):
         inp = InputCatena(
-            phi_catena=2.0, F=5000,
+            phi_catena=2.0,
+            F=5000,
             tipo_piastra=TipoPiastra.QUADRATA,
             lato_piastra=10.0,
             fd_mur=10.0,
@@ -215,7 +242,8 @@ class TestCatena:
 
     def test_piastra_circolare(self):
         inp = InputCatena(
-            phi_catena=2.0, F=2000,
+            phi_catena=2.0,
+            F=2000,
             tipo_piastra=TipoPiastra.CIRCOLARE,
             lato_piastra=20.0,
             fd_mur=10.0,
@@ -226,7 +254,8 @@ class TestCatena:
 
     def test_piastra_paletto(self):
         inp = InputCatena(
-            phi_catena=2.0, F=2000,
+            phi_catena=2.0,
+            F=2000,
             tipo_piastra=TipoPiastra.A_PALETTO,
             lato_piastra=15.0,
             spessore_muro=30.0,
@@ -238,7 +267,8 @@ class TestCatena:
 
     def test_verifica_globale(self):
         inp = InputCatena(
-            phi_catena=2.0, sigma_s_adm=1400.0,
+            phi_catena=2.0,
+            sigma_s_adm=1400.0,
             F=3000,
             tipo_piastra=TipoPiastra.QUADRATA,
             lato_piastra=20.0,

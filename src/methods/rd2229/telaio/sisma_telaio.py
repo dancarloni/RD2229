@@ -23,9 +23,9 @@ from .modello_telaio import ModelloTelaio, PianoTelaio
 # Coefficienti sismici per zona (da src/codes/seismic/rd2229.py)
 _COEFF_SISMICI: dict[str, float] = {
     "non_sismico": 0.00,
-    "bassa":       0.05,
-    "media":       0.07,
-    "alta":        0.10,
+    "bassa": 0.05,
+    "media": 0.07,
+    "alta": 0.10,
 }
 
 # Fattore sussultorio rispetto all'ondulatorio (RD2229: V = 1.25 × H)
@@ -44,6 +44,7 @@ class ForzeSismicheTelaio:
         peso_per_piano:     {id_piano: W_piano [kg]}  pesi per piano
         passaggi:           audit del calcolo
     """
+
     zona: str
     C_s: float
     ondulatorio_x: dict[int, float]
@@ -125,9 +126,7 @@ def calcola_forze_sismiche(
         )
 
     C_s = C_s_override if C_s_override is not None else _COEFF_SISMICI[zona_eff]
-    passaggi: list[str] = [
-        f"Zona sismica: {zona_eff}, C_s = {C_s:.3f}"
-    ]
+    passaggi: list[str] = [f"Zona sismica: {zona_eff}, C_s = {C_s:.3f}"]
 
     ondulatorio_x: dict[int, float] = {}
     sussultorio_z: dict[int, float] = {}
@@ -178,14 +177,16 @@ def aggiorna_forze_piani(
     piani_aggiornati = []
     for piano in modello.piani:
         h = piano.id_piano
-        piani_aggiornati.append(PianoTelaio(
-            id_piano=h,
-            quota=piano.quota,
-            peso_piano=forze.peso_per_piano.get(h, piano.peso_piano),
-            forza_sismica_x=forze.ondulatorio_x.get(h, 0.0),
-            forza_sismica_z=forze.sussultorio_z.get(h, 0.0),
-            descrizione=piano.descrizione,
-        ))
+        piani_aggiornati.append(
+            PianoTelaio(
+                id_piano=h,
+                quota=piano.quota,
+                peso_piano=forze.peso_per_piano.get(h, piano.peso_piano),
+                forza_sismica_x=forze.ondulatorio_x.get(h, 0.0),
+                forza_sismica_z=forze.sussultorio_z.get(h, 0.0),
+                descrizione=piano.descrizione,
+            )
+        )
     # Crea nuovo modello con piani aggiornati
     return ModelloTelaio(
         nome=modello.nome,

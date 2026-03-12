@@ -27,6 +27,7 @@ DATA_DIR = Path(__file__).parent.parent / "data" / "steel"
 
 # ───────────────────────── Fixture ─────────────────────────
 
+
 @pytest.fixture
 def sagomario():
     s = SagomarioAcciaio()
@@ -45,6 +46,7 @@ def hea200(sagomario):
 
 
 # ───────────────────────── Costanti ─────────────────────────
+
 
 class TestCostanti:
     def test_sigma_adm_fe430(self):
@@ -74,6 +76,7 @@ class TestCostanti:
 
 
 # ───────────────────────── Omega acciaio ─────────────────────────
+
 
 class TestOmegaAcciaio:
     def test_omega_zero(self):
@@ -106,6 +109,7 @@ class TestOmegaAcciaio:
 
 # ───────────────────────── Flessione semplice ─────────────────────────
 
+
 class TestFlessioneSemplice:
     def test_flessione_verificata(self, ipe200):
         """IPE 200 Fe430: Mx = 300000 kg·cm → σ = 300000/194 = 1546 < 1900."""
@@ -131,6 +135,7 @@ class TestFlessioneSemplice:
 
 # ───────────────────────── Taglio ─────────────────────────
 
+
 class TestTaglio:
     def test_taglio_semplice(self, ipe200):
         """Taglio Vy su IPE 200."""
@@ -151,6 +156,7 @@ class TestTaglio:
 
 
 # ───────────────────────── Pressoflessione ─────────────────────────
+
 
 class TestPressoflessione:
     def test_pressoflessione_verificata(self, ipe200):
@@ -183,6 +189,7 @@ class TestPressoflessione:
 
 
 # ───────────────────────── Instabilità ─────────────────────────
+
 
 class TestInstabilita:
     def test_instabilita_colonna(self, ipe200):
@@ -238,6 +245,7 @@ class TestInstabilita:
 
 # ───────────────────────── Verifica globale ─────────────────────────
 
+
 class TestVerificaGlobale:
     def test_profilo_scarico(self, ipe200):
         """Profilo senza sollecitazioni → tutto verificato."""
@@ -280,6 +288,7 @@ class TestVerificaGlobale:
 
 # ───────────────────────── Selezione profilo ottimale ─────────────────────────
 
+
 class TestSelezioneOttimale:
     def test_seleziona_ipe_per_momento(self, sagomario):
         """Seleziona IPE per Mx = 300000 kg·cm, Fe430."""
@@ -297,6 +306,7 @@ class TestSelezioneOttimale:
 
 
 # ───────────────────────── Enumerazioni ─────────────────────────
+
 
 class TestEnum:
     def test_tipo_acciaio_valori(self):

@@ -18,7 +18,11 @@ class TestVerificaNTC2008Flessione:
     def test_flessione_response(self) -> None:
         """Verifica struttura output della flessione NTC2008."""
         vf = VerificaNTC2008Flessione(
-            fck=30.0, b=25.0, d=35.0, As=4.0, c_nom=3.0  # MPa  # cm  # cm  # cm²  # cm
+            fck=30.0,
+            b=25.0,
+            d=35.0,
+            As=4.0,
+            c_nom=3.0,  # MPa  # cm  # cm  # cm²  # cm
         )
 
         risultato = vf.verifica_sl(M_d=100.0 * 100)

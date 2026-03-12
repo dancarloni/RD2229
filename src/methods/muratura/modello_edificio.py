@@ -24,23 +24,27 @@ from enum import Enum
 #  Enumerazioni
 # ═══════════════════════════════════════════════════════════
 
+
 class TipoApertura(str, Enum):
     """Tipo di apertura nella parete."""
+
     PORTA = "porta"
     FINESTRA = "finestra"
 
 
 class TipoDiaframma(str, Enum):
     """Tipo di diaframma (solaio) al piano."""
-    RIGIDO = "rigido"              # solaio in CA, laterocemento rigido
-    DEFORMABILE = "deformabile"    # solaio in legno, voltine, putrelle
+
+    RIGIDO = "rigido"  # solaio in CA, laterocemento rigido
+    DEFORMABILE = "deformabile"  # solaio in legno, voltine, putrelle
 
 
 class LivelloConoscenza(str, Enum):
     """Livello di conoscenza edificio esistente (NTC2018 §8.5.4)."""
-    LC1 = "LC1"   # conoscenza limitata  → FC = 1.35
-    LC2 = "LC2"   # conoscenza adeguata  → FC = 1.20
-    LC3 = "LC3"   # conoscenza accurata  → FC = 1.00
+
+    LC1 = "LC1"  # conoscenza limitata  → FC = 1.35
+    LC2 = "LC2"  # conoscenza adeguata  → FC = 1.20
+    LC3 = "LC3"  # conoscenza accurata  → FC = 1.00
 
 
 # Tabella FC da NTC2018 §8.5.4 / Circolare §C8.5.4
@@ -53,6 +57,7 @@ FC_DA_LC: dict[str, float] = {
 
 class TipoMuraturaC85I(str, Enum):
     """Tipologie murarie da Tabella C8.5.I della Circolare n.7/2019."""
+
     PIETRAME_DISORDINATA = "pietrame_disordinata"
     PIETRAME_A_SPACCO = "pietrame_a_spacco"
     PIETRE_SBOZZATE = "pietre_sbozzate"
@@ -70,6 +75,7 @@ class TipoMuraturaC85I(str, Enum):
 #  Materiale muratura
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class MaterialeMuratura:
     """Proprietà meccaniche muratura per analisi POR.
@@ -81,29 +87,30 @@ class MaterialeMuratura:
 
     Tutti i valori in kg/cm².
     """
+
     nome: str = ""
 
     # Resistenza
-    f: float = 0.0               # resistenza a compressione media [kg/cm²]
-    tau_0: float = 0.0           # resistenza a taglio di riferimento [kg/cm²]
-    fvk0: float = 0.0            # resistenza caratteristica a taglio senza compressione [kg/cm²]
+    f: float = 0.0  # resistenza a compressione media [kg/cm²]
+    tau_0: float = 0.0  # resistenza a taglio di riferimento [kg/cm²]
+    fvk0: float = 0.0  # resistenza caratteristica a taglio senza compressione [kg/cm²]
 
     # Deformabilità
-    E: float = 0.0               # modulo elastico [kg/cm²]
-    G: float = 0.0               # modulo di taglio [kg/cm²]
+    E: float = 0.0  # modulo elastico [kg/cm²]
+    G: float = 0.0  # modulo di taglio [kg/cm²]
 
     # Peso
-    gamma: float = 0.0018        # peso specifico [kg/cm³] (default 1800 kg/m³)
+    gamma: float = 0.0018  # peso specifico [kg/cm³] (default 1800 kg/m³)
 
     # Coefficienti parziali
-    gamma_M: float = 2.0         # coefficiente parziale materiale
-    FC: float = 1.35             # fattore di confidenza
+    gamma_M: float = 2.0  # coefficiente parziale materiale
+    FC: float = 1.35  # fattore di confidenza
 
     # Attrito (per scorrimento Mohr-Coulomb)
-    mu: float = 0.4              # coefficiente d'attrito
+    mu: float = 0.4  # coefficiente d'attrito
 
     # Origine dati
-    tipologia_c85i: str = ""     # tipologia Tab. C8.5.I se usata
+    tipologia_c85i: str = ""  # tipologia Tab. C8.5.I se usata
     norma: str = "NTC2018"
 
     @property
@@ -144,6 +151,7 @@ class MaterialeMuratura:
 #  Apertura
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class Apertura:
     """Apertura (porta o finestra) in una parete.
@@ -152,11 +160,12 @@ class Apertura:
     - x_offset: distanza dal punto iniziale della parete lungo il suo asse [cm]
     - z_offset: distanza dal pavimento del piano [cm]
     """
+
     tipo: TipoApertura = TipoApertura.FINESTRA
-    x_offset: float = 0.0       # distanza dall'inizio parete [cm]
-    z_offset: float = 0.0       # distanza dal pavimento [cm]
-    larghezza: float = 0.0      # larghezza apertura [cm]
-    altezza: float = 0.0        # altezza apertura [cm]
+    x_offset: float = 0.0  # distanza dall'inizio parete [cm]
+    z_offset: float = 0.0  # distanza dal pavimento [cm]
+    larghezza: float = 0.0  # larghezza apertura [cm]
+    altezza: float = 0.0  # altezza apertura [cm]
 
     @property
     def x_fine(self) -> float:
@@ -182,6 +191,7 @@ class Apertura:
 #  Parete
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class Parete:
     """Parete in pianta definita da coordinate iniziale e finale.
@@ -189,12 +199,13 @@ class Parete:
     Le coordinate (x_ini, y_ini) → (x_fin, y_fin) definiscono l'asse
     della parete in pianta. Lo spessore si estende simmetricamente.
     """
+
     id_parete: int = 0
-    x_ini: float = 0.0          # coordinata x inizio [cm]
-    y_ini: float = 0.0          # coordinata y inizio [cm]
-    x_fin: float = 0.0          # coordinata x fine [cm]
-    y_fin: float = 0.0          # coordinata y fine [cm]
-    spessore: float = 30.0      # spessore parete [cm]
+    x_ini: float = 0.0  # coordinata x inizio [cm]
+    y_ini: float = 0.0  # coordinata y inizio [cm]
+    x_fin: float = 0.0  # coordinata x fine [cm]
+    y_fin: float = 0.0  # coordinata y fine [cm]
+    spessore: float = 30.0  # spessore parete [cm]
     materiale: MaterialeMuratura | None = None
     aperture: list[Apertura] = field(default_factory=list)
 
@@ -203,7 +214,7 @@ class Parete:
         """Lunghezza della parete in pianta [cm]."""
         dx = self.x_fin - self.x_ini
         dy = self.y_fin - self.y_ini
-        return math.sqrt(dx ** 2 + dy ** 2)
+        return math.sqrt(dx**2 + dy**2)
 
     @property
     def angolo(self) -> float:
@@ -255,16 +266,18 @@ class Parete:
 #  Piano
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class Piano:
     """Piano dell'edificio."""
+
     id_piano: int = 0
-    quota_z: float = 0.0         # quota del pavimento rispetto alla fondazione [cm]
+    quota_z: float = 0.0  # quota del pavimento rispetto alla fondazione [cm]
     altezza_interpiano: float = 300.0  # altezza interpiano [cm]
     pareti: list[Parete] = field(default_factory=list)
 
     # Massa del piano (solaio + tamponature + carichi permanenti + ψ×variabili)
-    massa: float = 0.0           # massa sismica del piano [kg]
+    massa: float = 0.0  # massa sismica del piano [kg]
 
     # Tipo diaframma
     tipo_diaframma: TipoDiaframma = TipoDiaframma.RIGIDO
@@ -298,18 +311,19 @@ class Piano:
 #  Configurazione POR
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class ConfigPOR:
     """Configurazione analisi POR — parametri configurabili dall'utente."""
 
     # Drift limite SLC (NTC2018 §7.8.2.2)
-    drift_taglio: float = 0.005           # 0.5% muratura non armata
+    drift_taglio: float = 0.005  # 0.5% muratura non armata
     drift_pressoflessione: float = 0.010  # 1.0% muratura non armata
 
     # Criterio collasso globale
     criterio_collasso: str = "caduta_resistenza"  # "caduta_resistenza" o "maschi_collassati"
-    soglia_caduta_resistenza: float = 0.80        # V_base scende sotto 80% V_max
-    soglia_maschi_collassati: float = 0.50         # 50% maschi di un piano collassano
+    soglia_caduta_resistenza: float = 0.80  # V_base scende sotto 80% V_max
+    soglia_maschi_collassati: float = 0.50  # 50% maschi di un piano collassano
 
     # Diaframma default
     tipo_diaframma_default: TipoDiaframma = TipoDiaframma.RIGIDO
@@ -339,6 +353,7 @@ class ConfigPOR:
 #  Parametri sismici (esteso da cinematica.py)
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class ParametriSismiciEdificio:
     """Parametri sismici per analisi globale edificio.
@@ -346,23 +361,24 @@ class ParametriSismiciEdificio:
     Estende i ParametriSismici di cinematica.py con parametri per
     l'analisi globale (spettro, q, distribuzioni forze).
     """
+
     # Accelerazione e amplificazione
-    a_g: float = 0.0             # accelerazione al suolo a_g/g [adimensionale]
-    F_0: float = 2.5             # fattore amplificazione spettrale
-    S: float = 1.0               # coefficiente amplificazione stratigrafica × topografica
+    a_g: float = 0.0  # accelerazione al suolo a_g/g [adimensionale]
+    F_0: float = 2.5  # fattore amplificazione spettrale
+    S: float = 1.0  # coefficiente amplificazione stratigrafica × topografica
 
     # Periodi spettrali
-    T_B: float = 0.0             # inizio plateau spettrale [s]
-    T_C: float = 0.0             # fine plateau spettrale [s]
-    T_D: float = 0.0             # inizio ramo a spostamento costante [s]
+    T_B: float = 0.0  # inizio plateau spettrale [s]
+    T_C: float = 0.0  # fine plateau spettrale [s]
+    T_D: float = 0.0  # inizio ramo a spostamento costante [s]
 
     # Fattore di comportamento (calcolato da fattore_comportamento.py o override)
-    q: float = 2.0               # fattore di comportamento
+    q: float = 2.0  # fattore di comportamento
 
     # Livello di conoscenza
     livello_conoscenza: LivelloConoscenza = LivelloConoscenza.LC1
-    FC: float = 1.35             # fattore di confidenza (auto da LC o override)
-    FC_override: bool = False    # True se FC impostato manualmente
+    FC: float = 1.35  # fattore di confidenza (auto da LC o override)
+    FC_override: bool = False  # True se FC impostato manualmente
 
     def aggiorna_FC_da_LC(self) -> None:
         """Aggiorna FC dal livello di conoscenza, se non in override."""
@@ -391,15 +407,18 @@ class ParametriSismiciEdificio:
             T = 0.0
 
         if T < self.T_B:
-            return a_g_S * eta * self.F_0 * (
-                T / self.T_B + 1.0 / (eta * self.F_0) * (1.0 - T / self.T_B)
+            return (
+                a_g_S
+                * eta
+                * self.F_0
+                * (T / self.T_B + 1.0 / (eta * self.F_0) * (1.0 - T / self.T_B))
             )
         elif T < self.T_C:
             return a_g_S * eta * self.F_0
         elif T < self.T_D:
             return a_g_S * eta * self.F_0 * (self.T_C / T)
         else:
-            return a_g_S * eta * self.F_0 * (self.T_C * self.T_D / (T ** 2))
+            return a_g_S * eta * self.F_0 * (self.T_C * self.T_D / (T**2))
 
     def spettro_progetto(self, T: float) -> float:
         """Ordinata spettrale di progetto S_d(T) = S_e(T) / q [g]."""
@@ -424,6 +443,7 @@ class ParametriSismiciEdificio:
 #  Edificio
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class Edificio:
     """Modello geometrico completo dell'edificio in muratura.
@@ -434,11 +454,10 @@ class Edificio:
     Ogni piano contiene le pareti con le loro aperture.
     I maschi e le fasce vengono generati dal modulo ``discretizzazione``.
     """
+
     nome: str = ""
     piani: list[Piano] = field(default_factory=list)
-    parametri_sismici: ParametriSismiciEdificio = field(
-        default_factory=ParametriSismiciEdificio
-    )
+    parametri_sismici: ParametriSismiciEdificio = field(default_factory=ParametriSismiciEdificio)
     config: ConfigPOR = field(default_factory=ConfigPOR)
 
     @property

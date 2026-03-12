@@ -2,8 +2,8 @@
 
 ## Fase 0 – Evidence-Only
 
-**Data**: 2026-03-01  
-**Branch**: `copilot/execute-compliance-pass-1`  
+**Data**: 2026-03-01
+**Branch**: `copilot/execute-compliance-pass-1`
 **Strumento**: `tools/audit_modules.py` (eseguito live) + analisi manuale
 
 ---

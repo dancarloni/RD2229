@@ -13,11 +13,7 @@ Implementa:
 import math
 from dataclasses import dataclass
 
-from .models import (
-    RisultatoSLU,
-    TamponamentoSpec,
-    TipoAncoraggio,
-)
+from .models import RisultatoSLU, TamponamentoSpec, TipoAncoraggio
 
 # Costanti NTC2018 per azioni sismiche
 FATTORE_AMPLIFICAZIONE_LOCALE_DEFAULT = 2.0  # S_a(T) / a_g per T piccoli
@@ -119,7 +115,6 @@ def calcola_resistenza_ancoraggi(spec: TamponamentoSpec) -> float:
     resistenza_totale_kg = 0.0
 
     for ancoraggio in spec.ancoraggi:
-
         if ancoraggio.tipo == TipoAncoraggio.VITE_METALLO:
             # Resistenza: area filettata × resistenza del materiale
             # Area nominale (diametro × 0.75 per filettatura)

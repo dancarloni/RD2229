@@ -14,8 +14,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 try:
-    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-    from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+    from matplotlib.backends.backend_qtagg import (
+        FigureCanvasQTAgg as FigureCanvas,
+        NavigationToolbar2QT as NavigationToolbar,
+    )
     from matplotlib.figure import Figure
 
     try:
@@ -30,6 +32,7 @@ try:
             QVBoxLayout,
             QWidget,
         )
+
         _QT_AVAILABLE = True
     except ImportError:
         try:
@@ -44,6 +47,7 @@ try:
                 QVBoxLayout,
                 QWidget,
             )
+
             _QT_AVAILABLE = True
         except ImportError:
             _QT_AVAILABLE = False
@@ -117,9 +121,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             # --- Canvas matplotlib ---
             self._fig = Figure(figsize=(10, 8), tight_layout=True)
             self._canvas = FigureCanvas(self._fig)
-            self._canvas.setSizePolicy(
-                QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-            )
+            self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             layout.addWidget(self._canvas)
 
             # --- Toolbar navigazione ---
@@ -136,9 +138,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
             """
             self._diagrammi = list(diagrammi)
             self._inviluppo = (
-                inviluppo_sollecitazioni(self._diagrammi)
-                if len(self._diagrammi) > 1
-                else None
+                inviluppo_sollecitazioni(self._diagrammi) if len(self._diagrammi) > 1 else None
             )
 
             self._combo_comb.blockSignals(True)
@@ -185,9 +185,7 @@ if _QT_AVAILABLE and _MPL_QT_AVAILABLE:
                 ax_M = self._fig.add_subplot(3, 1, 1)
                 ax_T = self._fig.add_subplot(3, 1, 2, sharex=ax_M)
                 ax_N = self._fig.add_subplot(3, 1, 3, sharex=ax_M)
-                grafico_sollecitazioni(
-                    diag, ax_M=ax_M, ax_T=ax_T, ax_N=ax_N, fig=self._fig
-                )
+                grafico_sollecitazioni(diag, ax_M=ax_M, ax_T=ax_T, ax_N=ax_N, fig=self._fig)
 
             self._canvas.draw()
 
@@ -211,6 +209,4 @@ else:
         """Stub usato quando PySide6/matplotlib non sono disponibili."""
 
         def __init__(self, *args, **kwargs) -> None:
-            raise ImportError(
-                "SollecitazioniCanvas richiede PySide6/PyQt6 e matplotlib."
-            )
+            raise ImportError("SollecitazioniCanvas richiede PySide6/PyQt6 e matplotlib.")

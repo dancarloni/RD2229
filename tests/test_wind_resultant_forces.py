@@ -18,6 +18,7 @@ from src.wind.resultant_forces import (
 # compute_zone_force
 # ===========================================================================
 
+
 class TestComputeZoneForce:
     def test_basic_positive_pressure(self):
         pz = PressureZoneResults(
@@ -73,6 +74,7 @@ class TestComputeZoneForce:
 # compute_resultant_forces
 # ===========================================================================
 
+
 class TestComputeResultantForces:
     def _make_zones(self):
         return [
@@ -120,7 +122,9 @@ class TestComputeResultantForces:
             PressureZoneResults(zone_id="sign", net_kN_m2=1.0, area_m2=6.0),
         ]
         forces = compute_resultant_forces(
-            zones, height_m=10.0, force_application_point_m=4.0,
+            zones,
+            height_m=10.0,
+            force_application_point_m=4.0,
         )
         assert forces[0].application_point_m == pytest.approx(4.0)
 
@@ -128,6 +132,7 @@ class TestComputeResultantForces:
 # ===========================================================================
 # sum_horizontal_forces
 # ===========================================================================
+
 
 class TestSumHorizontalForces:
     def test_sum(self):
@@ -158,6 +163,7 @@ class TestSumHorizontalForces:
 # sum_vertical_forces
 # ===========================================================================
 
+
 class TestSumVerticalForces:
     def test_uplift(self):
         forces = [
@@ -178,6 +184,7 @@ class TestSumVerticalForces:
 # ===========================================================================
 # compute_base_moment
 # ===========================================================================
+
 
 class TestComputeBaseMoment:
     def test_single_force(self):
@@ -206,6 +213,7 @@ class TestComputeBaseMoment:
 # ===========================================================================
 # forces_to_calc_input
 # ===========================================================================
+
 
 class TestForcesToCalcInput:
     def test_basic_mapping(self):
@@ -252,6 +260,7 @@ class TestForcesToCalcInput:
 # ===========================================================================
 # Test eccentricità insegne (CNR-DT 207 G.7)
 # ===========================================================================
+
 
 class TestSignEccentricity:
     def test_sign_force_has_eccentricity(self):

@@ -51,7 +51,7 @@ exclude = ["src/legacy/**", "tests/legacy*", "tests/legacy/**"]
 # Core: F (pyflakes), E/W (pycodestyle), I (isort), N (naming), UP (pyupgrade)
 select = ["F", "E", "W", "I", "N", "UP"]
 # Evita conflitti con Black e preferenze comuni
-ignore = ["E203", "N803", "N806", "E501", "N815", "N802", "E741", "UP042", "E702", "F841", "E712", "E731", "F811", "N801"]
+ignore = ["E203", "N803", "N806", "E501", "N815", "N802", "E741", "E702", "F841", "E712", "E731", "F811", "N801"]
 
 [tool.ruff.lint.per-file-ignores]
 # Test files: allow long lines and mixed-case test method names

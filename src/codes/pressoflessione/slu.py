@@ -79,15 +79,17 @@ def verifica_pressofless_slu(spec: PressoflessSpec) -> PressoflessResult:
 
     if spec.f_ck_MPa is None or spec.f_yk_MPa is None:
         return PressoflessResult(
-            esito="ERRORE", utilisation=0.0,
-            metodo="BRESLER_SLU", norma=spec.norma,
+            esito="ERRORE",
+            utilisation=0.0,
+            metodo="BRESLER_SLU",
+            norma=spec.norma,
             decision_log=["f_ck_MPa e f_yk_MPa richiesti per verifica SLU"],
         )
 
     material = _MockMaterial(f_ck=spec.f_ck_MPa, f_yk=spec.f_yk_MPa)
 
     # Conversione unita': kg -> kN, kg·cm -> kN·m
-    N_kN = spec.N_kg / 102.0   # 1 kN = 102 kgf
+    N_kN = spec.N_kg / 102.0  # 1 kN = 102 kgf
     Mx_kNm = spec.Mx_kgcm / 10200.0  # 1 kN·m = 10200 kg·cm
     My_kNm = spec.My_kgcm / 10200.0
 
@@ -114,8 +116,10 @@ def verifica_pressofless_slu(spec: PressoflessSpec) -> PressoflessResult:
         result = check_pressoflessione_slu(calc_input, template)
     except Exception as exc:
         return PressoflessResult(
-            esito="ERRORE", utilisation=0.0,
-            metodo="BRESLER_SLU", norma=spec.norma,
+            esito="ERRORE",
+            utilisation=0.0,
+            metodo="BRESLER_SLU",
+            norma=spec.norma,
             decision_log=[f"Errore check_pressoflessione_slu: {exc}"],
         )
 

@@ -13,7 +13,6 @@ from src.esistenti.report_esistenti import (
     genera_report_html,
     genera_report_vulnerabilita,
     sezione_audit_override,
-    sezione_conclusioni,
     sezione_confronto_multinorma,
     sezione_intestazione,
     sezione_lc_fc,

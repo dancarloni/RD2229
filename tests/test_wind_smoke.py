@@ -11,10 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.wind.ec1991_1_4 import (
-    compute_mean_wind_velocity,
-    run_en1991_1_4_wind,
-)
+from src.wind.ec1991_1_4 import compute_mean_wind_velocity, run_en1991_1_4_wind
 from src.wind.models import BuildingGeom, StructureGeom, WindSite
 from src.wind.ntc2018 import (
     compute_kinetic_pressure,
