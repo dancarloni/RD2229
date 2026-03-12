@@ -14,6 +14,7 @@ __all__ = [  # noqa: F822
     "materials",
     "methods",
     "report",
+    "seismic",
     "tools",
     "wind",
 ]

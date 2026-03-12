@@ -1,6 +1,6 @@
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-12 — commit e push eseguiti su `main`
+Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit e push su `main`
 
 ## Vincoli operativi permanenti
 

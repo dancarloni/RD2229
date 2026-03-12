@@ -30,6 +30,7 @@ __all__ = [
     "tools",
     "tests",
     "legacy",
+    "seismic",
 ]
 
 __version__ = "0.1.0"
