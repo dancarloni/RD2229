@@ -4,9 +4,9 @@
 
 | Campo | Valore |
 | --- | --- |
-| **Stato** | ⬜ TODO |
-| **Commit** | — |
-| **Data prevista** | — |
+| **Stato** | 🟡 IN CORSO (U.1-U.6 implementate, U.7 benchmark residuo) |
+| **Commit** | in aggiornamento |
+| **Data prevista** | 2026-03-12 |
 | **Test pianificati** | ~100 |
 | **Norma/e di riferimento** | NTC2018 §7, Circ. 7/2019 §C7, EN 1998-1 (EC8) |
 | **Priorità** | Media |

@@ -71,7 +71,7 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | S8   | ✅    | 100 | 2ab5c7c       | [piano_fase_S8.md](piano_fase_S8.md) | Scaffalature — DOCUMENTAZIONE ARRICCHITA ✅ |
 | S9   | ✅    | 100 | 2ab5c7c       | [piano_fase_S9.md](piano_fase_S9.md) | Insegne — DOCUMENTAZIONE ARRICCHITA ✅ |
 | T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) | Da definire |
-| U    | 🟡    | 90  | 90b490d       | [piano_fase_U.md](piano_fase_U.md) | PIANIFICAZIONE COMPLETATA — Pronto per EXECUTE (6 moduli + ~100 test) |
+| U    | 🟡    | 96  | in aggiornamento | [piano_fase_U.md](piano_fase_U.md) | IMPLEMENTAZIONE U.1-U.6 completata + test verdi; resta U.7 benchmark esterno |
 | V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) | Da definire |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) | Da definire |
 | X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) | Da definire |
