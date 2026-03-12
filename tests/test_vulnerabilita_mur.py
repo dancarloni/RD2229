@@ -6,24 +6,24 @@ Parete tipo muratura piena: t=50 cm, L=300 cm, h=300 cm.
 import pytest
 
 from src.esistenti.vulnerabilita_mur import (
-    FormuleLV1,
-    DegradoPreset,
     ClasseVulnerabilitaMur,
     ConfigVulnerabilitaMur,
+    DegradoPreset,
+    FormuleLV1,
+    IndiceVulnerabilitaMur,
     PareteVulnerabile,
     RisultatoParete,
-    IndiceVulnerabilitaMur,
-    lv1_ntc2018,
-    lv1_opcm3274,
-    lv1_letteratura,
-    scorrimento_parete,
     analisi_lv2_parete,
     analisi_vulnerabilita_mur,
+    lv1_letteratura,
+    lv1_ntc2018,
+    lv1_opcm3274,
+    scorrimento_parete,
 )
 from src.methods.muratura.cinematica import ParametriSismici, RisultatoCinematica
 
-
 # ─── Fixture ─────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def parete_typ():
@@ -33,14 +33,14 @@ def parete_typ():
     """
     return PareteVulnerabile(
         id_parete="M1",
-        t=50.0,           # cm — spessore
-        L=300.0,          # cm — lunghezza in pianta
-        h=300.0,          # cm — altezza
-        fvd0=2.0,         # kg/cm² — coesione a zero compressione
-        fd=20.0,          # kg/cm² — resistenza a compressione muratura
-        mu=0.4,           # coefficiente attrito Mohr-Coulomb
-        E=20_000.0,       # kg/cm²
-        G=8_000.0,        # kg/cm²
+        t=50.0,  # cm — spessore
+        L=300.0,  # cm — lunghezza in pianta
+        h=300.0,  # cm — altezza
+        fvd0=2.0,  # kg/cm² — coesione a zero compressione
+        fd=20.0,  # kg/cm² — resistenza a compressione muratura
+        mu=0.4,  # coefficiente attrito Mohr-Coulomb
+        E=20_000.0,  # kg/cm²
+        G=8_000.0,  # kg/cm²
         N_sommita=100.0,  # kg/m lineare
     )
 
@@ -63,6 +63,7 @@ def config_degrado_alto():
 
 # ─── Test lv1_ntc2018 ────────────────────────────────────────────────────────
 
+
 class TestLV1NTC2018:
     def test_alpha_positivo(self, parete_typ, sismica_std, config_std):
         alpha, passi = lv1_ntc2018([parete_typ], sismica_std, config_std)
@@ -83,6 +84,7 @@ class TestLV1NTC2018:
 
 # ─── Test lv1_opcm3274 ───────────────────────────────────────────────────────
 
+
 class TestLV1OPCM3274:
     def test_is_positivo(self, parete_typ, sismica_std, config_std):
         IS, passi = lv1_opcm3274([parete_typ], sismica_std, config_std)
@@ -95,6 +97,7 @@ class TestLV1OPCM3274:
 
 # ─── Test lv1_letteratura ────────────────────────────────────────────────────
 
+
 class TestLV1Letteratura:
     def test_alpha_positivo(self, parete_typ, sismica_std, config_std):
         alpha, passi = lv1_letteratura([parete_typ], sismica_std, config_std)
@@ -103,11 +106,11 @@ class TestLV1Letteratura:
     def test_formula_turnsek_cacovic(self, parete_typ, sismica_std, config_std):
         """Verifica che la formula Turnšek-Čačovič sia citata nei passaggi."""
         _, passi = lv1_letteratura([parete_typ], sismica_std, config_std)
-        assert any("Turnšek" in p or "Cacovic" in p or "letteratura" in p.lower()
-                   for p in passi)
+        assert any("Turnšek" in p or "Cacovic" in p or "letteratura" in p.lower() for p in passi)
 
 
 # ─── Test scorrimento_parete ─────────────────────────────────────────────────
+
 
 class TestScorrimentoParete:
     def test_restituisce_cinematica(self, parete_typ, sismica_std, config_std):
@@ -137,6 +140,7 @@ class TestScorrimentoParete:
 
 # ─── Test analisi_lv2_parete ─────────────────────────────────────────────────
 
+
 class TestAnalisiLV2:
     def test_restituisce_risultato(self, parete_typ, sismica_std, config_std):
         ris = analisi_lv2_parete(parete_typ, sismica_std, config_std)
@@ -157,11 +161,10 @@ class TestAnalisiLV2:
 
 # ─── Test analisi_vulnerabilita_mur ──────────────────────────────────────────
 
+
 class TestAnalisiVulnerabilitaMur:
     def test_indice_e_lista(self, parete_typ, sismica_std, config_std):
-        indice, risultati = analisi_vulnerabilita_mur(
-            [parete_typ], sismica_std, config_std
-        )
+        indice, risultati = analisi_vulnerabilita_mur([parete_typ], sismica_std, config_std)
         assert isinstance(indice, IndiceVulnerabilitaMur)
         assert len(risultati) == 1
 
@@ -175,12 +178,26 @@ class TestAnalisiVulnerabilitaMur:
         sismica = ParametriSismici(a_g=0.15, S=1.2, FC=1.35, q=2.0)
         pareti = [
             PareteVulnerabile(
-                id_parete="M_A", t=50.0, L=200.0, h=300.0,
-                fvd0=1.0, fd=12.0, mu=0.4, E=15_000.0, G=6_000.0,
+                id_parete="M_A",
+                t=50.0,
+                L=200.0,
+                h=300.0,
+                fvd0=1.0,
+                fd=12.0,
+                mu=0.4,
+                E=15_000.0,
+                G=6_000.0,
             ),
             PareteVulnerabile(
-                id_parete="M_B", t=60.0, L=400.0, h=250.0,
-                fvd0=3.0, fd=30.0, mu=0.5, E=25_000.0, G=10_000.0,
+                id_parete="M_B",
+                t=60.0,
+                L=400.0,
+                h=250.0,
+                fvd0=3.0,
+                fd=30.0,
+                mu=0.5,
+                E=25_000.0,
+                G=10_000.0,
             ),
         ]
         indice, _ = analisi_vulnerabilita_mur(pareti, sismica, config_std)

@@ -36,8 +36,10 @@ _MODULO_LOG = "esistenti.modello_globale_mur"
 #  Enumerazioni
 # ═══════════════════════════════════════════════════════════
 
+
 class TipoModelloGlobale(str, Enum):
     """Tipo di modello globale selezionato dall'utente."""
+
     TELAIO_EQUIVALENTE = "telaio_equivalente"
     MACRO_ELEMENTO = "macro_elemento"
     SOLO_LV2 = "solo_lv2"
@@ -45,13 +47,15 @@ class TipoModelloGlobale(str, Enum):
 
 class TipoDomandaSismica(str, Enum):
     """Metodo di calcolo della domanda sismica globale."""
+
     FORZE_EQUIVALENTI = "forze_equivalenti"  # NTC2018 §7.3.3 — forze statiche eq.
-    SPETTRO = "spettro"                       # Spettro NTC2018 (modalità futuro Fase U)
+    SPETTRO = "spettro"  # Spettro NTC2018 (modalità futuro Fase U)
 
 
 # ═══════════════════════════════════════════════════════════
 #  Maschio murario (elemento beam del telaio equiv.)
 # ═══════════════════════════════════════════════════════════
+
 
 @dataclass
 class MaschioPaino:
@@ -65,16 +69,17 @@ class MaschioPaino:
 
     Riferimento: Lagomarsino (2015), TREMURI manual §3.2.
     """
+
     id_maschio: str
     piano: int
 
     # Geometria maschio [cm]
-    h: float         # altezza [cm]
-    L: float         # lunghezza [cm]
-    t: float         # spessore [cm]
+    h: float  # altezza [cm]
+    L: float  # lunghezza [cm]
+    t: float  # spessore [cm]
 
     # Proprietà materiale
-    E: float = 150_000.0   # modulo elastico [kg/cm²] (tipico muratura mattoni)
+    E: float = 150_000.0  # modulo elastico [kg/cm²] (tipico muratura mattoni)
     G: float | None = None  # modulo di taglio [kg/cm²] (default E/3)
 
     # Condizioni al contorno
@@ -86,7 +91,7 @@ class MaschioPaino:
 
     # Resistenza (ridotta per FC)
     fvd0: float = 0.0  # [kg/cm²]
-    fd: float = 0.0    # [kg/cm²]
+    fd: float = 0.0  # [kg/cm²]
 
     @property
     def G_eff(self) -> float:
@@ -95,7 +100,7 @@ class MaschioPaino:
     @property
     def I(self) -> float:
         """Momento di inerzia sezione trasversale [cm⁴]."""
-        return self.t * self.L ** 3 / 12.0
+        return self.t * self.L**3 / 12.0
 
     @property
     def A(self) -> float:
@@ -105,7 +110,7 @@ class MaschioPaino:
     @property
     def rigidezza_flessionale(self) -> float:
         """Rigidezza flessionale K_flex = 12·E·I/h³ [kg/cm]."""
-        return 12.0 * self.E * self.I / self.h ** 3 if self.h > 0 else 0.0
+        return 12.0 * self.E * self.I / self.h**3 if self.h > 0 else 0.0
 
     @property
     def rigidezza_taglio(self) -> float:
@@ -129,9 +134,10 @@ class MaschioPaino:
 @dataclass
 class PianoEdificio:
     """Un piano dell'edificio contenente maschi murari."""
-    numero: int          # N. piano (1 = piano terra)
-    h_piano: float       # altezza interpiano [cm]
-    W_piano: float       # peso del piano (solai + muratura) [kg]
+
+    numero: int  # N. piano (1 = piano terra)
+    h_piano: float  # altezza interpiano [cm]
+    W_piano: float  # peso del piano (solai + muratura) [kg]
     maschi: list[MaschioPaino] = field(default_factory=list)
 
     @property
@@ -143,6 +149,7 @@ class PianoEdificio:
 # ═══════════════════════════════════════════════════════════
 #  Azioni sismiche equivalenti
 # ═══════════════════════════════════════════════════════════
+
 
 def calcola_forze_laterali_equivalenti(
     piani: list[PianoEdificio],
@@ -195,6 +202,7 @@ def calcola_forze_laterali_equivalenti(
 #  Distribuzione taglio tra maschi per piano
 # ═══════════════════════════════════════════════════════════
 
+
 def distribuisci_taglio_piano(
     piano: PianoEdificio,
     V_piano: float,
@@ -210,24 +218,23 @@ def distribuisci_taglio_piano(
     K_tot = piano.rigidezza_piano
     if K_tot <= 0 or not piano.maschi:
         return {m.id_maschio: 0.0 for m in piano.maschi}
-    return {
-        m.id_maschio: V_piano * m.rigidezza_totale / K_tot
-        for m in piano.maschi
-    }
+    return {m.id_maschio: V_piano * m.rigidezza_totale / K_tot for m in piano.maschi}
 
 
 # ═══════════════════════════════════════════════════════════
 #  Risultati LV3
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class VerificaMaschio:
     """Verifica a taglio del singolo maschio murario."""
+
     id_maschio: str
     piano: int
-    V_Ed: float      # taglio di progetto [kg]
-    V_Rd: float      # capacità taglio [kg]
-    rho: float       # ρ = V_Rd / V_Ed
+    V_Ed: float  # taglio di progetto [kg]
+    V_Rd: float  # capacità taglio [kg]
+    rho: float  # ρ = V_Rd / V_Ed
     verificato: bool
 
     def to_dict(self) -> dict[str, Any]:
@@ -244,9 +251,10 @@ class VerificaMaschio:
 @dataclass
 class RisultatoLV3:
     """Risultato analisi LV3 telaio equivalente."""
+
     modello: TipoModelloGlobale = TipoModelloGlobale.TELAIO_EQUIVALENTE
 
-    V_taglio_base: float = 0.0           # taglio alla base [kg]
+    V_taglio_base: float = 0.0  # taglio alla base [kg]
     forze_piano: list[float] = field(default_factory=list)
 
     verifiche_maschi: list[VerificaMaschio] = field(default_factory=list)
@@ -254,7 +262,7 @@ class RisultatoLV3:
     n_verificati: int = 0
     n_non_verificati: int = 0
     rho_min: float = 0.0
-    rho_globale: float = 0.0             # media pesata
+    rho_globale: float = 0.0  # media pesata
 
     avvisi: list[str] = field(default_factory=list)
 
@@ -274,6 +282,7 @@ class RisultatoLV3:
 # ═══════════════════════════════════════════════════════════
 #  Analisi LV3 principale
 # ═══════════════════════════════════════════════════════════
+
 
 def analisi_lv3_telaio_equivalente(
     piani: list[PianoEdificio],
@@ -321,14 +330,16 @@ def analisi_lv3_telaio_equivalente(
             V_Ed = distrib.get(maschio.id_maschio, 0.0)
             V_Rd = maschio.capacita_taglio()
             rho = V_Rd / V_Ed if V_Ed > 0 else 9.99
-            verifiche.append(VerificaMaschio(
-                id_maschio=maschio.id_maschio,
-                piano=piano.numero,
-                V_Ed=V_Ed,
-                V_Rd=V_Rd,
-                rho=rho,
-                verificato=(V_Rd >= V_Ed),
-            ))
+            verifiche.append(
+                VerificaMaschio(
+                    id_maschio=maschio.id_maschio,
+                    piano=piano.numero,
+                    V_Ed=V_Ed,
+                    V_Rd=V_Rd,
+                    rho=rho,
+                    verificato=(V_Rd >= V_Ed),
+                )
+            )
 
     n_ver = sum(1 for v in verifiche if v.verificato)
     n_nonver = len(verifiche) - n_ver
@@ -337,9 +348,7 @@ def analisi_lv3_telaio_equivalente(
     rho_glob = sum(rho_vals) / len(rho_vals) if rho_vals else 0.0
 
     if n_nonver > 0:
-        avvisi.append(
-            f"ATTENZIONE: {n_nonver} maschi non verificati su {len(verifiche)}"
-        )
+        avvisi.append(f"ATTENZIONE: {n_nonver} maschi non verificati su {len(verifiche)}")
 
     ris = RisultatoLV3(
         modello=TipoModelloGlobale.TELAIO_EQUIVALENTE,
@@ -359,7 +368,10 @@ def analisi_lv3_telaio_equivalente(
         input_dati={
             "n_piani": len(piani),
             "n_maschi": len(verifiche),
-            "a_g": a_g, "S": S, "q": q, "FC": FC,
+            "a_g": a_g,
+            "S": S,
+            "q": q,
+            "FC": FC,
         },
         output_dati={
             "V_taglio_base": round(V_base, 0),
@@ -418,6 +430,7 @@ def analisi_lv3(
 # ═══════════════════════════════════════════════════════════
 #  PLACEHOLDER FASE U — da sostituire con implementazione avanzata
 # ═══════════════════════════════════════════════════════════
+
 
 def lv3_analisi_modale_placeholder() -> None:
     """Placeholder per analisi modale non lineare (Fase U).

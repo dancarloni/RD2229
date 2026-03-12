@@ -6,21 +6,21 @@ LV3 telaio equivalente: distribuzione taglio sismico, rigidezza maschi.
 import pytest
 
 from src.esistenti.modello_globale_mur import (
-    TipoModelloGlobale,
-    TipoDomandaSismica,
     MaschioPaino,
     PianoEdificio,
-    VerificaMaschio,
     RisultatoLV3,
+    TipoDomandaSismica,
+    TipoModelloGlobale,
+    VerificaMaschio,
+    analisi_lv3,
+    analisi_lv3_telaio_equivalente,
     calcola_forze_laterali_equivalenti,
     distribuisci_taglio_piano,
-    analisi_lv3_telaio_equivalente,
-    analisi_lv3,
     lv3_analisi_modale_placeholder,
 )
 
-
 # ─── Fixture maschi ──────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def maschio_rigido():
@@ -29,8 +29,8 @@ def maschio_rigido():
         id_maschio="M1",
         piano=1,
         h=300.0,
-        L=50.0,    # lunghezza maschio
-        t=40.0,    # spessore
+        L=50.0,  # lunghezza maschio
+        t=40.0,  # spessore
         E=20_000.0,
         G=8_000.0,
         N=20_000.0,
@@ -68,21 +68,34 @@ def piano_con_due_maschi(maschio_rigido, maschio_flessibile):
 @pytest.fixture
 def edificio_due_piani(maschio_rigido, maschio_flessibile):
     m3 = MaschioPaino(
-        id_maschio="M3", piano=2, h=300.0, L=60.0, t=40.0,
-        E=20_000.0, G=8_000.0, N=15_000.0, fvd0=2.0, fd=20.0,
+        id_maschio="M3",
+        piano=2,
+        h=300.0,
+        L=60.0,
+        t=40.0,
+        E=20_000.0,
+        G=8_000.0,
+        N=15_000.0,
+        fvd0=2.0,
+        fd=20.0,
     )
     p1 = PianoEdificio(
-        numero=1, h_piano=300.0, W_piano=80_000.0,
+        numero=1,
+        h_piano=300.0,
+        W_piano=80_000.0,
         maschi=[maschio_rigido, maschio_flessibile],
     )
     p2 = PianoEdificio(
-        numero=2, h_piano=300.0, W_piano=60_000.0,
+        numero=2,
+        h_piano=300.0,
+        W_piano=60_000.0,
         maschi=[m3],
     )
     return [p1, p2]
 
 
 # ─── Test MaschioPaino.rigidezza ─────────────────────────────────────────────
+
 
 class TestRigidezzaMaschio:
     def test_k_positiva(self, maschio_rigido):
@@ -110,6 +123,7 @@ class TestRigidezzaMaschio:
 
 # ─── Test calcola_forze_laterali_equivalenti ─────────────────────────────────
 
+
 class TestForzelaterali:
     def test_v_base_positivo(self, edificio_due_piani):
         V_base, F_piani = calcola_forze_laterali_equivalenti(
@@ -133,6 +147,7 @@ class TestForzelaterali:
 
 # ─── Test distribuisci_taglio_piano ──────────────────────────────────────────
 
+
 class TestDistribuisciTaglio:
     def test_somma_taglio_coerente(self, piano_con_due_maschi):
         V_piano = 10_000.0
@@ -143,7 +158,9 @@ class TestDistribuisciTaglio:
         dist = distribuisci_taglio_piano(piano_con_due_maschi, 5_000.0)
         assert "M1" in dist and "M2" in dist
 
-    def test_distribuzione_proporzionale_a_rigidezza(self, piano_con_due_maschi, maschio_rigido, maschio_flessibile):
+    def test_distribuzione_proporzionale_a_rigidezza(
+        self, piano_con_due_maschi, maschio_rigido, maschio_flessibile
+    ):
         """Distribuzione proporzionale a rigidezza → rapporti V_i/V corrispondono a K_i/K_tot."""
         dist = distribuisci_taglio_piano(piano_con_due_maschi, 10_000.0)
         K1 = maschio_rigido.rigidezza_totale
@@ -154,32 +171,32 @@ class TestDistribuisciTaglio:
 
 # ─── Test analisi_lv3_telaio_equivalente ─────────────────────────────────────
 
+
 class TestAnalisiLV3Telaio:
     def test_restituisce_risultato(self, edificio_due_piani):
-        ris = analisi_lv3_telaio_equivalente(
-            edificio_due_piani, a_g=0.15, S=1.2, q=2.0, FC=1.35
-        )
+        ris = analisi_lv3_telaio_equivalente(edificio_due_piani, a_g=0.15, S=1.2, q=2.0, FC=1.35)
         assert isinstance(ris, RisultatoLV3)
 
     def test_rho_globale_positivo(self, edificio_due_piani):
-        ris = analisi_lv3_telaio_equivalente(
-            edificio_due_piani, a_g=0.15, S=1.2, q=2.0, FC=1.35
-        )
+        ris = analisi_lv3_telaio_equivalente(edificio_due_piani, a_g=0.15, S=1.2, q=2.0, FC=1.35)
         assert ris.rho_globale > 0.0
 
     def test_v_base_presente(self, edificio_due_piani):
-        ris = analisi_lv3_telaio_equivalente(
-            edificio_due_piani, a_g=0.15, S=1.2, q=2.0, FC=1.35
-        )
+        ris = analisi_lv3_telaio_equivalente(edificio_due_piani, a_g=0.15, S=1.2, q=2.0, FC=1.35)
         assert ris.V_taglio_base > 0.0
 
 
 # ─── Test analisi_lv3 (dispatcher) ───────────────────────────────────────────
 
+
 class TestAnalisiLV3Dispatcher:
     def test_telaio_equiv_default(self, edificio_due_piani):
         ris = analisi_lv3(
-            edificio_due_piani, a_g=0.15, S=1.2, q=2.0, FC=1.35,
+            edificio_due_piani,
+            a_g=0.15,
+            S=1.2,
+            q=2.0,
+            FC=1.35,
             modello=TipoModelloGlobale.TELAIO_EQUIVALENTE,
         )
         assert isinstance(ris, RisultatoLV3)
@@ -188,7 +205,11 @@ class TestAnalisiLV3Dispatcher:
     def test_macro_elemento_fallback(self, edificio_due_piani):
         """MACRO_ELEMENTO non implementato → fallback a TELAIO_EQUIV + avviso."""
         ris = analisi_lv3(
-            edificio_due_piani, a_g=0.15, S=1.2, q=2.0, FC=1.35,
+            edificio_due_piani,
+            a_g=0.15,
+            S=1.2,
+            q=2.0,
+            FC=1.35,
             modello=TipoModelloGlobale.MACRO_ELEMENTO,
         )
         assert isinstance(ris, RisultatoLV3)
@@ -196,6 +217,7 @@ class TestAnalisiLV3Dispatcher:
 
 
 # ─── Test placeholder modale ─────────────────────────────────────────────────
+
 
 class TestPlaceholderModale:
     def test_raises_not_implemented(self):

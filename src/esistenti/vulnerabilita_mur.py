@@ -31,8 +31,8 @@ from typing import Any
 from src.core.registro_log import registro
 from src.methods.muratura.cinematica import (
     ForzaCatena,
-    PareteMuraria,
     ParametriSismici,
+    PareteMuraria,
     RisultatoCinematica,
     TipoMeccanismo,
     analisi_meccanismi_locali,
@@ -48,50 +48,57 @@ _MODULO_LOG = "esistenti.vulnerabilita_mur"
 #  Enumerazioni e configurazione
 # ═══════════════════════════════════════════════════════════
 
+
 class FormuleLV1(str, Enum):
     """Metodo usato per il calcolo LV1 speditivo."""
-    NTC2018 = "NTC2018"           # Circ. 7/2019 §C8.7.1.1 — τ × A / W – domanda
-    OPCM3274 = "OPCM3274"         # OPCM 3274/2003 §11.2 — IS = τ_u / τ_g
-    LETTERATURA = "letteratura"    # Turnšek-Čačovič (1970) generalizzato
+
+    NTC2018 = "NTC2018"  # Circ. 7/2019 §C8.7.1.1 — τ × A / W – domanda
+    OPCM3274 = "OPCM3274"  # OPCM 3274/2003 §11.2 — IS = τ_u / τ_g
+    LETTERATURA = "letteratura"  # Turnšek-Čačovič (1970) generalizzato
 
 
 class DegradoPreset(str, Enum):
     """Preset per la riduzione delle proprietà meccaniche per degrado."""
-    NESSUNO = "nessuno"     # Nessuna riduzione (default OFF)
-    BASSO = "basso"         # Riduzione 5% fvd0, 5% fd
-    MEDIO = "medio"         # Riduzione 15% fvd0, 10% fd
-    ALTO = "alto"           # Riduzione 30% fvd0, 20% fd
+
+    NESSUNO = "nessuno"  # Nessuna riduzione (default OFF)
+    BASSO = "basso"  # Riduzione 5% fvd0, 5% fd
+    MEDIO = "medio"  # Riduzione 15% fvd0, 10% fd
+    ALTO = "alto"  # Riduzione 30% fvd0, 20% fd
 
 
 _FATTORI_DEGRADO: dict[str, dict[str, float]] = {
     DegradoPreset.NESSUNO.value: {"fvd0": 1.0, "fd": 1.0},
-    DegradoPreset.BASSO.value:   {"fvd0": 0.95, "fd": 0.95},
-    DegradoPreset.MEDIO.value:   {"fvd0": 0.85, "fd": 0.90},
-    DegradoPreset.ALTO.value:    {"fvd0": 0.70, "fd": 0.80},
+    DegradoPreset.BASSO.value: {"fvd0": 0.95, "fd": 0.95},
+    DegradoPreset.MEDIO.value: {"fvd0": 0.85, "fd": 0.90},
+    DegradoPreset.ALTO.value: {"fvd0": 0.70, "fd": 0.80},
 }
 
 
 class ClasseVulnerabilitaMur(str, Enum):
     """Classe di vulnerabilità basata su α = a₀*/a_domanda."""
-    VERIFICATA = "verificata"       # α ≥ 1.0 (capacità ≥ domanda)
-    CRITICA = "critica"             # 0.8 ≤ α < 1.0
-    VULNERABILE = "vulnerabile"     # α < 0.8
+
+    VERIFICATA = "verificata"  # α ≥ 1.0 (capacità ≥ domanda)
+    CRITICA = "critica"  # 0.8 ≤ α < 1.0
+    VULNERABILE = "vulnerabile"  # α < 0.8
 
 
 @dataclass
 class ConfigVulnerabilitaMur:
     """Parametri di configurazione analisi muratura."""
+
     formula_lv1: FormuleLV1 = FormuleLV1.NTC2018
     degrado: DegradoPreset = DegradoPreset.NESSUNO
 
     # Meccanismi LV2 da includere (default: tutti principali)
-    meccanismi_lv2: list[str] = field(default_factory=lambda: [
-        TipoMeccanismo.RIBALTAMENTO_SEMPLICE.value,
-        TipoMeccanismo.RIBALTAMENTO_COMPOSTO.value,
-        TipoMeccanismo.FLESSIONE_VERTICALE.value,
-        TipoMeccanismo.FLESSIONE_ORIZZONTALE.value,
-        "scorrimento",  # R.3: meccanismo completo implementato qui
-    ])
+    meccanismi_lv2: list[str] = field(
+        default_factory=lambda: [
+            TipoMeccanismo.RIBALTAMENTO_SEMPLICE.value,
+            TipoMeccanismo.RIBALTAMENTO_COMPOSTO.value,
+            TipoMeccanismo.FLESSIONE_VERTICALE.value,
+            TipoMeccanismo.FLESSIONE_ORIZZONTALE.value,
+            "scorrimento",  # R.3: meccanismo completo implementato qui
+        ]
+    )
 
     # Soglie classificazione α
     soglia_verificata: float = 1.0
@@ -112,6 +119,7 @@ class ConfigVulnerabilitaMur:
 #  Input parete muraria per vulnerabilità
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class PareteVulnerabile:
     """Dati di una parete muraria per analisi di vulnerabilità.
@@ -119,17 +127,18 @@ class PareteVulnerabile:
     Combina geometria + proprietà meccaniche + dati sismici localizzati.
     Le proprietà maccanicche sono già ridotte dal fattore di confidenza FC.
     """
+
     id_parete: str
 
     # Geometria
-    h: float      # altezza parete [cm]
-    t: float      # spessore [cm]
-    L: float      # lunghezza / lunghezza maschio [cm]
+    h: float  # altezza parete [cm]
+    t: float  # spessore [cm]
+    L: float  # lunghezza / lunghezza maschio [cm]
 
     # Proprietà muratura (già ridotte per FC)
-    fd: float     # resistenza a compressione [kg/cm²] (fk/γM)
-    fvd0: float   # resistenza a taglio per scorrimento [kg/cm²] (fvk0/γM)
-    E: float      # modulo elastico [kg/cm²]
+    fd: float  # resistenza a compressione [kg/cm²] (fk/γM)
+    fvd0: float  # resistenza a taglio per scorrimento [kg/cm²] (fvk0/γM)
+    E: float  # modulo elastico [kg/cm²]
     G: float | None = None  # modulo di taglio [kg/cm²] (default E/3)
     gamma: float = 0.0018  # peso specifico [kg/cm³; ≈1800 kg/m³]
     mu: float = 0.4  # coefficiente di attrito (NTC2018 §4.5.6.1.2)
@@ -138,7 +147,7 @@ class PareteVulnerabile:
     N_sommita: float = 0.0  # carico verticale in sommità [kg/m lineare]
 
     # Posizione edificio
-    Z: float = 0.0           # quota cerniera da fondazione [cm]
+    Z: float = 0.0  # quota cerniera da fondazione [cm]
     H_edificio: float = 0.0  # altezza totale edificio [cm]
 
     # Posizione strutturale
@@ -168,6 +177,7 @@ class PareteVulnerabile:
 # ═══════════════════════════════════════════════════════════
 #  LV1 — Valutazione speditiva
 # ═══════════════════════════════════════════════════════════
+
 
 def lv1_ntc2018(
     pareti: list[PareteVulnerabile],
@@ -205,7 +215,9 @@ def lv1_ntc2018(
     passaggi.append(f"Pareti analizzate: {len(pareti)}")
     passaggi.append(f"A_muratura totale = {A_mur_tot:.0f} cm²")
     passaggi.append(f"W_totale = {W_tot:.0f} kg")
-    passaggi.append(f"fvd0 medio = {fvd0_medio:.4f} kg/cm² × degrado({cfg.degrado.value})={deg_fvd0} → {fvd0_eff:.4f}")
+    passaggi.append(
+        f"fvd0 medio = {fvd0_medio:.4f} kg/cm² × degrado({cfg.degrado.value})={deg_fvd0} → {fvd0_eff:.4f}"
+    )
 
     # Resistenza a taglio globale alla base
     V_Rd = fvd0_eff * A_mur_tot
@@ -260,7 +272,11 @@ def lv1_opcm3274(
     tau_u = fvd0_eff
 
     # τ_g = taglio sismico / area resistente
-    tau_g = (W_tot * sismica.a_g * sismica.S * sismica.FC) / A_mur_tot if A_mur_tot > 0 else float("inf")
+    tau_g = (
+        (W_tot * sismica.a_g * sismica.S * sismica.FC) / A_mur_tot
+        if A_mur_tot > 0
+        else float("inf")
+    )
 
     IS = tau_u / tau_g if tau_g > 0 else 0.0
 
@@ -299,7 +315,11 @@ def lv1_letteratura(
         # Resistenza critica a taglio diagonale
         tau_cr = fvd0_eff * math.sqrt(1.0 + sigma_n / fvd0_eff) if fvd0_eff > 0 else 0.0
         # Domanda a taglio per parete (quota proporzionale al peso)
-        V_g = (parete.N_tot / W_tot) * W_tot * sismica.a_g * sismica.S * sismica.FC if W_tot > 0 else 0.0
+        V_g = (
+            (parete.N_tot / W_tot) * W_tot * sismica.a_g * sismica.S * sismica.FC
+            if W_tot > 0
+            else 0.0
+        )
         tau_g = V_g / A if A > 0 else float("inf")
         alpha_p = tau_cr / tau_g if tau_g > 0 else float("inf")
         alphas.append(alpha_p)
@@ -317,6 +337,7 @@ def lv1_letteratura(
 # ═══════════════════════════════════════════════════════════
 #  Meccanismo di scorrimento (R.3 — completo)
 # ═══════════════════════════════════════════════════════════
+
 
 def scorrimento_parete(
     parete: PareteVulnerabile,
@@ -375,7 +396,9 @@ def scorrimento_parete(
     a_0_star = alpha_0 / (e_star * sismica.FC) if (e_star * sismica.FC) > 0 else 0.0
 
     passaggi.append(f"e* = {e_star:.2f} (scorrimento rigido)")
-    passaggi.append(f"a₀* = α₀ / (e*×FC) = {alpha_0:.4f} / ({e_star}×{sismica.FC}) = {a_0_star:.4f} g")
+    passaggi.append(
+        f"a₀* = α₀ / (e*×FC) = {alpha_0:.4f} / ({e_star}×{sismica.FC}) = {a_0_star:.4f} g"
+    )
 
     # Domanda sismica
     if parete.Z <= 0 or parete.H_edificio <= 0:
@@ -406,13 +429,14 @@ def scorrimento_parete(
     a_0_star_cms2 = a_0_star * 981.0
     T_s = (
         2 * math.pi * math.sqrt(d_0_star / a_0_star_cms2)
-        if a_0_star_cms2 > 0 and d_0_star > 0 else 0.0
+        if a_0_star_cms2 > 0 and d_0_star > 0
+        else 0.0
     )
     if sismica.S_De_Ts > 0:
         d_domanda = sismica.S_De_Ts
     else:
         S_D1_cms2 = sismica.a_g * sismica.S * 981.0 * 2.5
-        d_domanda = S_D1_cms2 * T_s ** 2 / (4 * math.pi ** 2) if T_s > 0 else 0.0
+        d_domanda = S_D1_cms2 * T_s**2 / (4 * math.pi**2) if T_s > 0 else 0.0
     if parete.Z > 0 and parete.H_edificio > 0:
         d_domanda *= parete.Z / parete.H_edificio
 
@@ -444,16 +468,18 @@ def scorrimento_parete(
 #  LV2 — Analisi meccanismi locali per parete
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RisultatoParete:
     """Risultato LV2 per una singola parete muraria."""
+
     id_parete: str
 
     meccanismi: dict[str, RisultatoCinematica] = field(default_factory=dict)
 
     # Indici sintetici
-    alpha_min: float = 0.0       # α minimo tra tutti i meccanismi (lineare)
-    alpha_medio: float = 0.0     # α medio tra meccanismi
+    alpha_min: float = 0.0  # α minimo tra tutti i meccanismi (lineare)
+    alpha_medio: float = 0.0  # α medio tra meccanismi
     meccanismo_critico: str = ""
 
     classe: ClasseVulnerabilitaMur = ClasseVulnerabilitaMur.VULNERABILE
@@ -504,9 +530,13 @@ def analisi_lv2_parete(
 
     # Costruisce PareteMuraria per cinematica
     pm = PareteMuraria(
-        h=parete.h, t=parete.t, L=parete.L,
-        gamma=parete.gamma, N_sommita=parete.N_sommita,
-        Z=parete.Z, H_edificio=parete.H_edificio,
+        h=parete.h,
+        t=parete.t,
+        L=parete.L,
+        gamma=parete.gamma,
+        N_sommita=parete.N_sommita,
+        Z=parete.Z,
+        H_edificio=parete.H_edificio,
     )
 
     mecs = cfg.meccanismi_lv2
@@ -538,10 +568,7 @@ def analisi_lv2_parete(
     # Indice sintetico: usa a₀*/a_domanda come misura di α
     alphas: dict[str, float] = {}
     for nome, res in meccanismi_out.items():
-        alpha_ratio = (
-            res.a_0_star / res.a_domanda
-            if res.a_domanda > 0 else float("inf")
-        )
+        alpha_ratio = res.a_0_star / res.a_domanda if res.a_domanda > 0 else float("inf")
         alphas[nome] = alpha_ratio
 
     alpha_min_val = min(alphas.values())
@@ -583,11 +610,13 @@ def analisi_lv2_parete(
 #  Risultato globale edificio muratura
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class IndiceVulnerabilitaMur:
     """Indice globale vulnerabilità edificio in muratura."""
-    alpha_min_globale: float         # peggiore parete/meccanismo
-    alpha_medio_globale: float       # media su tutte le pareti
+
+    alpha_min_globale: float  # peggiore parete/meccanismo
+    alpha_medio_globale: float  # media su tutte le pareti
 
     # LV1
     alpha_lv1: float | None = None
@@ -667,9 +696,15 @@ def analisi_vulnerabilita_mur(
     alpha_medio_gl = sum(alphas_min) / len(alphas_min)
 
     ranking = sorted(
-        [{"id": r.id_parete, "alpha_min": round(r.alpha_min, 3),
-          "meccanismo_critico": r.meccanismo_critico,
-          "classe": r.classe.value} for r in risultati],
+        [
+            {
+                "id": r.id_parete,
+                "alpha_min": round(r.alpha_min, 3),
+                "meccanismo_critico": r.meccanismo_critico,
+                "classe": r.classe.value,
+            }
+            for r in risultati
+        ],
         key=lambda x: x["alpha_min"],
     )
 

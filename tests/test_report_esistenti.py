@@ -10,17 +10,17 @@ from src.esistenti.report_esistenti import (
     DatiLC,
     DatiSismici,
     InputReport,
-    genera_report_vulnerabilita,
     genera_report_html,
+    genera_report_vulnerabilita,
+    sezione_audit_override,
+    sezione_conclusioni,
+    sezione_confronto_multinorma,
     sezione_intestazione,
     sezione_lc_fc,
-    sezione_conclusioni,
-    sezione_audit_override,
-    sezione_confronto_multinorma,
 )
 
-
 # ─── Fixture ─────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def inp_minimo():
@@ -59,6 +59,7 @@ def inp_con_audit():
 
 # ─── Test genera_report_vulnerabilita ────────────────────────────────────────
 
+
 class TestGeneraReport:
     def test_report_non_vuoto(self, inp_minimo):
         testo = genera_report_vulnerabilita(inp_minimo)
@@ -88,6 +89,7 @@ class TestGeneraReport:
 
 # ─── Test sezione_intestazione ────────────────────────────────────────────────
 
+
 class TestSezioneIntestazione:
     def test_contiene_norma(self, inp_minimo):
         s = sezione_intestazione(inp_minimo)
@@ -100,6 +102,7 @@ class TestSezioneIntestazione:
 
 # ─── Test sezione_lc_fc ──────────────────────────────────────────────────────
 
+
 class TestSezioneLcFc:
     def test_contiene_fc(self, inp_minimo):
         s = sezione_lc_fc(inp_minimo)
@@ -111,6 +114,7 @@ class TestSezioneLcFc:
 
 
 # ─── Test sezione_audit_override ─────────────────────────────────────────────
+
 
 class TestSezioneAudit:
     def test_vuota_se_nessun_override(self, inp_minimo):
@@ -128,6 +132,7 @@ class TestSezioneAudit:
 
 # ─── Test sezione_confronto_multinorma ───────────────────────────────────────
 
+
 class TestSezioneMultinorma:
     def test_vuota_se_no_dati(self, inp_minimo):
         s = sezione_confronto_multinorma(inp_minimo)
@@ -137,7 +142,12 @@ class TestSezioneMultinorma:
         inp = InputReport(
             edificio=DatiEdificio(nome="Multi"),
             confronto_norme={
-                "α_LV1": {"NTC2018": "0.75", "OPCM3274": "0.68", "EC8": "0.70", "norma_gov": "NTC2018"},
+                "α_LV1": {
+                    "NTC2018": "0.75",
+                    "OPCM3274": "0.68",
+                    "EC8": "0.70",
+                    "norma_gov": "NTC2018",
+                },
             },
         )
         s = sezione_confronto_multinorma(inp)
@@ -146,6 +156,7 @@ class TestSezioneMultinorma:
 
 
 # ─── Test genera_report_html ─────────────────────────────────────────────────
+
 
 class TestGeneraReportHtml:
     def test_output_html_valido(self, inp_minimo):

@@ -172,7 +172,9 @@ def _normalizza_livello(livello: LivelloConoscenza | str) -> LivelloConoscenza:
         return LivelloConoscenza(livello)
     except ValueError as exc:
         validi = [x.value for x in LivelloConoscenza]
-        raise ValueError(f"Livello di conoscenza non valido: {livello}. Valori ammessi: {validi}") from exc
+        raise ValueError(
+            f"Livello di conoscenza non valido: {livello}. Valori ammessi: {validi}"
+        ) from exc
 
 
 def _valida_fc(fc: float) -> None:

@@ -31,30 +31,34 @@ _MODULO_LOG = "esistenti.interventi"
 #  Enumerazioni
 # ═══════════════════════════════════════════════════════════
 
+
 class TipoIntervento(str, Enum):
     """Categoria di intervento strutturale."""
-    ARMATURA_CA = "armatura_ca"             # c.a.: aggiunta ferri, ringbeam
-    INCAMICIATURA = "incamiciatura"         # c.a.: incamiciatura pilastri/travi
-    FRP = "frp"                             # compositi FRP (sia c.a. che muratura)
-    PARETE_TAGLIO = "parete_taglio"         # c.a.: parete di taglio
-    DISSIPATORE = "dissipatore"             # c.a./misto: dissipatori passivi
-    RINGBEAM_MUR = "ringbeam_mur"           # muratura: cordolo in c.a.
-    INIEZIONI_MUR = "iniezioni"             # muratura: iniezioni di boiacca
-    INTONACO_ARMATO = "intonaco_armato"     # muratura: intonaco armato
+
+    ARMATURA_CA = "armatura_ca"  # c.a.: aggiunta ferri, ringbeam
+    INCAMICIATURA = "incamiciatura"  # c.a.: incamiciatura pilastri/travi
+    FRP = "frp"  # compositi FRP (sia c.a. che muratura)
+    PARETE_TAGLIO = "parete_taglio"  # c.a.: parete di taglio
+    DISSIPATORE = "dissipatore"  # c.a./misto: dissipatori passivi
+    RINGBEAM_MUR = "ringbeam_mur"  # muratura: cordolo in c.a.
+    INIEZIONI_MUR = "iniezioni"  # muratura: iniezioni di boiacca
+    INTONACO_ARMATO = "intonaco_armato"  # muratura: intonaco armato
     CONSOLIDAMENTO_FOND = "consolidamento_fond"  # fondazioni: sottofondazione
     ALTRO = "altro"
 
 
 class ObiettivoRanking(str, Enum):
     """Obiettivo usato per il ranking degli interventi."""
+
     MIGLIORAMENTO_MASSIMO = "miglioramento_massimo"
     COSTO_MINIMO = "costo_minimo"
-    RAPPORTO_MIGLIORA_COSTO = "rapporto_migliora_costo"   # default
+    RAPPORTO_MIGLIORA_COSTO = "rapporto_migliora_costo"  # default
 
 
 # ═══════════════════════════════════════════════════════════
 #  Dataclass Intervento
 # ═══════════════════════════════════════════════════════════
+
 
 @dataclass
 class Intervento:
@@ -67,23 +71,24 @@ class Intervento:
         fattore_rho = 1.3 → ρ_post = min(ρ_pre × 1.3, cap_rho)
         fattore_alpha = 1.5 → α_post = min(α_pre × 1.5, cap_alpha)
     """
+
     id: str
     nome: str
     tipo: TipoIntervento
 
     # Fattori di miglioramento (adimensionali, > 1.0)
-    fattore_rho: float = 1.0      # incremento indice ρ c.a. (1.0 = nessun effetto)
-    fattore_alpha: float = 1.0    # incremento indice α muratura (1.0 = nessun effetto)
+    fattore_rho: float = 1.0  # incremento indice ρ c.a. (1.0 = nessun effetto)
+    fattore_alpha: float = 1.0  # incremento indice α muratura (1.0 = nessun effetto)
 
     # Limiti di applicabilità (max ρ o α raggiungibile con questo intervento)
-    cap_rho: float = 2.0          # cap massimo ρ post-intervento
-    cap_alpha: float = 2.0        # cap massimo α post-intervento
+    cap_rho: float = 2.0  # cap massimo ρ post-intervento
+    cap_alpha: float = 2.0  # cap massimo α post-intervento
 
     # Costi
-    costo_eur_m2: float = 0.0     # EUR/m² (di area netta intervento)
+    costo_eur_m2: float = 0.0  # EUR/m² (di area netta intervento)
     # Funzione geometria: costo_fisso + coeff_volume * volume_m3
     costo_fisso_eur: float = 0.0
-    coeff_volume: float = 0.0     # EUR/m³
+    coeff_volume: float = 0.0  # EUR/m³
 
     # Combinabilità con altri interventi
     combinabile: bool = True
@@ -130,7 +135,7 @@ CATALOGO_BASE: list[Intervento] = [
         coeff_volume=250.0,
         riferimento="NTC2018 §8.6.3, RELUIS (2019) Tab. 3.2",
         note="Incremento duttilità e resistenza taglio +30–50%. "
-             "Richiede rimozione tramezze adiacenti.",
+        "Richiede rimozione tramezze adiacenti.",
     ),
     Intervento(
         id="CA_FRP_PIL",
@@ -168,7 +173,7 @@ CATALOGO_BASE: list[Intervento] = [
         coeff_volume=0.0,
         riferimento="NTC2018 §7.10, Dolce et al. (2017)",
         note="Alta efficacia su edifici con periodo naturale intermedio. "
-             "Costo per piano (stima).",
+        "Costo per piano (stima).",
     ),
     # ── MURATURA ──────────────────────────────────────────
     Intervento(
@@ -181,8 +186,7 @@ CATALOGO_BASE: list[Intervento] = [
         costo_eur_m2=120.0,
         costo_fisso_eur=2_000.0,
         riferimento="NTC2018 §8.6.1, Circ.7/2019 §C8.6.4",
-        note="Riduce ribaltamento fuori piano del 40–60%. "
-             "Presuppone ammorsamento delle pareti.",
+        note="Riduce ribaltamento fuori piano del 40–60%. " "Presuppone ammorsamento delle pareti.",
     ),
     Intervento(
         id="MUR_FRP_FASCIATURA",
@@ -205,7 +209,7 @@ CATALOGO_BASE: list[Intervento] = [
         costo_eur_m2=60.0,
         riferimento="Circ. 7/2019 §C8.6.1",
         note="Incremento coesione e resistenza a compressione. "
-             "Efficace su muratura in cattivo stato.",
+        "Efficace su muratura in cattivo stato.",
     ),
     Intervento(
         id="MUR_INTONACO_ARMATO",
@@ -217,7 +221,7 @@ CATALOGO_BASE: list[Intervento] = [
         costo_eur_m2=110.0,
         riferimento="NTC2018 §8.6.1, Circ. 7/2019 §C8.6.2",
         note="Doppio intonaco armato su entrambe le facce. "
-             "Molto efficace ma pesante (aumento massa ~5%).",
+        "Molto efficace ma pesante (aumento massa ~5%).",
     ),
     # ── FONDAZIONI ────────────────────────────────────────
     Intervento(
@@ -248,22 +252,24 @@ def get_intervento_by_id(intervento_id: str) -> Intervento | None:
 #  Applicazione interventi: stato post
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class ScenarioIntervento:
     """Risultato di uno scenario di intervento su un edificio."""
-    interventi_applicati: list[str]        # ID interventi
-    rho_pre: float                         # ρ indice vulnerabilità c.a. prima
-    rho_post: float                        # ρ dopo intervento
-    alpha_pre: float                       # α iniziale muratura
-    alpha_post: float                      # α dopo intervento
 
-    delta_rho: float = 0.0                 # variazione assoluta ρ
-    delta_alpha: float = 0.0              # variazione assoluta α
-    delta_rho_perc: float = 0.0           # variazione % ρ
-    delta_alpha_perc: float = 0.0         # variazione % α
+    interventi_applicati: list[str]  # ID interventi
+    rho_pre: float  # ρ indice vulnerabilità c.a. prima
+    rho_post: float  # ρ dopo intervento
+    alpha_pre: float  # α iniziale muratura
+    alpha_post: float  # α dopo intervento
+
+    delta_rho: float = 0.0  # variazione assoluta ρ
+    delta_alpha: float = 0.0  # variazione assoluta α
+    delta_rho_perc: float = 0.0  # variazione % ρ
+    delta_alpha_perc: float = 0.0  # variazione % α
 
     costo_totale_eur: float = 0.0
-    cap_raggiunto: bool = False            # se il cap combinato è stato attivato
+    cap_raggiunto: bool = False  # se il cap combinato è stato attivato
 
     note: list[str] = field(default_factory=list)
 
@@ -374,13 +380,15 @@ def applica_interventi(
 #  Ranking interventi
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class VoceRanking:
     """Voce nel ranking degli interventi."""
+
     id_intervento: str
     nome: str
     scenario: ScenarioIntervento
-    score: float    # punteggio secondo obiettivo selezionato
+    score: float  # punteggio secondo obiettivo selezionato
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -436,16 +444,16 @@ def ranking_interventi(
     """
     voci: list[VoceRanking] = []
     for intervento in catalogo:
-        scenario = applica_interventi(
-            [intervento], rho_pre, alpha_pre, area_m2, volume_m3
-        )
+        scenario = applica_interventi([intervento], rho_pre, alpha_pre, area_m2, volume_m3)
         score = _score_intervento(scenario, obiettivo)
-        voci.append(VoceRanking(
-            id_intervento=intervento.id,
-            nome=intervento.nome,
-            scenario=scenario,
-            score=score,
-        ))
+        voci.append(
+            VoceRanking(
+                id_intervento=intervento.id,
+                nome=intervento.nome,
+                scenario=scenario,
+                score=score,
+            )
+        )
 
     # Ordina dal migliore (score più alto)
     voci.sort(key=lambda v: v.score, reverse=True)

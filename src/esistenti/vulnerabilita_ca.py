@@ -37,8 +37,10 @@ _G = 981.0
 #  Enumerazioni
 # ═══════════════════════════════════════════════════════════
 
+
 class TipoElemento(str, Enum):
     """Tipo di elemento strutturale in c.a."""
+
     TRAVE = "trave"
     PILASTRO = "pilastro"
     PARETE_CA = "parete_ca"
@@ -46,8 +48,9 @@ class TipoElemento(str, Enum):
 
 class ClasseVulnerabilita(str, Enum):
     """Classe di vulnerabilità basata su ρ = C/D."""
-    VERIFICATO = "verificato"        # ρ ≥ 1.0
-    CRITICO = "critico"              # 0.8 ≤ ρ < 1.0
+
+    VERIFICATO = "verificato"  # ρ ≥ 1.0
+    CRITICO = "critico"  # 0.8 ≤ ρ < 1.0
     NON_VERIFICATO = "non_verificato"  # ρ < 0.8
 
 
@@ -55,14 +58,16 @@ class ClasseVulnerabilita(str, Enum):
 #  Configurazione soglie e pesi
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class SoglieRho:
     """Soglie classificazione ρ = C/D.
 
     Configurabili dall'utente; i default seguono la prassi NTC2018.
     """
-    verificato: float = 1.0   # ρ ≥ verificato → VERIFICATO
-    critico: float = 0.8      # critico ≤ ρ < verificato → CRITICO
+
+    verificato: float = 1.0  # ρ ≥ verificato → VERIFICATO
+    critico: float = 0.8  # critico ≤ ρ < verificato → CRITICO
     # ρ < critico → NON_VERIFICATO
 
     def classifica(self, rho: float) -> ClasseVulnerabilita:
@@ -77,15 +82,18 @@ class SoglieRho:
 @dataclass
 class ConfigVulnerabilitaCA:
     """Parametri di configurazione dell'analisi di vulnerabilità c.a."""
+
     soglie: SoglieRho = field(default_factory=SoglieRho)
 
     # Pesi per indice globale: ("IDele", peso)
     # Se None, tutti gli elementi pesano uguale
-    pesi_per_tipo: dict[str, float] = field(default_factory=lambda: {
-        TipoElemento.PILASTRO.value: 2.0,
-        TipoElemento.TRAVE.value: 1.0,
-        TipoElemento.PARETE_CA.value: 2.5,
-    })
+    pesi_per_tipo: dict[str, float] = field(
+        default_factory=lambda: {
+            TipoElemento.PILASTRO.value: 2.0,
+            TipoElemento.TRAVE.value: 1.0,
+            TipoElemento.PARETE_CA.value: 2.5,
+        }
+    )
 
     # Coefficiente P-Delta θ (opzionale; 0 = disabilitato)
     # NTC2018 §7.3.6.1: θ = Ptot × dr / (Vtot × h)
@@ -99,6 +107,7 @@ class ConfigVulnerabilitaCA:
 #  Input elemento
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class ElementoCA:
     """Dati di input per un elemento in c.a. esistente.
@@ -106,30 +115,31 @@ class ElementoCA:
     Le resistenze f_cd, f_yd sono già ridotte per FC (usare MaterialeConFC).
     Valori in kg/cm² per tensioni, cm per geometria, kg e kg·cm per forze.
     """
+
     id_elemento: str
 
     tipo: TipoElemento = TipoElemento.PILASTRO
 
     # Geometria sezione rettangolare
-    b: float = 30.0    # larghezza sezione [cm]
+    b: float = 30.0  # larghezza sezione [cm]
     h_sez: float = 50.0  # altezza sezione [cm]
-    d: float = 46.0    # altezza utile (d = h_sez - copriferro - φ/2) [cm]
+    d: float = 46.0  # altezza utile (d = h_sez - copriferro - φ/2) [cm]
     d_primo: float = 4.0  # copriferro lato compresso [cm]
 
     # Armatura
-    As: float = 0.0    # area armatura tesa [cm²]
+    As: float = 0.0  # area armatura tesa [cm²]
     As_primo: float = 0.0  # area armatura compressa [cm²]
     # Staffe: None se assenti (anni '60 → possibile carenza)
     Asw: float | None = None  # area sezione trasversale staffe [cm²]
     s_staffe: float | None = None  # interasse staffe [cm]
 
     # Resistenze di calcolo (già divise per FC)
-    f_cd: float = 85.0   # resistenza calcestruzzo kg/cm² (RCk≈150, f_cd≈85)
+    f_cd: float = 85.0  # resistenza calcestruzzo kg/cm² (RCk≈150, f_cd≈85)
     f_yd: float = 3800.0  # resistenza acciaio kg/cm²  (Fe44 → ~4400 kg/cm²)
-    f_ctd: float = 6.0    # resistenza trazione cls kg/cm²
+    f_ctd: float = 6.0  # resistenza trazione cls kg/cm²
 
     # Azioni (valori di progetto SLV)
-    N_ed: float = 0.0   # sforzo assiale [kg] (+ = compressione)
+    N_ed: float = 0.0  # sforzo assiale [kg] (+ = compressione)
     Mx_ed: float = 0.0  # momento SLV [kg·cm]
     Ty_ed: float = 0.0  # taglio SLV [kg]
 
@@ -145,20 +155,22 @@ class ElementoCA:
 #  Risultati elemento
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class RisultatoElementoCA:
     """Risultato della verifica di vulnerabilità di un elemento in c.a."""
+
     id_elemento: str
     tipo: TipoElemento = TipoElemento.PILASTRO
 
     # ρ = C/D per ogni stato limite
     rho_flessione: float = 0.0
     rho_taglio: float = 0.0
-    rho_pressoflessione: float | None = None   # solo pilastri con N≠0
+    rho_pressoflessione: float | None = None  # solo pilastri con N≠0
 
     # Duttilità (Circ. 7/2019 §C8.7.2.4)
-    theta_u: float | None = None   # rotazione plastica disponibile [rad]
-    theta_y: float | None = None   # rotazione snervamento [rad]
+    theta_u: float | None = None  # rotazione plastica disponibile [rad]
+    theta_y: float | None = None  # rotazione snervamento [rad]
     mu_theta: float | None = None  # duttilità μ_θ = θ_u / θ_y disponibile
 
     # Indice sintetico
@@ -177,8 +189,7 @@ class RisultatoElementoCA:
             "rho_flessione": round(self.rho_flessione, 3),
             "rho_taglio": round(self.rho_taglio, 3),
             "rho_pressoflessione": (
-                round(self.rho_pressoflessione, 3)
-                if self.rho_pressoflessione is not None else None
+                round(self.rho_pressoflessione, 3) if self.rho_pressoflessione is not None else None
             ),
             "theta_u": (round(self.theta_u, 4) if self.theta_u is not None else None),
             "mu_theta": (round(self.mu_theta, 2) if self.mu_theta is not None else None),
@@ -191,6 +202,7 @@ class RisultatoElementoCA:
 # ═══════════════════════════════════════════════════════════
 #  Verifica singolo elemento
 # ═══════════════════════════════════════════════════════════
+
 
 def _capacita_flessione(elem: ElementoCA) -> tuple[float, list[str]]:
     """Momento resistente MRd — sezione rettangolare, NTC2018 §4.1.2.1.3.1 semplificato.
@@ -294,7 +306,7 @@ def _capacita_taglio(elem: ElementoCA) -> tuple[float, list[str]]:
     fck_mpa = fck * 0.0981  # kg/cm² → MPa (×9.81/100)
     V_Rdc_Nmm2 = (0.18 / gamma_c) * k * (100 * rho_l * fck_mpa) ** (1.0 / 3.0)
     # Minimo vmin = 0.035·k^1.5·√fck (NTC2018 eq. 4.1.51b)
-    v_min_mpa = 0.035 * k ** 1.5 * math.sqrt(fck_mpa)
+    v_min_mpa = 0.035 * k**1.5 * math.sqrt(fck_mpa)
     V_Rdc_mpa = max(V_Rdc_Nmm2, v_min_mpa)
 
     # Converti in kg/cm²: 1 MPa = 10.197 kg/cm²
@@ -318,10 +330,7 @@ def _capacita_taglio(elem: ElementoCA) -> tuple[float, list[str]]:
         V_Rds = min(V_Rds, V_Rdmax)
         V_rd = max(V_Rdc, V_Rds)  # criterio governa il più alto
 
-        passaggi.append(
-            f"Asw = {elem.Asw:.2f} cm², s = {elem.s_staffe:.0f} cm, "
-            f"z = {z:.0f} cm"
-        )
+        passaggi.append(f"Asw = {elem.Asw:.2f} cm², s = {elem.s_staffe:.0f} cm, " f"z = {z:.0f} cm")
         passaggi.append(f"VRd,s = {V_Rds:.0f} kg, VRd,max = {V_Rdmax:.0f} kg")
         passaggi.append(f"VRd = max(VRd,c, VRd,s) = {V_rd:.0f} kg")
     else:
@@ -379,18 +388,14 @@ def _capacita_pressoflessione(elem: ElementoCA) -> tuple[float, list[str]]:
     x = (N_ed + As * fyd - As_primo * fyd) / (0.8 * b * fcd)
     x = max(x, 0.0)
 
-    passaggi.append(
-        f"x (asse neutro con N_Ed={N_ed:.0f} kg) = {x:.2f} cm"
-    )
+    passaggi.append(f"x (asse neutro con N_Ed={N_ed:.0f} kg) = {x:.2f} cm")
 
     if x > d:
         # Compressione totale: momento resistente intorno al baricentro
         # (simplificazione conservativa)
         e_min = max(h / 30, 2.0)  # eccentricità minima normativa [cm]
         M_rd = N_ed * e_min
-        passaggi.append(
-            f"Sezione completamente compressa: MRd = N_Ed·e_min = {M_rd:.0f} kg·cm"
-        )
+        passaggi.append(f"Sezione completamente compressa: MRd = N_Ed·e_min = {M_rd:.0f} kg·cm")
         return M_rd, passaggi
 
     # Forza in calcestruzzo
@@ -409,15 +414,11 @@ def _capacita_pressoflessione(elem: ElementoCA) -> tuple[float, list[str]]:
     sigma_s_primo = min(eps_s_primo * 2_100_000.0, fyd)
     sigma_s = min(eps_s * 2_100_000.0, fyd)
 
-    F_s = As * sigma_s          # forza armatura tesa (tiro +)
+    F_s = As * sigma_s  # forza armatura tesa (tiro +)
     F_s_primo = As_primo * sigma_s_primo  # forza armatura compressa (compressione -)
 
-    passaggi.append(
-        f"ε_s'= {eps_s_primo*1000:.2f}‰, ε_s = {eps_s*1000:.2f}‰"
-    )
-    passaggi.append(
-        f"σ_s' = {sigma_s_primo:.0f} kg/cm², σ_s = {sigma_s:.0f} kg/cm²"
-    )
+    passaggi.append(f"ε_s'= {eps_s_primo*1000:.2f}‰, ε_s = {eps_s*1000:.2f}‰")
+    passaggi.append(f"σ_s' = {sigma_s_primo:.0f} kg/cm², σ_s = {sigma_s:.0f} kg/cm²")
 
     # Momento resistente rispetto al baricentro geometrico della sezione
     y_g = h / 2
@@ -431,9 +432,7 @@ def _capacita_pressoflessione(elem: ElementoCA) -> tuple[float, list[str]]:
 
     M_rd = abs(M_rd_semplice)  # valore assoluto (convezione)
 
-    passaggi.append(
-        f"F_cls = {F_cls:.0f} kg, F_s = {F_s:.0f} kg, F_s' = {F_s_primo:.0f} kg"
-    )
+    passaggi.append(f"F_cls = {F_cls:.0f} kg, F_s = {F_s:.0f} kg, F_s' = {F_s_primo:.0f} kg")
     passaggi.append(f"MRd (pressoflessione) = {M_rd:.0f} kg·cm")
 
     return M_rd, passaggi
@@ -495,13 +494,17 @@ def _duttilita_chord_rotation(elem: ElementoCA) -> tuple[float, float, float]:
     gamma_el = 1.5  # fattore di modello per elementi in cemento armato
     fck_ratio = max(fck_mpa, 10.0) / 25.0
 
-    theta_u = (1.0 / gamma_el) * 0.016 * (
-        0.3 ** nu
-        * (omega_primo / omega) ** 0.225
-        * fck_ratio ** 0.2
-        * (d / max(Lv, d)) ** 0.35
-        * math.exp(25.0 * alpha_conf)
-        * 1.25 ** (100.0 * rho_d)
+    theta_u = (
+        (1.0 / gamma_el)
+        * 0.016
+        * (
+            0.3**nu
+            * (omega_primo / omega) ** 0.225
+            * fck_ratio**0.2
+            * (d / max(Lv, d)) ** 0.35
+            * math.exp(25.0 * alpha_conf)
+            * 1.25 ** (100.0 * rho_d)
+        )
     )
     theta_u = max(theta_u, 0.002)  # minimo fisico
 
@@ -562,7 +565,8 @@ def verifica_elemento_ca(
     rho_flessione = M_rd / M_ed if M_ed > 0 else float("inf")
     passaggi.append(
         f"ρ_flessione = MRd/MEd = {M_rd:.0f}/{M_ed:.0f} = {rho_flessione:.3f}"
-        if M_ed > 0 else "ρ_flessione = +∞ (MEd = 0)"
+        if M_ed > 0
+        else "ρ_flessione = +∞ (MEd = 0)"
     )
 
     # ── Capacità taglio ──
@@ -571,7 +575,8 @@ def verifica_elemento_ca(
     rho_taglio = V_rd / V_ed if V_ed > 0 else float("inf")
     passaggi.append(
         f"ρ_taglio = VRd/VEd = {V_rd:.0f}/{V_ed:.0f} = {rho_taglio:.3f}"
-        if V_ed > 0 else "ρ_taglio = +∞ (VEd = 0)"
+        if V_ed > 0
+        else "ρ_taglio = +∞ (VEd = 0)"
     )
 
     # ── Pressoflessione (solo con N significativo) ──
@@ -582,7 +587,8 @@ def verifica_elemento_ca(
         rho_pf = M_rd_pf / M_ed if M_ed > 0 else float("inf")
         passaggi.append(
             f"ρ_pressoflessione = MRd_pf/MEd = {M_rd_pf:.0f}/{M_ed:.0f} = {rho_pf:.3f}"
-            if M_ed > 0 else "ρ_pressoflessione = +∞ (MEd = 0)"
+            if M_ed > 0
+            else "ρ_pressoflessione = +∞ (MEd = 0)"
         )
 
     # ── Duttilità ──
@@ -593,8 +599,9 @@ def verifica_elemento_ca(
     )
 
     # ── Indici sintetici ──
-    rhos_validi = [v for v in [rho_flessione, rho_taglio, rho_pf]
-                   if v is not None and v != float("inf")]
+    rhos_validi = [
+        v for v in [rho_flessione, rho_taglio, rho_pf] if v is not None and v != float("inf")
+    ]
     rho_min = min(rhos_validi) if rhos_validi else 0.0
     rho_medio = sum(rhos_validi) / len(rhos_validi) if rhos_validi else 0.0
 
@@ -606,9 +613,7 @@ def verifica_elemento_ca(
         tipo=elem.tipo,
         rho_flessione=rho_flessione if rho_flessione != float("inf") else 9.99,
         rho_taglio=rho_taglio if rho_taglio != float("inf") else 9.99,
-        rho_pressoflessione=(
-            rho_pf if (rho_pf is not None and rho_pf != float("inf")) else rho_pf
-        ),
+        rho_pressoflessione=(rho_pf if (rho_pf is not None and rho_pf != float("inf")) else rho_pf),
         theta_u=theta_u,
         theta_y=theta_y,
         mu_theta=mu_theta,
@@ -636,11 +641,13 @@ def verifica_elemento_ca(
 #  Analisi edificio — indice globale vulnerabilità c.a.
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class IndiceVulnerabilitaCA:
     """Indice globale di vulnerabilità dell'edificio in c.a."""
-    rho_globale: float           # media pesata elementi
-    rho_min_globale: float       # peggiore elemento
+
+    rho_globale: float  # media pesata elementi
+    rho_min_globale: float  # peggiore elemento
 
     n_verificati: int = 0
     n_critici: int = 0

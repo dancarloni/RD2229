@@ -16,14 +16,14 @@ Unità di output: stesse dell'input (kg, cm, kg/cm²).
 
 from __future__ import annotations
 
-from datetime import datetime
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
+from src.esistenti.interventi import ScenarioIntervento, VoceRanking
+from src.esistenti.modello_globale_mur import RisultatoLV3
 from src.esistenti.vulnerabilita_ca import IndiceVulnerabilitaCA, RisultatoElementoCA
 from src.esistenti.vulnerabilita_mur import IndiceVulnerabilitaMur, RisultatoParete
-from src.esistenti.modello_globale_mur import RisultatoLV3
-from src.esistenti.interventi import ScenarioIntervento, VoceRanking
 
 _MODULO_LOG = "esistenti.report_esistenti"
 _SEP = "─" * 80
@@ -35,9 +35,11 @@ _VERSIONE_REPORT = "1.0.0"
 #  Input report
 # ═══════════════════════════════════════════════════════════
 
+
 @dataclass
 class DatiEdificio:
     """Dati descrittivi dell'edificio per la copertina del report."""
+
     nome: str = ""
     indirizzo: str = ""
     anno_costruzione: str = ""
@@ -53,7 +55,8 @@ class DatiEdificio:
 @dataclass
 class DatiLC:
     """Dati livello di conoscenza e FC per il report."""
-    livello: str = "LC1"       # "LC1" | "LC2" | "LC3"
+
+    livello: str = "LC1"  # "LC1" | "LC2" | "LC3"
     fc: float = 1.35
     tipo_rilievo: str = ""
     percentuale_elem_indagati: float | None = None
@@ -65,11 +68,12 @@ class DatiLC:
 @dataclass
 class DatiSismici:
     """Parametri sismici usati nell'analisi."""
-    ag: float = 0.0      # a_g/g [adim.]
-    S: float = 1.0       # coefficiente stratigrafico
-    T1: float = 0.0      # periodo fondamentale [s]
-    q: float = 2.0       # fattore di struttura
-    FC: float = 1.35     # fattore di confidenza
+
+    ag: float = 0.0  # a_g/g [adim.]
+    S: float = 1.0  # coefficiente stratigrafico
+    T1: float = 0.0  # periodo fondamentale [s]
+    q: float = 2.0  # fattore di struttura
+    FC: float = 1.35  # fattore di confidenza
     cat_suolo: str = ""  # "A" | "B" | "C" | "D" | "E"
     zona_sismica: str = ""
     comune: str = ""
@@ -78,6 +82,7 @@ class DatiSismici:
 @dataclass
 class InputReport:
     """Aggregazione di tutti i dati per generare il report di vulnerabilità."""
+
     edificio: DatiEdificio = field(default_factory=DatiEdificio)
     lc: DatiLC = field(default_factory=DatiLC)
     sismici: DatiSismici = field(default_factory=DatiSismici)
@@ -112,6 +117,7 @@ class InputReport:
 #  Helper formattazione
 # ═══════════════════════════════════════════════════════════
 
+
 def _riga(*args: str, larghezze: list[int] | None = None) -> str:
     """Formatta una riga di tabella a larghezze fisse."""
     if larghezze is None:
@@ -120,15 +126,13 @@ def _riga(*args: str, larghezze: list[int] | None = None) -> str:
 
 
 def _intestazione_tabella(colonne: list[str], larghezze: list[int]) -> str:
-    return (
-        _riga(*colonne, larghezze=larghezze) + "\n"
-        + "-+-".join("-" * l for l in larghezze)
-    )
+    return _riga(*colonne, larghezze=larghezze) + "\n" + "-+-".join("-" * l for l in larghezze)
 
 
 # ═══════════════════════════════════════════════════════════
 #  Sezioni report
 # ═══════════════════════════════════════════════════════════
+
 
 def sezione_intestazione(inp: InputReport) -> str:
     """Copertina e dati generali — NTC2018 §8.4.1."""
@@ -178,9 +182,7 @@ def sezione_lc_fc(inp: InputReport) -> str:
     if lc.tipo_rilievo:
         lines.append(f"  Tipo rilievo           : {lc.tipo_rilievo}")
     if lc.percentuale_elem_indagati is not None:
-        lines.append(
-            f"  % elementi indagati    : {lc.percentuale_elem_indagati:.0f}%"
-        )
+        lines.append(f"  % elementi indagati    : {lc.percentuale_elem_indagati:.0f}%")
     if lc.note_indagine:
         lines.append(f"  Note indagini          : {lc.note_indagine}")
 
@@ -234,15 +236,17 @@ def sezione_verifiche_ca(inp: InputReport) -> str:
         ),
     ]
     for r in inp.risultati_ca:
-        lines.append(_riga(
-            r.id_elemento,
-            r.tipo.value,
-            getattr(r, "piano", "—"),
-            f"{r.rho_min:.3f}",
-            f"{r.rho_medio:.3f}",
-            r.classe.value,
-            larghezze=[20, 12, 8, 8, 8, 14],
-        ))
+        lines.append(
+            _riga(
+                r.id_elemento,
+                r.tipo.value,
+                getattr(r, "piano", "—"),
+                f"{r.rho_min:.3f}",
+                f"{r.rho_medio:.3f}",
+                r.classe.value,
+                larghezze=[20, 12, 8, 8, 8, 14],
+            )
+        )
 
     lines += [
         "",
@@ -259,8 +263,7 @@ def sezione_verifiche_ca(inp: InputReport) -> str:
 
     lines.append("")
     lines.append(
-        "  Riferimento: NTC2018 §8.7.1; formula ρ = C/D; "
-        "duttilità θ_u da Circ.7/2019 §C8.7.2.4"
+        "  Riferimento: NTC2018 §8.7.1; formula ρ = C/D; " "duttilità θ_u da Circ.7/2019 §C8.7.2.4"
     )
     lines.append("")
     return "\n".join(lines)
@@ -295,15 +298,17 @@ def sezione_verifiche_mur(inp: InputReport) -> str:
         ),
     ]
     for r in inp.risultati_mur:
-        lines.append(_riga(
-            r.id_parete,
-            "—",
-            f"{r.alpha_min:.3f}",
-            f"{r.alpha_medio:.3f}",
-            r.meccanismo_critico[:22] if r.meccanismo_critico else "—",
-            r.classe.value,
-            larghezze=[20, 8, 8, 8, 22, 14],
-        ))
+        lines.append(
+            _riga(
+                r.id_parete,
+                "—",
+                f"{r.alpha_min:.3f}",
+                f"{r.alpha_medio:.3f}",
+                r.meccanismo_critico[:22] if r.meccanismo_critico else "—",
+                r.classe.value,
+                larghezze=[20, 8, 8, 8, 22, 14],
+            )
+        )
 
     lines += [
         "",
@@ -370,14 +375,16 @@ def sezione_confronto_multinorma(inp: InputReport) -> str:
         ),
     ]
     for nome, valori in cf.items():
-        lines.append(_riga(
-            nome,
-            str(valori.get("NTC2018", "—")),
-            str(valori.get("OPCM3274", "—")),
-            str(valori.get("EC8", "—")),
-            str(valori.get("norma_gov", "NTC2018")),
-            larghezze=[22, 12, 12, 12, 12],
-        ))
+        lines.append(
+            _riga(
+                nome,
+                str(valori.get("NTC2018", "—")),
+                str(valori.get("OPCM3274", "—")),
+                str(valori.get("EC8", "—")),
+                str(valori.get("norma_gov", "NTC2018")),
+                larghezze=[22, 12, 12, 12, 12],
+            )
+        )
     lines.append("")
     return "\n".join(lines)
 
@@ -396,15 +403,17 @@ def sezione_interventi(inp: InputReport) -> str:
             ),
         ]
         for i, voce in enumerate(inp.ranking_interventi[:8], 1):
-            lines.append(_riga(
-                str(i),
-                voce.nome[:30],
-                f"{voce.scenario.delta_rho_perc:+.1f}%",
-                f"{voce.scenario.delta_alpha_perc:+.1f}%",
-                f"€ {voce.scenario.costo_totale_eur:.0f}",
-                f"{voce.score:.2f}",
-                larghezze=[3, 30, 7, 7, 12, 8],
-            ))
+            lines.append(
+                _riga(
+                    str(i),
+                    voce.nome[:30],
+                    f"{voce.scenario.delta_rho_perc:+.1f}%",
+                    f"{voce.scenario.delta_alpha_perc:+.1f}%",
+                    f"€ {voce.scenario.costo_totale_eur:.0f}",
+                    f"{voce.score:.2f}",
+                    larghezze=[3, 30, 7, 7, 12, 8],
+                )
+            )
         lines.append("")
 
     if inp.scenario_proposto is not None:
@@ -449,14 +458,16 @@ def sezione_audit_override(inp: InputReport) -> str:
         ),
     ]
     for ov in inp.audit_override:
-        lines.append(_riga(
-            str(ov.get("timestamp", ""))[:18],
-            str(ov.get("campo", ""))[:15],
-            str(ov.get("valore_norma", ""))[:13],
-            str(ov.get("valore_override", ""))[:13],
-            str(ov.get("motivo", ""))[:25],
-            larghezze=[18, 15, 13, 13, 25],
-        ))
+        lines.append(
+            _riga(
+                str(ov.get("timestamp", ""))[:18],
+                str(ov.get("campo", ""))[:15],
+                str(ov.get("valore_norma", ""))[:13],
+                str(ov.get("valore_override", ""))[:13],
+                str(ov.get("motivo", ""))[:25],
+                larghezze=[18, 15, 13, 13, 25],
+            )
+        )
     lines.append("")
     return "\n".join(lines)
 
@@ -485,8 +496,7 @@ def sezione_conclusioni(inp: InputReport) -> str:
         ]
         lines.append(
             "  Il miglioramento proposto "
-            + ("SUPERA" if sc.rho_post >= 1.0 and sc.alpha_post >= 1.0
-               else "NON raggiunge")
+            + ("SUPERA" if sc.rho_post >= 1.0 and sc.alpha_post >= 1.0 else "NON raggiunge")
             + " il livello di adeguamento (C/D ≥ 1.0)."
         )
 
@@ -503,6 +513,7 @@ def sezione_conclusioni(inp: InputReport) -> str:
 # ═══════════════════════════════════════════════════════════
 #  Generazione report completo
 # ═══════════════════════════════════════════════════════════
+
 
 def genera_report_vulnerabilita(inp: InputReport) -> str:
     """Genera il report completo di vulnerabilità sismica in formato testo.
@@ -540,22 +551,15 @@ def genera_report_html(inp: InputReport) -> str:
     per preservare l'allineamento.
     """
     testo = genera_report_vulnerabilita(inp)
-    testo_escaped = (
-        testo
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-    )
+    testo_escaped = testo.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     return (
         "<!DOCTYPE html>\n"
-        "<html lang=\"it\">\n"
-        "<head><meta charset=\"UTF-8\">"
+        '<html lang="it">\n'
+        '<head><meta charset="UTF-8">'
         "<title>Report Vulnerabilità Sismica</title>\n"
         "<style>"
         "body{font-family:monospace;white-space:pre;margin:2em;background:#fff;color:#111;}"
         "h1{font-size:1.0em;}"
         "</style></head>\n"
-        "<body>\n"
-        + testo_escaped
-        + "\n</body></html>"
+        "<body>\n" + testo_escaped + "\n</body></html>"
     )

@@ -1,5 +1,16 @@
 """Moduli per valutazione di vulnerabilita di edifici esistenti (Fase R)."""
 
+from src.esistenti.interventi import (
+    CATALOGO_BASE,
+    Intervento,
+    ObiettivoRanking,
+    ScenarioIntervento,
+    TipoIntervento,
+    VoceRanking,
+    applica_interventi,
+    get_intervento_by_id,
+    ranking_interventi,
+)
 from src.esistenti.livelli_conoscenza import (
     LivelloConoscenza,
     MaterialeConFC,
@@ -7,62 +18,51 @@ from src.esistenti.livelli_conoscenza import (
     applica_fc_a_resistenza,
     risolvi_fc,
 )
-from src.esistenti.vulnerabilita_ca import (
-    TipoElemento,
-    ClasseVulnerabilita,
-    SoglieRho,
-    ConfigVulnerabilitaCA,
-    ElementoCA,
-    RisultatoElementoCA,
-    IndiceVulnerabilitaCA,
-    verifica_elemento_ca,
-    analisi_vulnerabilita_ca,
-)
-from src.esistenti.vulnerabilita_mur import (
-    FormuleLV1,
-    DegradoPreset,
-    ClasseVulnerabilitaMur,
-    ConfigVulnerabilitaMur,
-    PareteVulnerabile,
-    RisultatoParete,
-    IndiceVulnerabilitaMur,
-    lv1_ntc2018,
-    lv1_opcm3274,
-    lv1_letteratura,
-    scorrimento_parete,
-    analisi_lv2_parete,
-    analisi_vulnerabilita_mur,
-)
 from src.esistenti.modello_globale_mur import (
-    TipoModelloGlobale,
-    TipoDomandaSismica,
     MaschioPaino,
     PianoEdificio,
-    VerificaMaschio,
     RisultatoLV3,
+    TipoDomandaSismica,
+    TipoModelloGlobale,
+    VerificaMaschio,
+    analisi_lv3,
+    analisi_lv3_telaio_equivalente,
     calcola_forze_laterali_equivalenti,
     distribuisci_taglio_piano,
-    analisi_lv3_telaio_equivalente,
-    analisi_lv3,
-)
-from src.esistenti.interventi import (
-    TipoIntervento,
-    ObiettivoRanking,
-    Intervento,
-    ScenarioIntervento,
-    VoceRanking,
-    CATALOGO_BASE,
-    get_intervento_by_id,
-    applica_interventi,
-    ranking_interventi,
 )
 from src.esistenti.report_esistenti import (
     DatiEdificio,
     DatiLC,
     DatiSismici,
     InputReport,
-    genera_report_vulnerabilita,
     genera_report_html,
+    genera_report_vulnerabilita,
+)
+from src.esistenti.vulnerabilita_ca import (
+    ClasseVulnerabilita,
+    ConfigVulnerabilitaCA,
+    ElementoCA,
+    IndiceVulnerabilitaCA,
+    RisultatoElementoCA,
+    SoglieRho,
+    TipoElemento,
+    analisi_vulnerabilita_ca,
+    verifica_elemento_ca,
+)
+from src.esistenti.vulnerabilita_mur import (
+    ClasseVulnerabilitaMur,
+    ConfigVulnerabilitaMur,
+    DegradoPreset,
+    FormuleLV1,
+    IndiceVulnerabilitaMur,
+    PareteVulnerabile,
+    RisultatoParete,
+    analisi_lv2_parete,
+    analisi_vulnerabilita_mur,
+    lv1_letteratura,
+    lv1_ntc2018,
+    lv1_opcm3274,
+    scorrimento_parete,
 )
 
 __all__ = [

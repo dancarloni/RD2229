@@ -7,19 +7,19 @@ CATALOGO_BASE è list[Intervento] — iterare direttamente (non come dict).
 import pytest
 
 from src.esistenti.interventi import (
-    TipoIntervento,
-    ObiettivoRanking,
-    Intervento,
-    ScenarioIntervento,
-    VoceRanking,
     CATALOGO_BASE,
-    get_intervento_by_id,
+    Intervento,
+    ObiettivoRanking,
+    ScenarioIntervento,
+    TipoIntervento,
+    VoceRanking,
     applica_interventi,
+    get_intervento_by_id,
     ranking_interventi,
 )
 
-
 # ─── Test CATALOGO_BASE ───────────────────────────────────────────────────────
+
 
 class TestCatalogo:
     def test_catalogo_non_vuoto(self):
@@ -28,10 +28,17 @@ class TestCatalogo:
     def test_almeno_un_ca_e_mur(self):
         """Catalogo contiene sia interventi c.a. che muratura."""
         tipi = {iv.tipo for iv in CATALOGO_BASE}
-        ca_tipi = {TipoIntervento.INCAMICIATURA, TipoIntervento.FRP,
-                   TipoIntervento.PARETE_TAGLIO, TipoIntervento.DISSIPATORE}
-        mur_tipi = {TipoIntervento.RINGBEAM_MUR, TipoIntervento.INIEZIONI_MUR,
-                    TipoIntervento.INTONACO_ARMATO}
+        ca_tipi = {
+            TipoIntervento.INCAMICIATURA,
+            TipoIntervento.FRP,
+            TipoIntervento.PARETE_TAGLIO,
+            TipoIntervento.DISSIPATORE,
+        }
+        mur_tipi = {
+            TipoIntervento.RINGBEAM_MUR,
+            TipoIntervento.INIEZIONI_MUR,
+            TipoIntervento.INTONACO_ARMATO,
+        }
         assert tipi & ca_tipi or tipi & mur_tipi  # almeno una delle due
 
     def test_tutti_hanno_id_e_nome(self):
@@ -47,15 +54,12 @@ class TestCatalogo:
     def test_costo_definito(self):
         """Ogni intervento ha almeno un modo per calcolare il costo."""
         for iv in CATALOGO_BASE:
-            ha_costo = (
-                iv.costo_eur_m2 > 0
-                or iv.costo_fisso_eur > 0
-                or iv.coeff_volume > 0
-            )
+            ha_costo = iv.costo_eur_m2 > 0 or iv.costo_fisso_eur > 0 or iv.coeff_volume > 0
             assert ha_costo, f"{iv.id}: nessun costo definito"
 
 
 # ─── Test get_intervento_by_id ────────────────────────────────────────────────
+
 
 class TestGetInterventoById:
     def test_restituisce_intervento_noto(self):
@@ -69,6 +73,7 @@ class TestGetInterventoById:
 
 
 # ─── Test applica_interventi ─────────────────────────────────────────────────
+
 
 class TestApplicaInterventi:
     def test_scenario_restituito(self):
@@ -103,7 +108,7 @@ class TestApplicaInterventi:
 
     def test_cap_individuale_non_superato(self):
         """rho_post non supera il cap_rho del singolo intervento."""
-        iv = CATALOGO_BASE[0]   # CA_INCAM_PIL, cap_rho=2.5
+        iv = CATALOGO_BASE[0]  # CA_INCAM_PIL, cap_rho=2.5
         sc = applica_interventi([iv], rho_pre=0.5, alpha_pre=0.5)
         assert sc.rho_post <= iv.cap_rho + 1e-9
 
@@ -122,24 +127,31 @@ class TestApplicaInterventi:
 
 # ─── Test ranking_interventi ─────────────────────────────────────────────────
 
+
 class TestRankingInterventi:
     def test_lista_non_vuota(self):
         voci = ranking_interventi(
-            CATALOGO_BASE, rho_pre=0.5, alpha_pre=0.6,
+            CATALOGO_BASE,
+            rho_pre=0.5,
+            alpha_pre=0.6,
             obiettivo=ObiettivoRanking.MIGLIORAMENTO_MASSIMO,
         )
         assert len(voci) > 0
 
     def test_voci_sono_voce_ranking(self):
         voci = ranking_interventi(
-            CATALOGO_BASE, rho_pre=0.5, alpha_pre=0.6,
+            CATALOGO_BASE,
+            rho_pre=0.5,
+            alpha_pre=0.6,
         )
         for v in voci:
             assert isinstance(v, VoceRanking)
 
     def test_ordinato_per_score_decrescente(self):
         voci = ranking_interventi(
-            CATALOGO_BASE, rho_pre=0.5, alpha_pre=0.6,
+            CATALOGO_BASE,
+            rho_pre=0.5,
+            alpha_pre=0.6,
         )
         scores = [v.score for v in voci]
         assert scores == sorted(scores, reverse=True)
@@ -147,7 +159,9 @@ class TestRankingInterventi:
     def test_obiettivo_costo_minimo(self):
         """Obiettivo COSTO_MINIMO → score negativo (= -costo)."""
         voci = ranking_interventi(
-            CATALOGO_BASE, rho_pre=0.5, alpha_pre=0.6,
+            CATALOGO_BASE,
+            rho_pre=0.5,
+            alpha_pre=0.6,
             obiettivo=ObiettivoRanking.COSTO_MINIMO,
             area_m2=100.0,
         )
