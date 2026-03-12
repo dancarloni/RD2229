@@ -25,6 +25,7 @@ __all__ = [
     "actions",
     "report",
     "geotecnica",
+    "esistenti",
     "config",
     "tools",
     "tests",
