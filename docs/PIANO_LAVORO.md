@@ -71,7 +71,7 @@ Ultimo sync: 2026-03-12 — commit e push eseguiti su `main`
 | S8   | ✅    | 100 | 2ab5c7c       | [piano_fase_S8.md](piano_fase_S8.md) | Scaffalature — DOCUMENTAZIONE ARRICCHITA ✅ |
 | S9   | ✅    | 100 | 2ab5c7c       | [piano_fase_S9.md](piano_fase_S9.md) | Insegne — DOCUMENTAZIONE ARRICCHITA ✅ |
 | T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) | Da definire |
-| U    | ⬜    | 0   | —             | [piano_fase_U.md](piano_fase_U.md) | Da definire |
+| U    | 🟡    | 90  | 90b490d       | [piano_fase_U.md](piano_fase_U.md) | PIANIFICAZIONE COMPLETATA — Pronto per EXECUTE (6 moduli + ~100 test) |
 | V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) | Da definire |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) | Da definire |
 | X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) | Da definire |
