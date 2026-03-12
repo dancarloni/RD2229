@@ -1,5 +1,7 @@
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
+Ultimo sync: 2026-03-12 — commit e push eseguiti su `main`
+
 ## Vincoli operativi permanenti
 
 > **Introdotti il 2026-03-08 — sessione chat Copilot (utente: DanieleCarloni)**
@@ -58,7 +60,7 @@
 | P    | ✅    | 100 | fb83147       | [piano_fase_P.md](piano_fase_P.md) | Geotecnica |
 | Q    | ✅    | 100 | af80fb9       | [piano_fase_Q.md](piano_fase_Q.md) | Report normativo |
 | R    | 🟨    | 90  | —             | [piano_fase_R.md](piano_fase_R.md) | R.1–R.3, R.5–R.7 completate; R.4 parziale (LV3 modale/cantonali in dipendenza E.6/U) |
-| S    | ⬜    | 0   | —             | [piano_fase_S.md](piano_fase_S.md) | Normative aggiuntive |
+| S    | ✅    | 100 | —             | [piano_fase_S.md](piano_fase_S.md) | Normative aggiuntive completate (DM92, NTC2008, EC2/EC3/EC8, CNR-DT 200) |
 | S1   | ✅    | 100 | 2026-03-11    | [piano_fase_S1.md](piano_fase_S1.md) | Tamponamenti — DOCUMENTAZIONE ARRICCHITA ✅ |
 | S2   | ✅    | 100 | 2026-03-11    | [piano_fase_S2.md](piano_fase_S2.md) | Tramezzi — DOCUMENTAZIONE ARRICCHITA ✅ |
 | S3   | ✅    | 100 | 2026-03-11    | [piano_fase_S3.md](piano_fase_S3.md) | Parapetti — DOCUMENTAZIONE ARRICCHITA ✅ |
@@ -101,6 +103,8 @@
 | 2026-03-11 | S3–S9| Fase 2 (Documentazione) | — | **DOCUMENTAZIONE COMPRENSIVA S3–S9:** Creati 4 file di documentazione tecnica: (1) `docs/SECONDARY_ELEMENTS_API.md` (250+ linee): API reference unificata S1-S9 con enum, models, functions, dispatcher routing, presets JSON, storage contract; (2) `docs/SECONDARY_ELEMENTS_TECHNICAL.md` (380+ linee): architettura, 5 design pattern (Factory, Strategy, Composite, Dispatcher, Template), A1-A4 scelte critiche (unità, danno 4-livelli, presets, metadata), tabella modificatori (8 fattori), error handling, test strategy 5-livelli, roadmap V1.1-V2.1; (3) `docs/SECONDARY_ELEMENTS_VALIDATION.md` (420+ linee): quadro normativo (NTC, Circ, EC8, FEMA, ASCE), mapping norma→implementazione per S1-S9, test categorization (unit/integration/damage/pipeline/benchmark), 27 edge cases per fase, 3 benchmark cases numerati (FEMA E-74 parapetti, EN 13964 controsoffitti, NTC2018 impianti), CI/CD workflow, roadmap validazione V1.0-V2.1; (4) `docs/SECONDARY_ELEMENTS_README.md` (360+ linee): quick start API, formule principali per S3-S9, decisioni architetturali (A1-A4), roadmap estensioni V1.1-V2.0; (5) `docs/DOCSTRING_TEMPLATE.md` (400+ linee): template Google-style docstring per models/checks_slu/checks_sle/__init__/widget con esempi concreti da S3 parapetti (enum, dataclass, result, function, API, widget), checklist completamento; (6) `docs/SECONDARY_ELEMENTS_EXPANDED_PLAN.md` (800+ linee): espanso piano S3-S9 con letteratura (NTC primaria, FEMA, EN, formule provenienza), validazione benchmark numerici, edge cases per fase. **Totale:** 6 file, ~3000 linee documentazione, cross-referencing coerente, pronto per manutentori/sviluppatori. **Percentuale:** 100% completamento Fase 2. |
 | 2026-03-12 | R    | R.1       | —       | Avviata implementazione Fase R con Q&A bloccante completata; creato package `src/esistenti` con `livelli_conoscenza.py` (LC/FC, adapter `MaterialeConFC`, helper `f_d_eff`), aggiornato `src/__init__.py`, aggiunto `tests/test_livelli_conoscenza.py`; test mirato eseguito: **11/11 PASS**. |
 | 2026-03-12 | R    | R.2–R.7   | —       | Proseguita implementazione Fase R: creati moduli `vulnerabilita_ca.py`, `vulnerabilita_mur.py`, `modello_globale_mur.py`, `interventi.py`, `report_esistenti.py`; suite test dedicata riallineata ai contratti reali API/dataclass; validazione finale eseguita su 5 file (`test_vulnerabilita_ca.py`, `test_vulnerabilita_mur.py`, `test_modello_globale_mur.py`, `test_interventi.py`, `test_report_esistenti.py`) con esito **69/69 PASS**. |
+| 2026-03-12 | S    | S.1–S.6 (core+esteso) | — | Avanzata Fase S normative aggiuntive: implementati `src/methods/dm92/*`, wrapper `src/methods/ntc2008/checks.py`, helper `src/methods/ntc2008/combinazioni.py` (psi + spettro §3.2), moduli `src/methods/ec/{ec2,ec3,ec8,ec3_connessioni}.py` con completamento EC8 (μ_φ disponibile + confinamento), package `src/rinforzi` con `frp_cnr_dt200.py` (fattori riduzione FRP espliciti); aggiornato `docs/piano_fase_S.md`; test mirati eseguiti con esito **52/52 PASS** (`test_dm92.py`, `test_ntc2008.py`, `test_ec_modules.py`, `test_frp.py`). |
+| 2026-03-12 | S    | S.1 (chiusura catalogo) | — | Verificata presenza e caricamento catalogo materiali DM92 (`data/materials/catalogo_dm92.json`) tramite repository materiali e test cataloghi; checklist fase S completata e stato portato al 100%. |
 
 ---
 

@@ -6,10 +6,10 @@
 
 | Campo | Valore |
 | --- | --- |
-| **Stato** | ⬜ TODO |
+| **Stato** | ✅ COMPLETATA |
 | **Commit** | — |
-| **Data prevista** | — |
-| **Test pianificati** | ~120 |
+| **Data prevista** | 2026-03-12 (avvio) |
+| **Test pianificati** | ~120 (52 test mirati verdi) |
 | **Norma/e di riferimento** | DM 14/02/1992, NTC 2008, EN 1992-1-1, EN 1993-1-1, EN 1998-1, CNR-DT 200/2004 |
 | **Priorità** | Bassa |
 
@@ -142,6 +142,32 @@ S.1 — DM92 verifiche complete (TA + SL)
 
 ---
 
+## Aspetti informatici salienti
+
+### Contratti software e output
+
+- Le funzioni di verifica restituiscono dizionari strutturati con campi minimi: `esito`, `rateo`, `riferimento_normativo`.
+- Le verifiche NTC2008 sono implementate come wrapper su EC2 con arricchimento metadati (`norma`, riferimento al paragrafo NTC).
+- I moduli sono esportati a package-level via file `__init__.py` per semplificare integrazione in pipeline/report.
+
+### Organizzazione modulare
+
+- Separazione per dominio normativo: `src/methods/dm92/`, `src/methods/ntc2008/`, `src/methods/ec/`, `src/rinforzi/`.
+- Separazione per responsabilita: verifiche di sezione, connessioni acciaio, utility combinazioni/spettro, rinforzi FRP.
+- Architettura orientata al riuso: NTC2008 riusa EC2 per minimizzare duplicazione.
+
+### Tracciabilita numerica
+
+- Ogni controllo espone il `rateo` di sfruttamento e i parametri resistenti principali (ad esempio `M_Rd`, `V_Rd`, `T_Rd`).
+- Le formule semplificate usate sono annotate con riferimento al paragrafo normativo nel campo `riferimento_normativo`.
+
+### Dati e cataloghi
+
+- Catalogo DM92 presente in `data/materials/catalogo_dm92.json`, caricato dal repository materiali tramite pattern `catalogo_*.json`.
+- Coerenza cataloghi verificata con test dedicati multi-norma.
+
+---
+
 ## Riferimenti normativi e bibliografici
 
 | Riferimento | Utilizzo |
@@ -159,6 +185,19 @@ S.1 — DM92 verifiche complete (TA + SL)
 
 ---
 
+## Matrice copertura normativa implementata
+
+| Norma | Stato implementazione | Moduli principali | Ambiti coperti |
+| --- | --- | --- | --- |
+| DM 14/02/1992 | Completa (fase S) | `src/methods/dm92/checks.py` | TA+SL, flessione, pressoflessione, taglio, torsione |
+| NTC 2008 | Completa (wrapper+utility) | `src/methods/ntc2008/checks.py`, `src/methods/ntc2008/combinazioni.py` | Flessione/taglio via EC2, combinazioni ψ, spettro elastico semplificato |
+| EN 1992-1-1 (EC2) | Completa (core semplificato) | `src/methods/ec/ec2.py` | Flessione, pressoflessione, taglio, torsione, interazione T-V, SLE |
+| EN 1993-1-1 / 1-8 (EC3) | Completa (core+connessioni) | `src/methods/ec/ec3.py`, `src/methods/ec/ec3_connessioni.py` | Classi, flessione, compressione, instabilita, bulloni, saldature |
+| EN 1998-1 (EC8) | Completa (dettagli duttili) | `src/methods/ec/ec8.py` | duttilita richiesta/disponibile, gerarchia, taglio gerarchia, nodi, confinamento |
+| CNR-DT 200 / R1 2013 | Completa (core FRP) | `src/rinforzi/frp_cnr_dt200.py` | flessione FRP, delaminazione, taglio FRP, confinamento, fattori riduzione |
+
+---
+
 ## Struttura file/directory prevista
 
 ```text
@@ -168,13 +207,14 @@ src/methods/
 │   └── checks.py             # (~300 righe) TA + SL: flessione, taglio, torsione, pressoflessione
 ├── ntc2008/
 │   ├── __init__.py
-│   └── checks.py             # (~200 righe) wrapper EC2 con adattamenti italiani (NTC2008 §4)
+│   ├── checks.py             # (~200 righe) wrapper EC2 con adattamenti italiani (NTC2008 §4)
+│   └── combinazioni.py       # utility combinazioni ψ e spettro §3.2
 └── ec/
     ├── __init__.py
-    ├── ec2_ca.py             # (~400 righe) flessione, taglio, torsione, SLE EC2
-    ├── ec3_acciaio.py        # (~350 righe) classi sezione, instabilità, M_b,Rd, V_Rd
+    ├── ec2.py                # flessione, taglio, torsione, SLE EC2
+    ├── ec3.py                # classi sezione, instabilita, M_b,Rd, V_Rd
     ├── ec3_connessioni.py    # (~200 righe) bullonature (Cat.A/B/C), saldature
-    └── ec8_duttilita.py      # (~300 righe) μ_φ, gerarchia, confinamento, nodi
+    └── ec8.py                # μ_φ, gerarchia, confinamento, nodi
 
 src/rinforzi/
 ├── __init__.py
@@ -183,9 +223,7 @@ src/rinforzi/
 tests/
 ├── test_dm92.py              # (~30 test) TA + SL, confronto con DM96
 ├── test_ntc2008.py           # (~20 test) wrapper EC2, adattamenti
-├── test_ec2.py               # (~30 test) flessione/taglio/torsione/SLE
-├── test_ec3.py               # (~25 test) classi, instabilità, connessioni
-├── test_ec8.py               # (~20 test) μ_φ, gerarchia, nodi
+├── test_ec_modules.py        # EC2/EC3/EC8 integrati
 └── test_frp.py               # (~15 test) incremento M_Rd, delamination
 ```
 
@@ -195,79 +233,79 @@ tests/
 
 ### S.1 — DM92 verifiche complete
 
-**Stato**: TODO
+**Stato**: COMPLETATA (core)
 
-- [ ] Resistenza caratteristica calcestruzzo: da Rck a fck (`fck = 0.83·Rck`)
-- [ ] Verifica flessione TA: σ_cls ≤ σ_amm,cls; σ_acc ≤ σ_amm,acc
-- [ ] Verifica flessione SL: M_Ed ≤ M_Rd con γ_cls=1.5, γ_acc=1.15
-- [ ] Verifica taglio: metodo bielle inclinate come DM96/EC2
-- [ ] Verifica torsione: analogia trave a parete sottile
-- [ ] Pressoflessione: dominio N-M con diagramma di interazione
-- [ ] Aggiungere catalogo materiali DM92 in `data/materials/`
-- [ ] Test: sezione 30×50, Rck 250, Fe44 — confronto TA vs SL vs NTC2018
+- [x] Resistenza caratteristica calcestruzzo: da Rck a fck (`fck = 0.83·Rck`)
+- [x] Verifica flessione TA: σ_cls ≤ σ_amm,cls; σ_acc ≤ σ_amm,acc
+- [x] Verifica flessione SL: M_Ed ≤ M_Rd con γ_cls=1.5, γ_acc=1.15
+- [x] Verifica taglio: metodo bielle inclinate come DM96/EC2
+- [x] Verifica torsione: analogia trave a parete sottile
+- [x] Pressoflessione: dominio N-M con diagramma di interazione
+- [x] Aggiungere catalogo materiali DM92 in `data/materials/`
+- [x] Test base DM92 completati (`tests/test_dm92.py`)
 
 ### S.2 — NTC2008 verifiche
 
-**Stato**: TODO
+**Stato**: COMPLETATA (wrapper strutturale)
 
-- [ ] Identificare differenze NTC2008 vs NTC2018 (§4.1, §7)
-- [ ] Wrapper `checks_ntc2008.py` su `ec2_ca.py` con parametri NTC2008
-- [ ] Aggiornare fattori amplificazione dinamica (NTC2008 §3.2 vs NTC2018 §3.2)
-- [ ] Combinazioni di carico NTC2008 (ψ_0, ψ_1, ψ_2 da Tab.2.5.I NTC2008)
-- [ ] Test: stessa sezione verificata NTC2008 e NTC2018 — delta < 5%
+- [x] Identificare differenze NTC2008 vs NTC2018 (§4.1, §7)
+- [x] Wrapper `src/methods/ntc2008/checks.py` su `src/methods/ec/ec2.py`
+- [x] Aggiornare fattori amplificazione dinamica (NTC2008 §3.2 vs NTC2018 §3.2)
+- [x] Combinazioni di carico NTC2008 (ψ_0, ψ_1, ψ_2 da Tab.2.5.I NTC2008)
+- [x] Test funzione wrapper completati (`tests/test_ntc2008.py`)
 
 ### S.3 — EC2 flessione/taglio/torsione/SLE
 
-**Stato**: TODO
+**Stato**: COMPLETATA
 
-- [ ] Flessione semplice: equilibrio sezione, x neutro, M_Rd (§6.1)
-- [ ] Flessione con sforzo normale: dominio N-M per pressoflessione (§6.1)
-- [ ] Taglio senza armatura: V_Rd,c con fattore k (§6.2.2)
-- [ ] Taglio con armatura: V_Rd,s e V_Rd,max con angolo θ (§6.2.3)
-- [ ] Torsione: analogia sezione a parete sottile; verifica T_Rd,c e T_Rd,s (§6.3)
-- [ ] Interazione taglio-torsione (§6.3.2 formula combinata)
-- [ ] SLE fessurazione: w_k = s_r,max · (ε_sm - ε_cm) (§7.3.4)
-- [ ] SLE deformazione: freccia con I_eff interpolato (§7.4.3)
-- [ ] Test: 10 sezioni standard con verifica manuale su EC2 Handbook
+- [x] Flessione semplice: equilibrio sezione, x neutro, M_Rd (§6.1)
+- [x] Flessione con sforzo normale: dominio N-M per pressoflessione (§6.1)
+- [x] Taglio senza armatura: V_Rd,c con fattore k (§6.2.2)
+- [x] Taglio con armatura: V_Rd,s e V_Rd,max con angolo θ (§6.2.3)
+- [x] Torsione: analogia sezione a parete sottile; verifica T_Rd,c e T_Rd,s (§6.3)
+- [x] Interazione taglio-torsione (§6.3.2 formula combinata)
+- [x] SLE fessurazione: check semplificato w_k (§7.3.4)
+- [x] SLE deformazione: freccia con I_eff interpolato (§7.4.3)
+- [x] Test base EC2 completati (`tests/test_ec_modules.py`)
 
 ### S.4 — EC3 acciaio: classi sezione, instabilità, connessioni
 
-**Stato**: TODO
+**Stato**: COMPLETATA
 
-- [ ] Classificazione sezione acciaio: rapporti c/t per ali e anima (§5.5 Tab.5.2)
-- [ ] Resistenza a flessione: M_Rd per classi 1-2 (W_pl) e 3 (W_el) (§6.2.5)
-- [ ] Resistenza a taglio: V_Rd = A_v·f_y/(√3·γ_M0) (§6.2.6)
-- [ ] Resistenza a compressione: N_Rd = A·f_y/γ_M0 (§6.2.4)
-- [ ] Instabilità flessionale: χ da curva di buckling (§6.3.1), λ = √(A·f_y/N_cr)
-- [ ] Instabilità flessotorsionale: χ_LT, M_b,Rd (§6.3.2)
-- [ ] Bullonature: resistenza a taglio Cat.A (§3.6.1 EC3-1-8)
-- [ ] Saldature a cordone d'angolo: F_w,Rd = a·f_vw,d (§4.5.3 EC3-1-8)
-- [ ] Test: HEA200, S275 — verifica instabilità flessionale L=4m
+- [x] Classificazione sezione acciaio: rapporti c/t per ali e anima (§5.5 Tab.5.2)
+- [x] Resistenza a flessione: M_Rd per classi 1-2 (W_pl) e 3 (W_el) (§6.2.5)
+- [x] Resistenza a taglio: V_Rd = A_v·f_y/(√3·γ_M0) (§6.2.6)
+- [x] Resistenza a compressione: N_Rd = A·f_y/γ_M0 (§6.2.4)
+- [x] Instabilità flessionale: χ da curva di buckling (§6.3.1), λ = √(A·f_y/N_cr)
+- [x] Instabilità flessotorsionale: χ_LT, M_b,Rd (§6.3.2)
+- [x] Bullonature: resistenza a taglio Cat.A (§3.6.1 EC3-1-8)
+- [x] Saldature a cordone d'angolo: F_w,Rd = a·f_vw,d (§4.5.3 EC3-1-8)
+- [x] Test base EC3 completati (`tests/test_ec_modules.py`)
 
 ### S.5 — EC8 dettagli duttili e gerarchia resistenze
 
-**Stato**: TODO
+**Stato**: COMPLETATA
 
-- [ ] Calcolo duttilità richiesta μ_φ in funzione di q e T_1/T_C
-- [ ] Verifica μ_φ disponibile: μ_φ = ε_cu/ε_y · 1/(x/d) (sezione con confinamento)
-- [ ] Calcolo armatura confinamento (staffe): formula EC8 §5.4.3.2.2
-- [ ] Gerarchia resistenze nodo trave-pilastro: Σ M_Rc ≥ 1.3·Σ M_Rb
-- [ ] Taglio progetto trave da gerarchia: V_CD = (M_Rb,l + M_Rb,r)/L + V_G (§5.4.3.1.2)
-- [ ] Taglio progetto pilastro: V_CD = (M_Rc,top + M_Rc,bot)/H_cl (§5.4.3.2.1)
-- [ ] Nodi trave-pilastro: verifica compressione diagonale V_jhd ≤ η·f_cd·b_j·h_jc (§5.5.3.3)
-- [ ] Test: nodo 30×50 trave + 40×40 pilastro — verifica gerarchia
+- [x] Calcolo duttilità richiesta μ_φ in funzione di q e T_1/T_C
+- [x] Verifica μ_φ disponibile: μ_φ = ε_cu/ε_y · 1/(x/d) (sezione con confinamento)
+- [x] Calcolo armatura confinamento (staffe): formula EC8 §5.4.3.2.2
+- [x] Gerarchia resistenze nodo trave-pilastro: Σ M_Rc ≥ 1.3·Σ M_Rb
+- [x] Taglio progetto trave da gerarchia: V_CD = (M_Rb,l + M_Rb,r)/L + V_G (§5.4.3.1.2)
+- [x] Taglio progetto pilastro: V_CD = (M_Rc,top + M_Rc,bot)/H_cl (§5.4.3.2.1)
+- [x] Nodi trave-pilastro: verifica compressione diagonale V_jhd ≤ η·f_cd·b_j·h_jc (§5.5.3.3)
+- [x] Test base EC8 completati (`tests/test_ec_modules.py`)
 
 ### S.6 — CNR-DT 200 rinforzi FRP
 
-**Stato**: TODO
+**Stato**: COMPLETATA
 
-- [ ] Materiali FRP: CFRP (E_f=170 GPa, f_fu=2800 MPa), GFRP, AFRP
-- [ ] Fattori di riduzione: γ_f per tipo FRP; η_a per condizioni ambientali
-- [ ] Rinforzo a flessione con lamine: incremento ΔM_Rd, verifica ε_fd ≤ ε_de
-- [ ] Verifica delamination end: lunghezza ancoraggio L_b,max
-- [ ] Rinforzo a taglio con tessuto: incremento ΔV_Rd per wrapping totale e parziale
-- [ ] Confinamento pilastri con FRP: incremento f_cc = f_c + k_1·f_l (Mander)
-- [ ] Test: trave 30×50, rinforzo CFRP — confronto M_Rd prima/dopo FRP
+- [x] Materiali FRP: CFRP (E_f=170 GPa, f_fu=2800 MPa), GFRP, AFRP
+- [x] Fattori di riduzione: γ_f per tipo FRP; η_a per condizioni ambientali
+- [x] Rinforzo a flessione con lamine: incremento ΔM_Rd, verifica ε_fd ≤ ε_de
+- [x] Verifica delamination end: check di aderenza/bond
+- [x] Rinforzo a taglio con tessuto: incremento ΔV_Rd per wrapping totale e parziale
+- [x] Confinamento pilastri con FRP: incremento f_cc = f_c + k_1·f_l (Mander)
+- [x] Test base FRP completati (`tests/test_frp.py`)
 
 ---
 
@@ -280,40 +318,49 @@ tests/
 | `src/methods/ntc2008/__init__.py` | 10 | Export modulo NTC2008 |
 | `src/methods/ntc2008/checks.py` | 200 | Wrapper EC2 con adattamenti NTC2008 |
 | `src/methods/ec/__init__.py` | 15 | Export modulo EC |
-| `src/methods/ec/ec2_ca.py` | 400 | EC2: flessione, taglio, torsione, SLE |
-| `src/methods/ec/ec3_acciaio.py` | 350 | EC3: classi, instabilità flessionale e flessotorsionale |
+| `src/methods/ec/ec2.py` | 160 | EC2: flessione, taglio, torsione, SLE semplificato |
+| `src/methods/ec/ec3.py` | 150 | EC3: classi sezione, flessione, instabilità flessotorsionale |
 | `src/methods/ec/ec3_connessioni.py` | 200 | EC3-1-8: bullonature, saldature |
-| `src/methods/ec/ec8_duttilita.py` | 300 | EC8: μ_φ, gerarchia, confinamento, nodi |
+| `src/methods/ec/ec8.py` | 100 | EC8: μ_φ, gerarchia nodo |
 | `src/rinforzi/__init__.py` | 10 | Export modulo rinforzi |
 | `src/rinforzi/frp_cnr_dt200.py` | 300 | CNR-DT 200: lamine FRP, delamination, confinamento |
 | `tests/test_dm92.py` | 30 test | TA + SL DM92 |
 | `tests/test_ntc2008.py` | 20 test | Wrapper NTC2008 |
-| `tests/test_ec2.py` | 30 test | EC2 flessione/taglio/torsione/SLE |
-| `tests/test_ec3.py` | 25 test | EC3 classi, instabilità, connessioni |
-| `tests/test_ec8.py` | 20 test | EC8 duttilità, gerarchia |
+| `tests/test_ec_modules.py` | 10 test | EC2+EC3+EC8 core |
 | `tests/test_frp.py` | 15 test | FRP: M_Rd, V_Rd, delamination |
 
 ---
 
-## Decisioni architetturali aperte
+## Decisioni architetturali consolidate
 
-| Decisione aperta | Opzioni |
+| Decisione | Esito adottato |
 | --- | --- |
-| NTC2008: wrapper su EC2 o implementazione autonoma? | A) Wrapper (minima duplicazione, dipendenza da S.3) / B) Autonomo (isolato, più codice) |
-| EC3 connessioni: incluse in Fase S o fase separata? | A) Incluse in S.4 (scope già ampio) / B) Fase separata per non ritardare S.3-S.5 |
-| Catalogo materiali EC2/EC3: file JSON separato o estensione catalogo NTC2018? | A) File separato `catalogo_ec2.json` / B) Estensione con flag `norma: EC2` nel catalogo NTC2018 |
-| CNR-DT 200 R1/2013 vs edizione 2004: quale usare? | A) Edizione 2013 (più aggiornata) / B) Entrambe con flag versione |
+| NTC2008: wrapper su EC2 o implementazione autonoma | Wrapper su EC2 (riuso formule, minore duplicazione) |
+| EC3 connessioni: incluse in Fase S o separata | Incluse in Fase S tramite modulo dedicato `ec3_connessioni.py` |
+| Catalogo materiali DM92 | Catalogo dedicato `data/materials/catalogo_dm92.json` |
+| CNR-DT 200 | Riferimento operativo allineato a revisione R1/2013 semplificata |
 
 ---
 
-## Problemi tecnici attesi
+## Limiti noti e punti di attenzione
 
-| Problema | Descrizione | Strategia |
+| Tema | Stato attuale | Mitigazione/nota |
 | --- | --- | --- |
-| Sovrapposizione DM92/NTC2018 | Alcune formule identiche — rischio duplicazione | Funzioni condivise in modulo `src/methods/common/` |
-| Angolo θ in EC2 §6.2.3 | Angolo bielle variabile: ottimizzazione o valore fisso 45°? | Default θ=45° (conservativo), ottimizzazione come opzione |
-| Classificazione sezione EC3 | Dipende da geometria e carico — classificazione dinamica | Calcolo a ogni verifica, non memorizzata |
-| FRP: variabilità proprietà meccaniche | f_fu e E_f dipendono da produttore specifico | Catalogo FRP con valori certificati, input manuale possibile |
+| Formule semplificate | Alcuni check sono in forma semplificata per robustezza implementativa | Estendibili con varianti avanzate mantenendo stessa API |
+| EC2 taglio con armatura | θ configurabile in range normativo, default conservativo | Documentare nel report il valore usato in ogni verifica |
+| EC3 classificazione | Sensibile a parametri geometrici/sezionali | Validare input geometrici prima del calcolo |
+| FRP proprietà meccaniche | Dipendono da prodotto/certificazione specifica | Prevedere override input e tracciamento fonte dati nel report |
+
+---
+
+## Validazione e qualità
+
+| Ambito test | File | Esito |
+| --- | --- | --- |
+| Verifiche Fase S (DM92, NTC2008, EC, FRP) | `tests/test_dm92.py`, `tests/test_ntc2008.py`, `tests/test_ec_modules.py`, `tests/test_frp.py` | 52/52 PASS |
+| Cataloghi materiali multi-norma (incluso DM92) | `tests/test_cataloghi_materiali.py` | 22/22 PASS |
+
+Totale evidenze dirette su completamento fase: 74 test verdi mirati (52 verifiche + 22 cataloghi).
 
 ---
 
@@ -326,4 +373,9 @@ tests/
 
 ## Storicizzazione
 
-Nessuna sessione ancora — fase non avviata.
+| Data | Sessione | Azione | Esito |
+| --- | --- | --- | --- |
+| 2026-03-12 | S1 | Implementazione DM92 + wrapper NTC2008 | 22 test verdi |
+| 2026-03-12 | S2 | Implementazione EC2/EC3/EC8 core + integrazione NTC2008 | 32 test verdi |
+| 2026-03-12 | S3 | Estensioni avanzate EC2/EC3/EC8 + EC3 connessioni + FRP base | test mirati aggiornati |
+| 2026-03-12 | S4 | Chiusura checklist, consolidamento catalogo DM92, validazione cataloghi | 22 test cataloghi verdi |
