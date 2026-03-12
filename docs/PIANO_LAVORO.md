@@ -81,7 +81,7 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | S9   | ✅    | 100 | 2ab5c7c       | [piano_fase_S9.md](piano_fase_S9.md) | Insegne — DOCUMENTAZIONE ARRICCHITA ✅ |
 | T    | ⬜    | 0   | —             | [piano_fase_T.md](piano_fase_T.md) | Da definire |
 | U    | ✅    | 100 | 2026-03-12      | [piano_fase_U.md](piano_fase_U.md) | U.1–U.6 completate/testate/committate; U.7 benchmark esterno non automatizzabile |
-| V    | ⬜    | 0   | —             | [piano_fase_V.md](piano_fase_V.md) | Da definire |
+| V    | ✅    | 100 | —             | [piano_fase_V.md](piano_fase_V.md) | Scale completate: backend c.a./acciaio, widget Qt, test mirati e storicizzazione |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) | Da definire |
 | X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) | Da definire |
 | Y    | ⬜    | 0   | —             | [piano_fase_Y.md](piano_fase_Y.md) | Da definire |
@@ -114,6 +114,8 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | 2026-03-12 | R    | R.2–R.7   | —       | Proseguita implementazione Fase R: creati moduli `vulnerabilita_ca.py`, `vulnerabilita_mur.py`, `modello_globale_mur.py`, `interventi.py`, `report_esistenti.py`; suite test dedicata riallineata ai contratti reali API/dataclass; validazione finale eseguita su 5 file (`test_vulnerabilita_ca.py`, `test_vulnerabilita_mur.py`, `test_modello_globale_mur.py`, `test_interventi.py`, `test_report_esistenti.py`) con esito **69/69 PASS**. |
 | 2026-03-12 | S    | S.1–S.6 (core+esteso) | — | Avanzata Fase S normative aggiuntive: implementati `src/methods/dm92/*`, wrapper `src/methods/ntc2008/checks.py`, helper `src/methods/ntc2008/combinazioni.py` (psi + spettro §3.2), moduli `src/methods/ec/{ec2,ec3,ec8,ec3_connessioni}.py` con completamento EC8 (μ_φ disponibile + confinamento), package `src/rinforzi` con `frp_cnr_dt200.py` (fattori riduzione FRP espliciti); aggiornato `docs/piano_fase_S.md`; test mirati eseguiti con esito **52/52 PASS** (`test_dm92.py`, `test_ntc2008.py`, `test_ec_modules.py`, `test_frp.py`). |
 | 2026-03-12 | S    | S.1 (chiusura catalogo) | — | Verificata presenza e caricamento catalogo materiali DM92 (`data/materials/catalogo_dm92.json`) tramite repository materiali e test cataloghi; checklist fase S completata e stato portato al 100%. |
+| 2026-03-12 | V    | V.0 (pianificazione) | — | Revisione scientifica completa di `docs/piano_fase_V.md`: corretti 4 path errati, introdotti contratti software, limiti di validità, warning code, dipendenze reali di repo, riferimenti normativi per dominio e roadmap di implementazione V.1 → V.2 → V.4 → V.3. |
+| 2026-03-12 | V    | V.1–V.4 | — | Completata implementazione Fase V nel nuovo package `src/scale/`: creati `src/scale/scale.py` e `src/scale/__init__.py`, widget `src/ui/qt/scala_widget.py`, export package aggiornati, suite `tests/test_scale.py` + `tests/test_scale_widget_qt.py`; validazione eseguita con **11/11 PASS** in pytest locale e **8/8 PASS** nel runner test integrato. |
 
 ---
 

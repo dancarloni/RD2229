@@ -10,5 +10,6 @@ from .notification_center import *
 from .pipeline_runner import *
 from .project_editor import *
 from .report_viewer import *
+from .scala_widget import *
 from .section_manager import *
 from .visualizzatore_sezione import *

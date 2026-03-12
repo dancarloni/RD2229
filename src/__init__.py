@@ -24,6 +24,7 @@ __all__ = [
     "codes",
     "actions",
     "report",
+    "scale",
     "geotecnica",
     "esistenti",
     "config",
