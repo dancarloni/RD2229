@@ -104,10 +104,11 @@ Il modulo governa validazione input, unità, domini ammessi, metadata normativi 
 
 ## Stato avanzamento sub-fasi
 
-- [ ] X1.1 — Enum e dataclass
-- [ ] X1.2 — Validator unità e domini
-- [ ] X1.3 — Mapping norme e metadata
-- [ ] X1.4 — Test unitari
+- [x] X1.1 — Modello dati + sorgenti esterne (`data/solai_tipologie.json`)
+- [x] X1.2 — Validazione strict + codici issue
+- [x] X1.3 — Conversioni unità + payload nested ready
+- [x] X1.4 — Test unitari robusti + fixture dedicata
+- [x] X1.5 — Allineamento doc/memory per handoff EXECUTE
 
 ---
 
@@ -156,3 +157,99 @@ X1.1 → X1.2 → X1.3 → X1.4
 3) Conversione carico superficiale (convenzione del progetto): q_s = 300 kgf/m², interasse i = 50 cm → q_l = q_s * i / 10⁴ = 300 * 50 / 10000 = 1.50 kgf/cm (uso pratico per routine storiche).
 
 Riferimenti: NTC2018, EN 1992-1-1, DM96 (estratti per scelta numerica e conversioni).
+
+---
+
+## Spec eseguibile (schema + esempio)
+
+> Nota: il codice riferito a questa sezione è implementato in `src/core_calculus/solaio_input.py`.
+> Per i test, vedi `tests/test_x1_input.py` e fixture `tests/fixtures/solaio_input_valid.json`.
+> Metadata GUI separati in `data/solai_fields.json`.
+
+### Schema JSON (minimo)
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["tipologia", "norma", "geometria", "materiali", "carichi"],
+  "properties": {
+    "tipologia": {"type": "string", "enum": ["laterocemento", "predalles", "getto_pieno", "legno", "acciaio", "misti"]},
+    "norma": {"type": "string", "enum": ["NTC2018", "DM96", "DM16", "RD2229"]},
+    "edificio_esistente": {"type": "boolean"},
+    "geometria": {
+      "type": "object",
+      "required": ["luce_cm", "interasse_cm", "spessore_cm"],
+      "properties": {
+        "luce_cm": {"type": "number", "minimum": 0},
+        "interasse_cm": {"type": "number", "minimum": 0},
+        "spessore_cm": {"type": "number", "minimum": 0},
+        "n_campate": {"type": "integer", "minimum": 1}
+      }
+    },
+    "materiali": {
+      "type": "object",
+      "required": ["f_ck", "f_yk", "E"],
+      "properties": {
+        "f_ck": {"type": "number", "minimum": 0},
+        "f_yk": {"type": "number", "minimum": 0},
+        "E": {"type": "number", "minimum": 0},
+        "rho": {"type": "number", "minimum": 0}
+      }
+    },
+    "carichi": {
+      "type": "object",
+      "required": ["G1", "G2", "Q", "categoria"],
+      "properties": {
+        "G1": {"type": "number", "minimum": 0},
+        "G2": {"type": "number", "minimum": 0},
+        "Q": {"type": "number", "minimum": 0},
+        "categoria": {"type": "string"}
+      }
+    },
+    "aperture": {"type": "array", "items": {"type": "object"}},
+    "cerchiature": {"type": "array", "items": {"type": "object"}},
+    "lc_fc": {"type": "object"}
+  }
+}
+```
+
+### Esempio JSON (input tipico)
+
+```json
+{
+  "tipologia": "laterocemento",
+  "norma": "NTC2018",
+  "edificio_esistente": true,
+  "geometria": {
+    "luce_cm": 450,
+    "interasse_cm": 50,
+    "spessore_cm": 20,
+    "n_campate": 1
+  },
+  "materiali": {
+    "f_ck": 25,
+    "f_yk": 420,
+    "E": 30000,
+    "rho": 2.5
+  },
+  "carichi": {
+    "G1": 300,
+    "G2": 150,
+    "Q": 200,
+    "categoria": "A"
+  },
+  "aperture": [],
+  "cerchiature": [],
+  "lc_fc": {"FC": 1.2}
+}
+```
+
+### Output atteso (bozza)
+
+- oggetto `InputSolaio` validato (strict) con unità input originali
+- `as_ready_dict()` nested con blocchi `meta`, `original`, `normalized`, `aperture`, `cerchiature`, `lc_fc`
+- codici issue `X1-INPUT-00N` con `field` + `message_it` per GUI
+- in caso di input invalido: eccezione `InputValidationError` con elenco completo errori
+
+---

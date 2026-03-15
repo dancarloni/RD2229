@@ -45,9 +45,14 @@ DEFAULT_PSI = {
 }
 
 
-def _get_psi(category: str, psi_key: str) -> float:
+def _get_psi(
+    category: str,
+    psi_key: str,
+    psi_table: dict[str, dict[str, float]] | None = None,
+) -> float:
     """Restituisce il coefficiente psi per una categoria di azione variabile."""
-    cat_psi = DEFAULT_PSI.get(category, DEFAULT_PSI.get("cat_A", {}))
+    source = psi_table or DEFAULT_PSI
+    cat_psi = source.get(category, source.get("cat_A", {}))
     return cat_psi.get(psi_key, 0.7)
 
 
@@ -70,6 +75,7 @@ def generate_slu_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
     G2 = float(inputs.get("G2", 0))
     variable_loads = inputs.get("variable_loads", [])
     gamma = {**DEFAULT_GAMMA, **(inputs.get("gamma", {}) or {})}
+    psi_table = inputs.get("psi")
 
     combinations: list[dict[str, Any]] = []
 
@@ -105,7 +111,7 @@ def generate_slu_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
             name_acc = q_acc.get("name", f"Q{j + 1}")
             val_acc = float(q_acc.get("value", 0))
             cat_acc = q_acc.get("category", "cat_A")
-            psi_0 = _get_psi(cat_acc, "psi_0")
+            psi_0 = _get_psi(cat_acc, "psi_0", psi_table=psi_table)
             factors[name_acc] = round(gamma["gamma_Q"] * psi_0, 4)
             total += gamma["gamma_Q"] * psi_0 * val_acc
 
@@ -139,6 +145,7 @@ def generate_sle_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
     G1 = float(inputs.get("G1", 0))
     G2 = float(inputs.get("G2", 0))
     variable_loads = inputs.get("variable_loads", [])
+    psi_table = inputs.get("psi")
 
     combinations: list[dict[str, Any]] = []
 
@@ -149,7 +156,7 @@ def generate_sle_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
         name = q.get("name", "Q")
         val = float(q.get("value", 0))
         cat = q.get("category", "cat_A")
-        psi_2 = _get_psi(cat, "psi_2")
+        psi_2 = _get_psi(cat, "psi_2", psi_table=psi_table)
         factors_qp[name] = psi_2
         total_qp += psi_2 * val
     combinations.append(
@@ -179,7 +186,7 @@ def generate_sle_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
             name_acc = q_acc.get("name", f"Q{j + 1}")
             val_acc = float(q_acc.get("value", 0))
             cat_acc = q_acc.get("category", "cat_A")
-            psi_0 = _get_psi(cat_acc, "psi_0")
+            psi_0 = _get_psi(cat_acc, "psi_0", psi_table=psi_table)
             factors_r[name_acc] = psi_0
             total_r += psi_0 * val_acc
         combinations.append(
@@ -193,7 +200,7 @@ def generate_sle_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
         )
 
         # Frequente
-        psi_1_dom = _get_psi(cat_dom, "psi_1")
+        psi_1_dom = _get_psi(cat_dom, "psi_1", psi_table=psi_table)
         factors_f: dict[str, float] = {"G1": 1.0, "G2": 1.0, name_dom: psi_1_dom}
         total_f = G1 + G2 + psi_1_dom * val_dom
         for j, q_acc in enumerate(variable_loads):
@@ -202,7 +209,7 @@ def generate_sle_combinations(inputs: dict[str, Any]) -> list[dict[str, Any]]:
             name_acc = q_acc.get("name", f"Q{j + 1}")
             val_acc = float(q_acc.get("value", 0))
             cat_acc = q_acc.get("category", "cat_A")
-            psi_2 = _get_psi(cat_acc, "psi_2")
+            psi_2 = _get_psi(cat_acc, "psi_2", psi_table=psi_table)
             factors_f[name_acc] = psi_2
             total_f += psi_2 * val_acc
         combinations.append(

@@ -1,0 +1,29 @@
+{
+    "tipologia": "laterocemento",
+    "norma": "NTC2018",
+    "edificio_esistente": true,
+    "unit_system": "legacy_kgf_cm",
+    "geometria": {
+        "luce_cm": 450,
+        "interasse_cm": 50,
+        "spessore_cm": 20,
+        "n_campate": 1
+    },
+    "materiali": {
+        "f_ck": 255,
+        "f_yk": 4283,
+        "E": 305915,
+        "rho": 2.5
+    },
+    "carichi": {
+        "G1": 300,
+        "G2": 150,
+        "Q": 200,
+        "categoria": "A"
+    },
+    "aperture": [],
+    "cerchiature": [],
+    "lc_fc": {
+        "FC": 1.2
+    }
+}

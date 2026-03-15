@@ -1,0 +1,14 @@
+{
+    "unit_system": "auto",
+    "G1": 300,
+    "G2": 150,
+    "Q": 200,
+    "categoria": "cat_A",
+    "area_influenza_m2": 18.5,
+    "lc": "LC2",
+    "fc": 1.2,
+    "materiali": {
+        "f_ck": 25.0,
+        "f_yk": 450.0
+    }
+}

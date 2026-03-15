@@ -1,0 +1,101 @@
+{
+    "tipologia": {
+        "label_it": "Tipologia solaio",
+        "tooltip_it": "Tipologia costruttiva del solaio (catalogo esterno)",
+        "input_unit": "-",
+        "normalized_unit": "-",
+        "order": 1,
+        "required": true,
+        "norm_ref": "NTC2018 §7.2.6"
+    },
+    "norma": {
+        "label_it": "Norma di calcolo",
+        "tooltip_it": "Normativa di riferimento applicata al controllo",
+        "input_unit": "-",
+        "normalized_unit": "-",
+        "order": 2,
+        "required": true,
+        "norm_ref": "NTC2018 §2.5"
+    },
+    "geometria.luce_cm": {
+        "label_it": "Luce",
+        "tooltip_it": "Luce netta della campata",
+        "input_unit": "cm|m",
+        "normalized_unit": "m",
+        "order": 10,
+        "required": true,
+        "norm_ref": "NTC2018 §7.2.6"
+    },
+    "geometria.interasse_cm": {
+        "label_it": "Interasse",
+        "tooltip_it": "Interasse degli elementi resistenti",
+        "input_unit": "cm|m",
+        "normalized_unit": "m",
+        "order": 11,
+        "required": true,
+        "norm_ref": "DM96"
+    },
+    "geometria.spessore_cm": {
+        "label_it": "Spessore solaio",
+        "tooltip_it": "Spessore complessivo dell'elemento",
+        "input_unit": "cm|m",
+        "normalized_unit": "m",
+        "order": 12,
+        "required": true,
+        "norm_ref": "DM96"
+    },
+    "materiali.f_ck": {
+        "label_it": "Resistenza caratteristica cls",
+        "tooltip_it": "Valore di resistenza del calcestruzzo",
+        "input_unit": "kgf/cm2|MPa",
+        "normalized_unit": "MPa",
+        "order": 20,
+        "required": true,
+        "norm_ref": "EN 1992-1-1 §3"
+    },
+    "materiali.f_yk": {
+        "label_it": "Snervamento acciaio",
+        "tooltip_it": "Resistenza caratteristica acciaio",
+        "input_unit": "kgf/cm2|MPa",
+        "normalized_unit": "MPa",
+        "order": 21,
+        "required": true,
+        "norm_ref": "EN 1992-1-1 §3"
+    },
+    "materiali.E": {
+        "label_it": "Modulo elastico",
+        "tooltip_it": "Modulo elastico equivalente del materiale",
+        "input_unit": "kgf/cm2|MPa",
+        "normalized_unit": "MPa",
+        "order": 22,
+        "required": true,
+        "norm_ref": "EN 1992-1-1 §3"
+    },
+    "carichi.G1": {
+        "label_it": "Carico permanente strutturale G1",
+        "tooltip_it": "Peso proprio strutturale",
+        "input_unit": "kgf/m2|kN/m2",
+        "normalized_unit": "kN/m2",
+        "order": 30,
+        "required": true,
+        "norm_ref": "NTC2018 §2.5"
+    },
+    "carichi.G2": {
+        "label_it": "Carico permanente non strutturale G2",
+        "tooltip_it": "Sovraccarichi permanenti non strutturali",
+        "input_unit": "kgf/m2|kN/m2",
+        "normalized_unit": "kN/m2",
+        "order": 31,
+        "required": true,
+        "norm_ref": "NTC2018 §2.5"
+    },
+    "carichi.Q": {
+        "label_it": "Carico variabile Q",
+        "tooltip_it": "Sovraccarico variabile di esercizio",
+        "input_unit": "kgf/m2|kN/m2",
+        "normalized_unit": "kN/m2",
+        "order": 32,
+        "required": true,
+        "norm_ref": "NTC2018 §2.5"
+    }
+}

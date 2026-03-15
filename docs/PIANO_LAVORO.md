@@ -83,7 +83,36 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | U    | ✅    | 100 | 2026-03-12      | [piano_fase_U.md](piano_fase_U.md) | U.1–U.6 completate/testate/committate; U.7 benchmark esterno non automatizzabile |
 | V    | ✅    | 100 | —             | [piano_fase_V.md](piano_fase_V.md) | Scale completate: backend c.a./acciaio, widget Qt, test mirati e storicizzazione |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) | Da definire |
-| X    | ⬜    | 0   | —             | [piano_fase_X.md](piano_fase_X.md) | Da definire |
+| X    | 🟨    | 25  | local         | [piano_fase_X.md](piano_fase_X.md) | Solai: X1 completato, X2 completato, X3-X8 TODO |
+
+## Stato avanzamento Fase X (solai)
+
+**Master-index:** [docs/piano_fase_X.md](docs/piano_fase_X.md)
+
+**Sub-fasi e stato:**
+
+- [x] X1 — Tipologie e input solai ([docs/piano_fase_X1_tipologie_input.md](docs/piano_fase_X1_tipologie_input.md))
+  - Stato: COMPLETATO
+  - File chiave: `src/core_calculus/solaio_input.py`, `data/solai_tipologie.json`, `data/solai_fields.json`, `tests/test_x1_input.py`, `tests/fixtures/solaio_input_valid.json`
+  - Dipendenze: vedi doc X1
+- [x] X2 — Carichi e combinazioni ([docs/piano_fase_X2_carichi_combinazioni.md](docs/piano_fase_X2_carichi_combinazioni.md))
+  - Stato: COMPLETATO
+  - File chiave: `src/core_calculus/carichi_combinazioni.py`, `src/core/combinations/ntc2018_combinations.py`, `src/core_calculus/units.py`, `src/core_calculus/lc_fc_adjustments.py`, `src/core/registro_log.py`, `src/codes/params/NTC2018.json`, `tests/test_x2_carichi_combinazioni.py`, `tests/fixtures/carichi_combinazioni_valid.json`
+  - Dipendenze: vedi doc X2
+- [ ] X3 — Verifiche SLU ([docs/piano_fase_X3_verifiche_slu.md](docs/piano_fase_X3_verifiche_slu.md))
+- [ ] X4 — Verifiche SLE/vibrazioni ([docs/piano_fase_X4_verifiche_sle_vibrazioni.md](docs/piano_fase_X4_verifiche_sle_vibrazioni.md))
+- [ ] X5 — Aperture/cerchiature ([docs/piano_fase_X5_aperture_cerchiature.md](docs/piano_fase_X5_aperture_cerchiature.md))
+- [ ] X6 — Report/tracciabilità ([docs/piano_fase_X6_report_tracciabilita.md](docs/piano_fase_X6_report_tracciabilita.md))
+- [ ] X7 — Benchmark/validazione ([docs/piano_fase_X7_benchmark_validazione.md](docs/piano_fase_X7_benchmark_validazione.md))
+- [ ] X8 — Casi speciali ([docs/piano_fase_X8_casi_speciali.md](docs/piano_fase_X8_casi_speciali.md))
+
+**TODO prioritari Fase X:**
+- Integrazione pipeline X1→X2→X3 e test end-to-end
+- Implementazione e test sub-fasi X3–X8
+- Commit & push branch feature/PR
+- Eventuale catalogo esterno categorie carico (opzionale)
+
+**Nota:** Stato e file/dipendenze sono allineati a quanto documentato nei file X1/X2 e rispettive memory.
 | Y    | ⬜    | 0   | —             | [piano_fase_Y.md](piano_fase_Y.md) | Da definire |
 
 ---
