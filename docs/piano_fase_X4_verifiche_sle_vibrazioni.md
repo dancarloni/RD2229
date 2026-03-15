@@ -1,24 +1,22 @@
-# Fase X4 — Verifiche SLE e Vibrazioni
+# Fase X4 - Verifiche SLE e Vibrazioni
 
 ## Stato e metadati
 
 | Campo | Valore |
 | --- | --- |
-| Stato | TODO |
-| Commit | — |
+| Stato | COMPLETATO |
+| Commit | - |
 | Data | 2026-03-15 |
 | Dipendenza master | docs/piano_fase_X.md |
 | Test pianificati | ~100 |
-| Ambito | Freccia, tensioni SLE, frequenze e comfort |
+| Test implementati/validati | 37 (unit + benchmark) |
+| Ambito | Freccia, tensioni/fessurazione SLE, frequenze e comfort |
 
 ---
 
 ## Scopo del modulo
 
-Gestire verifiche in esercizio con approccio normativo rigoroso:
-- deformabilità
-- tensioni SLE
-- vibrazioni e comfort
+Implementare verifiche in esercizio per solai con approccio tracciabile, output dettagliato in stile X3 e warning codificati.
 
 ---
 
@@ -27,67 +25,83 @@ Gestire verifiche in esercizio con approccio normativo rigoroso:
 - src/codes/params/NTC2018.json
 - src/core/registro_log.py
 - src/core/combinations/ntc2018_combinations.py
+- src/codes/ntc2018/code_module.py
 
 ---
 
-## Fonti normative (parafrasi rigorosa)
+## Fonti normative principali
 
-- NTC2018 §7.2.6: limiti deformabilità per elementi orizzontali.
-- NTC2018 §4.1.2.2.4: controlli tensionali in esercizio.
-- NTC2018 §C7.10.5: criteri comfort vibrazionale.
-- EN 1992-1-1 §7.3 e §7.4: fessurazione e deformazioni.
-- EN ISO 10137: criteri prestazionali vibrazioni.
-
----
-
-## Schede normative (trascrizione operativa)
-
-### Freccia
-
-- q_l = q_s*i/10^4
-- f_max = 5*q_l*L^4/(384*E*I)
-- limiti: L/250, L/300, L/400 in base uso
-
-Warning:
-- X4-DEF-001 se f_max > f_lim
-- X4-DEF-002 se E_eff ridotto oltre soglia senza motivazione
-
-### Tensioni SLE
-
-- combinazioni rara/frequente/quasi-permanente da X2
-- verifica tensionale cls con limiti da NTC (rara e quasi-permanente)
-
-Warning:
-- X4-SLE-001 superamento tensione rara
-- X4-SLE-002 superamento tensione quasi-permanente
-
-### Vibrazioni
-
-- formulazione primaria SI: f1 = pi/(2L^2)*sqrt(EI/m)
-- m = rho*A
-- controllo f1 >= 4 Hz e a_RMS <= 0.5 m/s2
-
-Warning:
-- X4-VIB-001 f1 < 4 Hz
-- X4-VIB-002 a_RMS > 0.5 m/s2
+- NTC2018 §4.1.2.2.4: criteri di deformabilita in esercizio
+- NTC2018 §4.1.2.2.5: limiti tensionali SLE
+- NTC2018 §C7.10.5: criteri di comfort vibrazionale
+- NTC2018 §11.2.10.7: viscosita/effetti differiti
+- EN 1992-1-1 §7.4.1: deformazioni
+- EN 1992-1-1 §7.3.4: apertura fessure (Eq. 7.8)
+- EN ISO 10137 §7.1, §C.2.1: frequenza e accelerazione per comfort
 
 ---
 
-## Formula usata / fallback / motivo selezione
+## Audit pre-implementazione (all-green)
 
-| Verifica | Formula usata | Fallback | Motivo |
-| --- | --- | --- | --- |
-| Freccia | trave appoggiata + q_l | FEM lineare globale | modello trasparente per benchmark |
-| Tensioni SLE | combinazioni NTC | check semplificato | coerenza con X2 |
-| Vibrazioni | formula SI + mapping storico | stima semplificata empirica | robustezza dimensionale |
+Correzioni applicate rispetto al piano iniziale:
+
+1. Corretto riferimento deformabilita: da NTC2018 §7.2.6 a NTC2018 §4.1.2.2.4.
+2. Corretto mapping tensioni/fessurazione: tensioni -> §4.1.2.2.5, fessurazione -> §4.1.2.2.4.
+3. Corretto modello accelerazione: `a_peak = F/(xi*m*L)`, `a_RMS = a_peak/sqrt(2)`.
+4. Verificata coerenza dimensionale su formule freccia, tensioni e f1.
+
+---
+
+## Tabella sintetica verifiche, formule e riferimenti
+
+| Verifica | Formula principale | Riferimento normativo | Fallback | Note |
+| --- | --- | --- | --- | --- |
+| Deformabilita (X4.1) | `q_l = q_s*i/10^4`; `f_ist = k*q_l*L^4/(E*I)`; `f_tot = f_ist*(1+phi)` | NTC2018 §4.1.2.2.4; EN 1992-1-1 §7.4.1; NTC2018 §11.2.10.7 | `f~L^2/(k*h)` (predim.) | Supporto multi-schema vincoli |
+| Tensioni SLE (X4.2) | `x_n = nAs/b *[-1+sqrt(1+2bd/(nAs))]`; `I_fess`; `sigma_c = M*x_n/I_fess`; `sigma_s = n*M*(d-x_n)/I_fess` | NTC2018 §4.1.2.2.5; EN 1992-1-1 §7.1 | `sigma=M/W` | limiti rara/QP + acciaio |
+| Fessurazione (X4.2) | `w_k = s_r,max*(eps_sm-eps_cm)` | EN 1992-1-1 §7.3.4 Eq.(7.8); NTC2018 §4.1.2.2.4 | - | limiti `w_lim_mm` da NTC2018.json |
+| Vibrazioni (X4.3) | `f1 = lambda^2/(2*pi*L^2)*sqrt(EI/m)`; `a_RMS = F/(xi*m*L*sqrt(2))` | NTC2018 §C7.10.5; EN ISO 10137 | `f1~18/sqrt(delta_cm)` | soglie differenziate per destinazione |
 
 ---
 
 ## Warning code del modulo
 
-- X4-DEF-001, X4-DEF-002
-- X4-SLE-001, X4-SLE-002
-- X4-VIB-001, X4-VIB-002
+- X4-DEF-001, X4-DEF-002, X4-DEF-003, X4-DEF-004, X4-DEF-FALL-001
+- X4-SLE-001, X4-SLE-002, X4-SLE-003, X4-SLE-004, X4-SLE-FALL-001
+- X4-VIB-001, X4-VIB-002, X4-VIB-003, X4-VIB-004, X4-VIB-FALL-001
+
+Tutti i warning sono registrati anche su `registro_log` con `registro.avviso(...)`.
+
+---
+
+## Decisioni Q&A recepite
+
+- Sviluppo parallelo dei sotto-moduli.
+- Output dettagliato (steps, warnings, details, trace, norm_references).
+- Fallback sempre disponibile, ma esplicito e tracciato con warning dedicato.
+- Parametri estesi e configurabili con default normativi.
+- Inclusa fessurazione `w_k` in X4.2.
+- Inclusa viscosita `phi` in X4.1 (freccia lungo termine).
+- Soglie vibrazioni differenziate: residenziale 4 Hz, uffici 4 Hz, palestre 5 Hz, passerelle 8 Hz.
+- Dual-mode unita recepito: output storico + conversioni utili (cm/mm, kgf/cm2/MPa).
+- Multi-schema vincoli recepito: appoggio-appoggio, incastro-incastro, incastro-appoggio.
+
+---
+
+## Implementazione eseguita
+
+File creati:
+- src/methods/ntc2018/checks_x4.py
+- tests/codes/test_x4_sle_checks.py
+- tests/codes/test_x4_sle_benchmark.py
+
+File modificati:
+- src/codes/ntc2018/code_module.py
+- src/codes/params/NTC2018.json
+
+Check implementati:
+- x4_sle_deformabilita
+- x4_sle_tensioni
+- x4_sle_vibrazioni
 
 ---
 
@@ -95,65 +109,53 @@ Warning:
 
 | Test | Input | Output atteso |
 | --- | --- | --- |
-| X4-T01 | q_s,i,L,E,I | f_max e check limite |
-| X4-T02 | combinazioni SLE | sigma_rara/sigma_qp |
-| X4-T03 | L,E,I,rho,A | f1 |
-| X4-T04 | a_RMS elevata | X4-VIB-002 |
+| X4-T01 | q_s, i, L, E, I | f_ist/f_tot/f_lim + UC_f |
+| X4-T02 | M_rara, M_qp, b, d, As, fck, E | sigma_c rara/QP, sigma_s |
+| X4-T03 | input X4-T02 + copriferro, diametro, classe | w_k e confronto con w_lim |
+| X4-T04 | L, EI, m, xi, destinazione | f1 + soglia categoria |
+| X4-T05 | F_ped, m, L, xi | a_RMS e confronto con 0.5 m/s2 |
+| X4-T06 | input incompleto + fallback | warning *-FALL-001 |
 
 ---
-
-## Sub-fasi implementative
 
 ## Stato avanzamento sub-fasi
 
-- [ ] X4.1 — Deformabilità
-- [ ] X4.2 — Tensioni SLE
-- [ ] X4.3 — Vibrazioni
-- [ ] X4.4 — Test e benchmark
+- [x] X4.1 - Deformabilita
+- [x] X4.2 - Tensioni SLE + fessurazione
+- [x] X4.3 - Vibrazioni
+- [x] X4.4 - Test e benchmark
 
 ---
 
-## Domande, risposte e decisioni
+## Esito test X4
 
-- Domanda: (placeholder) — Risposta: (placeholder)
-
----
-
-## Teoria e fondamenti (riferimenti sintetici)
-
-- Freccia: formula beam-end con q_l e conversioni; limiti L/250 etc.
-- Vibrazioni: f1 approssimativa + controllo a_RMS.
+- tests/codes/test_x4_sle_checks.py -> 22 pass / 0 fail
+- tests/codes/test_x4_sle_benchmark.py -> 15 pass / 0 fail
+- Totale validato su X4 (mirato): 37 pass / 0 fail
 
 ---
 
 ## Diagramma dipendenze subfasi
 
 ```text
-X4.1 → X4.2 → X4.3 → X4.4
+X4.1 ---> X4.2 ---> X4.4
+  |         |
+  +-------> X4.3 ---> X4.4
 ```
 
 ---
 
 ## Rischi normativi residui
 
-- Criteri comfort dipendenti dalla destinazione d'uso non sempre nota.
-- Possibile sottostima in casi bidirezionali complessi senza FEM.
+- Modello vibrazionale semplificato monomodale: per casi complessi resta necessaria analisi FEM dinamica.
+- Fessurazione implementata in forma operativa semplificata: per casi specialistici usare analisi dettagliata di distribuzione armature.
+- Le soglie comfort possono richiedere affinamento in base a capitolato del committente.
 
 ---
 
 ## Cronologia e decisioni
 
 - 2026-03-15: creato modulo X4 da split master Fase X.
-
----
-
-## Esempi numerici (estratti da letteratura normativa)
-
-1) SLE frequente (NTC/EN): solaio semplicemente appoggiato, L = 4.50 m, q_s = 300 kgf/m², convertirsi in SI per calcolo di freccia; q_l = 300·50/10000 = 1.50 kgf/cm (se i=50 cm). Uso della formula di deflessione per trave semplicemente appoggiata:
- w_max = 5·q·L^4/(384·E·I) — valutare con E=30 GPa e I della sezione equivalente per confronto SLE (rif. EN/NTC su deformabilità).
-
-2) Verifica vibrazioni (linee guida): massa superficiale m = 300 kgf/m² ≈ 2.94 kN/m²; prendere modello semplice per primo modo: T ≈ 2π·√(m·L^4/(EI·k_factor)) — usare confronto storico vs SI (rif. letteratura RD2229/NTC per soglie accettabilità).
-
-3) SLE quasi-permanente: caso di lungo periodo con Gk=450 kgf/m², carichi variabili ridotti ψ2→ si usano ψ2 tipici da NTC/EN per valutazione permanenza delle deformazioni.
-
-Riferimenti: NTC2018 (SLE e deformabilità), EN1992 e linee guida letteratura RD2229 per vibrazioni.
+- 2026-03-15: completato audit tecnico-normativo pre-codifica e corretto il piano.
+- 2026-03-15: completata implementazione X4 con cablaggio su CodeModule e parametri NTC2018.
+- 2026-03-15: completata validazione mirata X4 con 37/37 test verdi.

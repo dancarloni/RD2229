@@ -5,7 +5,7 @@ Implementa l'interfaccia CodeModule per NTC2018, fornendo:
 - Routing a funzioni di verifica concrete
 - Integrazione con normative_registry per i template
 
-Unità: tensioni in MPa, lunghezze in mm (input), risultati in kN/kNm.
+Unita: dipendono dal check selezionato (storico cm/kgf o SI).
 """
 
 from __future__ import annotations
@@ -70,6 +70,83 @@ class NTC2018CodeModule:
                 "limit_state": "SLE",
                 "status": "implemented",
             },
+            {
+                "id": "x3_slu_flessione",
+                "short": "X3 Flessione SLU",
+                "norm_ref": "NTC2018 §4.1.2.4",
+                "limit_state": "SLU",
+                "status": "implemented",
+            },
+            {
+                "id": "x3_slu_taglio",
+                "short": "X3 Taglio SLU",
+                "norm_ref": "NTC2018 §4.1.2.5",
+                "limit_state": "SLU",
+                "status": "implemented",
+            },
+            {
+                "id": "x3_slu_punzonamento",
+                "short": "X3 Punzonamento SLU",
+                "norm_ref": "NTC2018 §4.1.2.5",
+                "limit_state": "SLU",
+                "status": "implemented",
+            },
+            {
+                "id": "x3_dm96_laterocemento",
+                "short": "X3 Fallback DM96 Laterocemento",
+                "norm_ref": "DM 9/1/1996",
+                "limit_state": "SLU",
+                "status": "implemented",
+            },
+            {
+                "id": "x3_dm16_legno",
+                "short": "X3 Fallback DM16 Legno",
+                "norm_ref": "DM 16/1/1996",
+                "limit_state": "SLU",
+                "status": "implemented",
+            },
+            {
+                "id": "x4_sle_deformabilita",
+                "short": "X4 Deformabilita SLE",
+                "norm_ref": "NTC2018 §4.1.2.2.4",
+                "limit_state": "SLE",
+                "status": "implemented",
+            },
+            {
+                "id": "x4_sle_tensioni",
+                "short": "X4 Tensioni/Fessurazione SLE",
+                "norm_ref": "NTC2018 §4.1.2.2.5",
+                "limit_state": "SLE",
+                "status": "implemented",
+            },
+            {
+                "id": "x4_sle_vibrazioni",
+                "short": "X4 Vibrazioni SLE",
+                "norm_ref": "NTC2018 §C7.10.5",
+                "limit_state": "SLE",
+                "status": "implemented",
+            },
+            {
+                "id": "x5_aperture_classificazione",
+                "short": "X5 Classificazione aperture",
+                "norm_ref": "NTC2018 §7.2.6.2",
+                "limit_state": "SLE",
+                "status": "implemented",
+            },
+            {
+                "id": "x5_aperture_rigidezza",
+                "short": "X5 Rigidezza efficace aperture",
+                "norm_ref": "NTC2018 §7.2.6.2",
+                "limit_state": "SLE",
+                "status": "implemented",
+            },
+            {
+                "id": "x5_cerchiatura_redistribuzione",
+                "short": "X5 Redistribuzione cerchiatura",
+                "norm_ref": "NTC2018 §7.2.6.2",
+                "limit_state": "SLE",
+                "status": "implemented",
+            },
         ]
 
     @staticmethod
@@ -91,6 +168,87 @@ class NTC2018CodeModule:
             result = vrdc_no_stirrups(inputs)
             if "trace" in result:
                 result["trace"]["run_id"] = result["trace"].get("run_id", run_id)
+            return result
+
+        if check_id in {
+            "x3_slu_flessione",
+            "x3_slu_taglio",
+            "x3_slu_punzonamento",
+            "x3_dm96_laterocemento",
+            "x3_dm16_legno",
+        }:
+            from src.methods.ntc2018.checks_x3 import (
+                x3_dm16_legno,
+                x3_dm96_laterocemento,
+                x3_slu_flessione,
+                x3_slu_punzonamento,
+                x3_slu_taglio,
+            )
+
+            router = {
+                "x3_slu_flessione": x3_slu_flessione,
+                "x3_slu_taglio": x3_slu_taglio,
+                "x3_slu_punzonamento": x3_slu_punzonamento,
+                "x3_dm96_laterocemento": x3_dm96_laterocemento,
+                "x3_dm16_legno": x3_dm16_legno,
+            }
+            result = router[check_id](inputs)
+            if "trace" in result:
+                result["trace"]["run_id"] = result["trace"].get("run_id", run_id)
+            else:
+                result["trace"] = {"run_id": run_id}
+            if "norm_references" not in result:
+                result["norm_references"] = ["NTC2018"]
+            return result
+
+        if check_id in {
+            "x4_sle_deformabilita",
+            "x4_sle_tensioni",
+            "x4_sle_vibrazioni",
+        }:
+            from src.methods.ntc2018.checks_x4 import (
+                x4_sle_deformabilita,
+                x4_sle_tensioni,
+                x4_sle_vibrazioni,
+            )
+
+            router = {
+                "x4_sle_deformabilita": x4_sle_deformabilita,
+                "x4_sle_tensioni": x4_sle_tensioni,
+                "x4_sle_vibrazioni": x4_sle_vibrazioni,
+            }
+            result = router[check_id](inputs)
+            if "trace" in result:
+                result["trace"]["run_id"] = result["trace"].get("run_id", run_id)
+            else:
+                result["trace"] = {"run_id": run_id}
+            if "norm_references" not in result:
+                result["norm_references"] = ["NTC2018"]
+            return result
+
+        if check_id in {
+            "x5_aperture_classificazione",
+            "x5_aperture_rigidezza",
+            "x5_cerchiatura_redistribuzione",
+        }:
+            from src.methods.ntc2018.checks_x5 import (
+                x5_aperture_classificazione,
+                x5_aperture_rigidezza,
+                x5_cerchiatura_redistribuzione,
+            )
+
+            router = {
+                "x5_aperture_classificazione": x5_aperture_classificazione,
+                "x5_aperture_rigidezza": x5_aperture_rigidezza,
+                "x5_cerchiatura_redistribuzione": x5_cerchiatura_redistribuzione,
+            }
+            result = router[check_id](inputs)
+            if "trace" in result:
+                result["trace"]["run_id"] = result["trace"].get("run_id", run_id)
+            else:
+                result["trace"] = {"run_id": run_id}
+            if "norm_references" not in result:
+                result["norm_references"] = ["NTC2018"]
             return result
 
         return {

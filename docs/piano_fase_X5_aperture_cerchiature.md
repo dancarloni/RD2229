@@ -4,11 +4,11 @@
 
 | Campo | Valore |
 | --- | --- |
-| Stato | TODO |
+| Stato | COMPLETATO |
 | Commit | — |
 | Data | 2026-03-15 |
 | Dipendenza master | docs/piano_fase_X.md |
-| Test pianificati | ~100 |
+| Test pianificati | 31 implementati/validati (17 check + 11 benchmark + 3 e2e) |
 | Ambito | Aperture, riduzione rigidezza, trigger FEM locale, cerchiature |
 
 ---
@@ -74,21 +74,23 @@ Nota: questa non e formula normativa diretta, ma modello prudenziale di V1.
 
 ## Warning code del modulo
 
-- X5-APE-001: apertura >25% (attivare FEM)
-- X5-APE-002: apertura >50% (verifica manuale obbligatoria)
-- X5-CER-001: cerchiatura non coerente con schema statico
-- X5-AREA-001: area influenza manuale
+| Warning code | Condizione | Check correlato |
+| --- | --- | --- |
+| X5-APE-001 | apertura >25% (attivare FEM) | x5_aperture_classificazione |
+| X5-APE-002 | apertura >50% (verifica manuale obbligatoria) | x5_aperture_classificazione |
+| X5-CER-001 | cerchiatura non coerente con schema statico | x5_cerchiatura_redistribuzione |
+| X5-AREA-001 | area influenza manuale | x5_aperture_rigidezza |
 
 ---
 
 ## Quick reference testabile
 
-| Test | Input | Output atteso |
-| --- | --- | --- |
-| X5-T01 | area ratio 8% | alpha_ap=0.05 |
-| X5-T02 | area ratio 30% | X5-APE-001 |
-| X5-T03 | area ratio 60% | X5-APE-002 |
-| X5-T04 | cerchiatura attiva | redistribuzione + check warning |
+| Test | Check | Input | Output atteso |
+| --- | --- | --- | --- |
+| X5-T01 | x5_aperture_classificazione | area ratio 8% | classe piccola + alpha_ap=0.05 |
+| X5-T02 | x5_aperture_classificazione | area ratio 30% | warning X5-APE-001 |
+| X5-T03 | x5_aperture_rigidezza | area ratio 60% | warning X5-APE-002 + riduzione EI_eff |
+| X5-T04 | x5_cerchiatura_redistribuzione | cerchiatura attiva | redistribuzione + check warning |
 
 ---
 
@@ -96,17 +98,43 @@ Nota: questa non e formula normativa diretta, ma modello prudenziale di V1.
 
 ## Stato avanzamento sub-fasi
 
-- [ ] X5.1 — Classificazione aperture
-- [ ] X5.2 — Modello cautelativo EI
-- [ ] X5.3 — Trigger FEM locale
-- [ ] X5.4 — Cerchiature equivalenti
-- [ ] X5.5 — Test specifici
+- [x] X5.1 — Classificazione aperture
+- [x] X5.2 — Modello cautelativo EI
+- [x] X5.3 — Trigger FEM locale
+- [x] X5.4 — Cerchiature equivalenti
+- [x] X5.5 — Test specifici
 
 ---
 
 ## Domande, risposte e decisioni
 
-- Domanda: (placeholder) — Risposta: (placeholder)
+- Core X5 completo.
+- Modello cautelativo: conservative primary.
+- Cerchiature: livello esteso V1.
+- Unità: storiche cm/kgf interne + output SI utile.
+- Test: unit + benchmark + e2e.
+- Naming allineato a prefisso `x5_`.
+
+---
+
+## Implementazione effettuata (file creati/modificati)
+
+- src/methods/ntc2018/checks_x5.py
+- src/codes/ntc2018/code_module.py
+- src/codes/params/NTC2018.json
+- tests/codes/test_x5_aperture_cerchiature_checks.py
+- tests/codes/test_x5_aperture_cerchiature_benchmark.py
+- tests/codes/test_x5_aperture_cerchiature_e2e.py
+
+---
+
+## Risultati test e regressione
+
+- Checks X5: **17/17 PASS**.
+- Benchmark X5: **11/11 PASS**.
+- E2E X5: **3/3 PASS**.
+- Totale X5: **31/31 PASS**.
+- Regressione check X3+X4+X5: comando `pytest -q tests/codes/test_x3_slu_checks.py tests/codes/test_x4_sle_checks.py tests/codes/test_x5_aperture_cerchiature_checks.py` con esito **74/74 PASS**.
 
 ---
 
@@ -133,7 +161,7 @@ X5.1 → X5.2 → X5.3 → X5.4 → X5.5
 
 ## Cronologia e decisioni
 
-- 2026-03-15: creato modulo X5 da split master Fase X.
+- 2026-03-15: completate sub-fasi X5.1–X5.5; implementati `x5_aperture_classificazione`, `x5_aperture_rigidezza`, `x5_cerchiatura_redistribuzione`; validazione **31/31 PASS** e regressione check X3+X4+X5 **74/74 PASS**.
 
 ---
 

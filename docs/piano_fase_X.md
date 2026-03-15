@@ -4,7 +4,7 @@
 
 | Campo | Valore |
 | --- | --- |
-| **Stato** | ⬜ TODO |
+| **Stato** | 🟨 IN CORSO |
 | **Commit** | — |
 | **Data prevista** | — |
 | **Test pianificati** | ~100 |
@@ -31,6 +31,14 @@ Regole operative obbligatorie per ogni modulo Xn:
 
 - sezione Rischi normativi residui
 - tabella Formula usata / fallback / motivo selezione
+
+Aggiornamento implementativo 2026-03-15:
+- X1 completato
+- X2 completato
+- X3 completato (check X3 + fallback DM96/DM16 + test mirati e benchmark)
+- X4 completato (deformabilita, tensioni/fessurazione, vibrazioni, test unit+benchmark)
+- X5 completato (`x5_aperture_classificazione`, `x5_aperture_rigidezza`, `x5_cerchiatura_redistribuzione`; test 31/31 PASS: 17 check + 11 benchmark + 3 e2e)
+- X6-X8 da implementare
 
 ## Base scientifica e riferimenti strutturali
 

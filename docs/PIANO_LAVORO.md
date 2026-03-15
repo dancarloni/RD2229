@@ -83,7 +83,7 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | U    | ✅    | 100 | 2026-03-12      | [piano_fase_U.md](piano_fase_U.md) | U.1–U.6 completate/testate/committate; U.7 benchmark esterno non automatizzabile |
 | V    | ✅    | 100 | —             | [piano_fase_V.md](piano_fase_V.md) | Scale completate: backend c.a./acciaio, widget Qt, test mirati e storicizzazione |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) | Da definire |
-| X    | 🟨    | 25  | e50807f       | [piano_fase_X.md](piano_fase_X.md) | Solai: X1 completato, X2 completato, X3-X8 TODO |
+| X    | 🟨    | 63  | e50807f       | [piano_fase_X.md](piano_fase_X.md) | Solai: X1-X5 completati; X6-X8 TODO |
 
 ## Stato avanzamento Fase X (solai)
 
@@ -99,16 +99,16 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
   - Stato: COMPLETATO
   - File chiave: `src/core_calculus/carichi_combinazioni.py`, `src/core/combinations/ntc2018_combinations.py`, `src/core_calculus/units.py`, `src/core_calculus/lc_fc_adjustments.py`, `src/core/registro_log.py`, `src/codes/params/NTC2018.json`, `tests/test_x2_carichi_combinazioni.py`, `tests/fixtures/carichi_combinazioni_valid.json`
   - Dipendenze: vedi doc X2
-- [ ] X3 — Verifiche SLU ([docs/piano_fase_X3_verifiche_slu.md](docs/piano_fase_X3_verifiche_slu.md))
-- [ ] X4 — Verifiche SLE/vibrazioni ([docs/piano_fase_X4_verifiche_sle_vibrazioni.md](docs/piano_fase_X4_verifiche_sle_vibrazioni.md))
-- [ ] X5 — Aperture/cerchiature ([docs/piano_fase_X5_aperture_cerchiature.md](docs/piano_fase_X5_aperture_cerchiature.md))
+- [x] X3 — Verifiche SLU ([docs/piano_fase_X3_verifiche_slu.md](docs/piano_fase_X3_verifiche_slu.md))
+- [x] X4 — Verifiche SLE/vibrazioni ([docs/piano_fase_X4_verifiche_sle_vibrazioni.md](docs/piano_fase_X4_verifiche_sle_vibrazioni.md))
+- [x] X5 — Aperture/cerchiature ([docs/piano_fase_X5_aperture_cerchiature.md](docs/piano_fase_X5_aperture_cerchiature.md))
 - [ ] X6 — Report/tracciabilità ([docs/piano_fase_X6_report_tracciabilita.md](docs/piano_fase_X6_report_tracciabilita.md))
 - [ ] X7 — Benchmark/validazione ([docs/piano_fase_X7_benchmark_validazione.md](docs/piano_fase_X7_benchmark_validazione.md))
 - [ ] X8 — Casi speciali ([docs/piano_fase_X8_casi_speciali.md](docs/piano_fase_X8_casi_speciali.md))
 
 **TODO prioritari Fase X:**
-- Integrazione pipeline X1→X2→X3 e test end-to-end
-- Implementazione e test sub-fasi X3–X8
+- Integrazione pipeline X1→X2→X3→X4→X5 e test end-to-end
+- Implementazione e test sub-fasi X6–X8
 - Commit & push branch feature/PR
 - Eventuale catalogo esterno categorie carico (opzionale)
 
@@ -149,6 +149,10 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | 2026-03-15 | X    | X.0.1 modularizzazione documentale | — | Secondo giro Q&A completato. Decisioni: benchmark con doppia colonna storica+SI, appendici future come estratti minimi implementativi, casi speciali predalles/collaboranti/CLT documentati ma fuori V1 minima, diagrammi dettagliati, matrice formule con colonna `Validato numericamente`, report futuro con formula usata + fallback disponibile, aggiunta nel piano di una sezione che governa la futura scomposizione della Fase X in file modulo autonomi con struttura standard e sub-fasi dedicate. |
 | 2026-03-15 | X    | X.0.2 split reale X1-X8 + master-index | — | Terzo giro Q&A completato e recepito. Eseguita la scomposizione effettiva della Fase X in 8 file modulo (`piano_fase_X1` ... `piano_fase_X8`) con sezioni obbligatorie (rischi normativi residui, formula/fallback/motivo, warning codificati, quick reference testabile). Aggiornato `piano_fase_X.md` come master-index operativo con link ai moduli e regole di manutenzione anti-duplicazione. |
 | 2026-03-15 | X    | X.0.3 template applicato X1-X8 + metadata allineati | — | Applicato template derivato da `piano_fase_U.md` a `piano_fase_X1..X8.md`: aggiunte sezioni obbligatorie, checkbox sub-fasi, placeholders Domande/Decisioni, allineati warning code e metadati (`Test pianificati`, `Dipendenza master`). `docs/piano_fase_X.md` snellito in master-index. |
+| 2026-03-15 | X    | X3.1–X3.4 implementazione tranche 1 + X3.5 avvio | — | Q&A bloccante pre-implementazione completata (scope core completo, test set esteso 25+, validazione mirata). Implementati nuovi check `x3_slu_flessione`, `x3_slu_taglio`, `x3_slu_punzonamento`, `x3_dm96_laterocemento`, `x3_dm16_legno` in `src/methods/ntc2018/checks_x3.py`; wiring su `src/codes/ntc2018/code_module.py`; aggiunta suite `tests/codes/test_x3_slu_checks.py` con esito **35/35 PASS**. Decisioni recepite: NTC2018 primaria, EN secondaria, fallback DM96/DM16 solo esplicito. |
+| 2026-03-15 | X    | X3.5 benchmark e chiusura modulo X3 | — | Completata suite benchmark `tests/codes/test_x3_slu_benchmark.py` e validazione mirata complessiva X3: **52/52 PASS** (`test_x3_slu_checks.py` + `test_x3_slu_benchmark.py`). Stato `docs/piano_fase_X3_verifiche_slu.md` aggiornato a COMPLETATO. |
+| 2026-03-15 | X    | X4.1–X4.4 implementazione + audit all-green | — | Q&A bloccante completata e recepita. Eseguito audit pre-implementazione (correzione riferimenti normativi e formula a_RMS). Implementati `x4_sle_deformabilita`, `x4_sle_tensioni`, `x4_sle_vibrazioni` in `src/methods/ntc2018/checks_x4.py`; wiring su `src/codes/ntc2018/code_module.py`; estensione parametri in `src/codes/params/NTC2018.json`; suite `tests/codes/test_x4_sle_checks.py` + `tests/codes/test_x4_sle_benchmark.py` con esito **37/37 PASS**. Stato `docs/piano_fase_X4_verifiche_sle_vibrazioni.md` aggiornato a COMPLETATO. |
+| 2026-03-15 | X    | X5.1–X5.5 implementazione + validazione | — | Implementati tre check `x5_aperture_classificazione`, `x5_aperture_rigidezza`, `x5_cerchiatura_redistribuzione`; wiring `src/codes/ntc2018/code_module.py`; parametri `x5_aperture_cerchiature` in `src/codes/params/NTC2018.json`; test checks+benchmark+e2e con esito **31/31 PASS** e regressione check X3+X4+X5 **74/74 PASS**. |
 
 ---
 
