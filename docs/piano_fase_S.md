@@ -2,6 +2,38 @@
 
 > Nota 2026-03-11: questa fase resta distinta dalla nuova famiglia S1-S9 dedicata agli elementi secondari del §7.2 NTC2018.
 
+### Mappatura della nuova famiglia di fasi (S1–S9)
+
+Questa mappatura definisce le tipologie di elementi secondari spostate dalla pianificazione generale in fasi dedicate (S1–S9). Usare questi identificatori per i file `piano_fase_S1.md` … `piano_fase_S9.md` e per i tag di indicizzazione.
+
+| Fase | Tipologia | Ambito principale |
+|------|-----------|-------------------|
+| S1 | Tamponamenti | fuori piano, ancoraggi, giunti, danno da drift |
+| S2 | Tramezzi e partizioni leggere | tramezzi tradizionali e in cartongesso, compatibilita deformativa |
+| S3 | Parapetti e balaustre | verifica locale, urti, azioni orizzontali e ancoraggi |
+| S4 | Controsoffitti | sospensioni, controventi, nodi pendinati |
+| S5 | Impianti e componenti impiantistici | apparecchiature, staffaggi, piping, canalizzazioni |
+| S6 | Facciate e rivestimenti | pannelli, sottostrutture, fissaggi, giunti |
+| S7 | Camini, comignoli e canne fumarie | comportamento a mensola, snellezza, ancoraggi |
+| S8 | Scaffalature, arredi fissati e contenuti | ribaltamento, scorrimento, ancoraggi, interazione col contenuto |
+| S9 | Insegne, cancelli e componenti speciali | elementi esposti, chiusure tecniche, casi fuori catalogo |
+
+---
+
+### Sessione 2026-03-11 — Domande, risposte e decisioni (estratto)
+
+Questo estratto raccoglie le decisioni operative prese nella sessione del 2026-03-11 relative alla riorganizzazione in S1–S9. La traccia completa delle Q&A e le relative scelte tecniche sono salvate anche in `docs/PIANO_LAVORO.md` ma la fonte dettagliata di progetto per S è qui.
+
+| Domanda | Risposta | Decisione |
+| --- | --- | --- |
+| Codifica nuove fasi | Prefissi numerici aggiuntivi (`S1`, `S2`, `S3`, ...) | Adottata famiglia S1-S9 nel piano principale, mantenendo separata la Fase S gia esistente |
+| Tipologie da istanziare | Tamponamenti, tramezzi, parapetti, controsoffitti, impianti, facciate, camini, scaffalature, insegne/cancelli | Creata una fase dedicata per ciascuna tipologia |
+| Livello di meta-codice | Medio | Ogni piano include dataclass/interfacce essenziali + pseudocodice di flusso |
+| Struttura documentale | Allineata agli altri `piano_fase_*.md` | Obbligo di diagrammi, dipendenze, riferimenti normativi, tabelle, struttura file, storicizzazione |
+| Tranche implementativa reale | Prerequisiti comuni + S2 completo | Dispatcher tipizzato, storage arricchito, completamento verticale S2 |
+| Commit documentali senza commit git reale | Usare `—` | Rimossi identificatori semantici non coerenti dalla colonna `Ultimo commit` |
+
+
 ## Stato e metadati
 
 | Campo | Valore |

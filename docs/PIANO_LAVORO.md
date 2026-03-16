@@ -233,30 +233,9 @@ Dal 2026-03-11 la pianificazione degli elementi secondari e non strutturali non 
 - Ogni file `docs/piano_fase_S*.md` deve includere meta-codice coerente con i contenuti da realizzare: strutture dati, interfacce, pseudocodice di flusso, input/output attesi.
 - I riferimenti preesistenti a G.1-G.5 restano validi come storico di implementazione tecnica, ma la pianificazione operativa di dettaglio confluisce da ora nelle fasi S1-S9.
 
-### Mappatura della nuova famiglia di fasi
+### Mappatura S1–S9 e Q&A
 
-| Fase | Tipologia | Ambito principale |
-|------|-----------|-------------------|
-| S1 | Tamponamenti | fuori piano, ancoraggi, giunti, danno da drift |
-| S2 | Tramezzi e partizioni leggere | tramezzi tradizionali e in cartongesso, compatibilita deformativa |
-| S3 | Parapetti e balaustre | verifica locale, urti, azioni orizzontali e ancoraggi |
-| S4 | Controsoffitti | sospensioni, controventi, nodi pendinati |
-| S5 | Impianti e componenti impiantistici | apparecchiature, staffaggi, piping, canalizzazioni |
-| S6 | Facciate e rivestimenti | pannelli, sottostrutture, fissaggi, giunti |
-| S7 | Camini, comignoli e canne fumarie | comportamento a mensola, snellezza, ancoraggi |
-| S8 | Scaffalature, arredi fissati e contenuti | ribaltamento, scorrimento, ancoraggi, interazione col contenuto |
-| S9 | Insegne, cancelli e componenti speciali | elementi esposti, chiusure tecniche, casi fuori catalogo |
-
-### Sessione 2026-03-11 — Domande, risposte e decisioni
-
-| Domanda | Risposta | Decisione |
-| --- | --- | --- |
-| Codifica nuove fasi | Prefissi numerici aggiuntivi (`S1`, `S2`, `S3`, ...) | Adottata famiglia S1-S9 nel piano principale, mantenendo separata la Fase S gia esistente |
-| Tipologie da istanziare | Tamponamenti, tramezzi, parapetti, controsoffitti, impianti, facciate, camini, scaffalature, insegne/cancelli | Creata una fase dedicata per ciascuna tipologia |
-| Livello di meta-codice | Medio | Ogni piano include dataclass/interfacce essenziali + pseudocodice di flusso |
-| Struttura documentale | Allineata agli altri `piano_fase_*.md` | Obbligo di diagrammi, dipendenze, riferimenti normativi, tabelle, struttura file, storicizzazione |
-| Tranche implementativa reale | Prerequisiti comuni + S2 completo | Dispatcher tipizzato, storage arricchito, completamento verticale S2 |
-| Commit documentali senza commit git reale | Usare `—` | Rimossi identificatori semantici non coerenti dalla colonna `Ultimo commit` |
+Le informazioni relative alla mappatura della nuova famiglia di fasi (S1–S9) e al Q&A della sessione 2026-03-11 sono state spostate in dettaglio in [docs/piano_fase_S.md](docs/piano_fase_S.md#mappatura-della-nuova-famiglia-di-fasi-s1-s9) per mantenere il `PIANO_LAVORO.md` come indice sintetico. Consultare quel documento per la lista completa delle tipologie, le decisioni e la traccia della sessione.
 
 ---
 
