@@ -109,6 +109,7 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 - [ ] X7 — Benchmark/validazione ([docs/piano_fase_X7_benchmark_validazione.md](docs/piano_fase_X7_benchmark_validazione.md))
 - [x] X8 — Casi speciali ([docs/piano_fase_X8_casi_speciali.md](docs/piano_fase_X8_casi_speciali.md))
   - Stato: COMPLETATO 2026-03-16
+  - Commit: 932cfbc
   - File chiave: `src/x8_special_cases/__init__.py`, `src/x8_special_cases/x8_models.py`, `src/x8_special_cases/x8_warnings.py`, `src/x8_special_cases/x8_predalles.py`, `src/x8_special_cases/x8_collaboranti.py`, `src/x8_special_cases/x8_clt.py`, `src/x8_special_cases/x8_dispatcher.py`, `src/x8_special_cases/x8_benchmarks.py`, `tests/test_x8_special_cases.py`
   - Test: 22 test passing (warning policy strict/fallback, dispatcher, benchmark fixtures, snapshot shape, quick reference X8-T01/T02/T03)
 
