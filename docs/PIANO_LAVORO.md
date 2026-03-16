@@ -222,25 +222,32 @@ Note su commit references: quando possibile inserire il commit hash nella colonn
 
 ---
 
-## Riorganizzazione elementi secondari (§7.2 NTC2018)
 
-Dal 2026-03-11 la pianificazione degli elementi secondari e non strutturali non e piu mantenuta come sottoparte implicita di fasi generali. La scomposizione documentale e ora articolata in una famiglia di fasi dedicate S1-S9, una per ciascuna tipologia operativa principale del §7.2 NTC2018 e categorie affini richieste in sessione. Questa famiglia convive con la gia esistente Fase S (`piano_fase_S.md`), che resta dedicata alle normative aggiuntive e al multinorma avanzato.
 
-### Criteri di riorganizzazione
+<!-- Nota TOC aggiornata: la sezione dettagliata sulla riorganizzazione degli elementi secondari (§7.2 NTC2018) è stata spostata in [docs/piano_fase_S.md](docs/piano_fase_S.md#mappatura-della-nuova-famiglia-di-fasi-s1-s9). Qui resta solo il riferimento sintetico. -->
 
-- Ogni tipologia ha una fase propria, un file di piano proprio e sub-fasi dedicate per input, SLU, SLE, storage, test e GUI.
-- Ogni file `docs/piano_fase_S*.md` deve rispettare la struttura dei file `piano_fase_*.md` gia presenti: diagrammi, dipendenze, riferimenti normativi, tabelle, struttura file, storicizzazione e checklist.
-- Ogni file `docs/piano_fase_S*.md` deve includere meta-codice coerente con i contenuti da realizzare: strutture dati, interfacce, pseudocodice di flusso, input/output attesi.
-- I riferimenti preesistenti a G.1-G.5 restano validi come storico di implementazione tecnica, ma la pianificazione operativa di dettaglio confluisce da ora nelle fasi S1-S9.
 
-### Mappatura S1–S9 e Q&A
-
-Le informazioni relative alla mappatura della nuova famiglia di fasi (S1–S9) e al Q&A della sessione 2026-03-11 sono state spostate in dettaglio in [docs/piano_fase_S.md](docs/piano_fase_S.md#mappatura-della-nuova-famiglia-di-fasi-s1-s9) per mantenere il `PIANO_LAVORO.md` come indice sintetico. Consultare quel documento per la lista completa delle tipologie, le decisioni e la traccia della sessione.
-
----
 
 ## Istruzioni operative
 Per dettagli, consultare i file [docs/piano_fase_X.md](docs/piano_fase_X.md), [docs/piano_fase_Y.md](docs/piano_fase_Y.md) e [docs/piano_fase_V.md](docs/piano_fase_V.md) corrispondenti a ciascuna fase.
+
+
+---
+
+## Indice aggiornato
+
+- [Stato avanzamento Fase X (solai)](#stato-avanzamento-fase-x-solai)
+- [Attività completate](#attivit%C3%A0-completate)
+- [Istruzioni operative](#istruzioni-operative)
+- [Nota su elementi secondari S1–S9](#nota-su-elementi-secondari-s1s9)
+
+---
+
+### Nota su elementi secondari S1–S9
+
+La sezione dettagliata sulla riorganizzazione degli elementi secondari (§7.2 NTC2018) è stata spostata in [docs/piano_fase_S.md](docs/piano_fase_S.md#mappatura-della-nuova-famiglia-di-fasi-s1-s9). Qui resta solo il riferimento sintetico.
+
+---
 
 Checklist rapida per aggiornare questo file (procedura consigliata):
 
