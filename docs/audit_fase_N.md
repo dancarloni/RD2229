@@ -1,38 +1,48 @@
 # Audit Fase N — Carote cls in sito
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: N
-- status: UNKNOWN
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** N
+- **status:** UNKNOWN
+- **last_commit:** —
+- **norms:** RD2229, EC2, NTC2018
+- **audit_status:** CRITICAL
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 0%
+- Normative coverage: 0%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (6)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### CRITICAL
 
-## Esito audit
-- DA COMPLETARE
-- Note sintetiche:
-  - Norme menzionate: | Norma | Articolo | Contenuto |, | --- | --- | --- |, | NTC2018 | Circ. n.7 §C8.2.1 | Resistenza in opera da carote, f_ck,is |, | EN 12504-1:2019 | — | Estrazione e prova di carote: fattori k_d, k_h, k_dir |, | EN 13791:2019 | §6, §7 | Metodo A (n≥15) e Metodo B (n<15) |...
+- **FORMULA:** RD2229: Formula 'pressoflessione' mancante o non testata adeguatamente
+  - Ref: § della norma
+  - 🔧 Implementare e testare rigorosamente la formula di pressoflessione
+
+#### HIGH
+
+- **TEST:** Nessun test trovato per fase N
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** RD2229: Requisito 'casi_carico' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'casi_carico' con formule e riferimenti normativi
+
+- **NORM:** RD2229: Requisito 'sicurezza' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'sicurezza' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'combinazioni' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'combinazioni' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'criteri_duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'criteri_duttilità' con formule e riferimenti normativi
+
+---

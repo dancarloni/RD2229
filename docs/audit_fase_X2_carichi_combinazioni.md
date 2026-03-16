@@ -1,10 +1,10 @@
-# Audit Fase X4_verifiche_sle_vibrazioni — Unknown
+# Audit Fase X2_carichi_combinazioni — Carichi e Combinazioni
 
 **Generato:** 2026-03-16 16:27:52
 
 
 ## Metadati
-- **phase_id:** X4_verifiche_sle_vibrazioni
+- **phase_id:** X2_carichi_combinazioni
 - **status:** UNKNOWN
 - **last_commit:** —
 - **norms:** NTC2018
@@ -24,13 +24,13 @@
 
 #### HIGH
 
-- **TEST:** Nessun test trovato per fase X4_verifiche_sle_vibrazioni
+- **TEST:** Nessun test trovato per fase X2_carichi_combinazioni
   - 🔧 Aggiungere test unitari e di integrazione
 
 - **NORM:** NTC2018: Requisito 'spettro_risposta' non documentato chiaramente
   - 🔧 Aggiungere sezione che documenti 'spettro_risposta' con formule e riferimenti normativi
 
-- **NORM:** NTC2018: Requisito 'combinazioni' non documentato chiaramente
-  - 🔧 Aggiungere sezione che documenti 'combinazioni' con formule e riferimenti normativi
+- **NORM:** NTC2018: Requisito 'criteri_duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'criteri_duttilità' con formule e riferimenti normativi
 
 ---

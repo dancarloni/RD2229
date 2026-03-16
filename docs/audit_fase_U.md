@@ -1,38 +1,42 @@
 # Audit Fase U — Analisi sismica dettagliata (q, duttilità, gerarchia, pushover)
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: U
-- status: ✅ COMPLETATO (U.1–U.6 implementate e testate, U.7 benchmark residuo non automatizzabile) |
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** U
+- **status:** ✅ COMPLETATO (U.1–U.6 implementate e testate, U.7 benchmark residuo non automatizzabile)
+- **last_commit:** in aggiornamento
+- **norms:** EC3, NTC2018, OPCM, EC8, EC2, DM96, CNR, Circ. 7
+- **audit_status:** WARNING
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 90%
+- Normative coverage: 85%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (5)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### HIGH
 
-## Esito audit
-- OK
-- Note sintetiche:
-  - Norme menzionate: NTC2018 §7, Circ. 7/2019 §C7, EN 1998-1 (EC8) |
+- **TEST:** Nessun test trovato per fase U
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** NTC2018: Requisito 'combinazioni' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'combinazioni' con formule e riferimenti normativi
+
+- **NORM:** EC2: Requisito 'coefficienti_parziali' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'coefficienti_parziali' con formule e riferimenti normativi
+
+- **NORM:** DM96: Requisito 'combinazioni_slu' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'combinazioni_slu' con formule e riferimenti normativi
+
+- **NORM:** DM96: Requisito 'verifiche_sle' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'verifiche_sle' con formule e riferimenti normativi
+
+---

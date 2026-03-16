@@ -1,38 +1,30 @@
 # Audit Fase S — Normative aggiuntive (DM92, NTC2008, EC2/EC3/EC8, CNR-DT 200)
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: S
-- status: ✅ COMPLETATA |
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** S
+- **status:** ✅ COMPLETATA
+- **last_commit:** —
+- **norms:** EC3, NTC2008, NTC2018, DM92, EC8, EC2, DM96, CNR
+- **audit_status:** WARNING
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 90%
+- Normative coverage: 85%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (1)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### HIGH
 
-## Esito audit
-- DA COMPLETARE
-- Note sintetiche:
-  - Norme menzionate: DM 14/02/1992, NTC 2008, EN 1992-1-1, EN 1993-1-1, EN 1998-1...
+- **TEST:** Nessun test trovato per fase S
+  - 🔧 Aggiungere test unitari e di integrazione
+
+---

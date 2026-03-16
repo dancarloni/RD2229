@@ -1,40 +1,64 @@
 # Audit Fase C — Pipeline di Calcolo e Gestione Progetti
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: C
-- status: ✅ COMPLETATO |
-- last_commit: c24f6f2
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** C
+- **status:** ✅ COMPLETATO
+- **last_commit:** `c24f6f2`
+- **norms:** RD2229, NTC2018, DM92, DM72, EC2, DM96
+- **audit_status:** CRITICAL
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 90%
+- Normative coverage: 85%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (11)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### CRITICAL
 
-## Esito audit
-- DA CORREGGERE
-- Note sintetiche:
-  - Riferimenti a test mancanti: tests/test_project_repository.py, tests/test_pipeline.py
-  - Bug documentati: 2
-  - Norme menzionate: Multi-norma (orchestrazione) |
+- **FORMULA:** RD2229: Formula 'pressoflessione' mancante o non testata adeguatamente
+  - Ref: § della norma
+  - 🔧 Implementare e testare rigorosamente la formula di pressoflessione
+
+- **FORMULA:** DM96: Formula 'pressoflessione' mancante o non testata adeguatamente
+  - Ref: § della norma
+  - 🔧 Implementare e testare rigorosamente la formula di pressoflessione
+
+#### HIGH
+
+- **TEST:** Nessun test trovato per fase C
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** RD2229: Requisito 'formula' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'formula' con formule e riferimenti normativi
+
+- **NORM:** RD2229: Requisito 'tabelle_coefficienti' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'tabelle_coefficienti' con formule e riferimenti normativi
+
+- **NORM:** RD2229: Requisito 'sicurezza' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'sicurezza' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'spettro_risposta' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'spettro_risposta' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'criteri_duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'criteri_duttilità' con formule e riferimenti normativi
+
+- **NORM:** EC2: Requisito 'coefficienti_parziali' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'coefficienti_parziali' con formule e riferimenti normativi
+
+- **NORM:** DM96: Requisito 'formula_momenti' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'formula_momenti' con formule e riferimenti normativi
+
+- **NORM:** DM96: Requisito 'duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'duttilità' con formule e riferimenti normativi
+
+---

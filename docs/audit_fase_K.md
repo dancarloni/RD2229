@@ -1,38 +1,51 @@
 # Audit Fase K — Grafici Strutturali
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: K
-- status: UNKNOWN
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** K
+- **status:** UNKNOWN
+- **last_commit:** —
+- **norms:** RD2229, NTC2008, NTC2018, OPCM, DM72, EC2, DM96, DM87
+- **audit_status:** WARNING
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 0%
+- Normative coverage: 0%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (8)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### HIGH
 
-## Esito audit
-- DA COMPLETARE
-- Note sintetiche:
-  - Norme menzionate: | Norma | Contenuto rilevante |, | --- | --- |, | NTC2018 §4.1.5 | Freccia limite per SLE (usata in K.3 annotazione v_max) |, | NTC2018 §7.8 | Inviluppi sollecitazioni per muratura (K.1 adapter) |, | EC2 §5.8 | Spostamenti di secondo ordine (input per K.3) |...
+- **TEST:** Nessun test trovato per fase K
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** RD2229: Requisito 'formula' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'formula' con formule e riferimenti normativi
+
+- **NORM:** RD2229: Requisito 'tabelle_coefficienti' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'tabelle_coefficienti' con formule e riferimenti normativi
+
+- **NORM:** RD2229: Requisito 'sicurezza' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'sicurezza' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'criteri_duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'criteri_duttilità' con formule e riferimenti normativi
+
+- **NORM:** EC2: Requisito 'coefficienti_parziali' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'coefficienti_parziali' con formule e riferimenti normativi
+
+- **NORM:** DM96: Requisito 'formula_momenti' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'formula_momenti' con formule e riferimenti normativi
+
+- **NORM:** DM96: Requisito 'duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'duttilità' con formule e riferimenti normativi
+
+---

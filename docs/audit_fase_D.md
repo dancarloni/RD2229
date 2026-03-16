@@ -1,38 +1,36 @@
 # Audit Fase D — Cordoli Metallici e Acciaio TA
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: D
-- status: UNKNOWN
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** D
+- **status:** UNKNOWN
+- **last_commit:** —
+- **norms:** CNR, NTC2018
+- **audit_status:** WARNING
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 0%
+- Normative coverage: 0%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (3)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### HIGH
 
-## Esito audit
-- DA COMPLETARE
-- Note sintetiche:
-  - Norme menzionate: | Norma | Articolo/Tabella | Contenuto |, | --- | --- | --- |, | CNR 10011/1985 | Tab. 9 | Coefficienti ω instabilità per λ = L/i |, | CNR 10011/1985 | §4.2 | Tensioni ammissibili acciaio (σ_adm, τ_adm) |, | CNR 10011/1985 | §7 | Connessioni bullonate e saldate |...
+- **TEST:** Nessun test trovato per fase D
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** NTC2018: Requisito 'combinazioni' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'combinazioni' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'criteri_duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'criteri_duttilità' con formule e riferimenti normativi
+
+---

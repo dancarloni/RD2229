@@ -93,7 +93,69 @@ Note su commit references: quando possibile inserire il commit hash nella colonn
 
 ---
 
-## Avanzamento fasi
+## Risk Assessment — Audit Approfondito 2026-03-16
+
+### Risultati Audit Automatico + Manuale
+
+**Data esecuzione**: 2026-03-16
+**Fasi auditate**: 42
+**Rapporto dettagliato**: [AUDIT_CRITICALITY_REPORT.md](AUDIT_CRITICALITY_REPORT.md)
+**Script audit**: `scripts/deep_audit_all_phases.py`, `scripts/audit_manual_deep.py`
+
+#### Riassunto Risultati
+
+| Status | Fasi | Conta | Dettaglio |
+|--------|------|-------|----------|
+| 🟢 OK | — | 0 | Nessuna fase priva di criticità |
+| 🟠 WARNING | B,D,E,F,G,H,I,J,K,L,M,P,Q,R,S,S3-S6,S8-S9,T,U,V,W,X2,X4,X5,Y | 29 | Completate con gap test/documentazione |
+| 🔴 CRITICAL | A,C,N,O,S1,S2,S7,X,X1,X3,X6,X7,X8 | 13 | Necessitano remediation formule/test |
+
+#### Criticità CRITICHE Identificate (BLOCCA V1)
+
+**FORMULA ASSENTI** (3):
+1. **X3**: Punzonamento solai (NTC2018 §4.1.2.1.4.2) — **BLOCCA V1 RELEASE**
+   - Missing: V_Rd,c, V_Rd,s, periometro u_0 = 2(c₁+c₂)
+   - Impact: Impossibile certificare solai con colonne
+   - Action: Implementare + 15 test (2-3 giorni)
+
+2. **C**: SLU deviata (NTC2018 §4.1.2.1.3.2) — **CRITICA**
+   - Missing: Diagramma blocco-parabola, vincoli ε_cu=0.0035
+   - Impact: Non conforme norma per deformazioni plastiche
+   - Action: Refactor solver + 20 test (3 giorni)
+
+3. **C**: Taglio-torsione (NTC2018 §4.1.2.1.3.8) — **CRITICA**
+   - Missing: Interazione V-T, riduzione resistenza
+   - Impact: Verifiche torsione non conformi con taglio
+   - Action: Implementare combinazione + 10 test (2 giorni)
+
+#### Criticità HIGH (REMEDIATION IMPORTANTE)
+
+**Fase A**: Coefficienti γ non verificati per tutte le norme
+**Fase O**: Interpolazione griglia INGV (propagazione errore possibile)
+**Varie**: Mancano riferimenti espliciti § nel codice (documentazione)
+
+#### Affectedance Test (42 HIGH)
+
+- 5 fasi con 0 test → **CRITICA per certificazione**
+- 24 fasi con 1-5 test → **WARNING per copertura**
+- Target V1: 500+ test (attualmente ~250)
+
+#### Impatto Su Roadmap
+
+| Item | Risk | Status |
+|------|------|--------|
+| Punzonamento X3 | BLOCCA V1 | 🔴 TODO |
+| SLU deviata C | BLOCCA V1 | 🔴 HIGH PRIORITY |
+| Taglio-torsione C | BLOCCA V1 | 🔴 HIGH PRIORITY |
+| Copertura test | MEDIA | 🟠 MEDIUM |
+| Documentazione norm. | LOW | 🟡 LOW |
+
+**Azioni immediate richieste**:
+- [ ] Implementare punzonamento X3 (1 settimana)
+- [ ] Validare SLU deviata vs letteratura (1 settimana)
+- [ ] Aggiungere 250+ test (2 settimane)
+
+---
 
 | Fase | Stato | %   | Ultimo commit | Dettaglio                | Argomento |
 |------|-------|-----|---------------|--------------------------|-----------|

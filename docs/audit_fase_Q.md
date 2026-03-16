@@ -1,38 +1,42 @@
 # Audit Fase Q — Relazione di calcolo professionale
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: Q
-- status: ✅ COMPLETATA |
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** Q
+- **status:** ✅ COMPLETATA
+- **last_commit:** af80fb9
+- **norms:** RD2229, NTC2008, NTC2018, DM96, Circ. 7
+- **audit_status:** WARNING
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 90%
+- Normative coverage: 85%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (5)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### HIGH
 
-## Esito audit
-- DA COMPLETARE
-- Note sintetiche:
-  - Norme menzionate: n/a (infrastruttura report) |
+- **TEST:** Nessun test trovato per fase Q
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** RD2229: Requisito 'sicurezza' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'sicurezza' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'spettro_risposta' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'spettro_risposta' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'criteri_duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'criteri_duttilità' con formule e riferimenti normativi
+
+- **NORM:** DM96: Requisito 'duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'duttilità' con formule e riferimenti normativi
+
+---

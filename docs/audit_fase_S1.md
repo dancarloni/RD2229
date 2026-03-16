@@ -1,38 +1,49 @@
 # Audit Fase S1 — Tamponamenti secondari
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: S1
-- status: ✅ COMPLETATO |
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** S1
+- **status:** ✅ COMPLETATO
+- **last_commit:** — (implementazione diretta durante sessione sviluppo S1-S9)
+- **norms:** RD2229, NTC2018, DM92, EC8, DM96, Circ. 7
+- **audit_status:** CRITICAL
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 90%
+- Normative coverage: 85%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (6)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### CRITICAL
 
-## Esito audit
-- OK
-- Note sintetiche:
-  - Norme menzionate: NTC2018 §7.2 e seguenti, Circ. 7/2019, DM96/DM92, EC8 (confronto), FEMA E-74 (confronto) |
+- **FORMULA:** RD2229: Formula 'pressoflessione' mancante o non testata adeguatamente
+  - Ref: § della norma
+  - 🔧 Implementare e testare rigorosamente la formula di pressoflessione
+
+- **FORMULA:** DM96: Formula 'pressoflessione' mancante o non testata adeguatamente
+  - Ref: § della norma
+  - 🔧 Implementare e testare rigorosamente la formula di pressoflessione
+
+#### HIGH
+
+- **TEST:** Nessun test trovato per fase S1
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** RD2229: Requisito 'sicurezza' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'sicurezza' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'combinazioni' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'combinazioni' con formule e riferimenti normativi
+
+- **NORM:** DM96: Requisito 'duttilità' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'duttilità' con formule e riferimenti normativi
+
+---

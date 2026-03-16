@@ -1,39 +1,42 @@
 # Audit Fase H — Riorganizzazione `src/methods/`
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: H
-- status: UNKNOWN
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** H
+- **status:** UNKNOWN
+- **last_commit:** —
+- **norms:** RD2229, EC2
+- **audit_status:** WARNING
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 0%
+- Normative coverage: 0%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (5)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### HIGH
 
-## Esito audit
-- DA CORREGGERE
-- Note sintetiche:
-  - Riferimenti a test mancanti: tests/test_*.py
-  - Riferimenti normativi assenti o non riconosciuti
+- **TEST:** Nessun test trovato per fase H
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** RD2229: Requisito 'formula' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'formula' con formule e riferimenti normativi
+
+- **NORM:** RD2229: Requisito 'casi_carico' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'casi_carico' con formule e riferimenti normativi
+
+- **NORM:** RD2229: Requisito 'sicurezza' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'sicurezza' con formule e riferimenti normativi
+
+- **NORM:** EC2: Requisito 'metodo_progettuale' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'metodo_progettuale' con formule e riferimenti normativi
+
+---

@@ -1,39 +1,33 @@
 # Audit Fase W — Pipeline OCR per manuali tecnici storici
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: W
-- status: ⬜ TODO |
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** W
+- **status:** ⬜ TODO
+- **last_commit:** —
+- **norms:** CNR, EC3
+- **audit_status:** WARNING
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 0%
+- Normative coverage: 0%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (2)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### HIGH
 
-## Esito audit
-- DA CORREGGERE
-- Note sintetiche:
-  - Riferimenti a test mancanti: tests/test_validazione.py, tests/test_preprocessing.py, tests/test_formule.py, tests/test_tabelle.py
-  - Norme menzionate: n/a (infrastruttura OCR) |
+- **TEST:** Nessun test trovato per fase W
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** EC3: Requisito 'momento_resistente' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'momento_resistente' con formule e riferimenti normativi
+
+---

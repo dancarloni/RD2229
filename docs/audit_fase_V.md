@@ -1,38 +1,36 @@
 # Audit Fase V — Scale (rampe in c.a. e metalliche)
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: V
-- status: ✅ IMPLEMENTATA E TESTATA |
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** V
+- **status:** ✅ IMPLEMENTATA E TESTATA
+- **last_commit:** Implementazione avanzata: incastro, pianerottolo, cambio pendenza
+- **norms:** EC2, EC3, NTC2018
+- **audit_status:** WARNING
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 90%
+- Normative coverage: 85%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (3)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### HIGH
 
-## Esito audit
-- DA COMPLETARE
-- Note sintetiche:
-  - Norme menzionate: NTC2018 §4.1.4, EC2 §5.7, DM 9/01/1996 |
+- **TEST:** Nessun test trovato per fase V
+  - 🔧 Aggiungere test unitari e di integrazione
+
+- **NORM:** EC2: Requisito 'coefficienti_parziali' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'coefficienti_parziali' con formule e riferimenti normativi
+
+- **NORM:** NTC2018: Requisito 'combinazioni' non documentato chiaramente
+  - 🔧 Aggiungere sezione che documenti 'combinazioni' con formule e riferimenti normativi
+
+---

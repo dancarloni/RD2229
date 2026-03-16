@@ -1,39 +1,40 @@
 # Audit Fase X — Solai (tutti i tipi, multi-campata, aperture, cerchiature)
 
+**Generato:** 2026-03-16 16:27:52
+
+
 ## Metadati
-- phase_id: X
-- status: 🟨 IN CORSO |
-- last_commit: —
-- tags: #todo
-- owner: Daniele Carloni
+- **phase_id:** X
+- **status:** 🟨 IN CORSO
+- **last_commit:** —
+- **norms:** RD2229, NTC2018, DM92, DM16, EC2, DM96, CNR
+- **audit_status:** CRITICAL
+- **risk_level:** HIGH
 
-## Struttura e completezza
-- Sezioni obbligatorie presenti: [ ]
-- File chiave linkati: [ ]
-- Subfasi/checklist allineate: [ ]
-- Test descritti e referenziati: [ ]
+## Analisi
 
-## Riferimenti e dipendenze
-- Norme/tabelle/paragrafi citati: [ ]
-- Dipendenze moduli/dati/test: [ ]
+### Test
+- Test found: ❌ No
+- Total tests: 0
+- Formula completeness: 50%
+- Normative coverage: 50%
 
-## Bug e storico
-- Bug noti/corretti: [ ]
-- Decisioni architetturali/Q&A: [ ]
+### Criticità rilevate (3)
 
-## Miglioramenti proposti
-- Refactor/ottimizzazione: [ ]
-- Estensioni future: [ ]
 
-## Verifica normativa, tecnica, legale
-- Ogni formula e dato scientifico è riferito allo specifico capitolo di legge e normativa: [ ]
-- Ogni formula, dato scientifico, riferimento normativo è tracciato e documentato in modo rigoroso: [ ]
-- Verifica legale: ogni implementazione è conforme alle normative vigenti e storiche: [ ]
-- Documentazione: ogni sezione include riferimenti precisi a capitoli di legge, norme, circolari, appendici, bibliografia: [ ]
-- Documentazione approfondita: [ ]
+#### CRITICAL
 
-## Esito audit
-- DA CORREGGERE
-- Note sintetiche:
-  - Riferimenti a test mancanti: tests/test_solai_combinazioni.py, tests/test_solai_tipologie.py, tests/test_solai_vibrazioni.py, tests/test_solai_carichi.py, tests/test_solai_aperture.py, tests/test_solai_slu.py, tests/test_solai_report.py, tests/test_solai_cerchiature.py, tests/test_solai_benchmark.py, tests/test_solai_sle.py
-  - Norme menzionate: NTC2018, EN 1992, DM96, DM92, RD2229 |
+- **FORMULA:** RD2229: Formula 'pressoflessione' mancante o non testata adeguatamente
+  - Ref: § della norma
+  - 🔧 Implementare e testare rigorosamente la formula di pressoflessione
+
+- **FORMULA:** DM96: Formula 'pressoflessione' mancante o non testata adeguatamente
+  - Ref: § della norma
+  - 🔧 Implementare e testare rigorosamente la formula di pressoflessione
+
+#### HIGH
+
+- **TEST:** Nessun test trovato per fase X
+  - 🔧 Aggiungere test unitari e di integrazione
+
+---
