@@ -11,11 +11,14 @@ Il builder non dipende da GUI né da librerie di PDF:
 from __future__ import annotations
 
 import datetime
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
 from src.core.results import ResultsModel
 from src.project.schema import ProjectModel
+
+from .x6_report_pipeline import build_report_payload
 
 APP_VERSION = "0.1.0"
 
@@ -35,11 +38,14 @@ class ReportArtifact:
     norm_code: str = ""
     markdown: str = ""
     html: str = ""
+    json_payload: str = ""
     # Tracciabilità compatta (non log completo)
     warnings: list[str] = field(default_factory=list)
     trace_summary: list[str] = field(default_factory=list)
     element_count: int = 0
     global_ok: bool = False
+    audit_trail: dict[str, Any] = field(default_factory=dict)
+    decision_trace: list[str] = field(default_factory=list)
     extra: dict[str, Any] = field(default_factory=dict)
 
 
@@ -62,11 +68,13 @@ def build_report(
     ts = datetime.datetime.now(datetime.UTC).isoformat()
     report_title = title or project.project_info.name or "Rapporto RD2229"
     norm_code = project.code_settings.norm_code or "RD2229"
+    decision_trace = _build_decision_trace(project, results)
 
     # Traccia compatta: solo le voci significative (max 20)
     trace_summary = _compact_trace(results.trace)
+    payload = build_report_payload(project, results, decision_trace=decision_trace)
 
-    md = _build_markdown(project, results, report_title, norm_code, ts, trace_summary)
+    md = _build_markdown(project, results, report_title, norm_code, ts, trace_summary, payload)
     html = _build_html(md, report_title)
 
     return ReportArtifact(
@@ -78,10 +86,14 @@ def build_report(
         norm_code=norm_code,
         markdown=md,
         html=html,
-        warnings=list(results.warnings),
+        json_payload=json.dumps(payload, ensure_ascii=False, indent=2),
+        warnings=list(payload["warnings"]),
         trace_summary=trace_summary,
         element_count=len(results.elements),
         global_ok=results.ok,
+        audit_trail=dict(payload["audit_trail"]),
+        decision_trace=list(decision_trace),
+        extra={"x6_payload": payload},
     )
 
 
@@ -111,6 +123,7 @@ def _build_markdown(
     norm_code: str,
     ts: str,
     trace_summary: list[str],
+    payload: dict[str, Any],
 ) -> str:
     """Genera il contenuto Markdown del report."""
     lines: list[str] = []
@@ -200,6 +213,14 @@ def _build_markdown(
             lines.append(t)
         lines.append("```")
         lines.append("")
+
+    lines.append("## Audit Trail X6")
+    lines.append("")
+    lines.append(f"- **Input hash:** {payload['audit_trail']['input_hash']}")
+    lines.append(f"- **Output hash:** {payload['audit_trail']['output_hash']}")
+    lines.append(f"- **Decision trace:** {len(payload['decision_trace'])} voci")
+    lines.append(f"- **Payload JSON disponibile:** {'Sì' if payload else 'No'}")
+    lines.append("")
 
     # Sezione Incendio
     _append_fire_section(lines, project, results)
@@ -418,6 +439,20 @@ def _build_html(markdown_content: str, title: str) -> str:
 
     html_lines.extend(["</body>", "</html>"])
     return "\n".join(html_lines)
+
+
+def _build_decision_trace(project: ProjectModel, results: ResultsModel) -> list[str]:
+    """Compone una traccia decisionale minima per X6."""
+    trace = [
+        f"normativa:{project.code_settings.norm_code}",
+        f"stati_limite:{','.join(project.code_settings.limit_states)}",
+        f"elementi:{len(results.elements)}",
+    ]
+    if project.code_settings.existing_structure:
+        trace.append(f"struttura_esistente:LC={project.code_settings.lc or 'N/D'}")
+    if results.warnings:
+        trace.append(f"warning_input:{len(results.warnings)}")
+    return trace
 
 
 def _esc(text: str) -> str:

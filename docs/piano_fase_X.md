@@ -38,7 +38,9 @@ Aggiornamento implementativo 2026-03-15:
 - X3 completato (check X3 + fallback DM96/DM16 + test mirati e benchmark)
 - X4 completato (deformabilita, tensioni/fessurazione, vibrazioni, test unit+benchmark)
 - X5 completato (`x5_aperture_classificazione`, `x5_aperture_rigidezza`, `x5_cerchiatura_redistribuzione`; test 31/31 PASS: 17 check + 11 benchmark + 3 e2e)
-- X6-X8 da implementare
+- X6 completato (report/tracciabilita, 61 test PASS)
+- X8 completato (casi speciali standalone post-V1, 22 test PASS)
+- X7 da implementare
 
 ## Base scientifica e riferimenti strutturali
 
@@ -203,7 +205,7 @@ Questa è la formula di riferimento da implementare per il c.a. armato. La forma
 
 #### 3) Deformabilità (freccia)
 
-- **Fonte primaria**: NTC2018 §7.2.6 (limiti deformabilità). 
+- **Fonte primaria**: NTC2018 §7.2.6 (limiti deformabilità).
 - **Fallback**: EN 1992-1-1 §7.3 (calcolo freccia).
 
 **Formula analitica (trave semplicemente appoggiata)**:
@@ -323,7 +325,7 @@ Dove:
 **Unità**: $V_{Rd,c}$ [kg], $b_0$ [cm], $d$ [cm], $f_{cd}$ [kg/cm²]
 
 **Warning**:
-- `X-PUNZ-001`: $V_{Ed} > 0{,}8 V_{Rd,c}$ (attenzione nei casi con armatura minima). 
+- `X-PUNZ-001`: $V_{Ed} > 0{,}8 V_{Rd,c}$ (attenzione nei casi con armatura minima).
 
 **Esempio**:
 - $b_0=120\,cm$, $d=30\,cm$, $f_{cd}=160\,kg/cm^2$, $\rho_l=0{,}0025$, $k=1{,}2$ → $V_{Rd,c}\approx 6{,}4\cdot 10^4\,kg$.

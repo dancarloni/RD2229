@@ -83,7 +83,7 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | U    | ✅    | 100 | 2026-03-12      | [piano_fase_U.md](piano_fase_U.md) | U.1–U.6 completate/testate/committate; U.7 benchmark esterno non automatizzabile |
 | V    | ✅    | 100 | —             | [piano_fase_V.md](piano_fase_V.md) | Scale completate: backend c.a./acciaio, widget Qt, test mirati e storicizzazione |
 | W    | ⬜    | 0   | —             | [piano_fase_W.md](piano_fase_W.md) | Da definire |
-| X    | 🟨    | 63  | e50807f       | [piano_fase_X.md](piano_fase_X.md) | Solai: X1-X5 completati; X6-X8 TODO |
+| X    | 🟨    | 88  | e50807f       | [piano_fase_X.md](piano_fase_X.md) | Solai: X1-X6 e X8 completati; X7 TODO |
 
 ## Stato avanzamento Fase X (solai)
 
@@ -102,9 +102,15 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 - [x] X3 — Verifiche SLU ([docs/piano_fase_X3_verifiche_slu.md](docs/piano_fase_X3_verifiche_slu.md))
 - [x] X4 — Verifiche SLE/vibrazioni ([docs/piano_fase_X4_verifiche_sle_vibrazioni.md](docs/piano_fase_X4_verifiche_sle_vibrazioni.md))
 - [x] X5 — Aperture/cerchiature ([docs/piano_fase_X5_aperture_cerchiature.md](docs/piano_fase_X5_aperture_cerchiature.md))
-- [ ] X6 — Report/tracciabilità ([docs/piano_fase_X6_report_tracciabilita.md](docs/piano_fase_X6_report_tracciabilita.md))
+- [x] X6 — Report/tracciabilità ([docs/piano_fase_X6_report_tracciabilita.md](docs/piano_fase_X6_report_tracciabilita.md))
+  - Stato: COMPLETATO 2026-03-16
+  - File chiave: `src/reporting/x6_report_pipeline.py`, `src/reporting/x6_multi_norm_comparator.py`, `src/reporting/x6_audit_trail.py`, `src/reporting/x6_warning_codes.py`, `src/reporting/report_builder.py`, `src/reporting/export.py`, `src/ui/qt/x6_report_widget.py`, `tests/test_reporting_x6.py`
+  - Test: 61 test passing (warning codes, audit trail, comparatore multi-norma, pipeline payload, ReportArtifact, export, benchmark doppia colonna)
 - [ ] X7 — Benchmark/validazione ([docs/piano_fase_X7_benchmark_validazione.md](docs/piano_fase_X7_benchmark_validazione.md))
-- [ ] X8 — Casi speciali ([docs/piano_fase_X8_casi_speciali.md](docs/piano_fase_X8_casi_speciali.md))
+- [x] X8 — Casi speciali ([docs/piano_fase_X8_casi_speciali.md](docs/piano_fase_X8_casi_speciali.md))
+  - Stato: COMPLETATO 2026-03-16
+  - File chiave: `src/x8_special_cases/__init__.py`, `src/x8_special_cases/x8_models.py`, `src/x8_special_cases/x8_warnings.py`, `src/x8_special_cases/x8_predalles.py`, `src/x8_special_cases/x8_collaboranti.py`, `src/x8_special_cases/x8_clt.py`, `src/x8_special_cases/x8_dispatcher.py`, `src/x8_special_cases/x8_benchmarks.py`, `tests/test_x8_special_cases.py`
+  - Test: 22 test passing (warning policy strict/fallback, dispatcher, benchmark fixtures, snapshot shape, quick reference X8-T01/T02/T03)
 
 **TODO prioritari Fase X:**
 - Integrazione pipeline X1→X2→X3→X4→X5 e test end-to-end
@@ -154,6 +160,8 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 | 2026-03-15 | X    | X4.1–X4.4 implementazione + audit all-green | — | Q&A bloccante completata e recepita. Eseguito audit pre-implementazione (correzione riferimenti normativi e formula a_RMS). Implementati `x4_sle_deformabilita`, `x4_sle_tensioni`, `x4_sle_vibrazioni` in `src/methods/ntc2018/checks_x4.py`; wiring su `src/codes/ntc2018/code_module.py`; estensione parametri in `src/codes/params/NTC2018.json`; suite `tests/codes/test_x4_sle_checks.py` + `tests/codes/test_x4_sle_benchmark.py` con esito **37/37 PASS**. Stato `docs/piano_fase_X4_verifiche_sle_vibrazioni.md` aggiornato a COMPLETATO. |
 | 2026-03-15 | X    | X5.1–X5.5 implementazione + validazione | — | Implementati tre check `x5_aperture_classificazione`, `x5_aperture_rigidezza`, `x5_cerchiatura_redistribuzione`; wiring `src/codes/ntc2018/code_module.py`; parametri `x5_aperture_cerchiature` in `src/codes/params/NTC2018.json`; test checks+benchmark+e2e con esito **31/31 PASS** e regressione check X3+X4+X5 **74/74 PASS**. |
 | 2026-03-16 | X    | X5.8 pushover multi-metodo (avvio implementazione) | — | Q&A bloccante completata (sessione unica, priorita motore pushover, unita storiche, vertical slice completo). Implementati `src/methods/ntc2018/x5_pushover.py` e check `x5_parete_pushover_ante_post` con metodi bilineare/trilineare/numerico, confronto ante/post e criteri di arresto configurabili; estensione nella stessa sessione con combinazioni sismiche semplificate e verifica livelli prestazionali `DL/SLV/SLC` (capacita+drift) per metodo; aggiornati wiring (`src/codes/ntc2018/code_module.py`), parametri (`src/codes/params/NTC2018.json`) e piano modulo X5; test check X5 **24/24 PASS**, benchmark X5 **14/14 PASS**, e2e X5 **4/4 PASS**, suite X5 mirata **52/52 PASS**. |
+| 2026-03-16 | X    | X6.1–X6.5 Report e Tracciabilità — COMPLETATO | — | Sessione unica. Implementati: `src/reporting/x6_multi_norm_comparator.py` (mappatura check_type→norma, 14 tipi verifica, NTC2018/DM96/DM92/RD2229/EC2/EC3); `src/reporting/x6_report_pipeline.py` (payload auditabile, auto-popolamento formula_table e normative_extracts da comparatore); `src/reporting/x6_audit_trail.py` (SHA-256 input/output hash); `src/reporting/x6_warning_codes.py` (codici X6-REP/AUD/NORM, severità, norm_ref); `src/reporting/report_builder.py` esteso (json_payload, audit_trail, decision_trace in ReportArtifact); `src/reporting/export.py` esteso (export_report_json); `src/ui/qt/x6_report_widget.py` (widget PySide6 preview HTML + export HTML/MD/JSON + audit panel). Test: **61/61 PASS** (`tests/test_reporting_x6.py`): warning codes, audit trail, comparatore multi-norma, pipeline payload, ReportArtifact X6, export, benchmark doppia colonna storico/NTC2018. |
+| 2026-03-16 | X    | X8.1–X8.4 Casi Speciali — COMPLETATO | — | Sessione unica. Implementato package standalone post-V1 `src/x8_special_cases/` con contratto dati (`x8_models.py`), warning codificati (`x8_warnings.py` con `X8-SPC-001/002/003`), valutatori dedicati (`x8_predalles.py`, `x8_collaboranti.py`, `x8_clt.py`), dispatcher locale (`x8_dispatcher.py`) e fixture benchmark (`x8_benchmarks.py`, 6 casi). Policy adottata: strict-blocking di default (`X8-SPC-003`) con fallback semplificato opzionale (`X8-SPC-002`). Aggiunta suite `tests/test_x8_special_cases.py` con **22/22 PASS** (unit/integration/snapshot + quick reference X8-T01/T02/T03). Aggiornata storicizzazione Q&A nel documento X8. |
 
 ---
 

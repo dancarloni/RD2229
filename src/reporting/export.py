@@ -3,6 +3,7 @@
 Funzioni pubbliche:
     - :func:`export_report_html` – scrive l'HTML su file
     - :func:`export_report_md` – scrive il Markdown su file
+    - :func:`export_report_json` – scrive il payload JSON X6 su file
 
 Entrambe usano scrittura atomica (file .tmp → os.replace) per sicurezza.
 """
@@ -54,6 +55,18 @@ def export_report_md(artifact: ReportArtifact, path: str) -> None:
         raise ValueError("Il ReportArtifact non contiene Markdown. Usa build_report prima.")
 
     _atomic_write(path, artifact.markdown, encoding="utf-8")
+
+
+def export_report_json(artifact: ReportArtifact, path: str) -> None:
+    """Esporta il report in formato JSON."""
+    from src.reporting.report_builder import ReportArtifact
+
+    if not isinstance(artifact, ReportArtifact):
+        raise TypeError(f"Atteso ReportArtifact, ricevuto {type(artifact)}")
+    if not artifact.json_payload:
+        raise ValueError("Il ReportArtifact non contiene JSON. Usa build_report prima.")
+
+    _atomic_write(path, artifact.json_payload, encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
