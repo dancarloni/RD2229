@@ -1,6 +1,19 @@
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit e push su `main`
+Ultimo sync: 2026-03-16 — commit e push su `main` (sessione: X8 completo)
+
+Changelog rapido (ultimi commit):
+- `932cfbc` — Implementazione `X8` casi speciali (codice, test, doc)
+- `bb10e15` — Aggiornamento `docs/PIANO_LAVORO.md` con tracciatura commit X8
+
+Sommario (rapido accesso):
+- Vincoli operativi permanenti
+- Stato generale
+- Avanzamento fasi (tabella riepilogativa)
+- Stato avanzamento Fase X (master-index e sub-fasi)
+- Istruzioni operative & Come aggiornare questo file
+- Convenzioni per refactor e indicizzazione
+- Mappatura artefatti e file chiave
 
 ## Vincoli operativi permanenti
 
@@ -21,6 +34,20 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 - **Nota:** L’agent deve sempre ricordare e far rispettare questi vincoli in ogni prompt, output e proposta operativa.
 
 ---
+
+**Nota operativa importante — come usare questo file (Fonte di verità):**
+
+- Questo file è la fonte di verità per stato, tracciamento e decisioni di progetto. Ogni modifica significativa al codice o alla documentazione che altera lo stato di una fase deve essere riflessa qui con:
+  - data di sincronizzazione (`Ultimo sync:`),
+  - commit hash relativo all'attività (se disponibile),
+  - breve descrizione dell'azione (1 riga).
+- Non eliminare storici: aggiungere sempre nuove righe nella sezione `Attività completate` invece di sovrascrivere.
+- Prima di modificare il file eseguire localmente i test rilevanti e assicurarsi che i pre-commit hooks passino.
+
+**Regole rapide per aggiornamento:**
+- Modifica del codice → creare commit con messaggio chiaro; aggiornare qui con commit hash e descrizione.
+- Modifica documentale non sostanziale (typo) → può essere committata senza aggiornare lo stato di fase.
+- Aggiornamenti di stato (COMPLETATO/TODO) devono includere almeno un test di riferimento e il relativo file/testlink.
 
 ## Stato Generale
 
@@ -119,6 +146,16 @@ Ultimo sync: 2026-03-12 — avvio implementazione Fase U (U.1/U.1.5/U.2), commit
 - Commit & push branch feature/PR
 - Eventuale catalogo esterno categorie carico (opzionale)
 
+**Convenzioni per refactor e indicizzazione (raccomandate):**
+
+- Ogni file `piano_fase_*.md` deve iniziare con un blocco metadati YAML (frontmatter) contenente: `phase_id`, `status`, `last_commit`, `tags` (lista), `owner`.
+- Usare tag coerenti per indicizzazione (es.: `#solai`, `#SLU`, `#SLE`, `#benchmark`, `#X8`, `#refactor`).
+- Nomi simbolici nei file di codice devono seguire lo schema `phaseX_feature_subfeature` per facilitare ricerca e refactor.
+
+**Mappatura artefatti e criteri di link:**
+- Per ogni fase, inserire una lista `File chiave` con percorsi relativi e riferimenti ai test principali. Quando possibile, linkare a file con formato `[file.md](file.md#L1)` per facilitare navigazione.
+
+
 **Nota:** Stato e file/dipendenze sono allineati a quanto documentato nei file X1/X2 e rispettive memory.
 | Y    | ⬜    | 0   | —             | [piano_fase_Y.md](piano_fase_Y.md) | Da definire |
 
@@ -205,8 +242,27 @@ Dal 2026-03-11 la pianificazione degli elementi secondari e non strutturali non 
 ---
 
 ## Istruzioni operative
+Per dettagli, consultare i file [docs/piano_fase_X.md](docs/piano_fase_X.md), [docs/piano_fase_Y.md](docs/piano_fase_Y.md) e [docs/piano_fase_V.md](docs/piano_fase_V.md) corrispondenti a ciascuna fase.
 
-Per dettagli, consultare i file docs/piano_fase_X.md, docs/piano_fase_Y.md e docs/piano_fase_V.md corrispondenti a ciascuna fase.
-La nuova fase X (solai) è documentata in [piano_fase_X.md](piano_fase_X.md), separata dalla Fase M (FEM) a partire dal 2026-03-10 (sessione Copilot).
-La nuova fase Y (aree di influenza) è documentata in [piano_fase_Y.md](piano_fase_Y.md), centralizzando la logica condivisa tra solai, scale e fondazioni (decisione 2026-03-10, sessione Copilot).
-La famiglia di fasi S1-S9 documenta in modo granulare gli elementi secondari e non strutturali del §7.2 NTC2018 e categorie affini; sostituisce la pianificazione generica precedente sugli elementi secondari.
+Checklist rapida per aggiornare questo file (procedura consigliata):
+
+1. Eseguire i test pertinenti localmente:
+
+```bash
+python -m pytest -q tests/test_x8_special_cases.py
+python -m pytest -q tests/test_reporting_x6.py
+```
+
+2. Creare commit descrittivo (es.: `git commit -m "X8: implementazione casi speciali, tests e doc"`).
+3. Aggiornare questa pagina aggiungendo riga in `Attività completate` o aggiornando la voce della fase con `Commit: <hash>`.
+4. Eseguire `git push origin main` e verificare il CI (se presente).
+
+Comandi utili:
+
+```bash
+git add -A
+git commit -m "<breve descrizione>"
+git push origin main
+```
+
+Se vuoi, posso applicare automaticamente le modifiche di frontmatter ai file `piano_fase_*.md` e inserire i metadati consigliati.
