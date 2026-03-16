@@ -88,6 +88,15 @@ def build_main_window(
     status = window.statusBar()
     status.showMessage("Pronto")
 
+    status_norm = QLabel("Norma: -")
+    status_project = QLabel("Progetto: non caricato")
+    status_elements = QLabel("Elementi: 0")
+    status_warnings = QLabel("Warnings: 0")
+    status.addPermanentWidget(status_norm)
+    status.addPermanentWidget(status_project)
+    status.addPermanentWidget(status_elements)
+    status.addPermanentWidget(status_warnings)
+
     tabs = QTabWidget(central)
     root.addWidget(tabs)
 
@@ -177,8 +186,24 @@ def build_main_window(
     tabs.addTab(wind_tab, "Vento")
 
     # Additional utility tabs for previously stubbed modules
-    tabs.addTab(CodeSettingsWindow(parent=tabs), "Code Settings")
-    tabs.addTab(NotificationCenterWindow(parent=tabs), "Notifiche")
+    code_settings_tab = CodeSettingsWindow(parent=tabs)
+    notifications_tab = NotificationCenterWindow(parent=tabs)
+    tabs.addTab(code_settings_tab, "Code Settings")
+    tabs.addTab(notifications_tab, "Notifiche")
+
+    def _refresh_status() -> None:
+        project = project_service.current_project
+        code_settings = getattr(project, "code_settings", None)
+        geometry = getattr(project, "geometry", [])
+        norm_code = getattr(code_settings, "norm_code", "-") if code_settings else "-"
+        status_norm.setText(f"Norma: {norm_code}")
+        project_label = state.get("project_path") or "non caricato"
+        status_project.setText(f"Progetto: {project_label}")
+        status_elements.setText(f"Elementi: {len(geometry)}")
+        warnings_count = 0
+        if state.get("results") is not None:
+            warnings_count = len(getattr(state["results"], "warnings", []))
+        status_warnings.setText(f"Warnings: {warnings_count}")
 
     def _append(message: str) -> None:
         dash_log.append(message)
@@ -207,6 +232,7 @@ def build_main_window(
         state["project_path"] = project_path
         txt_project.setText(project_path or "")
         section_manager.refresh_from_project()
+        _refresh_status()
 
     def _ensure_loaded_project() -> bool:
         project_path = txt_project.text().strip()
@@ -279,6 +305,7 @@ def build_main_window(
             state["results"] = results
             artifact = build_report(project_service.current_project, results)
             report_viewer.set_report(artifact)
+            _refresh_status()
             _append(
                 f"Pipeline eseguita: ok={results.ok} elementi={len(results.elements)} "
                 f"warnings={len(results.warnings)}"
@@ -450,9 +477,14 @@ def build_main_window(
 
     # Menu bar + recent projects
     menu_file = window.menuBar().addMenu("File")
+    menu_calc = window.menuBar().addMenu("Calcolo")
+    menu_help = window.menuBar().addMenu("Aiuto")
     act_new = QAction("Nuovo", window)
     act_open = QAction("Apri", window)
     act_save = QAction("Salva", window)
+    act_run = QAction("Esegui pipeline", window)
+    act_norm = QAction("Impostazioni norma", window)
+    act_help = QAction("Guida rapida GUI", window)
     recent_menu = menu_file.addMenu("Recenti")
 
     def _rebuild_recent_menu() -> None:
@@ -467,9 +499,19 @@ def build_main_window(
     act_new.triggered.connect(_new_project)
     act_open.triggered.connect(_open_project)
     act_save.triggered.connect(_save_project)
+    act_run.triggered.connect(_run_pipeline)
+    act_norm.triggered.connect(lambda checked=False: tabs.setCurrentWidget(code_settings_tab))
+    act_help.triggered.connect(
+        lambda checked=False: _append(
+            "Aiuto: usare Progetto -> Verifica -> Report; impostazioni norma nel tab Code Settings."
+        )
+    )
     menu_file.addAction(act_new)
     menu_file.addAction(act_open)
     menu_file.addAction(act_save)
+    menu_calc.addAction(act_run)
+    menu_calc.addAction(act_norm)
+    menu_help.addAction(act_help)
     _rebuild_recent_menu()
 
     # Button bindings
@@ -489,5 +531,6 @@ def build_main_window(
 
     _append("GUI moderna tab-based inizializzata.")
     _append("Tab attivi: Progetto, Verifica, Report, Materiali, Sezioni, FEM/Telai, Vento.")
+    _refresh_status()
 
     return window

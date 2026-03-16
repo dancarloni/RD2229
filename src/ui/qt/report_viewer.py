@@ -11,6 +11,7 @@ try:
     from PyQt6.QtWidgets import (
         QFileDialog,
         QHBoxLayout,
+        QMessageBox,
         QPushButton,
         QSizePolicy,
         QTextBrowser,
@@ -21,6 +22,7 @@ except ImportError:  # pragma: no cover
     from PySide6.QtWidgets import (
         QFileDialog,
         QHBoxLayout,
+        QMessageBox,
         QPushButton,
         QSizePolicy,
         QTextBrowser,
@@ -55,16 +57,22 @@ class ReportViewerWindow(QWidget):
         root = QVBoxLayout(self)
         toolbar = QHBoxLayout()
         self.btn_open_browser = QPushButton("Apri nel browser")
+        self.btn_print = QPushButton("Stampa")
+        self.btn_save_pdf = QPushButton("Salva PDF")
         self.btn_save_html = QPushButton("Salva HTML")
         self.btn_save_md = QPushButton("Salva MD")
         self.btn_refresh = QPushButton("Refresh")
 
         self.btn_open_browser.clicked.connect(self._open_in_browser)
+        self.btn_print.clicked.connect(self._print_report)
+        self.btn_save_pdf.clicked.connect(self._save_pdf)
         self.btn_save_html.clicked.connect(self._save_html)
         self.btn_save_md.clicked.connect(self._save_md)
         self.btn_refresh.clicked.connect(self._refresh_view)
 
         toolbar.addWidget(self.btn_open_browser)
+        toolbar.addWidget(self.btn_print)
+        toolbar.addWidget(self.btn_save_pdf)
         toolbar.addWidget(self.btn_save_html)
         toolbar.addWidget(self.btn_save_md)
         toolbar.addWidget(self.btn_refresh)
@@ -118,6 +126,39 @@ class ReportViewerWindow(QWidget):
     def _open_in_browser(self) -> None:
         target = self._ensure_temp_html()
         webbrowser.open(target.as_uri())
+
+    def _print_report(self) -> None:
+        if self._uses_web_engine and hasattr(self.viewer, "page"):
+            self._save_pdf()
+            return
+        QMessageBox.information(
+            self,
+            "Stampa non disponibile",
+            "La stampa diretta richiede QWebEngineView. Usa 'Apri nel browser' per stampare.",
+        )
+
+    def _save_pdf(self) -> None:
+        if not (self._uses_web_engine and hasattr(self.viewer, "page")):
+            QMessageBox.information(
+                self,
+                "PDF non disponibile",
+                "Export PDF disponibile solo con QWebEngineView (PyQt6-WebEngine/PySide6-WebEngine).",
+            )
+            return
+
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Salva report PDF",
+            str(Path.cwd() / "report_rd2229.pdf"),
+            "PDF (*.pdf)",
+        )
+        if not path:
+            return
+
+        try:
+            self.viewer.page().printToPdf(path)
+        except Exception as exc:  # pragma: no cover - runtime Qt backend differences
+            QMessageBox.warning(self, "Errore PDF", f"Esportazione PDF fallita: {exc}")
 
     def _save_html(self) -> None:
         path, _ = QFileDialog.getSaveFileName(
