@@ -1,0 +1,11 @@
+name: CI (DISABLED)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  disabled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disabled workflow placeholder
+        run: echo "This workflow has been temporarily disabled by renaming the file to .yml.disabled"

@@ -1,0 +1,17 @@
+name: GUI Tests (DISABLED)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  qt:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    env:
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
+    steps:
+      - name: Disabled workflow placeholder
+        run: |
+          echo "This workflow has been temporarily disabled by renaming the file to .yml.disabled"
