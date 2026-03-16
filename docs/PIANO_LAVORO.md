@@ -1,3 +1,11 @@
+---
+title: PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
+last_sync: 2026-03-16
+maintainers:
+  - Daniele Carloni
+tags: [piano, roadmap, stato, refactor]
+---
+
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
 Ultimo sync: 2026-03-16 — commit e push su `main` (sessione: X8 completo)
@@ -5,15 +13,26 @@ Ultimo sync: 2026-03-16 — commit e push su `main` (sessione: X8 completo)
 Changelog rapido (ultimi commit):
 - `932cfbc` — Implementazione `X8` casi speciali (codice, test, doc)
 - `bb10e15` — Aggiornamento `docs/PIANO_LAVORO.md` con tracciatura commit X8
+- `2b40b2d` — Migliorie testi e TOC
 
-Sommario (rapido accesso):
-- Vincoli operativi permanenti
-- Stato generale
-- Avanzamento fasi (tabella riepilogativa)
-- Stato avanzamento Fase X (master-index e sub-fasi)
-- Istruzioni operative & Come aggiornare questo file
-- Convenzioni per refactor e indicizzazione
-- Mappatura artefatti e file chiave
+Indice rapido:
+
+- [Vincoli operativi permanenti](#vincoli-operativi-permanenti)
+- [Stato Generale](#stato-generale)
+- [Avanzamento fasi](#avanzamento-fasi)
+- [Stato avanzamento Fase X (solai)](#stato-avanzamento-fase-x-solai)
+- [Istruzioni operative](#istruzioni-operative)
+- [Convenzioni per refactor e indicizzazione](#convenzioni-per-refactor-e-indicizzazione)
+- [Mappatura artefatti e file chiave](#mappatura-artefatti-e-file-chiave)
+- [Attività completate (cronologia)](#attivit%C3%A0-completate)
+
+Legenda (icône e simboli nella tabella delle fasi):
+
+- ✅ : fase completata
+- 🟨 : fase in corso / parzialmente completata
+- ⬜ : fase non avviata
+
+Note su commit references: quando possibile inserire il commit hash nella colonna `Ultimo commit` (short-hash). Per attività multi-commit, preferire il commit che rappresenta la milestone principale.
 
 ## Vincoli operativi permanenti
 
