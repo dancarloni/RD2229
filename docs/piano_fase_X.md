@@ -1,3 +1,11 @@
+#---
+phase_id: X
+status: "see_in_document"
+last_commit: "e50807f"
+tags: [X, solai, roadmap]
+owner: Daniele Carloni
+---
+
 # Fase X — Solai (tutti i tipi, multi-campata, aperture, cerchiature)
 
 ## Stato e metadati

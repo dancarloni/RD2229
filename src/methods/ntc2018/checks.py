@@ -65,7 +65,7 @@ def check_pressoflessione_slu(
     - Tenso-flessione retta (N < 0, Mx o My)
     - Flessione deviata (N + Mx + My, formula di Bresler)
 
-    Metodo: fiber method con stress block rettangolare (λ=0.8).
+    Metodo: fiber method con diagramma parabola-rettangolo per il cls.
     Convenzione: N > 0 = compressione, N < 0 = trazione.
 
     Args:
@@ -76,7 +76,7 @@ def check_pressoflessione_slu(
         Risultato della verifica con interazione N-M
     """
     from src.methods.section_fiber import (
-        compute_concrete_resultant,
+        compute_concrete_resultant_parabola_rectangle,
         get_section_height,
         get_section_width,
     )
@@ -148,7 +148,8 @@ def check_pressoflessione_slu(
     f_yd = f_yk / gamma_s  # MPa
     lambda_f = 0.8  # profondità stress block
     Es = 200000.0  # MPa, modulo elastico acciaio
-    eps_cu = 0.0035  # deformazione ultima cls NTC2018 §4.1.2.1.2
+    eps_cu = 0.0035  # deformazione ultima cls NTC2018 §4.1.2.1.3.2
+    eps_c2 = 0.002  # deformazione al picco cls per parabola-rettangolo
     eps_yd = f_yd / Es
 
     # Armatura
@@ -205,7 +206,14 @@ def check_pressoflessione_slu(
 
         def _equilibrium_N(x_na: float) -> float:
             """Sforzo normale interno per dato asse neutro x_na [mm]."""
-            R_c, _ = compute_concrete_resultant(section, x_na, f_cd, axis=axis, lambda_f=lambda_f)
+            R_c, _, _ = compute_concrete_resultant_parabola_rectangle(
+                section,
+                x_na,
+                f_cd,
+                axis=axis,
+                eps_cu=eps_cu,
+                eps_c2=eps_c2,
+            )
             # Deformazione armature
             if x_na > 0:
                 eps_s_comp = eps_cu * (x_na - d_prime_mm) / x_na
@@ -220,7 +228,14 @@ def check_pressoflessione_slu(
 
         def _moment_about_center(x_na: float) -> float:
             """Momento interno rispetto al baricentro geometrico [N·mm]."""
-            _, M_c = compute_concrete_resultant(section, x_na, f_cd, axis=axis, lambda_f=lambda_f)
+            _, M_c, _ = compute_concrete_resultant_parabola_rectangle(
+                section,
+                x_na,
+                f_cd,
+                axis=axis,
+                eps_cu=eps_cu,
+                eps_c2=eps_c2,
+            )
             if x_na > 0:
                 eps_s_comp = eps_cu * (x_na - d_prime_mm) / x_na
                 eps_s_tens = eps_cu * (x_na - d_ax_mm) / x_na
@@ -249,6 +264,9 @@ def check_pressoflessione_slu(
                 "over_reinforced": False,
                 "ok": False,
                 "utilisazione": 999.0,
+                "eps_s_tens": 0.0,
+                "eps_s_comp": 0.0,
+                "strain_violation": False,
                 "messages": [
                     f"N_Ed = {N_Ed:.1f} kN fuori dal dominio di resistenza.",
                     f"N_Rd,min = {N_lo / 1000:.1f} kN, N_Rd,max = {N_hi / 1000:.1f} kN",
@@ -266,6 +284,13 @@ def check_pressoflessione_slu(
                 x_hi = x_mid
         x_eq = (x_lo + x_hi) / 2.0
 
+        if x_eq > 0:
+            eps_s_comp = eps_cu * (x_eq - d_prime_mm) / x_eq
+            eps_s_tens = eps_cu * (x_eq - d_ax_mm) / x_eq
+        else:
+            eps_s_comp = -eps_cu
+            eps_s_tens = -eps_cu
+
         M_Rd_Nmm = abs(_moment_about_center(x_eq))
         M_Rd_kNm_val = M_Rd_Nmm / 1e6
 
@@ -278,6 +303,19 @@ def check_pressoflessione_slu(
 
         x_over_d_val = x_eq / d_ax_mm if d_ax_mm > 0 else 0.0
         over_reinf = x_over_d_val > 0.45
+        tension_strain_violation = abs(min(eps_s_tens, 0.0)) > 0.01
+        compressed_layer_violation = x_eq > d_prime_mm and eps_s_comp < -0.004
+        strain_violation = tension_strain_violation or compressed_layer_violation
+
+        messages: list[str] = []
+        if tension_strain_violation:
+            messages.append(
+                f"ε_s,t = {eps_s_tens:.5f} oltre il limite |ε_s| ≤ 0.010 richiesto a SLU"
+            )
+        if compressed_layer_violation:
+            messages.append(
+                f"ε_s' = {eps_s_comp:.5f} oltre il limite ε_s' ≥ -0.004 per il lembo compresso"
+            )
 
         return {
             "M_Rd_kNm": M_Rd_kNm_val,
@@ -286,7 +324,10 @@ def check_pressoflessione_slu(
             "over_reinforced": over_reinf,
             "ok": util <= 1.0 and not over_reinf,
             "utilisazione": util,
-            "messages": [],
+            "messages": messages,
+            "eps_s_tens": eps_s_tens,
+            "eps_s_comp": eps_s_comp,
+            "strain_violation": strain_violation,
         }
 
     # --- Determinazione tipo verifica ---
@@ -308,8 +349,13 @@ def check_pressoflessione_slu(
         # N_Rd per compressione centrata (tutta sezione + armatura)
         # Approssimazione: area cls = h * w_medio (media larghezza)
         # Per maggiore precisione usiamo integrazione fiber
-        R_c_full, _ = compute_concrete_resultant(
-            section, h / lambda_f, f_cd, axis="x", lambda_f=lambda_f
+        R_c_full, _, _ = compute_concrete_resultant_parabola_rectangle(
+            section,
+            h,
+            f_cd,
+            axis="x",
+            eps_cu=eps_cu,
+            eps_c2=eps_c2,
         )
         N_Rd_N = R_c_full + (As_mm2 + As_prime_mm2) * f_yd
         N_Rd_kN = N_Rd_N / 1000.0
@@ -338,6 +384,7 @@ def check_pressoflessione_slu(
             bresler = 999.0 if abs(My_Ed) > 1e-6 else (abs(Mx_Ed) / Mx_Rd) ** alpha
 
         over_reinf = res_x["over_reinforced"] or res_y["over_reinforced"]
+        strain_violation = res_x["strain_violation"] or res_y["strain_violation"]
         ok = bresler <= 1.0 and not over_reinf
 
         messages_it = [
@@ -346,6 +393,7 @@ def check_pressoflessione_slu(
             f"Armatura tesa: As = {As:.2f} cm², compressa: As' = {As_prime:.2f} cm²",
             f"Materiali: f_ck = {f_ck:.0f} MPa, f_yk = {f_yk:.0f} MPa "
             f"(f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa)",
+            "Legge cls: parabola-rettangolo con ε_c2 = 0.002, ε_cu = 0.0035",
             "",
             "Sollecitazioni di calcolo:",
             f"  N_Ed = {N_Ed:.1f} kN ({'compressione' if N_Ed > 0 else 'trazione'})",
@@ -366,6 +414,10 @@ def check_pressoflessione_slu(
                 f"  ⚠️ Sezione sovra-armata: x/d_x = {res_x['x_over_d']:.3f}, "
                 f"x/d_y = {res_y['x_over_d']:.3f}"
             )
+        if strain_violation:
+            messages_it.append("")
+            for msg in res_x["messages"] + res_y["messages"]:
+                messages_it.append(f"  ⚠️ {msg}")
 
         return SingleCheckResult(
             template_id=template.template_id,
@@ -386,8 +438,14 @@ def check_pressoflessione_slu(
                 "x_over_d_y": res_y["x_over_d"],
                 "f_cd_MPa": f_cd,
                 "f_yd_MPa": f_yd,
+                "eps_cu": eps_cu,
+                "eps_c2": eps_c2,
+                "eps_yd": eps_yd,
+                "eps_s_x": res_x["eps_s_tens"],
+                "eps_s_y": res_y["eps_s_tens"],
                 "section_type": section_type,
                 "over_reinforced": over_reinf,
+                "strain_violation": strain_violation,
                 "biaxial": True,
             },
             norm_references=[
@@ -406,6 +464,12 @@ def check_pressoflessione_slu(
                     chapter="5.8",
                     paragraph="5.8.9",
                     description_it="Formula di interazione biassiale (Mx/Mx_Rd)^α + (My/My_Rd)^α ≤ 1",
+                ),
+                NormReference(
+                    norm_code="NTC2018",
+                    chapter="4.1",
+                    paragraph="4.1.2.1.3.2",
+                    description_it="Diagramma parabola-rettangolo e limiti deformativi del cls e dell'acciaio",
                 ),
             ],
             messages_it=messages_it,
@@ -428,8 +492,13 @@ def check_pressoflessione_slu(
         # Per compressione/trazione centrata (M=0), verifica N solo
         if M_Ed < 1e-6 and abs(N_Ed_N) >= 1.0:
             # Compressione o trazione centrata
-            R_c_full, _ = compute_concrete_resultant(
-                section, h / lambda_f, f_cd, axis="x", lambda_f=lambda_f
+            R_c_full, _, _ = compute_concrete_resultant_parabola_rectangle(
+                section,
+                h,
+                f_cd,
+                axis="x",
+                eps_cu=eps_cu,
+                eps_c2=eps_c2,
             )
             if N_Ed > 0:
                 # Compressione centrata
@@ -440,6 +509,7 @@ def check_pressoflessione_slu(
                     f"Sezione: {section_type}, h = {h / 10:.1f} cm, b = {w / 10:.1f} cm",
                     f"Armatura: As = {As:.2f} cm², As' = {As_prime:.2f} cm²",
                     f"Materiali: f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa",
+                    "Legge cls: parabola-rettangolo con ε_cu = 0.0035",
                     "",
                     "COMPRESSIONE CENTRATA:",
                     f"  N_Ed = {N_Ed:.1f} kN",
@@ -508,6 +578,7 @@ def check_pressoflessione_slu(
             f"Armatura tesa: As = {As:.2f} cm², compressa: As' = {As_prime:.2f} cm²",
             f"Materiali: f_ck = {f_ck:.0f} MPa, f_yk = {f_yk:.0f} MPa "
             f"(f_cd = {f_cd:.1f} MPa, f_yd = {f_yd:.0f} MPa)",
+            "Legge cls: parabola-rettangolo con ε_c2 = 0.002, ε_cu = 0.0035",
             "",
             "Sollecitazioni di calcolo:",
             f"  N_Ed = {N_Ed:.1f} kN ({'compressione' if N_Ed >= 0 else 'trazione'})",
@@ -545,11 +616,17 @@ def check_pressoflessione_slu(
                 "x_over_d": x_over_d,
                 "f_cd_MPa": f_cd,
                 "f_yd_MPa": f_yd,
+                "eps_cu": eps_cu,
+                "eps_c2": eps_c2,
+                "eps_yd": eps_yd,
+                "eps_s_tens": res["eps_s_tens"],
+                "eps_s_comp": res["eps_s_comp"],
                 "As_cm2": As,
                 "As_prime_cm2": As_prime,
                 "d_cm": d,
                 "d_prime_cm": d_prime,
                 "over_reinforced": over_reinforced,
+                "strain_violation": res["strain_violation"],
                 "section_type": section_type,
                 "axis": axis,
                 "biaxial": False,
@@ -567,6 +644,12 @@ def check_pressoflessione_slu(
                     chapter="C4.1",
                     paragraph="C4.1.2.1.3.1",
                     description_it="Istruzioni per verifica a pressoflessione",
+                ),
+                NormReference(
+                    norm_code="NTC2018",
+                    chapter="4.1",
+                    paragraph="4.1.2.1.3.2",
+                    description_it="Diagramma parabola-rettangolo e limiti deformativi a SLU",
                 ),
             ],
             messages_it=messages_it,
@@ -1256,8 +1339,7 @@ def check_torsione_slu(
     T_Rd_kNm = min(T_Rd_max_kNm, T_Rd_s_kNm) if T_Rd_s_kNm > 0 else T_Rd_max_kNm
 
     # Interazione taglio-torsione
-    Tx = calc_input.Tx or 0.0
-    V_Ed = abs(Tx)  # kN
+    V_Ed = math.hypot(calc_input.Tx or 0.0, calc_input.Ty or 0.0)
     interaction_ratio = 0.0
     has_interaction = V_Ed > 1e-6
 
@@ -1276,13 +1358,23 @@ def check_torsione_slu(
 
         V_Rd_max_N = b_w * z * nu * f_cd * sin_t * cos_t if (b_w > 0 and z > 0) else 1e30
         V_Rd_max_kN = V_Rd_max_N / 1e3
+        tau_ed = T_Ed * 1e6 / (2.0 * A_k * t_ef) if A_k > 0 and t_ef > 0 else 0.0
+        tau_rd = nu * f_cd * sin_t * cos_t
+        reduction = max(0.0, 1.0 - tau_ed / tau_rd) if tau_rd > 0 else 0.0
+        V_Rd_max_reduced_kN = V_Rd_max_kN * reduction
 
         # EC2 eq. 6.29: T_Ed/T_Rd,max + V_Ed/V_Rd,max ≤ 1.0
         ratio_T = T_Ed / T_Rd_max_kNm if T_Rd_max_kNm > 0 else 999.0
         ratio_V = V_Ed / V_Rd_max_kN if V_Rd_max_kN > 0 else 0.0
-        interaction_ratio = ratio_T + ratio_V
+        ratio_V_reduced = V_Ed / V_Rd_max_reduced_kN if V_Rd_max_reduced_kN > 0 else 999.0
+        interaction_ratio = max(ratio_T + ratio_V, ratio_T + ratio_V_reduced, ratio_V_reduced)
     else:
         V_Rd_max_kN = 0.0
+        V_Rd_max_reduced_kN = 0.0
+        tau_ed = 0.0
+        tau_rd = 0.0
+        ratio_T = 0.0
+        ratio_V = 0.0
 
     # Utilizzazione
     util_T = T_Ed / T_Rd_kNm if T_Rd_kNm > 0 else 999.0
@@ -1314,7 +1406,10 @@ def check_torsione_slu(
             [
                 "",
                 "Interazione taglio-torsione (EC2 eq. 6.29):",
-                f"  T_Ed/T_Rd,max + V_Ed/V_Rd,max = {interaction_ratio:.3f}",
+                f"  T_Ed/T_Rd,max + V_Ed/V_Rd,max = {ratio_T + ratio_V:.3f}",
+                f"  τ_Ed = {tau_ed:.3f} MPa, τ_Rd = {tau_rd:.3f} MPa",
+                f"  V_Rd,max,ridotto = {V_Rd_max_reduced_kN:.2f} kN",
+                f"  Utilizzazione governante interazione = {interaction_ratio:.3f}",
             ]
         )
 
@@ -1340,6 +1435,11 @@ def check_torsione_slu(
             "theta_deg": theta_deg,
             "interaction_ratio": interaction_ratio,
             "has_interaction": has_interaction,
+            "V_Ed_kN": V_Ed,
+            "V_Rd_max_kN": V_Rd_max_kN,
+            "V_Rd_max_reduced_kN": V_Rd_max_reduced_kN,
+            "tau_Ed_MPa": tau_ed,
+            "tau_Rd_MPa": tau_rd,
         },
         norm_references=[
             NormReference(
@@ -1348,6 +1448,12 @@ def check_torsione_slu(
                 paragraph="4.1.2.1.5",
                 formula_label="EC2 (6.26)-(6.29)",
                 description_it="Verifica a torsione con modello a traliccio thin-walled",
+            ),
+            NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.1.3.8",
+                description_it="Interazione taglio-torsione e riduzione di V_Rd,max",
             ),
         ],
         messages_it=messages_it,

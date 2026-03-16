@@ -1,3 +1,5 @@
+import math
+
 import pytest
 
 from src.codes.ntc2018.code_module import NTC2018CodeModule
@@ -211,6 +213,7 @@ class TestX3Punzonamento:
         res = NTC2018CodeModule.run_check("x3_slu_punzonamento", inputs)
         _assert_contract(res)
         assert res["V_Rd_c_kN"] > 0
+        assert res["V_Rd_kN"] == res["value"]
 
     def test_compute_f_cd_from_f_ck(self):
         inputs = {
@@ -223,6 +226,20 @@ class TestX3Punzonamento:
         }
         res = NTC2018CodeModule.run_check("x3_slu_punzonamento", inputs)
         assert res["details"]["f_cd_MPa"] == pytest.approx(16.6667, rel=1e-3)
+        assert res["details"]["f_ck_MPa"] == pytest.approx(25.0, rel=1e-3)
+
+    def test_compute_perimeter_from_column_dimensions(self):
+        inputs = {
+            "c1_mm": 300,
+            "c2_mm": 400,
+            "d_mm": 180,
+            "rho_l": 0.015,
+            "f_ck_MPa": 30,
+        }
+        res = NTC2018CodeModule.run_check("x3_slu_punzonamento", inputs)
+        expected_b0 = 2 * (300 + 400) + 4 * math.pi * 180
+        assert res["ok"] is True
+        assert res["details"]["b0_mm"] == pytest.approx(expected_b0, rel=1e-3)
 
     def test_warning_above_08(self):
         base = {
@@ -249,6 +266,26 @@ class TestX3Punzonamento:
         res = NTC2018CodeModule.run_check("x3_slu_punzonamento", inputs)
         assert res["ok"] is False
         assert res["utilisation"] > 1.0
+
+    def test_punching_reinforcement_increases_capacity(self):
+        base = {
+            "b0_mm": 1200,
+            "d_mm": 220,
+            "rho_l": 0.015,
+            "f_ck_MPa": 30,
+        }
+        plain = NTC2018CodeModule.run_check("x3_slu_punzonamento", base)
+        reinforced = NTC2018CodeModule.run_check(
+            "x3_slu_punzonamento",
+            {
+                **base,
+                "A_sw_per_s_mm2_per_mm": 1.2,
+                "f_ywd_MPa": 391.3,
+                "alpha_deg": 90.0,
+            },
+        )
+        assert reinforced["V_Rd_s_kN"] > 0.0
+        assert reinforced["V_Rd_kN"] > plain["V_Rd_kN"]
 
     def test_capacity_only_without_v_ed(self):
         inputs = {

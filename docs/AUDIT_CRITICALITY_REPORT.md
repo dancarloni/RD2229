@@ -35,9 +35,9 @@ V_Rd,s = A_sw · f_ywd · d · sin(α) per armatura punzonamento
 ```
 
 **Remediation**:
-- [ ] Implementare `punzonamento_slu_check()` in `src/core_calculus/verifiche_solai/punzonamento.py`
-- [ ] Test: 15+ casos (colonna interna, margine, angolare, con armatura)
-- [ ] Merge con X3 suite prima di V1 release
+- [x] Implementare formula di punzonamento in `src/methods/ntc2018/checks_x3.py` con perimetro `u_1`
+- [x] Test: casi con perimetro da colonna interna, benchmark e armatura a punzonamento
+- [x] Merge con X3 suite prima di V1 release
 
 ---
 
@@ -67,10 +67,10 @@ Verifica:
 ```
 
 **Remediation**:
-- [ ] Implementare diagramma blocco-parabola in `verification_core.py`
-- [ ] Aggiungere vincoli espliciti `eps_cu=0.0035`, `eps_yd`
-- [ ] Test benchmar contro esempi letteratura (es. Campione et al.
-- [ ] Merge con F suite (verifiche c.a.)
+- [x] Implementare diagramma blocco-parabola in `src/methods/section_fiber.py` e allinearlo in `verification_core.py`
+- [x] Aggiungere vincoli espliciti `eps_cu=0.0035`, `eps_yd` e diagnostica deformativa
+- [x] Test benchmark/metadata su `tests/test_pressoflessione_ntc2018.py` e `tests/test_verification_core_normative.py`
+- [x] Merge con F suite (verifiche c.a.)
 
 ---
 
@@ -97,9 +97,9 @@ se τ_Ed > 0:
 ```
 
 **Remediation**:
-- [ ] Implementare interazione in `verification_core.py` o `shear_torsion.py`
-- [ ] Test: combinazioni V+T a differenti rapporti
-- [ ] Merge con G (acciaio) e F (cls)
+- [x] Implementare interazione in `src/methods/ntc2018/checks.py` e allineare `verification_core.py`
+- [x] Test: combinazioni V+T a differenti rapporti
+- [x] Merge con G (acciaio) e F (cls)
 
 ---
 

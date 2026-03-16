@@ -324,15 +324,35 @@ def calculate_neutral_axis_deviated_bending(
     d_top = reinforcement_compressed.distance
     d_bot = reinforcement_tensile.distance
 
+    eps_c2 = eps_cu / 1.75
+
     # Limits for neutral axis search
     x_min = 1e-6
     x_max = h * 0.999
 
+    def concrete_resultant(x_val: float) -> float:
+        """Compression resultant with parabola-rectangle law in cm-based units."""
+        if x_val <= 0.0 or fcd <= 0.0:
+            return 0.0
+        slices = 120
+        dy = h / slices
+        resultant = 0.0
+        for idx in range(slices):
+            y_mid = (idx + 0.5) * dy
+            eps_c = eps_cu * (x_val - y_mid) / x_val
+            if eps_c <= 0.0:
+                continue
+            if eps_c <= eps_c2:
+                eta = eps_c / eps_c2
+                sigma_c = fcd * (2.0 * eta - eta * eta)
+            else:
+                sigma_c = fcd
+            resultant += b * dy * sigma_c
+        return resultant
+
     def internal_axial_result(x_val: float) -> float:
         """Compute internal axial resultant (compression positive) for given x."""
-        # Concrete compression resultant using simplified rectangular block (0.8*x)
-        Ac = b * 0.8 * x_val
-        Cc = Ac * fcd
+        Cc = concrete_resultant(x_val)
         # centroid lever arm of stress block from top approximately 0.4*x
         # Steel strains (linear): epsilon = eps_cu * (x - y)/x
         # Positive epsilon => compression, negative => tension
@@ -474,11 +494,23 @@ def calculate_stresses_simple_bending(
             sigma_frc_equiv = 0.0
 
     elif method == "SLU":
-        # Ultimate limit state - stress block
-        # Simplified for now
-        sigma_c_max = 0.0
-        sigma_s_tensile = 0.0
-        sigma_s_compressed = 0.0
+        fcd = material.fcd if material.fcd is not None else material.fck
+        fyd = material.fyd if material.fyd is not None else material.fyk
+        Es = material.Es if material.Es is not None else 2100000.0
+        eps_cu = 0.0035
+        if x > 0.0:
+            eps_s_tens = eps_cu * (x - d) / x
+            eps_s_comp = eps_cu * (x - d_prime) / x
+        else:
+            eps_s_tens = -eps_cu
+            eps_s_comp = -eps_cu
+        sigma_c_max = min(
+            fcd,
+            fcd
+            * (2.0 * min(1.0, eps_cu / (eps_cu / 1.75)) - min(1.0, eps_cu / (eps_cu / 1.75)) ** 2),
+        )
+        sigma_s_tensile = max(min(Es * eps_s_tens, fyd), -fyd)
+        sigma_s_compressed = max(min(Es * eps_s_comp, fyd), -fyd)
         sigma_c_min = 0.0
 
     else:  # SLE
@@ -604,7 +636,15 @@ def calculate_shear_torsion_stresses(
     r = min(b, h) / 2.0
     tau_torsion = torsion * r / J if J > 0 else 0.0
 
-    tau_eq = math.hypot(tau_shear, tau_torsion)
+    if material is not None:
+        fcd = material.fcd if material.fcd is not None else material.fck
+        tau_rd = max(0.6 * fcd, 1e-9)
+        reduction = max(0.0, 1.0 - tau_torsion / tau_rd)
+        tau_shear_eff = tau_shear / reduction if reduction > 1e-6 else tau_shear * 1e6
+    else:
+        tau_shear_eff = tau_shear
+
+    tau_eq = math.hypot(tau_shear_eff, tau_torsion)
 
     # Convert to an equivalent steel stress assuming reinforcement_area resists shear/torsion
     if reinforcement_area and reinforcement_area > 0:
@@ -616,7 +656,7 @@ def calculate_shear_torsion_stresses(
         sigma_c_max=tau_eq,
         sigma_c_min=0.0,
         sigma_s_tensile=sigma_s_tensile,
-        sigma_s_compressed=0.0,
+        sigma_s_compressed=tau_torsion,
     )
 
 

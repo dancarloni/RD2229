@@ -144,15 +144,15 @@ Note su commit references: quando possibile inserire il commit hash nella colonn
 
 | Item | Risk | Status |
 |------|------|--------|
-| Punzonamento X3 | BLOCCA V1 | 🔴 TODO |
-| SLU deviata C | BLOCCA V1 | 🔴 HIGH PRIORITY |
-| Taglio-torsione C | BLOCCA V1 | 🔴 HIGH PRIORITY |
+| Punzonamento X3 | BLOCCA V1 | ✅ IMPLEMENTATO 2026-03-16 |
+| SLU deviata C | BLOCCA V1 | ✅ IMPLEMENTATO 2026-03-16 |
+| Taglio-torsione C | BLOCCA V1 | ✅ IMPLEMENTATO 2026-03-16 |
 | Copertura test | MEDIA | 🟠 MEDIUM |
 | Documentazione norm. | LOW | 🟡 LOW |
 
 **Azioni immediate richieste**:
-- [ ] Implementare punzonamento X3 (1 settimana)
-- [ ] Validare SLU deviata vs letteratura (1 settimana)
+- [x] Implementare punzonamento X3 (1 settimana)
+- [x] Validare SLU deviata vs letteratura (1 settimana)
 - [ ] Aggiungere 250+ test (2 settimane)
 
 ---

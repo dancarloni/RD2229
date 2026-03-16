@@ -10,7 +10,7 @@ Copre:
   - Taglio
   - Torsione
 
-Coefficienti parziali: γ_c = 1.5, γ_s = 1.15 (identici EC2)
+Coefficienti parziali: γ_c = 1.6, γ_s = 1.15 (allineati ai cataloghi DM92)
 Conversione: R_ck (cubica) = f_ck (cilindrica) / 0.83
 Unità: tensioni in kg/cm², geometria in cm
 """

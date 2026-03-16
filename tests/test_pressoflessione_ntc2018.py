@@ -440,6 +440,7 @@ class TestFlessioneDeviata:
         )
         res = check_pressoflessione_slu(ci, _template())
         assert res.details.get("biaxial") is True
+        assert any(ref.paragraph == "4.1.2.1.3.2" for ref in res.norm_references)
 
 
 # ===========================================================================
@@ -485,3 +486,33 @@ class TestDuttilita:
         if res.details.get("x_over_d", 0) > 0.45:
             assert res.ok is False
             assert res.details["over_reinforced"] is True
+
+
+class TestDeformazioniSLU:
+    def test_normative_strain_metadata_present(self):
+        ci = _calc_input(
+            section=_rect(300, 500),
+            N=250.0,
+            Mx=40.0,
+            My=15.0,
+            As=10.0,
+            As_prime=8.0,
+            d=45.0,
+        )
+        res = check_pressoflessione_slu(ci, _template())
+        assert res.details["eps_cu"] == pytest.approx(0.0035)
+        assert res.details["eps_c2"] == pytest.approx(0.002)
+        assert res.details["eps_yd"] > 0.0
+
+    def test_strain_violation_flag_present(self):
+        ci = _calc_input(
+            section=_rect(200, 300),
+            N=0.0,
+            Mx=15.0,
+            As=1.0,
+            As_prime=1.0,
+            d=29.0,
+            d_prime=2.0,
+        )
+        res = check_pressoflessione_slu(ci, _template())
+        assert "strain_violation" in res.details

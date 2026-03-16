@@ -219,6 +219,25 @@ class TestTorsioneSLU:
         res = check_torsione_slu(ci, _template("torsione"))
         assert res.details["has_interaction"] is True
         assert res.details["interaction_ratio"] > 0
+        assert res.details["V_Rd_max_reduced_kN"] <= res.details["V_Rd_max_kN"]
+
+    def test_torsion_with_strong_shear_can_fail_by_reduction(self):
+        """Taglio elevato con torsione deve ridurre V_Rd,max."""
+        from src.methods.ntc2018.checks import check_torsione_slu
+
+        ci = _calc_input(
+            section=_rect(250, 400),
+            Mz=18.0,
+            Tx=220.0,
+            Ty=80.0,
+            staffe_diametro=8,
+            staffe_passo=20,
+            staffe_num_bracci=2,
+        )
+        res = check_torsione_slu(ci, _template("torsione"))
+        assert res.details["tau_Ed_MPa"] > 0.0
+        assert res.details["V_Rd_max_reduced_kN"] < res.details["V_Rd_max_kN"]
+        assert res.utilisation >= res.details["interaction_ratio"]
 
     def test_rect_hollow_torsion(self):
         """Sezione cava: buona per torsione."""

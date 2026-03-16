@@ -101,7 +101,7 @@ class TestX3BenchmarkPunzonamento:
         }
         res = NTC2018CodeModule.run_check("x3_slu_punzonamento", inputs)
         assert res["ok"] is True
-        assert res["V_Rd_c_kN"] == pytest.approx(232.0, rel=0.08)
+        assert res["V_Rd_c_kN"] == pytest.approx(176.8, rel=0.08)
 
     def test_sigma_cp_increase_increases_capacity(self):
         base = {
@@ -124,7 +124,7 @@ class TestX3BenchmarkPunzonamento:
             "f_cd_MPa": 16.67,
             "sigma_cp_MPa": 0.0,
         }
-        cap = NTC2018CodeModule.run_check("x3_slu_punzonamento", base)["V_Rd_c_kN"]
+        cap = NTC2018CodeModule.run_check("x3_slu_punzonamento", base)["V_Rd_kN"]
         res = NTC2018CodeModule.run_check("x3_slu_punzonamento", {**base, "V_Ed_kN": 0.79 * cap})
         assert "X3-PUNZ-001" not in res["warnings"]
 
@@ -136,7 +136,7 @@ class TestX3BenchmarkPunzonamento:
             "f_cd_MPa": 16.67,
             "sigma_cp_MPa": 0.0,
         }
-        cap = NTC2018CodeModule.run_check("x3_slu_punzonamento", base)["V_Rd_c_kN"]
+        cap = NTC2018CodeModule.run_check("x3_slu_punzonamento", base)["V_Rd_kN"]
         res = NTC2018CodeModule.run_check("x3_slu_punzonamento", {**base, "V_Ed_kN": 0.81 * cap})
         assert "X3-PUNZ-001" in res["warnings"]
 

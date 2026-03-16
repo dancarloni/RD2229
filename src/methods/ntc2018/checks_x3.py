@@ -178,26 +178,34 @@ def x3_slu_taglio(inputs: dict[str, Any]) -> dict[str, Any]:
 
 
 def x3_slu_punzonamento(inputs: dict[str, Any]) -> dict[str, Any]:
-    """Verifica SLU a punzonamento con formulazione semplificata EC2/NTC."""
+    """Verifica SLU a punzonamento con formulazione EC2/NTC."""
 
     b0 = float(inputs.get("b0_mm", 0.0))
     d = float(inputs.get("d_mm", 0.0))
     rho_l = float(inputs.get("rho_l", 0.0))
     sigma_cp = float(inputs.get("sigma_cp_MPa", 0.0))
     gamma_c = float(inputs.get("gamma_c", 1.5))
+    gamma_s = float(inputs.get("gamma_s", 1.15))
     v_ed = inputs.get("V_Ed_kN", None)
+    c1 = float(inputs.get("c1_mm", 0.0))
+    c2 = float(inputs.get("c2_mm", 0.0))
+    perimeter_factor = float(inputs.get("perimeter_reduction_factor", 1.0))
 
+    f_ck = float(inputs.get("f_ck_MPa", 0.0))
     f_cd = inputs.get("f_cd_MPa", None)
-    if f_cd is None:
-        f_ck = float(inputs.get("f_ck_MPa", 0.0))
-        if f_ck <= 0:
-            return _error_result(
-                "Errore: fornire f_cd_MPa oppure f_ck_MPa valido.",
-                ["NTC2018 §4.1.2.5", "EN 1992-1-1 §6.4"],
-            )
-        f_cd_val = f_ck / gamma_c
-    else:
+    if f_ck <= 0.0 and f_cd is None:
+        return _error_result(
+            "Errore: fornire f_ck_MPa valido oppure f_cd_MPa.",
+            ["NTC2018 §4.1.2.5", "EN 1992-1-1 §6.4"],
+        )
+    if f_ck <= 0.0:
         f_cd_val = float(f_cd)
+        f_ck = f_cd_val * gamma_c
+    else:
+        f_cd_val = float(f_cd) if f_cd is not None else f_ck / gamma_c
+
+    if b0 <= 0.0 and min(c1, c2, d) > 0.0:
+        b0 = (2.0 * (c1 + c2) + 4.0 * math.pi * d) * perimeter_factor
 
     if min(b0, d, rho_l, f_cd_val) <= 0:
         return _error_result(
@@ -209,44 +217,81 @@ def x3_slu_punzonamento(inputs: dict[str, Any]) -> dict[str, Any]:
     steps: list[str] = []
     warnings: list[str] = []
 
-    c_rd_c = float(inputs.get("C_Rd_c", 0.18))
+    c_rd_c = float(inputs.get("C_Rd_c", 0.18 / gamma_c))
     k_1 = float(inputs.get("k1", 0.15))
     k = min(1.0 + math.sqrt(200.0 / d), 2.0)
+    rho_use = min(max(rho_l, 1e-9), 0.02)
 
-    term = c_rd_c * k * (100.0 * rho_l * f_cd_val) ** (1.0 / 3.0) + k_1 * sigma_cp
+    term = c_rd_c * k * (100.0 * rho_use * f_ck) ** (1.0 / 3.0) + k_1 * sigma_cp
     v_rd_c_n = term * b0 * d
     v_rd_c_kn = v_rd_c_n / 1000.0
 
+    asw_over_s = float(inputs.get("A_sw_per_s_mm2_per_mm", 0.0))
+    if asw_over_s <= 0.0:
+        a_sw = float(inputs.get("A_sw_mm2", 0.0))
+        s_mm = float(inputs.get("s_mm", 0.0))
+        if a_sw > 0.0 and s_mm > 0.0:
+            asw_over_s = a_sw / s_mm
+    f_ywd = float(inputs.get("f_ywd_MPa", 0.0))
+    if f_ywd <= 0.0:
+        f_yk = float(inputs.get("f_yk_MPa", 0.0))
+        if f_yk > 0.0:
+            f_ywd = f_yk / gamma_s
+    alpha_deg = float(inputs.get("alpha_deg", 90.0))
+    alpha_rad = math.radians(alpha_deg)
+    v_rd_s_n = (
+        asw_over_s * f_ywd * d * math.sin(alpha_rad) if asw_over_s > 0.0 and f_ywd > 0.0 else 0.0
+    )
+    v_rd_s_kn = v_rd_s_n / 1000.0
+    v_rd_total_kn = v_rd_c_kn + v_rd_s_kn
+
     steps.append(f"k = min(1 + sqrt(200/d), 2) = {k:.4f}")
-    steps.append(f"term = C_Rd,c*k*(100*rho_l*f_cd)^(1/3) + k1*sigma_cp = {term:.6f}")
+    steps.append(f"rho_l,eff = min(max(rho_l, 0), 0.02) = {rho_use:.6f}")
+    steps.append(f"u_1 = b0 = {b0:.3f} mm")
+    steps.append(f"term = C_Rd,c*k*(100*rho_l*f_ck)^(1/3) + k1*sigma_cp = {term:.6f}")
     steps.append(f"V_Rd,c = term*b0*d = {v_rd_c_kn:.4f} kN")
+    if v_rd_s_kn > 0.0:
+        steps.append(f"V_Rd,s = (A_sw/s)*f_ywd*d*sin(alpha) = {v_rd_s_kn:.4f} kN")
+    steps.append(f"V_Rd = V_Rd,c + V_Rd,s = {v_rd_total_kn:.4f} kN")
+
+    if rho_l > 0.02:
+        warnings.append("X3-PUNZ-002")
+        steps.append("Warning X3-PUNZ-002: rho_l > 0.02, applicato clamp normativo")
 
     utilisation = None
     ok = True
     if v_ed is not None:
         v_ed_val = float(v_ed)
-        utilisation = v_ed_val / v_rd_c_kn if v_rd_c_kn > 0 else 999.0
-        if v_ed_val > 0.8 * v_rd_c_kn:
+        utilisation = v_ed_val / v_rd_total_kn if v_rd_total_kn > 0 else 999.0
+        if v_ed_val > 0.8 * v_rd_total_kn:
             warnings.append("X3-PUNZ-001")
-            steps.append("Warning X3-PUNZ-001: V_Ed > 0.8*V_Rd,c")
-        ok = v_ed_val <= v_rd_c_kn
+            steps.append("Warning X3-PUNZ-001: V_Ed > 0.8*V_Rd")
+        ok = v_ed_val <= v_rd_total_kn
         steps.append(
-            f"UC_P = V_Ed/V_Rd,c = {v_ed_val:.4f}/{v_rd_c_kn:.4f} = {utilisation:.4f} -> {'OK' if ok else 'NON OK'}"
+            f"UC_P = V_Ed/V_Rd = {v_ed_val:.4f}/{v_rd_total_kn:.4f} = {utilisation:.4f} -> {'OK' if ok else 'NON OK'}"
         )
     else:
-        steps.append("V_Ed_kN non fornito: calcolato solo V_Rd,c")
+        steps.append("V_Ed_kN non fornito: calcolata solo la capacita' V_Rd")
 
     return {
         "ok": ok,
-        "value": round(v_rd_c_kn, 4),
+        "value": round(v_rd_total_kn, 4),
         "V_Rd_c_kN": round(v_rd_c_kn, 4),
+        "V_Rd_s_kN": round(v_rd_s_kn, 4),
+        "V_Rd_kN": round(v_rd_total_kn, 4),
         "utilisation": round(utilisation, 4) if utilisation is not None else None,
         "details": {
             "k": round(k, 4),
             "C_Rd_c": round(c_rd_c, 4),
             "k1": round(k_1, 4),
             "term": round(term, 6),
+            "b0_mm": round(b0, 4),
+            "rho_l_eff": round(rho_use, 6),
             "f_cd_MPa": round(f_cd_val, 4),
+            "f_ck_MPa": round(f_ck, 4),
+            "A_sw_per_s_mm2_per_mm": round(asw_over_s, 6),
+            "f_ywd_MPa": round(f_ywd, 4),
+            "alpha_deg": round(alpha_deg, 4),
         },
         "steps": steps,
         "warnings": warnings,

@@ -392,6 +392,51 @@ def compute_concrete_resultant(
     return (R_c, M_c)
 
 
+def compute_concrete_resultant_parabola_rectangle(
+    section: Any,
+    x_na: float,
+    f_cd: float,
+    axis: str = "x",
+    eps_cu: float = 0.0035,
+    eps_c2: float = 0.002,
+    n_strips: int = 160,
+) -> tuple[float, float, float]:
+    """Risultante cls compresso con diagramma parabola-rettangolo NTC2018/EC2."""
+    if axis == "x":
+        h = get_section_height(section)
+        width_func = lambda pos: width_at_depth(section, pos)
+    else:
+        h = get_section_width(section)
+        width_func = lambda pos: height_at_horizontal(section, pos)
+
+    if x_na <= 0.0 or f_cd <= 0.0:
+        return (0.0, 0.0, 0.0)
+
+    h_2 = h / 2.0
+    dy = h / n_strips
+    R_c = 0.0
+    M_c = 0.0
+    eps_c_max = 0.0
+
+    for i in range(n_strips):
+        y_mid = (i + 0.5) * dy
+        strain = eps_cu * (x_na - y_mid) / x_na
+        if strain <= 0.0:
+            continue
+        if strain <= eps_c2:
+            eta = strain / eps_c2
+            sigma_c = f_cd * (2.0 * eta - eta * eta)
+        else:
+            sigma_c = f_cd
+        b_y = width_func(y_mid)
+        dF = b_y * dy * sigma_c
+        R_c += dF
+        M_c += dF * (h_2 - y_mid)
+        eps_c_max = max(eps_c_max, strain)
+
+    return (R_c, M_c, min(eps_c_max, eps_cu))
+
+
 # ---------------------------------------------------------------------------
 # Larghezza anima (b_w) per verifica a taglio
 # ---------------------------------------------------------------------------

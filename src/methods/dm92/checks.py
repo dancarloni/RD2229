@@ -20,8 +20,8 @@ from typing import Any
 # COSTANTI E COEFFICIENTI
 # ============================================================================
 
-# Coefficienti di sicurezza (DM92, identici EC2)
-GAMMA_C_DM92 = 1.5  # Calcestruzzo
+# Coefficienti di sicurezza (allineati ai cataloghi DM92 del progetto)
+GAMMA_C_DM92 = 1.6  # Calcestruzzo
 GAMMA_S_DM92 = 1.15  # Acciaio
 
 
