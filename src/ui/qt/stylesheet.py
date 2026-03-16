@@ -152,6 +152,76 @@ QScrollBar::handle:vertical {
 """
 
 
+DARK_QSS = """
+QMainWindow, QDialog, QWidget {
+    background-color: #1f252a;
+    color: #dfe6eb;
+}
+
+QMenuBar, QMenu, QStatusBar {
+    background-color: #151a1f;
+    color: #dfe6eb;
+}
+
+QMenuBar::item:selected, QMenu::item:selected {
+    background-color: #2f7ea8;
+}
+
+QPushButton {
+    background-color: #2f7ea8;
+    color: #ffffff;
+    border: 1px solid #38617a;
+    border-radius: 4px;
+    padding: 6px 12px;
+}
+
+QPushButton:hover {
+    background-color: #3a94c5;
+}
+
+QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QTableWidget, QTableView {
+    background-color: #2b3339;
+    color: #dfe6eb;
+    border: 1px solid #3b464e;
+}
+
+QHeaderView::section {
+    background-color: #151a1f;
+    color: #dfe6eb;
+    border: 1px solid #3b464e;
+    padding: 4px;
+}
+
+QTabWidget::pane {
+    border: 1px solid #3b464e;
+}
+
+QTabBar::tab {
+    background-color: #2b3339;
+    color: #dfe6eb;
+    padding: 6px 14px;
+    border: 1px solid #3b464e;
+}
+
+QTabBar::tab:selected {
+    background-color: #2f7ea8;
+    color: #ffffff;
+}
+
+QTableWidget::item:selected, QTableView::item:selected {
+    background-color: #2f7ea8;
+    color: #ffffff;
+}
+"""
+
+
+RESULT_STATUS_QSS = """
+QTableWidget::item[status='ok'] { color: #1f8f4c; }
+QTableWidget::item[status='warn'] { color: #d27d00; }
+QTableWidget::item[status='ko'] { color: #b42b2b; }
+"""
+
+
 def apply_base_stylesheet(app: object) -> None:
     """Apply the RD2229 base stylesheet to a QApplication instance.
 
@@ -162,6 +232,14 @@ def apply_base_stylesheet(app: object) -> None:
     """
     if hasattr(app, "setStyleSheet"):
         app.setStyleSheet(BASE_QSS)
+
+
+def apply_theme(app: object, theme: str = "light") -> None:
+    """Apply named theme to QApplication (light or dark)."""
+    if not hasattr(app, "setStyleSheet"):
+        return
+    selected = DARK_QSS if str(theme).lower() == "dark" else BASE_QSS
+    app.setStyleSheet(selected + "\n" + RESULT_STATUS_QSS)
 
 
 class DiagnosticsPanel:

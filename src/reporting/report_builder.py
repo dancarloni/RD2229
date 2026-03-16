@@ -73,6 +73,9 @@ def build_report(
     # Traccia compatta: solo le voci significative (max 20)
     trace_summary = _compact_trace(results.trace)
     payload = build_report_payload(project, results, decision_trace=decision_trace)
+    coded_warnings = list(payload["warnings"])
+    # Keep report/results aligned for downstream consumers and tests.
+    results.warnings = list(coded_warnings)
 
     md = _build_markdown(project, results, report_title, norm_code, ts, trace_summary, payload)
     html = _build_html(md, report_title)
@@ -87,7 +90,7 @@ def build_report(
         markdown=md,
         html=html,
         json_payload=json.dumps(payload, ensure_ascii=False, indent=2),
-        warnings=list(payload["warnings"]),
+        warnings=list(coded_warnings),
         trace_summary=trace_summary,
         element_count=len(results.elements),
         global_ok=results.ok,

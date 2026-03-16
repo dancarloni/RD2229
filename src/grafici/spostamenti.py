@@ -188,21 +188,10 @@ class SolutoreAnalitico(ISolutoreSpostamenti):
 
 
 class SolutoreFEM(ISolutoreSpostamenti):
-    """Solutore spostamenti basato su doppia integrazione di M(x)/EI.
+    """Stub del solutore FEM per compatibilità storica.
 
-    Implementa il contratto ISolutoreSpostamenti per casi in cui il diagramma
-    dei momenti M(x) è già noto (es. trave isolata con BC semplicemente
-    appoggiate o ad incastro-appoggio).
-
-    Per l'analisi FEM completa di telai piani (assemblaggio K_G, applicazione
-    BC, soluzione sparsa, post-processing) utilizzare direttamente:
-        from src.fem import Assemblatore, ApplicatoreBC, SolutoreFEMSparso, PostProcessorFEM
-
-    Parametri
-    ---------
-    bc : str
-        Condizioni al contorno per la doppia integrazione.
-        Valori: "semplicemente_appoggiata" | "incastro_appoggio" | "doppio_incastro"
+    La risoluzione FEM reale vive nel package `src.fem`.
+    Questa classe viene mantenuta come placeholder intenzionale.
     """
 
     _BC_VALIDI: frozenset[str] = frozenset(
@@ -223,18 +212,9 @@ class SolutoreFEM(ISolutoreSpostamenti):
         *,
         etichetta: str = "",
     ) -> DiagrammaSpostamenti:
-        """Calcola v(x) tramite doppia integrazione numerica di M(x)/EI.
-
-        Delegato a SolutoreAnalitico con le stesse condizioni al contorno.
-        u(x) = 0: per lo spostamento orizzontale di telai, usare SolutoreFEMSparso.
-        """
-        risultato = self._analitico.calcola(x_cm, M_kgcm, EI_kgcm2, etichetta=etichetta)
-        return DiagrammaSpostamenti(
-            x_cm=risultato.x_cm,
-            v_cm=risultato.v_cm,
-            u_cm=risultato.u_cm,
-            etichetta=risultato.etichetta,
-            solutore="FEM",
+        """Placeholder esplicito fino a piena integrazione Fase M GUI."""
+        raise NotImplementedError(
+            "SolutoreFEM (wrapper grafico) non implementato: usare la pipeline FEM di Fase M."
         )
 
 

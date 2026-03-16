@@ -6,6 +6,6 @@ so tests importing `src.ui.modern.*` continue to work.
 
 from __future__ import annotations
 
-from .services import CalculationService, ProjectIOService
+from .services import CalculationService, PresetExecutionService, ProjectIOService
 
-__all__ = ["ProjectIOService", "CalculationService"]
+__all__ = ["ProjectIOService", "CalculationService", "PresetExecutionService"]

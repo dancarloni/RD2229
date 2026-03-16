@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-gui = ["PyQt6>=6.4", "PyYAML>=6.0"]
+gui = ["PyQt6>=6.4", "PyQt6-WebEngine>=6.4", "PyYAML>=6.0"]
 
 [project.scripts]
 # Default `rd2229` now launches the evolved Qt GUI entrypoint (`rd2229.ui_qt`).

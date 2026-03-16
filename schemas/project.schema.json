@@ -2,6 +2,28 @@
   "$defs": {
     "CodeSettings": {
       "properties": {
+        "norm_code": {
+          "default": "RD2229",
+          "title": "Norm Code",
+          "type": "string"
+        },
+        "limit_states": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limit States",
+          "type": "array"
+        },
+        "units_force": {
+          "default": "kN",
+          "title": "Units Force",
+          "type": "string"
+        },
+        "units_length": {
+          "default": "cm",
+          "title": "Units Length",
+          "type": "string"
+        },
         "existing_structure": {
           "default": false,
           "title": "Existing Structure",
@@ -18,28 +40,6 @@
           ],
           "default": null,
           "title": "Lc"
-        },
-        "limit_states": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Limit States",
-          "type": "array"
-        },
-        "norm_code": {
-          "default": "RD2229",
-          "title": "Norm Code",
-          "type": "string"
-        },
-        "units_force": {
-          "default": "kN",
-          "title": "Units Force",
-          "type": "string"
-        },
-        "units_length": {
-          "default": "cm",
-          "title": "Units Length",
-          "type": "string"
         }
       },
       "title": "CodeSettings",
@@ -47,6 +47,21 @@
     },
     "FireSettings": {
       "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "scenario": {
+          "default": "ISO_834",
+          "title": "Scenario",
+          "type": "string"
+        },
+        "required_rating_minutes": {
+          "default": 60,
+          "title": "Required Rating Minutes",
+          "type": "integer"
+        },
         "cover_mm_default": {
           "anyOf": [
             {
@@ -59,11 +74,6 @@
           "default": null,
           "title": "Cover Mm Default"
         },
-        "enabled": {
-          "default": false,
-          "title": "Enabled",
-          "type": "boolean"
-        },
         "exposure_sides_default": {
           "anyOf": [
             {
@@ -75,16 +85,6 @@
           ],
           "default": null,
           "title": "Exposure Sides Default"
-        },
-        "required_rating_minutes": {
-          "default": 60,
-          "title": "Required Rating Minutes",
-          "type": "integer"
-        },
-        "scenario": {
-          "default": "ISO_834",
-          "title": "Scenario",
-          "type": "string"
         }
       },
       "title": "FireSettings",
@@ -92,34 +92,6 @@
     },
     "GeometryEntry": {
       "properties": {
-        "extra": {
-          "additionalProperties": true,
-          "title": "Extra",
-          "type": "object"
-        },
-        "fire_override": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Fire Override"
-        },
-        "fire_selected": {
-          "default": false,
-          "title": "Fire Selected",
-          "type": "boolean"
-        },
-        "height": {
-          "default": 0.0,
-          "title": "Height",
-          "type": "number"
-        },
         "id": {
           "default": "",
           "title": "Id",
@@ -134,6 +106,34 @@
           "default": 0.0,
           "title": "Width",
           "type": "number"
+        },
+        "height": {
+          "default": 0.0,
+          "title": "Height",
+          "type": "number"
+        },
+        "fire_selected": {
+          "default": false,
+          "title": "Fire Selected",
+          "type": "boolean"
+        },
+        "fire_override": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fire Override"
+        },
+        "extra": {
+          "additionalProperties": true,
+          "title": "Extra",
+          "type": "object"
         }
       },
       "title": "GeometryEntry",
@@ -141,6 +141,23 @@
     },
     "LoadEntry": {
       "properties": {
+        "element_id": {
+          "default": "",
+          "title": "Element Id",
+          "type": "string"
+        },
+        "N": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N"
+        },
         "Mx": {
           "anyOf": [
             {
@@ -177,18 +194,6 @@
           "default": null,
           "title": "Mz"
         },
-        "N": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "N"
-        },
         "Tx": {
           "anyOf": [
             {
@@ -218,10 +223,10 @@
           "title": "Description",
           "type": "string"
         },
-        "element_id": {
-          "default": "",
-          "title": "Element Id",
-          "type": "string"
+        "extra": {
+          "additionalProperties": true,
+          "title": "Extra",
+          "type": "object"
         }
       },
       "title": "LoadEntry",
@@ -229,10 +234,20 @@
     },
     "MaterialEntry": {
       "properties": {
-        "extra": {
-          "additionalProperties": true,
-          "title": "Extra",
-          "type": "object"
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "default": "",
+          "title": "Type",
+          "type": "string"
+        },
+        "material_class": {
+          "default": "",
+          "title": "Material Class",
+          "type": "string"
         },
         "f_ck": {
           "anyOf": [
@@ -258,20 +273,10 @@
           "default": null,
           "title": "F Yk"
         },
-        "id": {
-          "default": "",
-          "title": "Id",
-          "type": "string"
-        },
-        "material_class": {
-          "default": "",
-          "title": "Material Class",
-          "type": "string"
-        },
-        "type": {
-          "default": "",
-          "title": "Type",
-          "type": "string"
+        "extra": {
+          "additionalProperties": true,
+          "title": "Extra",
+          "type": "object"
         }
       },
       "title": "MaterialEntry",
@@ -280,14 +285,14 @@
     "ModuleConfig": {
       "description": "Per-module configuration entry.",
       "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
         "enabled": {
           "default": true,
           "title": "Enabled",
           "type": "boolean"
-        },
-        "name": {
-          "title": "Name",
-          "type": "string"
         },
         "params": {
           "additionalProperties": true,
@@ -304,18 +309,18 @@
     "NormativeProfileRef": {
       "description": "Lightweight reference to normative sources.",
       "properties": {
-        "clauses": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Clauses",
-          "type": "array"
-        },
         "source_ids": {
           "items": {
             "type": "string"
           },
           "title": "Source Ids",
+          "type": "array"
+        },
+        "clauses": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Clauses",
           "type": "array"
         }
       },
@@ -324,6 +329,16 @@
     },
     "ProjectInfo": {
       "properties": {
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
         "author": {
           "default": "",
           "title": "Author",
@@ -332,16 +347,6 @@
         "created_at": {
           "default": "",
           "title": "Created At",
-          "type": "string"
-        },
-        "description": {
-          "default": "",
-          "title": "Description",
-          "type": "string"
-        },
-        "name": {
-          "default": "",
-          "title": "Name",
           "type": "string"
         },
         "updated_at": {
@@ -356,15 +361,6 @@
     "ProjectMeta": {
       "description": "Auditable metadata block for the project container.",
       "properties": {
-        "commit_hash": {
-          "default": "",
-          "title": "Commit Hash",
-          "type": "string"
-        },
-        "created_at": {
-          "title": "Created At",
-          "type": "string"
-        },
         "id": {
           "default": "",
           "title": "Id",
@@ -375,14 +371,23 @@
           "title": "Name",
           "type": "string"
         },
-        "schema_version": {
-          "default": "",
-          "title": "Schema Version",
+        "created_at": {
+          "title": "Created At",
           "type": "string"
         },
         "updated_at": {
           "default": "",
           "title": "Updated At",
+          "type": "string"
+        },
+        "commit_hash": {
+          "default": "",
+          "title": "Commit Hash",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "",
+          "title": "Schema Version",
           "type": "string"
         }
       },
@@ -394,14 +399,14 @@
     },
     "ResultsRef": {
       "properties": {
-        "computed_at": {
-          "default": "",
-          "title": "Computed At",
-          "type": "string"
-        },
         "results_path": {
           "default": "",
           "title": "Results Path",
+          "type": "string"
+        },
+        "computed_at": {
+          "default": "",
+          "title": "Computed At",
           "type": "string"
         },
         "schema_version_input": {
@@ -425,16 +430,6 @@
           "title": "Class Of Use",
           "type": "string"
         },
-        "hazard_profile": {
-          "additionalProperties": true,
-          "title": "Hazard Profile",
-          "type": "object"
-        },
-        "site_label": {
-          "default": "",
-          "title": "Site Label",
-          "type": "string"
-        },
         "vita_nominale_years": {
           "default": 0,
           "title": "Vita Nominale Years",
@@ -444,6 +439,16 @@
           "default": 0,
           "title": "Vr Years",
           "type": "integer"
+        },
+        "site_label": {
+          "default": "",
+          "title": "Site Label",
+          "type": "string"
+        },
+        "hazard_profile": {
+          "additionalProperties": true,
+          "title": "Hazard Profile",
+          "type": "object"
         }
       },
       "title": "SeismicInputs",
@@ -452,29 +457,19 @@
   },
   "description": "Unified project model: inherits pipeline fields and adds container fields.\n\nAll container fields are optional (default-constructed) for back-compat.",
   "properties": {
-    "code_settings": {
-      "$ref": "#/$defs/CodeSettings"
+    "schema_version": {
+      "default": "1.1.0",
+      "title": "Schema Version",
+      "type": "string"
     },
-    "fire": {
-      "$ref": "#/$defs/FireSettings"
+    "project_info": {
+      "$ref": "#/$defs/ProjectInfo"
     },
     "geometry": {
       "items": {
         "$ref": "#/$defs/GeometryEntry"
       },
       "title": "Geometry",
-      "type": "array"
-    },
-    "io_settings": {
-      "additionalProperties": true,
-      "title": "Io Settings",
-      "type": "object"
-    },
-    "loads": {
-      "items": {
-        "$ref": "#/$defs/LoadEntry"
-      },
-      "title": "Loads",
       "type": "array"
     },
     "materials": {
@@ -484,18 +479,24 @@
       "title": "Materials",
       "type": "array"
     },
-    "meta": {
-      "$ref": "#/$defs/ProjectMeta"
-    },
-    "modules": {
+    "loads": {
       "items": {
-        "$ref": "#/$defs/ModuleConfig"
+        "$ref": "#/$defs/LoadEntry"
       },
-      "title": "Modules",
+      "title": "Loads",
       "type": "array"
     },
-    "normative_profile": {
-      "$ref": "#/$defs/NormativeProfileRef"
+    "seismic_inputs": {
+      "$ref": "#/$defs/SeismicInputs"
+    },
+    "code_settings": {
+      "$ref": "#/$defs/CodeSettings"
+    },
+    "fire": {
+      "$ref": "#/$defs/FireSettings"
+    },
+    "results_ref": {
+      "$ref": "#/$defs/ResultsRef"
     },
     "pipeline_steps": {
       "items": {
@@ -512,22 +513,26 @@
       "title": "Plugins",
       "type": "object"
     },
-    "project_info": {
-      "$ref": "#/$defs/ProjectInfo"
-    },
-    "results_ref": {
-      "$ref": "#/$defs/ResultsRef"
-    },
-    "schema_version": {
-      "default": "1.1.0",
-      "title": "Schema Version",
-      "type": "string"
-    },
-    "seismic_inputs": {
-      "$ref": "#/$defs/SeismicInputs"
-    },
     "wind": {
       "title": "Wind"
+    },
+    "meta": {
+      "$ref": "#/$defs/ProjectMeta"
+    },
+    "normative_profile": {
+      "$ref": "#/$defs/NormativeProfileRef"
+    },
+    "modules": {
+      "items": {
+        "$ref": "#/$defs/ModuleConfig"
+      },
+      "title": "Modules",
+      "type": "array"
+    },
+    "io_settings": {
+      "additionalProperties": true,
+      "title": "Io Settings",
+      "type": "object"
     }
   },
   "title": "ProjectModel",

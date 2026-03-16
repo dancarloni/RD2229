@@ -80,6 +80,35 @@ Creare un motore di calcolo che:
 L’entrypoint installato `rd2229` punta a `src.cli.entrypoint:main`.
 L’entrypoint installato `rd2229-gui` punta a `src.gui.entrypoint:main`.
 
+## Avvio rapido GUI moderna (V1)
+
+La GUI operativa principale e tab-based (Progetto, Verifica, Report, Materiali, Sezioni, FEM/Telai, Vento).
+
+```bash
+# Avvio GUI moderna
+python -m src.ui.modern.app
+
+# Avvio GUI con progetto pre-caricato
+python -m src.ui.modern.app --project "./00_Progetto_di_test.jsonp" --output-dir "./"
+
+# Smoke workflow headless (CI/local)
+python -m src.ui.modern.app --project "./00_Progetto_di_test.jsonp" --headless
+```
+
+Avvio package-level:
+
+```bash
+python -m rd2229
+```
+
+Dipendenza opzionale per report HTML embedded in-app:
+
+```bash
+pip install -e .[gui]
+```
+
+Se `PyQt6-WebEngine` non è installato, il Report Viewer usa automaticamente il fallback `QTextBrowser`.
+
 ## Struttura del progetto
 
 - [src/rd2229](src/rd2229) — logica di calcolo e modelli

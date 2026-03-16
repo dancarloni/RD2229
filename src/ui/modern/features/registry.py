@@ -1,23 +1,27 @@
-"""Feature registry shim preserved for tests.
+"""Feature registry per GUI moderna.
 
-Provides a minimal `FeatureSpec` and registry functions expected by
-tests that import `src.ui.modern.features.registry`.
+Mantiene API minima compatibile con i test (`register`, `get_all`, `clear`)
+ed espone helper utili alla nuova dashboard operativa.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
 
 @dataclass
 class FeatureSpec:
     feature_id: str = ""
     label: str = ""
-    icon: str = "📋"
+    category: str = "generic"
+    description: str = ""
+    icon: str = "*"
     order: int = 100
     enabled: bool = True
     tooltip: str = ""
+    action: Callable[[], Any] | None = None
+    tags: tuple[str, ...] = ()
 
     def create_widget(
         self, parent: Any, *args: Any, **kwargs: Any
@@ -39,9 +43,27 @@ def get_all() -> list[FeatureSpec]:
     return list(_REGISTRY)
 
 
+def get_enabled() -> list[FeatureSpec]:
+    return [spec for spec in _REGISTRY if spec.enabled]
+
+
+def get_by_id(feature_id: str) -> FeatureSpec | None:
+    for spec in _REGISTRY:
+        if spec.feature_id == feature_id:
+            return spec
+    return None
+
+
 def clear() -> None:
     global _REGISTRY
     _REGISTRY = []
 
 
-__all__ = ["FeatureSpec", "register", "get_all", "clear"]
+__all__ = [
+    "FeatureSpec",
+    "register",
+    "get_all",
+    "get_enabled",
+    "get_by_id",
+    "clear",
+]

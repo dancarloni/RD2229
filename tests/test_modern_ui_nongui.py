@@ -9,7 +9,7 @@ import json
 import os
 
 from src.ui.modern.features.registry import FeatureSpec, clear, get_all, register
-from src.ui.modern.services import CalculationService, ProjectIOService
+from src.ui.modern.services import CalculationService, PresetExecutionService, ProjectIOService
 from src.ui.modern.viewmodels import ProjectViewModel, ResultsViewModel, RunViewModel
 
 # ---------------------------------------------------------------------------
@@ -326,3 +326,44 @@ def test_calculation_service_export_report_html(tmp_path):
     with open(path, encoding="utf-8") as f:
         content = f.read()
     assert "<html" in content.lower()
+
+
+# ---------------------------------------------------------------------------
+# PresetExecutionService (non-GUI)
+# ---------------------------------------------------------------------------
+
+
+def test_preset_service_normative_rd2229():
+    svc = PresetExecutionService()
+    report = svc.run_normative_rd2229()
+
+    assert report.name == "normativa_rd2229"
+    assert "n_elementi" in report.details
+    assert report.details["n_elementi"] >= 1
+
+
+def test_preset_service_wind_ntc2018():
+    svc = PresetExecutionService()
+    report = svc.run_wind_ntc2018()
+
+    assert report.name == "vento_ntc2018"
+    assert report.details["method"] == "NTC2018"
+    assert report.details["n_quote_profilo"] >= 1
+
+
+def test_preset_service_solaio_input_demo():
+    svc = PresetExecutionService()
+    report = svc.run_solaio_input_demo()
+
+    assert report.name == "solai_x1"
+    assert report.details["tipologia"] == "laterocemento"
+    assert report.details["unit_system_detected"] in {"legacy_kgf_cm", "si"}
+
+
+def test_preset_service_x8_demo():
+    svc = PresetExecutionService()
+    report = svc.run_x8_demo()
+
+    assert report.name == "x8_casi_speciali"
+    assert report.details["case_type"] == "predalles"
+    assert "warnings" in report.details
