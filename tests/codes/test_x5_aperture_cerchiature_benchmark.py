@@ -121,3 +121,73 @@ class TestX5BenchmarkCerchiatura:
         )
         assert low["details"]["redistribuzione_significativa"] is False
         assert high["details"]["redistribuzione_significativa"] is True
+
+
+class TestX5BenchmarkPushover:
+    def test_pushover_post_has_non_lower_capacity_with_reinforcement(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post",
+            {
+                "parete_id": "wb_push_1",
+                "lunghezza_cm": 450.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 30.0,
+                "E_kgf_cm2": 240000.0,
+                "aperture_esistenti": [
+                    {
+                        "id": "a1",
+                        "tipo": "preesistente",
+                        "x_cm": 90.0,
+                        "y_cm": 60.0,
+                        "h_cm": 80.0,
+                        "b_cm": 110.0,
+                    }
+                ],
+                "rinforzi": [
+                    {"id": "r1", "tipo": "cerchiatura", "efficacia": 0.12},
+                    {"id": "r2", "tipo": "FRP", "efficacia": 0.08},
+                ],
+                "metodi_pushover": ["bilineare", "trilineare", "numerico"],
+                "drift_limit": 0.03,
+            },
+        )
+        assert res["ok"] is True
+        cmp_data = res["details"]["compare"]["by_method"]
+        assert cmp_data["bilineare"]["ratio_Fu"] >= 1.0
+        assert cmp_data["trilineare"]["ratio_K0"] >= 1.0
+
+    def test_pushover_all_methods_present(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post",
+            {
+                "parete_id": "wb_push_2",
+                "lunghezza_cm": 500.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 25.0,
+                "E_kgf_cm2": 230000.0,
+                "metodi_pushover": ["bilineare", "trilineare", "numerico"],
+            },
+        )
+        methods = set(res["details"]["post"]["results"].keys())
+        assert methods == {"bilineare", "trilineare", "numerico"}
+
+    def test_seismic_demand_monotonic_with_ag(self):
+        base_payload = {
+            "parete_id": "wb_push_3",
+            "lunghezza_cm": 500.0,
+            "altezza_cm": 300.0,
+            "spessore_cm": 25.0,
+            "E_kgf_cm2": 230000.0,
+            "gk_kgf": 100000.0,
+            "qk_kgf": 30000.0,
+            "q_factor": 1.0,
+        }
+        low = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post", {**base_payload, "ag_over_g": 0.15}
+        )
+        high = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post", {**base_payload, "ag_over_g": 0.35}
+        )
+        d_low = low["details"]["seismic_combinations"]["levels"]["SLV"]["demand_kgf"]
+        d_high = high["details"]["seismic_combinations"]["levels"]["SLV"]["demand_kgf"]
+        assert d_high > d_low

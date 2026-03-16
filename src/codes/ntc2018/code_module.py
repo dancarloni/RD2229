@@ -147,6 +147,20 @@ class NTC2018CodeModule:
                 "limit_state": "SLE",
                 "status": "implemented",
             },
+            {
+                "id": "x5_parete_rigidezza_ante_post",
+                "short": "X5 Parete rigidezza ante/post",
+                "norm_ref": "NTC2018 §8.3-§8.7",
+                "limit_state": "SLE",
+                "status": "implemented",
+            },
+            {
+                "id": "x5_parete_pushover_ante_post",
+                "short": "X5 Parete pushover ante/post",
+                "norm_ref": "NTC2018 §7.8.2, §8.3-§8.7",
+                "limit_state": "SLV",
+                "status": "implemented",
+            },
         ]
 
     @staticmethod
@@ -230,17 +244,23 @@ class NTC2018CodeModule:
             "x5_aperture_classificazione",
             "x5_aperture_rigidezza",
             "x5_cerchiatura_redistribuzione",
+            "x5_parete_rigidezza_ante_post",
+            "x5_parete_pushover_ante_post",
         }:
             from src.methods.ntc2018.checks_x5 import (
                 x5_aperture_classificazione,
                 x5_aperture_rigidezza,
                 x5_cerchiatura_redistribuzione,
+                x5_parete_pushover_ante_post,
+                x5_parete_rigidezza_ante_post,
             )
 
             router = {
                 "x5_aperture_classificazione": x5_aperture_classificazione,
                 "x5_aperture_rigidezza": x5_aperture_rigidezza,
                 "x5_cerchiatura_redistribuzione": x5_cerchiatura_redistribuzione,
+                "x5_parete_rigidezza_ante_post": x5_parete_rigidezza_ante_post,
+                "x5_parete_pushover_ante_post": x5_parete_pushover_ante_post,
             }
             result = router[check_id](inputs)
             if "trace" in result:

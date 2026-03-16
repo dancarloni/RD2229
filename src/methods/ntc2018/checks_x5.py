@@ -15,6 +15,20 @@ import uuid
 from typing import Any
 
 from src.core.registro_log import registro
+from src.methods.ntc2018.models import Apertura, PareteMuraria, Rinforzo
+from src.methods.ntc2018.x5_core import (
+    compute_EI_post_with_reinforcements,
+    compute_modifica_aperture,
+)
+from src.methods.ntc2018.x5_pushover import (
+    PerformanceLevel,
+    PushoverSettings,
+    StopCriteria,
+    build_seismic_combinations,
+    compare_ante_post,
+    evaluate_performance_levels,
+    run_pushover_methods,
+)
 
 _KGF_TO_KN = 0.00980665
 _KGF_CM2_TO_NM2 = 0.000980665
@@ -551,6 +565,428 @@ def x5_cerchiatura_redistribuzione(inputs: dict[str, Any]) -> dict[str, Any]:
             "rapporto_apertura": round(ratio, 6) if ratio is not None else None,
             "trigger_fem": fem_trigger,
             "trigger_reasons": trigger_reasons,
+        },
+        "steps": steps,
+        "warnings": warnings,
+        "trace": {"run_id": run_id},
+        "norm_references": norm_refs,
+    }
+
+
+def x5_parete_rigidezza_ante_post(inputs: dict[str, Any]) -> dict[str, Any]:
+    """Valuta rigidezza ante/post per parete muraria con aperture e rinforzi.
+
+    Check esteso X5 orientato a pareti murarie portanti con aperture preesistenti,
+    nuove aperture e rinforzi locali secondo Cap. 8 (modello computazionale modulare).
+    """
+
+    norm_refs = [
+        "NTC2018 §8.3",
+        "NTC2018 §8.4",
+        "NTC2018 §8.6",
+        "NTC2018 §8.7",
+        "Circolare 7/2019 §7.5-7.7",
+        "Modello computazionale modulare RD2229 X5",
+    ]
+
+    run_id = str(uuid.uuid4())
+    steps: list[str] = []
+    warnings: list[str] = []
+
+    try:
+        parete = PareteMuraria(
+            id=str(inputs.get("parete_id", "parete_x5")),
+            lunghezza=float(inputs.get("lunghezza_cm", 0.0)),
+            altezza=float(inputs.get("altezza_cm", 0.0)),
+            spessore=float(inputs.get("spessore_cm", 0.0)),
+            E=float(inputs.get("E_kgf_cm2", 0.0)),
+        )
+    except (TypeError, ValueError):
+        return _error_result("Errore: parametri parete non validi.", norm_refs)
+
+    if parete.lunghezza <= 0 or parete.altezza <= 0 or parete.spessore <= 0 or parete.E <= 0:
+        return _error_result("Errore: lunghezza/altezza/spessore/E devono essere > 0.", norm_refs)
+
+    aperture_esistenti_data = inputs.get("aperture_esistenti", [])
+    aperture_mod_data = inputs.get("aperture_modificate", [])
+
+    if not isinstance(aperture_esistenti_data, list):
+        aperture_esistenti_data = []
+    if not isinstance(aperture_mod_data, list):
+        aperture_mod_data = []
+
+    def _build_apertura(item: dict[str, Any]) -> Apertura:
+        return Apertura(
+            id=str(item.get("id", str(uuid.uuid4()))),
+            tipo=str(item.get("tipo", "nuova")),
+            forma=str(item.get("forma", "rettangolo")),
+            posizione={
+                "x": float(item.get("x_cm", 0.0)),
+                "y": float(item.get("y_cm", 0.0)),
+            },
+            dimensioni={
+                "h": float(item.get("h_cm", 0.0)),
+                "b": float(item.get("b_cm", 0.0)),
+            },
+            stato=str(item.get("stato", "attiva")),
+            note=item.get("note"),
+        )
+
+    aperture_esistenti = [
+        _build_apertura(a) for a in aperture_esistenti_data if isinstance(a, dict)
+    ]
+    aperture_modificate = [_build_apertura(a) for a in aperture_mod_data if isinstance(a, dict)]
+    aperture_finali = compute_modifica_aperture(aperture_esistenti, aperture_modificate)
+    parete.aperture = aperture_finali
+
+    rinforzi_data = inputs.get("rinforzi", [])
+    if not isinstance(rinforzi_data, list):
+        rinforzi_data = []
+    parete.rinforzi = [
+        Rinforzo(
+            id=str(r.get("id", str(uuid.uuid4()))),
+            tipo=str(r.get("tipo", "cerchiatura")),
+            efficacia=(
+                float(r.get("efficacia", 0.0)) if r.get("efficacia", None) is not None else None
+            ),
+            posizione=r.get("posizione", {}) if isinstance(r.get("posizione", {}), dict) else {},
+            note=r.get("note"),
+        )
+        for r in rinforzi_data
+        if isinstance(r, dict)
+    ]
+
+    result = compute_EI_post_with_reinforcements(parete)
+    ratio_post_ante = result["ratio_post_ante"]
+    soglia_min = float(inputs.get("soglia_ratio_post_ante", 0.60))
+
+    steps.append(f"EI_ante = {result['EI_ante']:.3f}")
+    steps.append(f"EI_post_aperture = {result['EI_post_aperture']:.3f}")
+    steps.append(f"delta_EI_rinforzi = {result['delta_EI_rinforzi']:.3f}")
+    steps.append(f"EI_post_rinforzo = {result['EI_post_rinforzo']:.3f}")
+    steps.append(f"ratio_post_ante = {ratio_post_ante:.4f} (soglia {soglia_min:.4f})")
+
+    if result["rapporto_aperture"] > 0.25:
+        _push_warning(
+            warnings,
+            steps,
+            "X5-APE-001",
+            "Rapporto aperture elevato: attivare analisi locale/FEM.",
+        )
+    if result["rapporto_aperture"] > 0.50:
+        _push_warning(
+            warnings,
+            steps,
+            "X5-APE-002",
+            "Rapporto aperture estremo: verifica specialistica obbligatoria.",
+        )
+    if ratio_post_ante < soglia_min:
+        _push_warning(
+            warnings,
+            steps,
+            "X5-RIG-001",
+            "Rigidezza post-intervento sotto soglia minima configurata.",
+        )
+
+    ok = ratio_post_ante >= soglia_min
+    return {
+        "ok": ok,
+        "value": round(ratio_post_ante, 6),
+        "utilisation": round(ratio_post_ante / soglia_min, 4) if soglia_min > 0 else None,
+        "details": {
+            "EI_ante": round(result["EI_ante"], 6),
+            "EI_post_aperture": round(result["EI_post_aperture"], 6),
+            "EI_post_rinforzo": round(result["EI_post_rinforzo"], 6),
+            "delta_EI_rinforzi": round(result["delta_EI_rinforzi"], 6),
+            "alpha_ap": round(result["alpha_ap"], 6),
+            "rapporto_aperture": round(result["rapporto_aperture"], 6),
+            "n_aperture": len(aperture_finali),
+            "n_rinforzi": len(parete.rinforzi),
+            "ratio_post_ante": round(ratio_post_ante, 6),
+            "soglia_ratio_post_ante": round(soglia_min, 6),
+        },
+        "steps": steps,
+        "warnings": warnings,
+        "trace": {"run_id": run_id},
+        "norm_references": norm_refs,
+    }
+
+
+def x5_parete_pushover_ante_post(inputs: dict[str, Any]) -> dict[str, Any]:
+    """Esegue analisi pushover multi-metodo ante/post su parete muraria.
+
+    Metodi supportati: bilineare, trilineare, numerico.
+    Criteri di arresto: carico ultimo, drift limite, duttilita limite.
+    """
+
+    norm_refs = [
+        "NTC2018 §7.8.2",
+        "NTC2018 §8.3-§8.7",
+        "Circolare 7/2019 §7.5-7.7",
+        "EN 1998-3 §7.5-7.6",
+        "Modello computazionale modulare RD2229 X5 pushover",
+    ]
+
+    run_id = str(uuid.uuid4())
+    steps: list[str] = []
+    warnings: list[str] = []
+
+    try:
+        parete = PareteMuraria(
+            id=str(inputs.get("parete_id", "parete_x5_push")),
+            lunghezza=float(inputs.get("lunghezza_cm", 0.0)),
+            altezza=float(inputs.get("altezza_cm", 0.0)),
+            spessore=float(inputs.get("spessore_cm", 0.0)),
+            E=float(inputs.get("E_kgf_cm2", 0.0)),
+        )
+    except (TypeError, ValueError):
+        return _error_result("Errore: parametri parete non validi per pushover.", norm_refs)
+
+    if parete.lunghezza <= 0 or parete.altezza <= 0 or parete.spessore <= 0 or parete.E <= 0:
+        return _error_result(
+            "Errore: lunghezza/altezza/spessore/E devono essere > 0 per pushover.",
+            norm_refs,
+        )
+
+    aperture_esistenti_data = inputs.get("aperture_esistenti", [])
+    aperture_mod_data = inputs.get("aperture_modificate", [])
+    if not isinstance(aperture_esistenti_data, list):
+        aperture_esistenti_data = []
+    if not isinstance(aperture_mod_data, list):
+        aperture_mod_data = []
+
+    def _build_apertura(item: dict[str, Any]) -> Apertura:
+        return Apertura(
+            id=str(item.get("id", str(uuid.uuid4()))),
+            tipo=str(item.get("tipo", "nuova")),
+            forma=str(item.get("forma", "rettangolo")),
+            posizione={"x": float(item.get("x_cm", 0.0)), "y": float(item.get("y_cm", 0.0))},
+            dimensioni={"h": float(item.get("h_cm", 0.0)), "b": float(item.get("b_cm", 0.0))},
+            stato=str(item.get("stato", "attiva")),
+            note=item.get("note"),
+        )
+
+    aperture_esistenti = [
+        _build_apertura(a) for a in aperture_esistenti_data if isinstance(a, dict)
+    ]
+    aperture_modificate = [_build_apertura(a) for a in aperture_mod_data if isinstance(a, dict)]
+    aperture_finali = compute_modifica_aperture(aperture_esistenti, aperture_modificate)
+    parete.aperture = aperture_finali
+
+    rinforzi_data = inputs.get("rinforzi", [])
+    if not isinstance(rinforzi_data, list):
+        rinforzi_data = []
+    parete.rinforzi = [
+        Rinforzo(
+            id=str(r.get("id", str(uuid.uuid4()))),
+            tipo=str(r.get("tipo", "cerchiatura")),
+            efficacia=(
+                float(r.get("efficacia", 0.0)) if r.get("efficacia", None) is not None else None
+            ),
+            posizione=r.get("posizione", {}) if isinstance(r.get("posizione", {}), dict) else {},
+            note=r.get("note"),
+        )
+        for r in rinforzi_data
+        if isinstance(r, dict)
+    ]
+
+    ei_data = compute_EI_post_with_reinforcements(parete)
+    ei_ante = float(ei_data["EI_ante"])
+    ei_post = float(ei_data["EI_post_rinforzo"])
+    alpha_ap = float(ei_data["alpha_ap"])
+    ratio_delta_ei = float(ei_data["delta_EI_rinforzi"]) / max(ei_ante, 1e-9)
+
+    methods_raw = inputs.get("metodi_pushover", ["bilineare", "trilineare", "numerico"])
+    if isinstance(methods_raw, str):
+        methods = tuple(m.strip() for m in methods_raw.split(",") if m.strip())
+    elif isinstance(methods_raw, list):
+        methods = tuple(str(m) for m in methods_raw)
+    else:
+        methods = ("bilineare", "trilineare", "numerico")
+
+    stop = StopCriteria(
+        stop_on_capacity=bool(inputs.get("stop_on_capacity", True)),
+        stop_on_drift=bool(inputs.get("stop_on_drift", True)),
+        stop_on_ductility=bool(inputs.get("stop_on_ductility", True)),
+    )
+    if not stop.at_least_one_enabled():
+        return _error_result(
+            "Errore: almeno un criterio di arresto deve essere attivo (capacity/drift/ductility).",
+            norm_refs,
+        )
+
+    settings = PushoverSettings(
+        methods=methods,
+        drift_y=float(inputs.get("drift_y", 0.002)),
+        drift_u=float(inputs.get("drift_u", 0.010)),
+        ductility_max=float(inputs.get("ductility_max", 5.0)),
+        ductility_min=float(inputs.get("ductility_min", 1.8)),
+        drift_limit=float(inputs.get("drift_limit", 0.005)),
+        post_yield_stiffness_ratio=float(inputs.get("post_yield_stiffness_ratio", 0.10)),
+        n_steps_numerical=int(inputs.get("n_steps_numerical", 20)),
+        tau_base_kgf_cm2=float(inputs.get("tau_base_kgf_cm2", 6.0)),
+        strength_gain_coeff=float(inputs.get("strength_gain_coeff", 0.35)),
+        stop_criteria=stop,
+    )
+
+    levels = (
+        PerformanceLevel(
+            name="DL",
+            drift_limit=float(inputs.get("drift_limit_dl", 0.0025)),
+            demand_factor=float(inputs.get("demand_factor_dl", 0.70)),
+        ),
+        PerformanceLevel(
+            name="SLV",
+            drift_limit=float(inputs.get("drift_limit_slv", 0.0050)),
+            demand_factor=float(inputs.get("demand_factor_slv", 1.00)),
+        ),
+        PerformanceLevel(
+            name="SLC",
+            drift_limit=float(inputs.get("drift_limit_slc", 0.0075)),
+            demand_factor=float(inputs.get("demand_factor_slc", 1.30)),
+        ),
+    )
+
+    seismic = build_seismic_combinations(
+        gk_kgf=float(inputs.get("gk_kgf", 0.0)),
+        qk_kgf=float(inputs.get("qk_kgf", 0.0)),
+        ag_over_g=float(inputs.get("ag_over_g", 0.25)),
+        q_factor=float(inputs.get("q_factor", 1.0)),
+        levels=levels,
+    )
+
+    ante = run_pushover_methods(
+        ei_kgf_cm2=ei_ante,
+        h_cm=parete.altezza,
+        lunghezza_cm=parete.lunghezza,
+        spessore_cm=parete.spessore,
+        alpha_ap=alpha_ap,
+        ratio_delta_ei=0.0,
+        settings=settings,
+    )
+    post = run_pushover_methods(
+        ei_kgf_cm2=ei_post,
+        h_cm=parete.altezza,
+        lunghezza_cm=parete.lunghezza,
+        spessore_cm=parete.spessore,
+        alpha_ap=alpha_ap,
+        ratio_delta_ei=ratio_delta_ei,
+        settings=settings,
+    )
+    compare = compare_ante_post(ante, post)
+    perf = evaluate_performance_levels(post, seismic)
+
+    warn_ratio_ap_fem = float(inputs.get("warning_ratio_aperture_fem", 0.25))
+    warn_ratio_ap_ext = float(inputs.get("warning_ratio_aperture_estrema", 0.50))
+    ratio_ap = float(ei_data["rapporto_aperture"])
+    if ratio_ap > warn_ratio_ap_fem:
+        _push_warning(
+            warnings,
+            steps,
+            "X5-APE-001",
+            "Rapporto aperture elevato: raccomandata analisi locale/FEM di dettaglio.",
+        )
+    if ratio_ap > warn_ratio_ap_ext:
+        _push_warning(
+            warnings,
+            steps,
+            "X5-APE-002",
+            "Rapporto aperture estremo: verifica specialistica obbligatoria.",
+        )
+
+    drift_limit = settings.drift_limit
+    ductility_min = settings.ductility_min
+    any_drift_over = False
+    any_mu_low = False
+    for method, res in post.get("results", {}).items():
+        if float(res.get("drift_u", 0.0)) > drift_limit:
+            any_drift_over = True
+            steps.append(
+                f"{method}: drift_u={float(res.get('drift_u', 0.0)):.6f} oltre limite {drift_limit:.6f}"
+            )
+        if float(res.get("mu", 0.0)) < ductility_min:
+            any_mu_low = True
+            steps.append(
+                f"{method}: duttilita mu={float(res.get('mu', 0.0)):.4f} sotto soglia {ductility_min:.4f}"
+            )
+
+    if any_drift_over:
+        _push_warning(
+            warnings,
+            steps,
+            "X5-PUSH-001",
+            "Drift ultimo oltre il limite configurato almeno in un metodo pushover.",
+        )
+    if any_mu_low:
+        _push_warning(
+            warnings,
+            steps,
+            "X5-PUSH-002",
+            "Duttilita insufficiente almeno in un metodo pushover.",
+        )
+
+    for lvl_name, by_method in perf.items():
+        level_failed = any(not bool(m.get("ok", False)) for m in by_method.values())
+        if level_failed:
+            _push_warning(
+                warnings,
+                steps,
+                "X5-PUSH-003",
+                f"Prestazione {lvl_name} non verificata almeno in un metodo pushover.",
+            )
+
+    ratio_post_ante = float(ei_data["ratio_post_ante"])
+    soglia_ratio = float(inputs.get("soglia_ratio_post_ante", 0.60))
+    if ratio_post_ante < soglia_ratio:
+        _push_warning(
+            warnings,
+            steps,
+            "X5-RIG-001",
+            "Rapporto rigidezza post/ante sotto soglia configurata.",
+        )
+
+    steps.append(
+        f"EI_ante={ei_ante:.3f}, EI_post={ei_post:.3f}, ratio_post_ante={ratio_post_ante:.4f}"
+    )
+    steps.append(f"metodi_pushover_eseguiti={','.join(post.get('results', {}).keys())}")
+    steps.append(
+        "combinazioni_sismiche: "
+        f"base_coeff={float(seismic.get('base_coeff', 0.0)):.4f}, "
+        f"livelli={','.join(seismic.get('levels', {}).keys())}"
+    )
+
+    ok = (ratio_post_ante >= soglia_ratio) and (not any_mu_low)
+    return {
+        "ok": ok,
+        "value": round(ratio_post_ante, 6),
+        "utilisation": round(ratio_post_ante / soglia_ratio, 4) if soglia_ratio > 0 else None,
+        "details": {
+            "EI_ante": round(ei_ante, 6),
+            "EI_post_rinforzo": round(ei_post, 6),
+            "alpha_ap": round(alpha_ap, 6),
+            "rapporto_aperture": round(ratio_ap, 6),
+            "ratio_post_ante": round(ratio_post_ante, 6),
+            "soglia_ratio_post_ante": round(soglia_ratio, 6),
+            "settings": {
+                "methods": list(settings.methods),
+                "drift_y": settings.drift_y,
+                "drift_u": settings.drift_u,
+                "drift_limit": settings.drift_limit,
+                "ductility_max": settings.ductility_max,
+                "ductility_min": settings.ductility_min,
+                "stop_criteria": {
+                    "capacity": settings.stop_criteria.stop_on_capacity,
+                    "drift": settings.stop_criteria.stop_on_drift,
+                    "ductility": settings.stop_criteria.stop_on_ductility,
+                },
+            },
+            "ante": ante,
+            "post": post,
+            "compare": compare,
+            "seismic_combinations": seismic,
+            "performance_levels": perf,
+            "n_aperture": len(aperture_finali),
+            "n_rinforzi": len(parete.rinforzi),
         },
         "steps": steps,
         "warnings": warnings,

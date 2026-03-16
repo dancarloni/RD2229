@@ -203,3 +203,178 @@ class TestX5CodeModuleMetadata:
         meta = NTC2018CodeModule.get_check_metadata("x5_cerchiatura_redistribuzione")
         assert meta is not None
         assert meta["limit_state"] == "SLE"
+
+
+class TestX5PareteRigidezzaAntePost:
+    def test_check_returns_ok_for_reinforced_wall(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_rigidezza_ante_post",
+            {
+                "parete_id": "w1",
+                "lunghezza_cm": 500.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 30.0,
+                "E_kgf_cm2": 250000.0,
+                "soglia_ratio_post_ante": 0.60,
+                "aperture_esistenti": [
+                    {
+                        "id": "a_old",
+                        "tipo": "preesistente",
+                        "x_cm": 100.0,
+                        "y_cm": 80.0,
+                        "h_cm": 80.0,
+                        "b_cm": 120.0,
+                    }
+                ],
+                "aperture_modificate": [
+                    {
+                        "id": "a_old",
+                        "tipo": "modificata",
+                        "x_cm": 110.0,
+                        "y_cm": 80.0,
+                        "h_cm": 90.0,
+                        "b_cm": 130.0,
+                    }
+                ],
+                "rinforzi": [
+                    {"id": "r1", "tipo": "FRP", "efficacia": 0.12},
+                    {"id": "r2", "tipo": "cerchiatura", "efficacia": 0.10},
+                ],
+            },
+        )
+        _assert_contract(res)
+        assert res["details"]["n_aperture"] == 1
+        assert res["details"]["n_rinforzi"] == 2
+        assert res["details"]["EI_post_rinforzo"] >= res["details"]["EI_post_aperture"]
+
+    def test_check_warns_when_ratio_too_low(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_rigidezza_ante_post",
+            {
+                "parete_id": "w2",
+                "lunghezza_cm": 500.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 30.0,
+                "E_kgf_cm2": 250000.0,
+                "soglia_ratio_post_ante": 0.90,
+                "aperture_esistenti": [
+                    {
+                        "id": "a1",
+                        "tipo": "preesistente",
+                        "x_cm": 20.0,
+                        "y_cm": 20.0,
+                        "h_cm": 140.0,
+                        "b_cm": 180.0,
+                    }
+                ],
+                "rinforzi": [],
+            },
+        )
+        _assert_contract(res)
+        assert res["ok"] is False
+        assert "X5-RIG-001" in res["warnings"]
+
+
+class TestX5ParetePushoverAntePost:
+    def test_multi_method_pushover_returns_compare_payload(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post",
+            {
+                "parete_id": "wp1",
+                "lunghezza_cm": 500.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 30.0,
+                "E_kgf_cm2": 250000.0,
+                "aperture_esistenti": [
+                    {
+                        "id": "a1",
+                        "tipo": "preesistente",
+                        "x_cm": 80.0,
+                        "y_cm": 70.0,
+                        "h_cm": 90.0,
+                        "b_cm": 120.0,
+                    }
+                ],
+                "rinforzi": [
+                    {"id": "r1", "tipo": "FRP", "efficacia": 0.10},
+                    {"id": "r2", "tipo": "cerchiatura", "efficacia": 0.12},
+                ],
+                "metodi_pushover": ["bilineare", "trilineare", "numerico"],
+                "drift_limit": 0.02,
+                "soglia_ratio_post_ante": 0.40,
+            },
+        )
+        _assert_contract(res)
+        assert "ante" in res["details"]
+        assert "post" in res["details"]
+        assert "compare" in res["details"]
+        methods = set(res["details"]["post"]["results"].keys())
+        assert {"bilineare", "trilineare", "numerico"}.issubset(methods)
+
+    def test_stop_criteria_all_disabled_returns_error(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post",
+            {
+                "parete_id": "wp2",
+                "lunghezza_cm": 400.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 25.0,
+                "E_kgf_cm2": 200000.0,
+                "stop_on_capacity": False,
+                "stop_on_drift": False,
+                "stop_on_ductility": False,
+            },
+        )
+        _assert_contract(res)
+        assert res["ok"] is False
+        assert res["value"] is None
+
+    def test_metadata_contains_new_check(self):
+        checks = NTC2018CodeModule.available_checks()
+        ids = {check["id"] for check in checks}
+        assert "x5_parete_pushover_ante_post" in ids
+
+    def test_pushover_contains_seismic_and_performance_levels(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post",
+            {
+                "parete_id": "wp3",
+                "lunghezza_cm": 500.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 30.0,
+                "E_kgf_cm2": 250000.0,
+                "gk_kgf": 120000.0,
+                "qk_kgf": 40000.0,
+                "ag_over_g": 0.22,
+                "q_factor": 1.2,
+                "drift_limit_dl": 0.0025,
+                "drift_limit_slv": 0.0050,
+                "drift_limit_slc": 0.0075,
+            },
+        )
+        _assert_contract(res)
+        assert "seismic_combinations" in res["details"]
+        assert "performance_levels" in res["details"]
+        levels = res["details"]["seismic_combinations"]["levels"]
+        assert {"DL", "SLV", "SLC"}.issubset(set(levels.keys()))
+
+    def test_pushover_warns_when_performance_not_verified(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post",
+            {
+                "parete_id": "wp4",
+                "lunghezza_cm": 300.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 20.0,
+                "E_kgf_cm2": 120000.0,
+                "gk_kgf": 500000.0,
+                "qk_kgf": 300000.0,
+                "ag_over_g": 0.45,
+                "q_factor": 1.8,
+                "drift_limit_dl": 0.0010,
+                "drift_limit_slv": 0.0020,
+                "drift_limit_slc": 0.0030,
+            },
+        )
+        _assert_contract(res)
+        assert "X5-PUSH-003" in res["warnings"]

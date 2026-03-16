@@ -205,6 +205,54 @@
                 "legno",
                 "profilati"
             ]
+        },
+        "parete_muraria": {
+            "soglia_ratio_post_ante": 0.60,
+            "warning_ratio_aperture_fem": 0.25,
+            "warning_ratio_aperture_estrema": 0.50,
+            "plugin_default": {
+                "intonaco_armato": 0.08,
+                "betoncino_armato": 0.12,
+                "cerchiatura": 0.15,
+                "FRP": 0.10
+            }
+        },
+        "pushover": {
+            "metodi_default": [
+                "bilineare",
+                "trilineare",
+                "numerico"
+            ],
+            "ag_over_g_default": 0.25,
+            "q_factor_default": 1.0,
+            "drift_y": 0.002,
+            "drift_u": 0.010,
+            "drift_limit": 0.005,
+            "performance_levels": {
+                "DL": {
+                    "drift_limit": 0.0025,
+                    "demand_factor": 0.70
+                },
+                "SLV": {
+                    "drift_limit": 0.0050,
+                    "demand_factor": 1.00
+                },
+                "SLC": {
+                    "drift_limit": 0.0075,
+                    "demand_factor": 1.30
+                }
+            },
+            "ductility_max": 5.0,
+            "ductility_min": 1.8,
+            "post_yield_stiffness_ratio": 0.10,
+            "n_steps_numerical": 20,
+            "tau_base_kgf_cm2": 6.0,
+            "strength_gain_coeff": 0.35,
+            "stop_criteria": {
+                "capacity": true,
+                "drift": true,
+                "ductility": true
+            }
         }
     },
     "cover": {

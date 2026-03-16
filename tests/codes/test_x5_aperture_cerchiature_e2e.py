@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -9,7 +10,8 @@ from src.core_calculus.solaio_input import parse_solaio_input
 
 def _load_solaio_fixture() -> dict:
     fixture = Path(__file__).resolve().parents[1] / "fixtures" / "solaio_input_valid.json"
-    return json.loads(fixture.read_text(encoding="utf-8"))
+    data: dict[str, Any] = json.loads(fixture.read_text(encoding="utf-8"))
+    return data
 
 
 def _compute_ei_lordo_kgf_cm2(ready: dict) -> float:
@@ -112,3 +114,65 @@ class TestX5E2EFlow:
         assert class_res["details"]["rapporto_apertura"] < 0.25
         assert class_res["details"]["trigger_fem"] is True
         assert "apertura_vicina_appoggi" in class_res["details"]["trigger_reasons"]
+
+    def test_e2e_pushover_from_wall_payload(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post",
+            {
+                "parete_id": "we2e_push",
+                "lunghezza_cm": 480.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 30.0,
+                "E_kgf_cm2": 250000.0,
+                "aperture_esistenti": [
+                    {
+                        "id": "a1",
+                        "tipo": "preesistente",
+                        "x_cm": 120.0,
+                        "y_cm": 70.0,
+                        "h_cm": 90.0,
+                        "b_cm": 120.0,
+                    }
+                ],
+                "aperture_modificate": [
+                    {
+                        "id": "a1",
+                        "tipo": "modificata",
+                        "x_cm": 125.0,
+                        "y_cm": 70.0,
+                        "h_cm": 95.0,
+                        "b_cm": 125.0,
+                    }
+                ],
+                "rinforzi": [
+                    {"id": "r1", "tipo": "intonaco_armato", "efficacia": 0.1},
+                    {"id": "r2", "tipo": "cerchiatura", "efficacia": 0.1},
+                ],
+                "metodi_pushover": ["bilineare", "trilineare", "numerico"],
+                "drift_limit": 0.02,
+                "soglia_ratio_post_ante": 0.50,
+            },
+        )
+        assert res["ok"] is True
+        assert res["details"]["n_aperture"] == 1
+        assert res["details"]["n_rinforzi"] == 2
+        assert "bilineare" in res["details"]["compare"]["by_method"]
+
+    def test_e2e_pushover_performance_levels_present(self):
+        res = NTC2018CodeModule.run_check(
+            "x5_parete_pushover_ante_post",
+            {
+                "parete_id": "we2e_push_2",
+                "lunghezza_cm": 500.0,
+                "altezza_cm": 300.0,
+                "spessore_cm": 30.0,
+                "E_kgf_cm2": 250000.0,
+                "gk_kgf": 120000.0,
+                "qk_kgf": 45000.0,
+                "ag_over_g": 0.25,
+                "q_factor": 1.2,
+            },
+        )
+        assert "DL" in res["details"]["performance_levels"]
+        assert "SLV" in res["details"]["performance_levels"]
+        assert "SLC" in res["details"]["performance_levels"]
