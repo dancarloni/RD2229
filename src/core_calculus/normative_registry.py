@@ -742,7 +742,7 @@ def get_ntc2018_templates() -> list[VerificationTemplate]:
             ],
             applicable_material_tags=["concrete", "RC"],
             requires_existing_structure=False,
-            extra_params={"implementation_status": "stub", "priority": "non_priority"},
+            extra_params={"implementation_status": "partial", "priority": "non_priority"},
         ),
         # ---- template non-priority: Punzonamento piastra SLU (GUI-5.5) ----
         # NTC2018 §4.1.6.3 e EC2 §6.4 — verifica a punzonamento di piastre in c.a.
@@ -803,7 +803,7 @@ def get_ntc2018_templates() -> list[VerificationTemplate]:
             applicable_section_types=["RECTANGULAR", "CIRCULAR"],
             applicable_material_tags=["concrete", "RC"],
             requires_existing_structure=False,
-            extra_params={"implementation_status": "stub", "priority": "non_priority"},
+            extra_params={"implementation_status": "partial", "priority": "non_priority"},
         ),
     ]
 

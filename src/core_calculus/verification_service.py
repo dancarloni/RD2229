@@ -87,6 +87,7 @@ def run_verifications_for_element(
         section=calc_input.section,
         material=calc_input.material,
         requires_existing=calc_input.lc is not None,  # If LC is set, structure is existing
+        calc_input=calc_input,
     )
 
     logger.debug(
@@ -203,6 +204,7 @@ def _select_templates(
     section: Any,
     material: Any,
     requires_existing: bool,
+    calc_input: CalcInput | None = None,
 ) -> list[VerificationTemplate]:
     """Select applicable templates based on criteria.
 
@@ -269,7 +271,26 @@ def _select_templates(
         if template.requires_existing_structure and not requires_existing:
             # Skip templates that require existing structure if LC/FC not set
             continue
-
+        # If calc_input provided, filter by required inputs presence/value
+        if calc_input is not None and template.required_inputs:
+            missing_required = False
+            for req in template.required_inputs:
+                attr_name = req
+                attr_name = attr_name.replace("Asw/s", "Asw_over_s")
+                if not hasattr(calc_input, attr_name):
+                    missing_required = True
+                    break
+                val = getattr(calc_input, attr_name)
+                if attr_name in ("Tx", "Ty", "Mx", "My", "Mz", "N"):
+                    if val is None or abs(val) < 1e-6:
+                        missing_required = True
+                        break
+                else:
+                    if val is None:
+                        missing_required = True
+                        break
+            if missing_required:
+                continue
         selected.append(template)
 
     return selected
