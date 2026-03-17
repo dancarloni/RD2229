@@ -67,10 +67,10 @@ except ImportError:
     )
 
 from src.methods.rd2229.telaio.armature_telaio import proponi_armature_telaio
-from src.methods.rd2229.telaio.canvas_telaio import CanvasTelaio, ModalitaCanvas
+from src.ui.qt.telaio.canvas_telaio import CanvasTelaio, ModalitaCanvas
 from src.methods.rd2229.telaio.combinazioni_rd2229 import calcola_tutte_le_combinazioni
-from src.methods.rd2229.telaio.dialogo_asta import DialogoAsta
-from src.methods.rd2229.telaio.dialogo_nodo import DialogoNodo
+from src.ui.qt.telaio.dialogo_asta import DialogoAsta
+from src.ui.qt.telaio.dialogo_nodo import DialogoNodo
 from src.methods.rd2229.telaio.export_telaio import genera_tabulato_ascii, salva_tabulato
 from src.methods.rd2229.telaio.modello_telaio import (
     AstaTelaio,

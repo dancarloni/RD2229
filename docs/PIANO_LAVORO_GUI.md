@@ -116,6 +116,7 @@ Automazione TODO:
   - Moduli Specialistici
 - Dashboard estesa con launcher rapidi verso i macro-settori e accesso diretto a moduli principali.
 - Preset operativi convertiti in layout card-based (griglia 2 colonne) mantenendo registry e azioni esistenti.
+- Implementato editing riga tramite dialog form (geometry/materiali/carichi) + dialog key/value per campo `extra` (validazione JSON stretta).
 
 Note operative:
 - L'integrazione mantiene compatibilita con i widget esistenti (`ProjectEditorWindow`, `PipelineRunnerWindow`, `ReportViewerWindow`, `EditorMaterialeWidget`, `SectionManagerWindow`, `CordoliWidget`).

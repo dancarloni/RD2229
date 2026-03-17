@@ -1,7 +1,7 @@
 # Rapporto RD2229
 
 **Schema version:** `1.1.0`  
-**Generato:** 2026-03-16T21:47:52.272406+00:00  
+**Generato:** 2026-03-17T22:09:42.814496+00:00  
 **App version:** 0.1.0  
 **Normativa:** RD2229  
 **Esito globale:** ✅ OK  
@@ -60,6 +60,6 @@ pipeline:complete
 ## Audit Trail X6
 
 - **Input hash:** 2dfd5689db8ecac97d8185aefb83215ca73a236ee938a169d3b08e57733bf1eb
-- **Output hash:** 47dbf93e4b1371112a318bd63264cc80b3e87e5bb459b572c8761cb993b77fa3
+- **Output hash:** 83cc30b531d8c4e7e2f362311b7baa408bac3c8fa26470fff9e4cebfdce58837
 - **Decision trace:** 5 voci
 - **Payload JSON disponibile:** Sì

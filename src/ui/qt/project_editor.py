@@ -52,6 +52,9 @@ from src.project.schema import (
     SeismicInputs,
 )
 
+from .key_value_dialog import KeyValueDialog
+from .project_editor_dialogs import GeometryDialog, LoadDialog, MaterialDialog
+
 
 class ProjectEditorWindow(QWidget):
     project_changed = Signal(object)
@@ -196,11 +199,22 @@ class ProjectEditorWindow(QWidget):
         btn_edit_extra.clicked.connect(lambda: self._edit_extra_for_selected(table))
         table.itemDoubleClicked.connect(lambda _item: self._edit_table_row(table))
 
-    def _add_table_row(self, table):
-        row = table.rowCount()
-        table.insertRow(row)
-        if table.columnCount() > 0:
-            table.setItem(row, table.columnCount() - 1, QTableWidgetItem("{}"))
+    def _add_table_row(self, table: QTableWidget) -> None:
+        """Apre un dialog specifico per creare una nuova riga nella tabella."""
+        if table is self.tbl_geometry:
+            data = GeometryDialog.edit(self, {})
+        elif table is self.tbl_materials:
+            data = MaterialDialog.edit(self, {})
+        elif table is self.tbl_loads:
+            data = LoadDialog.edit(self, {})
+        else:
+            return
+
+        if data is None:
+            return
+
+        values = self._row_dict_to_values(table, data)
+        self._table_set_row(table, table.rowCount(), values)
 
     def _remove_table_row(self, table):
         row = table.currentRow()
@@ -214,9 +228,119 @@ class ProjectEditorWindow(QWidget):
         col = table.columnCount() - 1  # extra is always last
         item = table.item(row, col)
         current = item.text() if item else "{}"
-        new_json = self._show_json_edit_dialog(current)
-        if new_json is not None:
-            table.setItem(row, col, QTableWidgetItem(new_json))
+        try:
+            current_dict = json.loads(current) if current.strip() else {}
+        except Exception:
+            current_dict = {}
+        new_dict = KeyValueDialog.edit(self, current_dict)
+        if new_dict is not None:
+            table.setItem(row, col, QTableWidgetItem(json.dumps(new_dict, ensure_ascii=False)))
+
+    def _edit_table_row(self, table: QTableWidget) -> None:
+        row = table.currentRow()
+        if row < 0:
+            return
+
+        # Costruisci il dict iniziale per il dialog
+        initial = self._row_to_dict(table, row)
+
+        if table is self.tbl_geometry:
+            edited = GeometryDialog.edit(self, initial)
+        elif table is self.tbl_materials:
+            edited = MaterialDialog.edit(self, initial)
+        elif table is self.tbl_loads:
+            edited = LoadDialog.edit(self, initial)
+        else:
+            return
+
+        if edited is None:
+            return
+
+        values = self._row_dict_to_values(table, edited)
+        for col, value in enumerate(values):
+            table.setItem(row, col, QTableWidgetItem(str(value)))
+
+    def _row_to_dict(self, table: QTableWidget, row: int) -> dict:
+        if table is self.tbl_geometry:
+            return {
+                "id": self._table_text(table, row, 0),
+                "type": self._table_text(table, row, 1),
+                "width": self._table_text(table, row, 2),
+                "height": self._table_text(table, row, 3),
+                "extra": self._table_text(table, row, 4),
+            }
+        if table is self.tbl_materials:
+            return {
+                "id": self._table_text(table, row, 0),
+                "type": self._table_text(table, row, 1),
+                "material_class": self._table_text(table, row, 2),
+                "f_ck": self._table_text(table, row, 3),
+                "f_yk": self._table_text(table, row, 4),
+                "extra": self._table_text(table, row, 5),
+            }
+        if table is self.tbl_loads:
+            return {
+                "element_id": self._table_text(table, row, 0),
+                "N": self._table_text(table, row, 1),
+                "Mx": self._table_text(table, row, 2),
+                "My": self._table_text(table, row, 3),
+                "Tx": self._table_text(table, row, 4),
+                "Ty": self._table_text(table, row, 5),
+                "description": self._table_text(table, row, 6),
+                "extra": self._table_text(table, row, 7),
+            }
+        return {}
+
+    def _row_dict_to_values(self, table: QTableWidget, data: dict) -> list[str]:
+        if table is self.tbl_geometry:
+            return [
+                data.get("id", ""),
+                data.get("type", ""),
+                str(data.get("width", "")),
+                str(data.get("height", "")),
+                json.dumps(data.get("extra", {}), ensure_ascii=False),
+            ]
+        if table is self.tbl_materials:
+            return [
+                data.get("id", ""),
+                data.get("type", ""),
+                data.get("material_class", ""),
+                str(data.get("f_ck", "")),
+                str(data.get("f_yk", "")),
+                json.dumps(data.get("extra", {}), ensure_ascii=False),
+            ]
+        if table is self.tbl_loads:
+            return [
+                data.get("element_id", ""),
+                str(data.get("N", "")),
+                str(data.get("Mx", "")),
+                str(data.get("My", "")),
+                str(data.get("Tx", "")),
+                str(data.get("Ty", "")),
+                data.get("description", ""),
+                json.dumps(data.get("extra", {}), ensure_ascii=False),
+            ]
+        return []
+
+    def _remove_table_row(self, table):
+        row = table.currentRow()
+        if row >= 0:
+            table.removeRow(row)
+
+    def _edit_extra_for_selected(self, table):
+        row = table.currentRow()
+        if row < 0:
+            return
+        col = table.columnCount() - 1  # extra is always last
+        item = table.item(row, col)
+        current = item.text() if item else "{}"
+        try:
+            current_dict = json.loads(current) if current.strip() else {}
+        except Exception:
+            current_dict = {}
+        new_dict = KeyValueDialog.edit(self, current_dict)
+        if new_dict is not None:
+            table.setItem(row, col, QTableWidgetItem(json.dumps(new_dict, ensure_ascii=False)))
 
     def _edit_table_row(self, table: QTableWidget) -> None:
         row = table.currentRow()
@@ -374,10 +498,15 @@ class ProjectEditorWindow(QWidget):
     def _parse_extra_json(self, value: str) -> dict:
         import json
 
-        try:
-            return json.loads(value) if value.strip() else {}
-        except Exception:
+        if not value.strip():
             return {}
+        try:
+            parsed = json.loads(value)
+            if not isinstance(parsed, dict):
+                raise ValueError("Il campo extra deve essere un oggetto JSON")
+            return parsed
+        except Exception as exc:
+            raise ValueError(f"JSON extra non valido: {exc}")
 
     def _collect_project(self) -> ProjectModel:
         geometry: list[GeometryEntry] = []
