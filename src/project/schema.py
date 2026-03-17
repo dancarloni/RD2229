@@ -50,6 +50,7 @@ class LoadEntry(BaseModel):
     Tx: float | None = None
     Ty: float | None = None
     description: str = ""
+    extra: dict[str, Any] = Field(default_factory=dict)
 
 
 class SeismicInputs(BaseModel):

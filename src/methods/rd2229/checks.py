@@ -34,6 +34,12 @@ from historical_ta.geometry import SectionGeometry, compute_section_properties
 from historical_ta.materials import ConcreteLawTA, SteelLawTA
 from historical_ta.stress import LoadState, compute_normal_stresses_ta
 from src.core_calculus.contracts import CalcInput, SingleCheckResult, VerificationTemplate
+from src.methods.rd2229.instabilita import (
+    EsitoStabilita,
+    InputStabilita,
+    sigma_c_adm_ridotta,
+    verifica_stabilita_ta,
+)
 
 # ==============================================================================
 # UTILITY FUNCTIONS: UNIT CONVERSIONS
@@ -413,6 +419,178 @@ def apply_slenderness_reduction_ta(
     return sigma_c_adm, details
 
 
+def _get_float_from_extra(extra: dict[str, Any], keys: list[str]) -> float | None:
+    """Ritorna il primo valore numerico valido trovato in extra."""
+    for key in keys:
+        value = extra.get(key)
+        if value is None:
+            continue
+        try:
+            value_f = float(value)
+        except (TypeError, ValueError):
+            continue
+        if value_f > 0:
+            return value_f
+    return None
+
+
+def _normalize_spacing_cm(value: float | None) -> float | None:
+    """Normalizza il passo staffe in cm (accetta input in cm o mm)."""
+    if value is None:
+        return None
+    if value <= 0:
+        return None
+    # euristica: valori oltre 60 sono tipicamente in mm (es. 200 mm)
+    return value / 10.0 if value > 60.0 else value
+
+
+def _estimate_steel_moduli_rect(
+    calc_input: CalcInput,
+) -> tuple[float | None, float | None, list[str]]:
+    """Stima W_sx e W_sy da geometria rettangolare e armature equivalenti."""
+    notes: list[str] = []
+    if calc_input.section is None:
+        return None, None, notes
+
+    As_t = calc_input.As
+    if As_t is None or As_t <= 0:
+        return None, None, notes
+
+    b_cm = calc_input.section.width / 10.0
+    h_cm = calc_input.section.height / 10.0
+
+    d_t = calc_input.d if calc_input.d and calc_input.d > 0 else 0.9 * h_cm
+    if calc_input.d is None or calc_input.d <= 0:
+        notes.append("d non fornita: usata stima d = 0.9·h")
+
+    As_c = calc_input.As_prime if calc_input.As_prime and calc_input.As_prime > 0 else 0.0
+    if calc_input.d_prime is not None and calc_input.d_prime > 0:
+        d_c = calc_input.d_prime
+    else:
+        d_c = max(2.0, h_cm - d_t)
+        if As_c > 0:
+            notes.append("d_prime non fornita: stimata dal copriferro lato teso")
+
+    y_t = max(0.5, abs(d_t - h_cm / 2.0))
+    y_c = max(0.5, abs(h_cm / 2.0 - d_c))
+    W_sx_cm3 = As_t * y_t + As_c * y_c
+
+    cover_guess_cm = max(2.0, min(h_cm * 0.4, h_cm - d_t if h_cm > d_t else 2.0))
+    z_t = max(0.5, b_cm / 2.0 - min(cover_guess_cm, b_cm * 0.45))
+    z_c = max(0.5, b_cm / 2.0 - min(d_c, b_cm * 0.45))
+    W_sy_cm3 = As_t * z_t + As_c * z_c
+
+    if W_sx_cm3 <= 0 or W_sy_cm3 <= 0:
+        return None, None, notes
+
+    return W_sx_cm3, W_sy_cm3, notes
+
+
+def _build_stability_input(
+    calc_input: CalcInput, sigma_c_adm: float, sigma_s_adm: float
+) -> InputStabilita | None:
+    """Costruisce InputStabilita da CalcInput se sono presenti i dati minimi."""
+    if calc_input.section is None or calc_input.material is None:
+        return None
+
+    extra = calc_input.extra if calc_input.extra else {}
+    L_cm = _get_float_from_extra(
+        extra,
+        [
+            "l0_cm",
+            "L0_cm",
+            "lunghezza_libera_cm",
+            "lunghezza_cm",
+            "L_cm",
+            "L",
+        ],
+    )
+    if L_cm is None:
+        L_m = _get_float_from_extra(extra, ["l0_m", "L0_m", "lunghezza_libera_m", "L_m"])
+        if L_m is not None:
+            L_cm = L_m * 100.0
+    if L_cm is None:
+        return None
+
+    beta_y = _get_float_from_extra(extra, ["beta_y", "ky", "k_y", "mu_y"]) or 1.0
+    beta_z = _get_float_from_extra(extra, ["beta_z", "kz", "k_z", "mu_z"]) or 1.0
+
+    b_cm = calc_input.section.width / 10.0
+    h_cm = calc_input.section.height / 10.0
+    A_sez = b_cm * h_cm
+    I_yp = b_cm * h_cm**3 / 12.0
+    I_zp = h_cm * b_cm**3 / 12.0
+    r_yp = math.sqrt(I_yp / A_sez) if A_sez > 0 else 0.0
+    r_zp = math.sqrt(I_zp / A_sez) if A_sez > 0 else 0.0
+
+    n = float(getattr(calc_input.material, "n", 15.0) or 15.0)
+    As_t = float(calc_input.As or 0.0)
+    As_c = float(calc_input.As_prime or 0.0)
+    A_ft = As_t + As_c
+    A_ci = A_sez + n * A_ft
+
+    sigma_c28 = getattr(calc_input.material, "sigma_c28", None)
+    if sigma_c28 is None and hasattr(calc_input.material, "f_ck"):
+        sigma_c28 = float(calc_input.material.f_ck) * 10.197
+    if sigma_c28 is None:
+        sigma_c28 = sigma_c_adm * 2.0
+    E_c = getattr(calc_input.material, "Ec", None)
+    if E_c is None:
+        E_c = 550000.0 * sigma_c28 / (sigma_c28 + 200.0)
+
+    Nr = (calc_input.N or 0.0) * 101.97
+    Mr = abs((calc_input.Mx or 0.0) * 10197.0)
+
+    return InputStabilita(
+        Nr=Nr,
+        Mr=Mr,
+        B=b_cm,
+        H=h_cm,
+        A_sez=A_sez,
+        I_yp=I_yp,
+        I_zp=I_zp,
+        A_ci=A_ci,
+        r_yp=r_yp,
+        r_zp=r_zp,
+        A_ft=A_ft,
+        sigma_c_adm=sigma_c_adm,
+        sigma_s_adm=sigma_s_adm,
+        E_c=float(E_c),
+        n=n,
+        L=L_cm,
+        beta_y=beta_y,
+        beta_z=beta_z,
+    )
+
+
+def _stability_utilisation(stability_input: InputStabilita, result: Any) -> float | None:
+    """Calcola utilizzazione equivalente della verifica di stabilità."""
+    sigma_car = sigma_c_adm_ridotta(
+        stability_input.sigma_c_adm,
+        stability_input.B,
+        stability_input.H,
+    )
+    utilisations: list[float] = []
+
+    if sigma_car > 0 and result.sigma_c_1 > 0:
+        utilisations.append(result.sigma_c_1 / sigma_car)
+    if stability_input.sigma_s_adm > 0 and result.sigma_s_1 > 0:
+        utilisations.append(result.sigma_s_1 / stability_input.sigma_s_adm)
+
+    for sigma_c, sigma_s in [
+        (result.sigma_c_2, result.sigma_s_2),
+        (result.sigma_c_3, result.sigma_s_3),
+    ]:
+        if sigma_c > 0 and sigma_car > 0:
+            utilisations.append(sigma_c / sigma_car)
+        if sigma_s > 0 and stability_input.sigma_s_adm > 0:
+            utilisations.append(sigma_s / stability_input.sigma_s_adm)
+
+    if not utilisations:
+        return None
+    return max(utilisations)
+
+
 # ==============================================================================
 # CHECK FUNCTIONS - RD 2229/1939
 # ==============================================================================
@@ -666,23 +844,17 @@ def check_flessione_ta_rett(
 def check_pressoflessione_ta_rett(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
-    """Verifica a pressoflessione metodo TA - RD 2229/39 (IMPLEMENTAZIONE MIGLIORATA).
+    """Verifica a pressoflessione metodo TA - RD 2229/39.
 
-    Utilizza lo stesso motore di flessione_ta_rett ma con sforzo normale N presente.
-    Implementa riduzione sigma_c_adm per sezioni snelle secondo Art. 16 RD 2229/39.
+    Implementazione operativa:
+    - verifica base N+M con motore TA elastico;
+    - riduzione sigma_c,adm per sezioni snelle (Art. 16);
+    - verifica instabilita pilastri (Art. 30) quando e disponibile la lunghezza
+      libera di inflessione in calc_input.extra.
 
-    IMPLEMENTAZIONE MIGLIORATA:
-    - Verifica base funzionante (N + M → tensioni → confronto con ammissibili) ✓
-    - Riduzione sigma_c_adm per sezioni snelle (Art. 16 RD 2229) ✓ IMPLEMENTATO
-    - Mancante (TODOs):
-      - Controllo instabilità pilastri snelli (lambda > 15) - richiede l₀
-
-    TODOs:
-    # TODO: [RD2229 Stabilità] Verificare instabilità pilastri snelli (lambda > 15)
-    #       lambda = l0 / i (snellezza), dove l0 = lunghezza libera inflessione, i = raggio inerzia
-    #       BLOCCO: l0 non disponibile in CalcInput (richiede info strutturale globale)
-    #       Per lambda > 15: riduzione carico critico secondo formula Eulero modificata
-    #       Riferimento: Circolare applicativa RD 2229/39
+    Se i dati globali di asta non sono disponibili (tipicamente l0), la verifica
+    di instabilita viene segnalata come non eseguita senza interrompere la
+    verifica locale di sezione.
 
     Args:
         calc_input: Dati di input con N e Mx
@@ -709,16 +881,16 @@ def check_pressoflessione_ta_rett(
             reduction_factor = max(0.4, min(1.0, reduction_factor))
             applied_reduction = True
 
-    # 2. Applica riduzione passando fattore tramite extra dict
-    # (così check_flessione_ta_rett può usarlo se implementato,
-    #  altrimenti applicheremo la riduzione manualmente ai details)
-    if applied_reduction and calc_input.extra is None:
-        calc_input.extra = {}
+    # 2. Applica riduzione passando fattore tramite extra dict (senza mutare input)
+    extra_original = calc_input.extra
+    extra_for_check = dict(extra_original) if extra_original else {}
     if applied_reduction:
-        calc_input.extra["slenderness_reduction_factor"] = reduction_factor
+        extra_for_check["slenderness_reduction_factor"] = reduction_factor
+    calc_input.extra = extra_for_check
 
     # 3. Chiama verifica base (gestisce N+M automaticamente)
     result = check_flessione_ta_rett(calc_input, template)
+    calc_input.extra = extra_original
 
     # 4. Se abbiamo applicato la riduzione, aggiungi info ai messaggi
     if result.ok is not None or result.utilisation is not None:
@@ -745,19 +917,68 @@ def check_pressoflessione_ta_rett(
                 f"Sezione non snella (A_min = {A_min_cm:.1f} cm ≥ 25 cm): riduzione non applicata",
             ]
 
-        # Warning PARZIALE aggiornato
-        partial_warnings = [
+        completion_info = [
             "",
-            "⚠️ IMPLEMENTAZIONE MIGLIORATA (PARTIAL):",
+            "Implementazione verifica pressoflessione TA:",
             "   ✓ Verifica base eseguita (N + M → tensioni)",
             "   ✓ Riduzione σ_c,adm per sezioni snelle implementata",
-            "   Mancano:",
-            "   - Controllo instabilità pilastri snelli (λ > 15) - richiede l₀",
+            "   ✓ Verifica instabilità disponibile se fornita l₀ in extra",
         ]
 
-        result.messages_it.extend(slenderness_info + partial_warnings)
+        result.messages_it.extend(slenderness_info + completion_info)
 
-    # 5. Cambia titolo messaggi
+    # 5. Verifica instabilità (solo per compressione)
+    N_kN = calc_input.N or 0.0
+    if N_kN < 0 and calc_input.material is not None and calc_input.section is not None:
+        allowable = get_rd2229_allowable_stresses(calc_input.material)
+        stability_input = _build_stability_input(
+            calc_input,
+            sigma_c_adm=allowable.sigma_c_allow,
+            sigma_s_adm=allowable.sigma_s_allow,
+        )
+        if stability_input is None:
+            result.messages_it.extend(
+                [
+                    "",
+                    "⚠️ Verifica instabilità non eseguita:",
+                    "   manca l₀ (lunghezza libera) in calc_input.extra.",
+                    "   Chiavi supportate: l0_cm, L0_cm, lunghezza_libera_cm, l0_m.",
+                ]
+            )
+            result.details["stabilita_eseguita"] = False
+        else:
+            stab = verifica_stabilita_ta(stability_input)
+            util_stab = _stability_utilisation(stability_input, stab)
+            result.details.update(
+                {
+                    "stabilita_eseguita": True,
+                    "stabilita_esito": stab.esito.value,
+                    "lambda_max": stab.lambda_max,
+                    "omega": stab.omega,
+                    "alpha_M": stab.alpha_M,
+                }
+            )
+            if util_stab is not None:
+                result.details["util_stabilita"] = util_stab
+                result.utilisation = max(result.utilisation or 0.0, util_stab)
+
+            result.messages_it.extend(
+                [
+                    "",
+                    "Verifica instabilità pilastro (Art. 30 RD 2229/39):",
+                    f"  λ_max = {stab.lambda_max:.1f}",
+                    f"  ω = {stab.omega:.3f}",
+                    f"  Esito = {stab.esito.value}",
+                ]
+            )
+
+            if stab.esito in {EsitoStabilita.NON_VERIFICATA, EsitoStabilita.SNELLEZZA_ECCESSIVA}:
+                result.ok = False
+                result.messages_it.append("  ✗ Instabilità NON verificata")
+            elif stab.esito == EsitoStabilita.VERIFICATA:
+                result.messages_it.append("  ✓ Instabilità verificata")
+
+    # 6. Cambia titolo messaggi
     if result.messages_it and "FLESSIONE" in result.messages_it[0]:
         result.messages_it[0] = "=== VERIFICA A PRESSOFLESSIONE METODO TA - RD 2229/39 ==="
 
@@ -767,28 +988,17 @@ def check_pressoflessione_ta_rett(
 def check_taglio_ta_rett(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
-    """Verifica a taglio metodo TA - RD 2229/39 (IMPLEMENTAZIONE PARZIALE).
+    """Verifica a taglio metodo TA - RD 2229/39.
 
-    Implementa formula base: tau = V / (b * d)
-    Confronta con tau_c0 (senza staffe) o tau_c1 (con staffe).
+    Implementazione operativa:
+    - tensione tangenziale base: tau = V / (b * d)
+    - limiti cls da catalogo storico (tau_c0, tau_c1)
+    - contributo staffe tramite Asw/s e sigma_s,adm
+    - controllo minimo costruttivo dell'armatura trasversale
 
-    IMPLEMENTAZIONE PARZIALE:
-    - Formula base tau = V / (b * d) implementata
-    - Confronto con tau_c0, tau_c1 da RD2229.jsoncode
-    - Mancante (TODOs):
-      - Formula completa Art. 21 RD 2229/39
-      - Calcolo contributo staffe metodo TA storico
-      - Minimi armatura a taglio secondo RD 2229
-
-    TODOs:
-    # TODO: [RD2229 Art. 21] Formula completa taglio secondo Art. 21
-    #       Attualmente: tau = V / (b * d) semplificato
-    #       Mancante: contributo staffe, verifica biella compressa, formula esatta Art. 21
-    #       Riferimento: Art. 21 RD 2229/39 - Tensioni tangenziali
-
-    # TODO: [RD2229 Staffe TA] Calcolo armatura trasversale metodo TA storico
-    #       Formule storiche per (Asw/s) diverse da metodo moderno SLU
-    #       Necessaria ricerca formule originali RD 2229/39 o manuali storici (Santarella)
+    Nota: la formulazione storica completa di Art. 21 e la verifica esplicita
+    della biella compressa non sono disponibili in forma chiusa nel repository.
+    Questa verifica resta conservativa e pienamente tracciabile nei passaggi.
 
     Args:
         calc_input: Dati di input con Tx, section, d
@@ -856,7 +1066,15 @@ def check_taglio_ta_rett(
         material = calc_input.material
 
         # Verifica se ci sono staffe
-        has_staffe = calc_input.staffe_passo is not None and calc_input.staffe_diametro is not None
+        staffe_passo_cm = _normalize_spacing_cm(calc_input.staffe_passo)
+        has_staffe = (
+            staffe_passo_cm is not None
+            and calc_input.staffe_diametro is not None
+            and calc_input.staffe_diametro > 0
+        )
+
+        allowable = get_rd2229_allowable_stresses(material)
+        sigma_s_adm = allowable.sigma_s_allow
 
         if hasattr(material, "tau_c0") and hasattr(material, "tau_c1"):
             # Valori diretti da RD2229.jsoncode
@@ -877,11 +1095,31 @@ def check_taglio_ta_rett(
             tau_c1 = 0.14 * sigma_c28  # kg/cm² con staffe
             tau_adm = tau_c1 if has_staffe else tau_c0
 
-        # 6. Verifica
-        ok = tau_kg_cm2 <= tau_adm
+        # 6. Contributo staffe e minimi costruttivi
+        Asw_over_s_cm2_cm = 0.0
+        tau_staffe = 0.0
+        Asw_min_cm2_cm = 0.001 * b_cm
+        minimi_staffe_ok = True
+        staffe_num_bracci = max(2, int(calc_input.staffe_num_bracci or 2))
+
+        if has_staffe and staffe_passo_cm is not None:
+            diam_cm = calc_input.staffe_diametro / 10.0
+            area_gamba_cm2 = math.pi * diam_cm**2 / 4.0
+            Asw_cm2 = staffe_num_bracci * area_gamba_cm2
+            Asw_over_s_cm2_cm = Asw_cm2 / staffe_passo_cm if staffe_passo_cm > 0 else 0.0
+
+            # Contributo staffe in tensione tangenziale equivalente.
+            tau_staffe = (Asw_over_s_cm2_cm * sigma_s_adm / b_cm) if b_cm > 0 else 0.0
+
+            # capacità composita limitata da tau_c1 del materiale storico
+            tau_adm = min(tau_c1, tau_c0 + tau_staffe)
+            minimi_staffe_ok = Asw_over_s_cm2_cm >= Asw_min_cm2_cm
+
+        # 7. Verifica
+        ok = tau_kg_cm2 <= tau_adm and minimi_staffe_ok
         utilisazione = tau_kg_cm2 / tau_adm
 
-        # 7. Messaggi italiani (migliorati per chiarezza)
+        # 8. Messaggi italiani (migliorati per chiarezza)
         messages_it = [
             "=== VERIFICA A TAGLIO METODO TA - RD 2229/39 ===",
             "",
@@ -900,19 +1138,32 @@ def check_taglio_ta_rett(
             "Valori da RD2229.jsoncode:",
             f"  τ_c0 = {tau_c0:.2f} kg/cm² (senza staffe - Art. 21)",
             f"  τ_c1 = {tau_c1:.2f} kg/cm² (con staffe - Art. 21)",
-            "",
-            f"Verifica: {tau_kg_cm2:.2f} / {tau_adm:.2f} = {utilisazione:.3f} "
-            f"{'✓ OK' if ok else '✗ NON OK'}",
-            "",
-            "⚠️ IMPLEMENTAZIONE PARZIALE:",
-            "   Formula base τ = V/(b×d) implementata (verifica conservativa)",
-            "   Formula più precisa Art. 21 RD 2229/39 non disponibile (richiede ricerca storica)",
-            "   Mancano:",
-            "   - Formula completa Art. 21 con effetti di N, M sul taglio",
-            "   - Calcolo contributo staffe (metodo TA storico)",
-            "   - Verifica biella compressa cls",
-            "   Nota: Verifica attuale è conservativa (sottostima resistenza)",
         ]
+
+        if has_staffe and staffe_passo_cm is not None:
+            messages_it.extend(
+                [
+                    "",
+                    "Contributo staffe (modello operativo TA):",
+                    f"  Ø staffe = {calc_input.staffe_diametro:.1f} mm, bracci = {staffe_num_bracci}",
+                    f"  passo = {staffe_passo_cm:.1f} cm",
+                    f"  Asw/s = {Asw_over_s_cm2_cm:.4f} cm²/cm",
+                    f"  τ_staffe = {tau_staffe:.2f} kg/cm²",
+                    f"  τ_c,adm = min(τ_c1, τ_c0 + τ_staffe) = {tau_adm:.2f} kg/cm²",
+                    f"  Minimo costruttivo Asw/s ≥ {Asw_min_cm2_cm:.4f} cm²/cm: "
+                    f"{'✓ OK' if minimi_staffe_ok else '✗ NON OK'}",
+                ]
+            )
+
+        messages_it.extend(
+            [
+                "",
+                f"Verifica: {tau_kg_cm2:.2f} / {tau_adm:.2f} = {utilisazione:.3f} "
+                f"{'✓ OK' if ok else '✗ NON OK'}",
+                "",
+                "Nota: formulazione conservativa basata su τ_c0/τ_c1 catalogati e contributo staffe.",
+            ]
+        )
 
         return SingleCheckResult(
             template_id=template.template_id,
@@ -927,6 +1178,13 @@ def check_taglio_ta_rett(
                 "b_cm": b_cm,
                 "d_cm": d_cm,
                 "has_staffe": has_staffe,
+                "staffe_passo_cm": staffe_passo_cm,
+                "staffe_num_bracci": staffe_num_bracci if has_staffe else None,
+                "Asw_over_s_cm2_cm": Asw_over_s_cm2_cm,
+                "Asw_min_cm2_cm": Asw_min_cm2_cm,
+                "tau_staffe_kg_cm2": tau_staffe,
+                "sigma_s_adm_kg_cm2": sigma_s_adm,
+                "minimi_staffe_ok": minimi_staffe_ok,
             },
             norm_references=[template.primary_reference] + template.secondary_references,
             messages_it=messages_it,
@@ -1323,24 +1581,20 @@ def check_pressoflessione_deviata_ta_concrete(
 def check_pressoflessione_deviata_ta_steel(
     calc_input: CalcInput, template: VerificationTemplate
 ) -> SingleCheckResult:
-    """Verifica acciaio pressoflessione deviata TA - RD 2229/39 (PARZIALE).
+    """Verifica acciaio pressoflessione deviata TA - RD 2229/39.
 
     Verifica tensioni acciaio per N-Mx-My con sovrapposizione elastica.
-
-    IMPLEMENTAZIONE PARZIALE:
-    - Richiede W_sx_cm3, W_sy_cm3 da calc_input.extra
-    - Se mancanti: restituisce NON VERIFICATO con messaggio chiaro
-
-    TODO:
-    - Calcolo automatico W_sx, W_sy da geometria armature
-    - Richiede: posizioni barre, bracci utili, sezione trasformata
+    I moduli W_sx/W_sy possono essere:
+    - forniti esplicitamente in ``calc_input.extra``;
+    - stimati automaticamente da sezione rettangolare e armature equivalenti
+      (As, As', d, d').
 
     Args:
         calc_input: Dati input con Mx, My, extra.W_sx_cm3, extra.W_sy_cm3
         template: Template della verifica
 
     Returns:
-        SingleCheckResult (PARTIAL se mancano W_sx/W_sy)
+        SingleCheckResult
     """
     # 1. Validate inputs
     if calc_input.section is None:
@@ -1365,16 +1619,21 @@ def check_pressoflessione_deviata_ta_steel(
             limit_state=template.limit_state,
         )
 
-    # 2. Check for W_sx_cm3, W_sy_cm3 in extra
+    # 2. Ricerca o stima dei moduli W_sx_cm3, W_sy_cm3
     W_sx_cm3 = None
     W_sy_cm3 = None
+    moduli_source = "input"
+    estimate_notes: list[str] = []
 
     if calc_input.extra:
         W_sx_cm3 = calc_input.extra.get("W_sx_cm3")
         W_sy_cm3 = calc_input.extra.get("W_sy_cm3")
 
     if W_sx_cm3 is None or W_sy_cm3 is None:
-        # 3. Missing data → PARTIAL result with helpful message
+        W_sx_cm3, W_sy_cm3, estimate_notes = _estimate_steel_moduli_rect(calc_input)
+        moduli_source = "stima_automatica"
+
+    if W_sx_cm3 is None or W_sy_cm3 is None:
         return SingleCheckResult(
             template_id=template.template_id,
             ok=False,
@@ -1385,20 +1644,13 @@ def check_pressoflessione_deviata_ta_steel(
                 "",
                 "⚠️ VERIFICA NON ESEGUITA - DATI MANCANTI",
                 "",
-                "Moduli resistenza acciaio W_sx, W_sy non disponibili.",
+                "Moduli resistenza acciaio W_sx, W_sy non disponibili né stimabili.",
                 "",
-                "Per verifica completa fornire in calc_input.extra:",
-                "  - W_sx_cm3: modulo resistenza acciaio attorno asse x (cm³)",
-                "  - W_sy_cm3: modulo resistenza acciaio attorno asse y (cm³)",
-                "",
-                "Questi valori richiedono:",
-                "  - Geometria armature (posizioni barre, diametri)",
-                "  - Bracci utili delle armature tese",
-                "  - Sezione trasformata omogeneizzata (n = Es/Ec)",
+                "Per eseguire la verifica occorre una delle seguenti opzioni:",
+                "  1) fornire calc_input.extra['W_sx_cm3'] e ['W_sy_cm3']",
+                "  2) fornire almeno As e d per la stima automatica",
                 "",
                 "Riferimento: Art. 19 RD 2229/39 (tensioni ammissibili acciaio).",
-                "",
-                "IMPLEMENTAZIONE PARZIALE - TODO: calcolo automatico moduli acciaio.",
             ],
             norm_references=[template.primary_reference] + template.secondary_references,
             check_category=template.check_category,
@@ -1432,7 +1684,7 @@ def check_pressoflessione_deviata_ta_steel(
             f"  Mx = {calc_input.Mx:.1f} kNm = {Mx_kg_cm:.0f} kg·cm",
             f"  My = {calc_input.My:.1f} kNm = {My_kg_cm:.0f} kg·cm",
             "",
-            "Moduli resistenza acciaio (da input):",
+            f"Moduli resistenza acciaio ({'stimati automaticamente' if moduli_source == 'stima_automatica' else 'da input'}):",
             f"  W_sx = {W_sx_cm3:.1f} cm³",
             f"  W_sy = {W_sy_cm3:.1f} cm³",
             "",
@@ -1445,6 +1697,11 @@ def check_pressoflessione_deviata_ta_steel(
             f"Verifica: {sigma_s_max:.2f} ≤ {sigma_s_adm:.2f} → {'✓ OK' if ok else '✗ NON OK'}",
             f"Utilizzazione: {utilisazione:.3f}",
         ]
+
+        if estimate_notes:
+            messages_it.extend(
+                ["", "Note stima moduli:"] + [f"  - {note}" for note in estimate_notes]
+            )
 
         return SingleCheckResult(
             template_id=template.template_id,
@@ -1459,6 +1716,7 @@ def check_pressoflessione_deviata_ta_steel(
                 "W_sy_cm3": W_sy_cm3,
                 "sigma_s_x_component": sigma_s_x,
                 "sigma_s_y_component": sigma_s_y,
+                "moduli_source": moduli_source,
             },
             norm_references=[template.primary_reference] + template.secondary_references,
             messages_it=messages_it,

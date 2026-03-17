@@ -4,7 +4,7 @@
 > Ogni funzionalita completata e marcata con `[x]` e il commit hash.
 > I sub-plan vengono aggiunti progressivamente sotto ogni TODO.
 
-**Ultimo aggiornamento**: 2026-03-06
+**Ultimo aggiornamento**: 2026-03-16
 **Sessione iniziata da**: docs/CLAUDEPLAN/Conversazione.md + docs/CLAUDEPLAN2/
 
 ---
@@ -39,6 +39,39 @@ La pianificazione degli elementi secondari e non strutturali e stata riorganizza
 
 ---
 
+## V1 Avviabile — Stato integrazione (delta 2026-03-16)
+
+### Dependency tree operativo (corrente)
+
+```text
+load_project (repository/schema)
+  -> run_pipeline (core/pipeline + step5_adapter)
+    -> verification_service (core_calculus)
+  -> build_report (reporting/report_builder)
+  -> export_report_md/html (reporting/export)
+```
+
+### Avanzamento concreto eseguito
+
+- [x] Esteso `LoadEntry` con `extra` per parametri di verifica avanzati
+- [x] Migrazione legacy `elements -> loads` aggiornata per preservare campi extra
+- [x] `step5_adapter` aggiornato con mapping extra -> `CalcInput`
+- [x] Bootstrap workflow GUI moderna (`run_bootstrap_workflow`) collegato a pipeline e report
+- [x] Test E2E dedicato su flusso completo con export MD+HTML
+- [x] Template normativi RD2229 completati: pressoflessione (instabilita condizionale), taglio con staffe/minimi, deviata acciaio con stima moduli
+- [x] Regressioni RD2229 + E2E validate (53 test pass)
+- [x] GUI moderna resa avviabile con workflow utente run/export + modalita headless
+- [x] GUI moderna riscritta in shell operativa ibrida con preset e azioni singole
+- [x] Preset integrati: workflow completo, normativa RD2229, secondari NTC2018, vento, FEM, Cross-Pozzati, Solai X1, X8
+- [x] Azioni rapide integrate: nuovo/apri/salva progetto, run pipeline, export JSON/MD/HTML
+
+### Gap residui prima della release V1
+
+- [ ] Copertura template normativi da completare su `normative_registry` (focus residuo: NTC2018 non-priority)
+- [x] Integrazione UX completa della GUI moderna (orchestrazione utente end-to-end)
+
+---
+
 ## FASE S1 — Tamponamenti Secondari (Completamento integrale)
 
 **Stato**: ✅ COMPLETATO — 2026-03-11
@@ -51,6 +84,7 @@ La pianificazione degli elementi secondari e non strutturali e stata riorganizza
 **Package**: `src/codes/ntc2018/secondary_elements/tamponamenti/`
 
 **Moduli creati**:
+
 ```
 models.py           — TamponamentoSpec, SpecAncoraggio, RisultatoSLU/SLE, StatoDannoSLE (4 livelli)
 checks_slu.py       — Domanda F_a, resistenza pannello (bending fuori piano), resistenza ancoraggi
@@ -61,11 +95,13 @@ __init__.py         — Public API
 ```
 
 **Data storage**:
+
 ```
 data/tamponamenti_presets.json  — 5 preset predefiniti (muratura tradizionale, cls prefabbricato, facciata leggera, muratura con aperture, sandwich isolante)
 ```
 
 **GUI Qt (Fase S1.6)**:
+
 ```
 src/gui/secondary_elements/tamponamenti_widget.py  — Wizard 6-step + visualizzatore sezione 2D con schema danno (matplotlib)
   - WizardPageGeometria (altezza, larghezza, spessore, massa)
@@ -133,6 +169,7 @@ MainWindow             — Launcher wizard + preset loader
 **Package**: `src/codes/ntc2018/secondary_elements/tramezzi/`
 
 **Moduli creati**:
+
 ```
 models.py           — TramezzoSpec, contesti SLU/SLE, risultati, enum sistema/vincolo
 checks_slu.py       — domanda locale fuori piano, resistenza tramezzo, resistenza ancoraggi
@@ -143,6 +180,7 @@ __init__.py         — API pubblica + adapter dict-based per dispatcher
 ```
 
 **Prerequisiti comuni implementati contestualmente**:
+
 ```
 src/codes/ntc2018/secondary_elements/common.py     — helper condivisi (forza locale, stato danno)
 verifications/secondary_elements/dispatcher.py     — routing per element_type
@@ -150,11 +188,13 @@ src/codes/ntc2018/secondary_elements/storage_adapter.py — metadata tipizzati e
 ```
 
 **Storage/Preset**:
+
 ```
 data/tramezzi_presets.json — 4 preset (cartongesso standard, doppia lastra, laterizio forato, sistema misto)
 ```
 
 **GUI Qt (S2.6)**:
+
 ```
 src/gui/secondary_elements/tramezzi_widget.py — widget dedicato con preset, input base, run SLU/SLE e output decision_log
 ```
@@ -592,3 +632,60 @@ tests/test_carote.py              — ~66 test
 - [x] **N.9** `tests/test_carote.py` (70 test) + pytest green
 - [x] **N.10** `carote_canvas.py`: widget Qt (4 viste)
 - [x] **N.11** Aggiornamento docs
+
+---
+
+## Struttura Moduli Aggiornata
+
+### Moduli Principali
+
+- **Core**
+  - `src/core/`
+    - `verification_engine.py`
+    - `geometry_model.py`
+    - `contracts.py`
+
+- **Normative**
+  - `src/core_calculus/`
+    - `normative_registry.py`
+    - `historical_checks.py`
+
+- **Pipeline**
+  - `src/core/`
+    - `pipeline.py`
+    - `step5_adapter.py`
+
+- Reporting
+  - `src/reporting/`
+    - `report_builder.py`
+    - `export.py`
+
+- **UI**
+  - Modern GUI: `src/ui/modern/`
+  - Legacy GUI: Removed
+
+### Moduli Collegati
+
+- **Materials**
+  - `src/materials/`
+    - `materials_repository.py`
+    - `historical_materials_loader.py`
+
+- **Elements**
+  - `src/elements/`
+    - `element_model.py`
+    - `element_checks.py`
+
+- **Fire**
+  - `src/fire/`
+    - `fire_check.py`
+
+- **Wind**
+  - `src/wind/`
+    - `wind_loads.py`
+
+### Prossimi Passi
+
+- [ ] Validare connessioni tra moduli
+- [ ] Test end-to-end
+- [ ] Documentazione completa

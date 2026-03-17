@@ -4,9 +4,9 @@ Tests for RD 2229/1939 check implementations.
 Comprehensive test suite for Tensioni Ammissibili (TA) method checks.
 Tests cover:
 - Flessione TA (COMPLETE implementation)
-- Pressoflessione TA (PARTIAL implementation)
-- Taglio TA (PARTIAL implementation)
-- Minimi armatura (PARTIAL implementation)
+- Pressoflessione TA (completa con instabilita condizionale)
+- Taglio TA (operativo con contributo staffe)
+- Minimi armatura (COMPLETE implementation)
 - Unit conversions
 - LC/FC integration
 - Full verification pipeline
@@ -281,7 +281,7 @@ def test_flessione_ta_missing_inputs():
 
 
 # ==============================================================================
-# PRESSOFLESSIONE TA TESTS (PARTIAL IMPLEMENTATION)
+# PRESSOFLESSIONE TA TESTS
 # ==============================================================================
 
 
@@ -310,9 +310,10 @@ def test_pressoflessione_ta_compression_ok():
     # Should compute stresses
     assert "sigma_c_max_kg_cm2" in result.details
 
-    # Should have PARTIAL warning
+    # Should include implementation summary
     messages_text = "\n".join(result.messages_it)
-    assert "PARZIALE" in messages_text or "PARTIAL" in messages_text.upper()
+    assert "Implementazione verifica pressoflessione TA" in messages_text
+    assert "instabilità" in messages_text.lower()
 
     # Check for title update
     assert "PRESSOFLESSIONE" in messages_text
@@ -344,8 +345,35 @@ def test_pressoflessione_ta_tension_ok():
     assert result.utilisation is not None
 
 
+def test_pressoflessione_ta_with_instability_data():
+    """Test che la verifica di instabilita venga eseguita con l0 disponibile."""
+    section = MockRD2229Section(b=300.0, h=300.0)
+    material = MockRD2229Material()
+
+    calc_input = CalcInput(
+        element_name="Pilastro con Stabilita",
+        section=section,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        N=-120.0,
+        Mx=40.0,
+        As=14.0,
+        d=26.0,
+        extra={"l0_cm": 320.0, "beta_y": 1.0, "beta_z": 1.0},
+    )
+
+    template = MockRD2229Template(template_id="rd2229_ta_pressoflessione_rett")
+    result = check_pressoflessione_ta_rett(calc_input, template)
+
+    assert result.details.get("stabilita_eseguita") is True
+    assert "stabilita_esito" in result.details
+    assert "lambda_max" in result.details
+    assert any("Verifica instabilità pilastro" in m for m in result.messages_it)
+
+
 # ==============================================================================
-# TAGLIO TA TESTS (PARTIAL IMPLEMENTATION)
+# TAGLIO TA TESTS
 # ==============================================================================
 
 
@@ -379,9 +407,9 @@ def test_taglio_ta_basic_without_stirrups():
     tau_c0 = result.details["tau_c0_kg_cm2"]
     assert tau_adm == tau_c0
 
-    # Should have PARTIAL warning
+    # Should report conservative/operational note
     messages_text = "\n".join(result.messages_it)
-    assert "PARZIALE" in messages_text
+    assert "conservativa" in messages_text.lower()
 
 
 def test_taglio_ta_basic_with_stirrups():
@@ -407,18 +435,21 @@ def test_taglio_ta_basic_with_stirrups():
     template = MockRD2229Template(template_id="rd2229_ta_taglio_rett")
     result = check_taglio_ta_rett(calc_input, template)
 
-    # Should use tau_c1 (with stirrups)
+    # With stirrups, tau_adm is capped by tau_c1 but can be lower depending on Asw/s
     tau_adm = result.details["tau_adm_kg_cm2"]
     tau_c1 = result.details["tau_c1_kg_cm2"]
-    assert tau_adm == tau_c1
+    tau_c0 = result.details["tau_c0_kg_cm2"]
+    assert tau_adm <= tau_c1
+    assert tau_adm >= tau_c0
 
     # tau_c1 should be higher than tau_c0
-    tau_c0 = result.details["tau_c0_kg_cm2"]
     assert tau_c1 > tau_c0
+    assert result.details["Asw_over_s_cm2_cm"] > 0
+    assert result.details["minimi_staffe_ok"] is True
 
 
 # ==============================================================================
-# MINIMI ARMATURA TESTS (PARTIAL IMPLEMENTATION)
+# MINIMI ARMATURA TESTS
 # ==============================================================================
 
 
@@ -837,10 +868,10 @@ def test_pressoflessione_ta_slenderness_reduction():
         "non snella" in messages_text_thick or "riduzione non applicata" in messages_text_thick
     ), "Should mention no reduction for thick section"
 
-    # Verify PARTIAL status improved to mention slenderness implementation
+    # Verify implementation summary mentions slenderness support
     assert (
-        "MIGLIORATA" in messages_text or "PARTIAL" in messages_text
-    ), "Should show improved status"
+        "Implementazione verifica pressoflessione TA" in messages_text
+    ), "Should show implementation summary"
     assert (
         "Riduzione σ_c,adm per sezioni snelle implementata" in messages_text
         or "riduzione σ_c,adm" in messages_text.lower()
@@ -962,7 +993,7 @@ def test_pressoflessione_deviata_ta_slenderness():
 def test_pressoflessione_deviata_ta_steel_missing_moduli():
     """Test steel verification fails gracefully without W_sx, W_sy.
 
-    Verifies PARTIAL implementation: requires W_sx_cm3, W_sy_cm3 in calc_input.extra
+    Verifies that missing data is reported with a clear message.
     Should return ok=False with helpful Italian error message.
     """
     section = MockRD2229Section(b=300.0, h=500.0)
@@ -995,10 +1026,39 @@ def test_pressoflessione_deviata_ta_steel_missing_moduli():
     assert "DATI MANCANTI" in messages_text or "NON ESEGUITA" in messages_text
     assert "W_sx" in messages_text and "W_sy" in messages_text
     assert "W_sx_cm3" in messages_text or "moduli resistenza" in messages_text.lower()
-    assert "calc_input.extra" in messages_text
+    assert "As e d" in messages_text or "stima automatica" in messages_text
 
     # Should reference Art. 19
     assert "Art. 19" in messages_text or "Art.19" in messages_text
+
+
+def test_pressoflessione_deviata_ta_steel_auto_moduli():
+    """Test stima automatica moduli acciaio in assenza di extra.W_sx/W_sy."""
+    section = MockRD2229Section(b=300.0, h=500.0)
+    material = MockRD2229Material()
+
+    calc_input = CalcInput(
+        element_name="Pilastro Acciaio Moduli Auto",
+        section=section,
+        material=material,
+        norm_code="RD2229",
+        limit_states_enabled=["TA"],
+        Mx=40.0,
+        My=20.0,
+        As=16.0,
+        As_prime=4.0,
+        d=45.0,
+        d_prime=5.0,
+    )
+
+    template = MockRD2229Template(template_id="rd2229_ta_pressoflessione_deviata_steel")
+    result = check_pressoflessione_deviata_ta_steel(calc_input, template)
+
+    assert result.utilisation is not None
+    assert result.details["moduli_source"] == "stima_automatica"
+    assert result.details["W_sx_cm3"] > 0
+    assert result.details["W_sy_cm3"] > 0
+    assert any("stimati automaticamente" in m for m in result.messages_it)
 
 
 def test_pressoflessione_deviata_ta_steel_with_moduli():

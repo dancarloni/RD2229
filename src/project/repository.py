@@ -170,12 +170,26 @@ def _migrate_sections_elements_to_geometry_loads(data: dict[str, Any]) -> dict[s
     elements = migrated.get("elements")
     if elements and not migrated.get("loads"):
         loads_list: list[dict[str, Any]] = []
+        base_keys = {
+            "id",
+            "name",
+            "section_id",
+            "element_id",
+            "description",
+            "N",
+            "Mx",
+            "My",
+            "Mz",
+            "Tx",
+            "Ty",
+        }
         for e in elements:
             if not isinstance(e, dict):
                 continue
             # Prefer linking load to the section id when present so geometry
             # (migrated from `sections`) can be found by element lookups.
             element_id = e.get("section_id") or e.get("id") or e.get("element_id") or ""
+            extra_payload = {k: v for k, v in e.items() if k not in base_keys}
             loads_list.append(
                 {
                     "element_id": element_id,
@@ -186,6 +200,7 @@ def _migrate_sections_elements_to_geometry_loads(data: dict[str, Any]) -> dict[s
                     "Tx": e.get("Tx"),
                     "Ty": e.get("Ty"),
                     "description": e.get("name") or e.get("description") or "",
+                    "extra": extra_payload,
                 }
             )
         migrated["loads"] = loads_list
@@ -272,19 +287,38 @@ def _dict_to_project(data: dict[str, Any]) -> ProjectModel:
         for m in materials_list
     ]
 
-    loads = [
-        LoadEntry(
-            element_id=ld.get("element_id", ""),
-            N=ld.get("N"),
-            Mx=ld.get("Mx"),
-            My=ld.get("My"),
-            Mz=ld.get("Mz"),
-            Tx=ld.get("Tx"),
-            Ty=ld.get("Ty"),
-            description=ld.get("description", ""),
+    loads: list[LoadEntry] = []
+    for ld in data.get("loads") or []:
+        if not isinstance(ld, dict):
+            continue
+        known_keys = {
+            "element_id",
+            "N",
+            "Mx",
+            "My",
+            "Mz",
+            "Tx",
+            "Ty",
+            "description",
+            "extra",
+        }
+        extra_raw = ld.get("extra") if isinstance(ld.get("extra"), dict) else {}
+        unknown_fields = {k: v for k, v in ld.items() if k not in known_keys}
+        merged_extra = {**unknown_fields, **extra_raw}
+
+        loads.append(
+            LoadEntry(
+                element_id=ld.get("element_id", ""),
+                N=ld.get("N"),
+                Mx=ld.get("Mx"),
+                My=ld.get("My"),
+                Mz=ld.get("Mz"),
+                Tx=ld.get("Tx"),
+                Ty=ld.get("Ty"),
+                description=ld.get("description", ""),
+                extra=merged_extra,
+            )
         )
-        for ld in (data.get("loads") or [])
-    ]
 
     si_raw = data.get("seismic_inputs") or {}
     seismic_inputs = SeismicInputs(

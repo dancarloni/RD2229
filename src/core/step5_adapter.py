@@ -254,9 +254,17 @@ def _build_calc_input(
             f_ck=mat.f_ck,
             f_yk=mat.f_yk,
             material_type=mat.type,
+            extra=mat.extra or {},
         )
     else:
         material = _MaterialShim(tags=["concrete", "rc"])
+
+    load_extra = load.extra or {}
+    geom_extra = geom.extra or {}
+    mat_extra = (mat.extra or {}) if mat is not None else {}
+
+    # Precedenza: load.extra -> geometry.extra -> material.extra
+    merged_extra: dict[str, Any] = {**mat_extra, **geom_extra, **load_extra}
 
     return CalcInput(
         element_name=elem_id,
@@ -266,12 +274,41 @@ def _build_calc_input(
         limit_states_enabled=list(limit_states),
         # Usa il Livello di Conoscenza da CodeSettings se presente
         lc=getattr(code_settings, "lc", None),
+        fc=_extract_float(merged_extra, "fc", "FC") or getattr(code_settings, "fc", None),
         N=load.N,
         Mx=load.Mx,
         My=load.My,
         Mz=load.Mz,
         Tx=load.Tx,
         Ty=load.Ty,
+        As=_extract_float(merged_extra, "As", "as", "as_cm2", "as_mm2"),
+        As_prime=_extract_float(merged_extra, "As_prime", "As_p", "as_prime", "as_p"),
+        d=_extract_float(merged_extra, "d", "d_cm", "d_mm"),
+        d_prime=_extract_float(merged_extra, "d_prime", "d_p", "d_prime_cm", "d_p_cm"),
+        staffe_diametro=_extract_float(
+            merged_extra,
+            "staffe_diametro",
+            "stirrups_diam",
+            "staffe_diam",
+        ),
+        staffe_num_bracci=_extract_int(
+            merged_extra,
+            "staffe_num_bracci",
+            "num_bracci",
+            "stirrups_legs",
+        ),
+        staffe_passo=_extract_float(
+            merged_extra,
+            "staffe_passo",
+            "passo_staffe",
+            "stirrups_spacing",
+        ),
+        area_ferri_piegati=_extract_float(
+            merged_extra,
+            "area_ferri_piegati",
+            "At",
+        ),
+        extra=merged_extra,
     )
 
 
@@ -285,6 +322,36 @@ def _material_tags(mat: MaterialEntry) -> list[str]:
     else:
         tags = [mat.type] if mat.type else ["concrete", "rc"]
     return tags
+
+
+def _extract_float(source: dict[str, Any], *keys: str) -> float | None:
+    """Restituisce il primo valore numerico disponibile tra le chiavi indicate."""
+    for key in keys:
+        if key not in source:
+            continue
+        value = source.get(key)
+        if value is None:
+            continue
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _extract_int(source: dict[str, Any], *keys: str) -> int | None:
+    """Restituisce il primo intero disponibile tra le chiavi indicate."""
+    for key in keys:
+        if key not in source:
+            continue
+        value = source.get(key)
+        if value is None:
+            continue
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            continue
+    return None
 
 
 def _convert_output(elem_id: str, calc_output: Any) -> ElementResult:

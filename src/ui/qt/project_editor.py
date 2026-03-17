@@ -55,9 +55,10 @@ from src.project.schema import (
 class ProjectEditorWindow(QWidget):
     project_changed = Signal(object)
 
-    def __init__(self, project_service=None, parent=None):
+    def __init__(self, project_service=None, material_repo=None, parent=None):
         super().__init__(parent)
         self.project_service = project_service
+        self.material_repo = material_repo
         self._current_path: str | None = None
         self._project = getattr(project_service, "current_project", ProjectModel())
 
@@ -92,6 +93,7 @@ class ProjectEditorWindow(QWidget):
         tabs = QTabWidget(self)
         root.addWidget(tabs)
 
+        # --- Tab principale: Progetto ---
         tab_main = QWidget(self)
         main_layout = QVBoxLayout(tab_main)
 
@@ -109,22 +111,30 @@ class ProjectEditorWindow(QWidget):
         main_layout.addLayout(info_form)
 
         grid = QGridLayout()
-        self.tbl_geometry = QTableWidget(0, 4, self)
-        self.tbl_geometry.setHorizontalHeaderLabels(["id", "type", "width", "height"])
-        self.tbl_materials = QTableWidget(0, 5, self)
-        self.tbl_materials.setHorizontalHeaderLabels(["id", "type", "class", "f_ck", "f_yk"])
-        self.tbl_loads = QTableWidget(0, 7, self)
-        self.tbl_loads.setHorizontalHeaderLabels(
-            ["element_id", "N", "Mx", "My", "Tx", "Ty", "desc"]
+
+        # --- Tabella Geometria ---
+        self.tbl_geometry = QTableWidget(0, 5, self)
+        self.tbl_geometry.setHorizontalHeaderLabels(["id", "type", "width", "height", "extra"])
+        self._add_table_crud_buttons(main_layout, self.tbl_geometry, "Geometria")
+
+        # --- Tabella Materiali ---
+        self.tbl_materials = QTableWidget(0, 6, self)
+        self.tbl_materials.setHorizontalHeaderLabels(
+            ["id", "type", "class", "f_ck", "f_yk", "extra"]
         )
+        self._add_table_crud_buttons(main_layout, self.tbl_materials, "Materiali", import_repo=True)
 
-        grid.addWidget(self.tbl_geometry, 0, 0)
-        grid.addWidget(self.tbl_materials, 0, 1)
-        grid.addWidget(self.tbl_loads, 1, 0, 1, 2)
+        # --- Tabella Carichi ---
+        self.tbl_loads = QTableWidget(0, 8, self)
+        self.tbl_loads.setHorizontalHeaderLabels(
+            ["element_id", "N", "Mx", "My", "Tx", "Ty", "desc", "extra"]
+        )
+        self._add_table_crud_buttons(main_layout, self.tbl_loads, "Carichi")
+
         main_layout.addLayout(grid)
-
         tabs.addTab(tab_main, "Progetto")
 
+        # --- Tab CodeSettings ---
         tab_code = QWidget(self)
         code_form = QFormLayout(tab_code)
         self.txt_norm_code = QLineEdit()
@@ -137,6 +147,7 @@ class ProjectEditorWindow(QWidget):
         code_form.addRow("Unità lunghezza:", self.txt_units_length)
         tabs.addTab(tab_code, "CodeSettings")
 
+        # --- Tab SeismicInputs ---
         tab_seismic = QWidget(self)
         seismic_form = QFormLayout(tab_seismic)
         self.txt_class_of_use = QLineEdit()
@@ -149,6 +160,7 @@ class ProjectEditorWindow(QWidget):
         seismic_form.addRow("Sito:", self.txt_site_label)
         tabs.addTab(tab_seismic, "SeismicInputs")
 
+        # --- Tab FireInputs ---
         tab_fire = QWidget(self)
         fire_form = QFormLayout(tab_fire)
         self.txt_fire_enabled = QLineEdit()
@@ -158,6 +170,84 @@ class ProjectEditorWindow(QWidget):
         fire_form.addRow("Scenario:", self.txt_fire_scenario)
         fire_form.addRow("Rating min:", self.txt_fire_rating)
         tabs.addTab(tab_fire, "FireInputs")
+
+    def _add_table_crud_buttons(self, layout, table, label, import_repo=False):
+        row = QHBoxLayout()
+        btn_add = QPushButton(f"Aggiungi {label}")
+        btn_remove = QPushButton(f"Rimuovi {label}")
+        btn_edit_extra = QPushButton("Modifica extra")
+        row.addWidget(btn_add)
+        row.addWidget(btn_remove)
+        row.addWidget(btn_edit_extra)
+        if import_repo:
+            btn_import = QPushButton("Importa da archivio")
+            row.addWidget(btn_import)
+            btn_import.clicked.connect(lambda: self._import_material_from_repo())
+        row.addStretch(1)
+        layout.addWidget(table)
+        layout.addLayout(row)
+        # Connect signals
+        btn_add.clicked.connect(lambda: self._add_table_row(table))
+        btn_remove.clicked.connect(lambda: self._remove_table_row(table))
+        btn_edit_extra.clicked.connect(lambda: self._edit_extra_for_selected(table))
+
+    def _add_table_row(self, table):
+        table.insertRow(table.rowCount())
+
+    def _remove_table_row(self, table):
+        row = table.currentRow()
+        if row >= 0:
+            table.removeRow(row)
+
+    def _edit_extra_for_selected(self, table):
+        row = table.currentRow()
+        if row < 0:
+            return
+        col = table.columnCount() - 1  # extra is always last
+        item = table.item(row, col)
+        current = item.text() if item else "{}"
+        new_json = self._show_json_edit_dialog(current)
+        if new_json is not None:
+            table.setItem(row, col, QTableWidgetItem(new_json))
+
+    def _show_json_edit_dialog(self, current_json):
+        # Use the modular JsonEditDialog (lazy import to keep startup light)
+        try:
+            from src.ui.qt.json_edit_dialog import JsonEditDialog
+        except Exception:
+            return current_json
+        return JsonEditDialog.edit_json(self, current_json)
+
+    def _import_material_from_repo(self):
+        # Importa un materiale dal MaterialRepository e lo aggiunge alla tabella
+        try:
+            from src.ui.qt.material_import_dialog import MaterialImportDialog
+        except Exception:
+            return
+        if self.material_repo is None:
+            QMessageBox.information(
+                self, "Archivio materiale", "Nessun archivio materiali disponibile."
+            )
+            return
+
+        mat = MaterialImportDialog.select_material(self, self.material_repo)
+        if mat is None:
+            return
+
+        import json
+
+        values = [
+            mat.material_id,
+            getattr(mat, "famiglia", ""),
+            getattr(mat, "descrizione", ""),
+            "" if getattr(mat, "f_ck", 0.0) == 0.0 else str(getattr(mat, "f_ck", "")),
+            "" if getattr(mat, "f_yk", 0.0) == 0.0 else str(getattr(mat, "f_yk", "")),
+            json.dumps(
+                {"note": getattr(mat, "note", ""), "source_refs": getattr(mat, "source_refs", [])},
+                ensure_ascii=False,
+            ),
+        ]
+        self._table_set_row(self.tbl_materials, self.tbl_materials.rowCount(), values)
 
     def _table_set_row(self, table: QTableWidget, row: int, values: list[str]) -> None:
         table.insertRow(row)
@@ -178,6 +268,8 @@ class ProjectEditorWindow(QWidget):
             return None
 
     def load_from_project(self, project: ProjectModel) -> None:
+        import json
+
         self._project = project
         info = project.project_info
         self.txt_name.setText(info.name)
@@ -191,7 +283,13 @@ class ProjectEditorWindow(QWidget):
             self._table_set_row(
                 self.tbl_geometry,
                 idx,
-                [entry.id, entry.type, str(entry.width), str(entry.height)],
+                [
+                    entry.id,
+                    entry.type,
+                    str(entry.width),
+                    str(entry.height),
+                    json.dumps(entry.extra or {}, ensure_ascii=False),
+                ],
             )
 
         self.tbl_materials.setRowCount(0)
@@ -205,6 +303,7 @@ class ProjectEditorWindow(QWidget):
                     entry.material_class,
                     "" if entry.f_ck is None else str(entry.f_ck),
                     "" if entry.f_yk is None else str(entry.f_yk),
+                    json.dumps(entry.extra or {}, ensure_ascii=False),
                 ],
             )
 
@@ -221,6 +320,7 @@ class ProjectEditorWindow(QWidget):
                     "" if entry.Tx is None else str(entry.Tx),
                     "" if entry.Ty is None else str(entry.Ty),
                     entry.description,
+                    json.dumps(entry.extra or {}, ensure_ascii=False),
                 ],
             )
 
@@ -241,6 +341,14 @@ class ProjectEditorWindow(QWidget):
         self.txt_fire_scenario.setText(fire.scenario)
         self.txt_fire_rating.setText(str(fire.required_rating_minutes))
 
+    def _parse_extra_json(self, value: str) -> dict:
+        import json
+
+        try:
+            return json.loads(value) if value.strip() else {}
+        except Exception:
+            return {}
+
     def _collect_project(self) -> ProjectModel:
         geometry: list[GeometryEntry] = []
         for row in range(self.tbl_geometry.rowCount()):
@@ -250,6 +358,7 @@ class ProjectEditorWindow(QWidget):
                     type=self._table_text(self.tbl_geometry, row, 1),
                     width=float(self._table_text(self.tbl_geometry, row, 2) or 0.0),
                     height=float(self._table_text(self.tbl_geometry, row, 3) or 0.0),
+                    extra=self._parse_extra_json(self._table_text(self.tbl_geometry, row, 4)),
                 )
             )
 
@@ -262,6 +371,7 @@ class ProjectEditorWindow(QWidget):
                     material_class=self._table_text(self.tbl_materials, row, 2),
                     f_ck=self._to_float_or_none(self._table_text(self.tbl_materials, row, 3)),
                     f_yk=self._to_float_or_none(self._table_text(self.tbl_materials, row, 4)),
+                    extra=self._parse_extra_json(self._table_text(self.tbl_materials, row, 5)),
                 )
             )
 
@@ -276,6 +386,7 @@ class ProjectEditorWindow(QWidget):
                     Tx=self._to_float_or_none(self._table_text(self.tbl_loads, row, 4)),
                     Ty=self._to_float_or_none(self._table_text(self.tbl_loads, row, 5)),
                     description=self._table_text(self.tbl_loads, row, 6),
+                    extra=self._parse_extra_json(self._table_text(self.tbl_loads, row, 7)),
                 )
             )
 
@@ -374,4 +485,8 @@ MODULE_SPEC = {
 
 
 def create_module(master=None, **context):
-    return ProjectEditorWindow(project_service=context.get("project_service"), parent=master)
+    return ProjectEditorWindow(
+        project_service=context.get("project_service"),
+        material_repo=context.get("material_repo"),
+        parent=master,
+    )

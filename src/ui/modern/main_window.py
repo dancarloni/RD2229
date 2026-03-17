@@ -76,6 +76,11 @@ def build_main_window(
         "project_path": None,
         "results": None,
     }
+
+    # Servizi condivisi (material_repo, ecc.)
+    from src.ui.qt.services import get_services
+
+    services = get_services()
     project_service = _ProjectServiceProxy(state["project"])
 
     window = QMainWindow()
@@ -158,7 +163,11 @@ def build_main_window(
     tabs.addTab(dashboard, "Dashboard")
 
     # Core tabs
-    project_editor = ProjectEditorWindow(project_service=project_service, parent=tabs)
+    project_editor = ProjectEditorWindow(
+        project_service=project_service,
+        material_repo=getattr(services, "material_repo", None),
+        parent=tabs,
+    )
     pipeline_runner = PipelineRunnerWindow(project_service=project_service, parent=tabs)
     report_viewer = ReportViewerWindow(parent=tabs)
     materials_editor = EditorMaterialeWidget(parent=tabs)
