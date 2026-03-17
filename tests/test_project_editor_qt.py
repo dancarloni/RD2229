@@ -5,9 +5,9 @@ import pytest
 pytest.importorskip("pytestqt")
 from pytestqt.qt_compat import qt_api
 
+from src.ui.qt.key_value_dialog import KeyValueDialog
 from src.ui.qt.project_editor import ProjectEditorWindow
 from src.ui.qt.project_editor_dialogs import GeometryDialog, LoadDialog, MaterialDialog
-from src.ui.qt.key_value_dialog import KeyValueDialog
 
 
 @pytest.fixture
@@ -25,7 +25,15 @@ def test_add_remove_row_geometry(editor, qtbot, monkeypatch):
     monkeypatch.setattr(
         GeometryDialog,
         "edit",
-        staticmethod(lambda parent, initial=None: {"id": "G1", "type": "RECT", "width": 10, "height": 20, "extra": {"foo": 1}}),
+        staticmethod(
+            lambda parent, initial=None: {
+                "id": "G1",
+                "type": "RECT",
+                "width": 10,
+                "height": 20,
+                "extra": {"foo": 1},
+            }
+        ),
     )
 
     editor._add_table_row(tbl)
@@ -44,7 +52,15 @@ def test_edit_extra_json(editor, qtbot, monkeypatch):
     monkeypatch.setattr(
         GeometryDialog,
         "edit",
-        staticmethod(lambda parent, initial=None: {"id": "G1", "type": "RECT", "width": 10, "height": 20, "extra": {}}),
+        staticmethod(
+            lambda parent, initial=None: {
+                "id": "G1",
+                "type": "RECT",
+                "width": 10,
+                "height": 20,
+                "extra": {},
+            }
+        ),
     )
     editor._add_table_row(tbl)
     row = tbl.rowCount() - 1
@@ -105,7 +121,16 @@ def test_add_remove_row_materials(editor, qtbot, monkeypatch):
     monkeypatch.setattr(
         MaterialDialog,
         "edit",
-        staticmethod(lambda parent, initial=None: {"id": "M1", "type": "concrete", "material_class": "C25", "f_ck": 25, "f_yk": 30, "extra": {"bar": 2}}),
+        staticmethod(
+            lambda parent, initial=None: {
+                "id": "M1",
+                "type": "concrete",
+                "material_class": "C25",
+                "f_ck": 25,
+                "f_yk": 30,
+                "extra": {"bar": 2},
+            }
+        ),
     )
 
     editor._add_table_row(tbl)
@@ -122,16 +147,18 @@ def test_add_remove_row_loads(editor, qtbot, monkeypatch):
     monkeypatch.setattr(
         LoadDialog,
         "edit",
-        staticmethod(lambda parent, initial=None: {
-            "element_id": "G1",
-            "N": 1,
-            "Mx": 2,
-            "My": 3,
-            "Tx": 4,
-            "Ty": 5,
-            "description": "desc",
-            "extra": {"baz": 3},
-        }),
+        staticmethod(
+            lambda parent, initial=None: {
+                "element_id": "G1",
+                "N": 1,
+                "Mx": 2,
+                "My": 3,
+                "Tx": 4,
+                "Ty": 5,
+                "description": "desc",
+                "extra": {"baz": 3},
+            }
+        ),
     )
 
     editor._add_table_row(tbl)

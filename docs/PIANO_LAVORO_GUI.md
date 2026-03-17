@@ -86,21 +86,25 @@ Automazione TODO:
 ## Fasi e sub-fasi GUI-V2
 
 ### G2 — Navigazione e UX unificata
+
 - [ ] G2.1 Riduzione tab a macro-settori disciplinari.
 - [ ] G2.2 Dashboard card-based con launcher moduli completo.
 - [ ] G2.3 Riquadri collapsible solo per sezioni dense.
 
 ### G3 — Accessibilita moduli e finestre
+
 - [ ] G3.1 Mappatura completa moduli -> card/settore.
 - [ ] G3.2 Apertura moduli in finestra autonoma con input locale completo.
 - [ ] G3.3 Pattern estendibile per aggiunta nuovi moduli (registrazione unica).
 
 ### G4 — Densita informativa e stile
+
 - [ ] G4.1 Layout multi-colonna standard per form e risultati.
 - [ ] G4.2 Font default operativo 9pt (range 8-10pt per widget specialistici).
 - [ ] G4.3 Stili QSS coerenti per dashboard, tabelle, warning/error.
 
 ### G5 — Tracciamento e sincronizzazione TODO
+
 - [ ] G5.1 Script sync TODO attivo e documentato.
 - [ ] G5.2 Sezione TODO sincronizzata automaticamente in questo file.
 - [ ] G5.3 Aggiornamento riflesso su `docs/PIANO_LAVORO.md` (registro generale).
@@ -313,6 +317,7 @@ Commento 4: il file generale non deve diventare troppo tecnico. Le motivazioni a
 5. Eseguire test mirati GUI e annotare esito.
 
 ## Plan: Completare tutti i TODO GUI (GUI-V1 residuali)
+
 ## Aggiornamento requisiti GUI (richiesta utente)
 
 L'utente richiede:
@@ -338,15 +343,18 @@ Questo piano deve includere questi vincoli e organizzare il lavoro con questi ob
 ## 1) GUI‑2: Project Editor (completare tugas)
 
 ### Obiettivo
+
 Portare il `ProjectEditorWindow` da "griglia base editabile" a una UI con CRUD dedicato e controlli coerenti, garantire la persistenza dei campi `extra` e completare la copertura test.
 
 ### Cosa manca (TODO)
+
 - GUI‑2.2: Tabella Geometria con azioni CRUD dedicate (non solo add/remove generici).
 - GUI‑2.3: Tabella Materiali con CRUD + integrazione repository completa (ora c'è solo un import parziale).
 - GUI‑2.4: Tabella Carichi con colonna `extra` esplicita (già presente ma serve migliorare UX/validazione).
 - GUI‑2.9: Copertura test GUI‑2 dedicata (10+ test) non consolidata.
 
 ### Deliverables
+
 - Dialog dedicati per inserire/modificare: Geometria, Materiali, Carichi (input validati, pulizia, tooltip/placeholder). Le tabelle rimangono come viewer/edit rapido ma l’editing deve essere affidato al dialog.
 - Funzionalità "Modifica" (doppio click / pulsante) per ogni riga, che apre il dialog pre‑filled.
 - Validazione sintattica JSON `extra` in linea, con feedback all’utente (errore mostrato, non accetta JSON invalido).
@@ -357,6 +365,7 @@ Portare il `ProjectEditorWindow` da "griglia base editabile" a una UI con CRUD d
   - controllo che i dialog non crashino se chiusi senza conferma
 
 ### File chiave
+
 - `src/ui/qt/project_editor.py` (migliorare UI + logica CRUD)
 - `src/ui/qt/json_edit_dialog.py` (verificare se esiste; altrimenti creare miglioria)
 - `tests/test_project_editor_qt.py` (estendere test esistenti)
@@ -366,20 +375,24 @@ Portare il `ProjectEditorWindow` da "griglia base editabile" a una UI con CRUD d
 ## 2) GUI‑3: Persistence layer (splash, autosave, test)
 
 ### Obiettivo
+
 Completa l’esperienza utente persistente e rende il comportamento testabile.
 
 ### Cosa manca (TODO)
+
 - GUI‑3.3: File recenti anche in splash screen (ora solo menu File → Recenti).
 - GUI‑3.4: Auto‑save opzionale ogni N minuti (configurabile in `UserConfig`).
 - GUI‑3.5: Test persistence dedicati (round‑trip per `UserConfig` e `ProjectIndex`).
 
 ### Deliverables
+
 - Aggiungere splash / landing iniziale (o tab Dashboard) che mostra i progetti recenti caricati da `UserConfig.recent_projects` + `ProjectIndex.list_recent()`.
 - Integrare un timer (QTimer) che, quando abilitato da config, salva automaticamente `project_service.current_project` nel file corrente (se già salvato) ogni N minuti. Se il progetto non ha path, non salvare ma loggare.
 - Esporre l’opzione `autosave_enabled` e `autosave_minutes` in `UserConfig` (e UI: preferibile in tab impostazioni o nella dashboard).
 - Aggiungere test unitari/di integrazione per `UserConfig.load/save/add_recent`, `ProjectIndex.upsert/list_recent` e l’auto‑save (usando monkeypatch/qtbot con QTimer forzato).
 
 ### File chiave
+
 - `src/core/user_config.py` (aggiungere campi + test)
 - `src/core/persistence.py` (eventualmente più metodi utili per test)
 - `src/ui/modern/main_window.py` (splash/recenti + autosave)
@@ -390,19 +403,23 @@ Completa l’esperienza utente persistente e rende il comportamento testabile.
 ## 3) GUI‑4: Pipeline runner (progress/log/annulla/test)
 
 ### Obiettivo
+
 Portare il Runner a un livello più completo e testabile.
 
 ### Cosa manca (TODO)
+
 - GUI‑4.3: Modalità indeterminata/determinata durante run.
 - GUI‑4.5: Log colorato per livelli (attuale: text/plain).
 - GUI‑4.9: Test headless con mock worker dedicati.
 
 ### Deliverables
+
 - `PipelineRunnerWindow` deve impostare la barra progresso su indeterminata (`setRange(0,0)`) quando si avvia la pipeline e tornare a determinata a fine. Se `run_pipeline` può fornire step, usare questi per aggiornamenti determinati (opzionale).
 - Aggiungere funzione helper per appendere messaggi colorati: `INFO`, `WARN`, `ERROR` con tag HTML `<span style="color: ...">` o usando `QTextCharFormat`.
 - Implementare test `PipelineRunnerWindow` headless usando una `PipelineWorker` mock che emette segnali `progress`, `log`, `completed`, `failed`; verificare che il bottone "Esegui" venga riabilitato correttamente e che la tabella mostra risultati.
 
 ### File chiave
+
 - `src/ui/qt/pipeline_runner.py` (migliorare progress/log e possibilità di estendere il worker)
 - `tests/test_pipeline_runner_qt.py` (nuovo, suite headless)
 
@@ -411,20 +428,24 @@ Portare il Runner a un livello più completo e testabile.
 ## 4) GUI‑5: Multi‑norma workflow
 
 ### Obiettivo
+
 Rendere il comportamento multi‑norma coerente, aggiornare gli stati limite in base alla norma selezionata e fornire raggruppamento dei risultati per norma quando si esegue un run multi‑norma.
 
 ### Cosa manca (TODO)
+
 - GUI‑5.3: Aggiornamento dinamico stati limite per norma.
 - GUI‑5.4: Raggruppamento risultati per norma in modalità multi‑norma.
 - GUI‑5.5: Completamento template NTC2018 non‑priority (non completamente implementato nel registry).
 
 ### Deliverables
+
 - In `PipelineRunnerWindow`, allineare `cmb_norm` con `project.code_settings.norm_code` e aggiornare i `limit_states` suggeriti (o precompilati) quando si seleziona una norma.
 - Implementare una funzione (ad es. `list_norm_states(norm_code)`) che ritorna gli stati limite consigliati per una norma (basato su `normative_registry` o un mapping); usare questo per popolare `ProjectEditorWindow` / `CodeSettingsWindow` e la combo del runner.
 - Estendere `ResultsModel` o il renderer del runner per raggruppare le righe della tabella per norma quando si esegue un run che produce risultati per più norme (se supportato dal pipeline). In alternativa, fornire un modo per serializzare o raggruppare nelle righe (es. colonna Norma già popolata) e aggiungere un filtro.
 - Verificare e completare l’implementazione del template NTC2018 nel `normative_registry` (richiede review del codice e dei dati JSON). Documentare quale parte manca e creare test di copertura.
 
 ### File chiave
+
 - `src/ui/qt/pipeline_runner.py` (sincronizzazione norma + raggruppamento risultati)
 - `src/ui/qt/code_settings.py` (eventuale aggiornamento GUI per stati-limite dinamici)
 - `src/core_calculus/normative_registry.py` (mappa norm codes / template)
@@ -435,19 +456,23 @@ Rendere il comportamento multi‑norma coerente, aggiornare gli stati limite in 
 ## 5) GUI‑7: Toast animati + integrazione Telaio
 
 ### Obiettivo
+
 Abilitare notifiche in overlay (toast) e integrare la finestra Telaio dentro il tab FEM/Telai per un workflow coerente.
 
 ### Cosa manca (TODO)
+
 - GUI‑7.5: Toast overlay animato (attuale: centro notifiche list/filter/clear).
 - GUI‑7.9: Integrare `TelaioWindow` insieme a `CordoliWidget` nel tab FEM/Telai.
 
 ### Deliverables
+
 - Creare un widget `ToastOverlay` (semi‑trasparente) che può essere mostrato sopra la UI con animazione fade‑in/out; collegarlo al `NotificationCenterWindow` o al service di notifica usato dalle altre parti.
 - Aggiungere un metodo globale (o servizio Qt) per mostrare toast (es. `notify_toast(level, message, duration)`) e usarlo in punti chiave (pipeline completion, errori, salvataggi).
 - Modificare il tab FEM/Telai nella `main_window` per includere un `QSplitter` fra `CordoliWidget` e un’area che ospita `TelaioWindow` (incorporata come widget o come bottone per aprire in finestra separata). L’obiettivo è avere accesso a entrambe le funzionalità da un’unica schermata.
 - Aggiungere test base (può essere semplicemente testare che il widget overlay si istanzia e si nasconde dopo la durata).
 
 ### File chiave
+
 - `src/ui/qt/notification_center.py` (estendere con toast)
 - `src/ui/qt/telaio/telaio_window.py` e `src/ui/modern/main_window.py` (integrazione).
 - `tests/test_notification_toast.py` (nuovo)
@@ -457,17 +482,21 @@ Abilitare notifiche in overlay (toast) e integrare la finestra Telaio dentro il 
 ## 6) GUI‑8: Stylesheet – dialoghi normativi
 
 ### Obiettivo
+
 Fornire uno stile coerente e dedicato ai dialoghi normativi (aiuto contestuale, citazioni, note), lasciando il resto degli stili invariato.
 
 ### Cosa manca (TODO)
+
 - GUI‑8.5: Stile dedicato dialoghi normativi non ancora separato.
 
 ### Deliverables
+
 - Estendere `stylesheet.py` con regole QSS specifiche per dialoghi normativi (es. `QDialog#NormativeDialog`, `QTextEdit#NormativeText`, oppure classi CSS personalizzate). Assicurarsi che `AiutoContestuale` e eventuali popup utilizzino questi id/classes.
 - Aggiornare i componenti normativi (es. `src/ui/qt/aiuto_contestuale.py`) per impostare l’objectName o className in modo che lo stylesheet li stilizzi.
 - Aggiungere test base che verifica che i widget creino l’objectName corretto (senza dipendere da rendering reale).
 
 ### File chiave
+
 - `src/ui/qt/stylesheet.py` (nuove regole)
 - `src/ui/qt/aiuto_contestuale.py` (eventuale objectName)
 - `tests/test_stylesheet_normative_dialog.py` (nuovo)
@@ -477,16 +506,20 @@ Fornire uno stile coerente e dedicato ai dialoghi normativi (aiuto contestuale, 
 ## 7) GUI‑9: Requirements + packaging
 
 ### Obiettivo
+
 Assicurare che i pacchetti opzionali necessari per la GUI siano dichiarati in `requirements*.txt` / `pyproject.toml` e documentati.
 
 ### Cosa manca (TODO)
+
 - GUI‑9.4: Allineamento completo optional GUI anche in `requirements*.txt` (non solo extras in pyproject).
 
 ### Deliverables
+
 - Audit dei file `requirements.in`, `requirements.txt`, `requirements-dev.txt`, `pyproject.toml` per garantire che le dipendenze (PySide6/PyQt6, PyQt6‑WebEngine, pytest‑qt, etc.) siano elencate correttamente.
 - Aggiornare README con istruzioni chiare per l’installazione GUI (es. `pip install -r requirements-gui.txt` o `pip install -e .[gui]`).
 
 ### File chiave
+
 - `requirements*.txt`, `pyproject.toml`, `README.md`
 
 ---
