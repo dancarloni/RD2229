@@ -73,6 +73,43 @@ def list_norm_codes() -> list[str]:
     return sorted(from_templates | fallback)
 
 
+def list_norm_states(norm_code: str) -> list[str]:
+    """Restituisce gli stati limite disponibili per una data norma.
+
+    Deriva gli stati limite trovando i ``limit_state`` distinti dei template
+    registrati per la norma indicata.  In assenza di template caricati fornisce
+    un insieme di fallback statico conforme alle norme coperte:
+
+    * NTC 2018 §2.5 (Tab. 2.5-I): SLU, SLE
+    * RD 2229/39 Art. 16: TA
+    * DM 96 Art. 3: SLU, SLE, TA
+    * EC0 §6.4 / §6.5: SLU, SLE
+
+    Args:
+        norm_code: Codice norma (es. ``"NTC2018"``, ``"RD2229"``, ``"DM96"``).
+
+    Returns:
+        Lista ordinata degli stati limite disponibili per la norma.
+    """
+    templates = get_templates_for_norm(norm_code)
+    states = sorted({t.limit_state for t in templates if t.limit_state})
+    if not states:
+        _fallback: dict[str, list[str]] = {
+            "RD2229": ["TA"],
+            "NTC2018": ["SLU", "SLE"],
+            "NTC2008": ["SLU", "SLE"],
+            "DM96": ["SLU", "SLE", "TA"],
+            "DM92": ["SLU", "SLE"],
+            "EC2": ["SLU", "SLE"],
+            "EC3": ["SLU", "SLE"],
+            "EC8": ["SLU", "SLE"],
+            "DM87": ["TA"],
+            "OPCM3274": ["SLU", "SLE"],
+        }
+        return _fallback.get(norm_code, ["SLU"])
+    return states
+
+
 def get_ntc2018_templates() -> list[VerificationTemplate]:
     """Get NTC 2018 templates.
 
@@ -645,19 +682,134 @@ def get_ntc2018_templates() -> list[VerificationTemplate]:
                 "deflection_limit_ratio": 250.0,
             },
         ),
+        # ---- template non-priority: Instabilità pilastri SLU (GUI-5.5) ----
+        # NTC2018 §4.1.2.1.4 — Verifica instabilità (buckling) di pilastri in c.a.
+        # mediante il metodo dell'ordine II semplificato (momento amplificato).
+        VerificationTemplate(
+            template_id="ntc2018_slu_instabilita_pilastri",
+            norm_code="NTC2018",
+            norm_version="2018",
+            verification_type="instabilita",
+            limit_state="SLU",
+            description_it=(
+                "Verifica instabilità pilastri SLU — metodo ordine II semplificato "
+                "(momento amplificato). NTC2018 §4.1.2.1.4."
+            ),
+            check_category="instabilita",
+            required_inputs=["section", "material", "N", "Mx", "l0"],
+            optional_inputs=["My", "As", "d", "beta_y", "beta_z"],
+            output_metrics=[
+                "N_Ed_kN",
+                "M_Ed_kNm",
+                "M_Ed_amplif_kNm",
+                "lambda_y",
+                "lambda_lim",
+                "esile",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.2.1.4",
+                formula_label="(4.53)-(4.56)",
+                description_it=(
+                    "Instabilità pilastri — metodo semplificato ordine II. "
+                    "λ = l0/i; λ_lim = 20·A·B·C/√n (NTC2018 eq. 4.53). "
+                    "Amplificazione momento: M_Ed = M_0Ed·(1 + β·N_Ed/(N_B - N_Ed))."
+                ),
+                notes_it=(
+                    "Se λ ≤ λ_lim il pilastro è snello (effetti del II ordine trascurabili). "
+                    "Implementazione: stub — verifica da completare con funzione "
+                    "src.methods.ntc2018.checks.check_instabilita_slu."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="EC2",
+                    chapter="5.8",
+                    paragraph="5.8.3",
+                    description_it="Criteri per la snellezza e metodi di analisi ordine II",
+                ),
+            ],
+            function_path="src.methods.ntc2018.checks.check_instabilita_slu",
+            can_batch=True,
+            supports_real_time=False,
+            applicable_section_types=[
+                "RECTANGULAR",
+                "CIRCULAR",
+                "CIRCULAR_HOLLOW",
+                "RECTANGULAR_HOLLOW",
+            ],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "stub", "priority": "non_priority"},
+        ),
+        # ---- template non-priority: Punzonamento piastra SLU (GUI-5.5) ----
+        # NTC2018 §4.1.6.3 e EC2 §6.4 — verifica a punzonamento di piastre in c.a.
+        # con colonne interne, di bordo o d'angolo.
+        VerificationTemplate(
+            template_id="ntc2018_slu_punzonamento",
+            norm_code="NTC2018",
+            norm_version="2018",
+            verification_type="punzonamento",
+            limit_state="SLU",
+            description_it=(
+                "Verifica a punzonamento piastre SLU — resistenza lungo il perimetro "
+                "di controllo u1 (colonna interna, bordo, angolo). NTC2018 §4.1.6.3."
+            ),
+            check_category="resistenza",
+            required_inputs=["section", "material", "V_Ed", "colonna_b", "colonna_h"],
+            optional_inputs=["d", "As", "armatura_punzonamento", "posizione_colonna"],
+            output_metrics=[
+                "V_Ed_kN",
+                "v_Rd_c_MPa",
+                "v_Ed_MPa",
+                "u1_mm",
+                "d_eff_mm",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="NTC2018",
+                chapter="4.1",
+                paragraph="4.1.6.3",
+                formula_label="EC2 (6.47)-(6.50)",
+                description_it=(
+                    "Punzonamento piastre senza arm. specifica: "
+                    "v_Rd,c = C_Rd,c·k·(100·ρl·f_ck)^(1/3) + k1·σ_cp. "
+                    "Perimetro di controllo: u1 = 4c + 2π·2d (colonna interna)."
+                ),
+                notes_it=(
+                    "Implementazione: stub — verifica da completare con funzione "
+                    "src.methods.ntc2018.checks.check_punzonamento_slu."
+                ),
+            ),
+            secondary_references=[
+                NormReference(
+                    norm_code="EC2",
+                    chapter="6.4",
+                    paragraph="6.4.3",
+                    description_it="Resistenza a punzonamento senza armatura specifica",
+                ),
+                NormReference(
+                    norm_code="Circolare7",
+                    chapter="C4.1",
+                    paragraph="C4.1.6.3",
+                    description_it="Istruzioni per verifica a punzonamento NTC2018",
+                ),
+            ],
+            function_path="src.methods.ntc2018.checks.check_punzonamento_slu",
+            can_batch=True,
+            supports_real_time=False,
+            applicable_section_types=["RECTANGULAR", "CIRCULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=False,
+            extra_params={"implementation_status": "stub", "priority": "non_priority"},
+        ),
     ]
 
 
 def get_rd2229_templates() -> list[VerificationTemplate]:
-    """Get RD 2229/39 templates (Tensioni Ammissibili storiche).
-
-    Stato implementazione corrente:
-    - flessione TA: completo
-    - pressoflessione TA: completo (instabilità condizionale ai dati di asta)
-    - taglio TA: operativo con contributo staffe + controllo minimi costruttivi
-    - minimi armatura TA: completo
-    - pressoflessione deviata cls/acciaio: completa con fallback guidati
-    """
+    """Get RD 2229/39 templates disponibili nel registry corrente."""
     return [
         # Flessione TA (COMPLETE)
         VerificationTemplate(
