@@ -240,6 +240,7 @@ class AiutoContestualeWidget(QWidget):
 
     def _inizializza_interfaccia(self) -> None:
         """Crea l'interfaccia del widget di aiuto."""
+        self.setObjectName("NormativeDialog")
         layout = QVBoxLayout(self)
 
         # Intestazione
@@ -249,6 +250,7 @@ class AiutoContestualeWidget(QWidget):
 
         # Area contenuto (scroll)
         self._area_contenuto = QTextEdit()
+        self._area_contenuto.setObjectName("NormativeText")
         self._area_contenuto.setReadOnly(True)
         self._area_contenuto.setStyleSheet(
             "QTextEdit { background-color: #FAFAFA; border: 1px solid #DDD; " "padding: 8px; }"

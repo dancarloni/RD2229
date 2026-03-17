@@ -3,3 +3,8 @@
 pandas
 matplotlib
 shapely
+PyYAML>=6.0
+
+# Dipendenze GUI opzionali (allineamento GUI-9.4)
+PyQt6>=6.4
+PyQt6-WebEngine>=6.4

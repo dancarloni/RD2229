@@ -17,6 +17,7 @@ from src.ui.qt.pipeline_runner import PipelineRunnerWindow
 from src.ui.qt.project_editor import ProjectEditorWindow
 from src.ui.qt.report_viewer import ReportViewerWindow
 from src.ui.qt.section_manager import SectionManagerWindow
+from src.ui.qt.telaio.telaio_window import TelaioWindow
 
 from .features.registry import FeatureSpec, clear as clear_registry, get_enabled, register
 from .services import ActionReport, CalculationService, PresetExecutionService, ProjectIOService
@@ -43,6 +44,25 @@ def _load_qaction(backend_mod: str) -> Any:
     return getattr(module, "QAction")
 
 
+def _load_qtimer(backend_mod: str) -> Any:
+    module_name = "PyQt6.QtCore" if backend_mod.startswith("PyQt6") else "PySide6.QtCore"
+    module = importlib.import_module(module_name)
+    return getattr(module, "QTimer")
+
+
+def _load_qsplitter(backend_mod: str) -> Any:
+    module_name = "PyQt6.QtWidgets" if backend_mod.startswith("PyQt6") else "PySide6.QtWidgets"
+    module = importlib.import_module(module_name)
+    return getattr(module, "QSplitter")
+
+
+def _load_qlistwidget(backend_mod: str) -> Any:
+    """Carica QListWidget dal backend Qt corretto (GUI-3.3)."""
+    module_name = "PyQt6.QtWidgets" if backend_mod.startswith("PyQt6") else "PySide6.QtWidgets"
+    module = importlib.import_module(module_name)
+    return getattr(module, "QListWidget")
+
+
 def build_main_window(
     qt: dict[str, Any],
     default_project: str | None,
@@ -63,7 +83,11 @@ def build_main_window(
     QTabWidget = qt["QTabWidget"]
     QFileDialog = qt["QFileDialog"]
 
-    QAction = _load_qaction(qt["QWidget"].__module__.split(".")[0])
+    backend_mod = qt["QWidget"].__module__.split(".")[0]
+    QAction = _load_qaction(backend_mod)
+    QTimer = _load_qtimer(backend_mod)
+    QSplitter = _load_qsplitter(backend_mod)
+    QListWidget = _load_qlistwidget(backend_mod)  # GUI-3.3
 
     io_service = ProjectIOService()
     calc_service = CalculationService()
@@ -84,7 +108,7 @@ def build_main_window(
     project_service = _ProjectServiceProxy(state["project"])
 
     window = QMainWindow()
-    window.setWindowTitle("RD2229 - Centro Operativo V1")
+    window.setWindowTitle("RD2229 - Centro Operativo GUI-V2")
     window.resize(1280, 800)
 
     central = QWidget(window)
@@ -147,6 +171,16 @@ def build_main_window(
     io_row.addStretch(1)
     dash_root.addLayout(io_row)
 
+    nav_row = QHBoxLayout()
+    btn_go_project = QPushButton("Progetto e Dati")
+    btn_go_verify = QPushButton("Verifiche e Pipeline")
+    btn_go_report = QPushButton("Report e Tracciabilita")
+    btn_go_special = QPushButton("Moduli Specialistici")
+    for button in [btn_go_project, btn_go_verify, btn_go_report, btn_go_special]:
+        button.setMinimumHeight(38)
+        nav_row.addWidget(button)
+    dash_root.addLayout(nav_row)
+
     body = QHBoxLayout()
     left_col = QVBoxLayout()
     right_col = QVBoxLayout()
@@ -154,7 +188,19 @@ def build_main_window(
     body.addLayout(right_col, 2)
     dash_root.addLayout(body)
 
-    left_col.addWidget(QLabel("Preset operativi"))
+    left_col.addWidget(QLabel("Card preset operativi"))
+
+    # GUI-3.3: pannello progetti recenti nel dashboard (colonna destra)
+    right_col.addWidget(QLabel("<b>Progetti recenti</b>"))
+    recent_list = QListWidget(dashboard)
+    recent_list.setMaximumHeight(130)
+    recent_list.setToolTip(
+        "Doppio click per aprire un progetto recente — stessa funzione del menu File > Recenti"
+    )
+    for rp in user_cfg.recent_projects:
+        recent_list.addItem(rp)
+    right_col.addWidget(recent_list)
+
     dash_log = QTextEdit(dashboard)
     dash_log.setReadOnly(True)
     right_col.addWidget(QLabel("Log esecuzione"))
@@ -176,7 +222,29 @@ def build_main_window(
     fem_tab = QWidget(tabs)
     fem_layout = QVBoxLayout(fem_tab)
     fem_layout.addWidget(QLabel("<b>FEM / Telai</b>"))
-    fem_layout.addWidget(CordoliWidget(parent=fem_tab))
+
+    fem_splitter = QSplitter(fem_tab)
+    cordoli_widget = CordoliWidget(parent=fem_splitter)
+    fem_splitter.addWidget(cordoli_widget)
+
+    telaio_container = QWidget(fem_splitter)
+    telaio_layout = QVBoxLayout(telaio_container)
+    telaio_layout.addWidget(QLabel("<b>Telaio Cross-Pozzati</b>"))
+    telaio_open_btn = QPushButton("Apri Telaio in finestra dedicata")
+    telaio_layout.addWidget(telaio_open_btn)
+
+    _telaio_windows: list[Any] = []
+
+    def _open_telaio_window() -> None:
+        telaio_window = TelaioWindow(parent=window)
+        telaio_window.show()
+        _telaio_windows.append(telaio_window)
+        _append("Modulo Telaio aperto in finestra dedicata.")
+
+    telaio_open_btn.clicked.connect(lambda _checked=False: _open_telaio_window())
+    fem_splitter.addWidget(telaio_container)
+    fem_splitter.setSizes([640, 540])
+    fem_layout.addWidget(fem_splitter)
 
     wind_tab = QWidget(tabs)
     wind_layout = QVBoxLayout(wind_tab)
@@ -186,19 +254,45 @@ def build_main_window(
     wind_layout.addWidget(wind_btn)
     wind_layout.addWidget(wind_log)
 
-    tabs.addTab(project_editor, "Progetto")
-    tabs.addTab(pipeline_runner, "Verifica")
-    tabs.addTab(report_viewer, "Report")
-    tabs.addTab(materials_editor, "Materiali")
-    tabs.addTab(section_manager, "Sezioni")
-    tabs.addTab(fem_tab, "FEM/Telai")
-    tabs.addTab(wind_tab, "Vento")
-
     # Additional utility tabs for previously stubbed modules
     code_settings_tab = CodeSettingsWindow(parent=tabs)
     notifications_tab = NotificationCenterWindow(parent=tabs)
-    tabs.addTab(code_settings_tab, "Code Settings")
-    tabs.addTab(notifications_tab, "Notifiche")
+
+    # Macro-settore: Progetto e Dati
+    project_data_tab = QWidget(tabs)
+    project_data_layout = QVBoxLayout(project_data_tab)
+    project_data_tabs = QTabWidget(project_data_tab)
+    project_data_tabs.addTab(project_editor, "Progetto")
+    project_data_tabs.addTab(materials_editor, "Materiali")
+    project_data_tabs.addTab(section_manager, "Sezioni")
+    project_data_tabs.addTab(code_settings_tab, "Normativa")
+    project_data_layout.addWidget(project_data_tabs)
+
+    # Macro-settore: Verifiche e Pipeline
+    verify_tab = QWidget(tabs)
+    verify_layout = QVBoxLayout(verify_tab)
+    verify_layout.addWidget(pipeline_runner)
+
+    # Macro-settore: Report e Tracciabilita
+    report_tab = QWidget(tabs)
+    report_layout = QVBoxLayout(report_tab)
+    report_tabs = QTabWidget(report_tab)
+    report_tabs.addTab(report_viewer, "Report")
+    report_tabs.addTab(notifications_tab, "Notifiche")
+    report_layout.addWidget(report_tabs)
+
+    # Macro-settore: Moduli Specialistici
+    specialist_tab = QWidget(tabs)
+    specialist_layout = QVBoxLayout(specialist_tab)
+    specialist_tabs = QTabWidget(specialist_tab)
+    specialist_tabs.addTab(fem_tab, "FEM/Telai")
+    specialist_tabs.addTab(wind_tab, "Vento")
+    specialist_layout.addWidget(specialist_tabs)
+
+    tabs.addTab(project_data_tab, "Progetto e Dati")
+    tabs.addTab(verify_tab, "Verifiche e Pipeline")
+    tabs.addTab(report_tab, "Report e Tracciabilita")
+    tabs.addTab(specialist_tab, "Moduli Specialistici")
 
     def _refresh_status() -> None:
         project = project_service.current_project
@@ -457,17 +551,76 @@ def build_main_window(
         )
     )
 
-    for spec in get_enabled():
-        row = QHBoxLayout()
-        btn = QPushButton(spec.label)
-        btn.setToolTip(spec.tooltip or spec.description)
-        desc = QLabel(spec.description)
-        desc.setWordWrap(True)
-        row.addWidget(btn)
-        row.addWidget(desc)
-        left_col.addLayout(row)
-        if spec.action is not None:
-            btn.clicked.connect(lambda _checked=False, action=spec.action: action())
+    cards_grid = QGridLayout()
+    left_col.addLayout(cards_grid)
+
+    def _card_widget(title: str, description: str, on_click: Callable[[], None]) -> Any:
+        card = QWidget(dashboard)
+        card_layout = QVBoxLayout(card)
+        btn = QPushButton(title)
+        btn.setMinimumHeight(44)
+        btn.setToolTip(description)
+        text = QLabel(description)
+        text.setWordWrap(True)
+        card_layout.addWidget(btn)
+        card_layout.addWidget(text)
+        btn.clicked.connect(lambda _checked=False: on_click())
+        return card
+
+    for idx, spec in enumerate(get_enabled()):
+        if spec.action is None:
+            continue
+        card = _card_widget(spec.label, spec.description, spec.action)
+        cards_grid.addWidget(card, idx // 2, idx % 2)
+
+    launchers = QGridLayout()
+    left_col.addWidget(QLabel("Accesso rapido moduli"))
+    left_col.addLayout(launchers)
+
+    def _open_project_sector() -> None:
+        tabs.setCurrentWidget(project_data_tab)
+
+    def _open_verify_sector() -> None:
+        tabs.setCurrentWidget(verify_tab)
+
+    def _open_report_sector() -> None:
+        tabs.setCurrentWidget(report_tab)
+
+    def _open_special_sector() -> None:
+        tabs.setCurrentWidget(specialist_tab)
+
+    def _open_materials() -> None:
+        tabs.setCurrentWidget(project_data_tab)
+        project_data_tabs.setCurrentWidget(materials_editor)
+
+    def _open_sections() -> None:
+        tabs.setCurrentWidget(project_data_tab)
+        project_data_tabs.setCurrentWidget(section_manager)
+
+    def _open_fem() -> None:
+        tabs.setCurrentWidget(specialist_tab)
+        specialist_tabs.setCurrentWidget(fem_tab)
+
+    def _open_telaio() -> None:
+        tabs.setCurrentWidget(specialist_tab)
+        specialist_tabs.setCurrentWidget(fem_tab)
+        _open_telaio_window()
+
+    def _open_wind() -> None:
+        tabs.setCurrentWidget(specialist_tab)
+        specialist_tabs.setCurrentWidget(wind_tab)
+
+    quick_actions: list[tuple[str, Callable[[], None]]] = [
+        ("Materiali", _open_materials),
+        ("Sezioni", _open_sections),
+        ("FEM/Telai", _open_fem),
+        ("Telaio", _open_telaio),
+        ("Vento", _open_wind),
+    ]
+    for idx, (label, handler) in enumerate(quick_actions):
+        button = QPushButton(label)
+        button.clicked.connect(lambda _checked=False, action=handler: action())
+        launchers.addWidget(button, idx // 2, idx % 2)
 
     def _on_pipeline_results(results: Any) -> None:
         state["results"] = results
@@ -504,12 +657,30 @@ def build_main_window(
                 lambda checked=False, p=path: txt_project.setText(p) or _ensure_loaded_project()
             )
             recent_menu.addAction(action)
+        # GUI-3.3: sincronizza anche la lista recenti nel dashboard
+        recent_list.clear()
+        for path in user_cfg.recent_projects:
+            recent_list.addItem(path)
+
+    def _autosave_tick() -> None:
+        if not user_cfg.autosave_enabled:
+            return
+        if not state.get("project_path"):
+            return
+        try:
+            io_service.save_project(project_service.current_project, str(state["project_path"]))
+            _append(f"Auto-save completato: {state['project_path']}")
+        except Exception as exc:  # pragma: no cover - defensive guard in GUI runtime
+            _append(f"Auto-save fallito: {exc}")
 
     act_new.triggered.connect(_new_project)
     act_open.triggered.connect(_open_project)
     act_save.triggered.connect(_save_project)
     act_run.triggered.connect(_run_pipeline)
-    act_norm.triggered.connect(lambda checked=False: tabs.setCurrentWidget(code_settings_tab))
+    act_norm.triggered.connect(
+        lambda checked=False: tabs.setCurrentWidget(project_data_tab)
+        or project_data_tabs.setCurrentWidget(code_settings_tab)
+    )
     act_help.triggered.connect(
         lambda checked=False: _append(
             "Aiuto: usare Progetto -> Verifica -> Report; impostazioni norma nel tab Code Settings."
@@ -523,6 +694,20 @@ def build_main_window(
     menu_help.addAction(act_help)
     _rebuild_recent_menu()
 
+    btn_go_project.clicked.connect(lambda _checked=False: _open_project_sector())
+    btn_go_verify.clicked.connect(lambda _checked=False: _open_verify_sector())
+    btn_go_report.clicked.connect(lambda _checked=False: _open_report_sector())
+    btn_go_special.clicked.connect(lambda _checked=False: _open_special_sector())
+
+    # GUI-3.3: doppio click su recent_list apre il progetto
+    def _open_recent_item(item: Any) -> None:
+        """Apre il progetto selezionato dalla lista recenti del dashboard."""
+        path = item.text()
+        txt_project.setText(path)
+        _ensure_loaded_project()
+
+    recent_list.itemDoubleClicked.connect(_open_recent_item)
+
     # Button bindings
     btn_project.clicked.connect(lambda _checked=False: _pick_project())
     btn_output.clicked.connect(lambda _checked=False: _pick_output())
@@ -534,12 +719,21 @@ def build_main_window(
     btn_export_md.clicked.connect(lambda _checked=False: _export_report("md"))
     btn_export_html.clicked.connect(lambda _checked=False: _export_report("html"))
 
+    autosave_timer = QTimer(window)
+    autosave_timer.timeout.connect(_autosave_tick)
+    if user_cfg.autosave_enabled:
+        autosave_timer.start(max(1, int(user_cfg.autosave_minutes)) * 60_000)
+        _append(f"Auto-save attivo ogni {max(1, int(user_cfg.autosave_minutes))} min.")
+
     if default_project:
         txt_project.setText(default_project)
         _ensure_loaded_project()
 
-    _append("GUI moderna tab-based inizializzata.")
-    _append("Tab attivi: Progetto, Verifica, Report, Materiali, Sezioni, FEM/Telai, Vento.")
+    _append("GUI moderna inizializzata con macro-settori GUI-V2.")
+    _append(
+        "Tab attivi: Dashboard, Progetto e Dati, Verifiche e Pipeline, Report e Tracciabilita, "
+        "Moduli Specialistici."
+    )
     _refresh_status()
 
     return window

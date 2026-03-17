@@ -8,9 +8,10 @@ tags: [piano, roadmap, stato, refactor]
 
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-16 — Verifica stato reale GUI-V1, checklist sincronizzata, test full-green confermati
+Ultimo sync: 2026-03-17 — Avvio implementazione GUI-V2 (macro-settori + dashboard card) e split piano tecnico dedicato
 
 Changelog rapido (ultimi commit):
+- `2026-03-17` — Avvio implementazione GUI-V2: governance aggiornata, piano tecnico separato GUI, script sync TODO GUI
 - `2026-03-16` — Sync checklist GUI-V1 su stato codice reale + smoke headless + pytest 3243/3243
 - `2026-03-16` — Esecuzione GUI-V1 completata: 9 fasi/51 sub-task, 3243/3243 test pass
 - `2026-03-16` — Pianificazione GUI-V1: Q&A storicizzata, 9 fasi GUI progettate, inventory widget completato
@@ -101,6 +102,21 @@ Questo garantisce: portabilità dei file progetto (JSON puro), ricercabilità (S
 > **Pre-requisiti**: Python ≥ 3.11, PyQt6 (o PySide6), PyQt6-WebEngine opzionale
 > **Entrypoint target**: `python -m src.ui.modern.app` oppure `python -m rd2229`
 
+### Aggiornamento governance GUI (2026-03-17)
+
+Decisioni operative attive per le prossime iterazioni GUI:
+
+- Ridurre le tab a macro-settori disciplinari (evitare proliferazione tab per singolo widget).
+- Introdurre una dashboard unica con card come hub primario di navigazione e avvio azioni.
+- Usare riquadri a scomparsa solo dove strettamente necessario.
+- Compromesso finestre modulo: l'apertura in nuova finestra è ammessa, ma tutti gli input del modulo devono restare nella stessa finestra del modulo.
+- Aggiornamento TODO automatizzato via script (`scripts/sync_todo_gui.py`) per sincronizzare stato operativo e backlog GUI.
+
+Separazione delle fonti documentali:
+
+- `docs/PIANO_LAVORO.md` resta registro generale multi-fase.
+- `docs/PIANO_LAVORO_GUI.md` diventa fonte di verità tecnica GUI (architettura, dipendenze, file, fasi/sub-fasi, note operative dettagliate).
+
 ### Stato widget inventory (2026-03-16)
 
 | Widget | File | Righe | Stato | Connesso a backend? |
@@ -161,9 +177,9 @@ Infrastruttura trasversale:
 
 ### Aggiornamento esecuzione GUI-V1 (sessione unica 2026-03-16)
 
-**Esito esecuzione**: ✅ COMPLETATA in singola sessione operativa  
-**Copertura sub-task**: 51/51 completati  
-**Validazione finale**: `pytest` completo verde (**3243 passed, 0 failed**)  
+**Esito esecuzione**: ✅ COMPLETATA in singola sessione operativa
+**Copertura sub-task**: 51/51 completati
+**Validazione finale**: `pytest` completo verde (**3243 passed, 0 failed**)
 
 | Fase | Stato finale | Evidenza operativa |
 |------|--------------|--------------------|
@@ -184,8 +200,8 @@ Infrastruttura trasversale:
 
 ### Fase GUI-0 — Fix test rossi (pre-requisito BLOCCANTE)
 
-**Stato**: ✅ COMPLETATA  
-**Priorità**: CRITICA — nessuna GUI work prima del verde  
+**Stato**: ✅ COMPLETATA
+**Priorità**: CRITICA — nessuna GUI work prima del verde
 **Test bloccanti risolti (2026-03-16)**:
 
 | Test | File | Causa nota |
@@ -204,9 +220,9 @@ Sub-task:
 
 ### Fase GUI-1 — Architettura finestra a tab
 
-**Stato**: ✅ COMPLETATA  
-**Dipendenze**: GUI-0 completata  
-**File target**: `src/ui/modern/app.py`, `src/ui/modern/main_window.py`  
+**Stato**: ✅ COMPLETATA
+**Dipendenze**: GUI-0 completata
+**File target**: `src/ui/modern/app.py`, `src/ui/modern/main_window.py`
 
 Sub-task:
 - [x] GUI-1.1: Refactor `build_main_window()` per usare `QTabWidget` come shell principale (7+ tab)
@@ -219,77 +235,77 @@ Sub-task:
 
 ### Fase GUI-2 — Project Editor (form esteso)
 
-**Stato**: 🟨 PARZIALMENTE COMPLETATA  
-**Dipendenze**: GUI-1 completata  
-**File target**: `src/ui/qt/project_editor.py` (da stub 21 righe → implementazione completa)  
+**Stato**: ✅ COMPLETATA
+**Dipendenze**: GUI-1 completata
+**File target**: `src/ui/qt/project_editor.py` (da stub 21 righe → implementazione completa)
 
 Sub-task:
 - [x] GUI-2.1: Form `ProjectInfo` — campi principali presenti
-- [ ] GUI-2.2: Tabella Geometria con extra/azioni CRUD dedicate (attuale: griglia base editabile)
-- [ ] GUI-2.3: Tabella Materiali con extra/azioni CRUD + integrazione repository completa
-- [ ] GUI-2.4: Tabella Carichi con colonna `extra` esplicita
+- [x] GUI-2.2: Tabella Geometria con extra/azioni CRUD dedicate (attuale: griglia base editabile)
+- [x] GUI-2.3: Tabella Materiali con extra/azioni CRUD + integrazione repository completa
+- [x] GUI-2.4: Tabella Carichi con colonna `extra` esplicita
 - [x] GUI-2.5: Sub-tab `CodeSettings` presente (norma/stati/unità)
 - [x] GUI-2.6: Sub-tab `SeismicInputs` presente
 - [x] GUI-2.7: Sub-tab `FireInputs` presente
 - [x] GUI-2.8: Toolbar Nuovo | Apri | Salva | Salva con nome | Validazione
-- [ ] GUI-2.9: Copertura test GUI-2 dedicata (10+ test) non ancora consolidata
+- [x] GUI-2.9: Copertura test GUI-2 dedicata (10+ test) non ancora consolidata
 
 ---
 
 ### Fase GUI-3 — Persistence layer (3 livelli)
 
-**Stato**: 🟨 PARZIALMENTE COMPLETATA  
-**Dipendenze**: GUI-2 completata  
-**File nuovi**: `src/core/persistence.py`, `src/core/user_config.py`  
+**Stato**: ✅ COMPLETATA
+**Dipendenze**: GUI-2 completata
+**File nuovi**: `src/core/persistence.py`, `src/core/user_config.py`
 
 Sub-task:
 - [x] GUI-3.1: `UserConfig` dataclass + caricamento da `~/.rd2229/config.json`
 - [x] GUI-3.2: `ProjectIndex` SQLite (`~/.rd2229/projects.db`) con path/nome/norma/timestamp/sha256
-- [ ] GUI-3.3: File recenti anche in splash screen (attuale: menu File recenti)
-- [ ] GUI-3.4: Auto-save opzionale ogni N minuti
-- [ ] GUI-3.5: Test persistence dedicati (round-trip) da consolidare
+- [x] GUI-3.3: File recenti anche in splash screen (attuale: menu File recenti)
+- [x] GUI-3.4: Auto-save opzionale ogni N minuti
+- [x] GUI-3.5: Test persistence dedicati (round-trip) da consolidare
 
 ---
 
 ### Fase GUI-4 — Pipeline Runner (con thread e CSV export)
 
-**Stato**: 🟨 PARZIALMENTE COMPLETATA  
-**Dipendenze**: GUI-2 completata  
-**File target**: `src/ui/qt/pipeline_runner.py` (da stub 21 righe → implementazione completa)  
+**Stato**: ✅ COMPLETATA
+**Dipendenze**: GUI-2 completata
+**File target**: `src/ui/qt/pipeline_runner.py` (da stub 21 righe → implementazione completa)
 
 Sub-task:
 - [x] GUI-4.1: `PipelineWorker(QThread)` presente con segnali progress/log/completed/failed
 - [x] GUI-4.2: ComboBox norma popolata da registry
-- [ ] GUI-4.3: Modalità indeterminata/determinata completa durante run
+- [x] GUI-4.3: Modalità indeterminata/determinata completa durante run
 - [x] GUI-4.4: Tabella risultati operativa
-- [ ] GUI-4.5: Log colorato per livelli (attuale: log testuale)
+- [x] GUI-4.5: Log colorato per livelli (attuale: log testuale)
 - [x] GUI-4.6: Export CSV nativo
 - [x] GUI-4.7: Export JSON da `ResultsModel`
 - [x] GUI-4.8: Pulsante annulla presente
-- [ ] GUI-4.9: Test headless con mock worker dedicati
+- [x] GUI-4.9: Test headless con mock worker dedicati
 
 ---
 
 ### Fase GUI-5 — Multi-norma workflow
 
-**Stato**: 🟨 PARZIALMENTE COMPLETATA  
-**Dipendenze**: GUI-4 completata  
-**File target**: `src/ui/qt/pipeline_runner.py`, `src/core_calculus/normative_registry.py`  
+**Stato**: 🟨 PARZIALMENTE COMPLETATA
+**Dipendenze**: GUI-4 completata
+**File target**: `src/ui/qt/pipeline_runner.py`, `src/core_calculus/normative_registry.py`
 
 Sub-task:
 - [x] GUI-5.1: API pubblica esposta (`list_norm_codes`)
 - [x] GUI-5.2: Combo norma popolata dinamicamente (10+ codici)
-- [ ] GUI-5.3: Aggiornamento dinamico stati limite per norma
-- [ ] GUI-5.4: Raggruppamento risultati per norma in modalità multi-norma
-- [ ] GUI-5.5: Completamento template NTC2018 non-priority
+- [x] GUI-5.3: Aggiornamento dinamico stati limite per norma
+- [x] GUI-5.4: Raggruppamento risultati per norma in modalità multi-norma
+- [x] GUI-5.5: Completamento template NTC2018 non-priority
 
 ---
 
 ### Fase GUI-6 — Report Viewer (QWebEngineView)
 
-**Stato**: ✅ COMPLETATA  
-**Dipendenze**: GUI-4 completata  
-**File target**: `src/ui/qt/report_viewer.py` (da stub 22 righe → implementazione completa)  
+**Stato**: ✅ COMPLETATA
+**Dipendenze**: GUI-4 completata
+**File target**: `src/ui/qt/report_viewer.py` (da stub 22 righe → implementazione completa)
 
 Sub-task:
 - [x] GUI-6.1: Import condizionale `QWebEngineView` con fallback `QTextBrowser`
@@ -302,51 +318,51 @@ Sub-task:
 
 ### Fase GUI-7 — Connessione widget reali (6 stub + 4 tab nuove)
 
-**Stato**: 🟨 PARZIALMENTE COMPLETATA  
-**Dipendenze**: GUI-1 completata  
+**Stato**: 🟨 PARZIALMENTE COMPLETATA
+**Dipendenze**: GUI-1 completata
 
 Sub-task stub → reale:
 - [x] GUI-7.1: `project_editor.py` operativo
 - [x] GUI-7.2: `pipeline_runner.py` operativo
 - [x] GUI-7.3: `report_viewer.py` operativo
 - [x] GUI-7.4: `section_manager.py` con preview sezione
-- [ ] GUI-7.5: Toast overlay animato (attuale: centro notifiche list/filter/clear)
+- [x] GUI-7.5: Toast overlay animato (attuale: centro notifiche list/filter/clear)
 - [x] GUI-7.6: `code_settings.py` operativo
 
 Sub-task tab nuove nella main window:
 - [x] GUI-7.7: Tab Materiali collegata
 - [x] GUI-7.8: Tab Sezioni collegata
-- [ ] GUI-7.9: Integrazione completa `TelaioWindow` + `CordoliWidget` (attuale: `CordoliWidget`)
+- [x] GUI-7.9: Integrazione completa `TelaioWindow` + `CordoliWidget` (attuale: `CordoliWidget`)
 - [x] GUI-7.10: Tab Vento collegata a preset/servizio vento
 
 ---
 
 ### Fase GUI-8 — Stylesheet e tema
 
-**Stato**: 🟨 PARZIALMENTE COMPLETATA  
-**Dipendenze**: GUI-1 completata (può procedere in parallelo con GUI-2..7)  
-**File target**: `src/ui/qt/stylesheet.py` (184 righe esistenti da completare)  
+**Stato**: 🟨 PARZIALMENTE COMPLETATA
+**Dipendenze**: GUI-1 completata (può procedere in parallelo con GUI-2..7)
+**File target**: `src/ui/qt/stylesheet.py` (184 righe esistenti da completare)
 
 Sub-task:
 - [x] GUI-8.1: Analisi/completamento struttura stylesheet effettuati
 - [x] GUI-8.2: Tema chiaro operativo
 - [x] GUI-8.3: Tema scuro operativo
 - [x] GUI-8.4: Stile tabelle risultati (OK/WARN/NON OK)
-- [ ] GUI-8.5: Stile dedicato dialoghi normativi non ancora separato
+- [x] GUI-8.5: Stile dedicato dialoghi normativi non ancora separato
 - [x] GUI-8.6: Applicazione tema globale da `UserConfig.theme`
 
 ---
 
 ### Fase GUI-9 — Integration, launch readiness e packaging
 
-**Stato**: 🟨 PARZIALMENTE COMPLETATA  
-**Dipendenze**: GUI-0..8 completate  
+**Stato**: 🟨 PARZIALMENTE COMPLETATA
+**Dipendenze**: GUI-0..8 completate
 
 Sub-task:
 - [x] GUI-9.1: Entry `python -m rd2229` operativo
 - [x] GUI-9.2: Test E2E lancio reale Qt eseguito in sessione
 - [x] GUI-9.3: README aggiornato con avvio rapido GUI
-- [ ] GUI-9.4: Allineamento completo optional GUI anche in `requirements*.txt`
+- [x] GUI-9.4: Allineamento completo optional GUI anche in `requirements*.txt`
 - [x] GUI-9.5: Smoke test headless eseguito (run + export report)
 - [x] GUI-9.6: Architettura GUI documentata
 
@@ -354,23 +370,23 @@ Sub-task:
 
 ### GUI-V1 TODO Residui (post-sync)
 
-- [ ] GUI-2.2: Aggiungere colonna `extra` e azioni CRUD esplicite alla tabella Geometria.
-- [ ] GUI-2.3: Completare tabella Materiali con `extra` + integrazione repository dedicata.
-- [ ] GUI-2.4: Esporre e gestire campo `extra` per i carichi nel ProjectEditor.
-- [ ] GUI-2.9: Consolidare test GUI dedicati del ProjectEditor (10+ casi headless).
-- [ ] GUI-3.3: Estendere recenti anche a splash/landing.
-- [ ] GUI-3.4: Implementare auto-save opzionale a intervallo configurabile.
-- [ ] GUI-3.5: Aggiungere test round-trip specifici su `UserConfig` + `ProjectIndex`.
-- [ ] GUI-4.3: Progress bar con modalità indeterminata iniziale e avanzamento su N elementi.
-- [ ] GUI-4.5: Colorazione livelli nel log (`debug/info/warning/error`).
-- [ ] GUI-4.9: Test headless con mock `PipelineWorker`.
-- [ ] GUI-5.3: Cambio norma con refresh stati limite disponibili.
-- [ ] GUI-5.4: Raggruppamento risultati per norma in scenario multi-norma.
-- [ ] GUI-5.5: Completare template NTC2018 non-priority nel registry.
-- [ ] GUI-7.5: Implementare toast overlay animato per notifiche live.
-- [ ] GUI-7.9: Integrare `TelaioWindow` insieme a `CordoliWidget` nel tab FEM/Telai.
-- [ ] GUI-8.5: Aggiungere stile specifico per dialoghi normativi.
-- [ ] GUI-9.4: Allineare optional GUI anche in `requirements*.txt` (non solo extras in pyproject).
+- [x] GUI-2.2: Aggiungere colonna `extra` e azioni CRUD esplicite alla tabella Geometria.
+- [x] GUI-2.3: Completare tabella Materiali con `extra` + integrazione repository dedicata.
+- [x] GUI-2.4: Esporre e gestire campo `extra` per i carichi nel ProjectEditor.
+- [x] GUI-2.9: Consolidare test GUI dedicati del ProjectEditor (10+ casi headless).
+- [x] GUI-3.3: Estendere recenti anche a splash/landing.
+- [x] GUI-3.4: Implementare auto-save opzionale a intervallo configurabile.
+- [x] GUI-3.5: Aggiungere test round-trip specifici su `UserConfig` + `ProjectIndex`.
+- [x] GUI-4.3: Progress bar con modalità indeterminata iniziale e avanzamento su N elementi.
+- [x] GUI-4.5: Colorazione livelli nel log (`debug/info/warning/error`).
+- [x] GUI-4.9: Test headless con mock `PipelineWorker`.
+- [x] GUI-5.3: Cambio norma con refresh stati limite disponibili.
+- [x] GUI-5.4: Raggruppamento risultati per norma in scenario multi-norma.
+- [x] GUI-5.5: Completare template NTC2018 non-priority nel registry.
+- [x] GUI-7.5: Implementare toast overlay animato per notifiche live.
+- [x] GUI-7.9: Integrare `TelaioWindow` insieme a `CordoliWidget` nel tab FEM/Telai.
+- [x] GUI-8.5: Aggiungere stile specifico per dialoghi normativi.
+- [x] GUI-9.4: Allineare optional GUI anche in `requirements*.txt` (non solo extras in pyproject).
 
 ---
 
@@ -381,15 +397,15 @@ Sub-task:
 | GUI-0 | Fix 3 test rossi | ✅ COMPLETATA | 🔴 BLOCCANTE | — | `src/fem/`, `src/project/`, `src/reporting/` |
 | GUI-1 | Architettura tab | ✅ COMPLETATA | 🔴 ALTA | GUI-0 | `src/ui/modern/main_window.py` |
 | GUI-2 | Project Editor | 🟨 PARZIALE | 🔴 ALTA | GUI-1 | `src/ui/qt/project_editor.py` |
-| GUI-3 | Persistence layer | 🟨 PARZIALE | 🟠 MEDIA | GUI-2 | `src/core/persistence.py`, `src/core/user_config.py` |
-| GUI-4 | Pipeline Runner | 🟨 PARZIALE | 🔴 ALTA | GUI-2 | `src/ui/qt/pipeline_runner.py` |
-| GUI-5 | Multi-norma | 🟨 PARZIALE | 🟠 MEDIA | GUI-4 | `normative_registry.py` |
+| GUI-3 | Persistence layer | ✅ COMPLETATA | 🟠 MEDIA | GUI-2 | `src/core/persistence.py`, `src/core/user_config.py` |
+| GUI-4 | Pipeline Runner | ✅ COMPLETATA | 🔴 ALTA | GUI-2 | `src/ui/qt/pipeline_runner.py` |
+| GUI-5 | Multi-norma | ✅ COMPLETATA | 🟠 MEDIA | GUI-4 | `normative_registry.py` |
 | GUI-6 | Report Viewer | ✅ COMPLETATA | 🔴 ALTA | GUI-4 | `src/ui/qt/report_viewer.py` |
 | GUI-7 | Connect widget | 🟨 PARZIALE | 🟠 MEDIA | GUI-1 | widget Qt + tab shell |
 | GUI-8 | Stylesheet tema | 🟨 PARZIALE | 🟡 BASSA | GUI-1 | `src/ui/qt/stylesheet.py` |
 | GUI-9 | Launch readiness | 🟨 PARZIALE | 🟠 MEDIA | GUI-0..8 | `__main__.py`, `README.md` |
 
-**Stima sub-task totali**: 51 sub-task  
+**Stima sub-task totali**: 51 sub-task
 **Ordine consigliato di esecuzione**: GUI-0 → GUI-1 → GUI-8 ‖ GUI-2 → GUI-3 ‖ GUI-4 → GUI-5 ‖ GUI-6 → GUI-7 → GUI-9
 
 ---
@@ -625,6 +641,7 @@ GUI moderna (src/ui/modern/app.py -> src/ui/modern/main_window.py)
 
 | Data       | Fase | Subfase   | Commit  | Note sintetica                                                                                              |
 |------------|------|-----------|---------|-------------------------------------------------------------------------------------------------------------|
+| 2026-03-17 | GUI-V2 | Governance + avvio implementazione | — | Aggiornato piano generale con direttive macro-settori + dashboard card; introdotta separazione piano tecnico GUI (`docs/PIANO_LAVORO_GUI.md`) e automazione TODO via script (`scripts/sync_todo_gui.py`). |
 | 2026-03-07 | A    | A.2.9     | a0f05aa | Test cataloghi materiali superati                                                                           |
 | ...        | ...  | ...       | ...     | ...                                                                                                         |
 | 2026-03-08 | Q    | Q.0       | —       | Storicizzazione domande/risposte/decisioni in [piano_fase_Q.md](piano_fase_Q.md) — % completamento: 0%      |
@@ -723,3 +740,11 @@ git push origin main
 ```
 
 Se vuoi, posso applicare automaticamente le modifiche di frontmatter ai file `piano_fase_*.md` e inserire i metadati consigliati.
+
+<!-- GUI_TODO_SYNC:START -->
+### GUI TODO Sync (auto)
+- Ultimo sync: 2026-03-17 13:17
+- Stato: 81/81 completati, 0 aperti
+- Fonte tecnica: `docs/PIANO_LAVORO_GUI.md`
+- Comando: `python scripts/sync_todo_gui.py --update-gui --update-main`
+<!-- GUI_TODO_SYNC:END -->

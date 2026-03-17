@@ -16,6 +16,8 @@ class UserConfig:
     default_norm_code: str = "RD2229"
     theme: str = "light"
     last_output_dir: str = ""
+    autosave_enabled: bool = False
+    autosave_minutes: int = 5
 
     MAX_RECENT: int = 10
 
@@ -38,6 +40,8 @@ class UserConfig:
             default_norm_code=str(data.get("default_norm_code", "RD2229")),
             theme=str(data.get("theme", "light")),
             last_output_dir=str(data.get("last_output_dir", "")),
+            autosave_enabled=bool(data.get("autosave_enabled", False)),
+            autosave_minutes=max(1, int(data.get("autosave_minutes", 5))),
         )
 
     def save(self, path: str | Path | None = None) -> Path:

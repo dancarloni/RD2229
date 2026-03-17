@@ -20,6 +20,7 @@ def test_add_remove_row_geometry(editor, qtbot):
     n0 = tbl.rowCount()
     editor._add_table_row(tbl)
     assert tbl.rowCount() == n0 + 1
+    assert tbl.item(tbl.rowCount() - 1, tbl.columnCount() - 1).text() == "{}"
     # Seleziona la riga appena aggiunta
     tbl.setCurrentCell(tbl.rowCount() - 1, 0)
     editor._remove_table_row(tbl)
@@ -140,3 +141,22 @@ def test_import_material_from_repo_with_repo(qtbot, monkeypatch):
         assert editor.tbl_materials.rowCount() == n0 + 1
     finally:
         mod.MaterialImportDialog.select_material = original
+
+
+def test_edit_selected_row_with_json_dialog(editor, monkeypatch):
+    tbl = editor.tbl_geometry
+    editor._add_table_row(tbl)
+    row = tbl.rowCount() - 1
+    tbl.setItem(row, 0, qt_api.QtWidgets.QTableWidgetItem("G99"))
+    tbl.setItem(row, 1, qt_api.QtWidgets.QTableWidgetItem("RECT"))
+    tbl.setCurrentCell(row, 0)
+
+    monkeypatch.setattr(
+        editor,
+        "_show_json_edit_dialog",
+        lambda current: '{"id": "G100", "type": "CIRCLE", "width": "30", "height": "30", "extra": "{}"}',
+    )
+
+    editor._edit_table_row(tbl)
+    assert tbl.item(row, 0).text() == "G100"
+    assert tbl.item(row, 1).text() == "CIRCLE"

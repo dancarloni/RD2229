@@ -28,6 +28,17 @@ QMainWindow, QDialog {
     background-color: #f5f5f5;
 }
 
+QDialog#NormativeDialog {
+    background-color: #fffaf0;
+    border: 1px solid #d8c6a0;
+}
+
+QTextEdit#NormativeText {
+    background-color: #fffdf8;
+    border: 1px solid #d8c6a0;
+    color: #2c3e50;
+}
+
 QMenuBar {
     background-color: #2c3e50;
     color: #ecf0f1;
@@ -156,6 +167,17 @@ DARK_QSS = """
 QMainWindow, QDialog, QWidget {
     background-color: #1f252a;
     color: #dfe6eb;
+}
+
+QDialog#NormativeDialog {
+    background-color: #25201a;
+    border: 1px solid #6e5b3f;
+}
+
+QTextEdit#NormativeText {
+    background-color: #2e2720;
+    border: 1px solid #6e5b3f;
+    color: #f1e6d8;
 }
 
 QMenuBar, QMenu, QStatusBar {

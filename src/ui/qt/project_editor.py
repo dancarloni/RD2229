@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 try:
@@ -32,9 +33,9 @@ except ImportError:  # pragma: no cover
         QMessageBox,
         QPushButton,
         QSizePolicy,
-        QTabWidget,
         QTableWidget,
         QTableWidgetItem,
+        QTabWidget,
         QVBoxLayout,
         QWidget,
     )
@@ -174,9 +175,11 @@ class ProjectEditorWindow(QWidget):
     def _add_table_crud_buttons(self, layout, table, label, import_repo=False):
         row = QHBoxLayout()
         btn_add = QPushButton(f"Aggiungi {label}")
+        btn_edit = QPushButton(f"Modifica {label}")
         btn_remove = QPushButton(f"Rimuovi {label}")
         btn_edit_extra = QPushButton("Modifica extra")
         row.addWidget(btn_add)
+        row.addWidget(btn_edit)
         row.addWidget(btn_remove)
         row.addWidget(btn_edit_extra)
         if import_repo:
@@ -188,11 +191,16 @@ class ProjectEditorWindow(QWidget):
         layout.addLayout(row)
         # Connect signals
         btn_add.clicked.connect(lambda: self._add_table_row(table))
+        btn_edit.clicked.connect(lambda: self._edit_table_row(table))
         btn_remove.clicked.connect(lambda: self._remove_table_row(table))
         btn_edit_extra.clicked.connect(lambda: self._edit_extra_for_selected(table))
+        table.itemDoubleClicked.connect(lambda _item: self._edit_table_row(table))
 
     def _add_table_row(self, table):
-        table.insertRow(table.rowCount())
+        row = table.rowCount()
+        table.insertRow(row)
+        if table.columnCount() > 0:
+            table.setItem(row, table.columnCount() - 1, QTableWidgetItem("{}"))
 
     def _remove_table_row(self, table):
         row = table.currentRow()
@@ -209,6 +217,28 @@ class ProjectEditorWindow(QWidget):
         new_json = self._show_json_edit_dialog(current)
         if new_json is not None:
             table.setItem(row, col, QTableWidgetItem(new_json))
+
+    def _edit_table_row(self, table: QTableWidget) -> None:
+        row = table.currentRow()
+        if row < 0:
+            return
+
+        payload = {
+            str(table.horizontalHeaderItem(col).text()): self._table_text(table, row, col)
+            for col in range(table.columnCount())
+        }
+        edited = self._show_json_edit_dialog(json.dumps(payload, ensure_ascii=False, indent=2))
+        if edited is None:
+            return
+        try:
+            parsed = json.loads(edited)
+        except Exception:
+            QMessageBox.warning(self, "Modifica riga", "JSON non valido: modifiche annullate.")
+            return
+
+        for col in range(table.columnCount()):
+            key = str(table.horizontalHeaderItem(col).text())
+            table.setItem(row, col, QTableWidgetItem(str(parsed.get(key, ""))))
 
     def _show_json_edit_dialog(self, current_json):
         # Use the modular JsonEditDialog (lazy import to keep startup light)

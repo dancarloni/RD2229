@@ -17,3 +17,6 @@ shapely
 
 jsonschema
 scipy
+pytest-qt
+PyQt6>=6.4
+PyQt6-WebEngine>=6.4
