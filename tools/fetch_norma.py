@@ -22,7 +22,7 @@ Usage::
     python tools/fetch_norma.py --norm NTC2018 --source path/to/ntc2018.pdf
 
     # Register from URL (downloads to docs/_norme/NTC2018/source/)
-    python tools/fetch_norma.py --norm NTC2018 --url https://example.com/ntc2018.pdf
+    python tools/fetch_norma.py --norm NTC2018 --url https://www.cslp.it/files/ntc2018.pdf
 
     # List available norms
     python tools/fetch_norma.py --list

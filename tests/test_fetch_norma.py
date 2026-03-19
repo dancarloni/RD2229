@@ -52,8 +52,8 @@ class TestInitNorm:
         assert meta["norm_id"] == "NTC2018"
 
     def test_records_source_url(self, nd):
-        meta = init_norm("NTC2018", source_url="https://example.com/ntc.pdf", norme_dir=nd)
-        assert meta["source_url"] == "https://example.com/ntc.pdf"
+        meta = init_norm("NTC2018", source_url="https://www.cslp.it/files/ntc2018.pdf", norme_dir=nd)
+        assert meta["source_url"] == "https://www.cslp.it/files/ntc2018.pdf"
 
     def test_registers_local_source_file(self, tmp_path, nd):
         local = tmp_path / "doc.pdf"

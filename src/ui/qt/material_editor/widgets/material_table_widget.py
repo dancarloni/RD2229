@@ -2,8 +2,10 @@
 MaterialTableWidget — Tabella materiali ordinabile, filtrabile, drag&drop
 """
 
-from PySide6.QtWidgets import QTableView, QHeaderView, QAbstractItemView, QMenu, QAction
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QAction  # Corretto import per QAction
+from PySide6.QtWidgets import QAbstractItemView, QHeaderView, QMenu, QTableView
+
 
 class MaterialTableWidget(QTableView):
     # signal: column (int) or key (str), selected rows list
@@ -45,10 +47,13 @@ class MaterialTableWidget(QTableView):
         menu.addAction(action_batch)
         menu.exec(self.viewport().mapToGlobal(pos))
 
+
 # Per test rapido
 if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication
     import sys
+
+    from PySide6.QtWidgets import QApplication
+
     app = QApplication(sys.argv)
     table = MaterialTableWidget()
     table.show()

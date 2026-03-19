@@ -2,18 +2,38 @@
 MaterialRepository — Gestione materiali, parametri, override, audit
 """
 
-import uuid
-import json
 import copy
-from typing import List, Dict, Any
+import json
+import uuid
+from typing import Any, Dict, List
+
 
 class MaterialRepository:
     def __init__(self):
+        import os
         self.materials: List[Dict[str, Any]] = []
         self.audit_log: List[Dict[str, Any]] = []
         self.layout_prefs: Dict[str, Any] = {}
         self._undo_stack: List[List[Dict[str, Any]]] = []
         self._redo_stack: List[List[Dict[str, Any]]] = []
+        # Carica tutti i materiali dai cataloghi JSON in data/materials/
+        # Trova la root del progetto risalendo le directory
+        import pathlib
+        here = pathlib.Path(__file__).resolve()
+        root = here
+        while not (root / "data" / "materials").is_dir() and root.parent != root:
+            root = root.parent
+        base_dir = str(root / "data" / "materials")
+        for fname in os.listdir(base_dir):
+            if fname.startswith("catalogo_") and fname.endswith(".json"):
+                fpath = os.path.join(base_dir, fname)
+                try:
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        mats = json.load(f)
+                        if isinstance(mats, list):
+                            self.materials.extend(mats)
+                except Exception:
+                    pass
 
     def load_from_file(self, path: str):
         with open(path, 'r', encoding='utf-8') as f:

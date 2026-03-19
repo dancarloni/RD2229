@@ -5,17 +5,22 @@ Estende ControllerBase e coordina repository, table widget, detail frame
 ed export widget. Non esegue operazioni Qt all'importazione: i collegamenti
 ai widget vengono effettuati tramite i metodi `attach_*` a runtime.
 """
-from typing import Optional, Any, Dict
+
+from typing import Any, Dict, Optional
 
 from src.core.controller_base import ControllerBase
-from src.ui.qt.material_editor.logic.material_repository import MaterialRepository
 from src.ui.qt.material_editor.logic.material_export_logic import MaterialExportLogic
+from src.ui.qt.material_editor.logic.material_repository import MaterialRepository
 from src.ui.qt.material_editor.logic.material_validation_logic import validate as validate_material
 
+
 class MaterialEditorController(ControllerBase):
-    def __init__(self, repository: Optional[MaterialRepository] = None):
+    def __init__(
+        self, repository: Optional[MaterialRepository] = None, famiglia: Optional[str] = None
+    ):
         super().__init__()
         self.repo = repository or MaterialRepository()
+        self.famiglia = famiglia
         self.table = None
         self.detail = None
         self.export_widget = None
@@ -25,62 +30,96 @@ class MaterialEditorController(ControllerBase):
         """Collega la table widget al controller. Deve essere chiamato a runtime."""
         self.table = table_widget
         try:
-            sel_model = self.table.selectionModel()
-            sel_model.selectionChanged.connect(self._on_table_selection_changed)
-            # batch edit signal if provided by the table widget
-            if hasattr(self.table, 'batchEditRequested'):
+            # Filtra i materiali per famiglia se richiesto
+            if self.famiglia:
+                filtered = [
+                    m
+                    for m in self.repo.materials
+                    if m.get("famiglia", "").lower() == self.famiglia.lower()
+                ]
+                self.repo.materials = filtered
+
+            # batch edit signal PRIMA di setModel (non dipende dal selectionModel)
+            if hasattr(self.table, "batchEditRequested"):
                 try:
                     self.table.batchEditRequested.connect(self.on_batch_edit_requested)
                 except Exception:
                     pass
-            # set a table model bound to the repository
+
+            # Crea e imposta il modello
+            from src.ui.qt.material_editor.widgets.material_table_model import MaterialTableModel
+
+            self.model = MaterialTableModel(self.repo)
+            self.table.setModel(self.model)  # crea un nuovo QItemSelectionModel interno
+            self.model.refresh()
+
+            # FONDAMENTALE: connetti selectionModel DOPO setModel per usare quello definitivo
+            self.table.selectionModel().selectionChanged.connect(self._on_table_selection_changed)
+
             try:
-                from src.ui.qt.material_editor.widgets.material_table_model import MaterialTableModel
-                self.model = MaterialTableModel(self.repo)
-                self.table.setModel(self.model)
-                try:
-                    self.table.resizeColumnsToContents()
-                except Exception:
-                    pass
+                self.table.resizeColumnsToContents()
             except Exception:
                 pass
+
+            # Popola il primo materiale (solo se detail è già collegato)
+            self._try_populate_first()
         except Exception:
-            # table might not support selectionModel at import-time
+            import traceback
+
+            traceback.print_exc()
+
+    def _try_populate_first(self) -> None:
+        """Seleziona e popola il primo materiale se modello e detail sono entrambi pronti."""
+        try:
+            if (
+                self.detail is not None
+                and hasattr(self, "model")
+                and self.model is not None
+                and self.table is not None
+                and self.model.rowCount() > 0
+            ):
+                self.table.selectRow(0)
+        except Exception:
             pass
 
     def attach_detail(self, detail_frame) -> None:
         """Collega il frame dettaglio e i suoi pulsanti."""
         self.detail = detail_frame
         try:
-            if hasattr(self.detail, 'save_button'):
+            if hasattr(self.detail, "save_button"):
                 self.detail.save_button.clicked.connect(self.on_save_clicked)
-            if hasattr(self.detail, 'cancel_button'):
+            if hasattr(self.detail, "cancel_button"):
                 self.detail.cancel_button.clicked.connect(self.on_cancel_clicked)
             # setup Ctrl+S shortcut on the detail frame (runtime)
             try:
                 from PySide6.QtGui import QKeySequence
                 from PySide6.QtWidgets import QShortcut
-                QShortcut(QKeySequence('Ctrl+S'), self.detail, activated=self.on_save_clicked)
+
+                QShortcut(QKeySequence("Ctrl+S"), self.detail, activated=self.on_save_clicked)
             except Exception:
                 pass
         except Exception:
             pass
+        # Se il modello è già pronto, popola subito il primo materiale
+        self._try_populate_first()
 
     def attach_export(self, export_widget) -> None:
         self.export_widget = export_widget
         try:
-            if hasattr(self.export_widget, 'format_combo'):
+            if hasattr(self.export_widget, "format_combo"):
                 try:
-                    self.export_widget.format_combo.currentIndexChanged.connect(lambda _: self._update_export_text())
+                    self.export_widget.format_combo.currentIndexChanged.connect(
+                        lambda _: self._update_export_text()
+                    )
                 except Exception:
                     pass
             # also listen to the high-level signal if the widget exposes it
-            if hasattr(self.export_widget, 'formatChanged'):
+            if hasattr(self.export_widget, "formatChanged"):
                 try:
                     self.export_widget.formatChanged.connect(lambda _: self._update_export_text())
                 except Exception:
                     pass
-            if hasattr(self.export_widget, 'copy_button'):
+            if hasattr(self.export_widget, "copy_button"):
                 try:
                     self.export_widget.copy_button.clicked.connect(self._on_export_copy)
                 except Exception:
@@ -98,40 +137,41 @@ class MaterialEditorController(ControllerBase):
             return
         try:
             # determine format (safe)
-            fmt = 'HTML'
-            if hasattr(self.export_widget, 'format_combo'):
+            fmt = "HTML"
+            if hasattr(self.export_widget, "format_combo"):
                 try:
                     fmt = self.export_widget.format_combo.currentText()
                 except Exception:
-                    fmt = 'HTML'
+                    fmt = "HTML"
 
             # if no selection, show a template/empty-preview using model headers or defaults
             if self.current_index is None:
                 mat = {}
                 try:
-                    if hasattr(self, 'model') and self.model is not None:
+                    if hasattr(self, "model") and self.model is not None:
                         # derive header names from model
                         try:
                             from PySide6.QtCore import Qt
+
                             cols = self.model.columnCount()
                             headers = []
                             for c in range(cols):
                                 try:
                                     hdr = self.model.headerData(c, Qt.Horizontal)
-                                    headers.append(str(hdr) if hdr is not None else f'col_{c}')
+                                    headers.append(str(hdr) if hdr is not None else f"col_{c}")
                                 except Exception:
-                                    headers.append(f'col_{c}')
+                                    headers.append(f"col_{c}")
                             for h in headers:
-                                mat[h] = ''
+                                mat[h] = ""
                         except Exception:
                             # fallback to sensible defaults
-                            for h in ['codice', 'descrizione', 'norma', 'f_ck', 'gamma_c']:
-                                mat[h] = ''
+                            for h in ["codice", "descrizione", "norma", "f_ck", "gamma_c"]:
+                                mat[h] = ""
                     else:
-                        for h in ['codice', 'descrizione', 'norma', 'f_ck', 'gamma_c']:
-                            mat[h] = ''
+                        for h in ["codice", "descrizione", "norma", "f_ck", "gamma_c"]:
+                            mat[h] = ""
                 except Exception:
-                    mat = {'codice': '', 'descrizione': '', 'norma': '', 'f_ck': '', 'gamma_c': ''}
+                    mat = {"codice": "", "descrizione": "", "norma": "", "f_ck": "", "gamma_c": ""}
             else:
                 try:
                     mat = self.repo.materials[self.current_index]
@@ -139,7 +179,7 @@ class MaterialEditorController(ControllerBase):
                     mat = {}
 
             txt = MaterialExportLogic.export(mat, fmt)
-            if hasattr(self.export_widget, 'export_text'):
+            if hasattr(self.export_widget, "export_text"):
                 self.export_widget.export_text.setPlainText(txt)
         except Exception:
             pass
@@ -147,8 +187,9 @@ class MaterialEditorController(ControllerBase):
     def _on_export_copy(self) -> None:
         try:
             from PySide6.QtWidgets import QApplication
+
             clipboard = QApplication.clipboard()
-            if hasattr(self.export_widget, 'export_text'):
+            if hasattr(self.export_widget, "export_text"):
                 clipboard.setText(self.export_widget.export_text.toPlainText())
         except Exception:
             pass
@@ -173,43 +214,23 @@ class MaterialEditorController(ControllerBase):
         mat = self.repo.materials[idx]
         if self.detail is None:
             return
-        # popola i campi del detail frame se esistono
-        try:
-            if hasattr(self.detail, 'code_edit'):
-                self.detail.code_edit.setText(str(mat.get('codice', '')))
-            if hasattr(self.detail, 'desc_edit'):
-                self.detail.desc_edit.setText(str(mat.get('descrizione', '')))
-            if hasattr(self.detail, 'norma_edit'):
-                self.detail.norma_edit.setText(str(mat.get('norma', '')))
-            if hasattr(self.detail, 'fck_edit'):
-                self.detail.fck_edit.setText(str(mat.get('f_ck', '')))
-            if hasattr(self.detail, 'gamma_c_edit'):
-                self.detail.gamma_c_edit.setText(str(mat.get('gamma_c', '')))
-            # impostare flag override se presente
-            if hasattr(self.detail, 'fck_override'):
-                self.detail.fck_override.setChecked(bool(mat.get('f_ck_override', False)))
-            if hasattr(self.detail, 'gamma_c_override'):
-                self.detail.gamma_c_override.setChecked(bool(mat.get('gamma_c_override', False)))
-        except Exception:
-            pass
-
+        # Popola dinamicamente i campi del frame laterale
+        if hasattr(self.detail, "set_fields"):
+            self.detail.set_fields(mat)
         # soft validation: show warnings in the detail frame (non-blocking)
         try:
-            try:
-                res = validate_material(mat)
-                msgs = []
-                if res.get('missing'):
-                    msgs.append("Campi mancanti: " + ", ".join(res.get('missing')))
-                if res.get('warnings'):
-                    msgs.append("Avvisi: " + "; ".join(res.get('warnings')))
-                msg = ". ".join(msgs) if msgs else ""
-                if hasattr(self.detail, 'set_warning'):
-                    self.detail.set_warning(msg)
-            except Exception:
-                if hasattr(self.detail, 'set_warning'):
-                    self.detail.set_warning("")
+            res = validate_material(mat)
+            msgs = []
+            if res.get("missing"):
+                msgs.append("Campi mancanti: " + ", ".join(res.get("missing")))
+            if res.get("warnings"):
+                msgs.append("Avvisi: " + "; ".join(res.get("warnings")))
+            msg = ". ".join(msgs) if msgs else ""
+            if hasattr(self.detail, "set_warning"):
+                self.detail.set_warning(msg)
         except Exception:
-            pass
+            if hasattr(self.detail, "set_warning"):
+                self.detail.set_warning("")
 
     def on_save_clicked(self) -> None:
         if self.detail is None:
@@ -217,23 +238,23 @@ class MaterialEditorController(ControllerBase):
         # raccogli dati dal dettaglio
         data: Dict[str, Any] = {}
         try:
-            if hasattr(self.detail, 'code_edit'):
-                data['codice'] = self.detail.code_edit.text()
-            if hasattr(self.detail, 'desc_edit'):
-                data['descrizione'] = self.detail.desc_edit.text()
-            if hasattr(self.detail, 'norma_edit'):
-                data['norma'] = self.detail.norma_edit.text()
-            if hasattr(self.detail, 'fck_edit'):
+            if hasattr(self.detail, "code_edit"):
+                data["codice"] = self.detail.code_edit.text()
+            if hasattr(self.detail, "desc_edit"):
+                data["descrizione"] = self.detail.desc_edit.text()
+            if hasattr(self.detail, "norma_edit"):
+                data["norma"] = self.detail.norma_edit.text()
+            if hasattr(self.detail, "fck_edit"):
                 val = self.detail.fck_edit.text()
-                data['f_ck'] = float(val) if val else None
-            if hasattr(self.detail, 'gamma_c_edit'):
+                data["f_ck"] = float(val) if val else None
+            if hasattr(self.detail, "gamma_c_edit"):
                 val = self.detail.gamma_c_edit.text()
-                data['gamma_c'] = float(val) if val else None
+                data["gamma_c"] = float(val) if val else None
             # override flags
-            if hasattr(self.detail, 'fck_override'):
-                data['f_ck_override'] = bool(self.detail.fck_override.isChecked())
-            if hasattr(self.detail, 'gamma_c_override'):
-                data['gamma_c_override'] = bool(self.detail.gamma_c_override.isChecked())
+            if hasattr(self.detail, "fck_override"):
+                data["f_ck_override"] = bool(self.detail.fck_override.isChecked())
+            if hasattr(self.detail, "gamma_c_override"):
+                data["gamma_c_override"] = bool(self.detail.gamma_c_override.isChecked())
         except Exception:
             # non blocchiamo l'interfaccia per errori di conversione
             pass
@@ -242,20 +263,20 @@ class MaterialEditorController(ControllerBase):
             # aggiungi nuovo materiale
             self.repo.add_material(data)
             self.current_index = len(self.repo.materials) - 1
-            self.emit('material_added', self.current_index, data)
+            self.emit("material_added", self.current_index, data)
         else:
             self.repo.update_material(self.current_index, data)
-            self.emit('material_updated', self.current_index, data)
+            self.emit("material_updated", self.current_index, data)
 
         # aggiorna export text se presente
-        if self.export_widget is not None and hasattr(self.export_widget, 'format_combo'):
+        if self.export_widget is not None and hasattr(self.export_widget, "format_combo"):
             fmt = self.export_widget.format_combo.currentText()
             txt = MaterialExportLogic.export(self.repo.materials[self.current_index], fmt)
-            if hasattr(self.export_widget, 'export_text'):
+            if hasattr(self.export_widget, "export_text"):
                 self.export_widget.export_text.setPlainText(txt)
         # refresh model if present
         try:
-            if hasattr(self, 'model') and self.model is not None:
+            if hasattr(self, "model") and self.model is not None:
                 self.model.refresh()
         except Exception:
             pass
@@ -267,15 +288,15 @@ class MaterialEditorController(ControllerBase):
                     mat = self.repo.materials[self.current_index]
                     res = validate_material(mat)
                     msgs = []
-                    if res.get('missing'):
-                        msgs.append("Campi mancanti: " + ", ".join(res.get('missing')))
-                    if res.get('warnings'):
-                        msgs.append("Avvisi: " + "; ".join(res.get('warnings')))
+                    if res.get("missing"):
+                        msgs.append("Campi mancanti: " + ", ".join(res.get("missing")))
+                    if res.get("warnings"):
+                        msgs.append("Avvisi: " + "; ".join(res.get("warnings")))
                     msg = ". ".join(msgs) if msgs else ""
-                    if self.detail is not None and hasattr(self.detail, 'set_warning'):
+                    if self.detail is not None and hasattr(self.detail, "set_warning"):
                         self.detail.set_warning(msg)
                 except Exception:
-                    if self.detail is not None and hasattr(self.detail, 'set_warning'):
+                    if self.detail is not None and hasattr(self.detail, "set_warning"):
                         self.detail.set_warning("")
         except Exception:
             pass
@@ -296,19 +317,19 @@ class MaterialEditorController(ControllerBase):
         if self.detail is None:
             return
         try:
-            if hasattr(self.detail, 'code_edit'):
+            if hasattr(self.detail, "code_edit"):
                 self.detail.code_edit.clear()
-            if hasattr(self.detail, 'desc_edit'):
+            if hasattr(self.detail, "desc_edit"):
                 self.detail.desc_edit.clear()
-            if hasattr(self.detail, 'norma_edit'):
+            if hasattr(self.detail, "norma_edit"):
                 self.detail.norma_edit.clear()
-            if hasattr(self.detail, 'fck_edit'):
+            if hasattr(self.detail, "fck_edit"):
                 self.detail.fck_edit.clear()
-            if hasattr(self.detail, 'gamma_c_edit'):
+            if hasattr(self.detail, "gamma_c_edit"):
                 self.detail.gamma_c_edit.clear()
-            if hasattr(self.detail, 'fck_override'):
+            if hasattr(self.detail, "fck_override"):
                 self.detail.fck_override.setChecked(False)
-            if hasattr(self.detail, 'gamma_c_override'):
+            if hasattr(self.detail, "gamma_c_override"):
                 self.detail.gamma_c_override.setChecked(False)
         except Exception:
             pass
@@ -319,7 +340,7 @@ class MaterialEditorController(ControllerBase):
             pass
         # clear any warnings in the detail frame for new material
         try:
-            if self.detail is not None and hasattr(self.detail, 'set_warning'):
+            if self.detail is not None and hasattr(self.detail, "set_warning"):
                 self.detail.set_warning("")
         except Exception:
             pass
@@ -332,13 +353,17 @@ class MaterialEditorController(ControllerBase):
         # resolve column index to key if possible
         key = None
         try:
-            if isinstance(col_or_key, int) and self.table is not None and self.table.model() is not None:
+            if (
+                isinstance(col_or_key, int)
+                and self.table is not None
+                and self.table.model() is not None
+            ):
                 try:
                     # headerData may return display name; map to a dict key
                     header = self.table.model().headerData(col_or_key, 1)  # Qt.Horizontal == 1
-                    key = str(header) if header is not None else f'col_{col_or_key}'
+                    key = str(header) if header is not None else f"col_{col_or_key}"
                 except Exception:
-                    key = f'col_{col_or_key}'
+                    key = f"col_{col_or_key}"
             else:
                 key = str(col_or_key)
         except Exception:
@@ -346,7 +371,9 @@ class MaterialEditorController(ControllerBase):
 
         # import dialog dynamically (runtime UI)
         try:
-            from src.ui.qt.material_editor.widgets.material_batch_edit_dialog import MaterialBatchEditDialog
+            from src.ui.qt.material_editor.widgets.material_batch_edit_dialog import (
+                MaterialBatchEditDialog,
+            )
         except Exception:
             # fallback local import
             from .widgets.material_batch_edit_dialog import MaterialBatchEditDialog
@@ -356,7 +383,7 @@ class MaterialEditorController(ControllerBase):
             val = dlg.get_value()
             # try to coerce numeric values
             try:
-                if val is None or val == '':
+                if val is None or val == "":
                     coerced = None
                 else:
                     coerced = float(val)
@@ -367,10 +394,48 @@ class MaterialEditorController(ControllerBase):
                 self.repo.batch_update(indices, key, coerced)
                 # refresh model view
                 try:
-                    if hasattr(self, 'model') and self.model is not None:
+                    if hasattr(self, "model") and self.model is not None:
                         self.model.refresh()
                 except Exception:
                     pass
-                self.emit('batch_updated', indices, key, coerced)
+                self.emit("batch_updated", indices, key, coerced)
             except Exception:
                 pass
+
+    def _initialize_default_materials(self):
+        """Aggiunge materiali predefiniti al repository."""
+        default_materials = [
+            {
+                "codice": "C25/30",
+                "descrizione": "Calcestruzzo classe C25/30",
+                "norma": "NTC2018",
+                "f_ck": 25.0,
+                "gamma_c": 1.5,
+            },
+            {
+                "codice": "S355",
+                "descrizione": "Acciaio S355",
+                "norma": "EN 10025",
+                "f_ck": 355.0,
+                "gamma_c": 1.1,
+            },
+            {
+                "codice": "GL24h",
+                "descrizione": "Legno lamellare GL24h",
+                "norma": "EN 14080",
+                "f_ck": 24.0,
+                "gamma_c": 1.3,
+            },
+            {
+                "codice": "Muratura M10",
+                "descrizione": "Muratura portante classe M10",
+                "norma": "NTC2018",
+                "f_ck": 10.0,
+                "gamma_c": 2.0,
+            },
+        ]
+        for material in default_materials:
+            self.repo.add_material(material)
+        # Aggiorna la tabella dopo aver aggiunto i materiali predefiniti
+        if self.table and hasattr(self, "model") and self.model:
+            self.model.refresh()
