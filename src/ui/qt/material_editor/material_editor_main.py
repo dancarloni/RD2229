@@ -2,6 +2,7 @@
 
 import sys
 
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
@@ -12,6 +13,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMainWindow,
     QPushButton,
+    QSplitter,
     QTabWidget,
     QTextEdit,
     QVBoxLayout,
@@ -19,6 +21,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.ui.qt.material_editor.controller import MaterialEditorController
+from src.ui.qt.material_editor.logic.material_layout_logic import MaterialLayoutLogic
 from src.ui.qt.material_editor.widgets.material_add_wizard import MaterialAddWizard
 from src.ui.qt.material_editor.widgets.material_batch_edit_dialog import MaterialBatchEditDialog
 from src.ui.qt.material_editor.widgets.material_detail_frame import MaterialDetailFrame
@@ -35,7 +38,9 @@ class MaterialEditorMainWindow(QMainWindow):
         self.setWindowTitle("Material Editor — RD2229")
         self.resize(1200, 700)
         self.controllers = []
+        self._splitters: list[QSplitter] = []
         self._init_ui()
+        self._restore_splitter_sizes()
 
     def _init_ui(self):
         """Inizializza l'UI della finestra principale."""
@@ -99,9 +104,8 @@ class MaterialEditorMainWindow(QMainWindow):
         table = MaterialTableWidget()
         table.setMinimumHeight(300)
         left_layout.addWidget(table)
-        tab_layout.addWidget(left_widget, 70)
 
-        # Lato destro: detail frame + export (30%)
+        # Lato destro: detail frame + export
         side_panel = QWidget()
         side_layout = QVBoxLayout(side_panel)
         side_layout.setContentsMargins(0, 0, 0, 0)
@@ -112,7 +116,16 @@ class MaterialEditorMainWindow(QMainWindow):
         side_layout.addWidget(QLabel(f"Parametri {tipologia}:"), 0)
         side_layout.addWidget(detail, 1)
 
-        tab_layout.addWidget(side_panel, 30)
+        # Splitter orizzontale ridimensionabile
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.addWidget(left_widget)
+        splitter.addWidget(side_panel)
+        splitter.setSizes([800, 500])
+        splitter.setChildrenCollapsible(False)
+        splitter.splitterMoved.connect(self._on_splitter_moved)
+        self._splitters.append(splitter)
+
+        tab_layout.addWidget(splitter)
         self.tab_widget.addTab(tab, tipologia)
 
         # Collega controller ai widget (IMPORTANTE: ordine corretto)
@@ -126,8 +139,9 @@ class MaterialEditorMainWindow(QMainWindow):
         # Popola e collega il filtro norma (dopo attach_table per avere i dati)
         self._populate_norma_filter(filter_combo, controller)
         filter_combo.currentIndexChanged.connect(
-            lambda _idx, tbl=table, ctl=controller, cb=filter_combo:
-                self._apply_norma_filter(tbl, ctl, cb.currentData())
+            lambda _idx, tbl=table, ctl=controller, cb=filter_combo: self._apply_norma_filter(
+                tbl, ctl, cb.currentData()
+            )
         )
 
     def _create_toolbar(self) -> QHBoxLayout:
@@ -167,11 +181,13 @@ class MaterialEditorMainWindow(QMainWindow):
 
     def _populate_norma_filter(self, filter_combo: QComboBox, controller) -> None:
         """Aggiunge al combo le norme presenti nei materiali del controller."""
-        norme = sorted({
-            mat.get("norma_riferimento") or mat.get("norma", "")
-            for mat in controller.repo.materials
-            if mat.get("norma_riferimento") or mat.get("norma")
-        })
+        norme = sorted(
+            {
+                mat.get("norma_riferimento") or mat.get("norma", "")
+                for mat in controller.repo.materials
+                if mat.get("norma_riferimento") or mat.get("norma")
+            }
+        )
         filter_combo.blockSignals(True)
         filter_combo.clear()
         filter_combo.addItem("Tutte le norme", None)
@@ -263,17 +279,17 @@ class MaterialEditorMainWindow(QMainWindow):
         selected_indices: list[int] = []
         try:
             if hasattr(ctl, "table") and ctl.table is not None:
-                selected_indices = [
-                    idx.row() for idx in ctl.table.selectionModel().selectedRows()
-                ]
+                selected_indices = [idx.row() for idx in ctl.table.selectionModel().selectedRows()]
         except Exception:
             pass
 
         if not selected_indices:
             from PySide6.QtWidgets import QMessageBox
+
             QMessageBox.information(
-                self, "Nessuna selezione",
-                "Selezionare almeno un materiale nella tabella prima di usare il batch edit."
+                self,
+                "Nessuna selezione",
+                "Selezionare almeno un materiale nella tabella prima di usare il batch edit.",
             )
             return
 
@@ -349,7 +365,8 @@ class MaterialEditorMainWindow(QMainWindow):
 
         # Conta materiali che verranno salvati
         subset = [
-            m for m in ctl.repo.materials
+            m
+            for m in ctl.repo.materials
             if m.get("famiglia") == famiglia
             and (m.get("norma_riferimento") == norma or m.get("norma") == norma)
         ]
@@ -431,14 +448,32 @@ class MaterialEditorMainWindow(QMainWindow):
         dlg.setLayout(layout)
         dlg.exec()
 
+    def closeEvent(self, event) -> None:
+        """Salva le dimensioni degli splitter alla chiusura."""
+        self._save_splitter_sizes()
+        super().closeEvent(event)
+
+    def _on_splitter_moved(self, pos: int, index: int) -> None:
+        """Salva le dimensioni ogni volta che uno splitter viene mosso."""
+        self._save_splitter_sizes()
+
+    def _save_splitter_sizes(self) -> None:
+        if self._splitters:
+            sizes = self._splitters[0].sizes()
+            MaterialLayoutLogic.save_layout({"splitter_sizes": sizes})
+
+    def _restore_splitter_sizes(self) -> None:
+        prefs = MaterialLayoutLogic.load_layout()
+        sizes = prefs.get("splitter_sizes")
+        if sizes and len(sizes) == 2 and self._splitters:
+            for splitter in self._splitters:
+                splitter.setSizes(sizes)
+
     def on_reset_layout(self):
-        """Reset layout preferences."""
-        ctl = self.get_active_controller()
-        if ctl and hasattr(ctl.repo, "reset_layout"):
-            try:
-                ctl.repo.reset_layout()
-            except Exception:
-                pass
+        """Reset layout preferences e ripristina dimensioni default."""
+        MaterialLayoutLogic.reset_layout()
+        for splitter in self._splitters:
+            splitter.setSizes([800, 500])
 
     def _on_undo(self):
         """Undo action."""

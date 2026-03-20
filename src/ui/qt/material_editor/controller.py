@@ -12,11 +12,12 @@ from typing import Any, Dict, List, Optional
 from src.core.controller_base import ControllerBase
 from src.ui.qt.material_editor.logic.material_config import MaterialConfigLoader
 from src.ui.qt.material_editor.logic.material_export_logic import MaterialExportLogic
-from src.ui.qt.material_editor.logic.material_repository import MaterialRepository
-from src.ui.qt.material_editor.logic.material_validation_logic import (
-    validate as validate_material,
+from src.ui.qt.material_editor.logic.material_repository import (
+    DuplicateMaterialError,
+    MaterialRepository,
 )
 from src.ui.qt.material_editor.logic.material_validation_logic import (
+    validate as validate_material,
     validate_full,
 )
 
@@ -316,12 +317,13 @@ class MaterialEditorController(ControllerBase):
             self.detail.set_fields(mat, norm_schema)
         # Calcola subito i derivati
         self._recompute_derived(mat)
-        # soft validation
+        # soft validation (codice è interno, non mostrarlo come mancante)
         try:
             res = validate_material(mat)
             msgs = []
-            if res.get("missing"):
-                msgs.append("Campi mancanti: " + ", ".join(res.get("missing")))
+            missing = [m for m in res.get("missing", []) if m != "codice"]
+            if missing:
+                msgs.append("Campi mancanti: " + ", ".join(missing))
             if res.get("warnings"):
                 msgs.append("Avvisi: " + "; ".join(res.get("warnings")))
             msg = ". ".join(msgs) if msgs else ""
@@ -380,14 +382,20 @@ class MaterialEditorController(ControllerBase):
         except Exception as exc:
             logger.debug("Errore validazione pre-save: %s", exc)
 
-        if self.current_index is None:
-            # aggiungi nuovo materiale
-            self.repo.add_material(data)
-            self.current_index = len(self.repo.materials) - 1
-            self.emit("material_added", self.current_index, data)
-        else:
-            self.repo.update_material(self.current_index, data)
-            self.emit("material_updated", self.current_index, data)
+        try:
+            if self.current_index is None:
+                # aggiungi nuovo materiale
+                self.repo.add_material(data)
+                self.current_index = len(self.repo.materials) - 1
+                self.emit("material_added", self.current_index, data)
+            else:
+                self.repo.update_material(self.current_index, data)
+                self.emit("material_updated", self.current_index, data)
+        except DuplicateMaterialError as dup_err:
+            from PySide6.QtWidgets import QMessageBox
+
+            QMessageBox.warning(None, "Materiale duplicato", str(dup_err))
+            return
 
         # aggiorna export text se presente
         if self.export_widget is not None and hasattr(self.export_widget, "format_combo"):
@@ -409,8 +417,9 @@ class MaterialEditorController(ControllerBase):
                     mat = self.repo.materials[self.current_index]
                     res = validate_material(mat)
                     msgs = []
-                    if res.get("missing"):
-                        msgs.append("Campi mancanti: " + ", ".join(res.get("missing")))
+                    missing = [m for m in res.get("missing", []) if m != "codice"]
+                    if missing:
+                        msgs.append("Campi mancanti: " + ", ".join(missing))
                     if res.get("warnings"):
                         msgs.append("Avvisi: " + "; ".join(res.get("warnings")))
                     msg = ". ".join(msgs) if msgs else ""

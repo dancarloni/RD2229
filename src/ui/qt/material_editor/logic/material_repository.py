@@ -16,15 +16,38 @@ from typing import Any, Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 
-def compute_material_code(data: Dict[str, Any]) -> str:
+class DuplicateMaterialError(Exception):
+    """Sollevata quando si tenta di aggiungere/aggiornare un materiale identico a uno già esistente."""
+
+
+def compute_material_code(
+    data: Dict[str, Any],
+    norm_schema: Optional[Dict[str, Any]] = None,
+) -> str:
     """
     Calcola un codice hash UUID5 riproducibile dai parametri del materiale.
-    Esclude i campi interni ('id', 'codice', chiavi con suffisso '_override').
+
+    Se norm_schema è fornito, usa SOLO i campi input (parametri_input keys +
+    parametri_specifici keys): due materiali con gli stessi input fisici sono
+    sempre duplicati indipendentemente dai valori derivati calcolati.
+
+    Se norm_schema è None, usa tutti i campi tranne id/codice/*_override
+    (comportamento di fallback per il caricamento iniziale).
     """
     excluded = {"id", "codice"}
-    filtered = {
-        k: v for k, v in sorted(data.items()) if k not in excluded and not k.endswith("_override")
-    }
+    if norm_schema is not None:
+        input_keys = {f["key"] for f in norm_schema.get("parametri_input", [])}
+        specifici_keys = set(norm_schema.get("parametri_specifici", {}).keys())
+        allowed = input_keys | specifici_keys
+        filtered = {
+            k: v for k, v in sorted(data.items()) if k in allowed and not k.endswith("_override")
+        }
+    else:
+        filtered = {
+            k: v
+            for k, v in sorted(data.items())
+            if k not in excluded and not k.endswith("_override")
+        }
     return str(uuid.uuid5(uuid.NAMESPACE_OID, json.dumps(filtered, sort_keys=True, default=str)))
 
 
@@ -56,6 +79,10 @@ class MaterialRepository:
                             self.materials.extend(mats)
                 except Exception:
                     pass
+        # Assicura che ogni materiale abbia il campo codice (fallback: tutti i campi)
+        for mat in self.materials:
+            if not mat.get("codice"):
+                mat["codice"] = compute_material_code(mat)
 
     def load_from_file(self, path: str):
         with open(path, "r", encoding="utf-8") as f:
@@ -90,13 +117,36 @@ class MaterialRepository:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self.materials, f, indent=2)
 
+    def _get_norm_schema_for(self, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Recupera lo schema norma per un materiale (lazy import per evitare circular deps)."""
+        try:
+            from src.ui.qt.material_editor.logic.material_config import MaterialConfigLoader
+
+            famiglia = data.get("famiglia")
+            norma = data.get("norma_riferimento") or data.get("norma")
+            if famiglia and norma:
+                return MaterialConfigLoader.get_norm_schema(famiglia, norma)
+        except Exception:
+            pass
+        return None
+
     def add_material(self, data: Dict[str, Any]):
         self._push_undo_state()
         self._clear_redo()
         data["id"] = self._generate_id(data)
-        # Calcola codice se non fornito o vuoto
-        if not data.get("codice"):
-            data["codice"] = compute_material_code(data)
+        # Calcola codice dai soli campi input (con schema se disponibile)
+        norm_schema = self._get_norm_schema_for(data)
+        new_code = compute_material_code(data, norm_schema)
+        data["codice"] = new_code
+        # Verifica duplicati
+        for existing in self.materials:
+            if existing.get("codice") and existing["codice"] == new_code:
+                nome = (
+                    existing.get("nome")
+                    or existing.get("descrizione")
+                    or existing.get("material_id", "sconosciuto")
+                )
+                raise DuplicateMaterialError(f"Materiale duplicato esistente: {nome}")
         self.materials.append(data)
         self._log_audit("add", data)
 
@@ -104,10 +154,23 @@ class MaterialRepository:
         self._push_undo_state()
         self._clear_redo()
         old = self.materials[idx].copy()
-        self.materials[idx].update(data)
-        # Ricalcola codice se non fornito o vuoto dopo aggiornamento
-        if not self.materials[idx].get("codice"):
-            self.materials[idx]["codice"] = compute_material_code(self.materials[idx])
+        merged = {**old, **data}
+        # Ricalcola codice dai soli campi input (con schema se disponibile)
+        norm_schema = self._get_norm_schema_for(merged)
+        new_code = compute_material_code(merged, norm_schema)
+        merged["codice"] = new_code
+        # Verifica duplicati escludendo se stesso
+        for i, existing in enumerate(self.materials):
+            if i == idx:
+                continue
+            if existing.get("codice") and existing["codice"] == new_code:
+                nome = (
+                    existing.get("nome")
+                    or existing.get("descrizione")
+                    or existing.get("material_id", "sconosciuto")
+                )
+                raise DuplicateMaterialError(f"Materiale duplicato esistente: {nome}")
+        self.materials[idx] = merged
         self._log_audit("update", {"old": old, "new": self.materials[idx]})
 
     def batch_update(self, indices: List[int], key: str, value: Any):
@@ -275,14 +338,16 @@ class MaterialRepository:
 
         # Filtra materiali repo per famiglia+norma
         repo_subset = [
-            m for m in self.materials
+            m
+            for m in self.materials
             if m.get("famiglia") == famiglia
             and (m.get("norma_riferimento") == norma or m.get("norma") == norma)
         ]
 
         # Merge: rimuovi dal catalogo quelli con stessa famiglia+norma, aggiungi i nuovi
         merged = [
-            m for m in existing
+            m
+            for m in existing
             if not (
                 m.get("famiglia") == famiglia
                 and (m.get("norma_riferimento") == norma or m.get("norma") == norma)
@@ -293,9 +358,7 @@ class MaterialRepository:
         # Scrittura atomica
         tmp = path.with_suffix(".tmp")
         try:
-            tmp.write_text(
-                json.dumps(merged, indent=2, ensure_ascii=False), encoding="utf-8"
-            )
+            tmp.write_text(json.dumps(merged, indent=2, ensure_ascii=False), encoding="utf-8")
             tmp.replace(path)
         except Exception as exc:
             tmp.unlink(missing_ok=True)

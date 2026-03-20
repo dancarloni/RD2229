@@ -193,9 +193,7 @@ class MaterialDetailFrame(QWidget):
                 unit = pinfo.get("unita", "")
                 val = material.get(pkey, pinfo.get("valore", ""))
                 label_text = f"{lbl} [{unit}]:" if unit else f"{lbl}:"
-                edit = _make_display_line(
-                    str(val) if val != "" else str(pinfo.get("valore", ""))
-                )
+                edit = _make_display_line(str(val) if val != "" else str(pinfo.get("valore", "")))
                 edit.setToolTip(pinfo.get("descrizione", ""))
                 self._fields[pkey] = edit
                 self._is_derived[pkey] = False
@@ -321,19 +319,20 @@ class MaterialDetailFrame(QWidget):
         )
         edit.setToolTip(field.get("descrizione", ""))
         edit.setReadOnly(not has_override)
-        edit.setStyleSheet(_INPUT_STYLE if has_override else _DERIVED_STYLE)
+        edit.setStyleSheet(_DERIVED_OVERRIDE_STYLE if has_override else _DERIVED_STYLE)
         self._fields[key] = edit
         self._is_derived[key] = True
 
         cb = QCheckBox()
-        cb.setToolTip("Override manuale: attiva per modificare il valore calcolato")
+        cb.setToolTip("Personalizza (sovrascrive calcolo automatico)")
         cb.setChecked(has_override)
-        cb.setFixedWidth(18)
+        cb.setFixedSize(14, 14)
+        cb.setStyleSheet("QCheckBox { margin: 0px; padding: 0px; }")
         self._overrides[key] = cb
 
         def _on_override_toggled(checked: bool, _key: str = key, _edit: QLineEdit = edit) -> None:
             _edit.setReadOnly(not checked)
-            _edit.setStyleSheet(_INPUT_STYLE if checked else _DERIVED_STYLE)
+            _edit.setStyleSheet(_DERIVED_OVERRIDE_STYLE if checked else _DERIVED_STYLE)
 
         cb.toggled.connect(_on_override_toggled)
         h.addWidget(edit, stretch=1)
@@ -343,7 +342,8 @@ class MaterialDetailFrame(QWidget):
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-_DERIVED_STYLE = "background: #f5f5f5; color: #555;"
+_DERIVED_STYLE = "background-color: #f0f0f0; color: #555;"
+_DERIVED_OVERRIDE_STYLE = "background-color: #fffbe6; border: 1px solid #f0a500; color: #333;"
 _INPUT_STYLE = ""
 
 

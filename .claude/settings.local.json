@@ -20,7 +20,8 @@
       "Bash(gh run list --limit 10)",
       "Bash(gh run view 22875304172 --log-failed)",
       "Bash(gh run view 22875304169 --log-failed)",
-      "Bash(grep -E \"\\\\.\\(py|json\\)$\")"
+      "Bash(grep -E \"\\\\.\\(py|json\\)$\")",
+      "Bash(python launch_material_editor.py)"
     ]
   }
 }

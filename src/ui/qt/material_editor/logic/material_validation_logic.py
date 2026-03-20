@@ -9,41 +9,42 @@ Tre livelli di validazione:
 
 Tutti restituiscono ValidationResult con lista di ValidationIssue.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 # Mappa di campi obbligatori per tipologia. Estendere secondo necessità.
 REQUIRED_FIELDS_BY_TYPE: Dict[str, List[str]] = {
-    'Calcestruzzi': ['codice', 'descrizione', 'f_ck', 'E', 'rho'],
-    'Acciai': ['codice', 'descrizione', 'f_yk', 'E', 'rho'],
-    'Legno': ['codice', 'descrizione', 'f_m', 'E'],
-    'Muratura': ['codice', 'descrizione', 'f_b'],
-    'Compositi': ['codice', 'descrizione'],
-    'Terreni': ['codice', 'descrizione', 'rho', 'E'],
-    'Generic': ['codice', 'descrizione']
+    "Calcestruzzi": ["descrizione", "f_ck", "E", "rho"],
+    "Acciai": ["descrizione", "f_yk", "E", "rho"],
+    "Legno": ["descrizione", "f_m", "E"],
+    "Muratura": ["descrizione", "f_b"],
+    "Compositi": ["descrizione"],
+    "Terreni": ["descrizione", "rho", "E"],
+    "Generic": ["descrizione"],
 }
 
 
 def _has_value(v: Any) -> bool:
     if v is None:
         return False
-    if isinstance(v, str) and v.strip() == '':
+    if isinstance(v, str) and v.strip() == "":
         return False
     return True
 
 
 def get_required_fields(tipo: str) -> List[str]:
     if not tipo:
-        return REQUIRED_FIELDS_BY_TYPE['Generic']
+        return REQUIRED_FIELDS_BY_TYPE["Generic"]
     # try exact match, then case-insensitive match
     if tipo in REQUIRED_FIELDS_BY_TYPE:
         return REQUIRED_FIELDS_BY_TYPE[tipo]
     for k in REQUIRED_FIELDS_BY_TYPE:
         if k.lower() == tipo.lower():
             return REQUIRED_FIELDS_BY_TYPE[k]
-    return REQUIRED_FIELDS_BY_TYPE['Generic']
+    return REQUIRED_FIELDS_BY_TYPE["Generic"]
 
 
 def validate(material: Dict[str, Any]) -> Dict[str, Any]:
@@ -52,7 +53,7 @@ def validate(material: Dict[str, Any]) -> Dict[str, Any]:
     - missing: list[str]
     - warnings: list[str]
     """
-    tipo = material.get('tipo') or material.get('norma') or 'Generic'
+    tipo = material.get("famiglia") or material.get("tipo") or "Generic"
     required = get_required_fields(tipo)
     missing = []
     for field in required:
@@ -64,20 +65,18 @@ def validate(material: Dict[str, Any]) -> Dict[str, Any]:
     #     if material['f_ck'] <= 0:
     #         warnings.append('f_ck deve essere positivo')
 
-    return {
-        'is_complete': len(missing) == 0,
-        'missing': missing,
-        'warnings': warnings
-    }
+    return {"is_complete": len(missing) == 0, "missing": missing, "warnings": warnings}
 
 
 # ===========================================================================
 # Validazione avanzata con ValidationResult
 # ===========================================================================
 
+
 @dataclass
 class ValidationIssue:
     """Singolo problema di validazione."""
+
     field: str
     severity: str  # "error" | "warning" | "info"
     message: str
@@ -87,6 +86,7 @@ class ValidationIssue:
 @dataclass
 class ValidationResult:
     """Risultato di validazione con lista di issue."""
+
     issues: List[ValidationIssue] = field(default_factory=list)
 
     @property
@@ -145,21 +145,25 @@ def validate_ranges(
         if vmin is not None and val < vmin:
             label = param.get("label", key)
             unita = param.get("unita", "")
-            result.issues.append(ValidationIssue(
-                field=key,
-                severity=severity,
-                message=f"{label} = {val} {unita} è inferiore al minimo ({vmin} {unita})",
-                suggestion=f"Impostare {label} ≥ {vmin} {unita}",
-            ))
+            result.issues.append(
+                ValidationIssue(
+                    field=key,
+                    severity=severity,
+                    message=f"{label} = {val} {unita} è inferiore al minimo ({vmin} {unita})",
+                    suggestion=f"Impostare {label} ≥ {vmin} {unita}",
+                )
+            )
         elif vmax is not None and val > vmax:
             label = param.get("label", key)
             unita = param.get("unita", "")
-            result.issues.append(ValidationIssue(
-                field=key,
-                severity=severity,
-                message=f"{label} = {val} {unita} supera il massimo ({vmax} {unita})",
-                suggestion=f"Impostare {label} ≤ {vmax} {unita}",
-            ))
+            result.issues.append(
+                ValidationIssue(
+                    field=key,
+                    severity=severity,
+                    message=f"{label} = {val} {unita} supera il massimo ({vmax} {unita})",
+                    suggestion=f"Impostare {label} ≤ {vmax} {unita}",
+                )
+            )
 
     return result
 
@@ -190,48 +194,56 @@ def validate_coherence(
         if isinstance(E_val, (int, float)) and isinstance(E_calc, (int, float)) and E_calc > 0:
             discrepanza = abs(E_val - E_calc) / E_calc
             if discrepanza > 0.15:
-                result.issues.append(ValidationIssue(
-                    field="E",
-                    severity="warning",
-                    message=f"E inserito ({E_val:.0f}) discosta del {discrepanza:.0%} dall'E calcolato ({E_calc:.0f})",
-                    suggestion="Verificare il modulo elastico o usare il valore calcolato",
-                ))
+                result.issues.append(
+                    ValidationIssue(
+                        field="E",
+                        severity="warning",
+                        message=f"E inserito ({E_val:.0f}) discosta del {discrepanza:.0%} dall'E calcolato ({E_calc:.0f})",
+                        suggestion="Verificare il modulo elastico o usare il valore calcolato",
+                    )
+                )
 
         # f_cd ≤ f_ck
         f_cd = material.get("f_cd")
         f_ck = material.get("f_ck")
         if isinstance(f_cd, (int, float)) and isinstance(f_ck, (int, float)):
             if f_cd > f_ck:
-                result.issues.append(ValidationIssue(
-                    field="f_cd",
-                    severity="error",
-                    message=f"f_cd ({f_cd:.1f}) > f_ck ({f_ck:.1f}): impossibile fisicamente",
-                    suggestion="Verificare gamma_c e alpha_cc",
-                ))
+                result.issues.append(
+                    ValidationIssue(
+                        field="f_cd",
+                        severity="error",
+                        message=f"f_cd ({f_cd:.1f}) > f_ck ({f_ck:.1f}): impossibile fisicamente",
+                        suggestion="Verificare gamma_c e alpha_cc",
+                    )
+                )
 
     elif famiglia == "acciaio":
         f_yd = material.get("f_yd")
         f_yk = material.get("f_yk")
         if isinstance(f_yd, (int, float)) and isinstance(f_yk, (int, float)):
             if f_yd > f_yk:
-                result.issues.append(ValidationIssue(
-                    field="f_yd",
-                    severity="error",
-                    message=f"f_yd ({f_yd:.1f}) > f_yk ({f_yk:.1f}): impossibile fisicamente",
-                    suggestion="Verificare gamma_s",
-                ))
+                result.issues.append(
+                    ValidationIssue(
+                        field="f_yd",
+                        severity="error",
+                        message=f"f_yd ({f_yd:.1f}) > f_yk ({f_yk:.1f}): impossibile fisicamente",
+                        suggestion="Verificare gamma_s",
+                    )
+                )
 
     elif famiglia == "muratura":
         f_d = material.get("f_d")
         f_k = material.get("f_k")
         if isinstance(f_d, (int, float)) and isinstance(f_k, (int, float)):
             if f_d > f_k:
-                result.issues.append(ValidationIssue(
-                    field="f_d",
-                    severity="error",
-                    message=f"f_d ({f_d:.1f}) > f_k ({f_k:.1f}): impossibile fisicamente",
-                    suggestion="Verificare gamma_M",
-                ))
+                result.issues.append(
+                    ValidationIssue(
+                        field="f_d",
+                        severity="error",
+                        message=f"f_d ({f_d:.1f}) > f_k ({f_k:.1f}): impossibile fisicamente",
+                        suggestion="Verificare gamma_M",
+                    )
+                )
 
     return result
 
@@ -242,39 +254,69 @@ _NORMATIVE_RULES: Dict[str, List[Dict[str, Any]]] = {
     # Regola: {famiglia, field, min, max, severity, msg}
     "NTC2018": [
         # Calcestruzzo: f_ck ∈ [12, 90] MPa → [122.4, 917.5] kg/cm²
-        {"famiglia": "calcestruzzo", "field": "f_ck",
-         "min": 122.4, "max": 917.5, "severity": "error",
-         "msg": "NTC2018 §11.2.1: f_ck ∈ [12, 90] MPa = [122, 917] kg/cm²",
-         "suggestion": "Usare classi C12/15 … C90/105"},
+        {
+            "famiglia": "calcestruzzo",
+            "field": "f_ck",
+            "min": 122.4,
+            "max": 917.5,
+            "severity": "error",
+            "msg": "NTC2018 §11.2.1: f_ck ∈ [12, 90] MPa = [122, 917] kg/cm²",
+            "suggestion": "Usare classi C12/15 … C90/105",
+        },
         # gamma_c ∈ [1.3, 1.6]
-        {"famiglia": "calcestruzzo", "field": "gamma_c",
-         "min": 1.30, "max": 1.60, "severity": "warning",
-         "msg": "NTC2018 Tab.4.1.II: γ_c tipicamente ∈ [1.30, 1.60]",
-         "suggestion": "Valore fuori range tipico NTC2018"},
+        {
+            "famiglia": "calcestruzzo",
+            "field": "gamma_c",
+            "min": 1.30,
+            "max": 1.60,
+            "severity": "warning",
+            "msg": "NTC2018 Tab.4.1.II: γ_c tipicamente ∈ [1.30, 1.60]",
+            "suggestion": "Valore fuori range tipico NTC2018",
+        },
         # Acciaio: f_yk ∈ [400, 600] MPa → [4080, 6120] kg/cm²
-        {"famiglia": "acciaio", "field": "f_yk",
-         "min": 4080.0, "max": 6120.0, "severity": "error",
-         "msg": "NTC2018 §11.3.2: f_yk ∈ [400, 600] MPa = [4080, 6120] kg/cm²",
-         "suggestion": "Usare B450C, B450A o B500B"},
+        {
+            "famiglia": "acciaio",
+            "field": "f_yk",
+            "min": 4080.0,
+            "max": 6120.0,
+            "severity": "error",
+            "msg": "NTC2018 §11.3.2: f_yk ∈ [400, 600] MPa = [4080, 6120] kg/cm²",
+            "suggestion": "Usare B450C, B450A o B500B",
+        },
         # gamma_s ∈ [1.05, 1.25]
-        {"famiglia": "acciaio", "field": "gamma_s",
-         "min": 1.05, "max": 1.25, "severity": "warning",
-         "msg": "NTC2018 Tab.4.1.II: γ_s tipicamente ∈ [1.05, 1.25]",
-         "suggestion": "Valore fuori range tipico NTC2018"},
+        {
+            "famiglia": "acciaio",
+            "field": "gamma_s",
+            "min": 1.05,
+            "max": 1.25,
+            "severity": "warning",
+            "msg": "NTC2018 Tab.4.1.II: γ_s tipicamente ∈ [1.05, 1.25]",
+            "suggestion": "Valore fuori range tipico NTC2018",
+        },
     ],
     "DM96": [
         # Rck ∈ [150, 600] kg/cm²
-        {"famiglia": "calcestruzzo", "field": "sigma_c28",
-         "min": 150.0, "max": 600.0, "severity": "warning",
-         "msg": "DM96: Rck usualmente ∈ [150, 600] kg/cm²",
-         "suggestion": "Verificare il valore di Rck"},
+        {
+            "famiglia": "calcestruzzo",
+            "field": "sigma_c28",
+            "min": 150.0,
+            "max": 600.0,
+            "severity": "warning",
+            "msg": "DM96: Rck usualmente ∈ [150, 600] kg/cm²",
+            "suggestion": "Verificare il valore di Rck",
+        },
     ],
     "RD2229": [
         # Rck ∈ [100, 400] kg/cm²
-        {"famiglia": "calcestruzzo", "field": "sigma_c28",
-         "min": 100.0, "max": 400.0, "severity": "warning",
-         "msg": "RD2229 art.3: Rck usualmente ∈ [100, 400] kg/cm²",
-         "suggestion": "Verificare il valore di Rck (storico)"},
+        {
+            "famiglia": "calcestruzzo",
+            "field": "sigma_c28",
+            "min": 100.0,
+            "max": 400.0,
+            "severity": "warning",
+            "msg": "RD2229 art.3: Rck usualmente ∈ [100, 400] kg/cm²",
+            "suggestion": "Verificare il valore di Rck (storico)",
+        },
     ],
 }
 
@@ -308,12 +350,14 @@ def validate_normative(
         vmax = rule.get("max")
         violated = (vmin is not None and val < vmin) or (vmax is not None and val > vmax)
         if violated:
-            result.issues.append(ValidationIssue(
-                field=field_key,
-                severity=rule.get("severity", "warning"),
-                message=rule.get("msg", f"{field_key} fuori range normativo"),
-                suggestion=rule.get("suggestion", ""),
-            ))
+            result.issues.append(
+                ValidationIssue(
+                    field=field_key,
+                    severity=rule.get("severity", "warning"),
+                    message=rule.get("msg", f"{field_key} fuori range normativo"),
+                    suggestion=rule.get("suggestion", ""),
+                )
+            )
 
     return result
 
@@ -331,9 +375,11 @@ def validate_full(
     soft = validate(material)
     result = ValidationResult()
     for m in soft.get("missing", []):
-        result.issues.append(ValidationIssue(
-            field=m, severity="warning", message=f"Campo obbligatorio mancante: {m}"
-        ))
+        result.issues.append(
+            ValidationIssue(
+                field=m, severity="warning", message=f"Campo obbligatorio mancante: {m}"
+            )
+        )
 
     # Ranges da schema
     if norm_schema:
