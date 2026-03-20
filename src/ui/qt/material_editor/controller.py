@@ -7,7 +7,7 @@ ai widget vengono effettuati tramite i metodi `attach_*` a runtime.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from src.core.controller_base import ControllerBase
 from src.ui.qt.material_editor.logic.material_config import MaterialConfigLoader
@@ -15,6 +15,8 @@ from src.ui.qt.material_editor.logic.material_export_logic import MaterialExport
 from src.ui.qt.material_editor.logic.material_repository import MaterialRepository
 from src.ui.qt.material_editor.logic.material_validation_logic import (
     validate as validate_material,
+)
+from src.ui.qt.material_editor.logic.material_validation_logic import (
     validate_full,
 )
 
@@ -53,6 +55,12 @@ class MaterialEditorController(ControllerBase):
                     self.table.batchEditRequested.connect(self.on_batch_edit_requested)
                 except Exception:
                     pass
+
+            # Ricalcola derivati in memoria (corregge E=0 nei cataloghi storici)
+            try:
+                self.repo.recompute_all_derived(_config)
+            except Exception:
+                pass
 
             # Crea e imposta il modello
             from src.ui.qt.material_editor.widgets.material_table_model import MaterialTableModel
@@ -349,6 +357,7 @@ class MaterialEditorController(ControllerBase):
                 # Errori bloccanti → non salvare
                 err_lines = [f"• [{i.field}] {i.message}" for i in validation.errors]
                 from PySide6.QtWidgets import QMessageBox
+
                 QMessageBox.critical(
                     None,
                     "Errori di validazione — salvataggio bloccato",
@@ -359,12 +368,11 @@ class MaterialEditorController(ControllerBase):
                 # Warning non bloccanti → chiede conferma
                 warn_lines = [f"• [{i.field}] {i.message}" for i in validation.warnings]
                 from PySide6.QtWidgets import QMessageBox
+
                 reply = QMessageBox.warning(
                     None,
                     "Avvisi di validazione",
-                    "Sono presenti avvisi:\n\n"
-                    + "\n".join(warn_lines)
-                    + "\n\nSalvare comunque?",
+                    "Sono presenti avvisi:\n\n" + "\n".join(warn_lines) + "\n\nSalvare comunque?",
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 )
                 if reply != QMessageBox.StandardButton.Yes:
@@ -458,11 +466,11 @@ class MaterialEditorController(ControllerBase):
                 except Exception:
                     pass
             from PySide6.QtWidgets import QMessageBox
+
             QMessageBox.critical(
                 None,
                 "Batch edit fallito",
-                "Errori durante il batch edit (rollback eseguito):\n\n"
-                + "\n".join(errors),
+                "Errori durante il batch edit (rollback eseguito):\n\n" + "\n".join(errors),
             )
             return
 
