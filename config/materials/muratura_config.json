@@ -79,6 +79,9 @@
                     "label": "E",
                     "unita": "kg/cm²",
                     "formula": "1000.0 * f_k",
+                    "formula_latex": "$E = 1000 \\cdot f_k\\;[\\mathrm{NTC2018\\;C8.5.1.1.1}]$",
+                    "formula_html": "E = 1000·f<sub>k</sub>",
+                    "rif_norm": "C8.5.1.1.1 Circ. 7/2019",
                     "gruppo": "meccanici",
                     "descrizione": "Modulo elastico (NTC2018 C8.5.1.1.1, E≈1000·f_k)"
                 },
@@ -87,6 +90,9 @@
                     "label": "G",
                     "unita": "kg/cm²",
                     "formula": "E / 3.0",
+                    "formula_latex": "$G = \\frac{E}{3}$",
+                    "formula_html": "G = E / 3",
+                    "rif_norm": "C8.5.1.1.1 Circ. 7/2019",
                     "gruppo": "meccanici",
                     "descrizione": "Modulo di taglio (≈E/3)"
                 },
@@ -95,6 +101,8 @@
                     "label": "f_d",
                     "unita": "kg/cm²",
                     "formula": "f_k / gamma_M",
+                    "formula_html": "f<sub>d</sub> = f<sub>k</sub> / γ<sub>M</sub>",
+                    "rif_norm": "§4.5.6.2 NTC2018",
                     "gruppo": "progetto",
                     "descrizione": "Resist. di progetto a compressione"
                 },
@@ -103,6 +111,8 @@
                     "label": "f_vd",
                     "unita": "kg/cm²",
                     "formula": "f_vk0 / gamma_M",
+                    "formula_html": "f<sub>vd</sub> = f<sub>vk0</sub> / γ<sub>M</sub>",
+                    "rif_norm": "§4.5.6.3 NTC2018",
                     "gruppo": "progetto",
                     "descrizione": "Resist. di taglio di progetto (in assenza di N)"
                 }

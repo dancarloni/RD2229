@@ -120,6 +120,8 @@
                     "label": "E",
                     "unita": "kg/cm²",
                     "formula": "E_0_mean",
+                    "formula_html": "E = E<sub>0,mean</sub>",
+                    "rif_norm": "§4.4.3.1 NTC2018",
                     "gruppo": "meccanici",
                     "descrizione": "Modulo elastico di prog. (= E_0,mean)"
                 },
@@ -128,6 +130,9 @@
                     "label": "E_0,05",
                     "unita": "kg/cm²",
                     "formula": "0.6667 * E_0_mean",
+                    "formula_latex": "$E_{0,05} = \\frac{2}{3} \\cdot E_{0,mean}$",
+                    "formula_html": "E<sub>0,05</sub> = (2/3)·E<sub>0,mean</sub>",
+                    "rif_norm": "§4.4.3.1 NTC2018",
                     "gruppo": "meccanici",
                     "descrizione": "Modulo elastico 5° percentile (≈2/3·E_mean)"
                 },
@@ -136,6 +141,9 @@
                     "label": "G_mean",
                     "unita": "kg/cm²",
                     "formula": "0.0625 * E_0_mean",
+                    "formula_latex": "$G_{mean} = \\frac{E_{0,mean}}{16}$",
+                    "formula_html": "G<sub>mean</sub> = E<sub>0,mean</sub> / 16",
+                    "rif_norm": "§4.4.3.1 NTC2018",
                     "gruppo": "meccanici",
                     "descrizione": "Modulo di taglio medio (≈E_mean/16)"
                 },
@@ -144,6 +152,9 @@
                     "label": "f_m,d",
                     "unita": "kg/cm²",
                     "formula": "kmod * ksys * f_mk / gamma_M",
+                    "formula_latex": "$f_{m,d} = \\frac{k_{mod} \\cdot k_{sys} \\cdot f_{m,k}}{\\gamma_M}$",
+                    "formula_html": "f<sub>m,d</sub> = k<sub>mod</sub>·k<sub>sys</sub>·f<sub>m,k</sub> / γ<sub>M</sub>",
+                    "rif_norm": "§4.4.3.2 NTC2018",
                     "gruppo": "progetto",
                     "descrizione": "Resist. di prog. a flessione"
                 },
@@ -152,6 +163,8 @@
                     "label": "f_t,0,d",
                     "unita": "kg/cm²",
                     "formula": "kmod * ksys * f_t0k / gamma_M",
+                    "formula_html": "f<sub>t,0,d</sub> = k<sub>mod</sub>·k<sub>sys</sub>·f<sub>t,0,k</sub> / γ<sub>M</sub>",
+                    "rif_norm": "§4.4.3.2 NTC2018",
                     "gruppo": "progetto",
                     "descrizione": "Resist. di prog. a trazione parallela"
                 },
@@ -160,6 +173,8 @@
                     "label": "f_c,0,d",
                     "unita": "kg/cm²",
                     "formula": "kmod * ksys * f_c0k / gamma_M",
+                    "formula_html": "f<sub>c,0,d</sub> = k<sub>mod</sub>·k<sub>sys</sub>·f<sub>c,0,k</sub> / γ<sub>M</sub>",
+                    "rif_norm": "§4.4.3.2 NTC2018",
                     "gruppo": "progetto",
                     "descrizione": "Resist. di prog. a compressione parallela"
                 },
@@ -168,6 +183,8 @@
                     "label": "f_v,d",
                     "unita": "kg/cm²",
                     "formula": "kmod * ksys * f_vk / gamma_M",
+                    "formula_html": "f<sub>v,d</sub> = k<sub>mod</sub>·k<sub>sys</sub>·f<sub>v,k</sub> / γ<sub>M</sub>",
+                    "rif_norm": "§4.4.3.2 NTC2018",
                     "gruppo": "progetto",
                     "descrizione": "Resist. di prog. a taglio"
                 }

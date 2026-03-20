@@ -61,6 +61,31 @@ class MaterialRepository:
         with open(path, "r", encoding="utf-8") as f:
             self.materials = json.load(f)
 
+    def recompute_all_derived(self, config_loader) -> int:
+        """Ricalcola i parametri derivati per tutti i materiali in memoria.
+
+        Non scrive su disco: aggiorna solo i dict in-place per la sessione corrente.
+        Utile per correggere valori E=0 presenti nei cataloghi storici.
+        Restituisce il numero di materiali aggiornati.
+        """
+        updated = 0
+        for mat in self.materials:
+            famiglia = mat.get("famiglia", "")
+            norma = mat.get("norma_riferimento") or mat.get("norma", "")
+            if not famiglia or not norma:
+                continue
+            try:
+                schema = config_loader.get_norm_schema(famiglia, norma)
+                if not schema:
+                    continue
+                derived = config_loader.compute_derived(mat, schema, famiglia=famiglia)
+                derived.pop("_formula_warnings", None)
+                mat.update(derived)
+                updated += 1
+            except Exception:
+                pass
+        return updated
+
     def save_to_file(self, path: str):
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self.materials, f, indent=2)

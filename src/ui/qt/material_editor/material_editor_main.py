@@ -5,6 +5,7 @@ import sys
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
+    QComboBox,
     QDialog,
     QFileDialog,
     QHBoxLayout,
@@ -79,10 +80,26 @@ class MaterialEditorMainWindow(QMainWindow):
         tab_layout.setContentsMargins(5, 5, 5, 5)
         tab_layout.setSpacing(5)
 
-        # Lato sinistro: tabella (70%)
+        # Lato sinistro: filtro norma + tabella (70%)
+        left_widget = QWidget()
+        left_layout = QVBoxLayout(left_widget)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(3)
+
+        filter_bar = QHBoxLayout()
+        filter_bar.setSpacing(6)
+        filter_bar.addWidget(QLabel("Filtro norma:"))
+        filter_combo = QComboBox()
+        filter_combo.setMinimumWidth(160)
+        filter_combo.addItem("Tutte le norme", None)
+        filter_bar.addWidget(filter_combo)
+        filter_bar.addStretch()
+        left_layout.addLayout(filter_bar)
+
         table = MaterialTableWidget()
         table.setMinimumHeight(300)
-        tab_layout.addWidget(table, 70)
+        left_layout.addWidget(table)
+        tab_layout.addWidget(left_widget, 70)
 
         # Lato destro: detail frame + export (30%)
         side_panel = QWidget()
@@ -91,11 +108,9 @@ class MaterialEditorMainWindow(QMainWindow):
         side_layout.setSpacing(5)
 
         detail = MaterialDetailFrame()
-        export = MaterialExportWidget()
+        export = MaterialExportWidget()  # collegato al controller ma non nel layout
         side_layout.addWidget(QLabel(f"Parametri {tipologia}:"), 0)
         side_layout.addWidget(detail, 1)
-        side_layout.addWidget(QLabel("Esportazione:"), 0)
-        side_layout.addWidget(export, 0)
 
         tab_layout.addWidget(side_panel, 30)
         self.tab_widget.addTab(tab, tipologia)
@@ -107,6 +122,13 @@ class MaterialEditorMainWindow(QMainWindow):
             controller.attach_table(table)
         except Exception as e:
             print(f"Errore setup tab {tipologia}: {e}")
+
+        # Popola e collega il filtro norma (dopo attach_table per avere i dati)
+        self._populate_norma_filter(filter_combo, controller)
+        filter_combo.currentIndexChanged.connect(
+            lambda _idx, tbl=table, ctl=controller, cb=filter_combo:
+                self._apply_norma_filter(tbl, ctl, cb.currentData())
+        )
 
     def _create_toolbar(self) -> QHBoxLayout:
         """Crea la toolbar con i pulsanti di azione."""
@@ -140,6 +162,46 @@ class MaterialEditorMainWindow(QMainWindow):
         self.settings_button.clicked.connect(self.on_settings_clicked)
 
         return toolbar_layout
+
+    # ── norma filter helpers ──────────────────────────────────────────────────
+
+    def _populate_norma_filter(self, filter_combo: QComboBox, controller) -> None:
+        """Aggiunge al combo le norme presenti nei materiali del controller."""
+        norme = sorted({
+            mat.get("norma_riferimento") or mat.get("norma", "")
+            for mat in controller.repo.materials
+            if mat.get("norma_riferimento") or mat.get("norma")
+        })
+        filter_combo.blockSignals(True)
+        filter_combo.clear()
+        filter_combo.addItem("Tutte le norme", None)
+        for n in norme:
+            filter_combo.addItem(n, n)
+        filter_combo.blockSignals(False)
+
+    def _apply_norma_filter(self, table, controller, norma_key) -> None:
+        """Nasconde le righe non corrispondenti alla norma e le colonne vuote."""
+        model = table.model()
+        if model is None:
+            return
+        # Righe
+        for row in range(model.rowCount()):
+            if norma_key is None:
+                table.setRowHidden(row, False)
+            else:
+                mat = controller.repo.materials[row]
+                mat_norma = mat.get("norma_riferimento") or mat.get("norma", "")
+                table.setRowHidden(row, mat_norma != norma_key)
+        # Colonne vuote (per le righe visibili)
+        for col in range(model.columnCount()):
+            has_value = False
+            for row in range(model.rowCount()):
+                if not table.isRowHidden(row):
+                    val = model.data(model.index(row, col))
+                    if val and str(val).strip():
+                        has_value = True
+                        break
+            table.setColumnHidden(col, not has_value)
 
     def _setup_shortcuts(self) -> None:
         """Configura i shortcut globali."""

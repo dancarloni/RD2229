@@ -78,6 +78,9 @@
                     "label": "f_yd",
                     "unita": "kg/cm²",
                     "formula": "f_yk / gamma_s",
+                    "formula_latex": "$f_{yd} = \\frac{f_{yk}}{\\gamma_s}\\;[\\S4.2.4.1.2]$",
+                    "formula_html": "f<sub>yd</sub> = f<sub>yk</sub> / γ<sub>s</sub>",
+                    "rif_norm": "§4.2.4.1.2 NTC2018",
                     "gruppo": "resistenze",
                     "descrizione": "Resist. di progetto a snervamento (SLU)"
                 },
@@ -86,6 +89,9 @@
                     "label": "E",
                     "unita": "kg/cm²",
                     "formula": "2060000.0",
+                    "formula_latex": "$E_s = 206\\,000\\,\\mathrm{MPa} = 2\\,060\\,000\\,\\mathrm{kg/cm^2}$",
+                    "formula_html": "E<sub>s</sub> = 206 000 MPa = 2 060 000 kg/cm² (costante)",
+                    "rif_norm": "§11.3.2 NTC2018",
                     "gruppo": "meccanici",
                     "descrizione": "Modulo di Young (costante per acciaio)"
                 },
@@ -94,6 +100,9 @@
                     "label": "G",
                     "unita": "kg/cm²",
                     "formula": "E / (2.0 * (1.0 + nu))",
+                    "formula_latex": "$G = \\frac{E}{2\\,(1+\\nu)} \\approx \\frac{E}{2.6}$",
+                    "formula_html": "G = E / (2·(1+ν)) ≈ E / 2.6",
+                    "rif_norm": "—",
                     "gruppo": "meccanici"
                 }
             ]
@@ -144,6 +153,8 @@
                     "label": "f_yd",
                     "unita": "kg/cm²",
                     "formula": "f_yk / gamma_s",
+                    "formula_html": "f<sub>yd</sub> = f<sub>yk</sub> / γ<sub>s</sub>",
+                    "rif_norm": "§4.2.4.1.2 NTC",
                     "gruppo": "resistenze"
                 },
                 {
@@ -158,6 +169,9 @@
                     "label": "G",
                     "unita": "kg/cm²",
                     "formula": "E / (2.0 * (1.0 + nu))",
+                    "formula_latex": "$G = \\frac{E}{2\\,(1+\\nu)} \\approx \\frac{E}{2.6}$",
+                    "formula_html": "G = E / (2·(1+ν)) ≈ E / 2.6",
+                    "rif_norm": "—",
                     "gruppo": "meccanici"
                 }
             ]
@@ -208,6 +222,8 @@
                     "label": "f_yd",
                     "unita": "kg/cm²",
                     "formula": "f_yk / gamma_s",
+                    "formula_html": "f<sub>yd</sub> = f<sub>yk</sub> / γ<sub>s</sub>",
+                    "rif_norm": "§4.2.4.1.2 NTC",
                     "gruppo": "resistenze"
                 },
                 {
@@ -222,6 +238,9 @@
                     "label": "G",
                     "unita": "kg/cm²",
                     "formula": "E / (2.0 * (1.0 + nu))",
+                    "formula_latex": "$G = \\frac{E}{2\\,(1+\\nu)} \\approx \\frac{E}{2.6}$",
+                    "formula_html": "G = E / (2·(1+ν)) ≈ E / 2.6",
+                    "rif_norm": "—",
                     "gruppo": "meccanici"
                 }
             ]
@@ -290,6 +309,9 @@
                     "label": "G",
                     "unita": "kg/cm²",
                     "formula": "E / (2.0 * (1.0 + nu))",
+                    "formula_latex": "$G = \\frac{E}{2\\,(1+\\nu)} \\approx \\frac{E}{2.6}$",
+                    "formula_html": "G = E / (2·(1+ν)) ≈ E / 2.6",
+                    "rif_norm": "—",
                     "gruppo": "meccanici"
                 }
             ]
@@ -356,6 +378,9 @@
                     "label": "G",
                     "unita": "kg/cm²",
                     "formula": "E / (2.0 * (1.0 + nu))",
+                    "formula_latex": "$G = \\frac{E}{2\\,(1+\\nu)} \\approx \\frac{E}{2.6}$",
+                    "formula_html": "G = E / (2·(1+ν)) ≈ E / 2.6",
+                    "rif_norm": "—",
                     "gruppo": "meccanici"
                 }
             ]
@@ -423,6 +448,9 @@
                     "label": "G",
                     "unita": "kg/cm²",
                     "formula": "E / (2.0 * (1.0 + nu))",
+                    "formula_latex": "$G = \\frac{E}{2\\,(1+\\nu)} \\approx \\frac{E}{2.6}$",
+                    "formula_html": "G = E / (2·(1+ν)) ≈ E / 2.6",
+                    "rif_norm": "—",
                     "gruppo": "meccanici"
                 }
             ]
@@ -489,6 +517,7 @@
                     "label": "G",
                     "unita": "kg/cm²",
                     "formula": "E / (2.0 * (1.0 + nu))",
+                    "formula_latex": "$G = \\frac{E}{2\\,(1+\\nu)} \\approx \\frac{E}{2.6}$",
                     "gruppo": "meccanici"
                 }
             ]

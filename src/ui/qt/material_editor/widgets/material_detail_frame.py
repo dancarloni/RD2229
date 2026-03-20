@@ -1,5 +1,8 @@
 """
-MaterialDetailFrame — Frame dettaglio materiale con gruppi, override e unità.
+MaterialDetailFrame — Frame dettaglio materiale con layout 2 colonne.
+
+Layout a griglia (4 colonne: etichetta | campo | etichetta | campo) per
+mostrare tutti i parametri senza scroll verticale.
 
 Supporta due modalità:
 - Schema-aware: `set_fields(material, norm_schema)` genera campi da schema norma.
@@ -12,20 +15,20 @@ from typing import Any, Dict, List, Optional
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
-    QFormLayout,
+    QGridLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
-    QScrollArea,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
 
 
 class MaterialDetailFrame(QWidget):
-    """Frame laterale di dettaglio/editing per un materiale."""
+    """Frame laterale di dettaglio/editing per un materiale. Layout 2 colonne, no scroll."""
 
     # Emesso quando un campo input principale cambia valore
     inputChanged = Signal()
@@ -47,17 +50,15 @@ class MaterialDetailFrame(QWidget):
         self.warning_label.setVisible(False)
         outer.addWidget(self.warning_label)
 
-        # ── scroll area per i campi ───────────────────────────────────────────
-        self._scroll = QScrollArea()
-        self._scroll.setWidgetResizable(True)
-        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # ── area campi (no scroll) ────────────────────────────────────────────
         self._fields_widget = QWidget()
+        self._fields_widget.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         self._fields_container = QVBoxLayout(self._fields_widget)
         self._fields_container.setContentsMargins(4, 4, 4, 4)
-        self._fields_container.setSpacing(6)
-        self._fields_container.addStretch(1)
-        self._scroll.setWidget(self._fields_widget)
-        outer.addWidget(self._scroll, stretch=1)
+        self._fields_container.setSpacing(4)
+        outer.addWidget(self._fields_widget, stretch=1)
 
         # ── pulsanti ──────────────────────────────────────────────────────────
         btn_layout = QHBoxLayout()
@@ -149,19 +150,16 @@ class MaterialDetailFrame(QWidget):
         self._is_derived.clear()
 
     def _build_from_schema(self, material: Dict[str, Any], norm_schema: Dict[str, Any]) -> None:
-        """Costruisce i campi da schema norma con gruppi, input e derivati."""
+        """Costruisce i campi da schema norma con layout 2 colonne per gruppo."""
         gruppi_schema: List[Dict] = norm_schema.get("gruppi") or []
-        # Se il padre (la finestra famiglia) definisce gruppi usali, altrimenti
-        # usa quelli dello schema (possono essere vuoti → gruppo "Parametri")
-        all_groups: List[Dict] = []
-        # Raccoglie tutti i gruppi usati da input e derivati
+
+        # Determina i gruppi usati
         used_groups: set[str] = set()
         for f in norm_schema.get("parametri_input", []):
             used_groups.add(f.get("gruppo", "general"))
         for f in norm_schema.get("parametri_derivati", []):
             used_groups.add(f.get("gruppo", "general"))
 
-        # Mantieni ordine dello schema, aggiungi eventuali gruppi mancanti
         groups_ordered: List[Dict] = [g for g in gruppi_schema if g["key"] in used_groups]
         keys_already = {g["key"] for g in groups_ordered}
         for g in used_groups:
@@ -169,9 +167,8 @@ class MaterialDetailFrame(QWidget):
                 groups_ordered.append({"key": g, "label": g.capitalize()})
 
         # Raggruppa i campi per gruppo
-        input_by_group: Dict[str, List[Dict]] = {g["key"]: [] for g in groups_ordered}
-        derived_by_group: Dict[str, List[Dict]] = {g["key"]: [] for g in groups_ordered}
-
+        input_by_group: Dict[str, List[Dict]] = {}
+        derived_by_group: Dict[str, List[Dict]] = {}
         for f in norm_schema.get("parametri_input", []):
             gk = f.get("gruppo", "general")
             input_by_group.setdefault(gk, []).append(f)
@@ -179,29 +176,41 @@ class MaterialDetailFrame(QWidget):
             gk = f.get("gruppo", "general")
             derived_by_group.setdefault(gk, []).append(f)
 
-        # Parametri_specifici norma → mostrarli come info fissa nel primo gruppo
+        # Coefficienti normativi → gruppo speciale con griglia 2 colonne
         spec: Dict[str, Any] = norm_schema.get("parametri_specifici", {})
         if spec:
-            box = self._make_group_box("Coefficienti normativi")
-            form = QFormLayout()
-            form.setLabelAlignment(Qt.AlignRight)
+            box = _make_group_box("Coefficienti normativi")
+            grid = QGridLayout()
+            grid.setSpacing(3)
+            grid.setColumnStretch(1, 1)
+            grid.setColumnStretch(3, 1)
+            grid_row = 0
+            col_pair = 0
             for pkey, pinfo in spec.items():
-                if isinstance(pinfo, dict):
-                    lbl = pinfo.get("label", pkey)
-                    unit = pinfo.get("unita", "")
-                    val = material.get(pkey, pinfo.get("valore", ""))
-                    label_text = f"{lbl} [{unit}]:" if unit else f"{lbl}:"
-                    edit = _make_display_line(
-                        str(val) if val != "" else str(pinfo.get("valore", ""))
-                    )
-                    edit.setToolTip(pinfo.get("descrizione", ""))
-                    form.addRow(QLabel(label_text), edit)
-                    self._fields[pkey] = edit
-                    self._is_derived[pkey] = False  # non derivato, coeff. normativo
-            box.setLayout(form)
+                if not isinstance(pinfo, dict):
+                    continue
+                lbl = pinfo.get("label", pkey)
+                unit = pinfo.get("unita", "")
+                val = material.get(pkey, pinfo.get("valore", ""))
+                label_text = f"{lbl} [{unit}]:" if unit else f"{lbl}:"
+                edit = _make_display_line(
+                    str(val) if val != "" else str(pinfo.get("valore", ""))
+                )
+                edit.setToolTip(pinfo.get("descrizione", ""))
+                self._fields[pkey] = edit
+                self._is_derived[pkey] = False
+                col_offset = col_pair * 2
+                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignRight)
+                grid.addWidget(edit, grid_row, col_offset + 1)
+                if col_pair == 1:
+                    grid_row += 1
+                col_pair ^= 1
+            if col_pair == 1:  # riga parziale: avanza
+                grid_row += 1
+            box.setLayout(grid)
             self._fields_container.addWidget(box)
 
-        # Crea un QGroupBox per ogni gruppo con input e derivati
+        # Crea un QGroupBox con griglia 2 colonne per ogni gruppo
         for grp in groups_ordered:
             gk = grp["key"]
             gl = grp.get("label", gk)
@@ -210,52 +219,77 @@ class MaterialDetailFrame(QWidget):
             if not inp_fields and not drv_fields:
                 continue
 
-            box = self._make_group_box(gl)
-            form = QFormLayout()
-            form.setLabelAlignment(Qt.AlignRight)
-            form.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
+            box = _make_group_box(gl)
+            grid = QGridLayout()
+            grid.setSpacing(3)
+            # Colonne: 0=label_sx, 1=field_sx, 2=label_dx, 3=field_dx
+            grid.setColumnStretch(1, 1)
+            grid.setColumnStretch(3, 1)
+            grid_row = 0
+            col_pair = 0  # 0 = colonna sinistra, 1 = colonna destra
 
             # Input principali
             for field in inp_fields:
-                row_w = self._make_input_row(field, material)
                 label_text = _field_label(field)
-                form.addRow(QLabel(label_text), row_w)
+                edit = self._make_input_edit(field, material)
+                col_offset = col_pair * 2
+                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignRight)
+                grid.addWidget(edit, grid_row, col_offset + 1)
+                if col_pair == 1:
+                    grid_row += 1
+                col_pair ^= 1
 
-            # Separatore visivo tra input e derivati
+            # Separatore tra input e derivati (span 4 colonne)
             if inp_fields and drv_fields:
+                if col_pair == 1:
+                    grid_row += 1
+                    col_pair = 0
                 sep = QLabel("── derivati ──")
                 sep.setStyleSheet("color: #888; font-size: 10px;")
-                form.addRow(sep)
+                grid.addWidget(sep, grid_row, 0, 1, 4)
+                grid_row += 1
 
-            # Derivati
+            # Derivati: label + (field + checkbox) per coppia
             for field in drv_fields:
-                row_w = self._make_derived_row(field, material)
                 label_text = _field_label(field)
-                form.addRow(QLabel(label_text), row_w)
+                field_w, edit = self._make_derived_widget(field, material)
+                col_offset = col_pair * 2
+                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignRight)
+                grid.addWidget(field_w, grid_row, col_offset + 1)
+                if col_pair == 1:
+                    grid_row += 1
+                col_pair ^= 1
 
-            box.setLayout(form)
+            box.setLayout(grid)
             self._fields_container.addWidget(box)
 
     def _build_flat(self, material: Dict[str, Any]) -> None:
-        """Fallback: crea un campo editabile per ogni chiave del dict."""
+        """Fallback: griglia 2 colonne per ogni chiave del dict."""
+        box = _make_group_box("Parametri")
+        grid = QGridLayout()
+        grid.setSpacing(3)
+        grid.setColumnStretch(1, 1)
+        grid.setColumnStretch(3, 1)
+        grid_row = 0
+        col_pair = 0
         for key, value in material.items():
             if key in ("id",):
                 continue
-            row_w = QWidget()
-            row = QHBoxLayout(row_w)
-            row.setContentsMargins(0, 0, 0, 0)
-            lbl = QLabel(f"{key}:")
-            lbl.setFixedWidth(110)
             edit = QLineEdit()
             edit.setText(str(value) if value is not None else "")
             edit.textChanged.connect(self.inputChanged)
             self._fields[key] = edit
             self._is_derived[key] = False
-            row.addWidget(lbl)
-            row.addWidget(edit, stretch=1)
-            self._fields_container.addWidget(row_w)
+            col_offset = col_pair * 2
+            grid.addWidget(QLabel(f"{key}:"), grid_row, col_offset, Qt.AlignRight)
+            grid.addWidget(edit, grid_row, col_offset + 1)
+            if col_pair == 1:
+                grid_row += 1
+            col_pair ^= 1
+        box.setLayout(grid)
+        self._fields_container.addWidget(box)
 
-    def _make_input_row(self, field: Dict, material: Dict[str, Any]) -> QWidget:
+    def _make_input_edit(self, field: Dict, material: Dict[str, Any]) -> QLineEdit:
         """Crea un QLineEdit editabile per un campo input principale."""
         key = field["key"]
         val = material.get(key, field.get("default", ""))
@@ -267,8 +301,11 @@ class MaterialDetailFrame(QWidget):
         self._is_derived[key] = False
         return edit
 
-    def _make_derived_row(self, field: Dict, material: Dict[str, Any]) -> QWidget:
-        """Crea una riga con QLineEdit readonly + checkbox override per un campo derivato."""
+    def _make_derived_widget(self, field: Dict, material: Dict[str, Any]) -> tuple:
+        """Crea un widget (field + checkbox override) per un campo derivato.
+
+        Restituisce (container_widget, QLineEdit).
+        """
         key = field["key"]
         val = material.get(key, "")
         has_override = bool(material.get(f"{key}_override", False))
@@ -276,7 +313,7 @@ class MaterialDetailFrame(QWidget):
         container = QWidget()
         h = QHBoxLayout(container)
         h.setContentsMargins(0, 0, 0, 0)
-        h.setSpacing(4)
+        h.setSpacing(2)
 
         edit = QLineEdit()
         edit.setText(
@@ -291,7 +328,7 @@ class MaterialDetailFrame(QWidget):
         cb = QCheckBox()
         cb.setToolTip("Override manuale: attiva per modificare il valore calcolato")
         cb.setChecked(has_override)
-        cb.setFixedWidth(20)
+        cb.setFixedWidth(18)
         self._overrides[key] = cb
 
         def _on_override_toggled(checked: bool, _key: str = key, _edit: QLineEdit = edit) -> None:
@@ -301,19 +338,20 @@ class MaterialDetailFrame(QWidget):
         cb.toggled.connect(_on_override_toggled)
         h.addWidget(edit, stretch=1)
         h.addWidget(cb)
-        return container
-
-    @staticmethod
-    def _make_group_box(title: str) -> QGroupBox:
-        box = QGroupBox(title)
-        box.setStyleSheet("QGroupBox { font-weight: bold; margin-top: 6px; }")
-        return box
+        return container, edit
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 _DERIVED_STYLE = "background: #f5f5f5; color: #555;"
 _INPUT_STYLE = ""
+
+
+def _make_group_box(title: str) -> QGroupBox:
+    box = QGroupBox(title)
+    box.setStyleSheet("QGroupBox { font-weight: bold; margin-top: 6px; }")
+    box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+    return box
 
 
 def _field_label(field: Dict) -> str:
