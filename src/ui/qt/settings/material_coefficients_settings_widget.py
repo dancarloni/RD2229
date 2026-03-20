@@ -12,19 +12,18 @@ Architettura (Level 2 override):
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from PySide6.QtCore import Signal
+from PySide6.QtGui import QDoubleValidator
 from PySide6.QtWidgets import (
-    QDoubleSpinBox,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMessageBox,
     QPushButton,
     QScrollArea,
-    QSizePolicy,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -66,8 +65,8 @@ class MaterialCoefficientsSettingsWidget(QWidget):
         self._mgr: GlobalMaterialCoefficientsManager | None = (
             GlobalMaterialCoefficientsManager.instance() if GlobalMaterialCoefficientsManager else None
         )
-        # {norm_key: {famiglia: {coeff_key: QDoubleSpinBox}}}
-        self._spinboxes: dict[str, dict[str, dict[str, QDoubleSpinBox]]] = {}
+        # {norm_key: {famiglia: {coeff_key: QLineEdit}}}
+        self._value_inputs: dict[str, dict[str, dict[str, QLineEdit]]] = {}
 
         self._build_ui()
 
@@ -144,9 +143,7 @@ class MaterialCoefficientsSettingsWidget(QWidget):
         scroll.setWidget(container)
         return scroll
 
-    def _build_famiglia_group(
-        self, norm_key: str, famiglia: str, fam_data: dict
-    ) -> QGroupBox | None:
+    def _build_famiglia_group(self, norm_key: str, famiglia: str, fam_data: dict) -> QGroupBox | None:
         """Costruisce un QGroupBox con i coefficienti per una famiglia."""
         # Filtra solo i coefficienti con valore numerico
         coeffs = {}
@@ -163,7 +160,7 @@ class MaterialCoefficientsSettingsWidget(QWidget):
         form = QFormLayout(group)
         form.setLabelAlignment(form.labelAlignment())
 
-        self._spinboxes[norm_key][famiglia] = {}
+        self._value_inputs[norm_key][famiglia] = {}
 
         for coeff_key, coeff_info in coeffs.items():
             default_val = float(coeff_info.get("valore", 1.0))
@@ -178,31 +175,29 @@ class MaterialCoefficientsSettingsWidget(QWidget):
             if current_val is None:
                 current_val = default_val
 
-            spin = QDoubleSpinBox()
-            spin.setDecimals(4)
-            spin.setMinimum(0.0001)
-            spin.setMaximum(100.0)
-            spin.setSingleStep(0.05)
-            spin.setValue(float(current_val))
-            spin.setToolTip(
+            value_input = QLineEdit()
+            value_input.setText(_format_value(float(current_val)))
+            value_input.setPlaceholderText("0.0000")
+            value_input.setValidator(QDoubleValidator(0.0001, 100.0, 4, value_input))
+            value_input.setToolTip(
                 f"{descrizione}\nDefault: {default_val}"
                 + (f"\nRif: {riferimento}" if riferimento else "")
             )
 
             # Evidenzia se override attivo
-            self._update_spinbox_style(spin, source == "override", default_val)
+            self._update_input_style(value_input, source == "override", default_val)
 
             # Aggiorna stile on-change
-            spin.valueChanged.connect(
-                lambda val, sp=spin, dv=default_val: self._update_spinbox_style(sp, val != dv, dv)
+            value_input.textChanged.connect(
+                lambda _txt, inp=value_input, dv=default_val: self._refresh_input_style(inp, dv)
             )
 
             # Label con default a fianco
             label_widget = QLabel(f"{label_text}  <span style='color:#888;font-size:9px'>(def: {default_val})</span>")
             label_widget.setTextFormat(label_widget.textFormat().RichText)
 
-            form.addRow(label_widget, spin)
-            self._spinboxes[norm_key][famiglia][coeff_key] = spin
+            form.addRow(label_widget, value_input)
+            self._value_inputs[norm_key][famiglia][coeff_key] = value_input
 
         # Pulsante save + reset per questa famiglia
         btn_row_fam = QHBoxLayout()
@@ -222,12 +217,19 @@ class MaterialCoefficientsSettingsWidget(QWidget):
         return group
 
     @staticmethod
-    def _update_spinbox_style(spin: QDoubleSpinBox, is_override: bool, default_val: float) -> None:
+    def _update_input_style(value_input: QLineEdit, is_override: bool, default_val: float) -> None:
         if is_override:
-            spin.setStyleSheet("QDoubleSpinBox { background-color: #fffbe6; border: 1px solid #f0c040; }")
-            spin.setToolTip(spin.toolTip().split("\nOverride")[0] + f"\nOverride attivo (default: {default_val})")
+            value_input.setStyleSheet("QLineEdit { background-color: #fffbe6; border: 1px solid #f0c040; }")
+            value_input.setToolTip(
+                value_input.toolTip().split("\nOverride")[0] + f"\nOverride attivo (default: {default_val})"
+            )
         else:
-            spin.setStyleSheet("")
+            value_input.setStyleSheet("")
+
+    def _refresh_input_style(self, value_input: QLineEdit, default_val: float) -> None:
+        current_val = _parse_float(value_input.text())
+        is_override = current_val is not None and abs(current_val - float(default_val)) > 1e-9
+        self._update_input_style(value_input, is_override, default_val)
 
     # ------------------------------------------------------------------
     # Handlers
@@ -237,31 +239,44 @@ class MaterialCoefficientsSettingsWidget(QWidget):
         """Salva i valori modificati per una famiglia come override Level 2."""
         if self._mgr is None:
             return
-        spins = self._spinboxes.get(norm_key, {}).get(famiglia, {})
-        for coeff_key, spin in spins.items():
+        inputs = self._value_inputs.get(norm_key, {}).get(famiglia, {})
+        invalid_fields: list[str] = []
+
+        for coeff_key, value_input in inputs.items():
             default_val = self._mgr.get_default_coefficient(norm_key, famiglia, coeff_key)
-            current_val = spin.value()
+            current_val = _parse_float(value_input.text())
+            if current_val is None:
+                invalid_fields.append(coeff_key)
+                continue
             if default_val is not None and abs(current_val - float(default_val)) > 1e-9:
                 self._mgr.set_coefficient_override(norm_key, famiglia, coeff_key, current_val)
                 self.coefficients_changed.emit(norm_key, famiglia, coeff_key, current_val)
             else:
                 # Valore uguale al default → rimuovi override se presente
                 self._mgr.reset_coefficient_to_default(norm_key, famiglia, coeff_key)
+
+        if invalid_fields:
+            QMessageBox.warning(
+                self,
+                "Valori non validi",
+                "I seguenti coefficienti non sono numerici e non sono stati salvati:\n"
+                + ", ".join(invalid_fields),
+            )
         logger.info("Override salvati: %s/%s", norm_key, famiglia)
 
     def _on_reset_famiglia(self, norm_key: str, famiglia: str) -> None:
-        """Ripristina i default Level 1 per una famiglia e aggiorna i spin box."""
+        """Ripristina i default Level 1 per una famiglia e aggiorna i campi."""
         if self._mgr is None:
             return
-        spins = self._spinboxes.get(norm_key, {}).get(famiglia, {})
-        for coeff_key, spin in spins.items():
+        inputs = self._value_inputs.get(norm_key, {}).get(famiglia, {})
+        for coeff_key, value_input in inputs.items():
             self._mgr.reset_coefficient_to_default(norm_key, famiglia, coeff_key, save=False)
             default_val = self._mgr.get_default_coefficient(norm_key, famiglia, coeff_key)
             if default_val is not None:
-                spin.blockSignals(True)
-                spin.setValue(float(default_val))
-                spin.blockSignals(False)
-                self._update_spinbox_style(spin, False, float(default_val))
+                value_input.blockSignals(True)
+                value_input.setText(_format_value(float(default_val)))
+                value_input.blockSignals(False)
+                self._update_input_style(value_input, False, float(default_val))
         self._mgr._save_config()
 
     def _on_reset_norm(self, norm_key: str) -> None:
@@ -278,14 +293,14 @@ class MaterialCoefficientsSettingsWidget(QWidget):
             return
         self._mgr.reset_all_norm(norm_key)
         # Aggiorna UI
-        for famiglia, spins in self._spinboxes.get(norm_key, {}).items():
-            for coeff_key, spin in spins.items():
+        for famiglia, inputs in self._value_inputs.get(norm_key, {}).items():
+            for coeff_key, value_input in inputs.items():
                 default_val = self._mgr.get_default_coefficient(norm_key, famiglia, coeff_key)
                 if default_val is not None:
-                    spin.blockSignals(True)
-                    spin.setValue(float(default_val))
-                    spin.blockSignals(False)
-                    self._update_spinbox_style(spin, False, float(default_val))
+                    value_input.blockSignals(True)
+                    value_input.setText(_format_value(float(default_val)))
+                    value_input.blockSignals(False)
+                    self._update_input_style(value_input, False, float(default_val))
 
     def _on_reset_all(self) -> None:
         """Ripristina tutti i default per tutte le norme."""
@@ -300,13 +315,29 @@ class MaterialCoefficientsSettingsWidget(QWidget):
         if reply != QMessageBox.StandardButton.Yes:
             return
         self._mgr.reset_all()
-        # Aggiorna tutti gli spin box
-        for norm_key, famiglie in self._spinboxes.items():
-            for famiglia, spins in famiglie.items():
-                for coeff_key, spin in spins.items():
+        # Aggiorna tutti i campi
+        for norm_key, famiglie in self._value_inputs.items():
+            for famiglia, inputs in famiglie.items():
+                for coeff_key, value_input in inputs.items():
                     default_val = self._mgr.get_default_coefficient(norm_key, famiglia, coeff_key)
                     if default_val is not None:
-                        spin.blockSignals(True)
-                        spin.setValue(float(default_val))
-                        spin.blockSignals(False)
-                        self._update_spinbox_style(spin, False, float(default_val))
+                        value_input.blockSignals(True)
+                        value_input.setText(_format_value(float(default_val)))
+                        value_input.blockSignals(False)
+                        self._update_input_style(value_input, False, float(default_val))
+
+
+def _parse_float(text: str) -> float | None:
+    """Converte input utente in float, accettando anche la virgola decimale."""
+    normalized = text.strip().replace(",", ".")
+    if not normalized:
+        return None
+    try:
+        return float(normalized)
+    except (TypeError, ValueError):
+        return None
+
+
+def _format_value(value: float) -> str:
+    """Formatta un coefficiente con precisione stabile senza zeri inutili finali."""
+    return f"{value:.4f}".rstrip("0").rstrip(".") if "." in f"{value:.4f}" else f"{value:.4f}"

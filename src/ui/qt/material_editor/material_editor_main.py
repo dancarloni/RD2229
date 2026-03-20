@@ -413,14 +413,13 @@ class MaterialEditorMainWindow(QMainWindow):
         dlg.resize(860, 580)
 
         tabs = QTabWidget(dlg)
-        # Tab 1: configurazione schemi/formule (MaterialSettingsDialog come widget)
-        config_tab = MaterialSettingsDialog(dlg)
-        # Rimuovi bottoni interni dal dialog (sono ora nel tab)
-        tabs.addTab(config_tab, "Schema e formule")
-
-        # Tab 2: coefficienti normativi globali
+        # Tab 1: coefficienti normativi globali
         coeffs_tab = MaterialCoefficientsSettingsWidget(dlg)
         tabs.addTab(coeffs_tab, "Coefficienti normativi globali")
+
+        # Tab 2: configurazione schemi/formule (vista formule)
+        config_tab = MaterialSettingsDialog(dlg)
+        tabs.addTab(config_tab, "Schema e formule")
 
         layout = QVBoxLayout(dlg)
         layout.addWidget(tabs)

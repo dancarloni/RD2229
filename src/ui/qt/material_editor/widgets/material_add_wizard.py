@@ -1,10 +1,9 @@
-"""
-MaterialAddWizard — Dialog wizard per aggiungere un nuovo materiale.
+"""MaterialAddWizard — Dialog wizard per aggiungere un nuovo materiale.
 
 Passaggi:
-  1. Famiglia, norma, ID, descrizione
-  2. Parametri fondamentali con calcolo live dei derivati + formule HTML a lato
-  3. Riepilogo con formule in notazione matematica (LaTeX via matplotlib)
+    1. Famiglia, norma, ID, descrizione
+    2. Parametri fondamentali con calcolo live dei derivati + formule/riferimenti
+    3. Riepilogo finale del materiale
 """
 
 from __future__ import annotations
@@ -37,9 +36,9 @@ class MaterialAddWizard(QDialog):
     """Wizard a 3 pagine per creare un nuovo materiale.
 
     Passo 1: selezione famiglia/norma + identificazione (ID, descrizione).
-    Passo 2: inserimento parametri fondamentali con calcolo live dei derivati
-             e formula HTML a lato di ogni parametro derivato.
-    Passo 3: riepilogo con formule in notazione matematica (LaTeX).
+    Passo 2: inserimento parametri fondamentali con calcolo live dei derivati,
+             override manuale e note formula/riferimenti normativi.
+    Passo 3: riepilogo finale del materiale.
     """
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -161,7 +160,7 @@ class MaterialAddWizard(QDialog):
         return page
 
     def _build_page_summary(self) -> QWidget:
-        """Passo 3: riepilogo con formule LaTeX."""
+        """Passo 3: riepilogo finale."""
         page = QWidget()
         page_layout = QVBoxLayout(page)
         page_layout.setContentsMargins(0, 0, 0, 0)
@@ -184,7 +183,7 @@ class MaterialAddWizard(QDialog):
         titles = [
             "Passo 1 — Famiglia, norma e identificazione",
             "Passo 2 — Parametri e calcolo derivati",
-            "Passo 3 — Riepilogo e verifica formule",
+            "Passo 3 — Riepilogo materiale",
         ]
         self._page_title.setText(titles[idx])
         self._btn_back.setEnabled(idx > 0)
@@ -250,7 +249,15 @@ class MaterialAddWizard(QDialog):
 
         if not schema:
             self._params_layout.addWidget(
-                QLabel("Nessun parametro definito per questa norma.")
+                QLabel(f"Nessuno schema disponibile per {famiglia}/{norma}.")
+            )
+            return
+
+        input_fields: list[dict] = schema.get("parametri_input", [])
+        derived_fields: list[dict] = schema.get("parametri_derivati", [])
+        if not input_fields and not derived_fields:
+            self._params_layout.addWidget(
+                QLabel("Nessun parametro definito in questo schema norma.")
             )
             return
 
@@ -258,12 +265,21 @@ class MaterialAddWizard(QDialog):
         gruppi: list[dict] = schema.get("gruppi") or [{"key": "general", "label": "Parametri"}]
         input_by_group: dict[str, list[dict]] = {}
         derived_by_group: dict[str, list[dict]] = {}
-        for f in schema.get("parametri_input", []):
+        for f in input_fields:
             gk = f.get("gruppo", "general")
             input_by_group.setdefault(gk, []).append(f)
-        for f in schema.get("parametri_derivati", []):
+        for f in derived_fields:
             gk = f.get("gruppo", "general")
             derived_by_group.setdefault(gk, []).append(f)
+
+        # Evita schermate vuote quando i campi usano gruppi non dichiarati nello schema.
+        known_group_keys = [g.get("key", "general") for g in gruppi]
+        dynamic_group_keys = sorted(set(input_by_group.keys()) | set(derived_by_group.keys()))
+        for gk in dynamic_group_keys:
+            if gk not in known_group_keys:
+                gruppi.append({"key": gk, "label": gk.replace("_", " ").capitalize()})
+
+        rendered_sections = 0
 
         for grp in gruppi:
             gk = grp["key"]
@@ -299,6 +315,14 @@ class MaterialAddWizard(QDialog):
 
                 grid.addWidget(lbl, row_idx, 0)
                 grid.addWidget(edit, row_idx, 1)
+
+                note = _build_formula_note(field)
+                if note:
+                    note_lbl = QLabel(note)
+                    note_lbl.setTextFormat(Qt.TextFormat.RichText)
+                    note_lbl.setWordWrap(True)
+                    note_lbl.setStyleSheet("color: #555; font-size: 10px;")
+                    grid.addWidget(note_lbl, row_idx, 2)
                 row_idx += 1
 
             # Separatore visivo
@@ -345,22 +369,25 @@ class MaterialAddWizard(QDialog):
                 grid.addWidget(container, row_idx, 1)
 
                 # Formula HTML a lato (col 2)
-                formula_html = fd.get("formula_html", "")
-                rif_norm = fd.get("rif_norm", "")
-                if formula_html or rif_norm:
-                    note = f'<small><i>{formula_html}</i>'
-                    if rif_norm and rif_norm != "—":
-                        note += f' <span style="color:#888">&nbsp;[{rif_norm}]</span>'
-                    note += '</small>'
+                note = _build_formula_note(fd)
+                if note:
                     formula_lbl = QLabel(note)
                     formula_lbl.setTextFormat(Qt.TextFormat.RichText)
                     formula_lbl.setWordWrap(True)
-                    formula_lbl.setStyleSheet("color: #555;")
+                    formula_lbl.setStyleSheet("color: #555; font-size: 10px;")
                     grid.addWidget(formula_lbl, row_idx, 2)
 
                 row_idx += 1
 
             self._params_layout.addWidget(box)
+            rendered_sections += 1
+
+        if rendered_sections == 0:
+            self._params_layout.addWidget(
+                QLabel("Schema presente ma nessun gruppo valido da visualizzare.")
+            )
+            self._params_layout.addStretch()
+            return
 
         self._params_layout.addStretch()
 
@@ -389,7 +416,7 @@ class MaterialAddWizard(QDialog):
             edit.setText("" if val is None else str(round(val, 4)) if isinstance(val, float) else str(val))
 
     def _populate_summary_page(self) -> None:
-        """Ricostruisce il riepilogo con valori + formule LaTeX."""
+        """Ricostruisce il riepilogo con i valori finali del materiale."""
         _clear_layout(self._summary_layout)
 
         mat = self._collect_material()
@@ -428,31 +455,6 @@ class MaterialAddWizard(QDialog):
             val_str = str(round(v, 4)) if isinstance(v, float) else str(v) if v is not None else ""
             form_vals.addRow(QLabel(f"{k}:"), QLabel(val_str))
         self._summary_layout.addWidget(box_vals)
-
-        # Formule in notazione matematica
-        if self._current_schema:
-            derived_fields = self._current_schema.get("parametri_derivati", [])
-            formula_items = [
-                (fd.get("label", fd["key"]), fd.get("formula_latex", ""), fd.get("formula", ""))
-                for fd in derived_fields
-                if fd.get("formula_latex") or fd.get("formula")
-            ]
-            if formula_items:
-                box_form = QGroupBox("Formule utilizzate")
-                box_form.setStyleSheet("QGroupBox { font-weight: bold; margin-top: 6px; }")
-                form_layout = QVBoxLayout(box_form)
-                form_layout.setSpacing(6)
-                for lbl, latex_str, plain_formula in formula_items:
-                    row_w = QWidget()
-                    row_layout = QHBoxLayout(row_w)
-                    row_layout.setContentsMargins(0, 0, 0, 0)
-                    lbl_w = QLabel(f"<b>{lbl}</b>")
-                    lbl_w.setFixedWidth(80)
-                    row_layout.addWidget(lbl_w)
-                    formula_w = _make_formula_widget(latex_str, plain_formula)
-                    row_layout.addWidget(formula_w, stretch=1)
-                    form_layout.addWidget(row_w)
-                self._summary_layout.addWidget(box_form)
 
         self._summary_layout.addStretch()
 
@@ -509,6 +511,28 @@ def _clear_layout(layout: QVBoxLayout) -> None:
         w = item.widget()
         if w is not None:
             w.deleteLater()
+
+
+def _build_formula_note(field: dict) -> str:
+    """Ritorna una nota compatta con formula/riferimento in formato rich-text."""
+    formula_html = field.get("formula_html", "")
+    formula_plain = field.get("formula", "")
+    rif_norm = field.get("rif_norm", "")
+
+    formula_text = ""
+    if formula_html:
+        formula_text = f"<i>{formula_html}</i>"
+    elif formula_plain:
+        formula_text = f"<code>{formula_plain}</code>"
+
+    if not formula_text and not rif_norm:
+        return ""
+
+    out = f"<small>{formula_text}"
+    if rif_norm and rif_norm != "—":
+        out += f" <span style='color:#888'>[{rif_norm}]</span>"
+    out += "</small>"
+    return out
 
 
 def _make_formula_widget(latex_str: str, plain_formula: str) -> QWidget:
