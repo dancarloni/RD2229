@@ -1,10 +1,19 @@
 """
-MaterialDetailFrame — Frame dettaglio materiale, editing rapido, override
+MaterialDetailFrame — Frame dettaglio materiale con gruppi, override e unità.
+
+Supporta due modalità:
+- Schema-aware: `set_fields(material, norm_schema)` genera campi da schema norma.
+  Input principali: editabili; derivati: readonly (a meno di override checkbox).
+- Fallback flat: `set_fields(material)` senza schema, crea una riga per ogni campo.
 """
 
-from PySide6.QtCore import Qt
+from typing import Any, Dict, List, Optional
+
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
+    QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -16,82 +25,107 @@ from PySide6.QtWidgets import (
 
 
 class MaterialDetailFrame(QWidget):
-    def __init__(self, parent=None):
+    """Frame laterale di dettaglio/editing per un materiale."""
+
+    # Emesso quando un campo input principale cambia valore
+    inputChanged = Signal()
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-        self._fields = {}
-        self._overrides = {}
+        self._fields: Dict[str, QLineEdit] = {}
+        self._overrides: Dict[str, QCheckBox] = {}
+        self._is_derived: Dict[str, bool] = {}
 
-        outer_layout = QVBoxLayout(self)
-        outer_layout.setContentsMargins(0, 0, 0, 0)
-        outer_layout.setSpacing(2)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(4)
 
-        # area warning (fuori dalla scroll area)
+        # ── area warning ──────────────────────────────────────────────────────
         self.warning_label = QLabel("")
-        self.warning_label.setStyleSheet("color: #b35f00;")
+        self.warning_label.setStyleSheet("color: #b35f00; font-size: 11px;")
         self.warning_label.setWordWrap(True)
         self.warning_label.setVisible(False)
-        outer_layout.addWidget(self.warning_label)
+        outer.addWidget(self.warning_label)
 
-        # ScrollArea per i campi dinamici
+        # ── scroll area per i campi ───────────────────────────────────────────
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
         self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
         self._fields_widget = QWidget()
         self._fields_container = QVBoxLayout(self._fields_widget)
         self._fields_container.setContentsMargins(4, 4, 4, 4)
-        self._fields_container.setSpacing(3)
-        self._fields_container.addStretch(1)  # placeholder iniziale
+        self._fields_container.setSpacing(6)
+        self._fields_container.addStretch(1)
         self._scroll.setWidget(self._fields_widget)
-        outer_layout.addWidget(self._scroll, stretch=1)
+        outer.addWidget(self._scroll, stretch=1)
 
-        # Pulsanti (fuori dalla scroll area)
+        # ── pulsanti ──────────────────────────────────────────────────────────
         btn_layout = QHBoxLayout()
+        self.reset_derived_button = QPushButton("Reset derivati")
+        self.reset_derived_button.setToolTip(
+            "Riporta tutti i campi derivati al calcolo automatico (rimuove override)"
+        )
         self.save_button = QPushButton("Salva")
-        btn_layout.addWidget(self.save_button)
         self.cancel_button = QPushButton("Annulla")
+        btn_layout.addWidget(self.reset_derived_button)
+        btn_layout.addStretch()
+        btn_layout.addWidget(self.save_button)
         btn_layout.addWidget(self.cancel_button)
-        outer_layout.addLayout(btn_layout)
+        outer.addLayout(btn_layout)
 
-    def set_fields(self, material: dict):
-        # Rimuovi vecchi widget e stretch
-        while self._fields_container.count():
-            item = self._fields_container.takeAt(0)
-            w = item.widget()
-            if w is not None:
-                w.deleteLater()
-        self._fields.clear()
-        self._overrides.clear()
-        # Crea nuovi campi dinamici
-        for key, value in material.items():
-            if key in ("id",):
-                continue
-            row_widget = QWidget()
-            row = QHBoxLayout(row_widget)
-            row.setContentsMargins(0, 0, 0, 0)
-            label = QLabel(f"{key}:")
-            label.setFixedWidth(90)
-            edit = QLineEdit()
-            edit.setText(str(value) if value is not None else "")
-            self._fields[key] = edit
-            row.addWidget(label)
-            row.addWidget(edit, stretch=1)
-            # Flag override per ogni campo
-            override = QCheckBox("↑")
-            override.setToolTip(f"Override manuale {key}")
-            override.setFixedWidth(24)
-            self._overrides[key] = override
-            row.addWidget(override)
-            self._fields_container.addWidget(row_widget)
+    # ── API pubblica ─────────────────────────────────────────────────────────
+
+    def set_fields(
+        self,
+        material: Dict[str, Any],
+        norm_schema: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """
+        Popola il frame con i campi del materiale.
+
+        Se `norm_schema` è fornito, genera la UI in gruppi secondo lo schema
+        (input principali editabili, derivati readonly con override checkbox).
+        Altrimenti genera una lista flat di campi editabili per tutti i valori.
+        """
+        self._clear_fields()
+
+        if norm_schema:
+            self._build_from_schema(material, norm_schema)
+        else:
+            self._build_flat(material)
+
         self._fields_container.addStretch(1)
 
-    def get_field_values(self):
-        # Restituisce i valori correnti dei campi
-        return {k: self._fields[k].text() for k in self._fields}
+    def get_field_values(self) -> Dict[str, Any]:
+        """Restituisce i valori correnti di tutti i campi (stringa grezza)."""
+        result: Dict[str, Any] = {}
+        for key, widget in self._fields.items():
+            text = widget.text().strip()
+            result[key] = _try_float(text)
+        return result
 
-    def get_overrides(self):
-        # Restituisce lo stato dei flag override
-        return {k: self._overrides[k].isChecked() for k in self._overrides}
+    def get_overrides(self) -> Dict[str, bool]:
+        """Restituisce lo stato degli override per i campi derivati."""
+        return {k: cb.isChecked() for k, cb in self._overrides.items()}
+
+    def reset_all_overrides(self) -> None:
+        """Deseleziona tutti gli override e rende readonly i campi derivati."""
+        for key, cb in self._overrides.items():
+            cb.setChecked(False)
+            if key in self._fields:
+                self._fields[key].setReadOnly(True)
+                self._fields[key].setStyleSheet(_DERIVED_STYLE)
+
+    def update_derived_values(self, derived: Dict[str, Any]) -> None:
+        """Aggiorna solo i campi derivati non-override con i valori calcolati."""
+        for key, val in derived.items():
+            if key == "_formula_warnings":
+                continue
+            if key in self._fields and self._is_derived.get(key, False):
+                cb = self._overrides.get(key)
+                if cb and cb.isChecked():
+                    continue  # override attivo, non sovrascrivere
+                self._fields[key].setText("" if val is None else str(round(val, 4)))
 
     def set_warning(self, text: str) -> None:
         if text:
@@ -101,12 +135,215 @@ class MaterialDetailFrame(QWidget):
             self.warning_label.setText("")
             self.warning_label.setVisible(False)
 
-# Per test rapido
+    # ── internals ────────────────────────────────────────────────────────────
+
+    def _clear_fields(self) -> None:
+        """Rimuove tutti i widget dal container."""
+        while self._fields_container.count():
+            item = self._fields_container.takeAt(0)
+            w = item.widget()
+            if w is not None:
+                w.deleteLater()
+        self._fields.clear()
+        self._overrides.clear()
+        self._is_derived.clear()
+
+    def _build_from_schema(self, material: Dict[str, Any], norm_schema: Dict[str, Any]) -> None:
+        """Costruisce i campi da schema norma con gruppi, input e derivati."""
+        gruppi_schema: List[Dict] = norm_schema.get("gruppi") or []
+        # Se il padre (la finestra famiglia) definisce gruppi usali, altrimenti
+        # usa quelli dello schema (possono essere vuoti → gruppo "Parametri")
+        all_groups: List[Dict] = []
+        # Raccoglie tutti i gruppi usati da input e derivati
+        used_groups: set[str] = set()
+        for f in norm_schema.get("parametri_input", []):
+            used_groups.add(f.get("gruppo", "general"))
+        for f in norm_schema.get("parametri_derivati", []):
+            used_groups.add(f.get("gruppo", "general"))
+
+        # Mantieni ordine dello schema, aggiungi eventuali gruppi mancanti
+        groups_ordered: List[Dict] = [g for g in gruppi_schema if g["key"] in used_groups]
+        keys_already = {g["key"] for g in groups_ordered}
+        for g in used_groups:
+            if g not in keys_already:
+                groups_ordered.append({"key": g, "label": g.capitalize()})
+
+        # Raggruppa i campi per gruppo
+        input_by_group: Dict[str, List[Dict]] = {g["key"]: [] for g in groups_ordered}
+        derived_by_group: Dict[str, List[Dict]] = {g["key"]: [] for g in groups_ordered}
+
+        for f in norm_schema.get("parametri_input", []):
+            gk = f.get("gruppo", "general")
+            input_by_group.setdefault(gk, []).append(f)
+        for f in norm_schema.get("parametri_derivati", []):
+            gk = f.get("gruppo", "general")
+            derived_by_group.setdefault(gk, []).append(f)
+
+        # Parametri_specifici norma → mostrarli come info fissa nel primo gruppo
+        spec: Dict[str, Any] = norm_schema.get("parametri_specifici", {})
+        if spec:
+            box = self._make_group_box("Coefficienti normativi")
+            form = QFormLayout()
+            form.setLabelAlignment(Qt.AlignRight)
+            for pkey, pinfo in spec.items():
+                if isinstance(pinfo, dict):
+                    lbl = pinfo.get("label", pkey)
+                    unit = pinfo.get("unita", "")
+                    val = material.get(pkey, pinfo.get("valore", ""))
+                    label_text = f"{lbl} [{unit}]:" if unit else f"{lbl}:"
+                    edit = _make_display_line(
+                        str(val) if val != "" else str(pinfo.get("valore", ""))
+                    )
+                    edit.setToolTip(pinfo.get("descrizione", ""))
+                    form.addRow(QLabel(label_text), edit)
+                    self._fields[pkey] = edit
+                    self._is_derived[pkey] = False  # non derivato, coeff. normativo
+            box.setLayout(form)
+            self._fields_container.addWidget(box)
+
+        # Crea un QGroupBox per ogni gruppo con input e derivati
+        for grp in groups_ordered:
+            gk = grp["key"]
+            gl = grp.get("label", gk)
+            inp_fields = input_by_group.get(gk, [])
+            drv_fields = derived_by_group.get(gk, [])
+            if not inp_fields and not drv_fields:
+                continue
+
+            box = self._make_group_box(gl)
+            form = QFormLayout()
+            form.setLabelAlignment(Qt.AlignRight)
+            form.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
+
+            # Input principali
+            for field in inp_fields:
+                row_w = self._make_input_row(field, material)
+                label_text = _field_label(field)
+                form.addRow(QLabel(label_text), row_w)
+
+            # Separatore visivo tra input e derivati
+            if inp_fields and drv_fields:
+                sep = QLabel("── derivati ──")
+                sep.setStyleSheet("color: #888; font-size: 10px;")
+                form.addRow(sep)
+
+            # Derivati
+            for field in drv_fields:
+                row_w = self._make_derived_row(field, material)
+                label_text = _field_label(field)
+                form.addRow(QLabel(label_text), row_w)
+
+            box.setLayout(form)
+            self._fields_container.addWidget(box)
+
+    def _build_flat(self, material: Dict[str, Any]) -> None:
+        """Fallback: crea un campo editabile per ogni chiave del dict."""
+        for key, value in material.items():
+            if key in ("id",):
+                continue
+            row_w = QWidget()
+            row = QHBoxLayout(row_w)
+            row.setContentsMargins(0, 0, 0, 0)
+            lbl = QLabel(f"{key}:")
+            lbl.setFixedWidth(110)
+            edit = QLineEdit()
+            edit.setText(str(value) if value is not None else "")
+            edit.textChanged.connect(self.inputChanged)
+            self._fields[key] = edit
+            self._is_derived[key] = False
+            row.addWidget(lbl)
+            row.addWidget(edit, stretch=1)
+            self._fields_container.addWidget(row_w)
+
+    def _make_input_row(self, field: Dict, material: Dict[str, Any]) -> QWidget:
+        """Crea un QLineEdit editabile per un campo input principale."""
+        key = field["key"]
+        val = material.get(key, field.get("default", ""))
+        edit = QLineEdit()
+        edit.setText(str(val) if val is not None and val != "" else "")
+        edit.setToolTip(field.get("descrizione", ""))
+        edit.textChanged.connect(self.inputChanged)
+        self._fields[key] = edit
+        self._is_derived[key] = False
+        return edit
+
+    def _make_derived_row(self, field: Dict, material: Dict[str, Any]) -> QWidget:
+        """Crea una riga con QLineEdit readonly + checkbox override per un campo derivato."""
+        key = field["key"]
+        val = material.get(key, "")
+        has_override = bool(material.get(f"{key}_override", False))
+
+        container = QWidget()
+        h = QHBoxLayout(container)
+        h.setContentsMargins(0, 0, 0, 0)
+        h.setSpacing(4)
+
+        edit = QLineEdit()
+        edit.setText(
+            str(round(val, 4)) if isinstance(val, (int, float)) else str(val) if val else ""
+        )
+        edit.setToolTip(field.get("descrizione", ""))
+        edit.setReadOnly(not has_override)
+        edit.setStyleSheet(_INPUT_STYLE if has_override else _DERIVED_STYLE)
+        self._fields[key] = edit
+        self._is_derived[key] = True
+
+        cb = QCheckBox()
+        cb.setToolTip("Override manuale: attiva per modificare il valore calcolato")
+        cb.setChecked(has_override)
+        cb.setFixedWidth(20)
+        self._overrides[key] = cb
+
+        def _on_override_toggled(checked: bool, _key: str = key, _edit: QLineEdit = edit) -> None:
+            _edit.setReadOnly(not checked)
+            _edit.setStyleSheet(_INPUT_STYLE if checked else _DERIVED_STYLE)
+
+        cb.toggled.connect(_on_override_toggled)
+        h.addWidget(edit, stretch=1)
+        h.addWidget(cb)
+        return container
+
+    @staticmethod
+    def _make_group_box(title: str) -> QGroupBox:
+        box = QGroupBox(title)
+        box.setStyleSheet("QGroupBox { font-weight: bold; margin-top: 6px; }")
+        return box
+
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+_DERIVED_STYLE = "background: #f5f5f5; color: #555;"
+_INPUT_STYLE = ""
+
+
+def _field_label(field: Dict) -> str:
+    lbl = field.get("label", field.get("key", "?"))
+    unit = field.get("unita", "")
+    return f"{lbl} [{unit}]:" if unit else f"{lbl}:"
+
+
+def _try_float(text: str) -> Any:
+    try:
+        return float(text)
+    except (ValueError, TypeError):
+        return text if text else None
+
+
+def _make_display_line(text: str) -> QLineEdit:
+    edit = QLineEdit(text)
+    edit.setReadOnly(True)
+    edit.setStyleSheet(_DERIVED_STYLE)
+    return edit
+
+
+# ── standalone ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import sys
 
     from PySide6.QtWidgets import QApplication
+
     app = QApplication(sys.argv)
     frame = MaterialDetailFrame()
+    frame.set_fields({"f_ck": 254.9, "E": 310000, "gamma_c": 1.5})
     frame.show()
     sys.exit(app.exec())

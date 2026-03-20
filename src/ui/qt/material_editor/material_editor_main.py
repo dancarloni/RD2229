@@ -1,7 +1,7 @@
 """Material Editor GUI — Entry point main window."""
+
 import sys
 
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
@@ -18,8 +18,11 @@ from PySide6.QtWidgets import (
 )
 
 from src.ui.qt.material_editor.controller import MaterialEditorController
+from src.ui.qt.material_editor.widgets.material_add_wizard import MaterialAddWizard
+from src.ui.qt.material_editor.widgets.material_batch_edit_dialog import MaterialBatchEditDialog
 from src.ui.qt.material_editor.widgets.material_detail_frame import MaterialDetailFrame
 from src.ui.qt.material_editor.widgets.material_export_widget import MaterialExportWidget
+from src.ui.qt.material_editor.widgets.material_settings_dialog import MaterialSettingsDialog
 from src.ui.qt.material_editor.widgets.material_table_widget import MaterialTableWidget
 
 
@@ -48,7 +51,7 @@ class MaterialEditorMainWindow(QMainWindow):
             "Legno": "legno",
             "Muratura": "muratura",
             "Compositi": "composito",
-            "Terreni": "terreno"
+            "Terreni": "terreno",
         }
 
         for tipologia, famiglia in famiglia_map.items():
@@ -114,24 +117,36 @@ class MaterialEditorMainWindow(QMainWindow):
         self.reset_layout_button = QPushButton("Reset layout")
         self.open_log_button = QPushButton("Apri log")
 
+        self.batch_edit_button = QPushButton("Modifica batch…")
+        self.save_catalog_button = QPushButton("Salva su catalogo…")
+        self.settings_button = QPushButton("Impostazioni")
+
         toolbar_layout.addWidget(self.add_button)
         toolbar_layout.addWidget(self.load_button)
         toolbar_layout.addWidget(self.save_button)
+        toolbar_layout.addWidget(self.batch_edit_button)
+        toolbar_layout.addWidget(self.save_catalog_button)
         toolbar_layout.addWidget(self.reset_layout_button)
         toolbar_layout.addWidget(self.open_log_button)
+        toolbar_layout.addWidget(self.settings_button)
 
         self.add_button.clicked.connect(self.on_add_clicked)
         self.open_log_button.clicked.connect(self.on_open_log)
         self.reset_layout_button.clicked.connect(self.on_reset_layout)
         self.load_button.clicked.connect(self.on_load_clicked)
         self.save_button.clicked.connect(self.on_save_clicked)
+        self.batch_edit_button.clicked.connect(self.on_batch_edit_clicked)
+        self.save_catalog_button.clicked.connect(self.on_save_catalog_clicked)
+        self.settings_button.clicked.connect(self.on_settings_clicked)
 
         return toolbar_layout
 
     def _setup_shortcuts(self) -> None:
         """Configura i shortcut globali."""
-        QShortcut(QKeySequence('Ctrl+Z'), self, activated=self._on_undo)
-        QShortcut(QKeySequence('Ctrl+Y'), self, activated=self._on_redo)
+        sc_undo = QShortcut(QKeySequence("Ctrl+Z"), self)
+        sc_undo.activated.connect(self._on_undo)
+        sc_redo = QShortcut(QKeySequence("Ctrl+Y"), self)
+        sc_redo.activated.connect(self._on_redo)
 
     def get_active_controller(self) -> MaterialEditorController | None:
         """Restituisce il controller della tab attiva."""
@@ -141,10 +156,196 @@ class MaterialEditorMainWindow(QMainWindow):
         return None
 
     def on_add_clicked(self):
-        """Handler per pulsante Aggiungi."""
+        """Apre il wizard per aggiungere un nuovo materiale."""
         ctl = self.get_active_controller()
-        if ctl:
-            ctl.start_new_material()
+        if not ctl:
+            return
+        wizard = MaterialAddWizard(self)
+        # Pre-seleziona famiglia dal tab attivo
+        if ctl.famiglia:
+            from src.ui.qt.material_editor.logic.material_config import MaterialConfigLoader
+
+            families = MaterialConfigLoader().load_families()
+            for i, f in enumerate(families):
+                if f["key"] == ctl.famiglia:
+                    try:
+                        wizard._combo_famiglia.setCurrentIndex(i)
+                        wizard._on_famiglia_changed()
+                    except Exception:
+                        pass
+                    break
+        if wizard.exec() == QDialog.DialogCode.Accepted:
+            mat = wizard.get_result_material()
+            if mat:
+                ctl.repo.add_material(mat)
+                if hasattr(ctl, "model") and ctl.model:
+                    ctl.model.refresh()
+                # Seleziona il nuovo materiale
+                last_idx = len(ctl.repo.materials) - 1
+                if last_idx >= 0:
+                    ctl.current_index = last_idx
+                    ctl.populate_detail_from_index(last_idx)
+                    if ctl.table:
+                        try:
+                            ctl.table.selectRow(last_idx)
+                        except Exception:
+                            pass
+
+    def on_batch_edit_clicked(self):
+        """Apre il dialog batch edit per modificare lo stesso campo su N materiali."""
+        ctl = self.get_active_controller()
+        if ctl is None:
+            return
+
+        # Recupera indici selezionati dalla tabella (se disponibile)
+        selected_indices: list[int] = []
+        try:
+            if hasattr(ctl, "table") and ctl.table is not None:
+                selected_indices = [
+                    idx.row() for idx in ctl.table.selectionModel().selectedRows()
+                ]
+        except Exception:
+            pass
+
+        if not selected_indices:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.information(
+                self, "Nessuna selezione",
+                "Selezionare almeno un materiale nella tabella prima di usare il batch edit."
+            )
+            return
+
+        dlg = MaterialBatchEditDialog(
+            materials=ctl.repo.materials,
+            selected_indices=selected_indices,
+            parent=self,
+        )
+        if dlg.exec() == MaterialBatchEditDialog.DialogCode.Accepted:
+            field, value = dlg.get_result()
+            if field:
+                ctl.on_batch_edit_accepted(field, value, selected_indices)
+
+    def on_save_catalog_clicked(self):
+        """Salva i materiali del tab attivo nel catalogo di sistema corrispondente."""
+        from PySide6.QtWidgets import QComboBox, QDialog, QDialogButtonBox, QFormLayout, QMessageBox
+
+        ctl = self.get_active_controller()
+        if ctl is None:
+            return
+
+        # Raccogli famiglie e norme disponibili dai materiali del repo
+        norme_disponibili: list[str] = sorted(
+            {
+                m.get("norma_riferimento") or m.get("norma", "")
+                for m in ctl.repo.materials
+                if m.get("norma_riferimento") or m.get("norma")
+            }
+        )
+        famiglie_disponibili: list[str] = sorted(
+            {m.get("famiglia", "") for m in ctl.repo.materials if m.get("famiglia")}
+        )
+
+        if not norme_disponibili or not famiglie_disponibili:
+            QMessageBox.information(
+                self,
+                "Nessun materiale",
+                "Nessun materiale con famiglia e norma definite nel repository attivo.",
+            )
+            return
+
+        # Dialog selezione famiglia + norma
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Salva su catalogo di sistema")
+        form = QFormLayout(dlg)
+
+        combo_fam = QComboBox()
+        for f in famiglie_disponibili:
+            combo_fam.addItem(f)
+        if ctl.famiglia:
+            idx = combo_fam.findText(ctl.famiglia)
+            if idx >= 0:
+                combo_fam.setCurrentIndex(idx)
+        form.addRow("Famiglia:", combo_fam)
+
+        combo_norma = QComboBox()
+        for n in norme_disponibili:
+            combo_norma.addItem(n)
+        form.addRow("Norma:", combo_norma)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(dlg.accept)
+        buttons.rejected.connect(dlg.reject)
+        form.addRow(buttons)
+
+        if dlg.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        famiglia = combo_fam.currentText()
+        norma = combo_norma.currentText()
+
+        # Conta materiali che verranno salvati
+        subset = [
+            m for m in ctl.repo.materials
+            if m.get("famiglia") == famiglia
+            and (m.get("norma_riferimento") == norma or m.get("norma") == norma)
+        ]
+        if not subset:
+            QMessageBox.information(
+                self,
+                "Nessun materiale",
+                f"Nessun materiale trovato per famiglia='{famiglia}' e norma='{norma}'.",
+            )
+            return
+
+        # Conferma
+        reply = QMessageBox.question(
+            self,
+            "Conferma salvataggio catalogo",
+            f"Salvare {len(subset)} materiale/i ({famiglia} / {norma}) nel catalogo di sistema?\n"
+            "Un backup (.bak) sarà creato automaticamente.",
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            saved_path = ctl.repo.save_catalog(famiglia, norma)
+            QMessageBox.information(
+                self,
+                "Catalogo salvato",
+                f"Salvati {len(subset)} materiali in:\n{saved_path}",
+            )
+        except Exception as exc:
+            QMessageBox.critical(
+                self,
+                "Errore salvataggio catalogo",
+                f"Impossibile salvare il catalogo:\n{exc}",
+            )
+
+    def on_settings_clicked(self):
+        """Apre il dialog Impostazioni con tab config materiali + coefficienti globali."""
+        from src.ui.qt.settings.material_coefficients_settings_widget import (
+            MaterialCoefficientsSettingsWidget,
+        )
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Impostazioni — Materiali")
+        dlg.resize(860, 580)
+
+        tabs = QTabWidget(dlg)
+        # Tab 1: configurazione schemi/formule (MaterialSettingsDialog come widget)
+        config_tab = MaterialSettingsDialog(dlg)
+        # Rimuovi bottoni interni dal dialog (sono ora nel tab)
+        tabs.addTab(config_tab, "Schema e formule")
+
+        # Tab 2: coefficienti normativi globali
+        coeffs_tab = MaterialCoefficientsSettingsWidget(dlg)
+        tabs.addTab(coeffs_tab, "Coefficienti normativi globali")
+
+        layout = QVBoxLayout(dlg)
+        layout.addWidget(tabs)
+        dlg.exec()
 
     def on_open_log(self):
         """Mostra il dialog di audit log."""
@@ -152,17 +353,17 @@ class MaterialEditorMainWindow(QMainWindow):
         if not ctl:
             return
         dlg = QDialog(self)
-        dlg.setWindowTitle('Audit log')
+        dlg.setWindowTitle("Audit log")
         layout = QVBoxLayout()
         te = QTextEdit()
         te.setReadOnly(True)
         try:
-            lines = [str(e) for e in getattr(ctl.repo, 'audit_log', [])]
-            te.setPlainText('\n'.join(lines))
+            lines = [str(e) for e in getattr(ctl.repo, "audit_log", [])]
+            te.setPlainText("\n".join(lines))
         except Exception:
-            te.setPlainText('No audit log available')
+            te.setPlainText("No audit log available")
         layout.addWidget(te)
-        btn = QPushButton('Chiudi')
+        btn = QPushButton("Chiudi")
         btn.clicked.connect(dlg.accept)
         layout.addWidget(btn)
         dlg.setLayout(layout)
@@ -171,7 +372,7 @@ class MaterialEditorMainWindow(QMainWindow):
     def on_reset_layout(self):
         """Reset layout preferences."""
         ctl = self.get_active_controller()
-        if ctl and hasattr(ctl.repo, 'reset_layout'):
+        if ctl and hasattr(ctl.repo, "reset_layout"):
             try:
                 ctl.repo.reset_layout()
             except Exception:
@@ -183,7 +384,7 @@ class MaterialEditorMainWindow(QMainWindow):
         if ctl:
             try:
                 ctl.repo.undo()
-                if hasattr(ctl, 'model') and ctl.model:
+                if hasattr(ctl, "model") and ctl.model:
                     ctl.model.refresh()
             except Exception:
                 pass
@@ -194,7 +395,7 @@ class MaterialEditorMainWindow(QMainWindow):
         if ctl:
             try:
                 ctl.repo.redo()
-                if hasattr(ctl, 'model') and ctl.model:
+                if hasattr(ctl, "model") and ctl.model:
                     ctl.model.refresh()
             except Exception:
                 pass
@@ -205,8 +406,7 @@ class MaterialEditorMainWindow(QMainWindow):
         if not ctl:
             return
         fname, _ = QFileDialog.getSaveFileName(
-            self, 'Salva materiali', '',
-            'JSON Files (*.json);;All Files (*)'
+            self, "Salva materiali", "", "JSON Files (*.json);;All Files (*)"
         )
         if fname:
             try:
@@ -220,13 +420,12 @@ class MaterialEditorMainWindow(QMainWindow):
         if not ctl:
             return
         fname, _ = QFileDialog.getOpenFileName(
-            self, 'Carica materiali', '',
-            'JSON Files (*.json);;All Files (*)'
+            self, "Carica materiali", "", "JSON Files (*.json);;All Files (*)"
         )
         if fname:
             try:
                 ctl.repo.load_from_file(fname)
-                if hasattr(ctl, 'model') and ctl.model:
+                if hasattr(ctl, "model") and ctl.model:
                     ctl.model.refresh()
             except Exception:
                 pass
@@ -240,5 +439,5 @@ def main():
     sys.exit(app.exec())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

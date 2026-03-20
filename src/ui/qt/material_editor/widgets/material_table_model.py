@@ -1,10 +1,14 @@
 """
 MaterialTableModel — QAbstractTableModel per i materiali
 """
-from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex
+
+from typing import Any, List
+
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide6.QtGui import QColor
-from typing import List, Any
+
 from src.ui.qt.material_editor.logic.material_validation_logic import validate as validate_material
+
 
 class MaterialTableModel(QAbstractTableModel):
     def __init__(self, repository, parent=None):
@@ -16,13 +20,14 @@ class MaterialTableModel(QAbstractTableModel):
     def _rebuild_columns(self):
         cols = set()
         for mat in self.repo.materials:
-            cols.update(mat.keys())
-        # deterministic order: sort keys but put 'id' and 'codice' first if present
+            cols.update(k for k in mat.keys() if not k.endswith("_override"))
+        # deterministic order: put priority columns first
+        priority = ["codice", "descrizione", "famiglia", "norma_riferimento", "material_id", "id"]
         ordered = []
-        for k in ['id', 'codice', 'descrizione', 'norma']:
+        for k in priority:
             if k in cols:
                 ordered.append(k)
-                cols.remove(k)
+                cols.discard(k)
         ordered.extend(sorted(cols))
         self._columns = ordered
 
@@ -40,15 +45,15 @@ class MaterialTableModel(QAbstractTableModel):
             col = index.column()
             key = self._columns[col]
             mat = self.repo.materials[row]
-            val = mat.get(key, '')
-            return '' if val is None else str(val)
+            val = mat.get(key, "")
+            return "" if val is None else str(val)
         # background highlight for incomplete materials
         if role == Qt.BackgroundRole:
             row = index.row()
             mat = self.repo.materials[row]
             try:
                 res = validate_material(mat)
-                if not res.get('is_complete', True):
+                if not res.get("is_complete", True):
                     return QColor(255, 250, 200)  # light yellow
             except Exception:
                 pass
@@ -68,7 +73,7 @@ class MaterialTableModel(QAbstractTableModel):
 
     def sort(self, column: int, order: Qt.SortOrder = Qt.AscendingOrder) -> None:
         key = self._columns[column]
-        reverse = (order == Qt.DescendingOrder)
+        reverse = order == Qt.DescendingOrder
         try:
             self.repo.sort_materials(key, reverse=reverse)
             self.layoutChanged.emit()

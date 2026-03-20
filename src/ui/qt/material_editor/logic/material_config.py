@@ -13,9 +13,12 @@ Namespace disponibile: campi input del materiale + parametri_specifici della nor
 from __future__ import annotations
 
 import json
+import logging
 import math
 import pathlib
 from typing import Any, Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 
 # ── namespace sicuro per eval delle formule ────────────────────────────────────
 _FORMULA_NAMESPACE: Dict[str, Any] = {
@@ -125,32 +128,66 @@ class MaterialConfigLoader:
         material: Dict[str, Any],
         norm_schema: Dict[str, Any],
         overrides: Optional[Dict[str, bool]] = None,
+        famiglia: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """
-        Calcola tutti i parametri derivati per un materiale dato lo schema norma.
+        """Calcola tutti i parametri derivati per un materiale dato lo schema norma.
+
+        Applica la gerarchia di override per i coefficienti normativi:
+          Level 3 (per-materiale) > Level 2 (globale utente) > Level 1 (schema config)
+
+        Per il Level 2 usa :class:`~src.core.material_global_config.GlobalMaterialCoefficientsManager`
+        se disponibile (import lazy per evitare dipendenza circolare).
 
         I parametri con override=True vengono mantenuti invariati.
         I parametri derivati vengono processati in ordine (supporta dipendenze a catena).
 
+        Args:
+            material: Dict del materiale con i valori correnti.
+            norm_schema: Schema norma (entry di get_norms_for_family).
+            overrides: Dict {campo: True} per i campi con override per-materiale (Level 3).
+            famiglia: Famiglia del materiale (es. "calcestruzzo"). Se fornita abilita
+                il Level 2 tramite GlobalMaterialCoefficientsManager.
+
         Returns:
-            dict con {key: valore_calcolato} — solo campi non-override.
+            dict con {key: valore_calcolato} — solo campi non-override,
+            più chiave ``_formula_warnings`` con lista di warning.
         """
         if overrides is None:
             overrides = {}
 
+        norm_key: str | None = norm_schema.get("key")
+
+        # Recupera GlobalMaterialCoefficientsManager (lazy import, livello 2)
+        _global_mgr = None
+        if famiglia and norm_key:
+            try:
+                from src.core.material_global_config import GlobalMaterialCoefficientsManager
+                _global_mgr = GlobalMaterialCoefficientsManager.instance()
+            except Exception as exc:
+                logger.debug("GlobalMaterialCoefficientsManager non disponibile: %s", exc)
+
         # Namespace di valutazione: copia sicura delle funzioni math
         ns: Dict[str, Any] = dict(_FORMULA_NAMESPACE)
 
-        # Aggiungi i parametri_specifici dalla norma (default, a meno che il
-        # materiale non li sovrascriva esplicitamente)
+        # Aggiungi i parametri_specifici dalla norma applicando la gerarchia:
+        # Level 3 (material.get) > Level 2 (GlobalMgr) > Level 1 (pinfo["valore"])
         for pkey, pinfo in norm_schema.get("parametri_specifici", {}).items():
             if isinstance(pinfo, dict):
                 mat_val = material.get(pkey)
-                ns[pkey] = (
-                    float(mat_val)
-                    if isinstance(mat_val, (int, float))
-                    else float(pinfo.get("valore", 1.0))
-                )
+                if isinstance(mat_val, (int, float)):
+                    # Level 3: valore nel singolo materiale
+                    ns[pkey] = float(mat_val)
+                elif _global_mgr is not None and norm_key and famiglia:
+                    # Level 2: override globale utente
+                    global_val = _global_mgr.get_coefficient(norm_key, famiglia, pkey)
+                    if global_val is not None:
+                        ns[pkey] = float(global_val)
+                    else:
+                        # Level 1: default schema
+                        ns[pkey] = float(pinfo.get("valore", 1.0))
+                else:
+                    # Level 1: default schema
+                    ns[pkey] = float(pinfo.get("valore", 1.0))
             elif isinstance(pinfo, (int, float)):
                 ns[pkey] = float(pinfo)
 

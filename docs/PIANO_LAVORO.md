@@ -671,6 +671,7 @@ GUI moderna (src/ui/modern/app.py -> src/ui/modern/main_window.py)
 | 2026-03-15 | X    | X.0.2 split reale X1-X8 + master-index | — | Terzo giro Q&A completato e recepito. Eseguita la scomposizione effettiva della Fase X in 8 file modulo (`piano_fase_X1` ... `piano_fase_X8`) con sezioni obbligatorie (rischi normativi residui, formula/fallback/motivo, warning codificati, quick reference testabile). Aggiornato `piano_fase_X.md` come master-index operativo con link ai moduli e regole di manutenzione anti-duplicazione. |
 | 2026-03-16 | GUI-V1 | Planning + Q&A | — | **Pianificazione completa GUI-V1**: Q&A interattiva 10 domande storicizzata; inventory widget (9 reali, 6 stub); piano 9 fasi (GUI-0→GUI-9) con 51 sub-task; decisioni architett.: tab singola, entry point `src/ui/modern/app.py`, persistenza 3 livelli (JSON+SQLite+config.json), ProjectEditor esteso, PipelineRunner con QThread+log+CSV, ReportViewer con QWebEngineView+fallback, multi-norma 10 combo, stylesheet.py completato. Aggiornato `PIANO_LAVORO.md` con: contatori test aggiornati (3240/3243), sezioni GUI-V1, Q&A storicizzata, dependency graph. |
 | 2026-03-16 | GUI-V1 | GUI-0→GUI-9 esecuzione | — | **Implementazione completa in sessione unica**: risolti i 3 test bloccanti; convertiti 6 moduli Qt da stub a operativi (`project_editor`, `pipeline_runner`, `report_viewer`, `section_manager`, `notification_center`, `code_settings`); shell `src/ui/modern/main_window.py` migrata a tab-based con menu/status/recenti; aggiunti persistence layer (`src/core/user_config.py`, `src/core/persistence.py`), norma multi-code (`list_norm_codes`), tema dark/light con apply_theme, documentazione GUI (`docs/ARCHITETTURA_GUI.md`), README avvio rapido, optional dependency `PyQt6-WebEngine` in extras GUI. Validazione finale: **3243/3243 PASS**. |
+| corrente | MAT-ED | Material Editor redesign | — | **Riprogettazione completa Material Editor**: implementazione config-driven con formule normalizzate per famiglia+norma. Nuovo: `config/materials/families.json` + 6 file `<famiglia>_config.json` con `parametri_input`, `parametri_derivati` (formule Python safe-eval), `gruppi`, `parametri_specifici`; `src/ui/qt/material_editor/logic/material_config.py` (MaterialConfigLoader, cache, `compute_derived` con chain dependency e override); `src/ui/qt/material_editor/widgets/material_add_wizard.py` (wizard 3 passaggi: famiglia/norma → parametri → riepilogo+derivati); `src/ui/qt/material_editor/widgets/material_settings_dialog.py` (editor JSON config in-app); `MaterialDetailFrame` riscritta con QGroupBox per gruppo, campi derivati readonly, override checkbox per campo, pulsante Reset derivati; `MaterialEditorController` esteso con `_get_norm_schema`, `_recompute_derived`, `_on_input_changed`, `on_reset_derived_clicked`; pulsante Impostazioni nella toolbar; colonne tabella riordinate (codice/descrizione/famiglia/norma_riferimento prioritarie); `compute_material_code(data)` UUID5 auto-generato; 18 nuovi test in `tests/test_material_config_and_code.py` **18/18 PASS**; 77 test material editor precedenti **77/77 PASS**. |
 | 2026-03-15 | X    | X.0.3 template applicato X1-X8 + metadata allineati | — | Applicato template derivato da `piano_fase_U.md` a `piano_fase_X1..X8.md`: aggiunte sezioni obbligatorie, checkbox sub-fasi, placeholders Domande/Decisioni, allineati warning code e metadati (`Test pianificati`, `Dipendenza master`). `docs/piano_fase_X.md` snellito in master-index. |
 | 2026-03-15 | X    | X3.1–X3.4 implementazione tranche 1 + X3.5 avvio | — | Q&A bloccante pre-implementazione completata (scope core completo, test set esteso 25+, validazione mirata). Implementati nuovi check `x3_slu_flessione`, `x3_slu_taglio`, `x3_slu_punzonamento`, `x3_dm96_laterocemento`, `x3_dm16_legno` in `src/methods/ntc2018/checks_x3.py`; wiring su `src/codes/ntc2018/code_module.py`; aggiunta suite `tests/codes/test_x3_slu_checks.py` con esito **35/35 PASS**. Decisioni recepite: NTC2018 primaria, EN secondaria, fallback DM96/DM16 solo esplicito. |
 | 2026-03-15 | X    | X3.5 benchmark e chiusura modulo X3 | — | Completata suite benchmark `tests/codes/test_x3_slu_benchmark.py` e validazione mirata complessiva X3: **52/52 PASS** (`test_x3_slu_checks.py` + `test_x3_slu_benchmark.py`). Stato `docs/piano_fase_X3_verifiche_slu.md` aggiornato a COMPLETATO. |
@@ -743,8 +744,83 @@ Se vuoi, posso applicare automaticamente le modifiche di frontmatter ai file `pi
 
 <!-- GUI_TODO_SYNC:START -->
 ### GUI TODO Sync (auto)
+
 - Ultimo sync: 2026-03-17 13:17
 - Stato: 81/81 completati, 0 aperti
 - Fonte tecnica: `docs/PIANO_LAVORO_GUI.md`
 - Comando: `python scripts/sync_todo_gui.py --update-gui --update-main`
 <!-- GUI_TODO_SYNC:END -->
+
+---
+
+## GUI-M: Material Editor Workflow Avanzato + Global Material Governance
+
+**Data avvio**: 2026-03-20
+**Commit BLOCK A**: 40f92df
+**Status**: ✅ COMPLETATO
+
+### Obiettivo
+
+Completare il Material Editor con:
+- Governance globale dei coefficienti normativi (3-level override hierarchy)
+- Calcoli automatici per famiglia (formula-based, GlobalCoefficientsManager integrato)
+- Validazione normativa completa (range + coerenza + per-norma)
+- Batch editing (stesso valore su N materiali selezionati)
+- Persistenza catalogo (save to data/materials/catalogo_*.json con backup)
+- UI Impostazioni Generali → tab "Coefficienti normativi globali"
+
+### Architettura
+
+Vedere: `docs/ARCHITECTURE_MATERIAL_GOVERNANCE.md`
+
+### Sub-fasi
+
+- [x] M.A: Infrastructure governance
+  - [x] A1: `config/norms/` con 8 file JSON (NTC2018, NTC2008, OPCM3274, DM96, DM92, DM72, Circ81, RD2229)
+  - [x] A2: `NormativeDefaultsLoader` (`src/core/normative_defaults.py`)
+  - [x] A3: `UserConfig` esteso + `GlobalMaterialCoefficientsManager` (`src/core/material_global_config.py`)
+  - [x] A4: 71 test (test_normative_defaults.py + test_material_global_config.py)
+- [x] M.B: Material Editor avanzato
+  - [x] B1: Backup/recovery transazionale in `MaterialSettingsDialog`
+  - [x] B2: `compute_derived()` integrato con GlobalCoefficientsManager (Level 2 nel namespace eval)
+  - [x] B3: Validazione normativa completa (`validate_full()`, `validate_ranges()`, `validate_coherence()`, `validate_normative()`)
+  - [x] B4: `MaterialBatchEditDialog` completo + `on_batch_edit_accepted()` nel controller
+  - [x] B5: `MaterialRepository.save_catalog()` + `on_save_catalog_clicked()` nella main window
+- [x] M.C: Global Coefficients UI
+  - [x] C1: `MaterialCoefficientsSettingsWidget` (`src/ui/qt/settings/`)
+  - [x] C1: Integrato in Impostazioni → tab "Coefficienti normativi globali"
+- [x] M.D: Doc alignment
+  - [x] `docs/ARCHITECTURE_MATERIAL_GOVERNANCE.md` (nuovo)
+  - [x] `docs/PIANO_LAVORO.md` sezione GUI-M (questo documento)
+  - [x] `docs/MATERIAL_EDITOR_DESIGN.md` sezione 14 aggiornata
+
+### File critici
+
+| File | Ruolo |
+|------|-------|
+| `config/norms/*.json` (8 file) | Level 1: defaults normativi immutabili |
+| `src/core/normative_defaults.py` | Loader Level 1 con cache |
+| `src/core/material_global_config.py` | Manager Level 1+2, set/reset override |
+| `src/core/user_config.py` | Persiste Level 2 in `~/.rd2229/config.json` |
+| `src/ui/qt/material_editor/logic/material_config.py` | `compute_derived()` con gerarchia |
+| `src/ui/qt/material_editor/logic/material_validation_logic.py` | Validazione 3 livelli |
+| `src/ui/qt/material_editor/logic/material_repository.py` | `save_catalog()` con backup |
+| `src/ui/qt/material_editor/widgets/material_batch_edit_dialog.py` | Batch edit UI |
+| `src/ui/qt/settings/material_coefficients_settings_widget.py` | Settings UI Level 2 |
+| `docs/ARCHITECTURE_MATERIAL_GOVERNANCE.md` | Architettura governance |
+
+### Test coverage
+
+- 71 test nuovi: `test_normative_defaults.py` (38) + `test_material_global_config.py` (33)
+- 18 test esistenti: `test_material_config_and_code.py`
+- **Totale modulo**: 89 test, 100% pass rate
+
+### Status implementazione
+
+| Sub-fase | Status | Commit |
+|----------|--------|--------|
+| M.A (governance infra) | ✅ COMPLETATO | 40f92df |
+| M.B (editor avanzato) | ✅ COMPLETATO | (commit finale) |
+| M.C (settings UI) | ✅ COMPLETATO | (commit finale) |
+| M.D (doc alignment) | ✅ COMPLETATO | (commit finale) |
+

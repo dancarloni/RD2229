@@ -6,12 +6,20 @@ ed export widget. Non esegue operazioni Qt all'importazione: i collegamenti
 ai widget vengono effettuati tramite i metodi `attach_*` a runtime.
 """
 
+import logging
 from typing import Any, Dict, Optional
 
 from src.core.controller_base import ControllerBase
+from src.ui.qt.material_editor.logic.material_config import MaterialConfigLoader
 from src.ui.qt.material_editor.logic.material_export_logic import MaterialExportLogic
 from src.ui.qt.material_editor.logic.material_repository import MaterialRepository
-from src.ui.qt.material_editor.logic.material_validation_logic import validate as validate_material
+from src.ui.qt.material_editor.logic.material_validation_logic import (
+    validate as validate_material,
+    validate_full,
+)
+
+logger = logging.getLogger(__name__)
+_config = MaterialConfigLoader()
 
 
 class MaterialEditorController(ControllerBase):
@@ -90,6 +98,10 @@ class MaterialEditorController(ControllerBase):
                 self.detail.save_button.clicked.connect(self.on_save_clicked)
             if hasattr(self.detail, "cancel_button"):
                 self.detail.cancel_button.clicked.connect(self.on_cancel_clicked)
+            if hasattr(self.detail, "reset_derived_button"):
+                self.detail.reset_derived_button.clicked.connect(self.on_reset_derived_clicked)
+            if hasattr(self.detail, "inputChanged"):
+                self.detail.inputChanged.connect(self._on_input_changed)
             # setup Ctrl+S shortcut on the detail frame (runtime)
             try:
                 from PySide6.QtGui import QKeySequence
@@ -208,16 +220,95 @@ class MaterialEditorController(ControllerBase):
         except Exception:
             pass
 
+    def _get_norm_schema(self, material: Dict[str, Any]) -> Optional[Dict]:
+        """Restituisce lo schema norma per famiglia + norma_riferimento del materiale."""
+        famiglia = material.get("famiglia") or self.famiglia
+        norma = material.get("norma_riferimento") or material.get("norma")
+        if not famiglia or not norma:
+            return None
+        try:
+            return _config.get_norm_schema(famiglia, norma)
+        except Exception as exc:
+            logger.debug("Schema non trovato per %s/%s: %s", famiglia, norma, exc)
+            return None
+
+    def _recompute_derived(self, material: Dict[str, Any]) -> None:
+        """Calcola i derivati e li aggiorna nel detail frame."""
+        if self.detail is None:
+            return
+        norm_schema = self._get_norm_schema(material)
+        if norm_schema is None:
+            return
+        # Leggi gli override correnti dal detail
+        current_vals = {}
+        if hasattr(self.detail, "get_field_values"):
+            current_vals = self.detail.get_field_values()
+        current_overrides = {}
+        if hasattr(self.detail, "get_overrides"):
+            current_overrides = self.detail.get_overrides()
+        # Unisci: materiale base + valori editati dall'utente + override correnti
+        merged = dict(material)
+        for k, v in current_vals.items():
+            if v is not None:
+                merged[k] = v
+        for k, checked in current_overrides.items():
+            merged[f"{k}_override"] = checked
+        try:
+            famiglia_mat = material.get("famiglia") or self.famiglia
+            derived = _config.compute_derived(merged, norm_schema, famiglia=famiglia_mat)
+            if hasattr(self.detail, "update_derived_values"):
+                self.detail.update_derived_values(derived)
+        except Exception as exc:
+            logger.debug("Errore compute_derived: %s", exc)
+
+    def _on_input_changed(self) -> None:
+        """Ricalcola i derivati quando un campo input cambia."""
+        if self.current_index is None:
+            # materiale nuovo: prendi valori dal form
+            if self.detail and hasattr(self.detail, "get_field_values"):
+                mat = self.detail.get_field_values()
+            else:
+                return
+        else:
+            if self.current_index < 0 or self.current_index >= len(self.repo.materials):
+                return
+            mat = dict(self.repo.materials[self.current_index])
+            if self.detail and hasattr(self.detail, "get_field_values"):
+                for k, v in self.detail.get_field_values().items():
+                    if v is not None:
+                        mat[k] = v
+        self._recompute_derived(mat)
+
+    def on_reset_derived_clicked(self) -> None:
+        """Rimuove tutti gli override dal materiale corrente e ricalcola."""
+        if self.current_index is None or self.detail is None:
+            return
+        # Rimuovi flag override dal materiale nel repository
+        if 0 <= self.current_index < len(self.repo.materials):
+            mat = self.repo.materials[self.current_index]
+            keys_to_remove = [k for k in list(mat.keys()) if k.endswith("_override")]
+            for k in keys_to_remove:
+                mat.pop(k, None)
+        # Reset visivo nel detail
+        if hasattr(self.detail, "reset_all_overrides"):
+            self.detail.reset_all_overrides()
+        # Ricalcola
+        if 0 <= self.current_index < len(self.repo.materials):
+            self._recompute_derived(self.repo.materials[self.current_index])
+
     def populate_detail_from_index(self, idx: int) -> None:
         if idx is None or idx < 0 or idx >= len(self.repo.materials):
             return
         mat = self.repo.materials[idx]
         if self.detail is None:
             return
-        # Popola dinamicamente i campi del frame laterale
+        # Recupera schema norma e popola il detail
+        norm_schema = self._get_norm_schema(mat)
         if hasattr(self.detail, "set_fields"):
-            self.detail.set_fields(mat)
-        # soft validation: show warnings in the detail frame (non-blocking)
+            self.detail.set_fields(mat, norm_schema)
+        # Calcola subito i derivati
+        self._recompute_derived(mat)
+        # soft validation
         try:
             res = validate_material(mat)
             msgs = []
@@ -235,29 +326,51 @@ class MaterialEditorController(ControllerBase):
     def on_save_clicked(self) -> None:
         if self.detail is None:
             return
-        # raccogli dati dal dettaglio
+        # Raccogli tutti i valori correnti dal detail frame
         data: Dict[str, Any] = {}
+        if hasattr(self.detail, "get_field_values"):
+            data.update(self.detail.get_field_values())
+        if hasattr(self.detail, "get_overrides"):
+            for key, checked in self.detail.get_overrides().items():
+                data[f"{key}_override"] = checked
+        # Eredita famiglia e norma_riferimento dal materiale corrente (se presenti)
+        if self.current_index is not None and 0 <= self.current_index < len(self.repo.materials):
+            base = self.repo.materials[self.current_index]
+            for inherit_key in ("famiglia", "norma_riferimento", "id"):
+                if inherit_key in base and inherit_key not in data:
+                    data[inherit_key] = base[inherit_key]
+
+        # Validazione normativa completa prima del salvataggio
         try:
-            if hasattr(self.detail, "code_edit"):
-                data["codice"] = self.detail.code_edit.text()
-            if hasattr(self.detail, "desc_edit"):
-                data["descrizione"] = self.detail.desc_edit.text()
-            if hasattr(self.detail, "norma_edit"):
-                data["norma"] = self.detail.norma_edit.text()
-            if hasattr(self.detail, "fck_edit"):
-                val = self.detail.fck_edit.text()
-                data["f_ck"] = float(val) if val else None
-            if hasattr(self.detail, "gamma_c_edit"):
-                val = self.detail.gamma_c_edit.text()
-                data["gamma_c"] = float(val) if val else None
-            # override flags
-            if hasattr(self.detail, "fck_override"):
-                data["f_ck_override"] = bool(self.detail.fck_override.isChecked())
-            if hasattr(self.detail, "gamma_c_override"):
-                data["gamma_c_override"] = bool(self.detail.gamma_c_override.isChecked())
-        except Exception:
-            # non blocchiamo l'interfaccia per errori di conversione
-            pass
+            norm_schema = self._get_norm_schema(data)
+            norm_code = data.get("norma_riferimento") or data.get("norma")
+            validation = validate_full(data, norm_schema=norm_schema, norm_code=norm_code)
+            if not validation.is_valid:
+                # Errori bloccanti → non salvare
+                err_lines = [f"• [{i.field}] {i.message}" for i in validation.errors]
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.critical(
+                    None,
+                    "Errori di validazione — salvataggio bloccato",
+                    "Il materiale non può essere salvato:\n\n" + "\n".join(err_lines),
+                )
+                return
+            if validation.warnings:
+                # Warning non bloccanti → chiede conferma
+                warn_lines = [f"• [{i.field}] {i.message}" for i in validation.warnings]
+                from PySide6.QtWidgets import QMessageBox
+                reply = QMessageBox.warning(
+                    None,
+                    "Avvisi di validazione",
+                    "Sono presenti avvisi:\n\n"
+                    + "\n".join(warn_lines)
+                    + "\n\nSalvare comunque?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                )
+                if reply != QMessageBox.StandardButton.Yes:
+                    return
+        except Exception as exc:
+            logger.debug("Errore validazione pre-save: %s", exc)
 
         if self.current_index is None:
             # aggiungi nuovo materiale
@@ -301,6 +414,72 @@ class MaterialEditorController(ControllerBase):
         except Exception:
             pass
 
+    def on_batch_edit_accepted(
+        self,
+        field: str,
+        value: Any,
+        material_indices: List[int],
+    ) -> None:
+        """Applica lo stesso valore a N materiali selezionati con rollback su errore.
+
+        Args:
+            field: Nome del campo da modificare.
+            value: Nuovo valore (numerico o stringa).
+            material_indices: Indici dei materiali nel repo.
+        """
+        if not field or not material_indices:
+            return
+
+        # Snapshot per rollback
+        snapshots = {
+            idx: dict(self.repo.materials[idx])
+            for idx in material_indices
+            if 0 <= idx < len(self.repo.materials)
+        }
+
+        errors: List[str] = []
+        updated: List[int] = []
+
+        for idx in material_indices:
+            if idx < 0 or idx >= len(self.repo.materials):
+                continue
+            try:
+                patch = {field: value}
+                self.repo.update_material(idx, patch)
+                updated.append(idx)
+            except Exception as exc:
+                errors.append(f"Materiale {idx}: {exc}")
+
+        if errors:
+            # Rollback
+            for idx, snapshot in snapshots.items():
+                try:
+                    self.repo._materials[idx] = snapshot
+                except Exception:
+                    pass
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.critical(
+                None,
+                "Batch edit fallito",
+                "Errori durante il batch edit (rollback eseguito):\n\n"
+                + "\n".join(errors),
+            )
+            return
+
+        # Refresh UI
+        try:
+            if hasattr(self, "model") and self.model is not None:
+                self.model.refresh()
+        except Exception:
+            pass
+
+        # Riseleziona il materiale corrente se incluso
+        if self.current_index in updated:
+            self.populate_detail_from_index(self.current_index)
+
+        logger.info("Batch edit: %s=%s su %d materiali", field, value, len(updated))
+        self.emit("batch_updated", updated, field, value)
+
     def on_cancel_clicked(self) -> None:
         # ripristina valori originali
         if self.current_index is not None:
@@ -311,37 +490,19 @@ class MaterialEditorController(ControllerBase):
         except Exception:
             pass
 
-    def start_new_material(self) -> None:
+    def start_new_material(self, prefill: Optional[Dict[str, Any]] = None) -> None:
         """Prepara il dettaglio per l'inserimento di un nuovo materiale."""
         self.current_index = None
         if self.detail is None:
             return
-        try:
-            if hasattr(self.detail, "code_edit"):
-                self.detail.code_edit.clear()
-            if hasattr(self.detail, "desc_edit"):
-                self.detail.desc_edit.clear()
-            if hasattr(self.detail, "norma_edit"):
-                self.detail.norma_edit.clear()
-            if hasattr(self.detail, "fck_edit"):
-                self.detail.fck_edit.clear()
-            if hasattr(self.detail, "gamma_c_edit"):
-                self.detail.gamma_c_edit.clear()
-            if hasattr(self.detail, "fck_override"):
-                self.detail.fck_override.setChecked(False)
-            if hasattr(self.detail, "gamma_c_override"):
-                self.detail.gamma_c_override.setChecked(False)
-        except Exception:
-            pass
-        # update export preview for new (empty) material
+        template = prefill or {"famiglia": self.famiglia or ""}
+        norm_schema = self._get_norm_schema(template)
+        if hasattr(self.detail, "set_fields"):
+            self.detail.set_fields(template, norm_schema)
+        if hasattr(self.detail, "set_warning"):
+            self.detail.set_warning("")
         try:
             self._update_export_text()
-        except Exception:
-            pass
-        # clear any warnings in the detail frame for new material
-        try:
-            if self.detail is not None and hasattr(self.detail, "set_warning"):
-                self.detail.set_warning("")
         except Exception:
             pass
 

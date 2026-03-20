@@ -274,7 +274,9 @@ class MaterialAddWizard(QDialog):
         # Calcola derivati
         if self._current_schema:
             try:
-                derived = self._loader.compute_derived(mat, self._current_schema)
+                derived = self._loader.compute_derived(
+                    mat, self._current_schema, famiglia=mat.get("famiglia")
+                )
                 warnings = derived.pop("_formula_warnings", [])
                 mat.update(derived)
                 if warnings:
