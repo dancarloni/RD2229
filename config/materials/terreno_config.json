@@ -1,0 +1,225 @@
+{
+    "famiglia": "terreno",
+    "label": "Terreni",
+    "gruppi": [
+        {
+            "key": "generali",
+            "label": "Generali"
+        },
+        {
+            "key": "geotecnici",
+            "label": "Parametri geotecnici"
+        },
+        {
+            "key": "derivati",
+            "label": "Parametri derivati"
+        }
+    ],
+    "norme": [
+        {
+            "key": "NTC2018",
+            "label": "NTC 2018 — Geotecnica (§6)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_phi": {
+                    "valore": 1.25,
+                    "label": "γ_φ'",
+                    "unita": "-",
+                    "descrizione": "Coeff. parziale angolo resistenza taglio"
+                },
+                "gamma_c": {
+                    "valore": 1.25,
+                    "label": "γ_c'",
+                    "unita": "-",
+                    "descrizione": "Coeff. parziale coesione"
+                },
+                "gamma_qu": {
+                    "valore": 1.40,
+                    "label": "γ_qu",
+                    "unita": "-",
+                    "descrizione": "Coeff. parziale resist. non drenata"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "phi",
+                    "label": "φ'",
+                    "unita": "°",
+                    "tipo": "float",
+                    "default": 30.0,
+                    "obbligatorio": true,
+                    "gruppo": "geotecnici",
+                    "descrizione": "Angolo di resistenza al taglio (drenato)"
+                },
+                {
+                    "key": "c_primo",
+                    "label": "c'",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 0.0,
+                    "obbligatorio": false,
+                    "gruppo": "geotecnici",
+                    "descrizione": "Coesione efficace"
+                },
+                {
+                    "key": "gamma_t",
+                    "label": "γ_t",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1900.0,
+                    "obbligatorio": true,
+                    "gruppo": "geotecnici",
+                    "descrizione": "Peso di volume naturale"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 500.0,
+                    "obbligatorio": false,
+                    "gruppo": "geotecnici",
+                    "descrizione": "Modulo of deformazione secante"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "geotecnici"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1900.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "phi_d",
+                    "label": "φ_d",
+                    "unita": "°",
+                    "formula": "phi / gamma_phi",
+                    "gruppo": "derivati",
+                    "descrizione": "Angolo di progetto (M1/M2)"
+                },
+                {
+                    "key": "c_d",
+                    "label": "c'_d",
+                    "unita": "kg/cm²",
+                    "formula": "c_primo / gamma_c",
+                    "gruppo": "derivati",
+                    "descrizione": "Coesione di progetto (M1/M2)"
+                },
+                {
+                    "key": "K0",
+                    "label": "K_0",
+                    "unita": "-",
+                    "formula": "1.0 - sin(phi * pi / 180.0)",
+                    "gruppo": "derivati",
+                    "descrizione": "Coefficiente di spinta a riposo"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "geotecnici",
+                    "descrizione": "Modulo di taglio"
+                },
+                {
+                    "key": "M_oed",
+                    "label": "M_oed",
+                    "unita": "kg/cm²",
+                    "formula": "E * (1.0 - nu) / ((1.0 + nu) * (1.0 - 2.0 * nu))",
+                    "gruppo": "derivati",
+                    "descrizione": "Modulo edometrico (elastico)"
+                }
+            ]
+        },
+        {
+            "key": "Generico",
+            "label": "Generico (definito dall'utente)",
+            "attiva": true,
+            "parametri_specifici": {},
+            "parametri_input": [
+                {
+                    "key": "phi",
+                    "label": "φ'",
+                    "unita": "°",
+                    "tipo": "float",
+                    "default": 30.0,
+                    "obbligatorio": false,
+                    "gruppo": "geotecnici"
+                },
+                {
+                    "key": "c_primo",
+                    "label": "c'",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 0.0,
+                    "obbligatorio": false,
+                    "gruppo": "geotecnici"
+                },
+                {
+                    "key": "gamma_t",
+                    "label": "γ_t",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1900.0,
+                    "obbligatorio": false,
+                    "gruppo": "geotecnici"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 500.0,
+                    "obbligatorio": false,
+                    "gruppo": "geotecnici"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "geotecnici"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1900.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "K0",
+                    "label": "K_0",
+                    "unita": "-",
+                    "formula": "1.0 - sin(phi * pi / 180.0)",
+                    "gruppo": "derivati"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "geotecnici"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,302 @@
+{
+    "famiglia": "legno",
+    "label": "Legno",
+    "gruppi": [
+        {
+            "key": "generali",
+            "label": "Generali"
+        },
+        {
+            "key": "meccanici",
+            "label": "Parametri meccanici"
+        },
+        {
+            "key": "resistenze",
+            "label": "Resistenze caratteristiche"
+        },
+        {
+            "key": "progetto",
+            "label": "Resistenze di progetto"
+        }
+    ],
+    "norme": [
+        {
+            "key": "NTC2018",
+            "label": "NTC 2018 / EN 338 / EN 14080",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_M": {
+                    "valore": 1.45,
+                    "label": "γ_M",
+                    "unita": "-",
+                    "descrizione": "Coeff. parziale per legno massiccio (NTC2018)"
+                },
+                "kmod": {
+                    "valore": 0.80,
+                    "label": "k_mod",
+                    "unita": "-",
+                    "descrizione": "Coeff. di durata del carico/class. servizio (tab. 4.4.III)"
+                },
+                "ksys": {
+                    "valore": 1.00,
+                    "label": "k_sys",
+                    "unita": "-",
+                    "descrizione": "Coeff. di sistema (struttura ridondante)"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_mk",
+                    "label": "f_m,k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 244.8,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. caratt. a flessione (principale)"
+                },
+                {
+                    "key": "f_t0k",
+                    "label": "f_t,0,k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 142.8,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. caratt. a trazione parallela"
+                },
+                {
+                    "key": "f_c0k",
+                    "label": "f_c,0,k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 244.8,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. caratt. a compressione parallela"
+                },
+                {
+                    "key": "f_vk",
+                    "label": "f_v,k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 40.8,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. caratt. a taglio"
+                },
+                {
+                    "key": "E_0_mean",
+                    "label": "E_0,mean",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 111456,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo elastico medio parallelo alla fibra"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 420.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.40,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "E_0_mean",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo elastico di prog. (= E_0,mean)"
+                },
+                {
+                    "key": "E_05",
+                    "label": "E_0,05",
+                    "unita": "kg/cm²",
+                    "formula": "0.6667 * E_0_mean",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo elastico 5° percentile (≈2/3·E_mean)"
+                },
+                {
+                    "key": "G_mean",
+                    "label": "G_mean",
+                    "unita": "kg/cm²",
+                    "formula": "0.0625 * E_0_mean",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo di taglio medio (≈E_mean/16)"
+                },
+                {
+                    "key": "f_md",
+                    "label": "f_m,d",
+                    "unita": "kg/cm²",
+                    "formula": "kmod * ksys * f_mk / gamma_M",
+                    "gruppo": "progetto",
+                    "descrizione": "Resist. di prog. a flessione"
+                },
+                {
+                    "key": "f_t0d",
+                    "label": "f_t,0,d",
+                    "unita": "kg/cm²",
+                    "formula": "kmod * ksys * f_t0k / gamma_M",
+                    "gruppo": "progetto",
+                    "descrizione": "Resist. di prog. a trazione parallela"
+                },
+                {
+                    "key": "f_c0d",
+                    "label": "f_c,0,d",
+                    "unita": "kg/cm²",
+                    "formula": "kmod * ksys * f_c0k / gamma_M",
+                    "gruppo": "progetto",
+                    "descrizione": "Resist. di prog. a compressione parallela"
+                },
+                {
+                    "key": "f_vd",
+                    "label": "f_v,d",
+                    "unita": "kg/cm²",
+                    "formula": "kmod * ksys * f_vk / gamma_M",
+                    "gruppo": "progetto",
+                    "descrizione": "Resist. di prog. a taglio"
+                }
+            ]
+        },
+        {
+            "key": "EC5",
+            "label": "Eurocodice 5 (EN 1995-1-1)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_M": {
+                    "valore": 1.30,
+                    "label": "γ_M",
+                    "unita": "-",
+                    "descrizione": "Coeff. parziale (EC5 Tab.2.3, cls servizio 1)"
+                },
+                "kmod": {
+                    "valore": 0.80,
+                    "label": "k_mod",
+                    "unita": "-"
+                },
+                "ksys": {
+                    "valore": 1.00,
+                    "label": "k_sys",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_mk",
+                    "label": "f_m,k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 244.8,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "f_t0k",
+                    "label": "f_t,0,k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 142.8,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "f_c0k",
+                    "label": "f_c,0,k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 244.8,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "f_vk",
+                    "label": "f_v,k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 40.8,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "E_0_mean",
+                    "label": "E_0,mean",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 111456,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 420.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.40,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "E_0_mean",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G_mean",
+                    "label": "G_mean",
+                    "unita": "kg/cm²",
+                    "formula": "0.0625 * E_0_mean",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "f_md",
+                    "label": "f_m,d",
+                    "unita": "kg/cm²",
+                    "formula": "kmod * ksys * f_mk / gamma_M",
+                    "gruppo": "progetto"
+                },
+                {
+                    "key": "f_c0d",
+                    "label": "f_c,0,d",
+                    "unita": "kg/cm²",
+                    "formula": "kmod * ksys * f_c0k / gamma_M",
+                    "gruppo": "progetto"
+                },
+                {
+                    "key": "f_vd",
+                    "label": "f_v,d",
+                    "unita": "kg/cm²",
+                    "formula": "kmod * ksys * f_vk / gamma_M",
+                    "gruppo": "progetto"
+                }
+            ]
+        }
+    ]
+}

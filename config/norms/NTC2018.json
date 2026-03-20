@@ -1,0 +1,109 @@
+{
+  "norm_key": "NTC2018",
+  "norm_label": "NTC 2018 (D.M. 17/01/2018 + Circ. n.7/2019)",
+  "norm_year": 2018,
+  "riferimento": "D.M. 17 gennaio 2018 (G.U. n.42 del 20/02/2018) + Circolare 21 gennaio 2019 n.7",
+  "note": "Norme Tecniche per le Costruzioni vigenti in Italia. Approccio semiprobabilistico agli stati limite.",
+  "materiali": {
+    "calcestruzzo": {
+      "gamma_c": {
+        "valore": 1.50,
+        "label": "γ_c",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale calcestruzzo (SLU)",
+        "riferimento": "NTC2018 Tab.4.1.II"
+      },
+      "alpha_cc": {
+        "valore": 0.85,
+        "label": "α_cc",
+        "unita": "-",
+        "descrizione": "Coefficiente effetti lungo termine sulla resistenza a compressione",
+        "riferimento": "NTC2018 §4.1.2.1.1.5"
+      },
+      "alpha_ct": {
+        "valore": 1.00,
+        "label": "α_ct",
+        "unita": "-",
+        "descrizione": "Coefficiente effetti lungo termine sulla resistenza a trazione",
+        "riferimento": "NTC2018 §4.1.2.1.1.5"
+      },
+      "f_ck_min_MPa": 12,
+      "f_ck_max_MPa": 90,
+      "f_ck_min_kgcm2": 122.4,
+      "f_ck_max_kgcm2": 917.5,
+      "E_formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+      "G_formula": "E / (2.0 * (1.0 + nu))",
+      "f_cd_formula": "alpha_cc * f_ck / gamma_c",
+      "f_ctd_formula": "f_ctk005 / gamma_c"
+    },
+    "acciaio": {
+      "gamma_s": {
+        "valore": 1.15,
+        "label": "γ_s",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale acciaio da armatura (SLU)",
+        "riferimento": "NTC2018 Tab.4.1.II"
+      },
+      "f_yk_min_kgcm2": 4080.0,
+      "f_yk_max_kgcm2": 6120.0,
+      "f_yd_formula": "f_yk / gamma_s",
+      "E_acciaio": 2060000.0
+    },
+    "muratura": {
+      "gamma_M": {
+        "valore": 2.00,
+        "label": "γ_M",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale muratura (classe di esecuzione III)",
+        "riferimento": "NTC2018 Tab.4.5.II"
+      },
+      "gamma_M_classe_I": {
+        "valore": 1.50,
+        "label": "γ_M (cl. I)",
+        "unita": "-",
+        "descrizione": "Classe di esecuzione I (alta sorveglianza)",
+        "riferimento": "NTC2018 Tab.4.5.II"
+      },
+      "gamma_M_classe_II": {
+        "valore": 1.75,
+        "label": "γ_M (cl. II)",
+        "unita": "-",
+        "descrizione": "Classe di esecuzione II",
+        "riferimento": "NTC2018 Tab.4.5.II"
+      },
+      "f_d_formula": "f_k / gamma_M",
+      "f_vd_formula": "f_vk / gamma_M"
+    },
+    "legno": {
+      "gamma_M": {
+        "valore": 1.50,
+        "label": "γ_M",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale legno massiccio (SLU)",
+        "riferimento": "NTC2018 Tab.4.4.I"
+      },
+      "gamma_M_LVL": {
+        "valore": 1.20,
+        "label": "γ_M (LVL/Glulam)",
+        "unita": "-",
+        "descrizione": "Legno lamellare incollato e LVL",
+        "riferimento": "NTC2018 Tab.4.4.I"
+      },
+      "k_mod_A1_permanente": {
+        "valore": 0.60,
+        "label": "k_mod (A1, perm.)",
+        "unita": "-",
+        "descrizione": "k_mod classe servizio 1, carico permanente",
+        "riferimento": "NTC2018 Tab.4.4.II"
+      },
+      "k_mod_A1_breve": {
+        "valore": 0.90,
+        "label": "k_mod (A1, breve)",
+        "unita": "-",
+        "descrizione": "k_mod classe servizio 1, carico di breve durata",
+        "riferimento": "NTC2018 Tab.4.4.II"
+      },
+      "f_d_formula": "k_mod * f_k / gamma_M"
+    }
+  }
+}

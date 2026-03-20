@@ -1,0 +1,52 @@
+{
+  "norm_key": "OPCM3274",
+  "norm_label": "OPCM 3274/2003 (+ OPCM 3431/2005)",
+  "norm_year": 2003,
+  "riferimento": "Ordinanza PCM 20 marzo 2003 n.3274 + OPCM 3431/2005",
+  "note": "Prima normativa sismica italiana con approccio a stati limite. Applicabile per edifici esistenti costruiti prima del 2008. Metodo SL con gamma diverso da NTC.",
+  "materiali": {
+    "calcestruzzo": {
+      "gamma_c": {
+        "valore": 1.60,
+        "label": "γ_c",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale calcestruzzo (SL)",
+        "riferimento": "OPCM3274 Tab.5.3"
+      },
+      "alpha_cc": {
+        "valore": 0.85,
+        "label": "α_cc",
+        "unita": "-",
+        "descrizione": "Coefficiente effetti lungo termine"
+      },
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione acciaio/calcestruzzo",
+        "riferimento": "OPCM3274 §5.3"
+      },
+      "f_ck_min_kgcm2": 81.6,
+      "f_ck_max_kgcm2": 509.8,
+      "E_formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+      "G_formula": "E / (2.0 * (1.0 + nu))",
+      "f_cd_formula": "alpha_cc * f_ck / gamma_c",
+      "sigma_c_adm_formula": "0.30 * sigma_c28"
+    },
+    "acciaio": {
+      "gamma_s": {
+        "valore": 1.15,
+        "label": "γ_s",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale acciaio (SL)"
+      },
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione"
+      },
+      "E_acciaio": 2060000.0
+    }
+  }
+}

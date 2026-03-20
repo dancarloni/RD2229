@@ -1,0 +1,91 @@
+{
+  "norm_key": "RD2229",
+  "norm_label": "Regio Decreto 2229/1939 + Circ. 30/07/1981 n.21745",
+  "norm_year": 1939,
+  "riferimento": "Regio Decreto 16 novembre 1939 n.2229 (G.U. n.92 del 18/04/1940)",
+  "note": "Normativa storica italiana per costruzioni in cemento armato. Metodo a tensioni ammissibili (TA). La sicurezza è incorporata nei coefficienti ammissibili stessi (non separato da gamma). Riferimento per edifici storici ante 1972.",
+  "materiali": {
+    "calcestruzzo": {
+      "gamma_c": {
+        "valore": 1.00,
+        "label": "γ_c",
+        "unita": "-",
+        "descrizione": "Metodo TA puro: gamma=1 (sicurezza incorporata nelle sigma_adm)",
+        "riferimento": "RD2229"
+      },
+      "alpha_cc": {
+        "valore": 1.00,
+        "label": "α_cc",
+        "unita": "-",
+        "descrizione": "Metodo TA: nessuna riduzione aggiuntiva"
+      },
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione acciaio/calcestruzzo (RD2229 art.15)",
+        "riferimento": "RD2229 art.15"
+      },
+      "coeff_sigma_c_inflessione": {
+        "valore": 0.33,
+        "label": "k_σ_c (flessione)",
+        "unita": "-",
+        "descrizione": "σ_c,adm per sezioni inflesse = Rck/3 (art.3 RD2229)",
+        "riferimento": "RD2229 art.3"
+      },
+      "coeff_sigma_c_compressione": {
+        "valore": 0.25,
+        "label": "k_σ_c (compressione)",
+        "unita": "-",
+        "descrizione": "σ_c,adm per compressione semplice = Rck/4",
+        "riferimento": "RD2229 art.3"
+      },
+      "coeff_tau_c0": {
+        "valore": 0.03,
+        "label": "k_τ_c0",
+        "unita": "-",
+        "descrizione": "τ_adm senza arm. taglio = 0.03 * Rck (art.4)",
+        "riferimento": "RD2229 art.4"
+      },
+      "coeff_tau_c1": {
+        "valore": 0.06,
+        "label": "k_τ_c1",
+        "unita": "-",
+        "descrizione": "τ_adm con arm. taglio = 0.06 * Rck (art.4)",
+        "riferimento": "RD2229 art.4"
+      },
+      "Rck_min": 100.0,
+      "Rck_max": 400.0,
+      "note_unita": "Rck in kg/cm². σ_adm in kg/cm². Tutte le tensioni ammissibili in kg/cm².",
+      "sigma_c_adm_formula": "sigma_c28 / 3.0",
+      "sigma_c_compr_adm_formula": "sigma_c28 / 4.0",
+      "tau_c0_adm_formula": "0.03 * sigma_c28",
+      "tau_c1_adm_formula": "0.06 * sigma_c28"
+    },
+    "acciaio": {
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione (RD2229 art.15)",
+        "riferimento": "RD2229 art.15"
+      },
+      "sigma_s_adm_lisce": {
+        "valore": 1000.0,
+        "label": "σ_s,adm (barre lisce)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile barre lisce (art.5 RD2229)",
+        "riferimento": "RD2229 art.5"
+      },
+      "sigma_s_adm_aderenti": {
+        "valore": 1400.0,
+        "label": "σ_s,adm (aderenti)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile barre ad aderenza migliorata",
+        "riferimento": "RD2229 art.5"
+      },
+      "E_acciaio": 2000000.0,
+      "note_unita": "E in kg/cm². Valori storici RD2229."
+    }
+  }
+}

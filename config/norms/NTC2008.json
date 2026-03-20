@@ -1,0 +1,56 @@
+{
+  "norm_key": "NTC2008",
+  "norm_label": "NTC 2008 (D.M. 14/01/2008)",
+  "norm_year": 2008,
+  "riferimento": "D.M. 14 gennaio 2008 (G.U. n.29 del 04/02/2008 S.O. n.30)",
+  "note": "Norme Tecniche per le Costruzioni 2008. Superate da NTC2018 ma applicabili per edifici esistenti.",
+  "materiali": {
+    "calcestruzzo": {
+      "gamma_c": {
+        "valore": 1.50,
+        "label": "γ_c",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale calcestruzzo (SLU)",
+        "riferimento": "NTC2008 Tab.4.1.II"
+      },
+      "alpha_cc": {
+        "valore": 0.85,
+        "label": "α_cc",
+        "unita": "-",
+        "descrizione": "Coefficiente effetti lungo termine",
+        "riferimento": "NTC2008 §4.1.2.1"
+      },
+      "f_ck_min_MPa": 12,
+      "f_ck_max_MPa": 90,
+      "f_ck_min_kgcm2": 122.4,
+      "f_ck_max_kgcm2": 917.5,
+      "E_formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+      "G_formula": "E / (2.0 * (1.0 + nu))",
+      "f_cd_formula": "alpha_cc * f_ck / gamma_c",
+      "f_ctd_formula": "f_ctk005 / gamma_c"
+    },
+    "acciaio": {
+      "gamma_s": {
+        "valore": 1.15,
+        "label": "γ_s",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale acciaio (SLU)",
+        "riferimento": "NTC2008 Tab.4.1.II"
+      },
+      "f_yk_min_kgcm2": 4080.0,
+      "f_yk_max_kgcm2": 6120.0,
+      "f_yd_formula": "f_yk / gamma_s",
+      "E_acciaio": 2060000.0
+    },
+    "muratura": {
+      "gamma_M": {
+        "valore": 2.00,
+        "label": "γ_M",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale muratura",
+        "riferimento": "NTC2008 Tab.4.5.II"
+      },
+      "f_d_formula": "f_k / gamma_M"
+    }
+  }
+}

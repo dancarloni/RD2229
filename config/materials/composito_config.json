@@ -1,0 +1,194 @@
+{
+    "famiglia": "composito",
+    "label": "Compositi",
+    "gruppi": [
+        {
+            "key": "generali",
+            "label": "Generali"
+        },
+        {
+            "key": "meccanici",
+            "label": "Parametri meccanici"
+        },
+        {
+            "key": "resistenze",
+            "label": "Resistenze"
+        }
+    ],
+    "norme": [
+        {
+            "key": "NTC2018",
+            "label": "NTC 2018 (FRP — rinforzo strutturale)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_f": {
+                    "valore": 1.50,
+                    "label": "γ_f",
+                    "unita": "-",
+                    "descrizione": "Coeff. parziale per materiali compositi FRP"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "E_1",
+                    "label": "E₁ (long.)",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 1700000.0,
+                    "obbligatorio": true,
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo elastico longitudinale (fibra)"
+                },
+                {
+                    "key": "E_2",
+                    "label": "E₂ (trasv.)",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 85000.0,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo elastico trasversale"
+                },
+                {
+                    "key": "f_u",
+                    "label": "f_u",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 35000.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza ultima a trazione"
+                },
+                {
+                    "key": "eps_u",
+                    "label": "ε_u",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.015,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze",
+                    "descrizione": "Deformazione ultima a rottura"
+                },
+                {
+                    "key": "spessore",
+                    "label": "t",
+                    "unita": "mm",
+                    "tipo": "float",
+                    "default": 1.2,
+                    "obbligatorio": false,
+                    "gruppo": "generali",
+                    "descrizione": "Spessore del laminato"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1600.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E (prog.)",
+                    "unita": "kg/cm²",
+                    "formula": "E_1",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo elastico di progetto (longitudinale)"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "f_fd",
+                    "label": "f_fd",
+                    "unita": "kg/cm²",
+                    "formula": "f_u / gamma_f",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. di progetto a trazione del composito"
+                }
+            ]
+        },
+        {
+            "key": "Generico",
+            "label": "Generico (definito dall'utente)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_f": {
+                    "valore": 1.50,
+                    "label": "γ_f",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 1000000.0,
+                    "obbligatorio": true,
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "f_u",
+                    "label": "f_u",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 10000.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1600.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "f_fd",
+                    "label": "f_fd",
+                    "unita": "kg/cm²",
+                    "formula": "f_u / gamma_f",
+                    "gruppo": "resistenze"
+                }
+            ]
+        }
+    ]
+}

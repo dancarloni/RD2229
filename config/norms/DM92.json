@@ -1,0 +1,84 @@
+{
+  "norm_key": "DM92",
+  "norm_label": "DM 14/02/1992",
+  "norm_year": 1992,
+  "riferimento": "Decreto Ministeriale 14 febbraio 1992 (G.U. n.65 del 18/03/1992 S.O.)",
+  "note": "Normativa strutture in cemento armato e acciaio. Approccio semiprobabilistico con verifica agli stati limite. Usata per edifici esistenti degli anni 1990-1996.",
+  "materiali": {
+    "calcestruzzo": {
+      "gamma_c": {
+        "valore": 1.60,
+        "label": "γ_c",
+        "unita": "-",
+        "descrizione": "Coefficiente di sicurezza calcestruzzo",
+        "riferimento": "DM92 §5.3.1"
+      },
+      "alpha_cc": {
+        "valore": 0.85,
+        "label": "α_cc",
+        "unita": "-",
+        "descrizione": "Coefficiente effetti lungo termine"
+      },
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione acciaio/calcestruzzo (TA)",
+        "riferimento": "DM92 §5.3.2"
+      },
+      "sigma_c_adm_coeff": {
+        "valore": 0.25,
+        "label": "k_c,adm",
+        "unita": "-",
+        "descrizione": "Coefficiente per tensione ammissibile: σ_c,adm = k_c * Rck",
+        "riferimento": "DM92 §5.3.1"
+      },
+      "tau_c0_adm_coeff": {
+        "valore": 0.025,
+        "label": "k_τ0,adm",
+        "unita": "-",
+        "descrizione": "Coefficiente per τ ammis. senza arm. trasversale",
+        "riferimento": "DM92"
+      },
+      "tau_c1_adm_coeff": {
+        "valore": 0.07,
+        "label": "k_τ1,adm",
+        "unita": "-",
+        "descrizione": "Coefficiente per τ ammis. con arm. trasversale",
+        "riferimento": "DM92"
+      },
+      "f_ck_min_kgcm2": 81.6,
+      "f_ck_max_kgcm2": 509.8,
+      "E_formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+      "G_formula": "E / (2.0 * (1.0 + nu))",
+      "f_cd_formula": "alpha_cc * f_ck / gamma_c",
+      "sigma_c_adm_formula": "0.25 * sigma_c28",
+      "tau_c0_adm_formula": "0.025 * sigma_c28",
+      "tau_c1_adm_formula": "0.07 * sigma_c28"
+    },
+    "acciaio": {
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione (TA)",
+        "riferimento": "DM92 §5.3.2"
+      },
+      "sigma_s_adm_FeB38k": {
+        "valore": 1400.0,
+        "label": "σ_s,adm (FeB38k)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile FeB38k (liscio)",
+        "riferimento": "DM92"
+      },
+      "sigma_s_adm_FeB44k": {
+        "valore": 2000.0,
+        "label": "σ_s,adm (FeB44k)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile FeB44k",
+        "riferimento": "DM92"
+      },
+      "E_acciaio": 2060000.0
+    }
+  }
+}

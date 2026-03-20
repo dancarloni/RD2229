@@ -1,0 +1,729 @@
+{
+    "famiglia": "calcestruzzo",
+    "label": "Calcestruzzi",
+    "gruppi": [
+        {
+            "key": "generali",
+            "label": "Generali"
+        },
+        {
+            "key": "meccanici",
+            "label": "Parametri meccanici"
+        },
+        {
+            "key": "resistenze",
+            "label": "Resistenze"
+        },
+        {
+            "key": "ammissibili",
+            "label": "Tensioni ammissibili (TA)"
+        }
+    ],
+    "norme": [
+        {
+            "key": "NTC2018",
+            "label": "NTC 2018 (D.M. 17/01/2018)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_c": {
+                    "valore": 1.50,
+                    "label": "γ_c",
+                    "unita": "-",
+                    "descrizione": "Coeff. di sicurezza calcestruzzo (SLU)"
+                },
+                "alpha_cc": {
+                    "valore": 0.85,
+                    "label": "α_cc",
+                    "unita": "-",
+                    "descrizione": "Coeff. effetti lungo termine (NTC2018 §4.1.2.1.1.5)"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_ck",
+                    "label": "f_ck",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 254.9,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza caratteristica cilindrica (principale)"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 2500,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.20,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici",
+                    "descrizione": "Coefficiente di Poisson"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_cm",
+                    "label": "f_cm",
+                    "unita": "kg/cm²",
+                    "formula": "f_ck + 81.6",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza media cilindrica (f_ck + 8 MPa)"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo elastico Ecm (NTC2018 Tab.11.2.IV)"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo di taglio"
+                },
+                {
+                    "key": "f_ctm",
+                    "label": "f_ctm",
+                    "unita": "kg/cm²",
+                    "formula": "0.30 * pow(f_ck / 10.197, 2.0/3.0) * 10.197",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza media a trazione"
+                },
+                {
+                    "key": "f_ctk005",
+                    "label": "f_ctk,0.05",
+                    "unita": "kg/cm²",
+                    "formula": "0.7 * f_ctm",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza caratteristica a trazione (frattile 5%)"
+                },
+                {
+                    "key": "f_ctk095",
+                    "label": "f_ctk,0.95",
+                    "unita": "kg/cm²",
+                    "formula": "1.3 * f_ctm",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza caratteristica a trazione (frattile 95%)"
+                },
+                {
+                    "key": "f_cd",
+                    "label": "f_cd",
+                    "unita": "kg/cm²",
+                    "formula": "alpha_cc * f_ck / gamma_c",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza di progetto a compressione (SLU)"
+                },
+                {
+                    "key": "f_ctd",
+                    "label": "f_ctd",
+                    "unita": "kg/cm²",
+                    "formula": "f_ctk005 / gamma_c",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza di progetto a trazione (SLU)"
+                },
+                {
+                    "key": "eps_cu",
+                    "label": "ε_cu",
+                    "unita": "-",
+                    "formula": "0.0035 if f_ck <= 509.8 else (2.6 + 35.0 * pow((0.09 - f_ck / 10197.0), 4.0)) / 1000.0",
+                    "gruppo": "meccanici",
+                    "descrizione": "Deformazione ultima a compressione"
+                }
+            ]
+        },
+        {
+            "key": "NTC2008",
+            "label": "NTC 2008 (D.M. 14/01/2008)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_c": {
+                    "valore": 1.50,
+                    "label": "γ_c",
+                    "unita": "-",
+                    "descrizione": "Coeff. di sicurezza calcestruzzo (SLU)"
+                },
+                "alpha_cc": {
+                    "valore": 0.85,
+                    "label": "α_cc",
+                    "unita": "-",
+                    "descrizione": "Coeff. effetti lungo termine"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_ck",
+                    "label": "f_ck",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 254.9,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 2500,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.20,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_cm",
+                    "label": "f_cm",
+                    "unita": "kg/cm²",
+                    "formula": "f_ck + 81.6",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "f_ctm",
+                    "label": "f_ctm",
+                    "unita": "kg/cm²",
+                    "formula": "0.30 * pow(f_ck / 10.197, 2.0/3.0) * 10.197",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "f_ctk005",
+                    "label": "f_ctk,0.05",
+                    "unita": "kg/cm²",
+                    "formula": "0.7 * f_ctm",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "f_cd",
+                    "label": "f_cd",
+                    "unita": "kg/cm²",
+                    "formula": "alpha_cc * f_ck / gamma_c",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "f_ctd",
+                    "label": "f_ctd",
+                    "unita": "kg/cm²",
+                    "formula": "f_ctk005 / gamma_c",
+                    "gruppo": "resistenze"
+                }
+            ]
+        },
+        {
+            "key": "OPCM3274",
+            "label": "OPCM 3274/2003",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_c": {
+                    "valore": 1.60,
+                    "label": "γ_c",
+                    "unita": "-",
+                    "descrizione": "Coeff. di sicurezza calcestruzzo (SL)"
+                },
+                "alpha_cc": {
+                    "valore": 0.85,
+                    "label": "α_cc",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_c28",
+                    "label": "Rck",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 200.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza cubica caratteristica a 28gg"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 2400,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.20,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_ck",
+                    "label": "f_ck",
+                    "unita": "kg/cm²",
+                    "formula": "0.83 * sigma_c28",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. caratt. cilindrica (≈0.83·Rck)"
+                },
+                {
+                    "key": "sigma_c_adm",
+                    "label": "σ_c,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.30 * sigma_c28",
+                    "gruppo": "ammissibili",
+                    "descrizione": "Tensione ammiss. a compressione (TA)"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "f_cd",
+                    "label": "f_cd",
+                    "unita": "kg/cm²",
+                    "formula": "alpha_cc * f_ck / gamma_c",
+                    "gruppo": "resistenze"
+                }
+            ]
+        },
+        {
+            "key": "DM96",
+            "label": "DM 09/01/1996",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_c": {
+                    "valore": 1.60,
+                    "label": "γ_c",
+                    "unita": "-",
+                    "descrizione": "Coeff. sicurezza cls (SL)"
+                },
+                "alpha_cc": {
+                    "valore": 0.85,
+                    "label": "α_cc",
+                    "unita": "-"
+                },
+                "n_omogenizzazione": {
+                    "valore": 15.0,
+                    "label": "n",
+                    "unita": "-",
+                    "descrizione": "Coefficiente di omogenizzazione acciaio/cls"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_c28",
+                    "label": "Rck",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 200.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza cubica char. a 28gg"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 2400,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.20,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_ck",
+                    "label": "f_ck",
+                    "unita": "kg/cm²",
+                    "formula": "0.83 * sigma_c28",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. caratt. cilindrica (≈0.83·Rck)"
+                },
+                {
+                    "key": "sigma_c_adm",
+                    "label": "σ_c,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.30 * sigma_c28",
+                    "gruppo": "ammissibili",
+                    "descrizione": "σ_c ammis. a compressione (DM96 §2.1)"
+                },
+                {
+                    "key": "tau_c0_adm",
+                    "label": "τ_c0,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.03 * sigma_c28",
+                    "gruppo": "ammissibili",
+                    "descrizione": "τ ammis. senza arm. trasversale"
+                },
+                {
+                    "key": "tau_c1_adm",
+                    "label": "τ_c1,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.08 * sigma_c28",
+                    "gruppo": "ammissibili",
+                    "descrizione": "τ ammis. con arm. trasversale"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "f_cd",
+                    "label": "f_cd",
+                    "unita": "kg/cm²",
+                    "formula": "alpha_cc * f_ck / gamma_c",
+                    "gruppo": "resistenze"
+                }
+            ]
+        },
+        {
+            "key": "DM92",
+            "label": "DM 14/02/1992",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_c": {
+                    "valore": 1.60,
+                    "label": "γ_c",
+                    "unita": "-"
+                },
+                "alpha_cc": {
+                    "valore": 0.85,
+                    "label": "α_cc",
+                    "unita": "-"
+                },
+                "n_omogenizzazione": {
+                    "valore": 15.0,
+                    "label": "n",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_c28",
+                    "label": "Rck",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 200.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 2400,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.20,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_ck",
+                    "label": "f_ck",
+                    "unita": "kg/cm²",
+                    "formula": "0.83 * sigma_c28",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "sigma_c_adm",
+                    "label": "σ_c,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.25 * sigma_c28",
+                    "gruppo": "ammissibili",
+                    "descrizione": "σ_c ammis. (DM92 §5.3.1, 0.25·Rck)"
+                },
+                {
+                    "key": "tau_c0_adm",
+                    "label": "τ_c0,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.025 * sigma_c28",
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "tau_c1_adm",
+                    "label": "τ_c1,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.07 * sigma_c28",
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "DM72",
+            "label": "DM 30/05/1972",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_c": {
+                    "valore": 1.00,
+                    "label": "γ_c",
+                    "unita": "-",
+                    "descrizione": "Metodo TA puro (γ=1)"
+                },
+                "alpha_cc": {
+                    "valore": 1.00,
+                    "label": "α_cc",
+                    "unita": "-"
+                },
+                "n_omogenizzazione": {
+                    "valore": 10.0,
+                    "label": "n",
+                    "unita": "-",
+                    "descrizione": "Coefficiente di omogenizzazione"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_c28",
+                    "label": "Rck",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 200.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resistenza cubica a 28gg"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 2400,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.20,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_ck",
+                    "label": "f_ck",
+                    "unita": "kg/cm²",
+                    "formula": "0.83 * sigma_c28",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "sigma_c_adm",
+                    "label": "σ_c,adm",
+                    "unita": "kg/cm²",
+                    "formula": "sigma_c28 / 4.0",
+                    "gruppo": "ammissibili",
+                    "descrizione": "σ_c ammis. (DM72, Rck/4)"
+                },
+                {
+                    "key": "tau_c0_adm",
+                    "label": "τ_c0,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.025 * sigma_c28",
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "tau_c1_adm",
+                    "label": "τ_c1,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.07 * sigma_c28",
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "RD2229",
+            "label": "Regio Decreto 2229/1939",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_c": {
+                    "valore": 1.00,
+                    "label": "γ_c",
+                    "unita": "-",
+                    "descrizione": "Metodo TA puro (γ=1)"
+                },
+                "n_omogenizzazione": {
+                    "valore": 10.0,
+                    "label": "n",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_c28",
+                    "label": "Rck",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 150.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 2400,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.20,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_ck",
+                    "label": "f_ck",
+                    "unita": "kg/cm²",
+                    "formula": "0.83 * sigma_c28",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "sigma_c_adm",
+                    "label": "σ_c,adm",
+                    "unita": "kg/cm²",
+                    "formula": "sigma_c28 / 4.0",
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "tau_c0_adm",
+                    "label": "τ_c0,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.025 * sigma_c28",
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "tau_c1_adm",
+                    "label": "τ_c1,adm",
+                    "unita": "kg/cm²",
+                    "formula": "0.07 * sigma_c28",
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        }
+    ]
+}

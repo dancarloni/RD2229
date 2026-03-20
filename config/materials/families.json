@@ -1,0 +1,26 @@
+[
+    {
+        "key": "calcestruzzo",
+        "label": "Calcestruzzi"
+    },
+    {
+        "key": "acciaio",
+        "label": "Acciai"
+    },
+    {
+        "key": "legno",
+        "label": "Legno"
+    },
+    {
+        "key": "muratura",
+        "label": "Muratura"
+    },
+    {
+        "key": "composito",
+        "label": "Compositi"
+    },
+    {
+        "key": "terreno",
+        "label": "Terreni"
+    }
+]

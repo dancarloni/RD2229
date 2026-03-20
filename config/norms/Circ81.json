@@ -1,0 +1,50 @@
+{
+  "norm_key": "Circ81",
+  "norm_label": "Circolare 30/07/1981 n.21745 + DM 20/11/1987",
+  "norm_year": 1981,
+  "riferimento": "Circolare LL.PP. 30 luglio 1981 n.21745 + Decreto Ministeriale 20 novembre 1987 (Muratura)",
+  "note": "Normativa storica muratura. DM 20/11/1987 per muratura portante. Metodo a tensioni ammissibili (TA). Usata per edifici in muratura costruiti prima del 1996.",
+  "materiali": {
+    "muratura": {
+      "gamma_M": {
+        "valore": 1.00,
+        "label": "γ_M",
+        "unita": "-",
+        "descrizione": "Metodo TA puro: sicurezza incorporata nelle tensioni ammissibili",
+        "riferimento": "Circ81/DM87"
+      },
+      "sigma_0_adm_mattone_forato": {
+        "valore": 6.0,
+        "label": "σ_0 (mattone forato)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile a compressione, mattoni forati",
+        "riferimento": "DM87 Tab.A"
+      },
+      "sigma_0_adm_mattone_pieno": {
+        "valore": 10.0,
+        "label": "σ_0 (mattone pieno)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile a compressione, mattoni pieni",
+        "riferimento": "DM87 Tab.A"
+      },
+      "sigma_0_adm_blocchi_cls": {
+        "valore": 8.0,
+        "label": "σ_0 (blocchi CLS)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile a compressione, blocchi calcestruzzo",
+        "riferimento": "DM87 Tab.A"
+      },
+      "tau_0_adm": {
+        "valore": 0.60,
+        "label": "τ_0,adm",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile a taglio (senza carico verticale)",
+        "riferimento": "DM87 §5.1"
+      },
+      "note_ta": "Metodo TA: verifica σ ≤ σ_adm e τ ≤ τ_adm"
+    },
+    "calcestruzzo": {
+      "note": "La Circ81 riguarda principalmente muratura. Per calcestruzzo fare riferimento a DM72 o DM92."
+    }
+  }
+}

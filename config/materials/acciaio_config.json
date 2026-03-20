@@ -1,0 +1,497 @@
+{
+    "famiglia": "acciaio",
+    "label": "Acciai",
+    "gruppi": [
+        {
+            "key": "generali",
+            "label": "Generali"
+        },
+        {
+            "key": "meccanici",
+            "label": "Parametri meccanici"
+        },
+        {
+            "key": "resistenze",
+            "label": "Resistenze"
+        },
+        {
+            "key": "ammissibili",
+            "label": "Tensioni ammissibili (TA)"
+        }
+    ],
+    "norme": [
+        {
+            "key": "NTC2018",
+            "label": "NTC 2018 (D.M. 17/01/2018)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_s": {
+                    "valore": 1.15,
+                    "label": "γ_s",
+                    "unita": "-",
+                    "descrizione": "Coeff. di sicurezza acciaio (SLU)"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_yk",
+                    "label": "f_yk",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 4589.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Tensione di snervamento caratteristica"
+                },
+                {
+                    "key": "f_uk",
+                    "label": "f_uk",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 5403.0,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze",
+                    "descrizione": "Tensione di rottura caratteristica"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 7850.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_yd",
+                    "label": "f_yd",
+                    "unita": "kg/cm²",
+                    "formula": "f_yk / gamma_s",
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. di progetto a snervamento (SLU)"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "2060000.0",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo di Young (costante per acciaio)"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "NTC2008",
+            "label": "NTC 2008 (D.M. 14/01/2008)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_s": {
+                    "valore": 1.15,
+                    "label": "γ_s",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_yk",
+                    "label": "f_yk",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 4589.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 7850.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_yd",
+                    "label": "f_yd",
+                    "unita": "kg/cm²",
+                    "formula": "f_yk / gamma_s",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "2060000.0",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "EC2",
+            "label": "Eurocodice 2 (EN 1992-1-1)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_s": {
+                    "valore": 1.15,
+                    "label": "γ_s",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_yk",
+                    "label": "f_yk",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 5098.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 7850.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "f_yd",
+                    "label": "f_yd",
+                    "unita": "kg/cm²",
+                    "formula": "f_yk / gamma_s",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "2060000.0",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "DM96",
+            "label": "DM 09/01/1996",
+            "attiva": true,
+            "parametri_specifici": {
+                "n_omogenizzazione": {
+                    "valore": 15.0,
+                    "label": "n",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_s",
+                    "label": "f_yk",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 3870.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Tensione caratt. di snervamento"
+                },
+                {
+                    "key": "sigma_s_adm",
+                    "label": "σ_s,adm",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 2200.0,
+                    "obbligatorio": true,
+                    "gruppo": "ammissibili",
+                    "descrizione": "Tensione ammissibile (da tabella DM96)"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 7850.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "2060000.0",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "DM92",
+            "label": "DM 14/02/1992",
+            "attiva": true,
+            "parametri_specifici": {
+                "n_omogenizzazione": {
+                    "valore": 15.0,
+                    "label": "n",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_s",
+                    "label": "f_yk",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 3870.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "sigma_s_adm",
+                    "label": "σ_s,adm",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 2200.0,
+                    "obbligatorio": true,
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 7850.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "2060000.0",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "DM72",
+            "label": "DM 30/05/1972",
+            "attiva": true,
+            "parametri_specifici": {
+                "n_omogenizzazione": {
+                    "valore": 10.0,
+                    "label": "n",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_s",
+                    "label": "f_yk",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 3260.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "sigma_s_adm",
+                    "label": "σ_s,adm",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 1800.0,
+                    "obbligatorio": true,
+                    "gruppo": "ammissibili",
+                    "descrizione": "Tensione ammissibile (da tabella DM72)"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 7850.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "2060000.0",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "RD2229",
+            "label": "Regio Decreto 2229/1939",
+            "attiva": true,
+            "parametri_specifici": {
+                "n_omogenizzazione": {
+                    "valore": 10.0,
+                    "label": "n",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "sigma_s",
+                    "label": "f_yk",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 3260.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "sigma_s_adm",
+                    "label": "σ_s,adm",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 1400.0,
+                    "obbligatorio": true,
+                    "gruppo": "ammissibili"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 7850.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.30,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "2060000.0",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / (2.0 * (1.0 + nu))",
+                    "gruppo": "meccanici"
+                }
+            ]
+        }
+    ]
+}

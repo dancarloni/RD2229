@@ -18,6 +18,11 @@ class UserConfig:
     last_output_dir: str = ""
     autosave_enabled: bool = False
     autosave_minutes: int = 5
+    # Level 2 override: {"NTC2018": {"calcestruzzo": {"gamma_c": 1.60}}, ...}
+    # Sovrascrive i valori di default normativi (Level 1) per tutti i materiali.
+    # Modificabile tramite File → Impostazioni → Scheda "Materiali".
+    # Riferimento: docs/ARCHITECTURE_MATERIAL_GOVERNANCE.md
+    material_coefficients_overrides: dict = field(default_factory=dict)
 
     MAX_RECENT: int = 10
 
@@ -35,6 +40,9 @@ class UserConfig:
         except Exception:
             return cls()
 
+        overrides = data.get("material_coefficients_overrides", {})
+        if not isinstance(overrides, dict):
+            overrides = {}
         return cls(
             recent_projects=list(data.get("recent_projects", []))[: cls.MAX_RECENT],
             default_norm_code=str(data.get("default_norm_code", "RD2229")),
@@ -42,6 +50,7 @@ class UserConfig:
             last_output_dir=str(data.get("last_output_dir", "")),
             autosave_enabled=bool(data.get("autosave_enabled", False)),
             autosave_minutes=max(1, int(data.get("autosave_minutes", 5))),
+            material_coefficients_overrides=overrides,
         )
 
     def save(self, path: str | Path | None = None) -> Path:

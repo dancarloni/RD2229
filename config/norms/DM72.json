@@ -1,0 +1,82 @@
+{
+  "norm_key": "DM72",
+  "norm_label": "DM 30/05/1972",
+  "norm_year": 1972,
+  "riferimento": "Decreto Ministeriale 30 maggio 1972 — Norme tecniche per costruzioni in zone sismiche",
+  "note": "Normativa storica a tensioni ammissibili (TA puro). Gamma_c = 1 perché la sicurezza è incorporata nelle tensioni ammissibili stesse. Usata per edifici esistenti costruiti prima del 1992.",
+  "materiali": {
+    "calcestruzzo": {
+      "gamma_c": {
+        "valore": 1.00,
+        "label": "γ_c",
+        "unita": "-",
+        "descrizione": "Metodo TA puro: sicurezza incorporata nelle tensioni ammissibili",
+        "riferimento": "DM72"
+      },
+      "alpha_cc": {
+        "valore": 1.00,
+        "label": "α_cc",
+        "unita": "-",
+        "descrizione": "Metodo TA: nessuna riduzione per effetti lungo termine"
+      },
+      "n_omogenizzazione": {
+        "valore": 10.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione acciaio/calcestruzzo",
+        "riferimento": "DM72 §3"
+      },
+      "sigma_c_adm_coeff": {
+        "valore": 0.25,
+        "label": "k_c,adm",
+        "unita": "-",
+        "descrizione": "Tensione ammissibile = k_c * Rck (circa 0.25*Rck per compressione semplice)",
+        "riferimento": "DM72 §3.1"
+      },
+      "sigma_c_inflessione_coeff": {
+        "valore": 0.33,
+        "label": "k_c,infl",
+        "unita": "-",
+        "descrizione": "Tensione ammissibile per flessione = k_infl * Rck",
+        "riferimento": "DM72 §3.1"
+      },
+      "f_ck_min_kgcm2": 40.8,
+      "f_ck_max_kgcm2": 255.0,
+      "E_formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+      "G_formula": "E / (2.0 * (1.0 + nu))",
+      "sigma_c_adm_formula": "0.25 * sigma_c28",
+      "sigma_c_infl_adm_formula": "0.33 * sigma_c28"
+    },
+    "acciaio": {
+      "n_omogenizzazione": {
+        "valore": 10.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione",
+        "riferimento": "DM72"
+      },
+      "sigma_s_adm_Fe32": {
+        "valore": 1200.0,
+        "label": "σ_s,adm (Fe32)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile barre lisce Fe32",
+        "riferimento": "DM72 Tab.2"
+      },
+      "sigma_s_adm_Fe38": {
+        "valore": 1400.0,
+        "label": "σ_s,adm (Fe38)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile barre aderente Fe38",
+        "riferimento": "DM72 Tab.2"
+      },
+      "sigma_s_adm_FeB44k": {
+        "valore": 1800.0,
+        "label": "σ_s,adm (FeB44k)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile FeB44k aderente migliorata",
+        "riferimento": "DM72 Tab.2"
+      },
+      "E_acciaio": 2060000.0
+    }
+  }
+}

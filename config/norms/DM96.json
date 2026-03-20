@@ -1,0 +1,94 @@
+{
+  "norm_key": "DM96",
+  "norm_label": "DM 09/01/1996 (+ Circ. 4/07/1996 n.156)",
+  "norm_year": 1996,
+  "riferimento": "Decreto Ministeriale 9 gennaio 1996 + Circolare LL.PP. 4 luglio 1996 n.156/STC",
+  "note": "Normativa pre-NTC. Metodo semiprobabilistico (SLU) + ammissibili (TA) in parallelo. Ancora usata per edifici esistenti costruiti prima del 2008.",
+  "materiali": {
+    "calcestruzzo": {
+      "gamma_c": {
+        "valore": 1.60,
+        "label": "γ_c",
+        "unita": "-",
+        "descrizione": "Coefficiente di sicurezza calcestruzzo (SL)",
+        "riferimento": "DM96 §5.2.1"
+      },
+      "alpha_cc": {
+        "valore": 0.85,
+        "label": "α_cc",
+        "unita": "-",
+        "descrizione": "Coefficiente effetti lungo termine"
+      },
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione acciaio/calcestruzzo (TA)",
+        "riferimento": "DM96 §2.1"
+      },
+      "sigma_c_adm_coeff": {
+        "valore": 0.30,
+        "label": "k_c,adm",
+        "unita": "-",
+        "descrizione": "Coefficiente per tensione ammissibile a compressione: σ_c,adm = k_c * Rck",
+        "riferimento": "DM96 §2.1"
+      },
+      "tau_c0_adm_coeff": {
+        "valore": 0.03,
+        "label": "k_τ0,adm",
+        "unita": "-",
+        "descrizione": "Coefficiente per τ ammis. senza arm. trasversale: τ = k_τ0 * Rck",
+        "riferimento": "DM96 §2.1"
+      },
+      "tau_c1_adm_coeff": {
+        "valore": 0.08,
+        "label": "k_τ1,adm",
+        "unita": "-",
+        "descrizione": "Coefficiente per τ ammis. con arm. trasversale: τ = k_τ1 * Rck",
+        "riferimento": "DM96 §2.1"
+      },
+      "f_ck_min_kgcm2": 81.6,
+      "f_ck_max_kgcm2": 509.8,
+      "E_formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+      "G_formula": "E / (2.0 * (1.0 + nu))",
+      "f_cd_formula": "alpha_cc * f_ck / gamma_c",
+      "sigma_c_adm_formula": "0.30 * sigma_c28",
+      "tau_c0_adm_formula": "0.03 * sigma_c28",
+      "tau_c1_adm_formula": "0.08 * sigma_c28"
+    },
+    "acciaio": {
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione (TA)",
+        "riferimento": "DM96 §2.1"
+      },
+      "sigma_s_adm_FeB38k": {
+        "valore": 1600.0,
+        "label": "σ_s,adm (FeB38k)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile FeB38k (liscio)",
+        "riferimento": "DM96 Tab.2"
+      },
+      "sigma_s_adm_FeB44k": {
+        "valore": 2200.0,
+        "label": "σ_s,adm (FeB44k)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile FeB44k (aderente migliorata)",
+        "riferimento": "DM96 Tab.2"
+      },
+      "E_acciaio": 2060000.0
+    },
+    "muratura": {
+      "gamma_M": {
+        "valore": 2.00,
+        "label": "γ_M",
+        "unita": "-",
+        "descrizione": "Coefficiente parziale muratura",
+        "riferimento": "DM96 §4.5.2"
+      },
+      "f_d_formula": "f_k / gamma_M"
+    }
+  }
+}

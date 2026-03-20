@@ -1,0 +1,345 @@
+{
+    "famiglia": "muratura",
+    "label": "Muratura",
+    "gruppi": [
+        {
+            "key": "generali",
+            "label": "Generali"
+        },
+        {
+            "key": "meccanici",
+            "label": "Parametri meccanici"
+        },
+        {
+            "key": "resistenze",
+            "label": "Resistenze"
+        },
+        {
+            "key": "progetto",
+            "label": "Resistenze di progetto"
+        }
+    ],
+    "norme": [
+        {
+            "key": "NTC2018",
+            "label": "NTC 2018 (D.M. 17/01/2018) §11.10",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_M": {
+                    "valore": 2.00,
+                    "label": "γ_M",
+                    "unita": "-",
+                    "descrizione": "Coeff. parziale muratura (NTC2018 Tab.4.5.II, cat.III)"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_k",
+                    "label": "f_k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 36.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. caratt. a compressione della muratura (principale)"
+                },
+                {
+                    "key": "f_vk0",
+                    "label": "f_vk0",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 2.0,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze",
+                    "descrizione": "Resist. caratt. a taglio in assenza di compressione"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1800.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.15,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici",
+                    "descrizione": "Coefficiente di Poisson"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "1000.0 * f_k",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo elastico (NTC2018 C8.5.1.1.1, E≈1000·f_k)"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / 3.0",
+                    "gruppo": "meccanici",
+                    "descrizione": "Modulo di taglio (≈E/3)"
+                },
+                {
+                    "key": "f_d",
+                    "label": "f_d",
+                    "unita": "kg/cm²",
+                    "formula": "f_k / gamma_M",
+                    "gruppo": "progetto",
+                    "descrizione": "Resist. di progetto a compressione"
+                },
+                {
+                    "key": "f_vd",
+                    "label": "f_vd",
+                    "unita": "kg/cm²",
+                    "formula": "f_vk0 / gamma_M",
+                    "gruppo": "progetto",
+                    "descrizione": "Resist. di taglio di progetto (in assenza di N)"
+                }
+            ]
+        },
+        {
+            "key": "NTC2008",
+            "label": "NTC 2008 (D.M. 14/01/2008) §7.8",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_M": {
+                    "valore": 2.00,
+                    "label": "γ_M",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_k",
+                    "label": "f_k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 36.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "f_vk0",
+                    "label": "f_vk0",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 2.0,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1800.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.15,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "1000.0 * f_k",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / 3.0",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "f_d",
+                    "label": "f_d",
+                    "unita": "kg/cm²",
+                    "formula": "f_k / gamma_M",
+                    "gruppo": "progetto"
+                },
+                {
+                    "key": "f_vd",
+                    "label": "f_vd",
+                    "unita": "kg/cm²",
+                    "formula": "f_vk0 / gamma_M",
+                    "gruppo": "progetto"
+                }
+            ]
+        },
+        {
+            "key": "DM87",
+            "label": "DM 20/11/1987 (Muratura)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_M": {
+                    "valore": 3.00,
+                    "label": "γ_M",
+                    "unita": "-",
+                    "descrizione": "Coeff. sicurezza DM87 (TA)"
+                },
+                "alpha": {
+                    "valore": 0.60,
+                    "label": "α",
+                    "unita": "-",
+                    "descrizione": "Coeff. riduzione resist. cubica→snervamento"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_k",
+                    "label": "f_k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 30.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "f_vk0",
+                    "label": "f_vk0",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 1.5,
+                    "obbligatorio": false,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1800.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.15,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "sigma_c_adm",
+                    "label": "σ_0,adm",
+                    "unita": "kg/cm²",
+                    "formula": "f_k / gamma_M",
+                    "gruppo": "resistenze",
+                    "descrizione": "Tensione ammissibile a compressione (TA)"
+                },
+                {
+                    "key": "tau_adm",
+                    "label": "τ_adm",
+                    "unita": "kg/cm²",
+                    "formula": "f_vk0 / gamma_M",
+                    "gruppo": "resistenze",
+                    "descrizione": "Tensione ammissibile a taglio (TA)"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "900.0 * f_k",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / 3.0",
+                    "gruppo": "meccanici"
+                }
+            ]
+        },
+        {
+            "key": "Circ81",
+            "label": "Circ. 30/07/1981 (Muratura storica)",
+            "attiva": true,
+            "parametri_specifici": {
+                "gamma_M": {
+                    "valore": 3.00,
+                    "label": "γ_M",
+                    "unita": "-"
+                }
+            },
+            "parametri_input": [
+                {
+                    "key": "f_k",
+                    "label": "f_k",
+                    "unita": "kg/cm²",
+                    "tipo": "float",
+                    "default": 20.0,
+                    "obbligatorio": true,
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "densita_kg_m3",
+                    "label": "Densità",
+                    "unita": "kg/m³",
+                    "tipo": "float",
+                    "default": 1800.0,
+                    "obbligatorio": false,
+                    "gruppo": "generali"
+                },
+                {
+                    "key": "nu",
+                    "label": "ν",
+                    "unita": "-",
+                    "tipo": "float",
+                    "default": 0.15,
+                    "obbligatorio": false,
+                    "gruppo": "meccanici"
+                }
+            ],
+            "parametri_derivati": [
+                {
+                    "key": "sigma_c_adm",
+                    "label": "σ_0,adm",
+                    "unita": "kg/cm²",
+                    "formula": "f_k / gamma_M",
+                    "gruppo": "resistenze"
+                },
+                {
+                    "key": "E",
+                    "label": "E",
+                    "unita": "kg/cm²",
+                    "formula": "800.0 * f_k",
+                    "gruppo": "meccanici"
+                },
+                {
+                    "key": "G",
+                    "label": "G",
+                    "unita": "kg/cm²",
+                    "formula": "E / 3.0",
+                    "gruppo": "meccanici"
+                }
+            ]
+        }
+    ]
+}
