@@ -8,9 +8,11 @@ tags: [piano, roadmap, stato, refactor]
 
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-25 — Estensione implementativa: CI minima riattivata + cleanup root snapshot/patch + inventario esteso
+Ultimo sync: 2026-03-25 — Wave 1 pipeline docs completata: protocollo operativo standard + matrice estesa P00-P29 + schede pipeline con flowchart
 
 Changelog rapido (ultimi commit):
+- `2026-03-25` — Avviata implementazione piano pipeline all-modules: creata area `docs/pipelines/` con `README.md`, `MASTER_MATRIX.md`, `PROTOCOLLO_OPERATIVO_STANDARD.md` e 30 schede pipeline (`P00..P29`) con schema fisso e flowchart Mermaid
+- `2026-03-25` — Avviata implementazione cleanup root aggressivo: quarantena file accidentali/output/demo-debug + archiviazione docs storiche + stub planning rinominati con deadline 2026-04-01
 - `2026-03-25` — Riattivati workflow CI minimi (`python-ci.yml`, `lint-test.yml`) e completata estensione R2 con inventario root/mapping archivio
 - `2026-03-25` — Avviato refactor R4 servizi GUI moderni: estratti ActionReport/ProjectIOService/CalculationService + test non-GUI verdi
 - `2026-03-25` — Avviate R3/R4 documentali: indice tematico docs + backlog service split GUI moderna
@@ -119,11 +121,41 @@ Output eseguiti (R2 estensione + CI):
 - spostati `tree_*.txt` e `project_tree.txt` in `docs/archived/snapshots/`
 - aggiornati stub root `Plan_master*.md` e `PLANCODE.md` con redirect e deadline rimozione
 
+Output eseguiti (R2 implementazione cleanup root aggressivo):
+
+- creata quarantena tecnica `archive/quarantine/2026-03-25_root_cleanup/`
+- spostati in quarantena file accidentali/output/log della root (inclusi `tatus --porcelain`, `witch main`, `*.log`, output pytest/demo)
+- spostati in quarantena script demo/debug root (policy terminale senza delete diretto)
+- spostata documentazione storica root in `docs/archived/root_cleanup_2026-03-25/`
+- spostato `R.D. 16.11.1939 n.2229.pdf` in `docs/references/legislation/`
+- rinominati stub planning root in forma transitoria: `Plan_master.STUB.deprecated.remove-2026-04-01.md`, `Plan_master2.STUB.deprecated.remove-2026-04-01.md`, `PLANCODE.STUB.deprecated.remove-2026-04-01.md`
+
 Output eseguiti (R4 codice + test):
 
 - creati `src/ui/modern/services/action_report.py`, `project_io_service.py`, `calculation_service.py`
 - mantenuta retrocompatibilita in `src/ui/modern/services/__init__.py` (facade)
 - eseguito test `tests/test_modern_ui_nongui.py`: 29 passed, 0 failed
+
+Output eseguiti (Pipeline Wave 1 documentale):
+
+- creata directory canonica `docs/pipelines/`
+- creato indice operativo `docs/pipelines/README.md`
+- creata matrice operativa estesa `docs/pipelines/MASTER_MATRIX.md` (copertura P00-P29)
+- creato protocollo operativo standard sera/mattina `docs/pipelines/PROTOCOLLO_OPERATIVO_STANDARD.md`
+- create 30 schede pipeline dedicate (`docs/pipelines/P00_*.md` ... `docs/pipelines/P29_*.md`), tutte con:
+  - schema prescrittivo sezione-per-sezione
+  - gate obbligatori
+  - artefatti
+  - hook codice
+  - stato implementativo (operativa/parziale/roadmap)
+  - flowchart Mermaid inline
+
+Protocollo di continuita cross-postazione (attivo):
+
+- a fine sessione: aggiornare sempre `docs/PIANO_LAVORO.md`, `docs/PIANO_LAVORO_GUI.md` e area `docs/pipelines/`
+- handoff obbligatorio con: data/ora, branch, commit, stato fasi, rischi, prime 3 azioni
+- chiusura obbligatoria con commit atomico e push remoto
+- ripresa mattino da altra postazione con sequenza: `PIANO_LAVORO` -> `PIANO_LAVORO_GUI` -> `docs/pipelines/MASTER_MATRIX.md`
 
 Nota di governance:
 

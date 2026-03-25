@@ -22,6 +22,13 @@ Questo documento governa in dettaglio l'implementazione GUI:
 
 Nota operativa: quando una modifica impatta l'architettura o il flusso utente GUI, aggiornare prima questo file, poi il registro generale.
 
+Allineamento operativo pipeline (Wave 1):
+
+- La documentazione canonica dei workflow applicativi e ora in `docs/pipelines/`.
+- Il file di riferimento trasversale e `docs/pipelines/MASTER_MATRIX.md`.
+- Il protocollo di continuita sera/mattina per ripresa cross-postazione e in `docs/pipelines/PROTOCOLLO_OPERATIVO_STANDARD.md`.
+- Per la GUI moderna, i flussi dashboard e macro-settori devono essere mappati alle pipeline P00-P29.
+
 ## Allineamento con il masterplan workspace
 
 La GUI moderna non e piu trattata come iniziativa isolata: la sua evoluzione e ora parte del
@@ -61,6 +68,8 @@ Avanzamento tecnico con impatto GUI (stessa sessione):
 - validazione test non-GUI servizi: `tests/test_modern_ui_nongui.py` (29 passed)
 - quality gates CI minimi riattivati con workflow attivi (`python-ci.yml`, `lint-test.yml`)
 - completato cleanup root di snapshot/patch per ridurre rumore operativo durante il refactor GUI
+- creata baseline documentale pipeline all-modules in `docs/pipelines/` con 30 schede (`P00..P29`) e flowchart per ogni pipeline
+- creato protocollo operativo standard di handoff/ripresa (`docs/pipelines/PROTOCOLLO_OPERATIVO_STANDARD.md`) da applicare a ogni chiusura sessione
 
 ## Decisioni guida GUI-V2 (vincolanti)
 
