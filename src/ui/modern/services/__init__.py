@@ -16,6 +16,7 @@ import numpy as np
 from .action_report import ActionReport
 from .calculation_service import CalculationService
 from .project_io_service import ProjectIOService
+from .report_service import ReportService
 
 
 def _build_demo_project(norm_code: str, limit_states: list[str]) -> Any:
@@ -342,5 +343,6 @@ __all__ = [
     "ActionReport",
     "ProjectIOService",
     "CalculationService",
+    "ReportService",
     "PresetExecutionService",
 ]
