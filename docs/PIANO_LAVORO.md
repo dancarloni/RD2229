@@ -8,9 +8,15 @@ tags: [piano, roadmap, stato, refactor]
 
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-17 — Avvio implementazione GUI-V2 (macro-settori + dashboard card) e split piano tecnico dedicato
+Ultimo sync: 2026-03-25 — Estensione implementativa: CI minima riattivata + cleanup root snapshot/patch + inventario esteso
 
 Changelog rapido (ultimi commit):
+- `2026-03-25` — Riattivati workflow CI minimi (`python-ci.yml`, `lint-test.yml`) e completata estensione R2 con inventario root/mapping archivio
+- `2026-03-25` — Avviato refactor R4 servizi GUI moderni: estratti ActionReport/ProjectIOService/CalculationService + test non-GUI verdi
+- `2026-03-25` — Avviate R3/R4 documentali: indice tematico docs + backlog service split GUI moderna
+- `2026-03-25` — Eseguita tranche R1-R2 estesa: Session/BLOCCO/COMPLETAMENTO archiviati + Plan_master/Plan_master2/PLANCODE migrati in archived/planning con stub
+- `2026-03-25` — Eseguita tranche R1-R2 iniziale: spostati demo/report/CI output in cartelle target + inventario R1
+- `2026-03-25` — Creato masterplan esecutivo di ristrutturazione workspace (`docs/reorganization/MASTERPLAN_RISTRUTTURAZIONE_WORKSPACE_2026-03-25.md`)
 - `2026-03-17` — Avvio implementazione GUI-V2: governance aggiornata, piano tecnico separato GUI, script sync TODO GUI
 - `2026-03-16` — Sync checklist GUI-V1 su stato codice reale + smoke headless + pytest 3243/3243
 - `2026-03-16` — Esecuzione GUI-V1 completata: 9 fasi/51 sub-task, 3243/3243 test pass
@@ -26,6 +32,7 @@ Indice rapido:
 - [Stato avanzamento Fase X (solai)](#stato-avanzamento-fase-x-solai)
 - [Istruzioni operative](#istruzioni-operative)
 - [Attività completate (cronologia)](#attivit%C3%A0-completate)
+- [Masterplan Ristrutturazione Workspace 2026-03-25](#masterplan-ristrutturazione-workspace-2026-03-25)
 - [Fase GUI-V1 — Piano completo avviabilità software](#fase-gui-v1--piano-completo-avviabilit%C3%A0-software)
 - [Q&A Storicizzata 2026-03-16 — Decisioni Architetturali GUI-V1](#qa-storicizzata-2026-03-16--decisioni-architetturali-gui-v1)
 
@@ -64,6 +71,64 @@ Note su commit references: quando possibile inserire il commit hash nella colonn
   - commit hash relativo all'attività (se disponibile),
   - breve descrizione dell'azione (1 riga).
 - Non eliminare storici: aggiungere sempre nuove righe nella sezione `Attività completate` invece di sovrascrivere.
+---
+
+## Masterplan Ristrutturazione Workspace 2026-03-25
+
+> Documento operativo dedicato: `docs/reorganization/MASTERPLAN_RISTRUTTURAZIONE_WORKSPACE_2026-03-25.md`
+
+Decisioni attive:
+
+- Ristrutturazione repository impostata come programma trasversale separato dalla sola GUI.
+- Prima tranche implementativa: documentazione strutturale e masterplan eseguibile, senza move distruttivi iniziali.
+- Obiettivo immediato: definire repository target, roadmap, rischi, architettura target e wireframe guida.
+- Priorita iniziali confermate: root minimale, docs per temi, dashboard centrale, integrazione di Progetto/Materiali/Sezioni.
+
+Output creato in questa sessione:
+
+- `docs/reorganization/MASTERPLAN_RISTRUTTURAZIONE_WORKSPACE_2026-03-25.md`
+- `docs/reorganization/INVENTARIO_R1_WORKSPACE_2026-03-25.md`
+
+Output eseguiti (R1-R2 iniziale):
+
+- `00_Progetto_di_test*.jsonp` spostati in `examples/projects/`
+- `00_Progetto_di_test_report.*` spostati in `examples/reports/`
+- `ci_pytest_report.xml` spostato in `docs/generated/ci/`
+- `README.md` aggiornato con i nuovi path demo
+- `.gitignore` aggiornato per artifact CI XML generati
+
+Output eseguiti (R1-R2 estesa):
+
+- `Session_*.md` e `BLOCCO 01..12.txt` spostati in `docs/archived/session_notes/`
+- `COMPLETAMENTO_TASK.md` spostato in `docs/archived/summaries/`
+- `Plan_master.md`, `Plan_master2.md`, `PLANCODE.md` spostati in `docs/archived/planning/`
+- creati stub di compatibilita in root per i tre file planning migrati
+- creato `docs/archived/README.md` con regole di archivio e validita dei riferimenti storici
+
+Output eseguiti (R3-R4 documentale):
+
+- creato `docs/reorganization/INDICE_TEMATICO_DOCS_R3_2026-03-25.md`
+- creato `docs/reorganization/BACKLOG_R4_SERVICE_SPLIT_2026-03-25.md`
+
+Output eseguiti (R2 estensione + CI):
+
+- creati workflow attivi `.github/workflows/python-ci.yml` e `.github/workflows/lint-test.yml`
+- creato `docs/reorganization/ROOT_INVENTORY_2026-03-25.md`
+- creato `docs/reorganization/ARCHIVE_MAPPING_2026-03-25.md`
+- spostati `apply_from_chat_plan.patch` in `docs/archived/patches/`
+- spostati `tree_*.txt` e `project_tree.txt` in `docs/archived/snapshots/`
+- aggiornati stub root `Plan_master*.md` e `PLANCODE.md` con redirect e deadline rimozione
+
+Output eseguiti (R4 codice + test):
+
+- creati `src/ui/modern/services/action_report.py`, `project_io_service.py`, `calculation_service.py`
+- mantenuta retrocompatibilita in `src/ui/modern/services/__init__.py` (facade)
+- eseguito test `tests/test_modern_ui_nongui.py`: 29 passed, 0 failed
+
+Nota di governance:
+
+- Le attivita di riordino fisico file e refactor architetturale successivi dovranno referenziare questo masterplan oltre alle fonti di verita gia esistenti.
+
 ---
 
 ## Q&A Storicizzata 2026-03-16 — Decisioni Architetturali GUI-V1
@@ -823,4 +888,3 @@ Vedere: `docs/ARCHITECTURE_MATERIAL_GOVERNANCE.md`
 | M.B (editor avanzato) | ✅ COMPLETATO | (commit finale) |
 | M.C (settings UI) | ✅ COMPLETATO | (commit finale) |
 | M.D (doc alignment) | ✅ COMPLETATO | (commit finale) |
-

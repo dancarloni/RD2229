@@ -69,3 +69,6 @@ RD2229.egg-info/
 projects/
 node_modules/
 package-lock.json
+
+# Generated CI artifacts (workspace reorganization)
+docs/generated/ci/*.xml

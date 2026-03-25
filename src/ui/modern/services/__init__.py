@@ -8,70 +8,14 @@ da pulsanti GUI.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import numpy as np
 
-if TYPE_CHECKING:
-    from src.core.results import ResultsModel
-    from src.project.schema import ProjectModel
-
-
-class ProjectIOService:
-    def new_project(self) -> ProjectModel:
-        from src.project.schema import ProjectModel
-
-        return ProjectModel()
-
-    def open_project(self, path: str) -> ProjectModel:
-        from src.project.repository import load_project
-
-        return load_project(path)
-
-    def save_project(self, project: ProjectModel, path: str) -> None:
-        from src.project.repository import save_project
-
-        save_project(project, path)
-
-
-class CalculationService:
-    def run(self, project: ProjectModel) -> ResultsModel:
-        from src.core.pipeline import run_pipeline
-
-        return run_pipeline(project)
-
-    def export_results(self, results: ResultsModel, path: str) -> None:
-        from src.core.results import export_results
-
-        export_results(results, path)
-
-    def export_report(
-        self,
-        project: ProjectModel,
-        results: ResultsModel,
-        path: str,
-        fmt: str = "html",
-    ) -> None:
-        from src.reporting.export import export_report_html, export_report_md
-        from src.reporting.report_builder import build_report
-
-        artifact = build_report(project, results)
-        if fmt == "md":
-            export_report_md(artifact, path)
-        else:
-            export_report_html(artifact, path)
-
-
-@dataclass
-class ActionReport:
-    """Esito serializzabile di una azione GUI."""
-
-    name: str
-    ok: bool
-    summary: str
-    details: dict[str, Any]
+from .action_report import ActionReport
+from .calculation_service import CalculationService
+from .project_io_service import ProjectIOService
 
 
 def _build_demo_project(norm_code: str, limit_states: list[str]) -> Any:

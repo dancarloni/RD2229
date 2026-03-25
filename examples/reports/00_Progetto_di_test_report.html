@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapporto RD2229</title>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 2em auto; padding: 0 1em; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 0.4em 0.6em; text-align: left; }
+    th { background: #f0f0f0; }
+    pre { background: #f8f8f8; padding: 1em; overflow-x: auto; }
+    code { background: #f8f8f8; padding: 0.1em 0.3em; }
+  </style>
+</head>
+<body>
+<h1>Rapporto RD2229</h1>
+<br>
+<p><strong>Schema version:</strong> <code>1.1.0</code>  </p>
+<p><strong>Generato:</strong> 2026-03-17T22:09:42.814496+00:00  </p>
+<p><strong>App version:</strong> 0.1.0  </p>
+<p><strong>Normativa:</strong> RD2229  </p>
+<p><strong>Esito globale:</strong> ✅ OK  </p>
+<br>
+<h2>Indice</h2>
+<br>
+<li>[Informazioni Progetto](#informazioni-progetto)</li>
+<li>[Impostazioni Normativa](#impostazioni-normativa)</li>
+<li>[Riepilogo Input](#riepilogo-input)</li>
+<li>[Risultati Verifiche](#risultati-verifiche)</li>
+<li>[Traccia Calcolo](#traccia-calcolo)</li>
+<br>
+<h2>Informazioni Progetto</h2>
+<br>
+<br>
+<h2>Impostazioni Normativa</h2>
+<br>
+<li><strong>Normativa:</strong> RD2229</li>
+<li><strong>Stati limite:</strong> TA</li>
+<li><strong>Unità forza:</strong> kN</li>
+<li><strong>Unità lunghezza:</strong> cm</li>
+<li><strong>Struttura esistente:</strong> Sì (LC: LC1)</li>
+<br>
+<h2>Riepilogo Input</h2>
+<br>
+<li>Elementi geometrici: 1</li>
+<li>Materiali: 2</li>
+<li>Combinazioni di carico: 1</li>
+<br>
+<h2>⚠️ Avvisi</h2>
+<br>
+<li>X6-REP-001:WARN::TRACE::Errore pipeline vento: 'dict' object has no attribute 'method'</li>
+<br>
+<h2>Risultati Verifiche</h2>
+<br>
+<table>
+  <tr><th>Elemento</th><th>Esito</th><th>Metriche principali</th></tr>
+  <tr><td>SEED-L-2</td><td>✅ OK</td><td>norm_code: RD2229</td></tr>
+</table>
+<br>
+<h2>Traccia Calcolo</h2>
+<br>
+<pre>
+pipeline:start
+pipeline:validation_done
+seismic:skip(no_data)
+element:SEED-L-2:ok=True
+pipeline:checks_done
+step5:start
+step5:element:SEED-L-2:ok=True:checks=0.0
+step5:done(results=1)
+wind:start
+wind:error
+pipeline:complete
+</pre>
+<br>
+<h2>Audit Trail X6</h2>
+<br>
+<li><strong>Input hash:</strong> 2dfd5689db8ecac97d8185aefb83215ca73a236ee938a169d3b08e57733bf1eb</li>
+<li><strong>Output hash:</strong> 83cc30b531d8c4e7e2f362311b7baa408bac3c8fa26470fff9e4cebfdce58837</li>
+<li><strong>Decision trace:</strong> 5 voci</li>
+<li><strong>Payload JSON disponibile:</strong> Sì</li>
+</body>
+</html>

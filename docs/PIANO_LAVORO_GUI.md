@@ -1,6 +1,6 @@
 ---
 title: PIANO LAVORO GUI — RD2229
-last_sync: 2026-03-17 (creazione iniziale + governance GUI-V2)
+last_sync: 2026-03-25 (allineamento GUI con estensione R2 e quality gates CI)
 maintainers:
   - Daniele Carloni
 tags: [piano, roadmap, gui, design, dashboard, todo-sync]
@@ -21,6 +21,46 @@ Questo documento governa in dettaglio l'implementazione GUI:
 - checklist TODO sincronizzabile via script.
 
 Nota operativa: quando una modifica impatta l'architettura o il flusso utente GUI, aggiornare prima questo file, poi il registro generale.
+
+## Allineamento con il masterplan workspace
+
+La GUI moderna non e piu trattata come iniziativa isolata: la sua evoluzione e ora parte del
+programma di ristrutturazione complessiva del repository.
+
+Documento di riferimento trasversale:
+
+- `docs/reorganization/MASTERPLAN_RISTRUTTURAZIONE_WORKSPACE_2026-03-25.md`
+
+Implicazioni operative:
+
+- le scelte GUI devono essere coerenti con la root minimale e con la nuova tassonomia documentale;
+- i moduli Qt reali vanno ricondotti a un flusso unico centrato su dashboard, stato condiviso e servizi applicativi separati;
+- la priorita architetturale immediata resta l'integrazione di Progetto e Dati, Materiali e Sezioni.
+
+Delta esecuzione collegato alla ristrutturazione workspace:
+
+- file demo progetto/report spostati da root in `examples/projects` e `examples/reports`;
+- output CI XML spostato in `docs/generated/ci`;
+- aggiornati i path di avvio demo in `README.md`.
+- note di sessione e blocchi storici rimossi dalla root e archiviati in `docs/archived/session_notes`;
+- piani storici (`Plan_master*`, `PLANCODE`) archiviati in `docs/archived/planning` con stub transitori.
+
+Questa pulizia riduce il rumore operativo per la GUI e prepara le prossime tranche su registry esteso e sincronizzazione stato.
+
+Avanzamento tecnico con impatto GUI (stessa sessione):
+
+- creato backlog dedicato allo split servizi GUI moderni:
+  - `docs/reorganization/BACKLOG_R4_SERVICE_SPLIT_2026-03-25.md`
+- creato indice tematico docs per ridurre accoppiamento tra documentazione operativa e storico:
+  - `docs/reorganization/INDICE_TEMATICO_DOCS_R3_2026-03-25.md`
+- implementato primo step di service split (R4):
+  - `src/ui/modern/services/action_report.py`
+  - `src/ui/modern/services/project_io_service.py`
+  - `src/ui/modern/services/calculation_service.py`
+  - `src/ui/modern/services/__init__.py` mantenuto come facade di compatibilita
+- validazione test non-GUI servizi: `tests/test_modern_ui_nongui.py` (29 passed)
+- quality gates CI minimi riattivati con workflow attivi (`python-ci.yml`, `lint-test.yml`)
+- completato cleanup root di snapshot/patch per ridurre rumore operativo durante il refactor GUI
 
 ## Decisioni guida GUI-V2 (vincolanti)
 

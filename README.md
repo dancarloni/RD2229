@@ -89,10 +89,10 @@ La GUI operativa principale e tab-based (Progetto, Verifica, Report, Materiali, 
 python -m src.ui.modern.app
 
 # Avvio GUI con progetto pre-caricato
-python -m src.ui.modern.app --project "./00_Progetto_di_test.jsonp" --output-dir "./"
+python -m src.ui.modern.app --project "./examples/projects/00_Progetto_di_test.jsonp" --output-dir "./"
 
 # Smoke workflow headless (CI/local)
-python -m src.ui.modern.app --project "./00_Progetto_di_test.jsonp" --headless
+python -m src.ui.modern.app --project "./examples/projects/00_Progetto_di_test.jsonp" --headless
 ```
 
 Avvio package-level:
