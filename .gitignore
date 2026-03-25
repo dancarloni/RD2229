@@ -72,3 +72,9 @@ package-lock.json
 
 # Generated CI artifacts (workspace reorganization)
 docs/generated/ci/*.xml
+
+# Root cleanup transient artifacts
+.tmp_pytest_*.txt
+tmp_test.*
+output_*.txt
+pytest_output.txt

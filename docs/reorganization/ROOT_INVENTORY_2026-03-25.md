@@ -34,5 +34,14 @@ related:
 
 ## Decisioni aperte
 
-1. Data di rimozione stub root `Plan_master*.md` / `PLANCODE.md`.
-2. Politica definitiva per snapshot testuali in root.
+1. Data di rimozione stub root definita: 2026-04-01 (finestra transitoria 7 giorni).
+2. Politica snapshot testuali: vietati in root, consentiti solo in `docs/archived/snapshots/`.
+
+## Delta implementato (sessione 2026-03-25)
+
+- Creata quarantena tecnica: `archive/quarantine/2026-03-25_root_cleanup/`.
+- Spostati in quarantena file accidentali/output/log: `.tmp_pytest_1.txt`, `app.log`, `rd2229_agent.log`, `pytest_output.txt`, `output_esempio.txt`, `tmp_test.csv`, `tatus --porcelain`, `witch main`, `pyproject.toml.txt`, `.workspace_inspect_app.py`.
+- Spostati in quarantena anche script demo/debug root per purge controllato (policy terminale senza delete diretto): `analyze_sections_json.py`, `debug_material_suggest.py`, `debug_material_suggest2.py`, `demo_config_system.py`, `demo_matplotlib_integration.py`, `demo_sections.json`, `demo_verification_engine.py`, `esempio_pressoflessione_deviata.py`, `launch_material_editor.py`, `reorganize_sections_app.py`, `test_veloce_deviata.py`, `progetto.zip`.
+- Spostata documentazione storica root in `docs/archived/root_cleanup_2026-03-25/`.
+- Spostato riferimento normativo PDF in `docs/references/legislation/`.
+- Rinominati stub planning root in forma transitoria con deadline: `Plan_master.STUB.deprecated.remove-2026-04-01.md`, `Plan_master2.STUB.deprecated.remove-2026-04-01.md`, `PLANCODE.STUB.deprecated.remove-2026-04-01.md`.

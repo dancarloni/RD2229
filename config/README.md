@@ -53,8 +53,8 @@ print(f"C25/30 concrete: fck = {c25['fck']} MPa")
 ### Documentation
 
 - **Full documentation:** `docs/CONFIG_JSONCODE_SYSTEM.md`
-- **Implementation summary:** `IMPLEMENTATION_SUMMARY.md`
-- **Demo script:** Run `python demo_config_system.py`
+- **Implementation summary (archived):** `docs/archived/root_cleanup_2026-03-25/IMPLEMENTATION_SUMMARY.md`
+- **Demo script:** disponibile in quarantena tecnica `archive/quarantine/2026-03-25_root_cleanup/demo_config_system.py`
 - **Tests:** Run tests in `tests/test_config_loaders.py`
 
 ### New Verification Parameters
