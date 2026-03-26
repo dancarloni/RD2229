@@ -9,6 +9,11 @@ ai widget vengono effettuati tramite i metodi `attach_*` a runtime.
 import logging
 from typing import Any, Dict, List, Optional
 
+try:
+    from PyQt6.QtWidgets import QMessageBox
+except ImportError:
+    from PySide6.QtWidgets import QMessageBox  # type: ignore
+
 from src.core.controller_base import ControllerBase
 from src.ui.qt.material_editor.logic.material_config import MaterialConfigLoader
 from src.ui.qt.material_editor.logic.material_export_logic import MaterialExportLogic
@@ -358,7 +363,6 @@ class MaterialEditorController(ControllerBase):
             if not validation.is_valid:
                 # Errori bloccanti → non salvare
                 err_lines = [f"• [{i.field}] {i.message}" for i in validation.errors]
-                from PySide6.QtWidgets import QMessageBox
 
                 QMessageBox.critical(
                     None,
@@ -369,7 +373,6 @@ class MaterialEditorController(ControllerBase):
             if validation.warnings:
                 # Warning non bloccanti → chiede conferma
                 warn_lines = [f"• [{i.field}] {i.message}" for i in validation.warnings]
-                from PySide6.QtWidgets import QMessageBox
 
                 reply = QMessageBox.warning(
                     None,
@@ -392,8 +395,6 @@ class MaterialEditorController(ControllerBase):
                 self.repo.update_material(self.current_index, data)
                 self.emit("material_updated", self.current_index, data)
         except DuplicateMaterialError as dup_err:
-            from PySide6.QtWidgets import QMessageBox
-
             QMessageBox.warning(None, "Materiale duplicato", str(dup_err))
             return
 
@@ -474,7 +475,6 @@ class MaterialEditorController(ControllerBase):
                     self.repo._materials[idx] = snapshot
                 except Exception:
                     pass
-            from PySide6.QtWidgets import QMessageBox
 
             QMessageBox.critical(
                 None,

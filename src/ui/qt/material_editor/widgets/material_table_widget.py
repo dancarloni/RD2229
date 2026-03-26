@@ -2,9 +2,14 @@
 MaterialTableWidget — Tabella materiali ordinabile, filtrabile, drag&drop
 """
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QAction  # Corretto import per QAction
-from PySide6.QtWidgets import QAbstractItemView, QHeaderView, QMenu, QTableView
+try:
+    from PyQt6.QtCore import Qt, pyqtSignal as Signal
+    from PyQt6.QtGui import QAction
+    from PyQt6.QtWidgets import QAbstractItemView, QHeaderView, QMenu, QTableView
+except ImportError:
+    from PySide6.QtCore import Qt, Signal  # type: ignore
+    from PySide6.QtGui import QAction  # type: ignore
+    from PySide6.QtWidgets import QAbstractItemView, QHeaderView, QMenu, QTableView  # type: ignore
 
 
 class MaterialTableWidget(QTableView):
@@ -16,16 +21,16 @@ class MaterialTableWidget(QTableView):
         self.setSortingEnabled(True)
         self.horizontalHeader().setSectionsMovable(True)
         self.horizontalHeader().setStretchLastSection(True)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setAlternatingRowColors(True)
         self.setDragDropOverwriteMode(False)
-        self.setDragDropMode(QAbstractItemView.InternalMove)
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
 
         # enable custom context menu for batch editing
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self._on_custom_context_menu)
 
     def _on_custom_context_menu(self, pos):
@@ -52,7 +57,10 @@ class MaterialTableWidget(QTableView):
 if __name__ == "__main__":
     import sys
 
-    from PySide6.QtWidgets import QApplication
+    try:
+        from PyQt6.QtWidgets import QApplication
+    except ImportError:
+        from PySide6.QtWidgets import QApplication  # type: ignore
 
     app = QApplication(sys.argv)
     table = MaterialTableWidget()

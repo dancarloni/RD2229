@@ -87,7 +87,7 @@ pip install pre-commit && pre-commit install
 pre-commit run --all-files
 ```
 
-Hooks run: trailing-whitespace, end-of-file-fixer, check-yaml, black, isort, ruff, ruff-format, mypy, bandit, and a custom `replace-sigma` script.
+Hooks run: trailing-whitespace, end-of-file-fixer, check-yaml, black, isort, ruff, ruff-format, mypy, bandit, and a custom `replace-σ` script.
 
 ## Key architectural conventions
 

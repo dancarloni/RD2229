@@ -2,23 +2,42 @@
 
 import sys
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeySequence, QShortcut
-from PySide6.QtWidgets import (
-    QApplication,
-    QComboBox,
-    QDialog,
-    QFileDialog,
-    QHBoxLayout,
-    QLabel,
-    QMainWindow,
-    QPushButton,
-    QSplitter,
-    QTabWidget,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+try:
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtGui import QKeySequence, QShortcut
+    from PyQt6.QtWidgets import (
+        QApplication,
+        QComboBox,
+        QDialog,
+        QFileDialog,
+        QHBoxLayout,
+        QLabel,
+        QMainWindow,
+        QPushButton,
+        QSplitter,
+        QTabWidget,
+        QTextEdit,
+        QVBoxLayout,
+        QWidget,
+    )
+except ImportError:
+    from PySide6.QtCore import Qt  # type: ignore
+    from PySide6.QtGui import QKeySequence, QShortcut  # type: ignore
+    from PySide6.QtWidgets import (  # type: ignore
+        QApplication,
+        QComboBox,
+        QDialog,
+        QFileDialog,
+        QHBoxLayout,
+        QLabel,
+        QMainWindow,
+        QPushButton,
+        QSplitter,
+        QTabWidget,
+        QTextEdit,
+        QVBoxLayout,
+        QWidget,
+    )
 
 from src.ui.qt.material_editor.controller import MaterialEditorController
 from src.ui.qt.material_editor.logic.material_layout_logic import MaterialLayoutLogic
@@ -284,7 +303,10 @@ class MaterialEditorMainWindow(QMainWindow):
             pass
 
         if not selected_indices:
-            from PySide6.QtWidgets import QMessageBox
+            try:
+                from PyQt6.QtWidgets import QMessageBox
+            except ImportError:
+                from PySide6.QtWidgets import QMessageBox  # type: ignore
 
             QMessageBox.information(
                 self,
@@ -305,7 +327,10 @@ class MaterialEditorMainWindow(QMainWindow):
 
     def on_save_catalog_clicked(self):
         """Salva i materiali del tab attivo nel catalogo di sistema corrispondente."""
-        from PySide6.QtWidgets import QComboBox, QDialog, QDialogButtonBox, QFormLayout, QMessageBox
+        try:
+            from PyQt6.QtWidgets import QComboBox, QDialog, QDialogButtonBox, QFormLayout, QMessageBox
+        except ImportError:
+            from PySide6.QtWidgets import QComboBox, QDialog, QDialogButtonBox, QFormLayout, QMessageBox  # type: ignore
 
         ctl = self.get_active_controller()
         if ctl is None:

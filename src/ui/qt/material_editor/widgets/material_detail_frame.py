@@ -12,19 +12,34 @@ Supporta due modalità:
 
 from typing import Any, Dict, List, Optional
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import (
-    QCheckBox,
-    QGridLayout,
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QSizePolicy,
-    QVBoxLayout,
-    QWidget,
-)
+try:
+    from PyQt6.QtCore import Qt, pyqtSignal as Signal
+    from PyQt6.QtWidgets import (
+        QCheckBox,
+        QGridLayout,
+        QGroupBox,
+        QHBoxLayout,
+        QLabel,
+        QLineEdit,
+        QPushButton,
+        QSizePolicy,
+        QVBoxLayout,
+        QWidget,
+    )
+except ImportError:
+    from PySide6.QtCore import Qt, Signal  # type: ignore
+    from PySide6.QtWidgets import (  # type: ignore
+        QCheckBox,
+        QGridLayout,
+        QGroupBox,
+        QHBoxLayout,
+        QLabel,
+        QLineEdit,
+        QPushButton,
+        QSizePolicy,
+        QVBoxLayout,
+        QWidget,
+    )
 
 
 class MaterialDetailFrame(QWidget):
@@ -198,7 +213,7 @@ class MaterialDetailFrame(QWidget):
                 self._fields[pkey] = edit
                 self._is_derived[pkey] = False
                 col_offset = col_pair * 2
-                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignRight)
+                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignmentFlag.AlignRight)
                 grid.addWidget(edit, grid_row, col_offset + 1)
                 if col_pair == 1:
                     grid_row += 1
@@ -231,7 +246,7 @@ class MaterialDetailFrame(QWidget):
                 label_text = _field_label(field)
                 edit = self._make_input_edit(field, material)
                 col_offset = col_pair * 2
-                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignRight)
+                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignmentFlag.AlignRight)
                 grid.addWidget(edit, grid_row, col_offset + 1)
                 if col_pair == 1:
                     grid_row += 1
@@ -252,7 +267,7 @@ class MaterialDetailFrame(QWidget):
                 label_text = _field_label(field)
                 field_w, edit = self._make_derived_widget(field, material)
                 col_offset = col_pair * 2
-                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignRight)
+                grid.addWidget(QLabel(label_text), grid_row, col_offset, Qt.AlignmentFlag.AlignRight)
                 grid.addWidget(field_w, grid_row, col_offset + 1)
                 if col_pair == 1:
                     grid_row += 1

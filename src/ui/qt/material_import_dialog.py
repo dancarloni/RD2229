@@ -70,11 +70,11 @@ class MaterialImportDialog(QDialog):
         try:
             from PyQt6.QtWidgets import QDialog as _QDlg
 
-            accepted = _QDlg.Accepted
-        except Exception:
+            accepted = _QDlg.DialogCode.Accepted
+        except ImportError:
             from PySide6.QtWidgets import QDialog as _QDlg  # type: ignore
 
-            accepted = _QDlg.Accepted
+            accepted = _QDlg.DialogCode.Accepted
 
         if code == accepted:
             return getattr(dlg, "_selected", None)

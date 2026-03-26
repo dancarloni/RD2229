@@ -78,3 +78,21 @@ if not _TKINTER_AVAILABLE:
     collect_ignore.extend(_TKINTER_DEPENDENT)
 if not _PYTEST_QT_AVAILABLE:
     collect_ignore.extend(_PYTEST_QT_DEPENDENT)
+
+
+import os
+import sys
+
+import pytest
+
+
+@pytest.fixture(scope="session")
+def qapp():
+    """QApplication condivisa tra tutti i test Qt (offscreen, senza finestre)."""
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    try:
+        from PyQt6.QtWidgets import QApplication
+    except ImportError:
+        from PySide6.QtWidgets import QApplication  # type: ignore
+    app = QApplication.instance() or QApplication(sys.argv)
+    yield app

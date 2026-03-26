@@ -237,21 +237,29 @@ class DebugViewerWindow(QWidget):
 
     def _esporta_txt(self) -> None:
         """Esporta il log in formato testo."""
+        import logging
         percorso, _ = QFileDialog.getSaveFileName(
             self, "Esporta Log TXT", "rd2229_log.txt", "File di testo (*.txt)"
         )
         if percorso:
-            with open(percorso, "w", encoding="utf-8") as f:
-                f.write(registro.esporta_testo())
+            try:
+                with open(percorso, "w", encoding="utf-8") as f:
+                    f.write(registro.esporta_testo())
+            except OSError as exc:
+                logging.getLogger(__name__).error("Export TXT failed: %s", exc)
 
     def _esporta_csv(self) -> None:
         """Esporta il log in formato CSV."""
+        import logging
         percorso, _ = QFileDialog.getSaveFileName(
             self, "Esporta Log CSV", "rd2229_log.csv", "File CSV (*.csv)"
         )
         if percorso:
-            with open(percorso, "w", encoding="utf-8") as f:
-                f.write(registro.esporta_csv())
+            try:
+                with open(percorso, "w", encoding="utf-8") as f:
+                    f.write(registro.esporta_csv())
+            except OSError as exc:
+                logging.getLogger(__name__).error("Export CSV failed: %s", exc)
 
     def closeEvent(self, event: Any) -> None:
         """Rimuove il listener dal registro alla chiusura."""

@@ -73,6 +73,8 @@ class PipelineWorker(QThread):
 
 class PipelineRunnerWindow(QWidget):
     results_ready = Signal(object)
+    run_started = Signal()   # emesso quando il worker parte — usato da main_window per badge
+    run_failed = Signal(str)  # emesso in caso di eccezione del worker
 
     def __init__(self, project_service=None, parent=None):
         super().__init__(parent)
@@ -208,6 +210,7 @@ class PipelineRunnerWindow(QWidget):
         self.progress.setRange(0, 0)
         self.progress.setValue(0)
         self._worker.start()
+        self.run_started.emit()
 
     def _cancel(self) -> None:
         if self._worker is not None and self._worker.isRunning():
@@ -231,6 +234,7 @@ class PipelineRunnerWindow(QWidget):
 
     def _on_failed(self, error: str) -> None:
         self._append_log(f"Errore pipeline: {error}", "error")
+        self.run_failed.emit(error)
         self.progress.setRange(0, 100)
         self.progress.setValue(0)
         self.btn_run.setEnabled(True)
@@ -312,8 +316,11 @@ class PipelineRunnerWindow(QWidget):
         )
         if not path:
             return
-        export_results(self._results, path)
-        self._append_log(f"JSON esportato: {path}", "info")
+        try:
+            export_results(self._results, path)
+            self._append_log(f"JSON esportato: {path}", "info")
+        except Exception as exc:
+            self._append_log(f"Export fallito: {exc}", "error")
 
 
 MODULE_SPEC = {

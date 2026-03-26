@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, Optional
 
 try:
@@ -38,7 +39,13 @@ class RowEditDialog(QDialog):
         self.setWindowTitle("Modifica voce")
         self._result: dict[str, Any] | None = None
         self._form = QFormLayout()
-        self._buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        try:
+            # PyQt6 requires .StandardButton path for enum access
+            btns = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        except Exception:
+            # PySide6 fallback: direct enum access (legacy)
+            btns = QDialogButtonBox.Ok | QDialogButtonBox.Cancel  # type: ignore[attr-defined]
+        self._buttons = QDialogButtonBox(btns)
         self._buttons.accepted.connect(self._on_ok)
         self._buttons.rejected.connect(self.reject)
         root = QVBoxLayout(self)
@@ -80,7 +87,7 @@ class GeometryDialog(RowEditDialog):
         self.txt_height = QLineEdit()
         self.txt_extra = QLineEdit()
         self.btn_extra = QLabel("[modifica extra]")
-        self.btn_extra.setCursor(Qt.PointingHandCursor)
+        self.btn_extra.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_extra.mousePressEvent = self._on_edit_extra
 
         self._form.addRow("ID", self.txt_id)
@@ -127,11 +134,11 @@ class GeometryDialog(RowEditDialog):
         try:
             from PyQt6.QtWidgets import QDialog as _QDialog
 
-            accepted = _QDialog.Accepted
-        except Exception:
+            accepted = _QDialog.DialogCode.Accepted
+        except ImportError:
             from PySide6.QtWidgets import QDialog as _QDialog  # type: ignore
 
-            accepted = _QDialog.Accepted
+            accepted = _QDialog.DialogCode.Accepted
         return dlg._result if code == accepted else None
 
 
@@ -146,7 +153,7 @@ class MaterialDialog(RowEditDialog):
         self.txt_fyk = QLineEdit()
         self.txt_extra = QLineEdit()
         self.btn_extra = QLabel("[modifica extra]")
-        self.btn_extra.setCursor(Qt.PointingHandCursor)
+        self.btn_extra.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_extra.mousePressEvent = self._on_edit_extra
 
         self._form.addRow("ID", self.txt_id)
@@ -196,11 +203,11 @@ class MaterialDialog(RowEditDialog):
         try:
             from PyQt6.QtWidgets import QDialog as _QDialog
 
-            accepted = _QDialog.Accepted
-        except Exception:
+            accepted = _QDialog.DialogCode.Accepted
+        except ImportError:
             from PySide6.QtWidgets import QDialog as _QDialog  # type: ignore
 
-            accepted = _QDialog.Accepted
+            accepted = _QDialog.DialogCode.Accepted
         return dlg._result if code == accepted else None
 
 
@@ -217,7 +224,7 @@ class LoadDialog(RowEditDialog):
         self.txt_desc = QLineEdit()
         self.txt_extra = QLineEdit()
         self.btn_extra = QLabel("[modifica extra]")
-        self.btn_extra.setCursor(Qt.PointingHandCursor)
+        self.btn_extra.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_extra.mousePressEvent = self._on_edit_extra
 
         self._form.addRow("Elemento", self.txt_element_id)
@@ -273,9 +280,9 @@ class LoadDialog(RowEditDialog):
         try:
             from PyQt6.QtWidgets import QDialog as _QDialog
 
-            accepted = _QDialog.Accepted
-        except Exception:
+            accepted = _QDialog.DialogCode.Accepted
+        except ImportError:
             from PySide6.QtWidgets import QDialog as _QDialog  # type: ignore
 
-            accepted = _QDialog.Accepted
+            accepted = _QDialog.DialogCode.Accepted
         return dlg._result if code == accepted else None

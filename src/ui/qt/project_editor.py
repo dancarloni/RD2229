@@ -631,9 +631,15 @@ class ProjectEditorWindow(QWidget):
             QMessageBox.warning(self, "Validazione", f"Progetto non valido: {exc}")
 
     def _push_project_to_service(self) -> None:
+        import logging
+        try:
+            project = self._collect_project()
+        except Exception as exc:
+            logging.getLogger(__name__).warning("_collect_project failed: %s", exc)
+            return
         if self.project_service is not None and hasattr(self.project_service, "set_project"):
-            self.project_service.set_project(self._collect_project())
-        self.project_changed.emit(self._collect_project())
+            self.project_service.set_project(project)
+        self.project_changed.emit(project)
 
 
 MODULE_SPEC = {

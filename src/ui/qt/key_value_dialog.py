@@ -46,8 +46,8 @@ class KeyValueDialog(QDialog):
         self._table.setHorizontalHeaderLabels(["Key", "Value"])
         self._table.horizontalHeader().setStretchLastSection(True)
         # Use a stable enum reference that works in PyQt6 and PySide6
-        self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self._table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self._table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self._table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
         self._lbl_error = QLabel("")
         self._lbl_error.setStyleSheet("color: red;")
@@ -122,11 +122,11 @@ class KeyValueDialog(QDialog):
         try:
             from PyQt6.QtWidgets import QDialog as _QDialog
 
-            accepted = _QDialog.Accepted
-        except Exception:
+            accepted = _QDialog.DialogCode.Accepted
+        except ImportError:
             from PySide6.QtWidgets import QDialog as _QDialog  # type: ignore
 
-            accepted = _QDialog.Accepted
+            accepted = _QDialog.DialogCode.Accepted
 
         if code == accepted:
             return dlg._result

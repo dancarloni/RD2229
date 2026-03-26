@@ -11,7 +11,12 @@ import math
 from pathlib import Path
 from typing import Any
 
-import numpy as np
+try:
+    import numpy as np
+    _NUMPY_AVAILABLE = True
+except ImportError:
+    np = None  # type: ignore
+    _NUMPY_AVAILABLE = False
 
 from .action_report import ActionReport
 from .calculation_service import CalculationService
@@ -165,6 +170,14 @@ class PresetExecutionService:
         )
 
     def run_fem_demo(self) -> ActionReport:
+        if not _NUMPY_AVAILABLE:
+            return ActionReport(
+                name="fem_2d",
+                ok=False,
+                summary="numpy non disponibile",
+                details={"error": "La dipendenza numpy non è installata"},
+            )
+
         from src.fem import (
             ApplicatoreBC,
             Assemblatore,

@@ -10,24 +10,44 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QCheckBox,
-    QComboBox,
-    QDialog,
-    QFormLayout,
-    QGridLayout,
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QScrollArea,
-    QSizePolicy,
-    QStackedWidget,
-    QVBoxLayout,
-    QWidget,
-)
+try:
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import (
+        QCheckBox,
+        QComboBox,
+        QDialog,
+        QFormLayout,
+        QGridLayout,
+        QGroupBox,
+        QHBoxLayout,
+        QLabel,
+        QLineEdit,
+        QPushButton,
+        QScrollArea,
+        QSizePolicy,
+        QStackedWidget,
+        QVBoxLayout,
+        QWidget,
+    )
+except ImportError:
+    from PySide6.QtCore import Qt  # type: ignore
+    from PySide6.QtWidgets import (  # type: ignore
+        QCheckBox,
+        QComboBox,
+        QDialog,
+        QFormLayout,
+        QGridLayout,
+        QGroupBox,
+        QHBoxLayout,
+        QLabel,
+        QLineEdit,
+        QPushButton,
+        QScrollArea,
+        QSizePolicy,
+        QStackedWidget,
+        QVBoxLayout,
+        QWidget,
+    )
 
 from src.ui.qt.material_editor.logic.material_config import MaterialConfigLoader
 
@@ -565,7 +585,10 @@ def _render_latex_to_pixmap(latex_str: str, fontsize: int = 11, dpi: int = 120):
         if matplotlib.get_backend().lower() != "agg":
             matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-        from PySide6.QtGui import QPixmap
+        try:
+            from PyQt6.QtGui import QPixmap
+        except ImportError:
+            from PySide6.QtGui import QPixmap  # type: ignore
 
         fig, ax = plt.subplots(figsize=(5.5, 0.6))
         ax.axis("off")
