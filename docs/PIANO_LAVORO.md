@@ -1,6 +1,6 @@
 ---
 title: PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
-last_sync: 2026-03-16 (GUI-V1 checklist sincronizzata + validazione runtime)
+last_sync: 2026-03-26 (allineamento pipeline docs+core P12 + test mirati)
 maintainers:
   - Daniele Carloni
 tags: [piano, roadmap, stato, refactor]
@@ -8,9 +8,11 @@ tags: [piano, roadmap, stato, refactor]
 
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-25 — Wave 1 pipeline docs completata: protocollo operativo standard + matrice estesa P00-P29 + schede pipeline con flowchart
+Ultimo sync: 2026-03-26 — Gap pipeline allineati (P01-P06), integrazione opzionale in P00 per P12 e P04-P06 con test pipeline mirati verdi
 
 Changelog rapido (ultimi commit):
+- `2026-03-26` — Estesa orchestrazione `src/core/pipeline.py` con step opzionale muratura (P04-P06: cinematica/scorrimento/cantonale) via `project.plugins['muratura']`; aggiunti test `tests/test_muratura_integration_pipeline.py`; validazione estesa pipeline 24/24 pass
+- `2026-03-26` — Allineati hook documentali pipeline P01-P06 su path reali, aggiornato stato P12 a `parziale`, integrato step opzionale pushover in `src/core/pipeline.py`, aggiunti test `tests/test_pushover_integration_pipeline.py` (20/20 pass su suite mirata pipeline)
 - `2026-03-25` — Avviata implementazione piano pipeline all-modules: creata area `docs/pipelines/` con `README.md`, `MASTER_MATRIX.md`, `PROTOCOLLO_OPERATIVO_STANDARD.md` e 30 schede pipeline (`P00..P29`) con schema fisso e flowchart Mermaid
 - `2026-03-25` — Avviata implementazione cleanup root aggressivo: quarantena file accidentali/output/demo-debug + archiviazione docs storiche + stub planning rinominati con deadline 2026-04-01
 - `2026-03-25` — Riattivati workflow CI minimi (`python-ci.yml`, `lint-test.yml`) e completata estensione R2 con inventario root/mapping archivio

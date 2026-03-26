@@ -1,6 +1,6 @@
 ---
 title: P04 - Muratura Cinematica
-last_sync: 2026-03-25
+last_sync: 2026-03-26
 maintainers:
   - Daniele Carloni
 tags: [pipelines, standard, workflow, dashboard]
@@ -56,7 +56,7 @@ Esiti verifica, indicatori di utilizzazione, stato globale, warnings.
 ResultsModel, ReportArtifact, ActionReport, export HTML MD JSON, trace summary.
 
 ## 13. Moduli e simboli reali del codice coinvolti
-Hook principale: src/methods/masonry.
+Hook principale: src/methods/muratura/cinematica.py.
 
 ## 14. Dipendenze da altre pipeline
 Dipende da P22 per I O progetto, da P00 per orchestrazione, da P25-P26 per report e audit.
@@ -65,7 +65,7 @@ Dipende da P22 per I O progetto, da P00 per orchestrazione, da P25-P26 per repor
 Input incoerenti, incompatibilita norma, dipendenze mancanti, warning di qualita dati.
 
 ## 16. Gap attuali rispetto alla visione target
-Dichiarare eventuali feature parziali o roadmap senza overclaim.
+Integrazione opzionale in P00 disponibile via plugin; restano da completare gate UX dedicati e reporting verticale specialistico.
 
 ## 17. KPI o indicatori di qualita della pipeline
 Copertura normativa, ripetibilita output, tempo medio esecuzione, completamento audit.

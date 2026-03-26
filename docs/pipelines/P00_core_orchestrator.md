@@ -1,6 +1,6 @@
 ---
 title: P00 - Core Orchestrator
-last_sync: 2026-03-25
+last_sync: 2026-03-26
 maintainers:
   - Daniele Carloni
 tags: [pipelines, standard, workflow, dashboard]
@@ -65,7 +65,7 @@ Dipende da P22 per I O progetto, da P00 per orchestrazione, da P25-P26 per repor
 Input incoerenti, incompatibilita norma, dipendenze mancanti, warning di qualita dati.
 
 ## 16. Gap attuali rispetto alla visione target
-Dichiarare eventuali feature parziali o roadmap senza overclaim.
+Integrazione opzionale P12 e P04-P06 disponibile via plugin settings; restano da completare UX guidata e reporting specialistico dedicato.
 
 ## 17. KPI o indicatori di qualita della pipeline
 Copertura normativa, ripetibilita output, tempo medio esecuzione, completamento audit.

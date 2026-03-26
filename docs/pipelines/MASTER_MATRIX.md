@@ -1,6 +1,6 @@
 ﻿---
 title: Master Matrix Pipelines RD2229
-last_sync: 2026-03-25
+last_sync: 2026-03-26
 maintainers:
   - Daniele Carloni
 tags: [pipelines, matrix, governance]
@@ -24,18 +24,18 @@ Copertura estesa all modules: operative, parziali, roadmap.
 | Pipeline | Nome | Stato | Gate | Artefatti | Hook codice | KPI |
 |---|---|---|---|---|---|---|
 | P00 | Core Orchestrator | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/core/pipeline.py | copertura ripetibilita tempo |
-| P01 | Verifiche NTC2018 | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/checks_ntc2018.py | copertura ripetibilita tempo |
-| P02 | Verifiche DM96 TA SLU | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/checks_dm96.py | copertura ripetibilita tempo |
-| P03 | Verifiche RD2229 TA | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/checks_rd2229.py | copertura ripetibilita tempo |
-| P04 | Muratura Cinematica | parziale | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/masonry | copertura ripetibilita tempo |
-| P05 | Muratura Scorrimento | parziale | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/masonry | copertura ripetibilita tempo |
-| P06 | Muratura Cantonali | parziale | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/masonry | copertura ripetibilita tempo |
+| P01 | Verifiche NTC2018 | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/ntc2018/checks.py | copertura ripetibilita tempo |
+| P02 | Verifiche DM96 TA SLU | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/dm96/checks.py | copertura ripetibilita tempo |
+| P03 | Verifiche RD2229 TA | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/rd2229/checks.py | copertura ripetibilita tempo |
+| P04 | Muratura Cinematica | parziale | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/muratura/cinematica.py | copertura ripetibilita tempo |
+| P05 | Muratura Scorrimento | parziale | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/muratura/resistenza.py | copertura ripetibilita tempo |
+| P06 | Muratura Cantonali | parziale | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/methods/muratura/cantonale.py | copertura ripetibilita tempo |
 | P07 | Fuoco | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/fire | copertura ripetibilita tempo |
 | P08 | Vento | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/wind | copertura ripetibilita tempo |
 | P09 | Sismica Spettri | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/codes/ntc2018 | copertura ripetibilita tempo |
 | P10 | Sismica Modale | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/seismic | copertura ripetibilita tempo |
 | P11 | Sismica Fattori Struttura | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/seismic | copertura ripetibilita tempo |
-| P12 | Pushover | roadmap | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/seismic | copertura ripetibilita tempo |
+| P12 | Pushover | parziale | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/seismic/pushover.py | copertura ripetibilita tempo |
 | P13 | FEM 2D | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/fem | copertura ripetibilita tempo |
 | P14 | Carote Materiali | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/materials | copertura ripetibilita tempo |
 | P15 | Fondazioni | operativa | dati minimi unita norma audit | ResultsModel ReportArtifact ActionReport | src/foundation | copertura ripetibilita tempo |

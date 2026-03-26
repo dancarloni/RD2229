@@ -132,6 +132,28 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
         warnings.extend(wind_warnings)
         trace.extend(wind_trace)
 
+    # ------------------------------------------------------------------
+    # Step P12 – pipeline pushover (opzionale)
+    # ------------------------------------------------------------------
+    pushover_result: Any = None
+    if use_all_steps or "pushover" in configured_steps or _has_pushover_config(project):
+        pushover_result, pushover_warnings, pushover_trace = _run_pushover_pipeline(project)
+        warnings.extend(pushover_warnings)
+        trace.extend(pushover_trace)
+    else:
+        trace.append("pushover:skip(configured)")
+
+    # ------------------------------------------------------------------
+    # Step P04-P06 – pipeline muratura (opzionale)
+    # ------------------------------------------------------------------
+    muratura_result: Any = None
+    if use_all_steps or "muratura" in configured_steps or _has_muratura_config(project):
+        muratura_result, muratura_warnings, muratura_trace = _run_muratura_pipeline(project)
+        warnings.extend(muratura_warnings)
+        trace.extend(muratura_trace)
+    else:
+        trace.append("muratura:skip(configured)")
+
     trace.append("pipeline:complete")
 
     result = ResultsModel(
@@ -154,6 +176,10 @@ def run_pipeline(project: ProjectModel) -> ResultsModel:
         ]
     if wind_result is not None:
         result.extra["wind"] = wind_result
+    if pushover_result is not None:
+        result.extra["pushover"] = pushover_result
+    if muratura_result is not None:
+        result.extra["muratura"] = muratura_result
     return result
 
 
@@ -414,3 +440,217 @@ def _run_wind_pipeline(
         warnings.append(f"Errore pipeline vento: {exc}")
         trace.append("wind:error")
         return None, warnings, trace
+
+
+def _has_pushover_config(project: ProjectModel) -> bool:  # type: ignore[name-defined]
+    """Ritorna True se è presente una configurazione pushover in project.plugins."""
+    plugins = getattr(project, "plugins", None)
+    return isinstance(plugins, dict) and isinstance(plugins.get("pushover"), dict)
+
+
+def _has_muratura_config(project: ProjectModel) -> bool:  # type: ignore[name-defined]
+    """Ritorna True se è presente una configurazione muratura in project.plugins."""
+    plugins = getattr(project, "plugins", None)
+    return isinstance(plugins, dict) and isinstance(plugins.get("muratura"), dict)
+
+
+def _run_pushover_pipeline(
+    project: ProjectModel,  # type: ignore[name-defined]
+) -> tuple[Any, list[str], list[str]]:
+    """Esegue la pipeline pushover in modalità non bloccante.
+
+    Configurazione attesa in ``project.plugins['pushover']``.
+    Esempio:
+        {"enabled": True, "k_iniziale": 1500.0, "delta_y": 1.0, "delta_u": 8.0}
+
+    Returns:
+        ``(pushover_result_dict_or_None, warnings, trace)``
+    """
+    warnings: list[str] = []
+    trace: list[str] = ["pushover:start"]
+
+    try:
+        from src.seismic.pushover import calcola_alpha_u_alpha_1_da_curva, pushover_simplificata
+    except ImportError as exc:
+        warnings.append(f"Modulo src.seismic.pushover non disponibile: {exc}")
+        trace.append("pushover:skip(import_error)")
+        return None, warnings, trace
+
+    plugins = getattr(project, "plugins", None)
+    if not isinstance(plugins, dict):
+        trace.append("pushover:skip(no_config)")
+        return None, warnings, trace
+
+    cfg = plugins.get("pushover")
+    if not isinstance(cfg, dict):
+        trace.append("pushover:skip(no_config)")
+        return None, warnings, trace
+
+    if not bool(cfg.get("enabled", False)):
+        trace.append("pushover:skip(disabled)")
+        return None, warnings, trace
+
+    try:
+        curva = pushover_simplificata(
+            k_iniziale=float(cfg.get("k_iniziale", 1500.0)),
+            delta_y=float(cfg.get("delta_y", 1.0)),
+            delta_u=float(cfg.get("delta_u", 8.0)),
+            n_step=int(cfg.get("n_step", 60)),
+            k_post_ratio=float(cfg.get("k_post_ratio", 0.1)),
+            collasso_ratio=float(cfg.get("collasso_ratio", 0.85)),
+        )
+        alpha = calcola_alpha_u_alpha_1_da_curva(curva)
+        trace.append(f"pushover:done(steps={len(curva.spostamenti)})")
+        return (
+            {
+                "spostamenti": curva.spostamenti.tolist(),
+                "tagli_base": curva.tagli_base.tolist(),
+                "indice_prima_plasticizzazione": curva.indice_prima_plasticizzazione,
+                "indice_collasso": curva.indice_collasso,
+                "alpha_u_alpha_1": alpha,
+            },
+            warnings,
+            trace,
+        )
+    except Exception as exc:
+        warnings.append(f"Errore pipeline pushover: {exc}")
+        trace.append("pushover:error")
+        return None, warnings, trace
+
+
+def _run_muratura_pipeline(
+    project: ProjectModel,  # type: ignore[name-defined]
+) -> tuple[Any, list[str], list[str]]:
+    """Esegue pipeline muratura (P04-P06) in modalità non bloccante.
+
+    Configurazione attesa in ``project.plugins['muratura']``.
+    Moduli supportati: ``cinematica``, ``scorrimento``, ``cantonale``.
+
+    Returns:
+        ``(muratura_result_dict_or_None, warnings, trace)``
+    """
+    warnings: list[str] = []
+    trace: list[str] = ["muratura:start"]
+
+    plugins = getattr(project, "plugins", None)
+    if not isinstance(plugins, dict):
+        trace.append("muratura:skip(no_config)")
+        return None, warnings, trace
+
+    cfg = plugins.get("muratura")
+    if not isinstance(cfg, dict):
+        trace.append("muratura:skip(no_config)")
+        return None, warnings, trace
+
+    if not bool(cfg.get("enabled", False)):
+        trace.append("muratura:skip(disabled)")
+        return None, warnings, trace
+
+    out: dict[str, Any] = {}
+
+    # P04 - Cinematica
+    cin_cfg = cfg.get("cinematica")
+    if isinstance(cin_cfg, dict) and bool(cin_cfg.get("enabled", True)):
+        try:
+            from src.methods.muratura.cinematica import (
+                ParametriSismici,
+                PareteMuraria,
+                ribaltamento_semplice,
+            )
+
+            parete = PareteMuraria(
+                h=float(cin_cfg.get("h", 300.0)),
+                t=float(cin_cfg.get("t", 30.0)),
+                L=float(cin_cfg.get("L", 400.0)),
+                gamma=float(cin_cfg.get("gamma", 0.0018)),
+                N_sommita=float(cin_cfg.get("N_sommita", 0.0)),
+            )
+            sismica = ParametriSismici(
+                a_g=float(cin_cfg.get("a_g", 0.25)),
+                S=float(cin_cfg.get("S", 1.0)),
+                T1=float(cin_cfg.get("T1", 0.0)),
+                q=float(cin_cfg.get("q", 2.0)),
+                FC=float(cin_cfg.get("FC", 1.35)),
+            )
+            res = ribaltamento_semplice(
+                parete=parete,
+                sismica=sismica,
+                ritegno_sommitale=float(cin_cfg.get("ritegno_sommitale", 0.0)),
+            )
+            out["cinematica"] = {
+                "meccanismo": res.meccanismo,
+                "alpha_0": res.alpha_0,
+                "verifica_lineare": res.verifica_lineare,
+                "verifica_non_lineare": res.verifica_non_lineare,
+            }
+            trace.append("muratura:cinematica:done")
+        except Exception as exc:
+            warnings.append(f"Errore pipeline muratura cinematica: {exc}")
+            trace.append("muratura:cinematica:error")
+    else:
+        trace.append("muratura:cinematica:skip")
+
+    # P05 - Scorrimento
+    scor_cfg = cfg.get("scorrimento")
+    if isinstance(scor_cfg, dict) and bool(scor_cfg.get("enabled", True)):
+        try:
+            from src.methods.muratura.verifiche import InputTaglio, taglio_scorrimento
+
+            inp = InputTaglio(
+                L=float(scor_cfg.get("L", 300.0)),
+                t=float(scor_cfg.get("t", 30.0)),
+                h=float(scor_cfg.get("h", 300.0)),
+                V=float(scor_cfg.get("V", 3000.0)),
+                N=float(scor_cfg.get("N", 12000.0)),
+                fvk0=float(scor_cfg.get("fvk0", 1.5)),
+                mu=float(scor_cfg.get("mu", 0.4)),
+                gamma_M=float(scor_cfg.get("gamma_M", 3.0)),
+            )
+            res = taglio_scorrimento(inp)
+            out["scorrimento"] = {
+                "V_Rd": res.V_Rd,
+                "sfruttamento": res.sfruttamento,
+                "verificato": res.verificato,
+            }
+            trace.append("muratura:scorrimento:done")
+        except Exception as exc:
+            warnings.append(f"Errore pipeline muratura scorrimento: {exc}")
+            trace.append("muratura:scorrimento:error")
+    else:
+        trace.append("muratura:scorrimento:skip")
+
+    # P06 - Cantonale
+    cant_cfg = cfg.get("cantonale")
+    if isinstance(cant_cfg, dict) and bool(cant_cfg.get("enabled", True)):
+        try:
+            from src.methods.muratura.cantonale import InputCantonale, esegui_verifica_cantonale
+
+            inp = InputCantonale(
+                h_cm=float(cant_cfg.get("h_cm", 300.0)),
+                t1_cm=float(cant_cfg.get("t1_cm", 30.0)),
+                t2_cm=float(cant_cfg.get("t2_cm", 30.0)),
+                L1_dist_cm=float(cant_cfg.get("L1_dist_cm", 120.0)),
+                L2_dist_cm=float(cant_cfg.get("L2_dist_cm", 120.0)),
+                gamma_muratura_kg_cm3=float(cant_cfg.get("gamma_muratura_kg_cm3", 0.0018)),
+                ritegno_cordolo_kg=float(cant_cfg.get("ritegno_cordolo_kg", 0.0)),
+            )
+            res = esegui_verifica_cantonale(inp)
+            out["cantonale"] = {
+                "is_verificato": res.is_verificato,
+                "alpha_0": res.alpha_0,
+                "momento_ribaltante_kg_cm": res.momento_ribaltante_kg_cm,
+                "momento_stabilizzante_kg_cm": res.momento_stabilizzante_kg_cm,
+            }
+            trace.append("muratura:cantonale:done")
+        except Exception as exc:
+            warnings.append(f"Errore pipeline muratura cantonale: {exc}")
+            trace.append("muratura:cantonale:error")
+    else:
+        trace.append("muratura:cantonale:skip")
+
+    if out:
+        trace.append(f"muratura:done(modules={len(out)})")
+        return out, warnings, trace
+
+    trace.append("muratura:skip(no_modules)")
+    return None, warnings, trace

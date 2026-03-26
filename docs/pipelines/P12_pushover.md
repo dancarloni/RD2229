@@ -1,11 +1,11 @@
 ---
 title: P12 - Pushover
-last_sync: 2026-03-25
+last_sync: 2026-03-26
 maintainers:
   - Daniele Carloni
 tags: [pipelines, standard, workflow, dashboard]
 source_of_truth: docs/PIANO_LAVORO.md, docs/PIANO_LAVORO_GUI.md
-status: roadmap
+status: parziale
 ---
 
 # P12 - Pushover
@@ -14,7 +14,7 @@ status: roadmap
 Pushover e analisi non lineare.
 
 ## 2. Stato attuale della pipeline
-Stato dichiarato: roadmap.
+Stato dichiarato: parziale.
 
 ## 3. Attori coinvolti
 Utente, Dashboard, Servizi applicativi, Core calcolo, Reporting e Audit.
@@ -56,7 +56,8 @@ Esiti verifica, indicatori di utilizzazione, stato globale, warnings.
 ResultsModel, ReportArtifact, ActionReport, export HTML MD JSON, trace summary.
 
 ## 13. Moduli e simboli reali del codice coinvolti
-Hook principale: src/seismic.
+Hook principale: src/seismic/pushover.py.
+Supporto muratura non lineare: src/methods/muratura/resistenza.py.
 
 ## 14. Dipendenze da altre pipeline
 Dipende da P22 per I O progetto, da P00 per orchestrazione, da P25-P26 per report e audit.
@@ -65,7 +66,7 @@ Dipende da P22 per I O progetto, da P00 per orchestrazione, da P25-P26 per repor
 Input incoerenti, incompatibilita norma, dipendenze mancanti, warning di qualita dati.
 
 ## 16. Gap attuali rispetto alla visione target
-Dichiarare eventuali feature parziali o roadmap senza overclaim.
+Pipeline core disponibile ma integrazione orchestrata P00, UX dedicata e reporting specialistico restano da completare.
 
 ## 17. KPI o indicatori di qualita della pipeline
 Copertura normativa, ripetibilita output, tempo medio esecuzione, completamento audit.

@@ -1,6 +1,6 @@
 ---
 title: P03 - Verifiche RD2229 TA
-last_sync: 2026-03-25
+last_sync: 2026-03-26
 maintainers:
   - Daniele Carloni
 tags: [pipelines, standard, workflow, dashboard]
@@ -56,7 +56,8 @@ Esiti verifica, indicatori di utilizzazione, stato globale, warnings.
 ResultsModel, ReportArtifact, ActionReport, export HTML MD JSON, trace summary.
 
 ## 13. Moduli e simboli reali del codice coinvolti
-Hook principale: src/methods/checks_rd2229.py.
+Hook principale: src/methods/rd2229/checks.py.
+Integrazione orchestrata in P00 anche tramite adapter step5: src/core/step5_adapter.py.
 
 ## 14. Dipendenze da altre pipeline
 Dipende da P22 per I O progetto, da P00 per orchestrazione, da P25-P26 per report e audit.
@@ -65,7 +66,7 @@ Dipende da P22 per I O progetto, da P00 per orchestrazione, da P25-P26 per repor
 Input incoerenti, incompatibilita norma, dipendenze mancanti, warning di qualita dati.
 
 ## 16. Gap attuali rispetto alla visione target
-Dichiarare eventuali feature parziali o roadmap senza overclaim.
+Allineamento continuo tra hook documentali e path reali quando cambia il package layout.
 
 ## 17. KPI o indicatori di qualita della pipeline
 Copertura normativa, ripetibilita output, tempo medio esecuzione, completamento audit.
