@@ -11,7 +11,7 @@ from src.core.user_config import UserConfig
 from src.reporting.report_builder import build_report
 from src.ui.qt.code_settings import CodeSettingsWindow
 from src.ui.qt.cordoli_widget import CordoliWidget
-from src.ui.qt.material_editor import EditorMaterialeWidget
+from src.ui.qt.material_editor_widget import EditorMaterialeWidget
 from src.ui.qt.notification_center import NotificationCenterWindow
 from src.ui.qt.pipeline_runner import PipelineRunnerWindow
 from src.ui.qt.project_editor import ProjectEditorWindow
@@ -63,6 +63,13 @@ def _load_qlistwidget(backend_mod: str) -> Any:
     return getattr(module, "QListWidget")
 
 
+def _load_qscrollarea(backend_mod: str) -> Any:
+    """Carica QScrollArea dal backend Qt corretto."""
+    module_name = "PyQt6.QtWidgets" if backend_mod.startswith("PyQt6") else "PySide6.QtWidgets"
+    module = importlib.import_module(module_name)
+    return getattr(module, "QScrollArea")
+
+
 def build_main_window(
     qt: dict[str, Any],
     default_project: str | None,
@@ -88,6 +95,13 @@ def build_main_window(
     QTimer = _load_qtimer(backend_mod)
     QSplitter = _load_qsplitter(backend_mod)
     QListWidget = _load_qlistwidget(backend_mod)  # GUI-3.3
+    QScrollArea = _load_qscrollarea(backend_mod)
+    QFrame = (
+        qt.get("QFrame")
+        or importlib.import_module(
+            "PyQt6.QtWidgets" if backend_mod.startswith("PyQt6") else "PySide6.QtWidgets"
+        ).QFrame
+    )
 
     io_service = ProjectIOService()
     calc_service = CalculationService()
@@ -129,82 +143,200 @@ def build_main_window(
     tabs = QTabWidget(central)
     root.addWidget(tabs)
 
-    # Dashboard tab
+    # === Dashboard tab — JetBrains Style Layout ===
     dashboard = QWidget(tabs)
-    dash_root = QVBoxLayout(dashboard)
-    dash_root.addWidget(QLabel("<b>RD2229 Centro Operativo</b>"))
-    dash_root.addWidget(
-        QLabel("Workflow completo, preset rapidi e controllo I/O in una singola finestra.")
-    )
+    dash_root = QHBoxLayout(dashboard)
+    dash_root.setContentsMargins(0, 0, 0, 0)  # No margins for sidebar
 
-    form = QGridLayout()
-    txt_project = QLineEdit(default_project or "")
-    txt_output = QLineEdit(default_output or user_cfg.last_output_dir or "")
-    btn_project = QPushButton("Sfoglia progetto")
-    btn_output = QPushButton("Sfoglia output")
-    form.addWidget(QLabel("Progetto JSON"), 0, 0)
-    form.addWidget(txt_project, 0, 1)
-    form.addWidget(btn_project, 0, 2)
-    form.addWidget(QLabel("Cartella output"), 1, 0)
-    form.addWidget(txt_output, 1, 1)
-    form.addWidget(btn_output, 1, 2)
-    dash_root.addLayout(form)
+    # ======================== SIDEBAR (sinistra) ========================
+    sidebar = QWidget(dashboard)
+    sidebar.setObjectName("dashboard_sidebar")
+    sidebar.setFixedWidth(200)
+    sidebar_layout = QVBoxLayout(sidebar)
+    sidebar_layout.setSpacing(2)
+    sidebar_layout.setContentsMargins(8, 8, 8, 8)
 
-    io_row = QHBoxLayout()
-    btn_new = QPushButton("Nuovo")
-    btn_open = QPushButton("Apri")
-    btn_save = QPushButton("Salva")
-    btn_run_pipeline = QPushButton("Esegui pipeline")
-    btn_export_json = QPushButton("Export JSON")
-    btn_export_md = QPushButton("Export MD")
-    btn_export_html = QPushButton("Export HTML")
-    for button in [
-        btn_new,
-        btn_open,
-        btn_save,
-        btn_run_pipeline,
-        btn_export_json,
-        btn_export_md,
-        btn_export_html,
-    ]:
-        io_row.addWidget(button)
-    io_row.addStretch(1)
-    dash_root.addLayout(io_row)
+    # --- Azioni Primarie ---
+    btn_new = QPushButton("+ Nuovo Progetto")
+    btn_new.setObjectName("dashboardActionButton")
+    btn_open = QPushButton("📂 Apri Progetto")
+    btn_open.setObjectName("dashboardActionButton")
+    btn_save = QPushButton("💾 Salva")
+    btn_save.setObjectName("dashboardActionButton")
+    btn_run_pipeline = QPushButton("▶ Esegui Pipeline")
+    btn_run_pipeline.setObjectName("dashboardActionButton")
+    btn_export = QPushButton("📤 Export")
+    btn_export.setObjectName("dashboardActionButton")
 
-    nav_row = QHBoxLayout()
-    btn_go_project = QPushButton("Progetto e Dati")
-    btn_go_verify = QPushButton("Verifiche e Pipeline")
-    btn_go_report = QPushButton("Report e Tracciabilita")
-    btn_go_special = QPushButton("Moduli Specialistici")
-    for button in [btn_go_project, btn_go_verify, btn_go_report, btn_go_special]:
-        button.setMinimumHeight(38)
-        nav_row.addWidget(button)
-    dash_root.addLayout(nav_row)
+    for btn in [btn_new, btn_open, btn_save, btn_run_pipeline, btn_export]:
+        btn.setMinimumHeight(28)
+        sidebar_layout.addWidget(btn)
 
-    body = QHBoxLayout()
-    left_col = QVBoxLayout()
-    right_col = QVBoxLayout()
-    body.addLayout(left_col, 1)
-    body.addLayout(right_col, 2)
-    dash_root.addLayout(body)
+    # Separator 1
+    sep1 = QFrame(dashboard)
+    sep1.setFrameShape(QFrame.Shape.HLine)
+    sidebar_layout.addWidget(sep1)
 
-    left_col.addWidget(QLabel("Card preset operativi"))
+    # --- Accesso Moduli ---
+    sidebar_layout.addWidget(QLabel("<small><b>MODULI</b></small>"))
+    btn_materials = QPushButton("🧱 Materiali")
+    btn_materials.setObjectName("dashboardModuleButton")
+    btn_sections = QPushButton("📐 Sezioni")
+    btn_sections.setObjectName("dashboardModuleButton")
+    btn_wind = QPushButton("🌬️ Vento NTC2018")
+    btn_wind.setObjectName("dashboardModuleButton")
+    btn_fem = QPushButton("🏗️ FEM/Telai")
+    btn_fem.setObjectName("dashboardModuleButton")
+    btn_report = QPushButton("📋 Report")
+    btn_report.setObjectName("dashboardModuleButton")
 
-    # GUI-3.3: pannello progetti recenti nel dashboard (colonna destra)
-    right_col.addWidget(QLabel("<b>Progetti recenti</b>"))
-    recent_list = QListWidget(dashboard)
-    recent_list.setMaximumHeight(130)
-    recent_list.setToolTip(
-        "Doppio click per aprire un progetto recente — stessa funzione del menu File > Recenti"
-    )
-    for rp in user_cfg.recent_projects:
-        recent_list.addItem(rp)
-    right_col.addWidget(recent_list)
+    for btn in [btn_materials, btn_sections, btn_wind, btn_fem, btn_report]:
+        btn.setMinimumHeight(24)
+        sidebar_layout.addWidget(btn)
 
-    dash_log = QTextEdit(dashboard)
+    # Separator 2
+    sep2 = QFrame(dashboard)
+    sep2.setFrameShape(QFrame.Shape.HLine)
+    sidebar_layout.addWidget(sep2)
+
+    # --- Utility ---
+    btn_notifications = QPushButton("🔔 Notifiche")
+    btn_notifications.setObjectName("dashboardUtilityButton")
+    btn_notifications.setMinimumHeight(24)
+    sidebar_layout.addWidget(btn_notifications)
+
+    # Push to bottom
+    sidebar_layout.addStretch(1)
+
+    # ======================== MAIN AREA (destra) ========================
+    main_area = QWidget(dashboard)
+    main_layout = QVBoxLayout(main_area)
+    main_layout.setSpacing(6)
+
+    # --- Ricerca Recenti ---
+    search_recenti = QLineEdit(main_area)
+    search_recenti.setPlaceholderText("🔍 Cerca progetto...")
+    search_recenti.setMaximumHeight(28)
+    main_layout.addWidget(search_recenti)
+
+    # --- Lista Recenti (scroll area con layout dinamico) ---
+    scroll_recenti = QScrollArea(main_area)
+    scroll_recenti.setMinimumHeight(150)
+    scroll_recenti.setMaximumHeight(200)
+    scroll_widget = QWidget(scroll_recenti)
+    scroll_layout = QVBoxLayout(scroll_widget)
+    scroll_layout.setSpacing(4)
+    scroll_layout.setContentsMargins(0, 0, 0, 0)
+
+    # Populate recenti
+    project_index_path_to_meta = {}
+    for proj in project_index.list_recent(10):
+        project_index_path_to_meta[proj.path] = {
+            "norm_code": proj.norm_code,
+            "updated_at": proj.updated_at[:10],  # Date only
+        }
+
+    def _make_recent_item_widget(path: str, index_meta: dict) -> QWidget:
+        """Factory per creare widget riga progetto recente."""
+        w = QWidget()
+        w.setProperty("project_path", path)
+        layout = QHBoxLayout(w)
+        layout.setSpacing(8)
+        layout.setContentsMargins(4, 2, 4, 2)
+
+        filename = Path(path).name
+        norm = index_meta.get("norm_code", "—")
+        date = index_meta.get("updated_at", "?")
+        # Try to load element count from project file
+        try:
+            from src.project.repository import load_project
+
+            proj = load_project(path)
+            n_elem = len(getattr(proj, "geometry", []))
+            warn_icon = "⚠" if len(getattr(proj, "warnings", [])) > 0 else "✓"
+        except Exception:
+            n_elem = "?"
+            warn_icon = "?"
+
+        lbl_name = QLabel(f"📄 {filename}")
+        lbl_name.setMinimumWidth(80)
+        lbl_meta = QLabel(f"{norm} · {date} · {n_elem} elem · {warn_icon}")
+        lbl_meta.setObjectName("recentMeta")
+        lbl_meta.setMaximumWidth(200)
+
+        layout.addWidget(lbl_name, 1)
+        layout.addWidget(lbl_meta, 1)
+
+        return w
+
+    for recent_path in user_cfg.recent_projects:
+        meta = project_index_path_to_meta.get(
+            recent_path,
+            {
+                "norm_code": "—",
+                "updated_at": "?",
+            },
+        )
+        item_w = _make_recent_item_widget(recent_path, meta)
+        scroll_layout.addWidget(item_w)
+
+    scroll_layout.addStretch()
+    scroll_widget.setLayout(scroll_layout)
+    scroll_recenti.setWidget(scroll_widget)
+    main_layout.addWidget(scroll_recenti)
+
+    # Separator
+    sep3 = QFrame(main_area)
+    sep3.setFrameShape(QFrame.Shape.HLine)
+    main_layout.addWidget(sep3)
+
+    # --- Preset Rapidi ---
+    main_layout.addWidget(QLabel("<b>PRESET RAPIDI</b>"))
+    preset_grid = QGridLayout()
+    preset_grid.setSpacing(4)
+    preset_buttons = [
+        ("Workflow Completo", "preset_full_project"),
+        ("RD2229 1939", "preset_normative_rd2229"),
+        ("Secondari NTC2018", "preset_secondari_ntc2018"),
+        ("Calcolo Vento", "preset_wind"),
+        ("FEM 2D", "preset_fem"),
+        ("Cross-Pozzati", "preset_cross"),
+    ]
+    for idx, (label, preset_id) in enumerate(preset_buttons):
+        btn_preset = QPushButton(label)
+        btn_preset.setObjectName("dashboardPresetButton")
+        btn_preset.setProperty("preset_id", preset_id)
+        btn_preset.setMinimumHeight(24)
+        row, col = divmod(idx, 2)
+        preset_grid.addWidget(btn_preset, row, col)
+    main_layout.addLayout(preset_grid)
+
+    # Separator
+    sep4 = QFrame(main_area)
+    sep4.setFrameShape(QFrame.Shape.HLine)
+    main_layout.addWidget(sep4)
+
+    # --- Log Operativo ---
+    main_layout.addWidget(QLabel("<b>📜 LOG OPERATIVO</b>"))
+    dash_log = QTextEdit(main_area)
     dash_log.setReadOnly(True)
-    right_col.addWidget(QLabel("Log esecuzione"))
-    right_col.addWidget(dash_log)
+    dash_log.setMaximumHeight(100)
+    main_layout.addWidget(dash_log)
+
+    # Assemble sidebar + main_area
+    dash_root.addWidget(sidebar, 0)  # No stretch
+    dash_root.addWidget(main_area, 1)  # Expand
+
+    # For backwards compat, assign text fields (no longer visible but still used internally)
+    txt_project = QLineEdit(default_project or "")
+    txt_project.setVisible(False)
+    txt_output = QLineEdit(default_output or user_cfg.last_output_dir or "")
+    txt_output.setVisible(False)
+
+    # Store reference for callback usage
+    state["_txt_project"] = txt_project
+    state["_txt_output"] = txt_output
+    recent_list = None  # No longer used, replaced by scroll_recenti
 
     tabs.addTab(dashboard, "Dashboard")
 
@@ -551,77 +683,6 @@ def build_main_window(
         )
     )
 
-    cards_grid = QGridLayout()
-    left_col.addLayout(cards_grid)
-
-    def _card_widget(title: str, description: str, on_click: Callable[[], None]) -> Any:
-        card = QWidget(dashboard)
-        card_layout = QVBoxLayout(card)
-        btn = QPushButton(title)
-        btn.setMinimumHeight(44)
-        btn.setToolTip(description)
-        text = QLabel(description)
-        text.setWordWrap(True)
-        card_layout.addWidget(btn)
-        card_layout.addWidget(text)
-        btn.clicked.connect(lambda _checked=False: on_click())
-        return card
-
-    for idx, spec in enumerate(get_enabled()):
-        if spec.action is None:
-            continue
-        card = _card_widget(spec.label, spec.description, spec.action)
-        cards_grid.addWidget(card, idx // 2, idx % 2)
-
-    launchers = QGridLayout()
-    left_col.addWidget(QLabel("Accesso rapido moduli"))
-    left_col.addLayout(launchers)
-
-    def _open_project_sector() -> None:
-        tabs.setCurrentWidget(project_data_tab)
-
-    def _open_verify_sector() -> None:
-        tabs.setCurrentWidget(verify_tab)
-
-    def _open_report_sector() -> None:
-        tabs.setCurrentWidget(report_tab)
-
-    def _open_special_sector() -> None:
-        tabs.setCurrentWidget(specialist_tab)
-
-    def _open_materials() -> None:
-        tabs.setCurrentWidget(project_data_tab)
-        project_data_tabs.setCurrentWidget(materials_editor)
-
-    def _open_sections() -> None:
-        tabs.setCurrentWidget(project_data_tab)
-        project_data_tabs.setCurrentWidget(section_manager)
-
-    def _open_fem() -> None:
-        tabs.setCurrentWidget(specialist_tab)
-        specialist_tabs.setCurrentWidget(fem_tab)
-
-    def _open_telaio() -> None:
-        tabs.setCurrentWidget(specialist_tab)
-        specialist_tabs.setCurrentWidget(fem_tab)
-        _open_telaio_window()
-
-    def _open_wind() -> None:
-        tabs.setCurrentWidget(specialist_tab)
-        specialist_tabs.setCurrentWidget(wind_tab)
-
-    quick_actions: list[tuple[str, Callable[[], None]]] = [
-        ("Materiali", _open_materials),
-        ("Sezioni", _open_sections),
-        ("FEM/Telai", _open_fem),
-        ("Telaio", _open_telaio),
-        ("Vento", _open_wind),
-    ]
-    for idx, (label, handler) in enumerate(quick_actions):
-        button = QPushButton(label)
-        button.clicked.connect(lambda _checked=False, action=handler: action())
-        launchers.addWidget(button, idx // 2, idx % 2)
-
     def _on_pipeline_results(results: Any) -> None:
         state["results"] = results
         artifact = build_report(project_service.current_project, results)
@@ -657,10 +718,7 @@ def build_main_window(
                 lambda checked=False, p=path: txt_project.setText(p) or _ensure_loaded_project()
             )
             recent_menu.addAction(action)
-        # GUI-3.3: sincronizza anche la lista recenti nel dashboard
-        recent_list.clear()
-        for path in user_cfg.recent_projects:
-            recent_list.addItem(path)
+        # GUI-3.3: sincronizza anche la lista recenti nel dashboard (removed in new sidebar design)
 
     def _autosave_tick() -> None:
         if not user_cfg.autosave_enabled:
@@ -694,30 +752,55 @@ def build_main_window(
     menu_help.addAction(act_help)
     _rebuild_recent_menu()
 
-    btn_go_project.clicked.connect(lambda _checked=False: _open_project_sector())
-    btn_go_verify.clicked.connect(lambda _checked=False: _open_verify_sector())
-    btn_go_report.clicked.connect(lambda _checked=False: _open_report_sector())
-    btn_go_special.clicked.connect(lambda _checked=False: _open_special_sector())
-
-    # GUI-3.3: doppio click su recent_list apre il progetto
-    def _open_recent_item(item: Any) -> None:
-        """Apre il progetto selezionato dalla lista recenti del dashboard."""
-        path = item.text()
-        txt_project.setText(path)
-        _ensure_loaded_project()
-
-    recent_list.itemDoubleClicked.connect(_open_recent_item)
-
     # Button bindings
-    btn_project.clicked.connect(lambda _checked=False: _pick_project())
-    btn_output.clicked.connect(lambda _checked=False: _pick_output())
     btn_new.clicked.connect(lambda _checked=False: _new_project())
     btn_open.clicked.connect(lambda _checked=False: _open_project())
     btn_save.clicked.connect(lambda _checked=False: _save_project())
     btn_run_pipeline.clicked.connect(lambda _checked=False: _run_pipeline())
-    btn_export_json.clicked.connect(lambda _checked=False: _export_results_json())
-    btn_export_md.clicked.connect(lambda _checked=False: _export_report("md"))
-    btn_export_html.clicked.connect(lambda _checked=False: _export_report("html"))
+    btn_export.clicked.connect(lambda _checked=False: tabs.setCurrentIndex(3))  # Report tab
+
+    # Sidebar module buttons
+    btn_materials.clicked.connect(
+        lambda _checked=False: tabs.setCurrentIndex(1)
+        and tabs.widget(1).findChild(type(tabs), "").setCurrentIndex(1)
+    )
+    btn_sections.clicked.connect(
+        lambda _checked=False: tabs.setCurrentIndex(1)
+        and tabs.widget(1).findChild(type(tabs), "").setCurrentIndex(2)
+    )
+    btn_wind.clicked.connect(lambda _checked=False: tabs.setCurrentIndex(4))  # Specialist tab
+    btn_fem.clicked.connect(lambda _checked=False: tabs.setCurrentIndex(4))  # Specialist tab
+    btn_report.clicked.connect(lambda _checked=False: tabs.setCurrentIndex(3))  # Report tab
+    btn_notifications.clicked.connect(
+        lambda _checked=False: tabs.setCurrentIndex(3)
+        and tabs.widget(3).findChild(type(tabs), "").setCurrentIndex(1)
+    )
+
+    # Recenti - connetti ricerca e doppio click
+    def _filter_recenti(search_text: str) -> None:
+        for i in range(scroll_layout.count()):
+            item_w = scroll_layout.itemAt(i).widget()
+            if item_w:
+                path = item_w.property("project_path") or ""
+                visible = search_text.lower() in Path(path).name.lower()
+                item_w.setVisible(visible)
+
+    search_recenti.textChanged.connect(_filter_recenti)
+
+    # Doppio click su recente per apertura
+    def _make_recent_open_handler(path: str) -> callable:
+        def handler():
+            state["_txt_project"].setText(path)
+            _ensure_loaded_project()
+
+        return handler
+
+    for i in range(scroll_layout.count()):
+        item_w = scroll_layout.itemAt(i).widget()
+        if item_w:
+            path = item_w.property("project_path")
+            # Aggiungi doppio click handler tramite mouseDoubleClickEvent
+            item_w.mouseDoubleClickEvent = _make_recent_open_handler(path)
 
     autosave_timer = QTimer(window)
     autosave_timer.timeout.connect(_autosave_tick)

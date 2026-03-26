@@ -20,6 +20,26 @@
     "notes": "Materiali: cls, acciaio, tensioni ammissibili."
   },
   {
+    "id": "DM74",
+    "name": "DM 30/05/1974",
+    "year": 1974,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "DM 30/05/1974",
+    "description": "Norme tecniche per la esecuzione delle opere in cemento armato normale e precompresso e per le strutture metalliche.",
+    "notes": "Materiali: cls, acciaio, tensioni ammissibili. n=15."
+  },
+  {
+    "id": "DM76",
+    "name": "DM 31/12/1976",
+    "year": 1976,
+    "calculation_method": "TA",
+    "is_historical": true,
+    "reference": "DM 31/12/1976",
+    "description": "Norme tecniche per la esecuzione delle opere in cemento armato normale e precompresso e per le strutture metalliche (aggiornamento DM74).",
+    "notes": "Materiali: cls, acciaio, tensioni ammissibili. n=15. Aggiornamento consolidato del DM74."
+  },
+  {
     "id": "DM92",
     "name": "DM 14/02/1992",
     "year": 1992,

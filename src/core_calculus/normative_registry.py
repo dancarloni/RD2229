@@ -31,6 +31,7 @@ def get_all_templates() -> list[VerificationTemplate]:
     return [
         *get_ntc2018_templates(),
         *get_rd2229_templates(),
+        *get_dm72_templates(),
         *get_dm96_templates(),
         *get_fire_templates(),
         # Future: *get_ntc2008_templates(),
@@ -60,6 +61,7 @@ def list_norm_codes() -> list[str]:
     from_templates = {template.norm_code for template in get_all_templates() if template.norm_code}
     fallback = {
         "RD2229",
+        "DM72",
         "NTC2018",
         "NTC2008",
         "DM96",
@@ -96,6 +98,7 @@ def list_norm_states(norm_code: str) -> list[str]:
     if not states:
         _fallback: dict[str, list[str]] = {
             "RD2229": ["TA"],
+            "DM72": ["TA"],
             "NTC2018": ["SLU", "SLE"],
             "NTC2008": ["SLU", "SLE"],
             "DM96": ["SLU", "SLE", "TA"],
@@ -1063,6 +1066,178 @@ def get_rd2229_templates() -> list[VerificationTemplate]:
             applicable_material_tags=["concrete", "RC"],
             requires_existing_structure=True,
             extra_params={"implementation_status": "complete"},
+        ),
+    ]
+
+
+def get_dm72_templates() -> list[VerificationTemplate]:
+    """Get DM 30/05/1972 templates.
+
+    DM 30/05/1972 è una norma storica a tensioni ammissibili (TA puro).
+    Copre c.a. normale, precompresso e strutture metalliche.
+
+    Caratteristiche:
+    - σ_c,adm = Rck/4 (compressione semplice)
+    - σ_c,adm,infl = Rck/3 (flessione)
+    - n_omogenizzazione = 10
+    - γ_c = 1.0 (metodo TA puro)
+    """
+    return [
+        # Flessione TA
+        VerificationTemplate(
+            template_id="dm72_ta_flessione_rett",
+            norm_code="DM72",
+            norm_version="1972",
+            verification_type="flessione",
+            limit_state="TA",
+            description_it="Verifica a flessione metodo Tensioni Ammissibili - DM 30/05/1972",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Mx", "As", "d"],
+            optional_inputs=["My", "As_prime", "d_prime"],
+            output_metrics=[
+                "sigma_c_max_kg_cm2",
+                "sigma_s_max_kg_cm2",
+                "sigma_c_adm_kg_cm2",
+                "sigma_s_adm_kg_cm2",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM72",
+                chapter="Art. 3",
+                paragraph="Tensioni ammissibili",
+                description_it="Tensioni ammissibili per calcestruzzo e acciaio",
+                notes_it=(
+                    "Implementazione completa con calcolo tensioni normali metodo TA. "
+                    "σ_c,adm = Rck/4, σ_s,adm da tabella. "
+                    "n = 10. Utilizza historical_ta.stress per calcolo completo."
+                ),
+            ),
+            secondary_references=[],
+            function_path="src.methods.dm72.checks.check_flessione_ta_dm72",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={"implementation_status": "complete"},
+        ),
+        # Pressoflessione TA
+        VerificationTemplate(
+            template_id="dm72_ta_pressoflessione_rett",
+            norm_code="DM72",
+            norm_version="1972",
+            verification_type="pressoflessione",
+            limit_state="TA",
+            description_it="Verifica a pressoflessione metodo Tensioni Ammissibili - DM 30/05/1972",
+            check_category="resistenza",
+            required_inputs=["section", "material", "N", "Mx", "As", "d"],
+            optional_inputs=["My", "As_prime", "d_prime"],
+            output_metrics=[
+                "sigma_c_max_kg_cm2",
+                "sigma_s_max_kg_cm2",
+                "N_kg",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM72",
+                chapter="Art. 3",
+                paragraph="Tensioni ammissibili - Pressoflessione",
+                description_it="Tensioni ammissibili per presso/tensioflessione",
+                notes_it=(
+                    "Implementazione completa: calcolo tensioni + riduzione snellezza. "
+                    "Verifica instabilità pilastri integrata quando presenti dati di asta "
+                    "(l0, beta_y, beta_z) in CalcInput.extra."
+                ),
+            ),
+            secondary_references=[],
+            function_path="src.methods.dm72.checks.check_pressoflessione_ta_dm72",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={
+                "implementation_status": "complete",
+                "conditional_inputs": ["l0_cm", "L0_cm", "lunghezza_libera_cm"],
+            },
+        ),
+        # Taglio TA
+        VerificationTemplate(
+            template_id="dm72_ta_taglio_rett",
+            norm_code="DM72",
+            norm_version="1972",
+            verification_type="taglio",
+            limit_state="TA",
+            description_it="Verifica a taglio metodo Tensioni Ammissibili - DM 30/05/1972",
+            check_category="resistenza",
+            required_inputs=["section", "material", "Tx", "d"],
+            optional_inputs=["Ty", "staffe_passo", "staffe_diametro", "areaStaffe"],
+            output_metrics=[
+                "tau_kg_cm2",
+                "tau_c0_kg_cm2",
+                "tau_c1_kg_cm2",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM72",
+                chapter="Art. 3",
+                paragraph="Tensioni tangenziali ammissibili",
+                description_it="Verifica a taglio",
+                notes_it=(
+                    "Implementazione operativa: τ = T/A_w, limiti τ_c0/τ_c1 da archivio storico. "
+                    "τ_c0 senza armatura trasversale, τ_c1 con armatura. "
+                    "La formulazione è conservativa e tracciabile."
+                ),
+            ),
+            secondary_references=[],
+            function_path="src.methods.dm72.checks.check_taglio_ta_dm72",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={
+                "implementation_status": "complete",
+            },
+        ),
+        # Minimi armatura TA
+        VerificationTemplate(
+            template_id="dm72_ta_minimi_armatura_long",
+            norm_code="DM72",
+            norm_version="1972",
+            verification_type="minimi_armatura",
+            limit_state="TA",
+            description_it="Verifica minimi armatura longitudinale - DM 30/05/1972",
+            check_category="minimi_armatura",
+            required_inputs=["section", "material", "As"],
+            optional_inputs=["element_type", "areaStaffe"],
+            output_metrics=[
+                "As_cm2",
+                "As_min_cm2",
+                "percentuale_armatura",
+                "utilizzazione",
+            ],
+            primary_reference=NormReference(
+                norm_code="DM72",
+                chapter="Art. 3",
+                paragraph="Armature minime",
+                description_it="Percentuali armatura longitudinale",
+                notes_it=(
+                    "Implementazione completa con distinzione travi/pilastri. "
+                    "Pilastri: As,min = 0.3% A_sez. Travi: As,min = 0.4% A_sez. "
+                    "As,max = 6% A_sez."
+                ),
+            ),
+            secondary_references=[],
+            function_path="src.methods.dm72.checks.check_minimi_ta_dm72",
+            can_batch=True,
+            supports_real_time=True,
+            applicable_section_types=["rectangular", "RECTANGULAR"],
+            applicable_material_tags=["concrete", "RC"],
+            requires_existing_structure=True,
+            extra_params={
+                "implementation_status": "complete",
+            },
         ),
     ]
 

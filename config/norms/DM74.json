@@ -1,0 +1,96 @@
+{
+  "norm_key": "DM74",
+  "norm_label": "DM 30/05/1974",
+  "norm_year": 1974,
+  "riferimento": "Decreto Ministeriale 30 maggio 1974 — Norme tecniche per la esecuzione delle opere in cemento armato normale e precompresso e per le strutture metalliche",
+  "note": "Normativa storica a tensioni ammissibili (TA puro). Gamma_c = 1 perché la sicurezza è incorporata nelle tensioni ammissibili stesse. n=15 (evoluzione da DM72). Usata per edifici costruiti fra 1974 e 1992.",
+  "materiali": {
+    "calcestruzzo": {
+      "gamma_c": {
+        "valore": 1.00,
+        "label": "γ_c",
+        "unita": "-",
+        "descrizione": "Metodo TA puro: sicurezza incorporata nelle tensioni ammissibili",
+        "riferimento": "DM74"
+      },
+      "alpha_cc": {
+        "valore": 1.00,
+        "label": "α_cc",
+        "unita": "-",
+        "descrizione": "Metodo TA: nessuna riduzione per effetti lungo termine"
+      },
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione acciaio/calcestruzzo — aumentato da 10 (DM72) a 15",
+        "riferimento": "DM74 §3"
+      },
+      "sigma_c_adm_coeff": {
+        "valore": 0.25,
+        "label": "k_c,adm",
+        "unita": "-",
+        "descrizione": "Tensione ammissibile = k_c * Rck (=Rck/4 per compressione semplice)",
+        "riferimento": "DM74 §3.1"
+      },
+      "sigma_c_inflessione_coeff": {
+        "valore": 0.333,
+        "label": "k_c,infl",
+        "unita": "-",
+        "descrizione": "Tensione ammissibile per flessione = k_infl * Rck (=Rck/3)",
+        "riferimento": "DM74 §3.1"
+      },
+      "f_ck_min_kgcm2": 40.8,
+      "f_ck_max_kgcm2": 408.0,
+      "E_formula": "22000 * pow((f_ck / 10.197 + 8.0) / 10.0, 0.3) * 10.197",
+      "G_formula": "E / (2.0 * (1.0 + nu))",
+      "sigma_c_adm_formula": "0.25 * sigma_c28",
+      "sigma_c_infl_adm_formula": "0.333 * sigma_c28"
+    },
+    "acciaio": {
+      "n_omogenizzazione": {
+        "valore": 15.0,
+        "label": "n",
+        "unita": "-",
+        "descrizione": "Coefficiente di omogenizzazione acciaio/calcestruzzo",
+        "riferimento": "DM74"
+      },
+      "sigma_s_adm_Fe32": {
+        "valore": 1200.0,
+        "label": "σ_s,adm (Fe32)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile barre lisce Fe32 / FeB22k",
+        "riferimento": "DM74 Tab.2"
+      },
+      "sigma_s_adm_Aq42": {
+        "valore": 1400.0,
+        "label": "σ_s,adm (Aq42)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile barre aderenza migliorata Aq42/Fe38",
+        "riferimento": "DM74 Tab.2"
+      },
+      "sigma_s_adm_FeB32k": {
+        "valore": 1600.0,
+        "label": "σ_s,adm (FeB32k)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile acciaio FeB32k aderenza migliorata",
+        "riferimento": "DM74 Tab.2"
+      },
+      "sigma_s_adm_FeB38k": {
+        "valore": 2000.0,
+        "label": "σ_s,adm (FeB38k)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile acciaio FeB38k — reti elettrosaldate (introdotte DM74)",
+        "riferimento": "DM74 Tab.2"
+      },
+      "sigma_s_adm_FeB44k": {
+        "valore": 2400.0,
+        "label": "σ_s,adm (FeB44k)",
+        "unita": "kg/cm²",
+        "descrizione": "Tensione ammissibile acciaio FeB44k — alta resistenza aderente",
+        "riferimento": "DM74 Tab.2"
+      },
+      "E_acciaio": 2100000.0
+    }
+  }
+}

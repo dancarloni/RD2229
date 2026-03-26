@@ -243,6 +243,133 @@ QTableWidget::item[status='warn'] { color: #d27d00; }
 QTableWidget::item[status='ko'] { color: #b42b2b; }
 """
 
+DASHBOARD_SIDEBAR_QSS = """
+/* Dashboard Sidebar Styles */
+
+QWidget#dashboard_sidebar {
+    background-color: #2c3e50;
+    border-right: 1px solid #1a252f;
+}
+
+QWidget#dashboard_sidebar QLabel {
+    color: #ecf0f1;
+    font-size: 8pt;
+}
+
+QWidget#dashboard_sidebar QPushButton#dashboardActionButton,
+QWidget#dashboard_sidebar QPushButton#dashboardModuleButton,
+QWidget#dashboard_sidebar QPushButton#dashboardUtilityButton {
+    text-align: left;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    color: #ecf0f1;
+    font-size: 9pt;
+    background-color: transparent;
+}
+
+QWidget#dashboard_sidebar QPushButton#dashboardActionButton:hover,
+QWidget#dashboard_sidebar QPushButton#dashboardModuleButton:hover,
+QWidget#dashboard_sidebar QPushButton#dashboardUtilityButton:hover {
+    background-color: #3d5166;
+}
+
+QWidget#dashboard_sidebar QPushButton#dashboardActionButton:pressed,
+QWidget#dashboard_sidebar QPushButton#dashboardModuleButton:pressed,
+QWidget#dashboard_sidebar QPushButton#dashboardUtilityButton:pressed {
+    background-color: #34475d;
+}
+
+/* Recent Projects Metadata */
+QLabel#recentMeta {
+    color: #7f8c8d;
+    font-size: 8pt;
+}
+
+/* Preset Buttons */
+QPushButton#dashboardPresetButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 8pt;
+}
+
+QPushButton#dashboardPresetButton:hover {
+    background-color: #2980b9;
+}
+
+/* Frame (Separator) */
+QFrame[frameShape="4"] {
+    color: #bdc3c7;
+    background-color: #bdc3c7;
+    max-height: 1px;
+}
+"""
+
+DASHBOARD_SIDEBAR_DARK_QSS = """
+/* Dashboard Sidebar Dark Theme */
+
+QWidget#dashboard_sidebar {
+    background-color: #151a1f;
+    border-right: 1px solid #0a0e12;
+}
+
+QWidget#dashboard_sidebar QLabel {
+    color: #dfe6eb;
+    font-size: 8pt;
+}
+
+QWidget#dashboard_sidebar QPushButton#dashboardActionButton,
+QWidget#dashboard_sidebar QPushButton#dashboardModuleButton,
+QWidget#dashboard_sidebar QPushButton#dashboardUtilityButton {
+    text-align: left;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    color: #dfe6eb;
+    font-size: 9pt;
+    background-color: transparent;
+}
+
+QWidget#dashboard_sidebar QPushButton#dashboardActionButton:hover,
+QWidget#dashboard_sidebar QPushButton#dashboardModuleButton:hover,
+QWidget#dashboard_sidebar QPushButton#dashboardUtilityButton:hover {
+    background-color: #2b3339;
+}
+
+QWidget#dashboard_sidebar QPushButton#dashboardActionButton:pressed,
+QWidget#dashboard_sidebar QPushButton#dashboardModuleButton:pressed,
+QWidget#dashboard_sidebar QPushButton#dashboardUtilityButton:pressed {
+    background-color: #1e2329;
+}
+
+QLabel#recentMeta {
+    color: #8b9db0;
+    font-size: 8pt;
+}
+
+QPushButton#dashboardPresetButton {
+    background-color: #2f7ea8;
+    color: #ffffff;
+    border: 1px solid #38617a;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 8pt;
+}
+
+QPushButton#dashboardPresetButton:hover {
+    background-color: #3a94c5;
+}
+
+QFrame[frameShape="4"] {
+    color: #3b464e;
+    background-color: #3b464e;
+    max-height: 1px;
+}
+"""
+
 
 def apply_base_stylesheet(app: object) -> None:
     """Apply the RD2229 base stylesheet to a QApplication instance.
@@ -260,8 +387,10 @@ def apply_theme(app: object, theme: str = "light") -> None:
     """Apply named theme to QApplication (light or dark)."""
     if not hasattr(app, "setStyleSheet"):
         return
-    selected = DARK_QSS if str(theme).lower() == "dark" else BASE_QSS
-    app.setStyleSheet(selected + "\n" + RESULT_STATUS_QSS)
+    is_dark = str(theme).lower() == "dark"
+    base_qss = DARK_QSS if is_dark else BASE_QSS
+    sidebar_qss = DASHBOARD_SIDEBAR_DARK_QSS if is_dark else DASHBOARD_SIDEBAR_QSS
+    app.setStyleSheet(base_qss + "\n" + sidebar_qss + "\n" + RESULT_STATUS_QSS)
 
 
 class DiagnosticsPanel:

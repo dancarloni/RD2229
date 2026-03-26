@@ -32,17 +32,20 @@ except ImportError:  # pragma: no cover
 
 
 def _load_web_engine_view() -> type[Any] | None:
-    try:
-        from PyQt6.QtWebEngineWidgets import QWebEngineView
-
-        return QWebEngineView
-    except Exception:
-        try:
-            from PySide6.QtWebEngineWidgets import QWebEngineView
-
-            return QWebEngineView
-        except Exception:
-            return None
+    # Temporarily disabled: PySide6 QWebEngineView has initialization issues
+    # Use QTextBrowser fallback instead
+    return None
+    # try:
+    #     from PyQt6.QtWebEngineWidgets import QWebEngineView
+    #
+    #     return QWebEngineView
+    # except Exception:
+    #     try:
+    #         from PySide6.QtWebEngineWidgets import QWebEngineView
+    #
+    #         return QWebEngineView
+    #     except Exception:
+    #         return None
 
 
 class ReportViewerWindow(QWidget):
@@ -82,6 +85,7 @@ class ReportViewerWindow(QWidget):
         web_cls = _load_web_engine_view()
         self._uses_web_engine = web_cls is not None
         if web_cls is not None:
+            # QWebEngineView requires parent as first positional argument
             self.viewer = web_cls(self)
         else:
             self.viewer = QTextBrowser(self)
