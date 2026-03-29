@@ -1,6 +1,6 @@
 # SPEC_03 Data Layer SQLite (LOCKED)
 
-Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md`.
+Fonte primaria: `docs/MEGAPLAN/archived/AGGREGAZIONE.md`.
 
 ## Scopo
 

@@ -43,7 +43,23 @@ Benvenuto! Questa è la **home page della documentazione** del progetto RD2229 (
 ### 🔥 **Feature Specifiche**
 - 📐 [`features/secondary_elements/`](features/secondary_elements/) — Elementi secondari
 - 🧮 [`features/material_editor/`](features/material_editor/) — Material Editor
-- 🔥 [`features/fire/`](features/fire/) — Fire engineering (L1-L3)
+- 🔥 [`MEGAPLAN/fire/`](MEGAPLAN/fire/) — Fire engineering (L1-L3)
+
+### 📚 **MEGAPLAN — Documentazione Tematica**
+**⭐ ENTRY POINT**: [`MEGAPLAN/INDEX.md`](MEGAPLAN/INDEX.md) — Indice centrale con navigazione per tema
+
+Tematiche principali:
+- [`MEGAPLAN/fire/`](MEGAPLAN/fire/) — Analisi termica (38 file + subdirectory)
+- [`MEGAPLAN/planning/`](MEGAPLAN/planning/) — Piano operativo (13 file)
+- [`MEGAPLAN/norms/`](MEGAPLAN/norms/) — Knowledge Base normative (10 file)
+- [`MEGAPLAN/gui/`](MEGAPLAN/gui/) — Interfaccia utente (9 file)
+- [`MEGAPLAN/implementation/`](MEGAPLAN/implementation/) — Step implementativi (15 file)
+- [`MEGAPLAN/secondary_elements/`](MEGAPLAN/secondary_elements/) — Elementi secondari (6 file)
+- [`MEGAPLAN/specs/`](MEGAPLAN/specs/) — Specifiche tecniche (9 file)
+- [`MEGAPLAN/reports/`](MEGAPLAN/reports/) — Template relazioni (7 file)
+- [`MEGAPLAN/archived/`](MEGAPLAN/archived/) — Archivio storico (11 file)
+
+**Nota**: MEGAPLAN ristrutturato in Sprint A2.3 — 116 file → 90 file organizzati per tema
 
 ### 💾 **Stato & Progress**
 - [`progress/STATUS.md`](progress/STATUS.md) — Dashboard attuale
@@ -53,8 +69,8 @@ Benvenuto! Questa è la **home page della documentazione** del progetto RD2229 (
 - [`memory/`](memory/) — Session memory e codebase map
 
 ### 📖 **Archivio**
-- [`archived/`](archived/) — File storici
-- [`megaplan/`](megaplan/) — Archivio MEGAPLAN
+- [`archived/`](archived/) — File storici (non-MEGAPLAN)
+- [`MEGAPLAN/archived/`](MEGAPLAN/archived/) — Archivio MEGAPLAN storico
 
 ---
 

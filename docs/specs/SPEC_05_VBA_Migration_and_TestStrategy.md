@@ -1,6 +1,6 @@
 # SPEC_05 VBA Migration and Test Strategy (LOCKED)
 
-Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md`.
+Fonte primaria: `docs/MEGAPLAN/archived/AGGREGAZIONE.md`.
 
 ## LOCKED
 

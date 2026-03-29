@@ -96,7 +96,7 @@ docs/MEGAPLAN/
 # archived (priority 1 — mega-file)
 git mv docs/MEGAPLAN/CHAT_PLAN.md docs/MEGAPLAN/archived/
 git mv docs/MEGAPLAN/AGGREGAZIONE.md docs/MEGAPLAN/archived/
-git mv docs/MEGAPLAN/MEGAPLAN_NTC2018_EC_con_risposte.md docs/MEGAPLAN/archived/
+git mv docs/MEGAPLAN/planning/MEGAPLAN_NTC2018_EC_con_risposte.md docs/MEGAPLAN/archived/
 git mv docs/MEGAPLAN/tree_for_m365.md docs/MEGAPLAN/archived/
 git mv docs/MEGAPLAN/tree_no_dot_cache.* docs/MEGAPLAN/archived/
 git mv docs/MEGAPLAN/2026-02-26-* docs/MEGAPLAN/archived/
@@ -139,11 +139,11 @@ git mv docs/MEGAPLAN/FIRE_TESTS_*.md docs/MEGAPLAN/fire/tests/
 git mv docs/MEGAPLAN/FIRE_VERIFICA_*.md docs/MEGAPLAN/fire/tests/
 
 # planning/ (13 file)
-git mv docs/MEGAPLAN/PLAN_*.md docs/MEGAPLAN/planning/
-git mv docs/MEGAPLAN/MEGAPLAN_NTC2018_MasterPlan.md docs/MEGAPLAN/planning/
+git mv docs/MEGAPLAN/planning/PLAN_*.md docs/MEGAPLAN/planning/
+git mv docs/MEGAPLAN/planning/MEGAPLAN_NTC2018_MasterPlan.md docs/MEGAPLAN/planning/
 
 # norms/ (10 file)
-git mv docs/MEGAPLAN/KB_*.md docs/MEGAPLAN/norms/
+git mv docs/MEGAPLAN/norms/KB_*.md docs/MEGAPLAN/norms/
 git mv docs/MEGAPLAN/VERIFICHE_RD2229.md docs/MEGAPLAN/norms/
 
 # gui/ (9 file)
@@ -166,7 +166,7 @@ git mv docs/MEGAPLAN/CONFIG_NTC2018_SECONDARY_ELEMENTS_*.md docs/MEGAPLAN/second
 # specs/ (9 file)
 git mv docs/MEGAPLAN/SPEC_NTC2018_*.md docs/MEGAPLAN/specs/
 git mv docs/MEGAPLAN/NTC2018_SPECTRUM_*.md docs/MEGAPLAN/specs/
-git mv docs/MEGAPLAN/PLAN__NTC2018_EC_*.md docs/MEGAPLAN/specs/
+git mv docs/MEGAPLAN/planning/PLAN__NTC2018_EC_*.md docs/MEGAPLAN/specs/
 git mv docs/MEGAPLAN/TEST_PLAN_*.md docs/MEGAPLAN/specs/
 git mv docs/MEGAPLAN/VERIFICATION_*.md docs/MEGAPLAN/specs/
 git mv docs/MEGAPLAN/verification_gap.md docs/MEGAPLAN/specs/

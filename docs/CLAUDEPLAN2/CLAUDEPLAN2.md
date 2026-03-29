@@ -460,7 +460,7 @@ Isoterma 500°C
 Profili di temperatura REI 30÷240
 
 FASE I — Metodo di Cross-Pozzati per Telai Piani
-Riferimento architetturale: docs/MEGAPLAN/PLAN_METODO_CROSS_TELAI_PIANI.md (VINCOLO DURO)
+Riferimento architetturale: docs/MEGAPLAN/planning/PLAN_METODO_CROSS_TELAI_PIANI.md (VINCOLO DURO)
 I1. Modello strutturale astratto — src/solvers/cross_pozzati/model.py
 
 Node: id, coordinate (x,y), vincolo (incastro/cerniera/carrello/libero)
@@ -690,7 +690,7 @@ tests/
 - Output: file Markdown strutturato con formule e tabelle
 
 **P2. Integrazione con Knowledge Base**
-- Le formule estratte alimentano docs/MEGAPLAN/KB_*.md
+- Le formule estratte alimentano docs/MEGAPLAN/norms/KB_*.md
 - I valori numerici estratti alimentano parameters.json delle norme
 - Tracciabilità: ogni formula ha riferimento a pagina/manuale di origine
 

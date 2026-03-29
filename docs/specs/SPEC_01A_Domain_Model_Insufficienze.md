@@ -1,6 +1,6 @@
 # SPEC_01A Domain Model Insufficienze (LOCKED Resolution)
 
-Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md`.
+Fonte primaria: `docs/MEGAPLAN/archived/AGGREGAZIONE.md`.
 
 ## Obiettivo
 

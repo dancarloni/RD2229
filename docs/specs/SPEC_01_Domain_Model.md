@@ -1,6 +1,6 @@
 # SPEC_01 Domain Model (LOCKED)
 
-Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md` (decisioni consolidate + vincoli vincolanti).
+Fonte primaria: `docs/MEGAPLAN/archived/AGGREGAZIONE.md` (decisioni consolidate + vincoli vincolanti).
 
 ## Scopo
 

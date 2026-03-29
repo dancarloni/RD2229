@@ -1,6 +1,6 @@
 # SPEC_04 Plugins and .jsoncode (LOCKED)
 
-Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md`.
+Fonte primaria: `docs/MEGAPLAN/archived/AGGREGAZIONE.md`.
 
 ## LOCKED
 

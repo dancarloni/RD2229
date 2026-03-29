@@ -1,6 +1,6 @@
 # SPEC_02 Functional Flows (LOCKED)
 
-Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md`.
+Fonte primaria: `docs/MEGAPLAN/archived/AGGREGAZIONE.md`.
 
 ## Flusso 1 — Creazione progetto + setup norma
 
