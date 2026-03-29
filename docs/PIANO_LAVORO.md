@@ -8,9 +8,10 @@ tags: [piano, roadmap, stato, refactor]
 
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-29 23:45 — Sprint A1+B1 completate; 2 PR strategiche autorizzate + Copilot review
+Ultimo sync: 2026-03-29 04:30 — Sprint A1+A2.2+B1 completate; Autonomia modalità attivata
 
 Changelog rapido (ultimi commit):
+- `2026-03-29 04:30` — **SPRINT A2.2 COMPLETATA**: Consolidato 98 file planning in `docs/planning/` (ridotto clutter root docs da ~150 a ~50 file); creato `docs/planning/README.md` index; commit 283cb88
 - `2026-03-29 23:45` — **SPRINT B1 COMPLETATA**: Ricercate formule DM96 complete (w_k fessurazione, deformazioni, torsione) da DM 9/1/1996 + Circolare 252/1996; creato `docs/implementation/_theory/dm96_formule_stato_limite_esercizio.md` (reference doc); commit 412dcca
 - `2026-03-29 23:30` — **SPRINT A2.1 COMPLETATA**: Creato entry point centrale `docs/index.md` con navigazione tematica; link a tutte sezioni documentazione + blockers noti
 - `2026-03-29 23:00` — **SPRINT A1 COMPLETATA**: Rimossi 3 file stub deprecated (PLANCODE.STUB, Plan_master.STUB x2) scadenza 2026-04-01 già passata; contenuti già archiviati in `docs/archived/planning/`; commit 0354bc8
