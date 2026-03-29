@@ -8,9 +8,10 @@ tags: [piano, roadmap, stato, refactor]
 
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-29 05:30 — Sprint A1+A2.1+A2.2+A2.3+B1+B2 completate; Sessione 2 MEGAPLAN restructuring done
+Ultimo sync: 2026-03-29 06:00 — Sprint A1+A2.1+A2.2+A2.3+A3+A4+B1+B2 completate; Sessione 2 Documentation completed
 
 Changelog rapido (ultimi commit):
+- `2026-03-29 06:00` — **SPRINT A3-A4 COMPLETATA**: Validated + fixed all cross-link references post-restructuring (12 spec files, 45+ doc files); updated docs/index.md with MEGAPLAN tematic navigation; 100% link integrity verified; commit 5963822
 - `2026-03-29 05:30` — **SPRINT A2.3 COMPLETATA**: MEGAPLAN restructuring 116→90 files in 8 thematic directories (fire/, planning/, norms/, gui/, implementation/, secondary_elements/, specs/, reports/, archived/); created 10 README.md + central INDEX.md; improved navigation and maintainability; commit 70fb9b6
 - `2026-03-29 04:35` — **SPRINT B2 COMPLETATA (Analysis)**: Analisi completa stub DM72/DM74; doc: `docs/analysis_stub_dm72_dm74.md`; 3 opzioni fix; raccomandazione: rimuovere moduli obsoleti; commit a16d32e
 - `2026-03-29 04:30` — **SPRINT A2.2 COMPLETATA**: Consolidato 98 file planning in `docs/planning/` (ridotto clutter root docs da ~150 a ~50 file); creato `docs/planning/README.md` index; commit 283cb88
