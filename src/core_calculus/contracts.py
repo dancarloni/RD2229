@@ -3,12 +3,25 @@
 Protocollo CalcInput/CalcOutput unificato per TUTTE le verifiche.
 Tipi di dominio puri: NESSUNA dipendenza GUI, NESSUN I/O su file.
 
-Pipeline di conversione unità:
+Pipeline di conversione unità::
+
     Input utente (unità GUI)
-      → CalcInput (unità interne: MPa per tensioni, kN/kNm per forze/momenti)
-      → Engine di verifica
-      → CalcOutput (unità interne)
-      → Output utente (unità GUI)
+      → [gestore_unita.da_input()]
+    Catalogo (kg/cm² storage)
+      → [normalize_to_mpa()]
+    CalcInput (MPa interno, SI)
+      → [ENGINE DI VERIFICA — tutte in MPa]
+    CalcOutput (MPa/SI interno)
+      → [denormalize_for_output()]
+    Output (unità GUI)
+      → [gestore_unita.converti()]
+    Display (kg/cm², MPa, kPa)
+
+Immutabilità
+------------
+``CalcInput`` e ``CalcOutput`` sono dataclass **non** frozen per retrocompatibilità
+con il service di verifica esistente (che assegna campi post-creazione).
+I campi ``passaggi_calcolo`` e ``formule_usate`` sono obbligatori nel risultato.
 
 Tutti i messaggi visibili all'utente sono in italiano.
 """
@@ -18,6 +31,7 @@ from __future__ import annotations
 import dataclasses
 import enum
 import json
+import math
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -118,19 +132,41 @@ class VerificationTemplate:
 
 @dataclass
 class SingleCheckResult:
-    """Result of executing one VerificationTemplate on one element.
+    """Risultato dell'esecuzione di un singolo template di verifica su un elemento.
 
-    Contains ok/non-ok status, utilisation, details, and normative references.
+    Contiene esito OK/non-OK, rapporto di utilizzazione, dettagli intermedi
+    e riferimenti normativi per la tracciabilità.
+
+    Il campo ``passaggi_calcolo`` è **obbligatorio** per la generazione
+    dei tabulati di calcolo (report ASCII/HTML/LaTeX).
     """
 
-    template_id: str  # Which template was executed
-    ok: bool  # True if check passed, False if failed
-    utilisation: float | None = None  # Utilisation ratio (e.g., 0.85 = 85%)
-    details: dict[str, float | str] = dataclasses.field(default_factory=dict)  # Intermediate values
-    norm_references: list[NormReference] = dataclasses.field(default_factory=list)  # Norms used
-    messages_it: list[str] = dataclasses.field(default_factory=list)  # Italian messages for user
-    check_category: str | None = None  # e.g., "resistenza", "minimi_armatura"
-    limit_state: str | None = None  # e.g., "SLU", "SLE"
+    template_id: str  # Quale template è stato eseguito
+    ok: bool  # True se la verifica è soddisfatta, False altrimenti
+    utilisation: float | None = None  # Rapporto di utilizzazione (es. 0.85 = 85%)
+    details: dict[str, float | str] = dataclasses.field(default_factory=dict)
+    norm_references: list[NormReference] = dataclasses.field(default_factory=list)
+    messages_it: list[str] = dataclasses.field(default_factory=list)
+    check_category: str | None = None  # es. "resistenza", "minimi_armatura"
+    limit_state: str | None = None  # es. "SLU", "SLE", "TA"
+
+    # --- Campi aggiunti per protocollo I/O standard ---
+    passaggi_calcolo: list[str] = dataclasses.field(default_factory=list)
+    formule_usate: list[str] = dataclasses.field(default_factory=list)
+    stress_max: float | None = None  # Massima tensione calcolata [MPa]
+    stress_limit: float | None = None  # Limite ammissibile [MPa]
+    deformation: float | None = None  # Freccia / deformazione [mm]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serializza il risultato in un dizionario JSON-compatibile.
+
+        Restituisce
+        -----------
+        dict
+            Dizionario con tutti i campi, NormReference espansi.
+        """
+        d = dataclasses.asdict(self)
+        return d
 
 
 @dataclass
