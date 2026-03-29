@@ -1,15 +1,25 @@
-"""
-Core contracts for the verification module.
-These are pure domain types with NO GUI dependencies, NO file I/O.
+"""Contratti I/O standard per verifiche strutturali.
 
-All user-facing messages must be in Italian.
+Protocollo CalcInput/CalcOutput unificato per TUTTE le verifiche.
+Tipi di dominio puri: NESSUNA dipendenza GUI, NESSUN I/O su file.
+
+Pipeline di conversione unità:
+    Input utente (unità GUI)
+      → CalcInput (unità interne: MPa per tensioni, kN/kNm per forze/momenti)
+      → Engine di verifica
+      → CalcOutput (unità interne)
+      → Output utente (unità GUI)
+
+Tutti i messaggi visibili all'utente sono in italiano.
 """
 
 from __future__ import annotations
 
 import dataclasses
 import enum
+import json
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 
