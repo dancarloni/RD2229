@@ -9,7 +9,11 @@ from app.domain.sections import get_section_geometry
 
 logger = logging.getLogger(__name__)
 
-MPA_TO_KGCM2 = 10.197
+# Fattore di conversione centralizzato — importato dall'adapter ufficiale
+try:
+    from src.core.adapter_unita_misura import _MPA_TO_KG_CM2 as MPA_TO_KGCM2
+except ImportError:
+    MPA_TO_KGCM2 = 10.19716  # Fallback (valore preciso)
 
 
 def compute_ta_verification(

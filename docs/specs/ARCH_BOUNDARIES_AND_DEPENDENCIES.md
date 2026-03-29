@@ -1,6 +1,6 @@
 # ARCH BOUNDARIES AND DEPENDENCIES
 
-> Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md` — LOCKED
+> Fonte primaria: `docs/MEGAPLAN/archived/AGGREGAZIONE.md` — LOCKED
 
 ## Layer architetturali
 

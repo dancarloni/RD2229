@@ -1,6 +1,6 @@
 # REPOSITORY CONTRACTS
 
-> Fonte primaria: `docs/MEGAPLAN/AGGREGAZIONE.md` + `docs/specs/SPEC_03_DataLayer_SQLite.md` — LOCKED
+> Fonte primaria: `docs/MEGAPLAN/archived/AGGREGAZIONE.md` + `docs/specs/SPEC_03_DataLayer_SQLite.md` — LOCKED
 
 ## Storage primario: SQLite
 

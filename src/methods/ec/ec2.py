@@ -8,7 +8,12 @@ from typing import Any
 GAMMA_C_EC2 = 1.5
 GAMMA_S_EC2 = 1.15
 MATERIAL_ALPHA_CC = 0.85
-MPA_TO_KGCM2 = 10.197
+
+# Fattore di conversione centralizzato — importato dall'adapter ufficiale
+try:
+    from src.core.adapter_unita_misura import _MPA_TO_KG_CM2 as MPA_TO_KGCM2
+except ImportError:
+    MPA_TO_KGCM2 = 10.19716  # Fallback (valore preciso)
 
 
 def _ensure_positive(name: str, value: float) -> None:

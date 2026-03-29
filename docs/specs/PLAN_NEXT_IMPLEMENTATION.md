@@ -2,7 +2,7 @@
 
 ## 1. Scope e principi
 
-- Fonte vincolante: `docs/MEGAPLAN/AGGREGAZIONE.md` + specifiche LOCKED in `docs/specs/`.
+- Fonte vincolante: `docs/MEGAPLAN/archived/AGGREGAZIONE.md` + specifiche LOCKED in `docs/specs/`.
 - Modalità: implementazione incrementale in stream A–E con tracciabilità completa.
 - Divieto: nessun valore normativo inventato; usare `TODO(NTC/EC/RD)` espliciti.
 - Strategia B: i 2 test rossi preesistenti restano accettati solo se confinati/documentati in `docs/specs/BLOCKERS.md`.

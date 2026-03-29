@@ -549,9 +549,9 @@ Do not duplicate this agent's work — avoid working with the same files or topi
 Ho ricevuto il primo agente con i contenuti di CLAUDEPLAN e MEGAPLAN. Attendo i risultati degli altri due agenti per avere il quadro completo su normativa/muratura e architettura codice corrente. Intanto leggo i file chiave della knowledge base.
 Read three Italian structural design documentation files: historic decree KB_RD2229_1939, current NTC2018 reinforced concrete standards, and secondary elements specification master
 Read three Italian structural design documentation files: historic decree KB_RD2229_1939, current NTC2018 reinforced concrete standards, and secondary elements specification master
-Read/home/user/RD2229/docs/MEGAPLAN/KB_RD2229_1939.md
+Read/home/user/RD2229/docs/MEGAPLAN/norms/KB_RD2229_1939.md
 Lette 100 righe
-Read/home/user/RD2229/docs/MEGAPLAN/KB_NTC2018_CA.md
+Read/home/user/RD2229/docs/MEGAPLAN/norms/KB_NTC2018_CA.md
 Lette 100 righe
 Read/home/user/RD2229/docs/MEGAPLAN/SECONDARY_ELEMENTS_MASTER.md
 Lette 100 righe
@@ -561,14 +561,14 @@ Read structural strategy document and searched for masonry references
 Grepmuratur|masonry|cordol|ring.beam
 Found 20 files limit: 30, offset: 0src/materials/material_model.pysrc/materials/validation.py
 Mostra meno
-docs/MEGAPLAN/PLAN__NTC2018_EC_Integrazoini.mddocs/MEGAPLAN/PLAN_STRATEGIA_STRUTTURALE_ESTESA.mddocs/MEGAPLAN/PLAN_INTEGRAZIONE_METODI_NORME.mddocs/MEGAPLAN/PLAN_KNOWLEDGE_BASE_NORMATIVA_MASTER.mddocs/MEGAPLAN/PLAN_METODO_CROSS_TELAI_PIANI.mddocs/MEGAPLAN/PLAN_INPUT_COMUNE.mddocs/MEGAPLAN/MEGAPLAN_NTC2018_EC_con_risposte.mddocs/MEGAPLAN/MEGAPLAN_NTC2018_MasterPlan.mddocs/MEGAPLAN/KB_NTC2018_CA.mddocs/MEGAPLAN/KB_NTC2018_ESISTENTI.mddocs/MEGAPLAN/KB_NTC2018.mddocs/MEGAPLAN/CHAT_PLAN.mddocs/MEGAPLAN/AGGREGAZIONE.mddocs/LEGACY_CODES/RD2229_39/RD2229_39_MASS_ATTRIBUTION.mdReport_claude_DM92_DM96_Fuoco.mdPlan_master.mdCOPILOT_SEARCH_2229.mdBLOCCO 04.txt
+docs/MEGAPLAN/planning/PLAN__NTC2018_EC_Integrazoini.mddocs/MEGAPLAN/planning/PLAN_STRATEGIA_STRUTTURALE_ESTESA.mddocs/MEGAPLAN/planning/PLAN_INTEGRAZIONE_METODI_NORME.mddocs/MEGAPLAN/planning/PLAN_KNOWLEDGE_BASE_NORMATIVA_MASTER.mddocs/MEGAPLAN/planning/PLAN_METODO_CROSS_TELAI_PIANI.mddocs/MEGAPLAN/planning/PLAN_INPUT_COMUNE.mddocs/MEGAPLAN/planning/MEGAPLAN_NTC2018_EC_con_risposte.mddocs/MEGAPLAN/planning/MEGAPLAN_NTC2018_MasterPlan.mddocs/MEGAPLAN/norms/KB_NTC2018_CA.mddocs/MEGAPLAN/norms/KB_NTC2018_ESISTENTI.mddocs/MEGAPLAN/norms/KB_NTC2018.mddocs/MEGAPLAN/CHAT_PLAN.mddocs/MEGAPLAN/AGGREGAZIONE.mddocs/LEGACY_CODES/RD2229_39/RD2229_39_MASS_ATTRIBUTION.mdReport_claude_DM92_DM96_Fuoco.mdPlan_master.mdCOPILOT_SEARCH_2229.mdBLOCCO 04.txt
 Read/home/user/RD2229/docs/norms/cnr_dt/CNR-DT-200-R2-2026.pdf
 pdftoppm is not installed. Install poppler-utils (e.g. `brew install poppler` or `apt-get install poppler-utils`) to enable PDF page rendering.
 Grepcordol|ring.beam|profil.metall
 docs/MEGAPLAN/CHAT_PLAN.md:3312:- Scopo: definire il contratto dati, i binding GUI ↔ core e i casi di verifica per gli elementi secondari (parapetti, mensole, ancoraggi, cordoli, ecc.), inclusi esempi di controlli per ancoraggi (produttore).[Showing results with pagination = limit: 30, offset: 0]
-Read/home/user/RD2229/docs/MEGAPLAN/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
+Read/home/user/RD2229/docs/MEGAPLAN/planning/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
 Lette 80 righe
-Read/home/user/RD2229/docs/MEGAPLAN/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
+Read/home/user/RD2229/docs/MEGAPLAN/planning/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
 Lette 37 righe
 Grepmuratur
 10:possibilità di estensione futura controllata (muratura, edifici esistenti, FEM, ecc.). 19:Muratura (solo pianificazione architetturale iniziale) 38:4. Muratura – Stato attuale
@@ -1352,9 +1352,9 @@ Do not duplicate this agent's work — avoid working with the same files or topi
 Ho ricevuto il primo agente con i contenuti di CLAUDEPLAN e MEGAPLAN. Attendo i risultati degli altri due agenti per avere il quadro completo su normativa/muratura e architettura codice corrente. Intanto leggo i file chiave della knowledge base.
 Read three Italian structural design documentation files: historic decree KB_RD2229_1939, current NTC2018 reinforced concrete standards, and secondary elements specification master
 Read three Italian structural design documentation files: historic decree KB_RD2229_1939, current NTC2018 reinforced concrete standards, and secondary elements specification master
-Read/home/user/RD2229/docs/MEGAPLAN/KB_RD2229_1939.md
+Read/home/user/RD2229/docs/MEGAPLAN/norms/KB_RD2229_1939.md
 Lette 100 righe
-Read/home/user/RD2229/docs/MEGAPLAN/KB_NTC2018_CA.md
+Read/home/user/RD2229/docs/MEGAPLAN/norms/KB_NTC2018_CA.md
 Lette 100 righe
 Read/home/user/RD2229/docs/MEGAPLAN/SECONDARY_ELEMENTS_MASTER.md
 Lette 100 righe
@@ -1364,14 +1364,14 @@ Read structural strategy document and searched for masonry references
 Grepmuratur|masonry|cordol|ring.beam
 Found 20 files limit: 30, offset: 0src/materials/material_model.pysrc/materials/validation.py
 Mostra meno
-docs/MEGAPLAN/PLAN__NTC2018_EC_Integrazoini.mddocs/MEGAPLAN/PLAN_STRATEGIA_STRUTTURALE_ESTESA.mddocs/MEGAPLAN/PLAN_INTEGRAZIONE_METODI_NORME.mddocs/MEGAPLAN/PLAN_KNOWLEDGE_BASE_NORMATIVA_MASTER.mddocs/MEGAPLAN/PLAN_METODO_CROSS_TELAI_PIANI.mddocs/MEGAPLAN/PLAN_INPUT_COMUNE.mddocs/MEGAPLAN/MEGAPLAN_NTC2018_EC_con_risposte.mddocs/MEGAPLAN/MEGAPLAN_NTC2018_MasterPlan.mddocs/MEGAPLAN/KB_NTC2018_CA.mddocs/MEGAPLAN/KB_NTC2018_ESISTENTI.mddocs/MEGAPLAN/KB_NTC2018.mddocs/MEGAPLAN/CHAT_PLAN.mddocs/MEGAPLAN/AGGREGAZIONE.mddocs/LEGACY_CODES/RD2229_39/RD2229_39_MASS_ATTRIBUTION.mdReport_claude_DM92_DM96_Fuoco.mdPlan_master.mdCOPILOT_SEARCH_2229.mdBLOCCO 04.txt
+docs/MEGAPLAN/planning/PLAN__NTC2018_EC_Integrazoini.mddocs/MEGAPLAN/planning/PLAN_STRATEGIA_STRUTTURALE_ESTESA.mddocs/MEGAPLAN/planning/PLAN_INTEGRAZIONE_METODI_NORME.mddocs/MEGAPLAN/planning/PLAN_KNOWLEDGE_BASE_NORMATIVA_MASTER.mddocs/MEGAPLAN/planning/PLAN_METODO_CROSS_TELAI_PIANI.mddocs/MEGAPLAN/planning/PLAN_INPUT_COMUNE.mddocs/MEGAPLAN/planning/MEGAPLAN_NTC2018_EC_con_risposte.mddocs/MEGAPLAN/planning/MEGAPLAN_NTC2018_MasterPlan.mddocs/MEGAPLAN/norms/KB_NTC2018_CA.mddocs/MEGAPLAN/norms/KB_NTC2018_ESISTENTI.mddocs/MEGAPLAN/norms/KB_NTC2018.mddocs/MEGAPLAN/CHAT_PLAN.mddocs/MEGAPLAN/AGGREGAZIONE.mddocs/LEGACY_CODES/RD2229_39/RD2229_39_MASS_ATTRIBUTION.mdReport_claude_DM92_DM96_Fuoco.mdPlan_master.mdCOPILOT_SEARCH_2229.mdBLOCCO 04.txt
 Read/home/user/RD2229/docs/norms/cnr_dt/CNR-DT-200-R2-2026.pdf
 pdftoppm is not installed. Install poppler-utils (e.g. brew install poppler or apt-get install poppler-utils) to enable PDF page rendering.
 Grepcordol|ring.beam|profil.metall
 docs/MEGAPLAN/CHAT_PLAN.md:3312:- Scopo: definire il contratto dati, i binding GUI ↔ core e i casi di verifica per gli elementi secondari (parapetti, mensole, ancoraggi, cordoli, ecc.), inclusi esempi di controlli per ancoraggi (produttore).[Showing results with pagination = limit: 30, offset: 0]
-Read/home/user/RD2229/docs/MEGAPLAN/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
+Read/home/user/RD2229/docs/MEGAPLAN/planning/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
 Lette 80 righe
-Read/home/user/RD2229/docs/MEGAPLAN/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
+Read/home/user/RD2229/docs/MEGAPLAN/planning/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
 Lette 37 righe
 Grepmuratur
 10:possibilità di estensione futura controllata (muratura, edifici esistenti, FEM, ecc.). 19:Muratura (solo pianificazione architetturale iniziale) 38:4. Muratura – Stato attuale
@@ -2065,7 +2065,7 @@ Attendo i risultati prima di procedere con la ricostruzione del piano. Nel fratt
 Read extended structural strategy planning document
 Read extended structural strategy planning document
 Read
-/home/user/RD2229/docs/MEGAPLAN/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
+/home/user/RD2229/docs/MEGAPLAN/planning/PLAN_STRATEGIA_STRUTTURALE_ESTESA.md
 Lette 116 righe
 
 Sto attendendo i risultati degli agenti. Intanto leggo la struttura materiali nel repository corrente.

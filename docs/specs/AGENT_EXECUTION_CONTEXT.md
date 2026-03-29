@@ -6,8 +6,8 @@
 
 | File | Decisioni LOCKED rilevate | Conflitti/Rischi |
 |------|--------------------------|-----------------|
-| docs/MEGAPLAN/AGGREGAZIONE.md | Separazione Model/Engine/Persistence/UI; SQLite MVP; Trace obbligatorio; Nessun valore normativo inventato | Nessuno |
-| docs/MEGAPLAN/AGGREGAZIONE_POST_AGENT.md | A/D/B completati; 510 pass, 0 fail in ambiente locale | Test count diverge in CI headless (479 pass, 9 skip) |
+| docs/MEGAPLAN/archived/AGGREGAZIONE.md | Separazione Model/Engine/Persistence/UI; SQLite MVP; Trace obbligatorio; Nessun valore normativo inventato | Nessuno |
+| docs/MEGAPLAN/archived/AGGREGAZIONE_POST_AGENT.md | A/D/B completati; 510 pass, 0 fail in ambiente locale | Test count diverge in CI headless (479 pass, 9 skip) |
 | docs/MEGAPLAN/2026-02-26-002_PLAN.md | Stream A→D→B→C→E; Strategia B | Ordine consigliato confermato |
 | docs/specs/PLAN_NEXT_IMPLEMENTATION.md | Stream A/D/B: completati; E2 baseline avviato | C/E1 ancora aperti |
 | docs/specs/BLOCKERS.md | Blocker 1/2: CHIUSI | Monitoraggio regressione continuo |

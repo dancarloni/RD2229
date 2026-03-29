@@ -16,6 +16,9 @@ Licenza: MIT
 from dataclasses import dataclass
 from typing import Any
 
+from src.core.adapter_unita_misura import kg_cm2_to_mpa as kgcm2_to_mpa
+from src.core.adapter_unita_misura import mpa_to_kg_cm2 as mpa_to_kgcm2
+
 # ============================================================================
 # COSTANTI E COEFFICIENTI
 # ============================================================================
@@ -23,21 +26,6 @@ from typing import Any
 # Coefficienti di sicurezza (allineati ai cataloghi DM92 del progetto)
 GAMMA_C_DM92 = 1.6  # Calcestruzzo
 GAMMA_S_DM92 = 1.15  # Acciaio
-
-
-# ============================================================================
-# UTILITÀ DI CONVERSIONE UNITÀ
-# ============================================================================
-
-
-def mpa_to_kgcm2(mpa: float) -> float:
-    """Converte da MPa a kg/cm²."""
-    return mpa * 10.197
-
-
-def kgcm2_to_mpa(kgcm2: float) -> float:
-    """Converte da kg/cm² a MPa."""
-    return kgcm2 / 10.197
 
 
 def rck_to_fck(rck_mpa: float) -> float:

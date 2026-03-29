@@ -8,9 +8,34 @@ tags: [piano, roadmap, stato, refactor]
 
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-26 — Gap pipeline allineati (P01-P06), integrazione opzionale in P00 per P12 e P04-P06 con test pipeline mirati verdi
+Ultimo sync: 2026-03-29 10:00 — Sprint B4 (Protocollo I/O CalcInput/CalcOutput) completata: contracts.py arricchito + normalization.py + 49 test
 
 Changelog rapido (ultimi commit):
+- `2026-03-29 10:00` — **SPRINT B4 COMPLETATA**: Protocollo I/O standard CalcInput/CalcOutput; arricchiti `contracts.py` con passaggi_calcolo, formule_usate, stress_max/limit, to_dict/to_latex, rapporto_verifica, aggregate_from_templates; creato `src/core_calculus/normalization.py` (normalize_to_mpa, denormalize_for_output, dict_to_single_check_result adapter legacy); creato `tests/test_contract_compliance.py` (49 test: validazione, serializzazione, round-trip normalizzazione, pipeline integrazione)
+- `2026-03-29 08:00` — **SPRINT B3 COMPLETATA**: Creato `src/core/adapter_unita_misura.py` (adapter centralizzato MPa↔kg/cm²); aggiornati dm92/checks.py, ec/ec2.py, scale/scale.py, methods/verification/methods_*.py per usare costanti dall'adapter; creato `tests/test_units_adapter.py` (81 test); 202 test critici pass
+- `2026-03-29 06:00` — **SPRINT A3-A4 COMPLETATA**: Validated + fixed all cross-link references post-restructuring (12 spec files, 45+ doc files); updated docs/index.md with MEGAPLAN tematic navigation; 100% link integrity verified; commit 5963822
+- `2026-03-29 05:30` — **SPRINT A2.3 COMPLETATA**: MEGAPLAN restructuring 116→90 files in 8 thematic directories (fire/, planning/, norms/, gui/, implementation/, secondary_elements/, specs/, reports/, archived/); created 10 README.md + central INDEX.md; improved navigation and maintainability; commit 70fb9b6
+- `2026-03-29 04:35` — **SPRINT B2 COMPLETATA (Analysis)**: Analisi completa stub DM72/DM74; doc: `docs/analysis_stub_dm72_dm74.md`; 3 opzioni fix; raccomandazione: rimuovere moduli obsoleti; commit a16d32e
+- `2026-03-29 04:30` — **SPRINT A2.2 COMPLETATA**: Consolidato 98 file planning in `docs/planning/` (ridotto clutter root docs da ~150 a ~50 file); creato `docs/planning/README.md` index; commit 283cb88
+- `2026-03-29 23:45` — **SPRINT B1 COMPLETATA**: Ricercate formule DM96 complete (w_k fessurazione, deformazioni, torsione) da DM 9/1/1996 + Circolare 252/1996; creato `docs/implementation/_theory/dm96_formule_stato_limite_esercizio.md` (reference doc); commit 412dcca
+- `2026-03-29 23:30` — **SPRINT A2.1 COMPLETATA**: Creato entry point centrale `docs/index.md` con navigazione tematica; link a tutte sezioni documentazione + blockers noti
+- `2026-03-29 23:00` — **SPRINT A1 COMPLETATA**: Rimossi 3 file stub deprecated (PLANCODE.STUB, Plan_master.STUB x2) scadenza 2026-04-01 già passata; contenuti già archiviati in `docs/archived/planning/`; commit 0354bc8
+
+**Strategia PR prossime sessioni**:
+- **PR #1 (Copilot Review #1)**: Sprint B2-B4 — Bug fixes critici
+  - Completare formule DM96 in `src/methods/dm96/checks.py` (fessurazione, deformazioni, torsione)
+  - Rimuovere/deprecare stub DM72/DM74 (attualmente return OK=True falsi)
+  - [x] ~~Standardizzare unità misura (MPa interno, kg/cm² catalogo) + adapter.py~~ **COMPLETATO B3**
+  - ETA: Sessione 3-4
+
+- **PR #2 (Copilot Review #2)**: Sprint A2-A4 — Documentazione + Architettura
+  - Ristrutturare MEGAPLAN in sottodirectory logiche (fire/, gui/, norms/, etc.)
+  - Consolidare 98 file planning/ in index centrale
+  - ~~Definire protocollo I/O standard (CalcInput/CalcResult) nei moduli HUB~~ ✅ (Sprint B4)
+  - Aggiornare ARCHITECTURE.md + specs/ con linking
+  - ETA: Sessione 2-3
+
+Token budget target: Max 60% per sessione | Autorizzazione: 2 Copilot review
 - `2026-03-26` — Estesa orchestrazione `src/core/pipeline.py` con step opzionale muratura (P04-P06: cinematica/scorrimento/cantonale) via `project.plugins['muratura']`; aggiunti test `tests/test_muratura_integration_pipeline.py`; validazione estesa pipeline 24/24 pass
 - `2026-03-26` — Allineati hook documentali pipeline P01-P06 su path reali, aggiornato stato P12 a `parziale`, integrato step opzionale pushover in `src/core/pipeline.py`, aggiunti test `tests/test_pushover_integration_pipeline.py` (20/20 pass su suite mirata pipeline)
 - `2026-03-25` — Avviata implementazione piano pipeline all-modules: creata area `docs/pipelines/` con `README.md`, `MASTER_MATRIX.md`, `PROTOCOLLO_OPERATIVO_STANDARD.md` e 30 schede pipeline (`P00..P29`) con schema fisso e flowchart Mermaid
