@@ -26,7 +26,11 @@ from src.report.tabulati_calcolo import TabulatoCalcolo
 
 _MODULO_LOG = "scale.scale"
 _KGF_TO_KN = 0.00980665
-_KG_CM2_TO_MPA = 0.0980665
+# Fattore di conversione centralizzato — importato dall'adapter ufficiale
+try:
+    from src.core.adapter_unita_misura import _KG_CM2_TO_MPA
+except ImportError:
+    _KG_CM2_TO_MPA = 0.0980665  # Fallback
 _CARICHI_CATEGORIA_KN_M2 = {
     "residenziale": 2.0,
     "uffici": 3.0,

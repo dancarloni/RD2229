@@ -8,9 +8,10 @@ tags: [piano, roadmap, stato, refactor]
 
 # PIANO DI LAVORO — RD2229 Software di Calcolo Strutturale
 
-Ultimo sync: 2026-03-29 06:00 — Sprint A1+A2.1+A2.2+A2.3+A3+A4+B1+B2 completate; Sessione 2 Documentation completed
+Ultimo sync: 2026-03-29 08:00 — Sprint B3 (Standardizzazione Unità) completata: adapter_unita_misura.py + 81 test
 
 Changelog rapido (ultimi commit):
+- `2026-03-29 08:00` — **SPRINT B3 COMPLETATA**: Creato `src/core/adapter_unita_misura.py` (adapter centralizzato MPa↔kg/cm²); aggiornati dm92/checks.py, ec/ec2.py, scale/scale.py, methods/verification/methods_*.py per usare costanti dall'adapter; creato `tests/test_units_adapter.py` (81 test); 202 test critici pass
 - `2026-03-29 06:00` — **SPRINT A3-A4 COMPLETATA**: Validated + fixed all cross-link references post-restructuring (12 spec files, 45+ doc files); updated docs/index.md with MEGAPLAN tematic navigation; 100% link integrity verified; commit 5963822
 - `2026-03-29 05:30` — **SPRINT A2.3 COMPLETATA**: MEGAPLAN restructuring 116→90 files in 8 thematic directories (fire/, planning/, norms/, gui/, implementation/, secondary_elements/, specs/, reports/, archived/); created 10 README.md + central INDEX.md; improved navigation and maintainability; commit 70fb9b6
 - `2026-03-29 04:35` — **SPRINT B2 COMPLETATA (Analysis)**: Analisi completa stub DM72/DM74; doc: `docs/analysis_stub_dm72_dm74.md`; 3 opzioni fix; raccomandazione: rimuovere moduli obsoleti; commit a16d32e
@@ -23,7 +24,7 @@ Changelog rapido (ultimi commit):
 - **PR #1 (Copilot Review #1)**: Sprint B2-B4 — Bug fixes critici
   - Completare formule DM96 in `src/methods/dm96/checks.py` (fessurazione, deformazioni, torsione)
   - Rimuovere/deprecare stub DM72/DM74 (attualmente return OK=True falsi)
-  - Standardizzare unità misura (MPa interno, kg/cm² catalogo) + adapter.py
+  - [x] ~~Standardizzare unità misura (MPa interno, kg/cm² catalogo) + adapter.py~~ **COMPLETATO B3**
   - ETA: Sessione 3-4
 
 - **PR #2 (Copilot Review #2)**: Sprint A2-A4 — Documentazione + Architettura
